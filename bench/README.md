@@ -31,8 +31,10 @@ compared targets. The computational loops execute entirely in WebAssembly.
 Goose frontend, emission, and any C compilation/linking. The OS page cache is
 retained, as is Emscripten's installed system-library cache. “Cold” here does not
 mean a reboot or flushed filesystem cache.
-Direct uses the same Goose `-O2` semantic passes as the C targets and emits
-binary Wasm directly. The C targets additionally run their compiler's `-O2`.
+Direct uses the Goose `-O2` semantic passes and emits binary Wasm directly. It
+adds bounded typed transformations and retains ordinary loop-bearing function
+calls for tiered Wasm engines. The C targets keep the upstream inlining policy
+and additionally run their C compiler's `-O2`.
 Per-phase driver timings accompany wall time, so wrapper overhead is visible.
 
 **Timed runtime region:** an input-dependent kernel between two monotonic clock
@@ -90,8 +92,9 @@ Unchanged-build and edited-source measurements belong to
 
 The [LangArena guide](langarena/README.md) describes a second harness with the
 complete pinned 50-task catalog, official small and production inputs, and
-seven explicitly adapted ports. It measures the original whole application
-separately from the common ports. Every build failure and unsupported target
+seven historical bounded ports, plus a track retaining the original seven
+kernel/storage/helper files byte for byte. It measures the original whole
+application separately from those entrypoints. Every build failure and unsupported target
 remains visible; every successful runtime must pass its official checksum.
 
 ```sh
@@ -99,6 +102,8 @@ python3 bench/langarena.py fetch
 python3 tests/test_langarena.py
 python3 bench/langarena.py check --emcc /path/to/emcc
 python3 bench/langarena.py measure --emcc /path/to/emcc \
+  --machine-label "observed machine description"
+python3 bench/langarena_kernels.py --emcc /path/to/emcc --samples 3 \
   --machine-label "observed machine description"
 ```
 

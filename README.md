@@ -10,11 +10,15 @@ checked program. It does **not** generate C, invoke Clang/Emscripten, or run an
 assembler when compiling a Goose program. A small binary writer is part of this
 repository. The compiler itself is built as a native C++ executable.
 
-This is an initial, explicitly bounded backend. It supports a useful fixed-value
-fragment, including scalar functions, recursion, control flow, fixed arrays,
-struct fields, owned aggregate returns, slices, and references. Unsupported constructs produce compile
-errors, with no fallback to the C backend. It is not yet full Goose parity; see
-[the target contract](docs/TARGET.md).
+The direct target supports scalar functions, recursion, control flow, fixed and
+dynamic owned arrays, structs, enum payloads, owned aggregate returns, slices,
+references, and string builders. It includes checked allocation, ownership
+cleanup, a resident native compiler for edit loops, and a qualified Linux
+package. Unsupported constructs produce compile errors with no C fallback.
+**This is a defined supported target, not full Goose language parity.** Threads,
+pool references, runtime closures, and several other constructs remain outside
+[the target contract](docs/TARGET.md). See [release qualification](docs/RELEASE.md)
+for the tested deployment scope and remaining work.
 
 ## Quick start: direct compilation
 
@@ -40,6 +44,11 @@ Both engines print:
 sum=140
 ```
 
+[examples/dynamic_values.goose](examples/dynamic_values.goose) demonstrates
+owned enum results, deep copies, string construction, and a reference that
+survives array growth. Compile it with the same commands and a different output
+name.
+
 The pinned host versions are Node **24.22.1** (V8 **13.6.233.17-node.58**) and
 Wasmtime's Python package **50.0.1**. `toolchain.json` records every upstream/SDK
 pin. Bootstrap downloads one immutable Goose revision, applies the reviewable
@@ -58,6 +67,23 @@ The Python driver adds dependency caching, output preservation, and a common
 interface to the reference pipelines. Direct compilation needs no Emscripten
 installation. A qualification test runs it with an empty `PATH` and unavailable
 C-compiler paths.
+
+For repeated edits, start `python scripts/goose_wasm.py serve`. The server keeps
+a native compiler process alive and accepts one JSON build request per line.
+An actual edit still runs the complete frontend and emitter; unchanged-cache
+hits are reported separately. [Server protocol and build guarantees](docs/INCREMENTAL.md).
+
+To create and verify an installable Linux compiler bundle:
+
+```sh
+python scripts/package_release.py
+python tests/test_package.py
+```
+
+The archive includes `bin/goose`, a `bin/goose-wasm` driver, the standard library,
+both engine hosts, source, licenses, and a SHA-256 file manifest. Packaging rejects
+stale compiler/header/patch/source combinations. CI publishes the same bundle
+after qualification.
 
 ## The three compilation paths
 
@@ -91,9 +117,12 @@ previous Emscripten integration and its broader portability corpus.
 
 `--c-source`, `--c-include-dir`, and `--include` supply C extern implementations
 for the reference paths. Direct scalar externs are `env` imports supplied by a
-host. `-O0`, `-O1`, and `-O2` select the same Goose semantic optimizations on all
-paths; the C paths additionally invoke their C compiler at the corresponding
-optimization level.
+host. `-O0`, `-O1`, and `-O2` select Goose optimization levels; the C paths also
+invoke their C compiler at the corresponding level. The direct target adds
+small typed transformations and preserves ordinary loop-bearing function calls
+so a tiered Wasm engine can optimize subsequent calls. Native/C-Wasm retain the
+upstream inlining policy. Explicit inline and capture/nonlocal-return requirements
+remain respected.
 
 ## Correctness qualification
 
@@ -102,7 +131,13 @@ python scripts/check_engines.py --output build/engine-probes.json
 python tests/run_differential.py --engines v8 wasmtime \
   --backends direct c-wasm native
 python tests/test_backend_extensions.py
+python tests/test_dynamic.py --backends native c-wasm direct
+python tests/test_variants.py
+python tests/test_memory.py
+python tests/test_runtime_optimizations.py
+python tests/test_build_support.py
 python tests/test_incremental.py
+python tests/test_driver_publication.py --emcc emcc
 python tests/test_langarena.py
 
 python oracle/tests/test_bootstrap.py
@@ -115,13 +150,20 @@ The differential harness checks stdout, exit status, selected diagnostics, and
 independently derived answers. Native C supplies an independent reference; both
 Wasm backends execute on both engines. Tests cover optimization levels O0/O2,
 numeric edge cases, narrow integer wrapping, checked arithmetic/casts, floating
-formatting, control flow, recursion, references, aggregate operations, and target
-refusals. A refused program is not counted as a successful execution.
+formatting, control flow, recursion, stable references across array growth,
+deep copies and cleanup of nested owners, enum payloads, sparse static memory,
+concurrent build publication, worker recovery, and target refusals. A refused
+program is not counted as a successful execution.
 
 The retained oracle corpus also checks the fixed data-stack runtime, capacity
 boundaries, serialization, relative references, builders, and other Goose features
 that the new direct backend does not yet implement. Passing that corpus validates
 the reference path, not direct-backend coverage.
+
+The C oracle includes a narrowly scoped correction for overlapping append into
+limited arrays. The regression has an independently specified result; see
+[reference compiler corrections](docs/ORACLE.md) for the pinned upstream defect,
+the `memmove` patch, and the retained test.
 
 GitHub Actions builds from the immutable inputs, executes qualification, runs
 benchmark correctness smoke tests, and publishes reports plus the compiler and
@@ -167,16 +209,19 @@ A separate 32-function `-O0` experiment measured 8.84 ms for a raw compiler invo
 
 The [LangArena integration](bench/langarena/README.md) pins the complete
 50-task upstream Goose suite and its official test/production configurations.
-It records whole-suite builds separately from seven adapted entrypoints that
-can run across all three backends and both Wasm engines. Fannkuch keeps its
-fixed-array kernel; six ports replace growable storage with disclosed bounds.
-The adapted sources, input sizes, iteration counts, and expected checksums are
-identical across the compared backends.
+It records whole-suite builds, seven historical bounded adaptations, and a new
+track using the **original seven kernel and helper files byte for byte**, including
+their dynamic storage. The new track changes only the configuration, entrypoint,
+and timing harness. The historical ports remain for comparison with retained
+baseline measurements. Sources, input sizes, iteration counts, and expected
+checksums are identical across backends within each track.
 
 ```sh
 python bench/langarena.py fetch
 python bench/langarena.py check --emcc /path/to/emcc
 python bench/langarena.py measure --emcc /path/to/emcc \
+  --machine-label "observed machine description"
+python bench/langarena_kernels.py --emcc /path/to/emcc --samples 3 \
   --machine-label "observed machine description"
 ```
 
@@ -199,8 +244,9 @@ The current incremental foundation is:
 
 - A content-checked module cache, including resolved imports, symlink targets,
   module-search candidates, compiler identity, flags, and relevant environment.
-- A persistent JSON-lines build server that avoids Python startup on repeated
-  requests and validates source content before reusing a module.
+- A persistent JSON-lines build server and native compiler worker that avoid
+  Python/native process startup on repeated requests and revalidate source
+  contents and the import namespace before publishing a module.
 - Per-function bytecode fingerprints and call dependencies in compiler statistics,
   providing a concrete basis for a future function cache.
 

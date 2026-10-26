@@ -8,7 +8,7 @@ configuration files are retained byte for byte as `test.json` and `run.json`.
 port bounds, and the exact upstream revision. The upstream MIT notice is in
 [UPSTREAM_LICENSE](UPSTREAM_LICENSE).
 
-## Two explicit tracks
+## Three explicit tracks
 
 **Whole original suite.** Build the original Goose entrypoint and all 50 kernel
 sources with each backend. A private source copy changes only the marker output
@@ -16,9 +16,10 @@ path, from `/tmp/recompile_marker` to `recompile_marker` in that execution's
 isolated directory. The pinned checkout and any preexisting `/tmp` marker are
 never changed. The native executable must pass all 50 official small cases and
 all 50 production cases. Whole-suite Wasm compilation refusals remain visible.
-The current profiles refuse dynamic storage in the direct suite and reachable
-threads/queues in the C-Wasm suite. A refusal receives no successful compile-time
-score.
+The complete application still reaches unsupported direct-target features and
+threads/queues in the C-Wasm suite. Dynamic arrays are now supported by the
+direct target; the actual first refusal is retained in each current report.
+A refusal receives no successful compile-time score.
 
 **Seven adapted entrypoints.** The same port source is compiled as native C,
 C-Wasm, and direct Wasm. Each Wasm binary runs unchanged on V8 and Wasmtime.
@@ -26,6 +27,19 @@ Fannkuch retains its original fixed-array kernel and changes the harness only;
 the other six ports replace growable storage with declared bounds. They are
 identified as adaptations throughout the report. They do not establish that
 the original whole suite runs on Wasm.
+
+**Seven original kernels.** `bench/langarena_kernels.py` copies the original
+kernel and helper files byte for byte, retaining growable arrays and the
+upstream data structures. It substitutes only `bench.goose` (configuration
+lookup) and `main.goose` (entrypoint/timing) so these kernels do not depend on
+the full suite's JSON/file/argv host. The adapter reads runtime stdin and
+preserves preparation, both RNG resets, same-state warmups, timed calls and
+official checksums. Each report records hashes of the unchanged originals and
+generated harness. This is stronger kernel coverage than a bounded port, but
+still does not establish that the complete 50-task application runs on Wasm.
+The default direct ceiling for this track is 1,024 pages (64 MiB); the historical
+bounded ports keep their 256-page (16 MiB) ceiling. The original track also
+reports the allocation costs of its dynamic storage.
 
 | Upstream task | Ordered runtime parameters | Bound |
 | --- | --- | --- |
@@ -64,6 +78,10 @@ python3 bench/langarena.py check --profiles test run --skip-edits \
 
 # Full measurement: 3 cold builds, 3 actual-marker rebuilds, 3 runtime samples.
 python3 bench/langarena.py measure --emcc /path/to/emcc \
+  --machine-label "observed machine description"
+
+# Original kernels, including dynamic storage, with three runtime samples.
+python3 bench/langarena_kernels.py --emcc /path/to/emcc --samples 3 \
   --machine-label "observed machine description"
 ```
 
@@ -168,8 +186,11 @@ atomic checkpoint and per-command logs.
 
 Compare backend timings within the same track and source. Comparing an original
 growable-storage native workload with a fixed-storage direct port would also
-measure the storage adaptation. Allocation behavior and representation are part
-of the stated experiment.
+measure the storage adaptation. Allocation behavior, representations and memory
+ceilings are part of the stated experiment. The original-kernel script records
+one complete uncached build per backend for qualification; its `--samples`
+option increases runtime observations, not compile samples. Use the historical
+port harness for repeated cold/marker-edit compilation measurements.
 
 Local timings are not published LangArena ranks. Its October 2026 leaderboard
 uses another machine, Goose revision, Clang/GCC versions, target configurations,

@@ -78,6 +78,23 @@ class ManagedSource(unittest.TestCase):
         self.assertEqual(inode, again.stat().st_ino)
         self.assertEqual(identity, repeated)
         self.assertEqual((source / "src" / "main.cpp").read_text(), "direct\n")
+
+    def test_reference_only_applies_every_oracle_patch(self):
+        directory = self.integration / "oracle/patches"
+        directory.mkdir(parents=True)
+        first = directory / "0001-target.patch"
+        first.write_bytes((self.integration / "patches/oracle.patch").read_bytes())
+        (self.upstream / "src/main.cpp").write_text("corrected oracle\n")
+        second = directory / "0002-correction.patch"
+        second.write_bytes(git(self.upstream, "diff"))
+        BOOTSTRAP.PIN["patches"] = [str(first.relative_to(self.integration)),
+                                   str(second.relative_to(self.integration)), "patches/direct.patch"]
+        self.args.without_direct = True
+        source, identity = self.prepare()
+        self.assertEqual((source / "src/main.cpp").read_text(), "corrected oracle\n")
+        self.assertEqual(len(identity["patches"]), 2)
+        self.assertFalse(identity["direct_enabled"])
+        self.assertFalse((source / "src/direct_wasm.h").exists())
         state = json.loads((self.build / "source.json").read_text())
         self.assertEqual(state["source_diff_sha256"], BOOTSTRAP.source_fingerprint(source))
 

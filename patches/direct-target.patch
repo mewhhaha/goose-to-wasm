@@ -1,5 +1,4 @@
 diff --git a/src/main.cpp b/src/main.cpp
-index 727ebcb7..b162e1c2 100644
 --- a/src/main.cpp
 +++ b/src/main.cpp
 @@ -38,6 +38,7 @@
@@ -10,7 +9,15 @@ index 727ebcb7..b162e1c2 100644
  #include "runtime_inline.h"
  #include "process.h"
  #include "jit.h"
-@@ -691,8 +692,13 @@ constexpr const char *MULTIMARK = "==== goose --multi-test: exit";
+@@ -54,6 +55,7 @@
+ #include "lsp_workspace.h"
+ #include "lsp_features.h"
+ #include "lsp.h"
++#include "compiler_session.h"
+ 
+ namespace goose {
+ 
+@@ -691,8 +693,14 @@
  constexpr const char *COMPILEOPTIONS =
  R"(  --diagnostics json    Print the errors and warnings as JSON on stdout, and
                          the progress lines on stderr.
@@ -21,12 +28,21 @@ index 727ebcb7..b162e1c2 100644
 +                        wasm-direct: emit WebAssembly directly, without C.
 +  --wasm-initial-pages N  Direct target initial linear memory (64 KiB pages).
 +  --wasm-max-pages N      Direct target memory limit (64 KiB pages).
++  --wasm-server           Persistent direct compiler worker (JSON lines).
 +  --wasm-deps path        Write resolved Goose source dependencies as JSON.
 +  --wasm-stats path       Write direct backend counters as JSON.
    --offline             Fetch nothing: a package that is not fetched is an
                          error at its import, which goose fetch resolves.
    -D NAME[=VALUE]       Define a C macro in the generated program (or -DNAME).
-@@ -1064,7 +1070,9 @@ int Main(int argc, char **argv) {
+@@ -1019,6 +1027,7 @@
+ 
+ int Main(int argc, char **argv) {
+     auto exe = ExePath(argv[0]);
++    if (argc == 2 && string_view(argv[1]) == "--wasm-server") return RunWasmServer(exe);
+     // The verb forms, `goose run|build|check|fetch|toolchain|version|help ...`.
+     // A first argument that is none of them is read as an option or a file,
+     // as it always was, so `goose foo.goose` is `goose run foo.goose`.
+@@ -1064,7 +1073,9 @@
      auto nobce = false, bcetest = false, bcelines = false, norfcheck = false;
      auto stacks = false;
      auto forcejit = false, standalone = false;
@@ -37,7 +53,7 @@ index 727ebcb7..b162e1c2 100644
      auto json = false, refresh = false, debug = false, verbose = false, dryrun = false;
      auto jsondiag = false;
      string ccrequest;
-@@ -1116,12 +1124,26 @@ int Main(int argc, char **argv) {
+@@ -1116,12 +1127,26 @@
          else if (arg == "--standalone") standalone = true;
          else if (arg == "--target" && i + 1 < argc) {
              string target = argv[++i];
@@ -48,9 +64,10 @@ index 727ebcb7..b162e1c2 100644
                  return 1;
              }
 -            wasm_target = target == "wasm";
+-        }
 +            wasm_target = target != "native";
 +            wasm_direct = target == "wasm-direct";
-         }
++        }
 +        else if ((arg == "--wasm-initial-pages" || arg == "--wasm-max-pages") && i + 1 < argc) {
 +            string value = argv[++i];
 +            uint32_t pages = 0;
@@ -67,7 +84,7 @@ index 727ebcb7..b162e1c2 100644
          else if (arg == "--multi-test") multitest = true;
          else if (arg == "--gen-runtime-header") {
              try {
-@@ -1233,6 +1255,10 @@ int Main(int argc, char **argv) {
+@@ -1233,6 +1258,10 @@
          buildopts = BuildOptions { debug, verbose, dryrun, standalone, outname };
          outname.clear();
      }
@@ -78,7 +95,16 @@ index 727ebcb7..b162e1c2 100644
      if (wasm_target) {
          if (forcejit || verb == "build" || verb == "run" ||
              (outname.empty() && !nocgen && !parseonly && !dump && !tokens)) {
-@@ -1299,6 +1325,7 @@ int Main(int argc, char **argv) {
+@@ -1284,7 +1313,7 @@
+     }
+     // The program shares stdout in JIT mode, and the diagnostics have it as
+     // JSON; progress goes to stderr then.
+-    auto msgs = jit || jsondiag ? stderr : stdout;
++    auto msgs = jit || jsondiag || compiler_session_active ? stderr : stdout;
+     // The file being compiled, the C file it goes to, if any, and the
+     // --include headers as that C file names them.
+     string filename, outfile;
+@@ -1299,6 +1328,7 @@
      // as they come, then the error's.
      vector<Diagnostic> found;
      auto compile = [&]() -> int {
@@ -86,7 +112,7 @@ index 727ebcb7..b162e1c2 100644
          if (tokens) {
              DumpTokens(filename);
              return 0;
-@@ -1308,6 +1335,7 @@ int Main(int argc, char **argv) {
+@@ -1308,6 +1338,7 @@
          if (jsondiag) ast.sink = [&](const Diagnostic &d) { found.push_back(d); };
          auto stdlibdirs = StdlibDirs(stdlibdir, exe);
          ParseProgram(ast, filename, stdlibdirs, DirOf(exe), {}, wasm_target);
@@ -94,7 +120,7 @@ index 727ebcb7..b162e1c2 100644
          // The parser reported what it recovered from as it went; nothing
          // further is asked of a program with a syntax error.
          if (!ast.errors.empty()) return 1;
-@@ -1336,6 +1364,7 @@ int Main(int argc, char **argv) {
+@@ -1336,6 +1367,7 @@
              fclose(f);
          }
          ResolveTypeNames(ast);
@@ -102,19 +128,20 @@ index 727ebcb7..b162e1c2 100644
          // As after the parse, which an unknown type name is part of.
          if (!ast.errors.empty()) return 1;
          // Printed by every run that gets this far, so that one which goes on
-@@ -1351,9 +1380,11 @@ int Main(int argc, char **argv) {
+@@ -1351,9 +1383,11 @@
          }
          if (parseonly) return 0;
          TypeCheckProgram(ast, library, nocgen);
 +        auto check_finished = chrono::steady_clock::now();
          // The checker reported the errors it went on past, root by root.
          if (!ast.errors.empty()) return 1;
-         Optimizer opt(ast, optlevel);
+-        Optimizer opt(ast, optlevel);
++        Optimizer opt(ast, optlevel, wasm_direct);
 +        auto optimize_finished = chrono::steady_clock::now();
          if (specs) {
              string s;
              opt.DumpSpecs(s);
-@@ -1378,6 +1409,7 @@ int Main(int argc, char **argv) {
+@@ -1378,6 +1412,7 @@
                      break;
                  }
          }
@@ -122,12 +149,17 @@ index 727ebcb7..b162e1c2 100644
          // Per-line outcomes, for comparing two builds of the pass.
          if (bcelines)
              for (auto &[where, counts] : bce.lineout)
-@@ -1395,6 +1427,65 @@ int Main(int argc, char **argv) {
+@@ -1395,6 +1430,73 @@
          // --stacks needs the generated program's bounds, so --check runs
          // the backend for them and writes nothing.
          if (nocgen && !stacks && !wasm_target) return 0;
 +        if (wasm_direct) {
++            for (auto &package : ast.packages)
++                if (package.HasNative())
++                    throw CompileError { cat("wasm-direct: package ", package.name,
++                        " has a native C/CMake sidecar; provide an explicit Wasm host adapter instead") };
 +            direct_options.debug = debug || std::find(cdefines.begin(), cdefines.end(), "GS_DEBUG=1") != cdefines.end();
++            direct_options.optimize_level = optlevel;
 +            auto started = chrono::steady_clock::now();
 +            auto compiled = CompileDirectWasm(ast, direct_options);
 +            auto elapsed = chrono::duration_cast<chrono::nanoseconds>(chrono::steady_clock::now() - started).count();
@@ -154,6 +186,9 @@ index 727ebcb7..b162e1c2 100644
 +                auto stats = cat("{\"backend\":\"direct\",\"functions\":", compiled.functions,
 +                                 ",\"code_bytes\":", compiled.code_bytes,
 +                                 ",\"module_bytes\":", compiled.module.size(),
++                                 ",\"static_memory_bytes\":", compiled.static_memory_bytes,
++                                 ",\"initialized_data_bytes\":", compiled.initialized_data_bytes,
++                                 ",\"data_segments\":", compiled.data_segments,
 +                                 ",\"backend_ns\":", elapsed,
 +                                 ",\"parse_ns\":", ns(compile_started, parse_finished),
 +                                 ",\"resolve_ns\":", ns(parse_finished, resolve_finished),
@@ -188,3 +223,12 @@ index 727ebcb7..b162e1c2 100644
          // A quoted include resolves against the including file's own directory
          // first, so the --include headers are written relative to where the .c
          // goes: the generated file then compiles wherever the tree sits,
+@@ -1720,6 +1822,8 @@
+ // what it returned or threw. Where no such thread can be had, fn runs on this
+ // one, and nothing checks its depth.
+ int RunOnCompilerStack(const function<int()> &fn) {
++    // The persistent worker already owns this compiler stack.
++    if (compiler_session_active) return fn();
+     CompilerThread t { fn };
+     #ifdef _WIN32
+         // Without the flag, the size would be committed rather than reserved.

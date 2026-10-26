@@ -103,6 +103,16 @@ def run_module(data: bytes, stdin: str) -> dict:
     def write64(caller, pointer, value):
         write_bytes(caller, pointer, struct.pack("<Q", value))
 
+    def format_float(caller, value, pointer, capacity, bits):
+        if not 0 <= capacity <= 64:
+            raise RuntimeError("float formatting capacity must be between 0 and 64")
+        encoded = goose_float(value, bits).encode()
+        if len(encoded) > capacity:
+            raise RuntimeError("float formatting buffer is too small")
+        memory_bytes(caller, pointer, capacity)
+        write_bytes(caller, pointer, encoded)
+        return len(encoded)
+
     def iovecs(caller, pointer, count):
         data = memory_bytes(caller, pointer, count * 16)
         return struct.iter_unpack("<QQ", data)
@@ -175,6 +185,8 @@ def run_module(data: bytes, stdin: str) -> dict:
         sink = value
 
     functions = {
+        ("goose", "format_f64"): (lambda c, v, p, n: format_float(c, v, p, n, 64), True),
+        ("goose", "format_f32"): (lambda c, v, p, n: format_float(c, v, p, n, 32), True),
         ("goose", "write"): (lambda c, p, n: chunks.append(memory_bytes(c, p, n)), True),
         ("goose", "print_i64"): (lambda value: chunks.append(str(value).encode()), False),
         ("goose", "print_u64"): (lambda value: chunks.append(str(value & ((1 << 64) - 1)).encode()), False),

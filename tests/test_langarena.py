@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("langarena_harness", ROOT / "bench" / "langarena.py")
 ARENA = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ARENA)
+sys.path.insert(0, str(ROOT / "bench"))
+import langarena_kernels as KERNELS
 
 
 class LangArenaContract(unittest.TestCase):
@@ -84,6 +86,20 @@ class LangArenaContract(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     ARENA.parse_port_result(stdout, code, checksum, revision)
 
+    def test_engine_timing_requires_all_finite_nonnegative_fields(self):
+        with self.temporary() as directory:
+            path = Path(directory) / "timing.json"
+            good = {"compile_instantiate_ns": 1, "start_function_ns": 2, "engine_total_ns": 3}
+            path.write_text(json.dumps(good))
+            self.assertEqual(ARENA.load_engine_timing(path), good)
+            for value in (None, True, -1, float("nan"), float("inf"), "1"):
+                path.write_text(json.dumps({**good, "engine_total_ns": value}))
+                with self.assertRaisesRegex(ValueError, "timing"):
+                    ARENA.load_engine_timing(path)
+            path.unlink()
+            with self.assertRaises(FileNotFoundError):
+                ARENA.load_engine_timing(path)
+
     def test_whole_suite_requires_exact_task_and_success_summary(self):
         good = "start: 123\nEtc::Sieve: OK in 0.001s\nSummary: 0.0010s, 1, 1, 0\n"
         self.assertEqual(ARENA.parse_whole_result(good, 0, "Etc::Sieve")["timed_region_seconds"], 0.001)
@@ -127,6 +143,35 @@ class LangArenaContract(unittest.TestCase):
             self.assertEqual((src / "bench.goose").read_text(), original)
             self.assertEqual(entry.read_bytes(), (src / "main.goose").read_bytes())
             self.assertEqual((entry.parent / "bench.goose").read_text(), original.replace('"/tmp/recompile_marker"', '"recompile_marker"'))
+
+    def test_original_kernel_track_preserves_kernel_and_helper_bytes(self):
+        with self.temporary() as directory:
+            upstream = Path(directory) / "upstream"
+            src = upstream / "goose/src"
+            src.mkdir(parents=True)
+            originals = {
+                "sieve.goose": b"// original growable kernel\nvar flags: u8[+] = [];\n",
+                "helper.goose": b"// original RNG helper\n",
+                "bench.goose": b"// original config and timing harness\n",
+                "main.goose": b"// original suite entry\n",
+            }
+            for name, data in originals.items():
+                (src / name).write_bytes(data)
+            entry, evidence = KERNELS.stage(upstream, Path(directory) / "stage", self.cases["Etc::Sieve"])
+            for name in ("sieve.goose", "helper.goose"):
+                self.assertEqual((entry.parent / name).read_bytes(), originals[name])
+                self.assertEqual(evidence["unchanged_source_sha256"][name], ARENA.sha256(src / name))
+            for name, data in originals.items():
+                self.assertEqual((src / name).read_bytes(), data)
+            main = entry.read_text()
+            self.assertEqual(main.count("reset();"), 2)
+            self.assertLess(main.index("sieve::prepare(state)"), main.index("let before = bench_clock()"))
+            self.assertLess(main.index("for i in warmups"), main.index("let before = bench_clock()"))
+            self.assertLess(main.index("let elapsed ="), main.index("sieve::checksum(state)"))
+            self.assertNotIn(str(self.cases["Etc::Sieve"]["test"]["checksum"]), main)
+
+    def test_original_kernel_catalog_uses_same_official_cases(self):
+        self.assertEqual(set(KERNELS.FACTORIES), {name for name, case in self.cases.items() if case["port"]})
 
     def test_modified_pinned_configuration_is_rejected(self):
         with self.temporary() as directory:

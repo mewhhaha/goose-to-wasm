@@ -1,0 +1,66 @@
+--- a/src/optimize.h
++++ b/src/optimize.h
+@@ -62,6 +62,11 @@
+     Ast &ast;
+     int nc = 0, ncu = 0;         // Inline thresholds; 0 = inlining off.
+     bool caninline = false;
++    // V8 installs optimized Wasm code only at a new function call (no OSR).
++    // Keep ordinary loop kernels callable instead of absorbing every loop
++    // into an entry point that executes only once. Native/C targets retain
++    // the upstream inlining policy.
++    bool preserve_wasm_loop_calls = false;
+     FnSpec *curspec = nullptr;   // Specialization being optimized (null: globals).
+     int inlined = 0, folded = 0, propagated = 0, tailloops = 0;
+ 
+@@ -86,6 +91,7 @@
+         int nodecount = 0;
+         int nest = 0;
+         bool noinline = false;
++        bool hasloop = false;
+         // Goose's inliner cannot paste this body into a caller, but the C
+         // compiler could inline the function: TryInline asks it to
+         // (FnSpec::cinline).
+@@ -500,6 +506,7 @@
+         info.nodecount = 0;
+         info.nest = 0;
+         info.nestedcalls = false;
++        info.hasloop = false;
+         // A simd body inlined into a caller would lose its versions (§7.12).
+         auto noin = sp->sf->isrec || sp->incycle || sp->sf->isthread || sp->sf->isexport ||
+                     sp->sf->issimd || sp->relnamedresult;
+@@ -507,6 +514,7 @@
+         function<void(Node *, int)> rec = [&](Node *n, int d) {
+             if (!n) return;
+             info.nodecount++;
++            if (Is<ForLoop>(n) || Is<While>(n) || Is<LoopExpr>(n)) info.hasloop = true;
+             if (Is<Block>(n)) info.nest = max(info.nest, ++d);   // Its children sit inside it.
+             if (auto c = Is<Call>(n)) {
+                 auto callee = [&](FnSpec *k) {
+@@ -592,7 +600,8 @@
+     // ------------------------------------------------------------------
+     // Driver: constructing the Optimizer runs the whole pass.
+ 
+-    Optimizer(Ast &_ast, int level) : ast(_ast) {
++    Optimizer(Ast &_ast, int level, bool wasm_loop_calls = false)
++        : ast(_ast), preserve_wasm_loop_calls(wasm_loop_calls && level >= 2) {
+         switch (level) {
+             case 0:  nc = 0;  ncu = 0;  break;
+             case 1:  nc = 8;  ncu = 48; break;
+@@ -778,6 +787,17 @@
+     auto K = c->spec;
+     auto &info = inlineinfo[K];
+     if (!K->live || !K->body) return nullptr;
++    if (preserve_wasm_loop_calls && info.hasloop && !K->sf->isinline && !K->sf->checkfree &&
++        !K->lexparent && !K->isfunval && K->fnvals.empty() && K->needs.empty() &&
++        K->outerexits.empty() && !info.nestedcalls && !c->fvbody) {
++        // Function values and enclosing-frame control flow may require
++        // inlining for the direct target's current closure representation.
++        // Never let this performance policy turn such a call into a new ABI.
++        auto runtime_signature = true;
++        for (auto p : K->params) if (p->type->kind == TY_FN) runtime_signature = false;
++        for (auto t : K->rets) if (t->kind == TY_FN) runtime_signature = false;
++        if (runtime_signature) return nullptr;
++    }
+     auto ncuhere = loopdepth > 0 && !colddepth ? ncu * LOOPNCU : ncu;
+     // An `inline fn` passes the size rules wherever inlining is on.
+     auto small = (K->sf->isinline && nc > 0) || info.nodecount < nc || info.nodecount * K->uses < ncuhere;
