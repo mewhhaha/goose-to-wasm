@@ -44,6 +44,13 @@ inline string Function::Finish() {
         CallIndex(c.function_index.at(main->specs[0]));
     }
     End();
+    // Copy owned results while their source storage still belongs to this
+    // activation. Returning a pointer into the released callee frame would
+    // let the next sibling or recursive call overwrite the earlier value.
+    for (size_t i = 0; i < resultdestinations.size(); i++) if (resultdestinations[i]) {
+        Get(*resultdestinations[i]); Get(resultlocals[i]); Store(results[i]);
+        Get(*resultdestinations[i]); Set(resultlocals[i]);
+    }
     Get(framebase); code.OpU(0x24, 0);
     for (auto r : resultlocals) Get(r);
     auto body = std::move(code.data); code.data.clear();

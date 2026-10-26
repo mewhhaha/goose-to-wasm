@@ -12,7 +12,7 @@ repository. The compiler itself is built as a native C++ executable.
 
 This is an initial, explicitly bounded backend. It supports a useful fixed-value
 fragment, including scalar functions, recursion, control flow, fixed arrays,
-struct fields, slices, and references. Unsupported constructs produce compile
+struct fields, owned aggregate returns, slices, and references. Unsupported constructs produce compile
 errors, with no fallback to the C backend. It is not yet full Goose parity; see
 [the target contract](docs/TARGET.md).
 
@@ -101,7 +101,9 @@ optimization level.
 python scripts/check_engines.py --output build/engine-probes.json
 python tests/run_differential.py --engines v8 wasmtime \
   --backends direct c-wasm native
+python tests/test_backend_extensions.py
 python tests/test_incremental.py
+python tests/test_langarena.py
 
 python oracle/tests/test_bootstrap.py
 python oracle/tests/test_target.py
@@ -152,7 +154,44 @@ Five complete uncached builds per cell on an AMD EPYC 9V74 KVM guest, using the 
 
 Direct builds were 10.5–11.7× faster than C-to-Wasm on these four inputs. Runtime results depend on the workload and engine; the full table includes a large native-GCC optimization advantage on recursive Fibonacci. [Measurements, raw samples, and qualification evidence](bench/results/2026-10-26/README.md) record the exact source/tool hashes and limitations.
 
+The [Fibonacci follow-up](bench/results/2026-10-26/fibonacci-followup/README.md)
+separates Goose and GCC optimization levels. GCC recursively inlines the
+Goose-optimized function, shares overlapping recursive results, and introduces
+an accumulator loop. This sharply reduces the computation performed; its speedup
+is specific to that redundant recursive workload. Generated C, GCC optimization
+reports, assembly, and the four-way experiment are retained.
+
 A separate 32-function `-O0` experiment measured 8.84 ms for a raw compiler invocation, 2.12 ms for an unchanged persistent-server request, and 15.08 ms after a one-function edit. Edits still compile the entire program. [Full rebuild measurements](bench/results/2026-10-26/incremental.md).
+
+### LangArena gauntlet
+
+The [LangArena integration](bench/langarena/README.md) pins the complete
+50-task upstream Goose suite and its official test/production configurations.
+It records whole-suite builds separately from seven adapted entrypoints that
+can run across all three backends and both Wasm engines. Fannkuch keeps its
+fixed-array kernel; six ports replace growable storage with disclosed bounds.
+The adapted sources, input sizes, iteration counts, and expected checksums are
+identical across the compared backends.
+
+```sh
+python bench/langarena.py fetch
+python bench/langarena.py check --emcc /path/to/emcc
+python bench/langarena.py measure --emcc /path/to/emcc \
+  --machine-label "observed machine description"
+```
+
+The harness retains all 50 coverage rows, explicit Wasm refusals, complete cold
+builds, observable marker-edit rebuilds, computational regions, engine startup,
+and process wall times. Wrong checksums fail qualification. These measurements
+are local backend comparisons, not published LangArena ranks or a claim of
+complete Goose support. Edits still rerun the complete frontend.
+
+The [2026-10-26 gauntlet results](bench/results/2026-10-26/langarena/README.md)
+retain all raw evidence. The seven direct cold builds took 73–94 ms each,
+8.4–13.3× faster than C-to-Wasm on the same sources. All 50 original native cases
+and all seven adapted cases passed their full production checksums. Runtime
+results are mixed: hashing and V8's sieve have substantial direct-backend gaps.
+Observable direct rebuilds took 61–77 ms and still recompile the whole program.
 
 ### Incremental foundation
 
@@ -197,7 +236,10 @@ intact. `--stats FILE` writes driver timings and backend statistics as JSON.
 | `bench/` | Runtime-input workloads and reproducible measurement harnesses |
 
 The new backend and upstream Goose source are Apache-2.0 licensed. The retained
-oracle integration keeps its [MIT license](oracle/INTEGRATION-LICENSE). Bootstrap
+oracle integration keeps its [MIT license](oracle/INTEGRATION-LICENSE).
+Imported LangArena configurations and adapted kernels retain the upstream
+[MIT notice](bench/langarena/UPSTREAM_LICENSE), also included beside the ports.
+Bootstrap
 packages the upstream runtime/header and bundled dependency notices with the
 native compiler. Full native platform packages, a browser-hosted compiler, and
 incremental semantic analysis are subsequent work, documented separately from

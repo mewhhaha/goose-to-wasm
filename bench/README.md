@@ -85,3 +85,37 @@ suite does not justify a universal claim that one backend is faster.
 
 Unchanged-build and edited-source measurements belong to
 `bench/incremental.py`; they use a separate contract and report.
+
+## LangArena workloads
+
+The [LangArena guide](langarena/README.md) describes a second harness with the
+complete pinned 50-task catalog, official small and production inputs, and
+seven explicitly adapted ports. It measures the original whole application
+separately from the common ports. Every build failure and unsupported target
+remains visible; every successful runtime must pass its official checksum.
+
+```sh
+python3 bench/langarena.py fetch
+python3 tests/test_langarena.py
+python3 bench/langarena.py check --emcc /path/to/emcc
+python3 bench/langarena.py measure --emcc /path/to/emcc \
+  --machine-label "observed machine description"
+```
+
+This harness uses each upstream workload's own warmup and state rules. It does
+not apply the microbenchmark harness's fixed two-call warmup. Actual marker-edit
+rebuilds are required by default, while unchanged cache hits are an optional,
+separate phase. The initial three-sample measurement is preliminary and reports
+raw values and dispersion.
+
+## Fibonacci optimization diagnostic
+
+```sh
+python3 bench/fibonacci_diagnostic.py --samples 7
+```
+
+This diagnostic independently varies Goose and GCC optimization levels, with
+the host timing shim compiled at GCC O2 in every cell. It retains generated C,
+recursive inlining reports, optimized GCC IR, and disassembly alongside verified
+runtime-input measurements. The [retained follow-up](results/2026-10-26/fibonacci-followup/README.md)
+explains the native result and its limits.

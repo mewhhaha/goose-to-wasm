@@ -20,17 +20,31 @@ inline void Function::Discard(Node *n) {
 inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const vector<uint32_t> &slots) {
     for (auto s : b->stmts) Discard(s);
     if (b->tail) {
-        if (types.empty()) Discard(b->tail);
+        // A function may end in a void-typed infinite loop whose nested
+        // returns supply its results. The checker already proves that such
+        // a tail cannot fall through; the loop itself produces no values.
+        if (types.empty() || Values(b->tail).empty()) Discard(b->tail);
         else SetResults({ b->tail }, types, slots, b->line);
     }
+}
+inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
+    // A later result expression can mutate the aggregate just evaluated.
+    // Capture its value now, rather than retaining its address until the
+    // epilogue. The same rule applies to returns from an inlined body and
+    // value blocks; each static result site has its own activation storage.
+    if (c.Aggregate(type)) {
+        auto source = Save(I32), dest = Frame(type);
+        FrameAddress(dest); Get(source); Store(type); FrameAddress(dest);
+    }
+    Set(slot);
 }
 inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeExpr *> &types,
                                  const vector<uint32_t> &slots, Line l) {
     if (nodes.size() == types.size()) {
-        for (size_t i = 0; i < nodes.size(); i++) { To(nodes[i], types[i]); Set(slots[i]); }
+        for (size_t i = 0; i < nodes.size(); i++) { To(nodes[i], types[i]); CaptureResult(types[i], slots[i]); }
     } else if (nodes.size() == 1 && Values(nodes[0]).size() == types.size()) {
         auto vt = Values(nodes[0]); Expr(nodes[0]);
-        for (size_t i = types.size(); i-- > 0;) { Convert(vt[i], types[i], l); Set(slots[i]); }
+        for (size_t i = types.size(); i-- > 0;) { Convert(vt[i], types[i], l); CaptureResult(types[i], slots[i]); }
     } else Fail(l, "return arity is not supported by the direct backend");
 }
 
@@ -259,7 +273,8 @@ inline void Function::EmitCall(Call *n) {
         return;
     }
     auto sp = n->spec;
-    if (!sp || !c.function_index.count(sp)) Fail(n->line, "call has no reachable concrete specialization");
+    if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
+        Fail(n->line, "call has no reachable concrete specialization");
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
     for (size_t i = 0; i < args.size(); i++) {
@@ -272,7 +287,10 @@ inline void Function::EmitCall(Call *n) {
             FrameAddress(off); Get(src); Store(t); FrameAddress(off);
         }
     }
-    CallIndex(c.function_index.at(sp));
+    for (auto t : sp->rets) if (c.Aggregate(t)) FrameAddress(Frame(t));
+    if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
+        code.Op(intrinsic->second);
+    else CallIndex(c.function_index.at(sp));
     if (sp->rets.size() == 1) Convert(sp->rets[0], n->exprtype, n->line);
 }
 

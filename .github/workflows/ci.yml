@@ -2,6 +2,7 @@ name: Compiler qualification
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -41,7 +42,9 @@ jobs:
         with:
           node-version: ${{ steps.pins.outputs.node }}
       - name: Install build tools and Wasmtime
-        run: python -m pip install cmake==4.4.4 ninja==1.13.2 -r requirements.txt
+        run: |
+          python -m pip install cmake==4.4.4 ninja==1.13.2 -r requirements.txt
+          echo "EM_NODE_JS=$(command -v node)" >> "$GITHUB_ENV"
       - name: Build pinned compiler
         run: python scripts/bootstrap.py --generator Ninja --jobs 2
       - name: Install pinned Emscripten
@@ -71,6 +74,14 @@ jobs:
         run: >-
           python tests/run_differential.py --engines v8 wasmtime
           --backends direct c-wasm native
+      - name: Aggregate returns and scalar math qualification
+        run: python tests/test_backend_extensions.py
+      - name: LangArena inputs and measurement contracts
+        run: python tests/test_langarena.py
+      - name: LangArena official small cases and observable marker edits
+        run: |
+          python bench/langarena.py fetch
+          python bench/langarena.py check --output-dir build/langarena-smoke
       - name: Incremental cache correctness
         run: python tests/test_incremental.py
       - name: Incremental rebuild measurement smoke
@@ -97,5 +108,7 @@ jobs:
             build/oracle/driver-tests/
             build/oracle/target-tests/
             build/differential/
+            build/backend-extensions/
+            build/langarena-smoke/
             build/benchmark-smoke/
             build/incremental-benchmark.json

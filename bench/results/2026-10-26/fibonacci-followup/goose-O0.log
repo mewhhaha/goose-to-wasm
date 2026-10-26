@@ -1,0 +1,4 @@
+parsed ok: 6 top-level declarations, 1 file(s)
+typechecked ok: 6 specialization(s), 0 struct/0 enum instance(s); optimized -O0: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated
+bce: elided 0/0 index and 0/0 slice checks
+wrote /workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O0.c (186006 bytes)

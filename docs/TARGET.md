@@ -46,16 +46,29 @@ be used after initialization. Imports under module `goose` are:
 | `abort` | `(i32,i32,i32) -> ()` | Message pointer/length and source line; must terminate execution |
 | `exit` | `(i32) -> ()` | Terminate with the requested exit status |
 
-Scalar `extern fn` declarations become imports under `env`, with their C symbol
-names. Hosts must provide matching signatures and semantics. The supplied hosts
+Scalar `extern fn` declarations ordinarily become imports under `env`, with their
+C symbol names. Exact standard numeric signatures for `sqrt`/`gs_sqrt`, `floor`,
+`ceil`, `trunc`, `fabs` (and their f32 forms), and `gs_clz(u64) -> i64` lower to
+Wasm instructions instead. These operations do not call the host from numerical
+loops. Ordinary Goose function bodies are not recognized by name; for example,
+Goose's `abs` retains its existing negative-zero semantics.
+
+Hosts must provide matching signatures and semantics for remaining imports. The supplied hosts
 include input, timing, and barrier functions used by the tests and benchmarks.
 Arbitrary external native libraries are not loaded into a Wasm module.
+
+Internal functions can return fixed arrays and structs, including recursion and
+mixed scalar/aggregate multiple results. The caller reserves each owned result's
+storage and passes a hidden i32 destination parameter. The callee captures result
+expressions in order and copies owned results before releasing its frame. The
+ordinary i32 result is the caller-owned address. Aggregate extern/public exports
+remain refused until an explicit host ABI is provided.
 
 ## Initial supported fragment
 
 - Signed/unsigned integer widths, narrow wrapping, masked shifts, arithmetic,
   comparisons, booleans, f32/f64 operations, and checked conversions.
-- Scalar functions, recursion, scalar multi-return, globals, and declared scalar
+- Functions, recursion, scalar/fixed-aggregate multi-return, globals, and declared scalar
   externs; specialization and ordinary upstream optimizations remain in use.
 - If/while/count/range/array loops, break/continue, integer matches, value blocks,
   and supported optimized inline returns.
@@ -69,8 +82,8 @@ The executable differential suite is the authority for qualified behavior.
 ## Explicit refusals and remaining work
 
 The current backend refuses variable/resizable arrays; enum/variant layouts;
-relative and pool references; owned aggregate results from non-inlined calls;
-runtime function values; non-inlined captured environments and dynamic nonlocal
+relative and pool references; runtime function values;
+non-inlined captured environments and dynamic nonlocal
 returns; threads/queues; binary framing/serialization; custom formatters and
 unsupported aggregate rendering; explicit packed padding; and floating remainder.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.

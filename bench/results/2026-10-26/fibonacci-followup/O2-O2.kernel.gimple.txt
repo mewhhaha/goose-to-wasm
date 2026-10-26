@@ -1,0 +1,140 @@
+;; Function kernel_g (kernel_g, funcdef_no=810, decl_uid=11623, cgraph_uid=811, symbol_order=841)
+
+Removing basic block 15
+Removing basic block 16
+Removing basic block 17
+Removing basic block 18
+__attribute__((optimize ("fp-contract=off")))
+int64_t kernel_g (int64_t n_g)
+{
+  int64_t t3;
+  int64_t n_g_3;
+  int64_t t6;
+  int64_t n_g_3;
+  int64_t t6;
+  int64_t t3;
+  int64_t n_g_3;
+  int64_t n_g_2;
+  long unsigned int n_g.66_1;
+  int64_t _9;
+  long int add_acc_14;
+  long unsigned int _16;
+  long unsigned int _35;
+  long unsigned int _38;
+  long unsigned int _52;
+  long int acc_tmp_56;
+  long unsigned int _64;
+  long int add_acc_75;
+  long unsigned int _89;
+  long unsigned int t4.68_91;
+  long unsigned int _92;
+  long unsigned int t4.68_100;
+  long unsigned int t5.69_101;
+  long unsigned int _103;
+  long unsigned int _105;
+  long int prephitmp_109;
+  long unsigned int _110;
+  long unsigned int _115;
+  long unsigned int prephitmp_122;
+  long unsigned int t5.69_124;
+  long unsigned int _132;
+  long unsigned int _133;
+  long unsigned int prephitmp_135;
+  long int prephitmp_140;
+  long int _155;
+  long unsigned int _156;
+  long unsigned int t4.68_164;
+
+  <bb 2> [local count: 1184237103]:
+  # n_g_13 = PHI <n_g_144(D)(0), n_g_3_160(11)>
+  # add_acc_14 = PHI <0(0), add_acc_75(11)>
+  if (n_g_13 <= 1)
+    goto <bb 14>; [26.36%]
+  else
+    goto <bb 3>; [73.64%]
+
+  <bb 3> [local count: 872072205]:
+  n_g.66_1 = (long unsigned int) n_g_13;
+  if (n_g.66_1 == 2)
+    goto <bb 13>; [51.12%]
+  else
+    goto <bb 4>; [48.88%]
+
+  <bb 4> [local count: 313904411]:
+  if (n_g.66_1 == 3)
+    goto <bb 13>; [51.12%]
+  else
+    goto <bb 5>; [48.88%]
+
+  <bb 5> [local count: 112990620]:
+  _35 = n_g.66_1 + 18446744073709551613;
+  if (_35 == 1)
+    goto <bb 12>; [51.12%]
+  else
+    goto <bb 6>; [48.88%]
+
+  <bb 6> [local count: 55229815]:
+  n_g_2_36 = (int64_t) _35;
+  t3_37 = kernel_g (n_g_2_36);
+  _38 = n_g.66_1 + 18446744073709551612;
+  n_g_3_39 = (int64_t) _38;
+  if (_38 == 1)
+    goto <bb 7>; [26.07%]
+  else
+    goto <bb 8>; [73.93%]
+
+  <bb 7> [local count: 49016331]:
+  t4.68_164 = (long unsigned int) t3_37;
+  _110 = t4.68_164 + 4;
+  _155 = (long int) _110;
+  goto <bb 12>; [100.00%]
+
+  <bb 8> [local count: 46868510]:
+  t6_97 = kernel_g (n_g_3_39);
+  t4.68_100 = (long unsigned int) t3_37;
+  t5.69_101 = (long unsigned int) t6_97;
+  _103 = t4.68_100 + t5.69_101;
+  _52 = n_g.66_1 + 18446744073709551611;
+  n_g_3_53 = (int64_t) _52;
+  if (_52 == 1)
+    goto <bb 9>; [26.07%]
+  else
+    goto <bb 10>; [73.93%]
+
+  <bb 9> [local count: 27427452]:
+  _115 = t5.69_101 + 1;
+  _64 = _103 + _115;
+  t3_99 = kernel_g (2);
+  t4.68_91 = (long unsigned int) t3_99;
+  _92 = t4.68_91 + 1;
+  goto <bb 11>; [100.00%]
+
+  <bb 10> [local count: 39773032]:
+  t6_150 = kernel_g (n_g_3_53);
+  t5.69_124 = (long unsigned int) t6_150;
+  _105 = t5.69_101 + _103;
+  _132 = _105 + t5.69_124;
+  _89 = t5.69_101 + t5.69_124;
+
+  <bb 11> [local count: 110495279]:
+  # n_g_3_160 = PHI <2(9), n_g_3_39(10)>
+  # prephitmp_135 = PHI <_92(9), _89(10)>
+  # prephitmp_122 = PHI <_64(9), _132(10)>
+  _133 = prephitmp_122 + prephitmp_135;
+  _156 = (long unsigned int) add_acc_14;
+  _16 = _133 + _156;
+  add_acc_75 = (long int) _16;
+  goto <bb 2>; [100.00%]
+
+  <bb 12> [local count: 155886782]:
+  # prephitmp_109 = PHI <3(5), _155(7)>
+
+  <bb 13> [local count: 872072206]:
+  # prephitmp_140 = PHI <1(3), prephitmp_109(12), 2(4)>
+
+  <bb 14> [local count: 1184237105]:
+  # _9 = PHI <n_g_13(2), prephitmp_140(13)>
+  acc_tmp_56 = add_acc_14 + _9;
+  return acc_tmp_56;
+
+}

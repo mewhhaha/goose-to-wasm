@@ -1,0 +1,54 @@
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1500:9: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1498:13: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1496:13: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1494:9: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1492:9: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1490:13: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1488:13: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1486:13: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1484:15: optimized:  Inlining gs_text/118 into gs_overflow_text/119.
+/usr/lib/gcc/x86_64-linux-gnu/13/include/cpuid.h:315:29: optimized:  Inlining __get_cpuid_max/743 into __get_cpuid/744.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:2637:20: optimized:  Inlining __get_cpuid/744 into gs_scan_init/748.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1913:26: optimized:  Inlining gs_park/150 into gs_end/151.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1285:5: optimized:   Inlining fprintf/28 into gs_panic/86 (always_inline).
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1792:5: optimized:   Inlining memset/4 into gs_regions_init/143 (always_inline).
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1790:20: optimized:  Inlining gs_os_page_size/142 into gs_regions_init/143.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1821:22: optimized:  Inlining gs_sigstack_size/144 into gs_native_stack_init/145.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:2817:22: optimized:  Inlining gs_os_page_size/142 into gs_rt_start/760.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1019:37: optimized:  Inlining gs_stack_init/71 into gs_stack_block/72.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4742:5: optimized:  Inlining gs_init_globals/842 into gs_program_init/843.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4690:5: optimized:   Inlining memcpy/2 into main_g/840 (always_inline).
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4678:5: optimized:   Inlining memcpy/2 into main_g/840 (always_inline).
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4694:5: optimized:  Inlining gs_out_bytes/778 into main_g/840.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4682:5: optimized:  Inlining gs_out_bytes/778 into main_g/840.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4749:5: optimized:  Inlining gs_rt_stats/74 into main/844.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1913:10: optimized:  Inlined gs_end_first/149 into gs_end.constprop/898 which now has time 700.959963 and size 15, net change of -5.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1938:13: optimized:  Inlined gs_os_reserve/147 into gs_reserve_region/152 which now has time 1198.258856 and size 67, net change of -7.
+optimized:  Inlined gs_fmt_i64.part.0/888 into gs_fmt_i64/764 which now has time 19.010050 and size 17, net change of -7.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4740:5: optimized:  Inlined gs_rt_init.constprop/894 into gs_program_init/843 which now has time 19.664000 and size 18, net change of -9.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4747:5: optimized:  Inlined gs_program_init/843 into main/844 which now has time 30.664000 and size 20, net change of -6.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1286:5: optimized:  Inlined gs_end.constprop/898 into gs_panic/86 which now has time 715.959963 and size 21, net change of -4.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:2881:13: optimized:  Inlined gs_fmt_digits/762 into gs_fmt_u64/763 which now has time 207.597770 and size 42, net change of -6.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:2851:5: optimized:  Inlined gs_regions_begin.constprop/896 into gs_rt_start.constprop/895 which now has time 100.944807 and size 45, net change of -5.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:2853:5: optimized:  Inlined gs_scan_init/748 into gs_rt_start.constprop/895 which now has time 99.246167 and size 54, net change of -4.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1011:14: optimized:  Inlined gs_reserve_region/152 into gs_stack_block.constprop/897 which now has time 9752.683121 and size 84, net change of -6.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:2850:5: optimized:  Inlined gs_regions_init/143 into gs_rt_start.constprop/895 which now has time 151.206972 and size 83, net change of -4.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:2852:5: optimized:  Inlined gs_native_stack_init/145 into gs_rt_start.constprop/895 which now has time 201.161324 and size 136, net change of -4.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1470:9: optimized:  Inlined gs_dec/899 into gs_size/117 which now has time 276.846464 and size 36, net change of +11.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:1489:13: optimized:  Inlined gs_dec/116 into gs_overflow_text/119 which now has time 447.689093 and size 89, net change of -7.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4654:22: optimized:  Inlined kernel_g/900 into main_g.constprop/893 which now has time 536.857839 and size 91, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/901 into kernel_g/900 which now has time 546.001812 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4724:26: optimized:  Inlined kernel_g/902 into kernel_g/900 which now has time 553.761469 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/903 into kernel_g/901 which now has time 557.052863 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/904 into kernel_g/902 which now has time 559.845970 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4724:26: optimized:  Inlined kernel_g/905 into kernel_g/901 which now has time 562.639076 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4724:26: optimized:  Inlined kernel_g/906 into kernel_g/902 which now has time 565.009331 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/907 into kernel_g/903 which now has time 566.194076 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4724:26: optimized:  Inlined kernel_g/908 into kernel_g/903 which now has time 567.199461 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/909 into kernel_g/905 which now has time 568.204846 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/910 into kernel_g/904 which now has time 569.210231 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/911 into kernel_g/906 which now has time 570.063410 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4724:26: optimized:  Inlined kernel_g/912 into kernel_g/905 which now has time 570.916589 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4724:26: optimized:  Inlined kernel_g/913 into kernel_g/904 which now has time 571.769768 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4724:26: optimized:  Inlined kernel_g/914 into kernel_g/906 which now has time 572.493783 and size 18, net change of +12.
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c:4713:26: optimized:  Inlined kernel_g/916 into kernel_g/841 which now has time 20.326178 and size 78, net change of +60.

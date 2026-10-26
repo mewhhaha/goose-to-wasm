@@ -1,0 +1,260 @@
+{
+  "schema": "goose-fibonacci-diagnostic-v1",
+  "started_utc": "2026-10-26T12:25:04.235294+00:00",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "supplied_machine_label": "AMD EPYC 9V74; KVM guest, 9 logical CPUs, 9.7 GiB RAM",
+  "compiler_sha256": "ec5eee733cff680e730a7ff6e7b1fc80aabe868b0140c9bc696cbfc5bef75060",
+  "source_sha256": "e8deb15befde0e04d80e4b11b64d9077d1690ff4cd7a88738fa1df5e6aaa4bc9",
+  "host_sha256": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+  "harness_sha256": "000734c12999e4502a5e9aa2193a7fd6a573b80f08971a0de0e6f95f88493ae9",
+  "cc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "input": 35,
+  "samples_per_cell": 7,
+  "rows": [
+    {
+      "goose_optimization": "O0",
+      "gcc_optimization": "O0",
+      "label": "O0-O0",
+      "binary": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O0",
+      "binary_sha256": "c1b11c07cfe96e23fb2147b4c071cbbbf3ad31ca653092dba8a25e57a6e94096",
+      "c_sha256": "cab403e57a45a013563d1c4f366bb1d3892b98c2722db0437049a971621fe452",
+      "timing": {
+        "samples_ms": [
+          68.851658,
+          58.513953,
+          71.431428,
+          64.755814,
+          58.884982,
+          58.287898,
+          61.365535
+        ],
+        "median_ms": 61.365535,
+        "mad_ms": 3.077637000000003
+      },
+      "verified_checksum": 9227465
+    },
+    {
+      "goose_optimization": "O0",
+      "gcc_optimization": "O2",
+      "label": "O0-O2",
+      "binary": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O2",
+      "binary_sha256": "936ea779ea8cc8e24174a97c4b15204de859a0a678a785d9c410acafb41b82db",
+      "c_sha256": "cab403e57a45a013563d1c4f366bb1d3892b98c2722db0437049a971621fe452",
+      "timing": {
+        "samples_ms": [
+          22.113892,
+          19.703273,
+          15.701117,
+          16.809727,
+          15.433811,
+          17.380412,
+          16.613697
+        ],
+        "median_ms": 16.809727,
+        "mad_ms": 1.1086099999999988
+      },
+      "verified_checksum": 9227465
+    },
+    {
+      "goose_optimization": "O2",
+      "gcc_optimization": "O0",
+      "label": "O2-O0",
+      "binary": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O0",
+      "binary_sha256": "9d9f4004bd9b1dacf7f001557b217ceb8ba855bd367297566089e75827b1dfb3",
+      "c_sha256": "127c1768070fefcc93de3d05172b455a543822f8d066ca8097cc088434dee55e",
+      "timing": {
+        "samples_ms": [
+          69.662462,
+          85.468971,
+          65.319649,
+          68.87313,
+          68.768795,
+          59.833738,
+          64.968929
+        ],
+        "median_ms": 68.768795,
+        "mad_ms": 3.449145999999999
+      },
+      "verified_checksum": 9227465
+    },
+    {
+      "goose_optimization": "O2",
+      "gcc_optimization": "O2",
+      "label": "O2-O2",
+      "binary": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O2",
+      "binary_sha256": "352e159b0790de841d59881645dc701833a93da668d29b8d530d5ea24b31171a",
+      "c_sha256": "127c1768070fefcc93de3d05172b455a543822f8d066ca8097cc088434dee55e",
+      "timing": {
+        "samples_ms": [
+          0.26963,
+          0.209931,
+          0.203972,
+          0.181279,
+          0.202049,
+          0.217192,
+          0.18892
+        ],
+        "median_ms": 0.203972,
+        "mad_ms": 0.01322000000000001
+      },
+      "verified_checksum": 9227465
+    }
+  ],
+  "commands": [
+    [
+      "gcc",
+      "-O2",
+      "-c",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/host_input.c",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/host.o"
+    ],
+    [
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+      "--target",
+      "native",
+      "--standalone",
+      "-O0",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O0.c"
+    ],
+    [
+      "gcc",
+      "-O0",
+      "-fno-strict-aliasing",
+      "-ffp-contract=off",
+      "-c",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O0.c",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O0.o",
+      "-fopt-info-inline=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O0.inline.txt",
+      "-fdump-tree-optimized=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O0.optimized.txt"
+    ],
+    [
+      "gcc",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O0.o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/host.o",
+      "-lm",
+      "-pthread",
+      "-ldl",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O0"
+    ],
+    [
+      "objdump",
+      "-d",
+      "--disassemble=kernel_g",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O0"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-ffp-contract=off",
+      "-c",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O0.c",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O2.o",
+      "-fopt-info-inline=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O2.inline.txt",
+      "-fdump-tree-optimized=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O2.optimized.txt"
+    ],
+    [
+      "gcc",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O2.o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/host.o",
+      "-lm",
+      "-pthread",
+      "-ldl",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O2"
+    ],
+    [
+      "objdump",
+      "-d",
+      "--disassemble=kernel_g",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O0-O2"
+    ],
+    [
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+      "--target",
+      "native",
+      "--standalone",
+      "-O2",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c"
+    ],
+    [
+      "gcc",
+      "-O0",
+      "-fno-strict-aliasing",
+      "-ffp-contract=off",
+      "-c",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O0.o",
+      "-fopt-info-inline=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O0.inline.txt",
+      "-fdump-tree-optimized=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O0.optimized.txt"
+    ],
+    [
+      "gcc",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O0.o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/host.o",
+      "-lm",
+      "-pthread",
+      "-ldl",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O0"
+    ],
+    [
+      "objdump",
+      "-d",
+      "--disassemble=kernel_g",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O0"
+    ],
+    [
+      "gcc",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-ffp-contract=off",
+      "-c",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/goose-O2.c",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O2.o",
+      "-fopt-info-inline=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O2.inline.txt",
+      "-fdump-tree-optimized=/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O2.optimized.txt"
+    ],
+    [
+      "gcc",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O2.o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/host.o",
+      "-lm",
+      "-pthread",
+      "-ldl",
+      "-o",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O2"
+    ],
+    [
+      "objdump",
+      "-d",
+      "--disassemble=kernel_g",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/fibonacci-diagnostic-final/O2-O2"
+    ]
+  ],
+  "notes": [
+    "All cells use the same opaque runtime input and sink; host shim is always GCC-O2.",
+    "Two in-process warmup calculations precede each timed call.",
+    "These small timed regions diagnose optimization effects, not universal native/Wasm speed.",
+    "Derived activation counts model the retained baseline assembly, not instrumented executions."
+  ],
+  "derived_activation_counts": {
+    "input": 35,
+    "naive": 29860703,
+    "basecase_inlining_only": 14930351,
+    "retained_native_assembly_model": 87113,
+    "retained_assembly_source": "bench/results/2026-10-26/native-fibonacci-disassembly.txt"
+  },
+  "finished_utc": "2026-10-26T12:25:09.316866+00:00",
+  "status": "passed"
+}
