@@ -49,6 +49,10 @@ struct Function {
     vector<uint8_t> params, locals;
     vector<TypeExpr *> results;
     vector<uint32_t> resultlocals;
+    // Each owned result receives storage in the caller's activation. The
+    // ordinary Wasm result remains its address, so expression lowering uses
+    // the same representation as an aggregate local or literal.
+    vector<optional<uint32_t>> resultdestinations;
     unordered_map<VarDef *, Slot> vars;
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
@@ -138,6 +142,7 @@ struct Function {
     void To(Node *, TypeExpr *);
     void Discard(Node *);
     void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &);
+    void CaptureResult(TypeExpr *, uint32_t);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line);
     vector<TypeExpr *> Values(Node *);
     void EmitCall(Call *);
@@ -164,6 +169,7 @@ struct Compiler {
     vector<FnSpec *> specs;
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;
+    unordered_map<FnSpec *, uint8_t> intrinsic_opcode;
     unordered_map<VarDef *, Slot> globals;
     unordered_map<TypeExpr *, Layout> layouts;
     map<string, uint32_t> strings;
@@ -280,10 +286,37 @@ struct Compiler {
             s.args.push_back(W(p->type));
         }
         for (auto t : sp->rets) {
-            if (Aggregate(t)) Fail(sp->sf->line, "returning owned arrays or structs from an out-of-line function is not yet supported");
+            if (Aggregate(t) && !sp->sf->isextern) s.args.push_back(I32);
             s.results.push_back(W(t));
         }
         return s;
+    }
+    // Only exact scalar C signatures with the runtime/libm semantics used
+    // by the pinned standard library are intrinsics. In particular, Goose's
+    // own abs body preserves negative zero; replacing that body with fabs
+    // would change its result. User-defined bodies are never recognized by
+    // their names, and a mismatching extern remains an ordinary host import.
+    uint8_t Intrinsic(FnSpec *sp) {
+        if (!sp->sf->isextern || sp->params.size() != 1 || sp->rets.size() != 1) return 0;
+        auto from = sp->params[0]->type, to = sp->rets[0];
+        auto name = sp->sf->cname.empty() ? string(sp->sf->qname) : sp->sf->cname;
+        if (name == "gs_clz" && IsIntT(from) && from->intstorage == IS_U64 &&
+            IsIntT(to) && to->intstorage == IS_I64) return 0x79;
+        if (from->kind != TY_FLT || to->kind != TY_FLT || IsF32(from) != IsF32(to)) return 0;
+        if (IsF32(from)) {
+            if (name == "gs_sqrtf" || name == "sqrtf") return 0x91;
+            if (name == "ceilf") return 0x8d;
+            if (name == "floorf") return 0x8e;
+            if (name == "truncf") return 0x8f;
+            if (name == "fabsf") return 0x8b;
+        } else {
+            if (name == "gs_sqrt" || name == "sqrt") return 0x9f;
+            if (name == "ceil") return 0x9b;
+            if (name == "floor") return 0x9c;
+            if (name == "trunc") return 0x9d;
+            if (name == "fabs") return 0x99;
+        }
+        return 0;
     }
     void Reach(FnSpec *sp) {
         if (!sp || function_type.count(sp)) return;
@@ -297,6 +330,11 @@ struct Compiler {
             for (auto t : sp->rets)
                 if (t->kind != TY_INT && t->kind != TY_FLT && t->kind != TY_BOOL)
                     Fail(sp->sf->line, "externs currently return numeric and bool values only");
+            if (auto op = Intrinsic(sp)) {
+                intrinsic_opcode[sp] = op;
+                function_type[sp] = Sig(std::move(signature));
+                return;
+            }
             auto name = sp->sf->cname.empty() ? string(sp->sf->qname) : sp->sf->cname;
             function_index[sp] = AddImport("env", name, signature);
             function_type[sp] = Sig(std::move(signature));
@@ -330,6 +368,12 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
             if (p->type->kind == TY_FN) continue;
             vars[p] = { Slot::LOCAL, uint32_t(params.size()), p->type };
             params.push_back(W(p->type));
+        }
+        for (auto t : results) {
+            if (c.Aggregate(t)) {
+                resultdestinations.push_back(uint32_t(params.size()));
+                params.push_back(I32);
+            } else resultdestinations.push_back(nullopt);
         }
     } else for (auto g : c.ast.globals) for (auto n : g->inits) ScanAddresses(n);
     framebase = Local(I32);

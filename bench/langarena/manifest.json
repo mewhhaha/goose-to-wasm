@@ -1,0 +1,1049 @@
+{
+  "schema": "goose-langarena-manifest-v1",
+  "upstream": {
+    "repository": "https://github.com/kostya/LangArena",
+    "revision": "aab9b14998231ba905523b5ba3990ee03c46f64d",
+    "license": "MIT",
+    "source_sha256": {
+      "goose/src/arith.goose": "9eb61765febb0b8bca3ddae3fcf89fa962ccd243d6c677407369d608be08ac7c",
+      "goose/src/base64_decode.goose": "ca4cb15b18071f7ff27b7d2a7303eeddb75829d156fa66b9f1d60318318c904c",
+      "goose/src/base64_encode.goose": "9aba28b01427b7f1df9d8095658eb053d445f4f25cab1588bcbfc180231b0eac",
+      "goose/src/bench.goose": "74424905d02a94eefaf3098337228b47064f32057ac9d0d9763475482093ecce",
+      "goose/src/binarytrees.goose": "5e432130808376ec17c54abca6a6defd4fb2cbc6b4f57648df0235f855c0c28b",
+      "goose/src/brainfuck_array.goose": "d7a897174cf4f17f73b93a25e3ff816caee90e078b61d32c1a695f89609ca128",
+      "goose/src/brainfuck_recursion.goose": "c756d4382333c24b5d18ae8b41520b1b0866b6957cdd29146634a2c96dcf6e4d",
+      "goose/src/buffer_hash.goose": "908817633bf556b00b0539fe4c22ca380e15be1b78d2115049d1ac5303463d11",
+      "goose/src/bwt.goose": "b883fd0dcaa21f804600aa66912371e627e7c9c0a95d47dab246069cf61b6f43",
+      "goose/src/cache_simulation.goose": "d0ff3bfb946b892fb44da744dca0f815c10822218707d44ae8c4f5f6fc6cb099",
+      "goose/src/calculator_ast.goose": "ef7cc2d994bc33c38b398fdeb98f09f4daa0a8843be38157381c1c8cfff0c605",
+      "goose/src/calculator_interpreter.goose": "333fb6b20cc175b96c811e3a6b87f53bd4b72cda9a2d06a15ca2ae80c446e3d3",
+      "goose/src/compress_data.goose": "455f129e689fcc1a2f76b3ef35e36d8939939040b990a73a5f13647daf55bdc9",
+      "goose/src/csv_parse.goose": "7cf0f30eff9750e055aa3780fd3021575db3da5e418cc786ce79e9f42fb2a95d",
+      "goose/src/distance.goose": "ce474a3c7eac782cfd4e7cf8374d0bfbb692ea3a495edcd5a694d29bdc4d6c18",
+      "goose/src/fannkuchredux.goose": "0609f08f7d20ff24bc75f17a25c9317404f2ecafc8498358c57ec2e5167aa630",
+      "goose/src/game_of_life.goose": "6e12d479c8f4768c683d7c83bf982161ef7a80bc2817fecdf6918cf631d3963a",
+      "goose/src/graph_path.goose": "ae3ebf829b347409bc3854c4b96f4da1cf8dfefb01bedb92a5f94861ba963839",
+      "goose/src/helper.goose": "eea1a3cb6cf657144fc24a3401f734405a702530ed8bdd8280cb6915da867ae0",
+      "goose/src/huffman.goose": "c549a7654b1be21ae2b0604da01c46c4a17076f516f35547643832be4eb13f92",
+      "goose/src/json_generate.goose": "e29f66efb67527cb6336517962d2d5174b9e6cc109c13f4e4d3cd672ad7b0d4b",
+      "goose/src/json_parse_dom.goose": "d60febd3c5ecfe8e86cbf4f9759e039da0ba577950f40b2110124d698eb2f79b",
+      "goose/src/json_parse_mapping.goose": "98f1e7d80c3140a472c09962dafebcfad3599e9320f3b0ebb630d2d1ca46be7f",
+      "goose/src/log_parser.goose": "30b024903a8b2a06da90e2913f00609c4609b37e0fbc3355e10df283b2954918",
+      "goose/src/lzw.goose": "39e54888f0fbcbcf75f10ab204df47c89ec6b8fa1f0c6a83859cfe6a7359648e",
+      "goose/src/main.goose": "73f538a5903d45e64b72414b86aac314e65ddf93b897768d602229003405e075",
+      "goose/src/mandelbrot.goose": "09419b49c7e9c54b8c8fdbb75f8d353c37300b3beffd83615808a607a2152223",
+      "goose/src/matmul.goose": "08ec27e55e64b12354bf1381f49428cda62779b15958ef2eceb068d3f146e8ea",
+      "goose/src/maze.goose": "47fc6a5dca17fa21f8611335a6a3516453d91b3e10faac9c9acb31c46e343ec3",
+      "goose/src/nbody.goose": "1e6a07d7870d07ad3b9ca305ab1533417f577098ac7f31e7caadbbf2b9aa86ca",
+      "goose/src/neural_net.goose": "2a5adfc4840cb9e947d159663b0c259769919eb1e2b0bebbbe58b54a2a5a11f6",
+      "goose/src/sieve.goose": "932f8cd80dd6b30e57d685853d53abed468163b1e0273cfa790568eb6f75f47a",
+      "goose/src/sort.goose": "2e40bb4ab2eeff98a43d2d3beb6cab4ec409cdcb7d589f5b1de5a70f2a8a82bf",
+      "goose/src/spectralnorm.goose": "c102e0292dd20c3dc8e605934724a9c111c845bb1aca4a393e70125beacb5cdb",
+      "goose/src/template.goose": "2e49320bdbddda657d5be354bcc4682adfe72824d0e17a362e1ea62cc1746af8",
+      "goose/src/text_raytracer.goose": "08038fd668fd0c914024793f6b1f0f3de29283d6f55f5fb2fc99f88d2d8ffc65",
+      "goose/src/words.goose": "93daa4213af3d743509323e08d6455665d34cbc58424e05c29261437f690b722",
+      "goose/Makefile": "3aecf281ec6e14392f7493856741cfffeb6ee0639168ce98a01e134d6e300897",
+      "run.js": "8fe7baed41e8eb0a233057c4406446029f7e5d792cf3a3ac6fc7e714964a155f",
+      "test.js": "424371dd25f3fa3f779789c823a05dbe90d2eddbc2a3ca3c5e4319252c572797",
+      "LICENSE": "4c9242a276809765a926b587e36c942183454074d62b1b077a743ba552f15f52"
+    }
+  },
+  "task_count": 50,
+  "port_count": 7,
+  "cases": [
+    {
+      "name": "Binarytrees::Obj",
+      "upstream_module": "goose/src/binarytrees.goose",
+      "test": {
+        "name": "Binarytrees::Obj",
+        "checksum": 124,
+        "depth": 4,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Binarytrees::Obj",
+        "checksum": 75497436,
+        "depth": 20,
+        "iterations": 30
+      },
+      "port": null
+    },
+    {
+      "name": "Binarytrees::Arena",
+      "upstream_module": "goose/src/binarytrees.goose",
+      "test": {
+        "name": "Binarytrees::Arena",
+        "checksum": 124,
+        "depth": 4,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Binarytrees::Arena",
+        "checksum": 75497436,
+        "depth": 20,
+        "iterations": 30
+      },
+      "port": null
+    },
+    {
+      "name": "Brainfuck::Array",
+      "upstream_module": "goose/src/brainfuck_array.goose",
+      "test": {
+        "name": "Brainfuck::Array",
+        "checksum": 3562897308,
+        "program": "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.",
+        "warmup_program": "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.",
+        "warmup_iterations": 1,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Brainfuck::Array",
+        "checksum": 954437102,
+        "program": ">++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++[>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++++++++++[>++++++++++[>++++++++++[>++++++++++[>++++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.",
+        "warmup_program": "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.",
+        "warmup_iterations": 1000,
+        "iterations": 1
+      },
+      "port": null
+    },
+    {
+      "name": "Brainfuck::Recursion",
+      "upstream_module": "goose/src/brainfuck_recursion.goose",
+      "test": {
+        "name": "Brainfuck::Recursion",
+        "checksum": 3562897308,
+        "program": "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.",
+        "warmup_program": "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.",
+        "warmup_iterations": 1,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Brainfuck::Recursion",
+        "checksum": 954437102,
+        "program": ">++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++[>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++++++++++[>++++++++++[>++++++++++[>++++++++++[>++++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.",
+        "warmup_program": "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.",
+        "warmup_iterations": 1000,
+        "iterations": 1
+      },
+      "port": null
+    },
+    {
+      "name": "Matmul::Single",
+      "upstream_module": "goose/src/matmul.goose",
+      "test": {
+        "name": "Matmul::Single",
+        "checksum": 720656960,
+        "n": 40,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Matmul::Single",
+        "checksum": 3655420808,
+        "n": 900,
+        "iterations": 10
+      },
+      "port": null
+    },
+    {
+      "name": "Matmul::T4",
+      "upstream_module": "goose/src/matmul.goose",
+      "test": {
+        "name": "Matmul::T4",
+        "checksum": 2420334760,
+        "n": 42,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Matmul::T4",
+        "checksum": 3655420808,
+        "n": 900,
+        "iterations": 10
+      },
+      "port": null,
+      "required_capability": "threads-and-queues"
+    },
+    {
+      "name": "Matmul::T8",
+      "upstream_module": "goose/src/matmul.goose",
+      "test": {
+        "name": "Matmul::T8",
+        "checksum": 4014223764,
+        "n": 44,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Matmul::T8",
+        "checksum": 3655420808,
+        "n": 900,
+        "iterations": 10
+      },
+      "port": null,
+      "required_capability": "threads-and-queues"
+    },
+    {
+      "name": "Matmul::T16",
+      "upstream_module": "goose/src/matmul.goose",
+      "test": {
+        "name": "Matmul::T16",
+        "checksum": 418055336,
+        "n": 46,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Matmul::T16",
+        "checksum": 3655420808,
+        "n": 900,
+        "iterations": 10
+      },
+      "port": null,
+      "required_capability": "threads-and-queues"
+    },
+    {
+      "name": "Base64::Encode",
+      "upstream_module": "goose/src/base64_encode.goose",
+      "test": {
+        "name": "Base64::Encode",
+        "checksum": 3894061047,
+        "size": 30,
+        "iterations": 8192
+      },
+      "run": {
+        "name": "Base64::Encode",
+        "checksum": 3516658482,
+        "size": 500000,
+        "iterations": 5000
+      },
+      "port": null
+    },
+    {
+      "name": "Base64::Decode",
+      "upstream_module": "goose/src/base64_decode.goose",
+      "test": {
+        "name": "Base64::Decode",
+        "checksum": 732348015,
+        "size": 23,
+        "iterations": 8192
+      },
+      "run": {
+        "name": "Base64::Decode",
+        "checksum": 1329134018,
+        "size": 500000,
+        "iterations": 4000
+      },
+      "port": null
+    },
+    {
+      "name": "Json::Generate",
+      "upstream_module": "goose/src/json_generate.goose",
+      "test": {
+        "name": "Json::Generate",
+        "checksum": 4,
+        "coords": 9,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Json::Generate",
+        "checksum": 120,
+        "coords": 20000,
+        "iterations": 100
+      },
+      "port": null
+    },
+    {
+      "name": "Json::ParseDom",
+      "upstream_module": "goose/src/json_parse_dom.goose",
+      "test": {
+        "name": "Json::ParseDom",
+        "checksum": 2918383076,
+        "coords": 10,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Json::ParseDom",
+        "checksum": 3989922952,
+        "coords": 10000,
+        "iterations": 100
+      },
+      "port": null
+    },
+    {
+      "name": "Json::ParseMapping",
+      "upstream_module": "goose/src/json_parse_mapping.goose",
+      "test": {
+        "name": "Json::ParseMapping",
+        "checksum": 1969907348,
+        "coords": 11,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Json::ParseMapping",
+        "checksum": 3826684672,
+        "coords": 25000,
+        "iterations": 100
+      },
+      "port": null
+    },
+    {
+      "name": "CSV::Parse",
+      "upstream_module": "goose/src/csv_parse.goose",
+      "test": {
+        "name": "CSV::Parse",
+        "checksum": 3563398641,
+        "rows": 11,
+        "iterations": 3
+      },
+      "run": {
+        "name": "CSV::Parse",
+        "checksum": 1071523081,
+        "rows": 100000,
+        "iterations": 70
+      },
+      "port": null
+    },
+    {
+      "name": "Etc::Sieve",
+      "upstream_module": "goose/src/sieve.goose",
+      "test": {
+        "name": "Etc::Sieve",
+        "checksum": 4660,
+        "limit": 1000,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Etc::Sieve",
+        "checksum": 1042248060,
+        "limit": 3000000,
+        "iterations": 270
+      },
+      "port": {
+        "file": "ports/sieve.goose",
+        "fields": [
+          "limit"
+        ],
+        "bounds": {
+          "limit": [
+            2,
+            3000000
+          ]
+        },
+        "classification": "bounded-storage adaptation",
+        "revision_marker": "let ARENA_REVISION = 0;",
+        "edited_exit_code": 1
+      }
+    },
+    {
+      "name": "Etc::TextRaytracer",
+      "upstream_module": "goose/src/text_raytracer.goose",
+      "test": {
+        "name": "Etc::TextRaytracer",
+        "checksum": 1438660,
+        "w": 100,
+        "h": 100,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Etc::TextRaytracer",
+        "checksum": 2761140480,
+        "w": 800,
+        "h": 800,
+        "iterations": 100
+      },
+      "port": null
+    },
+    {
+      "name": "Etc::NeuralNet",
+      "upstream_module": "goose/src/neural_net.goose",
+      "test": {
+        "name": "Etc::NeuralNet",
+        "checksum": 1586674334,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Etc::NeuralNet",
+        "checksum": 144809112,
+        "iterations": 1700
+      },
+      "port": null
+    },
+    {
+      "name": "Etc::CacheSimulation",
+      "upstream_module": "goose/src/cache_simulation.goose",
+      "test": {
+        "name": "Etc::CacheSimulation",
+        "checksum": 179773224,
+        "values": 2000,
+        "size": 1000,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Etc::CacheSimulation",
+        "checksum": 3263751556,
+        "values": 5000,
+        "size": 2500,
+        "iterations": 5000
+      },
+      "port": null
+    },
+    {
+      "name": "Etc::GameOfLife",
+      "upstream_module": "goose/src/game_of_life.goose",
+      "test": {
+        "name": "Etc::GameOfLife",
+        "checksum": 4006235749,
+        "w": 20,
+        "h": 20,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Etc::GameOfLife",
+        "checksum": 3805797673,
+        "w": 500,
+        "h": 500,
+        "iterations": 500
+      },
+      "port": null
+    },
+    {
+      "name": "Etc::Words",
+      "upstream_module": "goose/src/words.goose",
+      "test": {
+        "name": "Etc::Words",
+        "checksum": 580539813,
+        "words": 600,
+        "word_len": 1,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Etc::Words",
+        "checksum": 1998586832,
+        "words": 50000,
+        "word_len": 4,
+        "iterations": 360
+      },
+      "port": null
+    },
+    {
+      "name": "Etc::LogParser",
+      "upstream_module": "goose/src/log_parser.goose",
+      "test": {
+        "name": "Etc::LogParser",
+        "checksum": 117,
+        "iterations": 2,
+        "lines_count": 10
+      },
+      "run": {
+        "name": "Etc::LogParser",
+        "checksum": 2439432,
+        "iterations": 10,
+        "lines_count": 52000
+      },
+      "port": null
+    },
+    {
+      "name": "Template::Regex",
+      "upstream_module": "goose/src/template.goose",
+      "test": {
+        "name": "Template::Regex",
+        "checksum": 1554169905,
+        "iterations": 2,
+        "count": 12
+      },
+      "run": {
+        "name": "Template::Regex",
+        "checksum": 3554506535,
+        "iterations": 50,
+        "count": 50000
+      },
+      "port": null
+    },
+    {
+      "name": "Template::Parse",
+      "upstream_module": "goose/src/template.goose",
+      "test": {
+        "name": "Template::Parse",
+        "checksum": 917360148,
+        "iterations": 2,
+        "count": 10
+      },
+      "run": {
+        "name": "Template::Parse",
+        "checksum": 3554506535,
+        "iterations": 50,
+        "count": 50000
+      },
+      "port": null
+    },
+    {
+      "name": "Sort::Quick",
+      "upstream_module": "goose/src/sort.goose",
+      "test": {
+        "name": "Sort::Quick",
+        "checksum": 2548773,
+        "size": 100000,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Sort::Quick",
+        "checksum": 61757772,
+        "size": 400000,
+        "iterations": 50
+      },
+      "port": {
+        "file": "ports/sort_quick.goose",
+        "fields": [
+          "size"
+        ],
+        "bounds": {
+          "size": [
+            1,
+            400000
+          ]
+        },
+        "classification": "bounded-storage adaptation",
+        "revision_marker": "let ARENA_REVISION = 0;",
+        "edited_exit_code": 1
+      }
+    },
+    {
+      "name": "Sort::Merge",
+      "upstream_module": "goose/src/sort.goose",
+      "test": {
+        "name": "Sort::Merge",
+        "checksum": 2548773,
+        "size": 100000,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Sort::Merge",
+        "checksum": 61757772,
+        "size": 400000,
+        "iterations": 50
+      },
+      "port": {
+        "file": "ports/sort_merge.goose",
+        "fields": [
+          "size"
+        ],
+        "bounds": {
+          "size": [
+            1,
+            400000
+          ]
+        },
+        "classification": "bounded-storage adaptation",
+        "revision_marker": "let ARENA_REVISION = 0;",
+        "edited_exit_code": 1
+      }
+    },
+    {
+      "name": "Sort::Self",
+      "upstream_module": "goose/src/sort.goose",
+      "test": {
+        "name": "Sort::Self",
+        "checksum": 2548773,
+        "size": 100000,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Sort::Self",
+        "checksum": 61757772,
+        "size": 400000,
+        "iterations": 50
+      },
+      "port": null
+    },
+    {
+      "name": "Graph::BFS",
+      "upstream_module": "goose/src/graph_path.goose",
+      "test": {
+        "name": "Graph::BFS",
+        "checksum": 20,
+        "vertices": 100,
+        "jumps": 3,
+        "jump_len": 100,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Graph::BFS",
+        "checksum": 50400,
+        "vertices": 500000,
+        "jumps": 20,
+        "jump_len": 1000,
+        "iterations": 40
+      },
+      "port": null
+    },
+    {
+      "name": "Graph::DFS",
+      "upstream_module": "goose/src/graph_path.goose",
+      "test": {
+        "name": "Graph::DFS",
+        "checksum": 28,
+        "vertices": 100,
+        "jumps": 3,
+        "jump_len": 100,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Graph::DFS",
+        "checksum": 22194,
+        "vertices": 500000,
+        "jumps": 20,
+        "jump_len": 1000,
+        "iterations": 15
+      },
+      "port": null
+    },
+    {
+      "name": "Graph::AStar",
+      "upstream_module": "goose/src/graph_path.goose",
+      "test": {
+        "name": "Graph::AStar",
+        "checksum": 36,
+        "vertices": 100,
+        "jumps": 3,
+        "jump_len": 100,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Graph::AStar",
+        "checksum": 1406400,
+        "vertices": 500000,
+        "jumps": 20,
+        "jump_len": 1000,
+        "iterations": 1000
+      },
+      "port": null
+    },
+    {
+      "name": "Hash::SHA256",
+      "upstream_module": "goose/src/buffer_hash.goose",
+      "test": {
+        "name": "Hash::SHA256",
+        "checksum": 1036619072,
+        "size": 1000,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Hash::SHA256",
+        "checksum": 2844672256,
+        "size": 1000000,
+        "iterations": 1200
+      },
+      "port": {
+        "file": "ports/hash_sha256.goose",
+        "fields": [
+          "size"
+        ],
+        "bounds": {
+          "size": [
+            1,
+            1000000
+          ]
+        },
+        "classification": "bounded-storage adaptation",
+        "revision_marker": "let ARENA_REVISION = 0;",
+        "edited_exit_code": 1
+      },
+      "notes": "Upstream task name; this is LangArena's custom hash, not standard cryptographic SHA-256."
+    },
+    {
+      "name": "Hash::CRC32",
+      "upstream_module": "goose/src/buffer_hash.goose",
+      "test": {
+        "name": "Hash::CRC32",
+        "checksum": 3031698216,
+        "size": 1000,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Hash::CRC32",
+        "checksum": 2318723244,
+        "size": 1000000,
+        "iterations": 150
+      },
+      "port": {
+        "file": "ports/hash_crc32.goose",
+        "fields": [
+          "size"
+        ],
+        "bounds": {
+          "size": [
+            1,
+            1000000
+          ]
+        },
+        "classification": "bounded-storage adaptation",
+        "revision_marker": "let ARENA_REVISION = 0;",
+        "edited_exit_code": 1
+      }
+    },
+    {
+      "name": "Calculator::Ast",
+      "upstream_module": "goose/src/calculator_ast.goose",
+      "test": {
+        "name": "Calculator::Ast",
+        "checksum": 774028720,
+        "operations": 3,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Calculator::Ast",
+        "checksum": 1670614456,
+        "operations": 11000,
+        "iterations": 100
+      },
+      "port": null
+    },
+    {
+      "name": "Calculator::Interpreter",
+      "upstream_module": "goose/src/calculator_interpreter.goose",
+      "test": {
+        "name": "Calculator::Interpreter",
+        "checksum": 3208680,
+        "operations": 10,
+        "iterations": 100
+      },
+      "run": {
+        "name": "Calculator::Interpreter",
+        "checksum": 38749936,
+        "operations": 35000,
+        "iterations": 100
+      },
+      "port": null
+    },
+    {
+      "name": "Maze::Generator",
+      "upstream_module": "goose/src/maze.goose",
+      "test": {
+        "name": "Maze::Generator",
+        "checksum": 2309652669,
+        "w": 200,
+        "h": 30,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Maze::Generator",
+        "checksum": 3738188563,
+        "w": 1400,
+        "h": 1400,
+        "iterations": 10
+      },
+      "port": null
+    },
+    {
+      "name": "Maze::BFS",
+      "upstream_module": "goose/src/maze.goose",
+      "test": {
+        "name": "Maze::BFS",
+        "checksum": 6771,
+        "w": 200,
+        "h": 30,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Maze::BFS",
+        "checksum": 2906799,
+        "w": 1400,
+        "h": 1400,
+        "iterations": 70
+      },
+      "port": null
+    },
+    {
+      "name": "Maze::AStar",
+      "upstream_module": "goose/src/maze.goose",
+      "test": {
+        "name": "Maze::AStar",
+        "checksum": 6771,
+        "w": 200,
+        "h": 30,
+        "iterations": 2
+      },
+      "run": {
+        "name": "Maze::AStar",
+        "checksum": 2906799,
+        "w": 1400,
+        "h": 1400,
+        "iterations": 70
+      },
+      "port": null
+    },
+    {
+      "name": "CLBG::Fannkuchredux",
+      "upstream_module": "goose/src/fannkuchredux.goose",
+      "test": {
+        "name": "CLBG::Fannkuchredux",
+        "checksum": 4428,
+        "n": 5,
+        "iterations": 3
+      },
+      "run": {
+        "name": "CLBG::Fannkuchredux",
+        "checksum": 135762480,
+        "n": 8,
+        "iterations": 700
+      },
+      "port": {
+        "file": "ports/fannkuch.goose",
+        "fields": [
+          "n"
+        ],
+        "bounds": {
+          "n": [
+            1,
+            32
+          ]
+        },
+        "classification": "harness-only adaptation; original fixed-array kernel",
+        "revision_marker": "let ARENA_REVISION = 0;",
+        "edited_exit_code": 1
+      }
+    },
+    {
+      "name": "CLBG::Mandelbrot",
+      "upstream_module": "goose/src/mandelbrot.goose",
+      "test": {
+        "name": "CLBG::Mandelbrot",
+        "checksum": 2236342953,
+        "w": 30,
+        "h": 30,
+        "iterations": 3
+      },
+      "run": {
+        "name": "CLBG::Mandelbrot",
+        "checksum": 3455988829,
+        "w": 400,
+        "h": 400,
+        "iterations": 100
+      },
+      "port": {
+        "file": "ports/mandelbrot.goose",
+        "fields": [
+          "w",
+          "h"
+        ],
+        "bounds": {
+          "w": [
+            1,
+            400
+          ],
+          "h": [
+            1,
+            400
+          ]
+        },
+        "classification": "bounded-storage adaptation",
+        "revision_marker": "let ARENA_REVISION = 0;",
+        "edited_exit_code": 1,
+        "maximum_total_executions": 120
+      }
+    },
+    {
+      "name": "CLBG::Nbody",
+      "upstream_module": "goose/src/nbody.goose",
+      "test": {
+        "name": "CLBG::Nbody",
+        "checksum": 338796608,
+        "iterations": 2
+      },
+      "run": {
+        "name": "CLBG::Nbody",
+        "checksum": 338799744,
+        "iterations": 20000
+      },
+      "port": null
+    },
+    {
+      "name": "CLBG::Spectralnorm",
+      "upstream_module": "goose/src/spectralnorm.goose",
+      "test": {
+        "name": "CLBG::Spectralnorm",
+        "checksum": 1052168784,
+        "size": 45,
+        "iterations": 10
+      },
+      "run": {
+        "name": "CLBG::Spectralnorm",
+        "checksum": 1052198219,
+        "size": 1200,
+        "iterations": 132
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::BWTEncode",
+      "upstream_module": "goose/src/bwt.goose",
+      "test": {
+        "name": "Compress::BWTEncode",
+        "checksum": 200,
+        "size": 50,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::BWTEncode",
+        "checksum": 3600000,
+        "size": 100000,
+        "iterations": 30
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::BWTDecode",
+      "upstream_module": "goose/src/bwt.goose",
+      "test": {
+        "name": "Compress::BWTDecode",
+        "checksum": 100204,
+        "size": 51,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::BWTDecode",
+        "checksum": 216100216,
+        "size": 1000001,
+        "iterations": 180
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::HuffEncode",
+      "upstream_module": "goose/src/huffman.goose",
+      "test": {
+        "name": "Compress::HuffEncode",
+        "checksum": 56,
+        "size": 52,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::HuffEncode",
+        "checksum": 62727600,
+        "size": 1000002,
+        "iterations": 200
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::HuffDecode",
+      "upstream_module": "goose/src/huffman.goose",
+      "test": {
+        "name": "Compress::HuffDecode",
+        "checksum": 100212,
+        "size": 53,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::HuffDecode",
+        "checksum": 420101260,
+        "size": 1000003,
+        "iterations": 350
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::ArithEncode",
+      "upstream_module": "goose/src/arith.goose",
+      "test": {
+        "name": "Compress::ArithEncode",
+        "checksum": 56,
+        "size": 54,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::ArithEncode",
+        "checksum": 15303600,
+        "size": 100004,
+        "iterations": 500
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::ArithDecode",
+      "upstream_module": "goose/src/arith.goose",
+      "test": {
+        "name": "Compress::ArithDecode",
+        "checksum": 100220,
+        "size": 55,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::ArithDecode",
+        "checksum": 42102100,
+        "size": 100005,
+        "iterations": 350
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::LZWEncode",
+      "upstream_module": "goose/src/lzw.goose",
+      "test": {
+        "name": "Compress::LZWEncode",
+        "checksum": 208,
+        "size": 60,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::LZWEncode",
+        "checksum": 425748,
+        "size": 200006,
+        "iterations": 85
+      },
+      "port": null
+    },
+    {
+      "name": "Compress::LZWDecode",
+      "upstream_module": "goose/src/lzw.goose",
+      "test": {
+        "name": "Compress::LZWDecode",
+        "checksum": 100244,
+        "size": 61,
+        "iterations": 3
+      },
+      "run": {
+        "name": "Compress::LZWDecode",
+        "checksum": 1920113440,
+        "size": 1000007,
+        "iterations": 1600
+      },
+      "port": null
+    },
+    {
+      "name": "Distance::Jaro",
+      "upstream_module": "goose/src/distance.goose",
+      "test": {
+        "name": "Distance::Jaro",
+        "checksum": 7020,
+        "iterations": 1,
+        "count": 10,
+        "size": 5
+      },
+      "run": {
+        "name": "Distance::Jaro",
+        "checksum": 567348912,
+        "iterations": 780,
+        "count": 1000,
+        "size": 50
+      },
+      "port": null
+    },
+    {
+      "name": "Distance::NGram",
+      "upstream_module": "goose/src/distance.goose",
+      "test": {
+        "name": "Distance::NGram",
+        "checksum": 42,
+        "iterations": 1,
+        "count": 2,
+        "size": 500
+      },
+      "run": {
+        "name": "Distance::NGram",
+        "checksum": 397440,
+        "iterations": 100,
+        "count": 10,
+        "size": 20000
+      },
+      "port": null
+    }
+  ]
+}

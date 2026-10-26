@@ -1,0 +1,31 @@
+{
+  "schema": "goose-to-wasm-langarena-ports-v1",
+  "repository": "https://github.com/kostya/LangArena.git",
+  "revision": "aab9b14998231ba905523b5ba3990ee03c46f64d",
+  "upstream_goose_revision": "ea1f368c109c083a2161580ff1d74c70200b6cc8",
+  "license": "MIT",
+  "copyright": "Copyright (c) 2026 'Konstantin Makarchev'",
+  "upstream_sha256": {
+    "LICENSE": "4c9242a276809765a926b587e36c942183454074d62b1b077a743ba552f15f52",
+    "run.js": "8fe7baed41e8eb0a233057c4406446029f7e5d792cf3a3ac6fc7e714964a155f",
+    "test.js": "424371dd25f3fa3f779789c823a05dbe90d2eddbc2a3ca3c5e4319252c572797",
+    "goose/src/bench.goose": "74424905d02a94eefaf3098337228b47064f32057ac9d0d9763475482093ecce",
+    "goose/src/helper.goose": "eea1a3cb6cf657144fc24a3401f734405a702530ed8bdd8280cb6915da867ae0",
+    "goose/src/fannkuchredux.goose": "0609f08f7d20ff24bc75f17a25c9317404f2ecafc8498358c57ec2e5167aa630",
+    "goose/src/sieve.goose": "932f8cd80dd6b30e57d685853d53abed468163b1e0273cfa790568eb6f75f47a",
+    "goose/src/sort.goose": "2e40bb4ab2eeff98a43d2d3beb6cab4ec409cdcb7d589f5b1de5a70f2a8a82bf",
+    "goose/src/buffer_hash.goose": "908817633bf556b00b0539fe4c22ca380e15be1b78d2115049d1ac5303463d11",
+    "goose/src/mandelbrot.goose": "09419b49c7e9c54b8c8fdbb75f8d353c37300b3beffd83615808a607a2152223"
+  },
+  "ports": {
+    "fannkuch.goose": "goose/src/fannkuchredux.goose",
+    "sieve.goose": "goose/src/sieve.goose",
+    "sort_quick.goose": "goose/src/sort.goose",
+    "sort_merge.goose": "goose/src/sort.goose",
+    "hash_sha256.goose": "goose/src/buffer_hash.goose",
+    "hash_crc32.goose": "goose/src/buffer_hash.goose",
+    "mandelbrot.goose": "goose/src/mandelbrot.goose",
+    "common.goose": ["goose/src/bench.goose", "goose/src/helper.goose"]
+  },
+  "adaptations": "README.md"
+}

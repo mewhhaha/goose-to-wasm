@@ -1,0 +1,508 @@
+;; Function kernel_g (kernel_g, funcdef_no=810, decl_uid=11623, cgraph_uid=811, symbol_order=841)
+
+Removing basic block 44
+Removing basic block 45
+Removing basic block 46
+Removing basic block 47
+Removing basic block 48
+Removing basic block 49
+Removing basic block 50
+Removing basic block 51
+Removing basic block 52
+Removing basic block 53
+Removing basic block 54
+Removing basic block 55
+__attribute__((optimize ("fp-contract=off")))
+int64_t kernel_g (int64_t n_g)
+{
+  unsigned long ivtmp.269;
+  unsigned long ivtmp.264;
+  int64_t t2;
+  int64_t n_g;
+  int64_t n_g;
+  int64_t n_g;
+  int64_t n_g;
+  int64_t n_g;
+  int64_t n_g;
+  int64_t n_g;
+  long int _3;
+  long int _6;
+  long unsigned int _8;
+  long unsigned int _11;
+  long int add_acc_12;
+  long unsigned int _13;
+  long unsigned int _14;
+  long int _22;
+  long int _25;
+  long unsigned int _27;
+  long unsigned int _28;
+  long int add_acc_29;
+  long int _35;
+  long unsigned int _36;
+  long int _38;
+  long unsigned int _40;
+  long unsigned int _41;
+  long int add_acc_42;
+  long unsigned int _43;
+  long int _48;
+  long unsigned int _49;
+  long int _51;
+  long unsigned int _53;
+  long unsigned int _54;
+  long int add_acc_55;
+  long int _61;
+  long int _64;
+  long unsigned int _66;
+  long unsigned int _67;
+  long int add_acc_68;
+  long int add_acc_70;
+  long int _77;
+  long unsigned int _79;
+  long unsigned int _80;
+  long int add_acc_81;
+  long unsigned int _82;
+  long int _87;
+  long int _90;
+  long unsigned int _92;
+  long unsigned int _93;
+  long int add_acc_94;
+  long int _100;
+  long int _103;
+  long unsigned int t3.68_104;
+  long unsigned int _105;
+  long unsigned int _106;
+  long int add_acc_107;
+  long int acc_tmp_110;
+  long int _113;
+  long int _116;
+  long unsigned int t3.68_117;
+  long unsigned int _118;
+  long unsigned int _119;
+  long int add_acc_120;
+  long unsigned int _123;
+  long unsigned int _126;
+  long int add_acc_135;
+  long int add_acc_141;
+  long unsigned int _142;
+  unsigned long _144;
+  long int add_acc_145;
+  long int add_acc_149;
+  long int add_acc_153;
+  long int add_acc_157;
+  long int add_acc_161;
+  long int add_acc_165;
+  long int add_acc_169;
+  long unsigned int _174;
+  long unsigned int _175;
+  long unsigned int _183;
+  long unsigned int _184;
+  long unsigned int _192;
+  long unsigned int _193;
+  long unsigned int _201;
+  long unsigned int _202;
+  unsigned long _273;
+  unsigned long _274;
+  long int _277;
+  unsigned long _278;
+  unsigned long _279;
+  unsigned long _280;
+  unsigned long _282;
+  unsigned long _285;
+  unsigned long _286;
+  long int _289;
+  unsigned long _290;
+  unsigned long _292;
+  unsigned long _293;
+  unsigned long _298;
+  unsigned long _299;
+  long int _302;
+  unsigned long _303;
+  unsigned long _305;
+  unsigned long _306;
+  unsigned long _311;
+  unsigned long _312;
+  long int _315;
+  unsigned long _316;
+  unsigned long _318;
+  unsigned long _319;
+  unsigned long _324;
+  unsigned long _325;
+  long int _328;
+  unsigned long _329;
+  unsigned long _331;
+  unsigned long _332;
+  unsigned long _341;
+  long int _344;
+  unsigned long _345;
+  unsigned long _347;
+  unsigned long _348;
+  unsigned long _351;
+  unsigned long _352;
+  unsigned long _354;
+  unsigned long _358;
+  unsigned long _360;
+  unsigned long _361;
+  unsigned long _368;
+  unsigned long _369;
+  long unsigned int _376;
+  unsigned long _378;
+  unsigned long _380;
+  long int _381;
+  unsigned long _383;
+  unsigned long _388;
+  unsigned long _389;
+  unsigned long _392;
+  long int _394;
+  long unsigned int _396;
+  long unsigned int prephitmp_397;
+  long int _398;
+  long unsigned int _400;
+  long unsigned int prephitmp_401;
+  long int _402;
+  long unsigned int _404;
+  long unsigned int prephitmp_405;
+  long int _406;
+  long unsigned int _408;
+  long unsigned int prephitmp_409;
+  long int _410;
+  long unsigned int _412;
+  long unsigned int prephitmp_413;
+  long int _414;
+  long unsigned int _416;
+  long unsigned int prephitmp_417;
+  long int _418;
+  long unsigned int _420;
+  long unsigned int prephitmp_421;
+  long int _422;
+  long int prephitmp_423;
+
+  <bb 2> [local count: 236223200]:
+  if (n_g_4(D) <= 1)
+    goto <bb 3>; [22.00%]
+  else
+    goto <bb 4>; [78.00%]
+
+  <bb 3> [local count: 236223200]:
+  # prephitmp_423 = PHI <_422(9), n_g_4(D)(2), add_acc_70(6)>
+  return prephitmp_423;
+
+  <bb 4> [local count: 184254096]:
+  _282 = (unsigned long) n_g_4(D);
+  _280 = _282 + 18446744073709551615;
+  _279 = _280 & 18446744073709551614;
+  _278 = _282 - _279;
+  _277 = (long int) _278;
+
+  <bb 5> [local count: 837529967]:
+  # n_g_133 = PHI <_6(8), n_g_4(D)(4)>
+  # add_acc_135 = PHI <add_acc_12(8), 0(4)>
+  _274 = (unsigned long) n_g_133;
+  _273 = _274 + 18446744073709551615;
+  _3 = (long int) _273;
+  if (n_g_133 == _277)
+    goto <bb 6>; [22.00%]
+  else
+    goto <bb 10>; [78.00%]
+
+  <bb 6> [local count: 184256592]:
+  _82 = (long unsigned int) add_acc_135;
+  _126 = _82 + 1;
+  add_acc_70 = (long int) _126;
+  goto <bb 3>; [100.00%]
+
+  <bb 7> [local count: 152562486]:
+  _418 = add_acc_29 + 1;
+  _420 = (long unsigned int) _418;
+
+  <bb 8> [local count: 653298343]:
+  # prephitmp_421 = PHI <_420(7), _202(12)>
+  _6 = (long int) _293;
+  _13 = (long unsigned int) add_acc_135;
+  _14 = _13 + prephitmp_421;
+  add_acc_12 = (long int) _14;
+  if (_6 == 1)
+    goto <bb 9>; [6.59%]
+  else
+    goto <bb 5>; [93.41%]
+
+  <bb 9> [local count: 43031629]:
+  _422 = add_acc_12 + 1;
+  goto <bb 3>; [100.00%]
+
+  <bb 10> [local count: 653273375]:
+  _293 = _274 + 18446744073709551614;
+  _292 = _293 & 18446744073709551614;
+  _290 = _273 - _292;
+  _289 = (long int) _290;
+
+  <bb 11> [local count: 2969456207]:
+  # n_g_139 = PHI <_25(14), _3(10)>
+  # add_acc_141 = PHI <add_acc_29(14), 0(10)>
+  _286 = (unsigned long) n_g_139;
+  _285 = _286 + 18446744073709551615;
+  _22 = (long int) _285;
+  if (n_g_139 == _289)
+    goto <bb 12>; [22.00%]
+  else
+    goto <bb 15>; [78.00%]
+
+  <bb 12> [local count: 653280362]:
+  _201 = (long unsigned int) add_acc_141;
+  _202 = _201 + 1;
+  goto <bb 8>; [100.00%]
+
+  <bb 13> [local count: 540903478]:
+  _414 = add_acc_42 + 1;
+  _416 = (long unsigned int) _414;
+
+  <bb 14> [local count: 2316175845]:
+  # prephitmp_417 = PHI <_416(13), _193(17)>
+  _25 = (long int) _306;
+  _27 = (long unsigned int) add_acc_141;
+  _28 = _27 + prephitmp_417;
+  add_acc_29 = (long int) _28;
+  if (_25 == 1)
+    goto <bb 7>; [6.59%]
+  else
+    goto <bb 11>; [93.41%]
+
+  <bb 15> [local count: 2316175845]:
+  _306 = _286 + 18446744073709551614;
+  _305 = _306 & 18446744073709551614;
+  _303 = _285 - _305;
+  _302 = (long int) _303;
+
+  <bb 16> [local count: 10528074277]:
+  # n_g_143 = PHI <_38(19), _22(15)>
+  # add_acc_145 = PHI <add_acc_42(19), 0(15)>
+  _299 = (unsigned long) n_g_143;
+  _298 = _299 + 18446744073709551615;
+  _35 = (long int) _298;
+  if (n_g_143 == _302)
+    goto <bb 17>; [22.00%]
+  else
+    goto <bb 20>; [78.00%]
+
+  <bb 17> [local count: 2316176328]:
+  _192 = (long unsigned int) add_acc_145;
+  _193 = _192 + 1;
+  goto <bb 14>; [100.00%]
+
+  <bb 18> [local count: 1917746245]:
+  _410 = add_acc_55 + 1;
+  _412 = (long unsigned int) _410;
+
+  <bb 19> [local count: 8211897949]:
+  # prephitmp_413 = PHI <_412(18), _184(22)>
+  _38 = (long int) _319;
+  _40 = (long unsigned int) add_acc_145;
+  _41 = _40 + prephitmp_413;
+  add_acc_42 = (long int) _41;
+  if (_38 == 1)
+    goto <bb 13>; [6.59%]
+  else
+    goto <bb 16>; [93.41%]
+
+  <bb 20> [local count: 8211897949]:
+  _319 = _299 + 18446744073709551614;
+  _318 = _319 & 18446744073709551614;
+  _316 = _298 - _318;
+  _315 = (long int) _316;
+
+  <bb 21> [local count: 37326761134]:
+  # n_g_147 = PHI <_51(24), _35(20)>
+  # add_acc_149 = PHI <add_acc_55(24), 0(20)>
+  _312 = (unsigned long) n_g_147;
+  _311 = _312 + 18446744073709551615;
+  _48 = (long int) _311;
+  if (n_g_147 == _315)
+    goto <bb 22>; [22.00%]
+  else
+    goto <bb 25>; [78.00%]
+
+  <bb 22> [local count: 8211887405]:
+  _183 = (long unsigned int) add_acc_149;
+  _184 = _183 + 1;
+  goto <bb 19>; [100.00%]
+
+  <bb 23> [local count: 6799282725]:
+  _406 = add_acc_68 + 1;
+  _408 = (long unsigned int) _406;
+
+  <bb 24> [local count: 29114873729]:
+  # prephitmp_409 = PHI <_408(23), _175(27)>
+  _51 = (long int) _332;
+  _53 = (long unsigned int) add_acc_149;
+  _54 = _53 + prephitmp_409;
+  add_acc_55 = (long int) _54;
+  if (_51 == 1)
+    goto <bb 18>; [6.59%]
+  else
+    goto <bb 21>; [93.41%]
+
+  <bb 25> [local count: 29114873729]:
+  _332 = _312 + 18446744073709551614;
+  _331 = _332 & 18446744073709551614;
+  _329 = _311 - _331;
+  _328 = (long int) _329;
+
+  <bb 26> [local count: 132340346279]:
+  # n_g_151 = PHI <_64(29), _48(25)>
+  # add_acc_153 = PHI <add_acc_68(29), 0(25)>
+  _325 = (unsigned long) n_g_151;
+  _324 = _325 + 18446744073709551615;
+  _61 = (long int) _324;
+  if (n_g_151 == _328)
+    goto <bb 27>; [22.00%]
+  else
+    goto <bb 30>; [78.00%]
+
+  <bb 27> [local count: 29114876024]:
+  _174 = (long unsigned int) add_acc_153;
+  _175 = _174 + 1;
+  goto <bb 24>; [100.00%]
+
+  <bb 28> [local count: 24106549838]:
+  _402 = add_acc_81 + 1;
+  _404 = (long unsigned int) _402;
+
+  <bb 29> [local count: 103225470255]:
+  # prephitmp_405 = PHI <_404(28), _36(32)>
+  _64 = (long int) _348;
+  _66 = (long unsigned int) add_acc_153;
+  _67 = _66 + prephitmp_405;
+  add_acc_68 = (long int) _67;
+  if (_64 == 1)
+    goto <bb 23>; [6.59%]
+  else
+    goto <bb 26>; [93.41%]
+
+  <bb 30> [local count: 103225470255]:
+  _348 = _325 + 18446744073709551614;
+  _347 = _348 & 18446744073709551614;
+  _345 = _324 - _347;
+  _344 = (long int) _345;
+
+  <bb 31> [local count: 469206689072]:
+  # n_g_155 = PHI <_77(34), _61(30)>
+  # add_acc_157 = PHI <add_acc_81(34), 0(30)>
+  _341 = (unsigned long) n_g_155;
+  if (n_g_155 == _344)
+    goto <bb 32>; [22.00%]
+  else
+    goto <bb 35>; [78.00%]
+
+  <bb 32> [local count: 103225471037]:
+  _49 = (long unsigned int) add_acc_157;
+  _36 = _49 + 1;
+  goto <bb 29>; [100.00%]
+
+  <bb 33> [local count: 209038806261]:
+  _90 = (long int) ivtmp.269_367;
+  _398 = _90 + add_acc_94;
+  _400 = (long unsigned int) _398;
+
+  <bb 34> [local count: 365981243003]:
+  # prephitmp_401 = PHI <_400(33), _8(37)>
+  _77 = (long int) _361;
+  _79 = (long unsigned int) add_acc_157;
+  _80 = _79 + prephitmp_401;
+  add_acc_81 = (long int) _80;
+  if (_77 == 1)
+    goto <bb 28>; [6.59%]
+  else
+    goto <bb 31>; [93.41%]
+
+  <bb 35> [local count: 365981218035]:
+  ivtmp.269_365 = _341 + 18446744073709551613;
+  _361 = _341 + 18446744073709551614;
+  _360 = _361 & 18446744073709551614;
+  _358 = ivtmp.269_365 - _360;
+  _354 = ivtmp.269_365 & 18446744073709551614;
+  _144 = _341 + 18446744073709551611;
+  _352 = _144 - _354;
+
+  <bb 36> [local count: 1663551038463]:
+  # add_acc_161 = PHI <add_acc_94(39), 0(35)>
+  # ivtmp.269_367 = PHI <ivtmp.269_366(39), ivtmp.269_365(35)>
+  _351 = ivtmp.269_367 + 1;
+  _87 = (long int) _351;
+  if (_358 == ivtmp.269_367)
+    goto <bb 37>; [22.00%]
+  else
+    goto <bb 40>; [78.00%]
+
+  <bb 37> [local count: 365981226479]:
+  _11 = (long unsigned int) add_acc_161;
+  _8 = _11 + 1;
+  goto <bb 34>; [100.00%]
+
+  <bb 38> [local count: 964190119408]:
+  _394 = add_acc_107 + 1;
+  _396 = (long unsigned int) _394;
+
+  <bb 39> [local count: 1297569811984]:
+  # prephitmp_397 = PHI <_396(38), _123(41)>
+  _92 = (long unsigned int) add_acc_161;
+  _93 = _92 + prephitmp_397;
+  add_acc_94 = (long int) _93;
+  ivtmp.269_366 = ivtmp.269_367 + 18446744073709551614;
+  if (_352 == ivtmp.269_366)
+    goto <bb 33>; [16.11%]
+  else
+    goto <bb 36>; [83.89%]
+
+  <bb 40> [local count: 5898044627232]:
+  # n_g_163 = PHI <_103(42), _87(36)>
+  # add_acc_165 = PHI <add_acc_107(42), 0(36)>
+  # ivtmp.264_375 = PHI <_142(42), ivtmp.269_367(36)>
+  _100 = (long int) ivtmp.264_375;
+  if (_100 == 1)
+    goto <bb 41>; [22.00%]
+  else
+    goto <bb 43>; [78.00%]
+
+  <bb 41> [local count: 1297569810960]:
+  _43 = (long unsigned int) add_acc_165;
+  _123 = _43 + 1;
+  goto <bb 39>; [100.00%]
+
+  <bb 42> [local count: 4600474816272]:
+  _368 = (unsigned long) n_g_163;
+  _380 = _368 + 18446744073709551613;
+  _388 = _380 >> 1;
+  _378 = _388 * 18446744073709551614;
+  _142 = ivtmp.264_375 + 18446744073709551614;
+  _376 = _142 + _378;
+  _381 = (long int) _376;
+  acc_tmp_110 = add_acc_120 + _381;
+  _369 = _368 + 18446744073709551614;
+  _103 = (long int) _369;
+  t3.68_104 = (long unsigned int) acc_tmp_110;
+  _105 = (long unsigned int) add_acc_165;
+  _106 = t3.68_104 + _105;
+  add_acc_107 = (long int) _106;
+  if (_103 == 1)
+    goto <bb 38>; [20.96%]
+  else
+    goto <bb 40>; [79.04%]
+
+  <bb 43> [local count: 20911249278181]:
+  # n_g_167 = PHI <_116(43), _100(40)>
+  # add_acc_169 = PHI <add_acc_120(43), 0(40)>
+  _389 = (unsigned long) n_g_167;
+  _383 = _389 + 18446744073709551615;
+  _113 = (long int) _383;
+  t2_114 = kernel_g (_113);
+  _392 = _389 + 18446744073709551614;
+  _116 = (long int) _392;
+  t3.68_117 = (long unsigned int) t2_114;
+  _118 = (long unsigned int) add_acc_169;
+  _119 = t3.68_117 + _118;
+  add_acc_120 = (long int) _119;
+  if (_392 <= 1)
+    goto <bb 42>; [22.00%]
+  else
+    goto <bb 43>; [78.00%]
+
+}
