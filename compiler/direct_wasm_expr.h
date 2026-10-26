@@ -1,0 +1,598 @@
+#pragma once
+namespace goose::direct_wasm {
+
+inline vector<TypeExpr *> Function::Values(Node *n) {
+    if (!n) return {};
+    if (auto call = Is<Call>(n); call && call->rettypes.size() > 1) return call->rettypes;
+    if (!n->exprtype || n->exprtype->kind == TY_VOID) return {};
+    return { n->exprtype };
+}
+inline void Function::To(Node *n, TypeExpr *t) {
+    auto values = Values(n);
+    if (values.size() != 1) Fail(n ? n->line : Line{}, "expected one runtime value");
+    if (t->kind == TY_REF && values[0]->kind != TY_REF) { Address(n); return; }
+    Expr(n); Convert(values[0], t, n->line);
+}
+inline void Function::Discard(Node *n) {
+    if (!n) return;
+    Expr(n); for (size_t i = 0; i < Values(n).size(); i++) code.Op(0x1a);
+}
+inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const vector<uint32_t> &slots) {
+    for (auto s : b->stmts) Discard(s);
+    if (b->tail) {
+        if (types.empty()) Discard(b->tail);
+        else SetResults({ b->tail }, types, slots, b->line);
+    }
+}
+inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeExpr *> &types,
+                                 const vector<uint32_t> &slots, Line l) {
+    if (nodes.size() == types.size()) {
+        for (size_t i = 0; i < nodes.size(); i++) { To(nodes[i], types[i]); Set(slots[i]); }
+    } else if (nodes.size() == 1 && Values(nodes[0]).size() == types.size()) {
+        auto vt = Values(nodes[0]); Expr(nodes[0]);
+        for (size_t i = types.size(); i-- > 0;) { Convert(vt[i], types[i], l); Set(slots[i]); }
+    } else Fail(l, "return arity is not supported by the direct backend");
+}
+
+inline TypeExpr *Function::Object(Node *n) {
+    Expr(n); auto t = n->exprtype;
+    if (t->kind == TY_REF) { Load(t->ref->sub); t = t->ref->sub; }
+    return t;
+}
+// Push a packed i64 (low 32 bits address, high 32 bits element count).
+inline void Function::View(Node *n) {
+    auto t = Object(n);
+    if (t->kind == TY_SLICE) return;
+    if (t->kind != TY_ARRAY) Fail(n->line, "expected a fixed array or slice");
+    c.Size(t); code.Op(0xad); code.I64Const(int64_t(uint64_t(t->arr->size) << 32)); code.Op(0x84);
+}
+inline void Function::Address(Node *n) {
+    if (auto id = Is<Ident>(n)) {
+        auto s = Lookup(id->vdef, n->line);
+        if (s.type->kind == TY_REF && n->exprtype->kind != TY_REF) Read(s);
+        else SlotAddress(s);
+        return;
+    }
+    if (auto idx = Is<Index>(n)) {
+        auto t = idx->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
+        auto elem = t->kind == TY_ARRAY ? t->arr->sub : t->kind == TY_SLICE ? t->sub : nullptr;
+        if (!elem) Fail(n->line, "indexing this type is not supported");
+        View(idx->obj); auto view = Save(I64);
+        To(idx->idx, c.ast.inttypes[IS_U64]); auto pos = Save(I64);
+        if (!idx->nobc) {
+            Get(pos); Get(view); code.I64Const(32); code.Op(0x88); code.Op(0x5a);
+            TrapIf(n->line, "array index out of bounds");
+        }
+        Get(view); code.Op(0xa7); Get(pos); code.Op(0xa7);
+        code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); return;
+    }
+    if (auto dot = Is<Dot>(n); dot && dot->IsField()) {
+        auto t = Object(dot->obj);
+        if (t->kind != TY_STRUCT || dot->fieldidx < 0) Fail(n->line, "only fixed struct fields are supported");
+        auto off = c.Size(t).fields.at(size_t(dot->fieldidx));
+        if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
+        return;
+    }
+    if (auto u = Is<Unary>(n); u && u->op == T_BITAND) { Address(u->child); return; }
+    if (n->exprtype && n->exprtype->kind == TY_REF) { Expr(n); return; }
+    if (n->exprtype && c.Aggregate(n->exprtype)) { Expr(n); return; }
+    Fail(n->line, "this expression has no addressable direct representation");
+}
+
+inline void Function::Decl(VarDecl *n) {
+    vector<Slot> slots;
+    for (auto v : n->defs) {
+        if (v->type->kind == TY_FN) Fail(n->line, "runtime function values require inlining");
+        slots.push_back(n->isglobal ? Lookup(v, n->line) : Bind(v));
+    }
+    if (slots.size() > 1 && n->inits.size() == 1) {
+        auto types = Values(n->inits[0]);
+        if (types.size() != slots.size()) Fail(n->line, "multi-binding arity mismatch");
+        Expr(n->inits[0]);
+        for (size_t i = slots.size(); i-- > 0;) { Convert(types[i], slots[i].type, n->line); Write(slots[i]); }
+        return;
+    }
+    for (size_t i = 0; i < slots.size(); i++) {
+        if (i >= n->inits.size()) continue;
+        auto init = n->inits[i];
+        if (n->byref && init->exprtype->kind != TY_REF) Address(init);
+        else To(init, slots[i].type);
+        Write(slots[i]);
+    }
+}
+inline void Function::AssignNode(Assign *n) {
+    optional<Slot> scalar;
+    TypeExpr *t = n->lval->exprtype;
+    if (auto id = Is<Ident>(n->lval)) {
+        auto s = Lookup(id->vdef, n->line);
+        if (!n->pointee) { scalar = s; t = s.type; }
+    }
+    uint32_t addr = 0;
+    if (!scalar) {
+        if (n->pointee && n->lval->exprtype->kind == TY_REF) {
+            Expr(n->lval); t = n->lval->exprtype->ref->sub;
+        } else Address(n->lval);
+        addr = Save(I32);
+    }
+    if (n->op != T_ASSIGN && n->op != T_DOTASSIGN) {
+        if (c.Aggregate(t)) Fail(n->line, "elementwise aggregate assignment is not supported");
+        if (scalar) Read(*scalar); else { Get(addr); Load(t); }
+        To(n->rhs, t); BinaryOp(n->op, t, n->line);
+    } else To(n->rhs, t);
+    if (scalar) Write(*scalar);
+    else { auto val = Save(t); Get(addr); Get(val); Store(t); }
+}
+inline void Function::IncNode(IncDec *n) {
+    optional<Slot> scalar;
+    auto t = n->lval->exprtype;
+    if (auto id = Is<Ident>(n->lval); id && id->vdef->type->kind != TY_REF)
+        scalar = Lookup(id->vdef, n->line);
+    uint32_t addr = 0;
+    if (scalar) Read(*scalar);
+    else {
+        if (t->kind == TY_REF) { Expr(n->lval); t = t->ref->sub; } else Address(n->lval);
+        addr = Save(I32); Get(addr); Load(t);
+    }
+    if (t->kind == TY_FLT) { if (IsF32(t)) code.F32Const(1); else code.F64Const(1); }
+    else Const(t, 1);
+    BinaryOp(n->op == T_INC ? T_PLUS : T_MINUS, t, n->line);
+    if (scalar) Write(*scalar); else { auto x = Save(t); Get(addr); Get(x); Store(t); }
+}
+
+inline void Function::AggregateLiteral(Node *n) {
+    auto t = n->exprtype;
+    if (!c.Aggregate(t)) Fail(n->line, "this array/struct literal requires unsupported variable-size storage");
+    auto off = Frame(t);
+    FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+    if (auto a = Is<ArrayLit>(n)) {
+        auto elem = t->arr->sub;
+        auto stride = c.Size(elem).size;
+        if (a->fillval) {
+            // Goose evaluates a fill value once, then copies it into each slot.
+            To(a->fillval, elem); auto value = Save(elem);
+            auto i = Local(I32); code.I32Const(0); Set(i);
+            auto done = Begin(), loop = Begin(0x03);
+            Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
+            FrameAddress(off); Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
+            Get(value); Store(elem);
+            Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
+        } else {
+            for (size_t i = 0; i < a->elems.size(); i++) {
+                FrameAddress(off + uint32_t(i) * stride); To(a->elems[i], elem); Store(elem);
+            }
+        }
+    } else if (auto s = Is<StructLit>(n)) {
+        if (!s->sinst || s->einst) Fail(n->line, "enum construction is not supported");
+        auto layout = c.Size(t);
+        for (size_t i = 0; i < s->inits.size(); i++) {
+            auto fi = i < s->fieldindices.size() ? s->fieldindices[i] : int(i);
+            if (fi < 0 || size_t(fi) >= layout.fields.size()) Fail(n->line, "unsupported struct initializer");
+            auto ft = s->sinst->ftypes[size_t(fi)];
+            FrameAddress(off + layout.fields[size_t(fi)]); To(s->inits[i].val, ft); Store(ft);
+        }
+    }
+    FrameAddress(off);
+}
+
+inline void Function::Slice(SliceExpr *n) {
+    auto at = n->obj->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
+    auto elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
+    if (!elem || n->exprtype->kind != TY_SLICE) Fail(n->line, "only slices of fixed-layout elements are supported");
+    View(n->obj); auto view = Save(I64);
+    Get(view); code.I64Const(32); code.Op(0x88); auto len = Save(I64);
+    if (n->lo) {
+        if (n->lo_from_end) Get(len);
+        To(n->lo, c.ast.inttypes[IS_I64]); if (n->lo_from_end) code.Op(0x7d);
+    } else code.I64Const(0);
+    auto lo = Save(I64);
+    if (n->hi) {
+        if (n->hi_from_end) Get(len);
+        To(n->hi, c.ast.inttypes[IS_I64]); if (n->hi_from_end) code.Op(0x7d);
+    } else Get(len);
+    auto hi = Save(I64);
+    if (!n->nobc) {
+        Get(lo); Get(hi); code.Op(0x56); Get(hi); Get(len); code.Op(0x56); code.Op(0x72);
+        TrapIf(n->line, "slice bounds out of range");
+    }
+    Get(view); code.Op(0xa7); Get(lo); code.Op(0xa7);
+    code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); code.Op(0xad);
+    Get(hi); Get(lo); code.Op(0x7d); code.I64Const(32); code.Op(0x86); code.Op(0x84);
+}
+
+inline void Function::For(ForLoop *n) {
+    auto binding = Bind(n->vdef);
+    optional<Slot> indexbinding;
+    if (n->idxdef) indexbinding = Bind(n->idxdef);
+    auto range = Is<RangeExpr>(n->iter);
+    bool numeric = n->iterkind == IK_RANGE || n->iterkind == IK_COUNT;
+    auto ct = numeric ? (range ? range->exprtype : n->iter->exprtype) : c.ast.inttypes[IS_I64];
+    uint32_t lo, hi, view = 0;
+    TypeExpr *elem = nullptr;
+    if (numeric) {
+        if (range) To(range->lo, ct); else Const(ct, 0);
+        lo = Save(ct); To(range ? range->hi : n->iter, ct); hi = Save(ct);
+    } else {
+        auto at = n->iter->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
+        elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
+        if (!elem) Fail(n->line, "this iteration source is not supported");
+        View(n->iter); view = Save(I64);
+        code.I64Const(0); lo = Save(I64); Get(view); code.I64Const(32); code.Op(0x88); hi = Save(I64);
+    }
+    uint32_t ordinal = Local(I64); code.I64Const(0); Set(ordinal);
+    auto done = Begin(), again = Begin(0x03);
+    // Slice variables may be rebound during iteration: the next iteration
+    // observes the new view, as upstream does. A temporary is evaluated once.
+    if (!numeric && !n->fixedlen && (Is<Ident>(n->iter) || Is<Dot>(n->iter))) {
+        View(n->iter); Set(view); Get(view); code.I64Const(32); code.Op(0x88); Set(hi);
+    }
+    Get(lo); Get(hi); BinaryOp(T_GTEQ, ct, n->line); Br(done, true);
+    if (numeric) { Get(lo); Convert(ct, binding.type, n->line); Write(binding); }
+    else {
+        Get(view); code.Op(0xa7); Get(lo); code.Op(0xa7);
+        code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a);
+        if (!n->byref || elem->kind == TY_REF) { Load(elem); Convert(elem, binding.type, n->line); }
+        Write(binding);
+    }
+    if (indexbinding) { Get(ordinal); Convert(c.ast.inttypes[IS_I64], indexbinding->type, n->line); Write(*indexbinding); }
+    auto step = Begin(); exits.push_back({ done, nullptr, {}, {}, true, step });
+    BlockInto(n->body, {}, {}); exits.pop_back(); End();
+    // The counter's type is the range's type, not a narrowed loop binding.
+    Get(lo); Const(ct, 1); code.Op(W(ct) == I64 ? 0x7c : 0x6a); Normalize(ct); Set(lo);
+    Get(ordinal); code.I64Const(1); code.Op(0x7c); Set(ordinal);
+    Br(again); End(); End();
+}
+
+inline void Function::EmitCall(Call *n) {
+    if (n->builtin >= 0) { Builtin(n); return; }
+    auto args = n->ValueArgNodes();
+    if (n->fvbody) {
+        if (args.size() != n->fvparams.size()) Fail(n->line, "function-value parameter mismatch");
+        for (size_t i = 0; i < args.size(); i++) { auto s = Bind(n->fvparams[i]); To(args[i], s.type); Write(s); }
+        unordered_map<VarDef *, VarDef *> remap;
+        for (auto [a, b] : n->fvremap) remap[a] = b;
+        aliases.push_back(std::move(remap));
+        vector<uint32_t> vals; for (auto t : n->rettypes) vals.push_back(Local(t));
+        BlockInto(n->fvbody, n->rettypes, vals);
+        aliases.pop_back();
+        for (auto x : vals) Get(x);
+        if (n->rettypes.size() == 1) Convert(n->rettypes[0], n->exprtype, n->line);
+        return;
+    }
+    auto sp = n->spec;
+    if (!sp || !c.function_index.count(sp)) Fail(n->line, "call has no reachable concrete specialization");
+    vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
+    if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
+    for (size_t i = 0; i < args.size(); i++) {
+        auto t = ps[i]->type;
+        To(args[i], t);
+        // A later argument may mutate this value. Snapshot aggregates in
+        // source order, before evaluating the next argument.
+        if (c.Aggregate(t)) {
+            auto src = Save(I32), off = Frame(t);
+            FrameAddress(off); Get(src); Store(t); FrameAddress(off);
+        }
+    }
+    CallIndex(c.function_index.at(sp));
+    if (sp->rets.size() == 1) Convert(sp->rets[0], n->exprtype, n->line);
+}
+
+inline void Function::PrintText(string_view text) {
+    code.I32Const(int32_t(c.Text(text))); code.I32Const(int32_t(text.size())); CallIndex(Compiler::WRITE);
+}
+inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested) {
+    if (t->kind == TY_REF) {
+        if (t->ref->optional) Fail(line, "printing optional references is not supported");
+        Get(value); Load(t->ref->sub); auto v = Save(t->ref->sub); Print(t->ref->sub, v, line, nested); return;
+    }
+    if (t->kind == TY_INT) {
+        Get(value); Convert(t, c.ast.inttypes[IsUnsigned(t->intstorage) ? IS_U64 : IS_I64], line);
+        CallIndex(IsUnsigned(t->intstorage) ? Compiler::PRINT_U64 : Compiler::PRINT_I64); return;
+    }
+    if (t->kind == TY_FLT) { Get(value); CallIndex(IsF32(t) ? Compiler::PRINT_F32 : Compiler::PRINT_F64); return; }
+    if (t->kind == TY_BOOL) { Get(value); CallIndex(Compiler::PRINT_BOOL); return; }
+    if (t->kind == TY_ARRAY || t->kind == TY_SLICE) {
+        auto elem = t->kind == TY_ARRAY ? t->arr->sub : t->sub;
+        uint32_t ptr, len;
+        Get(value);
+        if (t->kind == TY_SLICE) { code.Op(0xa7); ptr = Save(I32); Get(value); code.I64Const(32); code.Op(0x88); code.Op(0xa7); len = Save(I32); }
+        else { ptr = Save(I32); code.I32Const(int32_t(t->arr->size)); len = Save(I32); }
+        if (IsU8(elem)) {
+            if (nested) Fail(line, "quoted nested byte-array rendering is not supported");
+            Get(ptr); Get(len); CallIndex(Compiler::WRITE); return;
+        }
+        PrintText("[");
+        auto i = Local(I32); code.I32Const(0); Set(i);
+        auto done = Begin(), loop = Begin(0x03);
+        Get(i); Get(len); code.Op(0x4f); Br(done, true);
+        Get(i); Begin(0x04); PrintText(", "); End();
+        Get(ptr); Get(i); code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); Load(elem);
+        auto e = Save(elem); Print(elem, e, line, true);
+        Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
+        PrintText("]"); return;
+    }
+    Fail(line, "this value cannot yet be rendered by the direct backend");
+}
+
+inline void Function::Builtin(Call *n) {
+    auto args = n->ArgNodes();
+    switch (BuiltinKind(n->builtin)) {
+        case B_PRINT: {
+            if (!n->fmtspecs.empty()) Fail(n->line, "custom formatters are not supported");
+            code.OpU(0x23, 0); auto mark = Save(I32);
+            printmarks.emplace_back(exits.size(), mark);
+            vector<pair<TypeExpr *, uint32_t>> captured;
+            // Evaluate all arguments before output. Deep-copy slices and
+            // aggregates so a later argument's writes cannot change an
+            // already-rendered argument, and nested print calls finish first.
+            for (auto arg : args) {
+                auto t = arg->exprtype; Expr(arg);
+                if (t->kind == TY_REF) {
+                    if (t->ref->optional) Fail(arg->line, "printing optional references is not supported; narrow the reference first");
+                    Load(t->ref->sub); t = t->ref->sub;
+                }
+                auto v = Save(t);
+                if (c.Aggregate(t)) {
+                    // A shallow byte copy would leave pointers into storage
+                    // that later arguments can mutate. Refuse this rendering
+                    // until recursive snapshots have an explicit contract.
+                    function<bool(TypeExpr *)> indirect = [&](TypeExpr *x) {
+                        if (x->kind == TY_REF || x->kind == TY_SLICE) return true;
+                        if (x->kind == TY_ARRAY) return indirect(x->arr->sub);
+                        if (x->kind == TY_STRUCT)
+                            for (auto ft : x->struc->inst->ftypes) if (ft && indirect(ft)) return true;
+                        return false;
+                    };
+                    if (indirect(t)) Fail(arg->line, "printing aggregates containing references or slices is not supported");
+                    auto off = Frame(t); FrameAddress(off); Get(v); Store(t); FrameAddress(off); v = Save(t);
+                } else if (t->kind == TY_SLICE) {
+                    auto elem = t->sub;
+                    if (elem->kind == TY_SLICE || elem->kind == TY_REF || c.Aggregate(elem))
+                        Fail(arg->line, "printing slices with indirect aggregate elements is not supported");
+                    Get(v); code.I64Const(32); code.Op(0x88); code.Op(0xa7);
+                    auto len = Save(I32);
+                    Get(len); code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); auto bytes = Save(I32);
+                    Dynamic(bytes, arg->line); auto dest = Save(I32);
+                    Get(dest); Get(v); code.Op(0xa7); Get(bytes); code.Copy();
+                    Get(dest); code.Op(0xad); Get(len); code.Op(0xad); code.I64Const(32); code.Op(0x86); code.Op(0x84); Set(v);
+                }
+                captured.emplace_back(t, v);
+            }
+            for (auto [t, v] : captured) Print(t, v, n->line);
+            CallIndex(Compiler::NEWLINE); Get(mark); code.OpU(0x24, 0); printmarks.pop_back(); return;
+        }
+        case B_ASSERT: Truth(args[0]); code.Op(0x45); TrapIf(n->line, "assertion failed"); return;
+        case B_ABORT: {
+            View(args[0]); auto v = Save(I64); Get(v); code.Op(0xa7); Get(v); code.I64Const(32); code.Op(0x88); code.Op(0xa7);
+            code.I32Const(n->line.line); CallIndex(Compiler::ABORT); code.Op(0x00); return;
+        }
+        case B_EXIT: To(args[0], c.ast.inttypes[IS_I32]); CallIndex(Compiler::EXIT); code.Op(0x00); return;
+        case B_LEN: {
+            View(args[0]); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
+        }
+        case B_COPY: {
+            if (n->exprtype->kind == TY_SLICE) Fail(n->line, "copying a slice requires owned dynamic storage");
+            To(args[0], n->exprtype);
+            if (c.Aggregate(n->exprtype)) {
+                auto value = Save(I32), off = Frame(n->exprtype);
+                FrameAddress(off); Get(value); Store(n->exprtype); FrameAddress(off);
+            }
+            return;
+        }
+        case B_DEFAULT: {
+            auto t = n->rettypes[0];
+            if (!c.Aggregate(t)) { Zero(W(t)); return; }
+            auto off = Frame(t);
+            FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+            if (n->defaultinit) {
+                if (t->kind == TY_ARRAY) {
+                    auto i = Local(I32); code.I32Const(0); Set(i);
+                    auto done = Begin(), loop = Begin(0x03);
+                    Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
+                    FrameAddress(off); Get(i); code.I32Const(int32_t(c.Size(t->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
+                    To(n->defaultinit, t->arr->sub); Store(t->arr->sub);
+                    Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
+                } else { FrameAddress(off); To(n->defaultinit, t); Store(t); }
+            }
+            FrameAddress(off); Convert(t, n->exprtype, n->line); return;
+        }
+        default: Fail(n->line, "builtin '" + string(BuiltinByKind(n->builtin).name) + "' is not supported by the direct backend");
+    }
+}
+
+inline void Function::Expr(Node *n) {
+    if (!n) return;
+    switch (n->nkind) {
+        case NK_IntLit: { auto x = static_cast<IntLit *>(n); Const(n->exprtype, x->val); Normalize(n->exprtype); return; }
+        case NK_FltLit: { auto x = static_cast<FltLit *>(n); if (IsF32(n->exprtype)) code.F32Const(float(x->val)); else code.F64Const(x->val); return; }
+        case NK_BoolLit: code.I32Const(static_cast<BoolLit *>(n)->val ? 1 : 0); return;
+        case NK_NullLit: W(n->exprtype); code.I32Const(0); return;
+        case NK_StrLit: {
+            auto x = static_cast<StrLit *>(n); auto off = c.Text(x->val);
+            if (n->exprtype->kind == TY_SLICE) code.I64Const(int64_t((uint64_t(x->val.size()) << 32) | off));
+            else if (n->exprtype->kind == TY_ARRAY) {
+                auto size = c.Size(n->exprtype).size;
+                if (x->val.size() > size) Fail(n->line, "string exceeds its fixed-array destination");
+                auto dest = Frame(n->exprtype);
+                FrameAddress(dest); code.I32Const(0); code.I32Const(int32_t(size)); code.Fill();
+                FrameAddress(dest); code.I32Const(int32_t(off)); code.I32Const(int32_t(x->val.size())); code.Copy();
+                FrameAddress(dest);
+            }
+            else Fail(n->line, "unsupported string representation");
+            return;
+        }
+        case NK_Ident: {
+            auto x = static_cast<Ident *>(n); if (!x->vdef) Fail(n->line, "function names are compile-time values only");
+            auto s = Lookup(x->vdef, n->line);
+            if (n->exprtype->kind == TY_REF && s.type->kind != TY_REF) SlotAddress(s);
+            else { Read(s); Convert(s.type, n->exprtype, n->line); }
+            return;
+        }
+        case NK_ArrayLit: case NK_StructLit: AggregateLiteral(n); return;
+        case NK_Unary: {
+            auto u = static_cast<Unary *>(n);
+            if (u->op == T_BITAND) {
+                if (n->exprtype->kind == TY_REF) Address(u->child); else To(u->child, n->exprtype);
+                return;
+            }
+            if (u->op == T_NOT) { Truth(u->child); code.Op(0x45); return; }
+            auto t = u->child->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
+            if (u->op == T_MINUS && t->kind == TY_FLT) { To(u->child, t); code.Op(IsF32(t) ? 0x8c : 0x9a); }
+            else if (u->op == T_MINUS) { Const(t, 0); To(u->child, t); BinaryOp(T_MINUS, t, n->line); }
+            else if (u->op == T_BITNOT) { To(u->child, t); Const(t, -1); BinaryOp(T_XOR, t, n->line); }
+            else Fail(n->line, "unsupported unary operator");
+            Convert(t, n->exprtype, n->line); return;
+        }
+        case NK_Binary: {
+            auto b = static_cast<Binary *>(n);
+            if (b->op == T_ANDAND || b->op == T_OROR) {
+                Truth(b->left); Begin(0x04, I32);
+                if (b->op == T_ANDAND) Truth(b->right); else code.I32Const(1);
+                Else(); if (b->op == T_OROR) Truth(b->right); else code.I32Const(0); End(); return;
+            }
+            if (b->op == T_DOTEQ || b->op == T_DOTNEQ ||
+                ((b->op == T_EQ || b->op == T_NEQ) && (Is<NullLit>(b->left) || Is<NullLit>(b->right)))) {
+                auto pointer = [&](Node *side) {
+                    if (Is<NullLit>(side)) { code.I32Const(0); return; }
+                    if (auto id = Is<Ident>(side); id && id->vdef && id->vdef->type->kind == TY_REF) {
+                        Read(Lookup(id->vdef, side->line)); return;
+                    }
+                    if (side->exprtype->kind != TY_REF) Fail(side->line, "unsupported optional-reference comparison");
+                    Expr(side);
+                };
+                pointer(b->left); pointer(b->right); code.Op(b->op == T_EQ || b->op == T_DOTEQ ? 0x46 : 0x47); return;
+            }
+            auto t = b->left->exprtype;
+            if (t->kind == TY_REF && b->op != T_DOTEQ && b->op != T_DOTNEQ) t = t->ref->sub;
+            To(b->left, t);
+            if (b->op == T_SHL || b->op == T_SHR) { Expr(b->right); Convert(b->right->exprtype, t, n->line); }
+            else To(b->right, t);
+            BinaryOp(b->op, t, n->line);
+            bool compare = b->op == T_EQ || b->op == T_NEQ || b->op == T_LT || b->op == T_GT || b->op == T_LTEQ || b->op == T_GTEQ || b->op == T_DOTEQ || b->op == T_DOTNEQ;
+            if (!compare) Convert(t, n->exprtype, n->line);
+            return;
+        }
+        case NK_Dot: {
+            auto d = static_cast<Dot *>(n);
+            if (d->member == B_LEN) { View(d->obj); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return; }
+            if (d->member >= 0 || d->variantconst) Fail(n->line, "this property/enum value is not supported");
+            auto t = d->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
+            if (t->kind != TY_STRUCT) Fail(n->line, "only fixed struct fields are supported");
+            auto ft = t->struc->inst->ftypes.at(size_t(d->fieldidx)); Address(n);
+            if (n->exprtype->kind != TY_REF || ft->kind == TY_REF) { Load(ft); Convert(ft, n->exprtype, n->line); }
+            return;
+        }
+        case NK_Index: {
+            auto x = static_cast<Index *>(n); auto t = x->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
+            auto elem = t->kind == TY_ARRAY ? t->arr->sub : t->kind == TY_SLICE ? t->sub : nullptr;
+            if (!elem) Fail(n->line, "unsupported indexed type");
+            Address(n);
+            if (n->exprtype->kind != TY_REF || elem->kind == TY_REF) { Load(elem); Convert(elem, n->exprtype, n->line); }
+            return;
+        }
+        case NK_SliceExpr: Slice(static_cast<SliceExpr *>(n)); return;
+        case NK_AsCast: Cast(static_cast<AsCast *>(n)); return;
+        case NK_Call: EmitCall(static_cast<Call *>(n)); return;
+        case NK_Block: {
+            auto b = static_cast<Block *>(n); for (auto s : b->stmts) Discard(s);
+            if (b->tail) { if (Values(n).empty()) Discard(b->tail); else To(b->tail, n->exprtype); }
+            return;
+        }
+        case NK_IfExpr: {
+            auto i = static_cast<IfExpr *>(n); auto ts = Values(n); vector<uint32_t> vs;
+            for (auto t : ts) vs.push_back(Local(t));
+            Truth(i->cond); Begin(0x04); BlockInto(i->thenb, ts, vs);
+            if (i->elseb) {
+                Else(); if (ts.empty()) Discard(i->elseb); else { To(i->elseb, ts[0]); Set(vs[0]); }
+            }
+            End(); for (auto v : vs) Get(v); return;
+        }
+        case NK_InlineBlock: {
+            auto i = static_cast<InlineBlock *>(n); auto ts = Values(n); vector<uint32_t> vs;
+            // Return statements use the specialization's own result type.
+            auto own = i->spec ? i->spec->rets : ts;
+            for (auto t : own) vs.push_back(Local(t));
+            auto label = Begin(); exits.push_back({ label, i->sf, own, vs, false, {} });
+            BlockInto(i->body, own, vs); exits.pop_back(); End();
+            for (auto v : vs) Get(v);
+            if (own.size() == 1 && ts.size() == 1) Convert(own[0], ts[0], n->line);
+            else if (ts.empty()) for (size_t k = 0; k < own.size(); k++) code.Op(0x1a);
+            return;
+        }
+        case NK_EarlyBlock: case NK_LoopExpr: {
+            auto ts = Values(n); vector<uint32_t> vs; for (auto t : ts) vs.push_back(Local(t));
+            auto done = Begin();
+            if (auto l = Is<LoopExpr>(n)) {
+                auto again = Begin(0x03); exits.push_back({ done, nullptr, ts, vs, true, again });
+                BlockInto(l->body, {}, {}); exits.pop_back(); Br(again); End();
+            } else {
+                exits.push_back({ done, nullptr, ts, vs, true, {} });
+                BlockInto(static_cast<EarlyBlock *>(n)->body, ts, vs); exits.pop_back();
+            }
+            End(); for (auto v : vs) Get(v); return;
+        }
+        case NK_While: {
+            auto w = static_cast<While *>(n); auto done = Begin(), again = Begin(0x03);
+            Truth(w->cond); code.Op(0x45); Br(done, true);
+            exits.push_back({ done, nullptr, {}, {}, true, again }); BlockInto(w->body, {}, {}); exits.pop_back();
+            Br(again); End(); End(); return;
+        }
+        case NK_ForLoop: For(static_cast<ForLoop *>(n)); return;
+        case NK_Return: {
+            auto r = static_cast<Return *>(n);
+            for (size_t j = exits.size(); j-- > 0;) {
+                auto e = exits[j];
+                if (e.sf && e.sf == r->target) {
+                    SetResults(r->vals, e.types, e.values, n->line); UnwindPrints(j); Br(e.label); return;
+                }
+            }
+            Fail(n->line, "return from an out-of-line enclosing function is not supported");
+        }
+        case NK_Break: {
+            auto b = static_cast<Break *>(n);
+            for (size_t j = exits.size(); j-- > 0;) {
+                auto e = exits[j]; if (!e.breakable) continue;
+                if (b->val) SetResults({ b->val }, e.types, e.values, n->line);
+                UnwindPrints(j); Br(e.label); return;
+            }
+            Fail(n->line, "break has no direct control target");
+        }
+        case NK_Continue:
+            for (size_t j = exits.size(); j-- > 0;) if (exits[j].continue_label) {
+                UnwindPrints(j); Br(*exits[j].continue_label); return;
+            }
+            Fail(n->line, "continue has no direct loop target");
+        case NK_MatchExpr: {
+            auto m = static_cast<MatchExpr *>(n); auto t = m->scrutinee->exprtype;
+            if (t->kind != TY_INT && t->kind != TY_BOOL) Fail(n->line, "only integer and bool match are supported");
+            Expr(m->scrutinee); auto value = Save(t);
+            auto ts = Values(n); vector<uint32_t> vs; for (auto rt : ts) vs.push_back(Local(rt));
+            auto done = Begin(); bool wildcard = false;
+            for (auto &arm : m->arms) {
+                if (arm.binder) Fail(n->line, "match payload bindings are not supported");
+                bool any = arm.pat.kind == P_WILDCARD;
+                if (!any) {
+                    if (arm.ranges.empty()) Fail(n->line, "match pattern has no resolved integer ranges");
+                    bool first = true;
+                    for (auto range : arm.ranges) {
+                        Get(value); Const(t, range.lo); BinaryOp(T_GTEQ, t, n->line);
+                        Get(value); Const(t, range.hi); BinaryOp(T_LTEQ, t, n->line); code.Op(0x71);
+                        if (!first) code.Op(0x72);
+                        first = false;
+                    }
+                    Begin(0x04);
+                }
+                if (ts.empty()) Discard(arm.body); else { To(arm.body, ts[0]); Set(vs[0]); }
+                Br(done); if (!any) End(); else { wildcard = true; break; }
+            }
+            if (!wildcard) Abort(n->line, "non-exhaustive match");
+            End(); for (auto v : vs) Get(v); return;
+        }
+        case NK_VarDecl: Decl(static_cast<VarDecl *>(n)); return;
+        case NK_Assign: AssignNode(static_cast<Assign *>(n)); return;
+        case NK_IncDec: IncNode(static_cast<IncDec *>(n)); return;
+        case NK_FnDecl: case NK_StructDecl: case NK_EnumDecl: case NK_AliasDecl: return;
+        default: Fail(n->line, "unsupported AST construct (kind " + to_string(int(n->nkind)) + ")");
+    }
+}
+
+} // namespace goose::direct_wasm

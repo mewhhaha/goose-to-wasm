@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/mewhhaha/blot.git",
+  "revision": "8f4befecedc807baee0b17d6bd0034529cfdb125",
+  "directory": "tools/goose-wasm",
+  "upstream_pins": "../toolchain.json",
+  "changes_in_this_repository": [
+    "Repository layout and bootstrap paths",
+    "Optional native GCC differential baseline",
+    "Standalone Wasm comparison profile"
+  ]
+}

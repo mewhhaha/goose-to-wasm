@@ -1,0 +1,3555 @@
+{
+  "schema": "goose-backend-benchmark-v1",
+  "status": "passed",
+  "started_utc": "2026-10-26T08:28:58.914298+00:00",
+  "configuration": {
+    "goose": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+    "emcc": "/workspace/scratch/ac45bbbd0688/emsdk/upstream/emscripten/emcc",
+    "cc": "cc",
+    "node": "node",
+    "machine_label": "AMD EPYC 9V74 (KVM guest, 9 logical CPUs, 9.7 GiB RAM)",
+    "samples": 7,
+    "compile_samples": 5,
+    "warmups": 2,
+    "kernel_warmups": 2,
+    "smoke": false,
+    "workloads": [
+      "integer_mod",
+      "recursive_fibonacci",
+      "float_recurrence",
+      "array_updates"
+    ],
+    "backends": [
+      "direct",
+      "c-wasm",
+      "native"
+    ],
+    "engines": [
+      "v8",
+      "wasmtime"
+    ],
+    "output_dir": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published"
+  },
+  "environment": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu": "unknown",
+    "supplied_machine_label": "AMD EPYC 9V74 (KVM guest, 9 logical CPUs, 9.7 GiB RAM)",
+    "logical_cpu_count": 9,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "node": {
+      "command": [
+        "node",
+        "-p",
+        "JSON.stringify(process.versions)"
+      ],
+      "exit_code": 0,
+      "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"
+    },
+    "native_cc": {
+      "command": [
+        "cc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "emcc": {
+      "command": [
+        "/workspace/scratch/ac45bbbd0688/emsdk/upstream/emscripten/emcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "wasmtime": "50.0.1",
+    "toolchain_pin": {
+      "schema": "goose-to-wasm-toolchain-v1",
+      "repository": "https://github.com/aardappel/goose.git",
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "emscripten": "6.0.13",
+      "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+      "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "wasmtime_python": "50.0.1",
+      "patches": [
+        "oracle/patches/0001-webassembly-target.patch",
+        "patches/direct-target.patch"
+      ],
+      "minimum_cmake": "3.27",
+      "minimum_python": "3.10"
+    },
+    "wasmtime_config": {
+      "cranelift_opt_level": "speed",
+      "wasm_memory64": true,
+      "wasm_tail_call": true,
+      "wasm_exceptions": true,
+      "wasm_simd": true,
+      "wasm_bulk_memory": true,
+      "wasm_multi_value": true,
+      "wasm_threads": false,
+      "wasm_relaxed_simd": false
+    },
+    "v8_runner_flags": [],
+    "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+    "input_sha256": {
+      "scripts/goose_wasm.py": "123a5e8382f8ec2ff17c6875740388e0aa3c39a6ebd81d916fb0e6fff433cc15",
+      "oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+      "scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+      "scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+      "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+      "bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f"
+    }
+  },
+  "compile": [
+    {
+      "workload": "array_updates",
+      "backend": "c-wasm",
+      "source_sha256": "0b7eb3df71ecd74cb8964ebf7ebf041ebe7089d382aea254c285afefc19dbfe1",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.635552733,
+        "min": 0.599691332,
+        "max": 0.738741257,
+        "mad": 0.035861401000000015,
+        "p25": 0.618250064,
+        "p75": 0.712209434,
+        "samples": [
+          0.712209434,
+          0.599691332,
+          0.618250064,
+          0.635552733,
+          0.738741257
+        ]
+      },
+      "bytes": 45568,
+      "samples": [
+        {
+          "seconds": 0.712209434,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/4/program.wasm",
+          "bytes": 45568,
+          "sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 638.871812,
+            "output_bytes": 45568,
+            "module_sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 639.372954
+          }
+        },
+        {
+          "seconds": 0.599691332,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/1/program.wasm",
+          "bytes": 45568,
+          "sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 552.392862,
+            "output_bytes": 45568,
+            "module_sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 553.179226
+          }
+        },
+        {
+          "seconds": 0.618250064,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/0/program.wasm",
+          "bytes": 45568,
+          "sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 565.141074,
+            "output_bytes": 45568,
+            "module_sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 565.649166
+          }
+        },
+        {
+          "seconds": 0.635552733,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/3/program.wasm",
+          "bytes": 45568,
+          "sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 586.630855,
+            "output_bytes": 45568,
+            "module_sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 587.173629
+          }
+        },
+        {
+          "seconds": 0.738741257,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/2/program.wasm",
+          "bytes": 45568,
+          "sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 689.99492,
+            "output_bytes": 45568,
+            "module_sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 690.611183
+          }
+        }
+      ]
+    },
+    {
+      "workload": "array_updates",
+      "backend": "direct",
+      "source_sha256": "0b7eb3df71ecd74cb8964ebf7ebf041ebe7089d382aea254c285afefc19dbfe1",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.058469292,
+        "min": 0.05644901,
+        "max": 0.065266158,
+        "mad": 0.0020202819999999982,
+        "p25": 0.056515708,
+        "p75": 0.06095084,
+        "samples": [
+          0.058469292,
+          0.065266158,
+          0.056515708,
+          0.05644901,
+          0.06095084
+        ]
+      },
+      "bytes": 1902,
+      "samples": [
+        {
+          "seconds": 0.058469292,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/3/program.wasm",
+          "bytes": 1902,
+          "sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 6.20167,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+            "output_bytes": 1902,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 1166,
+              "module_bytes": 1902,
+              "backend_ns": 60820,
+              "parse_ns": 363278,
+              "resolve_ns": 10646,
+              "typecheck_ns": 301676,
+              "optimize_ns": 40660,
+              "bce_ns": 140879,
+              "frontend_ns": 857479,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 1149,
+                  "body_hash": "13957574474026086347",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 14.775553
+          }
+        },
+        {
+          "seconds": 0.065266158,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/4/program.wasm",
+          "bytes": 1902,
+          "sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.454804,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+            "output_bytes": 1902,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 1166,
+              "module_bytes": 1902,
+              "backend_ns": 90264,
+              "parse_ns": 322788,
+              "resolve_ns": 8132,
+              "typecheck_ns": 245924,
+              "optimize_ns": 38797,
+              "bce_ns": 140578,
+              "frontend_ns": 756710,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 1149,
+                  "body_hash": "13957574474026086347",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 13.560914
+          }
+        },
+        {
+          "seconds": 0.056515708,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/1/program.wasm",
+          "bytes": 1902,
+          "sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.691339,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+            "output_bytes": 1902,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 1166,
+              "module_bytes": 1902,
+              "backend_ns": 60249,
+              "parse_ns": 349717,
+              "resolve_ns": 9515,
+              "typecheck_ns": 247586,
+              "optimize_ns": 38257,
+              "bce_ns": 178985,
+              "frontend_ns": 824360,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 1149,
+                  "body_hash": "13957574474026086347",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 13.562992
+          }
+        },
+        {
+          "seconds": 0.05644901,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/2/program.wasm",
+          "bytes": 1902,
+          "sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.396889,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+            "output_bytes": 1902,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 1166,
+              "module_bytes": 1902,
+              "backend_ns": 60410,
+              "parse_ns": 265453,
+              "resolve_ns": 9424,
+              "typecheck_ns": 285152,
+              "optimize_ns": 41121,
+              "bce_ns": 139877,
+              "frontend_ns": 741397,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 1149,
+                  "body_hash": "13957574474026086347",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 11.395219
+          }
+        },
+        {
+          "seconds": 0.06095084,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/0/program.wasm",
+          "bytes": 1902,
+          "sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.954785,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+            "output_bytes": 1902,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 1166,
+              "module_bytes": 1902,
+              "backend_ns": 58106,
+              "parse_ns": 299593,
+              "resolve_ns": 71786,
+              "typecheck_ns": 254197,
+              "optimize_ns": 62082,
+              "bce_ns": 141780,
+              "frontend_ns": 829818,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 1149,
+                  "body_hash": "13957574474026086347",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 13.94907
+          }
+        }
+      ]
+    },
+    {
+      "workload": "array_updates",
+      "backend": "native",
+      "source_sha256": "0b7eb3df71ecd74cb8964ebf7ebf041ebe7089d382aea254c285afefc19dbfe1",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.246695547,
+        "min": 0.239607583,
+        "max": 0.296433243,
+        "mad": 0.007087963999999974,
+        "p25": 0.240025718,
+        "p75": 0.272682654,
+        "samples": [
+          0.296433243,
+          0.239607583,
+          0.272682654,
+          0.246695547,
+          0.240025718
+        ]
+      },
+      "bytes": 22368,
+      "samples": [
+        {
+          "seconds": 0.296433243,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/3/program.bin",
+          "bytes": 22368,
+          "sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/3/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.861316,
+            "cc_ms": 242.081585,
+            "output_bytes": 22368,
+            "output_sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 248.605643
+          }
+        },
+        {
+          "seconds": 0.239607583,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/4/program.bin",
+          "bytes": 22368,
+          "sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.527422,
+            "cc_ms": 195.91508,
+            "output_bytes": 22368,
+            "output_sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 201.701386
+          }
+        },
+        {
+          "seconds": 0.272682654,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/2/program.bin",
+          "bytes": 22368,
+          "sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/2/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.287317,
+            "cc_ms": 225.882172,
+            "output_bytes": 22368,
+            "output_sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 232.662228
+          }
+        },
+        {
+          "seconds": 0.246695547,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/1/program.bin",
+          "bytes": 22368,
+          "sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/1/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.97206,
+            "cc_ms": 199.910924,
+            "output_bytes": 22368,
+            "output_sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 206.472476
+          }
+        },
+        {
+          "seconds": 0.240025718,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/0/program.bin",
+          "bytes": 22368,
+          "sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/array_updates.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/0/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.496697,
+            "cc_ms": 192.28522,
+            "output_bytes": 22368,
+            "output_sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 199.194898
+          }
+        }
+      ]
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "c-wasm",
+      "source_sha256": "cdaa9b1e0ba752b5817afac831b88bfd2841373cb523a2a60ef586ff892ed9c8",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.592047054,
+        "min": 0.551861559,
+        "max": 0.625518548,
+        "mad": 0.033252893000000006,
+        "p25": 0.574387961,
+        "p75": 0.625299947,
+        "samples": [
+          0.625299947,
+          0.574387961,
+          0.625518548,
+          0.592047054,
+          0.551861559
+        ]
+      },
+      "bytes": 45380,
+      "samples": [
+        {
+          "seconds": 0.625299947,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/4/program.wasm",
+          "bytes": 45380,
+          "sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 583.176518,
+            "output_bytes": 45380,
+            "module_sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 583.660585
+          }
+        },
+        {
+          "seconds": 0.574387961,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/3/program.wasm",
+          "bytes": 45380,
+          "sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 532.396873,
+            "output_bytes": 45380,
+            "module_sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 532.847341
+          }
+        },
+        {
+          "seconds": 0.625518548,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/1/program.wasm",
+          "bytes": 45380,
+          "sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 580.953195,
+            "output_bytes": 45380,
+            "module_sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 581.418714
+          }
+        },
+        {
+          "seconds": 0.592047054,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/0/program.wasm",
+          "bytes": 45380,
+          "sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 553.406476,
+            "output_bytes": 45380,
+            "module_sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 553.902771
+          }
+        },
+        {
+          "seconds": 0.551861559,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/2/program.wasm",
+          "bytes": 45380,
+          "sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 511.512633,
+            "output_bytes": 45380,
+            "module_sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 511.938162
+          }
+        }
+      ]
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "direct",
+      "source_sha256": "cdaa9b1e0ba752b5817afac831b88bfd2841373cb523a2a60ef586ff892ed9c8",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.056386557,
+        "min": 0.050512409,
+        "max": 0.068352227,
+        "mad": 0.002242922999999994,
+        "p25": 0.054143634,
+        "p75": 0.058090265,
+        "samples": [
+          0.050512409,
+          0.054143634,
+          0.056386557,
+          0.068352227,
+          0.058090265
+        ]
+      },
+      "bytes": 1313,
+      "samples": [
+        {
+          "seconds": 0.050512409,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/0/program.wasm",
+          "bytes": 1313,
+          "sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.515805,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+            "output_bytes": 1313,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 641,
+              "module_bytes": 1313,
+              "backend_ns": 46790,
+              "parse_ns": 319172,
+              "resolve_ns": 7872,
+              "typecheck_ns": 278422,
+              "optimize_ns": 30485,
+              "bce_ns": 68762,
+              "frontend_ns": 704953,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 624,
+                  "body_hash": "742231247533340643",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.047004
+          }
+        },
+        {
+          "seconds": 0.054143634,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/2/program.wasm",
+          "bytes": 1313,
+          "sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.483337,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+            "output_bytes": 1313,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 641,
+              "module_bytes": 1313,
+              "backend_ns": 43654,
+              "parse_ns": 251542,
+              "resolve_ns": 6640,
+              "typecheck_ns": 381415,
+              "optimize_ns": 30305,
+              "bce_ns": 95631,
+              "frontend_ns": 765804,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 624,
+                  "body_hash": "742231247533340643",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.597299
+          }
+        },
+        {
+          "seconds": 0.056386557,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/1/program.wasm",
+          "bytes": 1313,
+          "sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.435205,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+            "output_bytes": 1313,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 641,
+              "module_bytes": 1313,
+              "backend_ns": 54792,
+              "parse_ns": 367364,
+              "resolve_ns": 8232,
+              "typecheck_ns": 258333,
+              "optimize_ns": 31086,
+              "bce_ns": 70584,
+              "frontend_ns": 735829,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 624,
+                  "body_hash": "742231247533340643",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.135714
+          }
+        },
+        {
+          "seconds": 0.068352227,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/4/program.wasm",
+          "bytes": 1313,
+          "sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 6.070356,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+            "output_bytes": 1313,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 641,
+              "module_bytes": 1313,
+              "backend_ns": 46990,
+              "parse_ns": 347374,
+              "resolve_ns": 7731,
+              "typecheck_ns": 221779,
+              "optimize_ns": 29924,
+              "bce_ns": 68872,
+              "frontend_ns": 675920,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 624,
+                  "body_hash": "742231247533340643",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 14.580834
+          }
+        },
+        {
+          "seconds": 0.058090265,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/3/program.wasm",
+          "bytes": 1313,
+          "sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.486898,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+            "output_bytes": 1313,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 641,
+              "module_bytes": 1313,
+              "backend_ns": 47030,
+              "parse_ns": 274987,
+              "resolve_ns": 7381,
+              "typecheck_ns": 322528,
+              "optimize_ns": 31556,
+              "bce_ns": 70305,
+              "frontend_ns": 707097,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 624,
+                  "body_hash": "742231247533340643",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.172485
+          }
+        }
+      ]
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "native",
+      "source_sha256": "cdaa9b1e0ba752b5817afac831b88bfd2841373cb523a2a60ef586ff892ed9c8",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.257515116,
+        "min": 0.246996038,
+        "max": 0.278674263,
+        "mad": 0.009913496000000022,
+        "p25": 0.252688275,
+        "p75": 0.267428612,
+        "samples": [
+          0.246996038,
+          0.252688275,
+          0.267428612,
+          0.278674263,
+          0.257515116
+        ]
+      },
+      "bytes": 22488,
+      "samples": [
+        {
+          "seconds": 0.246996038,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/4/program.bin",
+          "bytes": 22488,
+          "sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.803772,
+            "cc_ms": 201.550319,
+            "output_bytes": 22488,
+            "output_sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 208.704319
+          }
+        },
+        {
+          "seconds": 0.252688275,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/2/program.bin",
+          "bytes": 22488,
+          "sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/2/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.048373,
+            "cc_ms": 200.047702,
+            "output_bytes": 22488,
+            "output_sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 206.746128
+          }
+        },
+        {
+          "seconds": 0.267428612,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/0/program.bin",
+          "bytes": 22488,
+          "sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/0/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.427804,
+            "cc_ms": 220.547937,
+            "output_bytes": 22488,
+            "output_sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 227.264719
+          }
+        },
+        {
+          "seconds": 0.278674263,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/3/program.bin",
+          "bytes": 22488,
+          "sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/3/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.105848,
+            "cc_ms": 225.533265,
+            "output_bytes": 22488,
+            "output_sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 231.9741
+          }
+        },
+        {
+          "seconds": 0.257515116,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/1/program.bin",
+          "bytes": 22488,
+          "sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/float_recurrence.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/1/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.26244,
+            "cc_ms": 201.861545,
+            "output_bytes": 22488,
+            "output_sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 208.753347
+          }
+        }
+      ]
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "c-wasm",
+      "source_sha256": "49feb0bdf3d89fd03df7a7be52763c7c10757360f6b108cdbe575526b6a08a67",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.663044997,
+        "min": 0.566267528,
+        "max": 0.682772127,
+        "mad": 0.019727130000000037,
+        "p25": 0.61604081,
+        "p75": 0.674313301,
+        "samples": [
+          0.674313301,
+          0.682772127,
+          0.663044997,
+          0.61604081,
+          0.566267528
+        ]
+      },
+      "bytes": 45055,
+      "samples": [
+        {
+          "seconds": 0.674313301,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/3/program.wasm",
+          "bytes": 45055,
+          "sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 624.322389,
+            "output_bytes": 45055,
+            "module_sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 624.754038
+          }
+        },
+        {
+          "seconds": 0.682772127,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/1/program.wasm",
+          "bytes": 45055,
+          "sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 640.657336,
+            "output_bytes": 45055,
+            "module_sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 641.249944
+          }
+        },
+        {
+          "seconds": 0.663044997,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/0/program.wasm",
+          "bytes": 45055,
+          "sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 619.626721,
+            "output_bytes": 45055,
+            "module_sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 620.048817
+          }
+        },
+        {
+          "seconds": 0.61604081,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/2/program.wasm",
+          "bytes": 45055,
+          "sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 570.632552,
+            "output_bytes": 45055,
+            "module_sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 571.143598
+          }
+        },
+        {
+          "seconds": 0.566267528,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/4/program.wasm",
+          "bytes": 45055,
+          "sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 521.6125,
+            "output_bytes": 45055,
+            "module_sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 522.060613
+          }
+        }
+      ]
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "direct",
+      "source_sha256": "49feb0bdf3d89fd03df7a7be52763c7c10757360f6b108cdbe575526b6a08a67",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.056773119,
+        "min": 0.051532673,
+        "max": 0.063971057,
+        "mad": 0.0033835019999999966,
+        "p25": 0.053389617,
+        "p75": 0.058443234,
+        "samples": [
+          0.058443234,
+          0.056773119,
+          0.051532673,
+          0.053389617,
+          0.063971057
+        ]
+      },
+      "bytes": 1295,
+      "samples": [
+        {
+          "seconds": 0.058443234,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/4/program.wasm",
+          "bytes": 1295,
+          "sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.391241,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+            "output_bytes": 1295,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 607,
+              "module_bytes": 1295,
+              "backend_ns": 48161,
+              "parse_ns": 285582,
+              "resolve_ns": 7772,
+              "typecheck_ns": 272774,
+              "optimize_ns": 32598,
+              "bce_ns": 116563,
+              "frontend_ns": 715529,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 590,
+                  "body_hash": "4224785066385690157",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 13.095434
+          }
+        },
+        {
+          "seconds": 0.056773119,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/2/program.wasm",
+          "bytes": 1295,
+          "sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.224774,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+            "output_bytes": 1295,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 607,
+              "module_bytes": 1295,
+              "backend_ns": 49584,
+              "parse_ns": 260716,
+              "resolve_ns": 7782,
+              "typecheck_ns": 266865,
+              "optimize_ns": 32478,
+              "bce_ns": 107649,
+              "frontend_ns": 675720,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 590,
+                  "body_hash": "4224785066385690157",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.480054
+          }
+        },
+        {
+          "seconds": 0.051532673,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/1/program.wasm",
+          "bytes": 1295,
+          "sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.016957,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+            "output_bytes": 1295,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 607,
+              "module_bytes": 1295,
+              "backend_ns": 48251,
+              "parse_ns": 252684,
+              "resolve_ns": 7471,
+              "typecheck_ns": 208839,
+              "optimize_ns": 31437,
+              "bce_ns": 109672,
+              "frontend_ns": 610454,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 590,
+                  "body_hash": "4224785066385690157",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 11.205668
+          }
+        },
+        {
+          "seconds": 0.053389617,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/0/program.wasm",
+          "bytes": 1295,
+          "sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.812444,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+            "output_bytes": 1295,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 607,
+              "module_bytes": 1295,
+              "backend_ns": 50194,
+              "parse_ns": 278312,
+              "resolve_ns": 7631,
+              "typecheck_ns": 444929,
+              "optimize_ns": 32568,
+              "bce_ns": 109031,
+              "frontend_ns": 872842,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 590,
+                  "body_hash": "4224785066385690157",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.684087
+          }
+        },
+        {
+          "seconds": 0.063971057,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/3/program.wasm",
+          "bytes": 1295,
+          "sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.712586,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+            "output_bytes": 1295,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 607,
+              "module_bytes": 1295,
+              "backend_ns": 47651,
+              "parse_ns": 298892,
+              "resolve_ns": 8563,
+              "typecheck_ns": 228468,
+              "optimize_ns": 37125,
+              "bce_ns": 109723,
+              "frontend_ns": 683011,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 590,
+                  "body_hash": "4224785066385690157",
+                  "dependencies": [
+                    1,
+                    6,
+                    7,
+                    9,
+                    10,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 15.882095
+          }
+        }
+      ]
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "native",
+      "source_sha256": "49feb0bdf3d89fd03df7a7be52763c7c10757360f6b108cdbe575526b6a08a67",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.250818716,
+        "min": 0.234740364,
+        "max": 0.27212305,
+        "mad": 0.01607835199999999,
+        "p25": 0.237288276,
+        "p75": 0.268777508,
+        "samples": [
+          0.268777508,
+          0.250818716,
+          0.27212305,
+          0.237288276,
+          0.234740364
+        ]
+      },
+      "bytes": 22368,
+      "samples": [
+        {
+          "seconds": 0.268777508,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/1/program.bin",
+          "bytes": 22368,
+          "sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/1/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.926152,
+            "cc_ms": 216.316175,
+            "output_bytes": 22368,
+            "output_sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 222.633256
+          }
+        },
+        {
+          "seconds": 0.250818716,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/4/program.bin",
+          "bytes": 22368,
+          "sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.886885,
+            "cc_ms": 195.931517,
+            "output_bytes": 22368,
+            "output_sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 202.309719
+          }
+        },
+        {
+          "seconds": 0.27212305,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/0/program.bin",
+          "bytes": 22368,
+          "sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/0/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.394415,
+            "cc_ms": 218.481915,
+            "output_bytes": 22368,
+            "output_sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 224.694422
+          }
+        },
+        {
+          "seconds": 0.237288276,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/2/program.bin",
+          "bytes": 22368,
+          "sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/2/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.731135,
+            "cc_ms": 187.41845,
+            "output_bytes": 22368,
+            "output_sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 194.501556
+          }
+        },
+        {
+          "seconds": 0.234740364,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/3/program.bin",
+          "bytes": 22368,
+          "sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/integer_mod.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/3/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.710382,
+            "cc_ms": 185.368772,
+            "output_bytes": 22368,
+            "output_sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 191.782055
+          }
+        }
+      ]
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "c-wasm",
+      "source_sha256": "e8deb15befde0e04d80e4b11b64d9077d1690ff4cd7a88738fa1df5e6aaa4bc9",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.638293546,
+        "min": 0.578043562,
+        "max": 0.72766015,
+        "mad": 0.04032497899999998,
+        "p25": 0.597968567,
+        "p75": 0.652730988,
+        "samples": [
+          0.72766015,
+          0.652730988,
+          0.597968567,
+          0.638293546,
+          0.578043562
+        ]
+      },
+      "bytes": 44722,
+      "samples": [
+        {
+          "seconds": 0.72766015,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/2/program.wasm",
+          "bytes": 44722,
+          "sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 666.275849,
+            "output_bytes": 44722,
+            "module_sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 666.857159
+          }
+        },
+        {
+          "seconds": 0.652730988,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/3/program.wasm",
+          "bytes": 44722,
+          "sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 611.551015,
+            "output_bytes": 44722,
+            "module_sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 612.127718
+          }
+        },
+        {
+          "seconds": 0.597968567,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/0/program.wasm",
+          "bytes": 44722,
+          "sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 557.248574,
+            "output_bytes": 44722,
+            "module_sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 557.739871
+          }
+        },
+        {
+          "seconds": 0.638293546,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/1/program.wasm",
+          "bytes": 44722,
+          "sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 594.751698,
+            "output_bytes": 44722,
+            "module_sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 595.202946
+          }
+        },
+        {
+          "seconds": 0.578043562,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/4/program.wasm",
+          "bytes": 44722,
+          "sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "c-wasm",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 539.688282,
+            "output_bytes": 44722,
+            "module_sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 540.169285
+          }
+        }
+      ]
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "direct",
+      "source_sha256": "e8deb15befde0e04d80e4b11b64d9077d1690ff4cd7a88738fa1df5e6aaa4bc9",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.058210644,
+        "min": 0.05183535,
+        "max": 0.064566753,
+        "mad": 0.0038739740000000022,
+        "p25": 0.054902179,
+        "p75": 0.062084618,
+        "samples": [
+          0.062084618,
+          0.064566753,
+          0.058210644,
+          0.05183535,
+          0.054902179
+        ]
+      },
+      "bytes": 953,
+      "samples": [
+        {
+          "seconds": 0.062084618,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/3/program.wasm",
+          "bytes": 953,
+          "sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/3/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.835057,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+            "output_bytes": 953,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 3,
+              "code_bytes": 269,
+              "module_bytes": 953,
+              "backend_ns": 43054,
+              "parse_ns": 435465,
+              "resolve_ns": 9373,
+              "typecheck_ns": 271683,
+              "optimize_ns": 30865,
+              "bce_ns": 85787,
+              "frontend_ns": 833674,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 152,
+                  "body_hash": "5408611269075828842",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12,
+                    14
+                  ]
+                },
+                {
+                  "name": "kernel#3",
+                  "index": 14,
+                  "code_bytes": 100,
+                  "body_hash": "13092654707502671252",
+                  "dependencies": [
+                    14
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 15,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 13.028467
+          }
+        },
+        {
+          "seconds": 0.064566753,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/4/program.wasm",
+          "bytes": 953,
+          "sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.517838,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+            "output_bytes": 953,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 3,
+              "code_bytes": 269,
+              "module_bytes": 953,
+              "backend_ns": 45317,
+              "parse_ns": 324721,
+              "resolve_ns": 7932,
+              "typecheck_ns": 341586,
+              "optimize_ns": 31276,
+              "bce_ns": 61511,
+              "frontend_ns": 767286,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 152,
+                  "body_hash": "5408611269075828842",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12,
+                    14
+                  ]
+                },
+                {
+                  "name": "kernel#3",
+                  "index": 14,
+                  "code_bytes": 100,
+                  "body_hash": "13092654707502671252",
+                  "dependencies": [
+                    14
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 15,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 14.315251
+          }
+        },
+        {
+          "seconds": 0.058210644,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/1/program.wasm",
+          "bytes": 953,
+          "sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/1/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.239541,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+            "output_bytes": 953,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 3,
+              "code_bytes": 269,
+              "module_bytes": 953,
+              "backend_ns": 41761,
+              "parse_ns": 325072,
+              "resolve_ns": 7280,
+              "typecheck_ns": 250732,
+              "optimize_ns": 29063,
+              "bce_ns": 60810,
+              "frontend_ns": 673488,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 152,
+                  "body_hash": "5408611269075828842",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12,
+                    14
+                  ]
+                },
+                {
+                  "name": "kernel#3",
+                  "index": 14,
+                  "code_bytes": 100,
+                  "body_hash": "13092654707502671252",
+                  "dependencies": [
+                    14
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 15,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.760747
+          }
+        },
+        {
+          "seconds": 0.05183535,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/0/program.wasm",
+          "bytes": 953,
+          "sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/0/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.035424,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+            "output_bytes": 953,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 3,
+              "code_bytes": 269,
+              "module_bytes": 953,
+              "backend_ns": 44095,
+              "parse_ns": 328836,
+              "resolve_ns": 7351,
+              "typecheck_ns": 230491,
+              "optimize_ns": 30265,
+              "bce_ns": 60950,
+              "frontend_ns": 658244,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 152,
+                  "body_hash": "5408611269075828842",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12,
+                    14
+                  ]
+                },
+                {
+                  "name": "kernel#3",
+                  "index": 14,
+                  "code_bytes": 100,
+                  "body_hash": "13092654707502671252",
+                  "dependencies": [
+                    14
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 15,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 11.338295
+          }
+        },
+        {
+          "seconds": 0.054902179,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/2/program.wasm",
+          "bytes": 953,
+          "sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "direct",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/2/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.036105,
+            "cc_ms": 0.0,
+            "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+            "cache_stored": false,
+            "module_sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+            "output_bytes": 953,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 3,
+              "code_bytes": 269,
+              "module_bytes": 953,
+              "backend_ns": 83564,
+              "parse_ns": 363798,
+              "resolve_ns": 7872,
+              "typecheck_ns": 556033,
+              "optimize_ns": 32408,
+              "bce_ns": 64225,
+              "frontend_ns": 1024596,
+              "source_files": 1,
+              "specializations": 6,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 13,
+                  "code_bytes": 152,
+                  "body_hash": "5408611269075828842",
+                  "dependencies": [
+                    1,
+                    6,
+                    9,
+                    10,
+                    11,
+                    12,
+                    14
+                  ]
+                },
+                {
+                  "name": "kernel#3",
+                  "index": 14,
+                  "code_bytes": 100,
+                  "body_hash": "13092654707502671252",
+                  "dependencies": [
+                    14
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 15,
+                  "code_bytes": 17,
+                  "body_hash": "11153434749405409649",
+                  "dependencies": [
+                    13
+                  ]
+                }
+              ]
+            },
+            "dependencies": 1,
+            "total_ms": 12.744095
+          }
+        }
+      ]
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "native",
+      "source_sha256": "e8deb15befde0e04d80e4b11b64d9077d1690ff4cd7a88738fa1df5e6aaa4bc9",
+      "wall_seconds": {
+        "n": 5,
+        "median": 0.276576118,
+        "min": 0.248965454,
+        "max": 0.28503483,
+        "mad": 0.008458712000000035,
+        "p25": 0.264194268,
+        "p75": 0.277662396,
+        "samples": [
+          0.277662396,
+          0.28503483,
+          0.276576118,
+          0.264194268,
+          0.248965454
+        ]
+      },
+      "bytes": 22440,
+      "samples": [
+        {
+          "seconds": 0.277662396,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/1/program.bin",
+          "bytes": 22440,
+          "sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/1/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.680498,
+            "cc_ms": 230.74905,
+            "output_bytes": 22440,
+            "output_sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 236.78852
+          }
+        },
+        {
+          "seconds": 0.28503483,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/0/program.bin",
+          "bytes": 22440,
+          "sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/0/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.556996,
+            "cc_ms": 237.697778,
+            "output_bytes": 22440,
+            "output_sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 244.472117
+          }
+        },
+        {
+          "seconds": 0.276576118,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/4/program.bin",
+          "bytes": 22440,
+          "sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.939953,
+            "cc_ms": 226.199592,
+            "output_bytes": 22440,
+            "output_sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 232.785792
+          }
+        },
+        {
+          "seconds": 0.264194268,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/2/program.bin",
+          "bytes": 22440,
+          "sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/2/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.215301,
+            "cc_ms": 213.782709,
+            "output_bytes": 22440,
+            "output_sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 220.554985
+          }
+        },
+        {
+          "seconds": 0.248965454,
+          "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/3/program.bin",
+          "bytes": 22440,
+          "sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+          "driver_stats": {
+            "schema": "goose-direct-build-v1",
+            "backend": "native",
+            "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/bench/fixtures/recursive_fibonacci.goose",
+            "output": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/3/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.922887,
+            "cc_ms": 200.227827,
+            "output_bytes": 22440,
+            "output_sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+            "cc": "/usr/bin/x86_64-linux-gnu-gcc-13",
+            "total_ms": 206.677335
+          }
+        }
+      ]
+    }
+  ],
+  "runtime": [
+    {
+      "workload": "array_updates",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "input": 8000000,
+      "checksum": 309459781,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/2/program.wasm",
+      "artifact_sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.041763854,
+        "min": 0.037214821,
+        "max": 0.186960291,
+        "mad": 0.004549033000000001,
+        "p25": 0.039133445,
+        "p75": 0.11335951350000001,
+        "samples": [
+          0.0380928,
+          0.037214821,
+          0.186960291,
+          0.057164664,
+          0.041763854,
+          0.04017409,
+          0.169554363
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.171086585,
+        "min": 0.155641814,
+        "max": 0.599968495,
+        "mad": 0.015444771000000024,
+        "p25": 0.1567443935,
+        "p75": 0.402784872,
+        "samples": [
+          0.155641814,
+          0.156025728,
+          0.599968495,
+          0.210222028,
+          0.171086585,
+          0.157463059,
+          0.595347716
+        ]
+      }
+    },
+    {
+      "workload": "array_updates",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "input": 8000000,
+      "checksum": 309459781,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/c-wasm/2/program.wasm",
+      "artifact_sha256": "58934fd49b537f14d5325bed3aa7b66114b6f4e876b2efa0a3fa10dacfaadc6e",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.035521623,
+        "min": 0.033818292,
+        "max": 0.04116894,
+        "mad": 0.0007866940000000044,
+        "p25": 0.0349069235,
+        "p75": 0.0360755585,
+        "samples": [
+          0.03648428,
+          0.04116894,
+          0.035666837,
+          0.035078918,
+          0.035521623,
+          0.033818292,
+          0.034734929
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.218895329,
+        "min": 0.210841593,
+        "max": 0.24086225,
+        "mad": 0.008053736000000006,
+        "p25": 0.2145162925,
+        "p75": 0.23231349099999998,
+        "samples": [
+          0.236184961,
+          0.24086225,
+          0.228442021,
+          0.214210102,
+          0.214822483,
+          0.210841593,
+          0.218895329
+        ]
+      }
+    },
+    {
+      "workload": "array_updates",
+      "backend": "direct",
+      "engine": "v8",
+      "input": 8000000,
+      "checksum": 309459781,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/0/program.wasm",
+      "artifact_sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.064584515,
+        "min": 0.06064763,
+        "max": 0.070556625,
+        "mad": 0.0021180870000000046,
+        "p25": 0.0628924045,
+        "p75": 0.066160895,
+        "samples": [
+          0.06064763,
+          0.063532837,
+          0.070556625,
+          0.062251972,
+          0.064584515,
+          0.066702602,
+          0.065619188
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.230053959,
+        "min": 0.222229978,
+        "max": 0.268089057,
+        "mad": 0.007438791,
+        "p25": 0.2247564915,
+        "p75": 0.237788937,
+        "samples": [
+          0.222615168,
+          0.268089057,
+          0.240775449,
+          0.222229978,
+          0.234802425,
+          0.230053959,
+          0.226897815
+        ]
+      }
+    },
+    {
+      "workload": "array_updates",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "input": 8000000,
+      "checksum": 309459781,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/direct/0/program.wasm",
+      "artifact_sha256": "de7828891ce06e2debde1f05b57df16ffff8a69c41a4c297cc4281d25577b13b",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.032326834,
+        "min": 0.030296679,
+        "max": 0.039881739,
+        "mad": 0.0006148600000000018,
+        "p25": 0.032015895,
+        "p75": 0.033123608,
+        "samples": [
+          0.039881739,
+          0.032941694,
+          0.033305522,
+          0.032303461,
+          0.032326834,
+          0.031728329,
+          0.030296679
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.193232406,
+        "min": 0.182740058,
+        "max": 0.232904956,
+        "mad": 0.00962353199999999,
+        "p25": 0.186773196,
+        "p75": 0.2006783865,
+        "samples": [
+          0.232904956,
+          0.204170156,
+          0.189937518,
+          0.193232406,
+          0.197186617,
+          0.183608874,
+          0.182740058
+        ]
+      }
+    },
+    {
+      "workload": "array_updates",
+      "backend": "native",
+      "engine": "native",
+      "input": 8000000,
+      "checksum": 309459781,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/array_updates/native/0/program.bin",
+      "artifact_sha256": "fc93136d77a60f68b39640b5e90276c2e715230641a24e2a971ef35f3f3b1080",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.025327638,
+        "min": 0.022141838,
+        "max": 0.030579588,
+        "mad": 0.0024129570000000003,
+        "p25": 0.022967849999999998,
+        "p75": 0.027381311999999998,
+        "samples": [
+          0.022141838,
+          0.026902814,
+          0.030579588,
+          0.023021019,
+          0.025327638,
+          0.02785981,
+          0.022914681
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.080055305,
+        "min": 0.071300365,
+        "max": 0.085826953,
+        "mad": 0.005771648000000004,
+        "p25": 0.072627885,
+        "p75": 0.0822120865,
+        "samples": [
+          0.071300365,
+          0.080055305,
+          0.085826953,
+          0.072120805,
+          0.082528763,
+          0.08189541,
+          0.073134965
+        ]
+      }
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "input": 8000000,
+      "checksum": 5731374,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/2/program.wasm",
+      "artifact_sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.048977582,
+        "min": 0.047864523,
+        "max": 0.063525468,
+        "mad": 0.0006578739999999958,
+        "p25": 0.0485403405,
+        "p75": 0.0524166135,
+        "samples": [
+          0.049573816,
+          0.048319708,
+          0.047864523,
+          0.048977582,
+          0.063525468,
+          0.055259411,
+          0.048760973
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.19738274,
+        "min": 0.190810644,
+        "max": 0.217625131,
+        "mad": 0.0021757470000000056,
+        "p25": 0.19617110199999999,
+        "p75": 0.202544251,
+        "samples": [
+          0.19738274,
+          0.198052984,
+          0.195206993,
+          0.197135211,
+          0.217625131,
+          0.207035518,
+          0.190810644
+        ]
+      }
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "input": 8000000,
+      "checksum": 5731374,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/c-wasm/2/program.wasm",
+      "artifact_sha256": "21bf539b17ef4ad053529ac6a8a635cff7055b6d08c785de7084a9e3b844d997",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.046808863,
+        "min": 0.044643115,
+        "max": 0.048054237,
+        "mad": 0.001092957999999998,
+        "p25": 0.045348145,
+        "p75": 0.047271574999999996,
+        "samples": [
+          0.045715905,
+          0.044643115,
+          0.046820806,
+          0.046808863,
+          0.047722344,
+          0.044980385,
+          0.048054237
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.262634532,
+        "min": 0.246758074,
+        "max": 0.268591317,
+        "mad": 0.00595678500000002,
+        "p25": 0.2550618785,
+        "p75": 0.2671872225,
+        "samples": [
+          0.26848063,
+          0.246758074,
+          0.255054921,
+          0.255068836,
+          0.268591317,
+          0.265893815,
+          0.262634532
+        ]
+      }
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "direct",
+      "engine": "v8",
+      "input": 8000000,
+      "checksum": 5731374,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/3/program.wasm",
+      "artifact_sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.0669512,
+        "min": 0.06435863,
+        "max": 0.077185649,
+        "mad": 0.0007614360000000042,
+        "p25": 0.0662045745,
+        "p75": 0.067944682,
+        "samples": [
+          0.066189764,
+          0.06826001,
+          0.06435863,
+          0.077185649,
+          0.066219385,
+          0.067629354,
+          0.0669512
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.239949365,
+        "min": 0.233277958,
+        "max": 0.249387558,
+        "mad": 0.0031041549999999973,
+        "p25": 0.2362408085,
+        "p75": 0.24242329299999998,
+        "samples": [
+          0.239949365,
+          0.237191669,
+          0.235289948,
+          0.24305352,
+          0.233277958,
+          0.249387558,
+          0.241793066
+        ]
+      }
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "input": 8000000,
+      "checksum": 5731374,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/direct/3/program.wasm",
+      "artifact_sha256": "7f927ff20b68005c8fdd31d398ed5f0d5e1b02d73ae6c0a4562f565c5eb1cf63",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.047419848,
+        "min": 0.04413983,
+        "max": 0.050821228,
+        "mad": 0.0018142660000000019,
+        "p25": 0.0456349855,
+        "p75": 0.0487522325,
+        "samples": [
+          0.050821228,
+          0.045605582,
+          0.047665368,
+          0.047419848,
+          0.04413983,
+          0.049839097,
+          0.045664389
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.238423506,
+        "min": 0.215938903,
+        "max": 0.273823559,
+        "mad": 0.010277838999999983,
+        "p25": 0.228382514,
+        "p75": 0.244870486,
+        "samples": [
+          0.238423506,
+          0.248701345,
+          0.273823559,
+          0.241039627,
+          0.229365267,
+          0.227399761,
+          0.215938903
+        ]
+      }
+    },
+    {
+      "workload": "float_recurrence",
+      "backend": "native",
+      "engine": "native",
+      "input": 8000000,
+      "checksum": 5731374,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/float_recurrence/native/1/program.bin",
+      "artifact_sha256": "55078012fb1b313cfbcf6cf6e4a1a33ac6316caaa5a5ba49fcd6ca7f2ec7f6fa",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.044255884,
+        "min": 0.043145941,
+        "max": 0.046549688,
+        "mad": 0.0011099430000000021,
+        "p25": 0.043747981500000005,
+        "p75": 0.046031962499999995,
+        "samples": [
+          0.043968449,
+          0.043145941,
+          0.045827118,
+          0.046236807,
+          0.043527514,
+          0.046549688,
+          0.044255884
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.137683839,
+        "min": 0.131960037,
+        "max": 0.148072892,
+        "mad": 0.0023206749999999943,
+        "p25": 0.1364293,
+        "p75": 0.1417620755,
+        "samples": [
+          0.137846897,
+          0.131960037,
+          0.148072892,
+          0.145677254,
+          0.135363164,
+          0.137495436,
+          0.137683839
+        ]
+      }
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "input": 10000000,
+      "checksum": 405595776,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/4/program.wasm",
+      "artifact_sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.056756296,
+        "min": 0.053121698,
+        "max": 0.059301133,
+        "mad": 0.0022204340000000003,
+        "p25": 0.055257219999999996,
+        "p75": 0.0585347655,
+        "samples": [
+          0.059152046,
+          0.056756296,
+          0.059301133,
+          0.053121698,
+          0.057917485,
+          0.054535862,
+          0.055978578
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.206529424,
+        "min": 0.194713635,
+        "max": 0.21838931,
+        "mad": 0.0061744699999999875,
+        "p25": 0.201756984,
+        "p75": 0.213035248,
+        "samples": [
+          0.211099281,
+          0.200354954,
+          0.214971215,
+          0.194713635,
+          0.21838931,
+          0.206529424,
+          0.203159014
+        ]
+      }
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "input": 10000000,
+      "checksum": 405595776,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/c-wasm/4/program.wasm",
+      "artifact_sha256": "b1c283f4fea34780180ebc3a19fca51084a2f877038a727b3fd4bc4788d4e0f0",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.050963264,
+        "min": 0.04665276,
+        "max": 0.052296948,
+        "mad": 0.0013336840000000016,
+        "p25": 0.047405922,
+        "p75": 0.051831090999999996,
+        "samples": [
+          0.04719166,
+          0.050963264,
+          0.052033796,
+          0.051628386,
+          0.04665276,
+          0.052296948,
+          0.047620184
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.270211435,
+        "min": 0.251331492,
+        "max": 0.295775457,
+        "mad": 0.004850542000000013,
+        "p25": 0.260405446,
+        "p75": 0.271307294,
+        "samples": [
+          0.255449999,
+          0.295775457,
+          0.272102632,
+          0.270511956,
+          0.251331492,
+          0.270211435,
+          0.265360893
+        ]
+      }
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "direct",
+      "engine": "v8",
+      "input": 10000000,
+      "checksum": 405595776,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/3/program.wasm",
+      "artifact_sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.059301625,
+        "min": 0.056982584,
+        "max": 0.074088668,
+        "mad": 0.001953030999999994,
+        "p25": 0.057407953,
+        "p75": 0.064855126,
+        "samples": [
+          0.057467312,
+          0.056982584,
+          0.070402407,
+          0.074088668,
+          0.057348594,
+          0.059301625,
+          0.059307845
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.215936352,
+        "min": 0.20681401,
+        "max": 0.304503119,
+        "mad": 0.009122342000000006,
+        "p25": 0.21382777349999998,
+        "p75": 0.2379379885,
+        "samples": [
+          0.240028416,
+          0.20681401,
+          0.304503119,
+          0.235847561,
+          0.213371655,
+          0.215936352,
+          0.214283892
+        ]
+      }
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "input": 10000000,
+      "checksum": 405595776,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/direct/3/program.wasm",
+      "artifact_sha256": "b2d63aefb9b481052ea40fb289d07ea2a35d13398102b978fc0b157a6b504932",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.048642898,
+        "min": 0.046660624,
+        "max": 0.063809753,
+        "mad": 0.0019407549999999954,
+        "p25": 0.0469949125,
+        "p75": 0.050058941499999995,
+        "samples": [
+          0.046660624,
+          0.047287682,
+          0.046702143,
+          0.048642898,
+          0.063809753,
+          0.050720058,
+          0.049397825
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.24254458,
+        "min": 0.225656018,
+        "max": 0.303414878,
+        "mad": 0.011334084000000022,
+        "p25": 0.233265547,
+        "p75": 0.2607022685,
+        "samples": [
+          0.24254458,
+          0.246632629,
+          0.274771908,
+          0.231210496,
+          0.303414878,
+          0.235320598,
+          0.225656018
+        ]
+      }
+    },
+    {
+      "workload": "integer_mod",
+      "backend": "native",
+      "engine": "native",
+      "input": 10000000,
+      "checksum": 405595776,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/integer_mod/native/3/program.bin",
+      "artifact_sha256": "58f9b81546d78ec6a89ce26715c2b6e2a647930cee7f932ff376e4597e7c6325",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.042101855,
+        "min": 0.040769601,
+        "max": 0.048553176,
+        "mad": 0.0012216499999999977,
+        "p25": 0.041139489,
+        "p75": 0.043815637500000004,
+        "samples": [
+          0.048553176,
+          0.042752699,
+          0.040769601,
+          0.040880205,
+          0.041398773,
+          0.042101855,
+          0.044878576
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.129850223,
+        "min": 0.123796246,
+        "max": 0.144525904,
+        "mad": 0.004436196000000003,
+        "p25": 0.1275408145,
+        "p75": 0.1357843975,
+        "samples": [
+          0.144525904,
+          0.137282376,
+          0.134286419,
+          0.123796246,
+          0.126770213,
+          0.129850223,
+          0.128311416
+        ]
+      }
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "input": 35,
+      "checksum": 9227465,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/4/program.wasm",
+      "artifact_sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.024428122,
+        "min": 0.023197348,
+        "max": 0.031167658,
+        "mad": 0.0012307740000000005,
+        "p25": 0.023280623,
+        "p75": 0.027165173,
+        "samples": [
+          0.025765776,
+          0.023361603,
+          0.023197348,
+          0.024428122,
+          0.02856457,
+          0.031167658,
+          0.023199643
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.121299641,
+        "min": 0.106107355,
+        "max": 0.149877851,
+        "mad": 0.006665081000000003,
+        "p25": 0.1139068065,
+        "p75": 0.12360626250000001,
+        "samples": [
+          0.121299641,
+          0.124674161,
+          0.106107355,
+          0.11463456,
+          0.149877851,
+          0.122538364,
+          0.113179053
+        ]
+      }
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "input": 35,
+      "checksum": 9227465,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/c-wasm/4/program.wasm",
+      "artifact_sha256": "4d90a3272e38d8816d178d3d7b90be0d7330d25d54d3ea3340597cde8ad5b137",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.037515886,
+        "min": 0.034934445,
+        "max": 0.057688209,
+        "mad": 0.0016159430000000016,
+        "p25": 0.0364710535,
+        "p75": 0.0397529425,
+        "samples": [
+          0.034934445,
+          0.057688209,
+          0.035899943,
+          0.041522558,
+          0.037983327,
+          0.037042164,
+          0.037515886
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.238649535,
+        "min": 0.21678823,
+        "max": 0.283854134,
+        "mad": 0.006381989000000005,
+        "p25": 0.2322890335,
+        "p75": 0.250779995,
+        "samples": [
+          0.283854134,
+          0.260184119,
+          0.21678823,
+          0.241375871,
+          0.232310521,
+          0.238649535,
+          0.232267546
+        ]
+      }
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "direct",
+      "engine": "v8",
+      "input": 35,
+      "checksum": 9227465,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/2/program.wasm",
+      "artifact_sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.025093847,
+        "min": 0.02446054,
+        "max": 0.027811461,
+        "mad": 0.000608641,
+        "p25": 0.024749216999999997,
+        "p75": 0.025944060499999998,
+        "samples": [
+          0.027811461,
+          0.025013228,
+          0.02529873,
+          0.024485206,
+          0.026589391,
+          0.025093847,
+          0.02446054
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.120041278,
+        "min": 0.108563771,
+        "max": 0.135423609,
+        "mad": 0.005467656000000001,
+        "p25": 0.1143945405,
+        "p75": 0.123134515,
+        "samples": [
+          0.135423609,
+          0.122784684,
+          0.114573622,
+          0.120041278,
+          0.123484346,
+          0.114215459,
+          0.108563771
+        ]
+      }
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "input": 35,
+      "checksum": 9227465,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/direct/2/program.wasm",
+      "artifact_sha256": "058695e1e5f1f27e5ebfd51fd31f3382a20320729130f38968ce93b902439feb",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.03789747,
+        "min": 0.036389119,
+        "max": 0.044331737,
+        "mad": 0.0011563719999999958,
+        "p25": 0.0371786865,
+        "p75": 0.039706033,
+        "samples": [
+          0.040358224,
+          0.037266968,
+          0.037090405,
+          0.036389119,
+          0.039053842,
+          0.044331737,
+          0.03789747
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.202070204,
+        "min": 0.19825679,
+        "max": 0.219139912,
+        "mad": 0.0032752269999999917,
+        "p25": 0.199037168,
+        "p75": 0.209163559,
+        "samples": [
+          0.213523369,
+          0.198794977,
+          0.202070204,
+          0.199279359,
+          0.19825679,
+          0.219139912,
+          0.204803749
+        ]
+      }
+    },
+    {
+      "workload": "recursive_fibonacci",
+      "backend": "native",
+      "engine": "native",
+      "input": 35,
+      "checksum": 9227465,
+      "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/3/program.bin",
+      "artifact_sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+      "timed_region_seconds": {
+        "n": 7,
+        "median": 0.000192615,
+        "min": 0.000177863,
+        "max": 0.00031045,
+        "mad": 1.4742000000000016e-05,
+        "p25": 0.0001840675,
+        "p75": 0.0002542715,
+        "samples": [
+          0.000192615,
+          0.000190262,
+          0.000177863,
+          0.000177873,
+          0.000303219,
+          0.00031045,
+          0.000205324
+        ]
+      },
+      "process_wall_seconds": {
+        "n": 7,
+        "median": 0.002977603,
+        "min": 0.002745765,
+        "max": 0.003071107,
+        "mad": 9.35039999999999e-05,
+        "p25": 0.0027721685,
+        "p75": 0.00303308,
+        "samples": [
+          0.002775909,
+          0.003036345,
+          0.002977603,
+          0.002768428,
+          0.003029815,
+          0.002745765,
+          0.003071107
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    "The direct backend supports a documented fragment of Goose. Results do not establish full-language parity or compilation of arbitrary programs.",
+    "Native and C-Wasm use different C compilers; engine tiering, host-call costs, machine load, and CPU frequency can affect results.",
+    "recursive_fibonacci/native/native timed region is below 10 ms; fixed overhead is material."
+  ],
+  "failures": [],
+  "finished_utc": "2026-10-26T08:29:56.508416+00:00"
+}

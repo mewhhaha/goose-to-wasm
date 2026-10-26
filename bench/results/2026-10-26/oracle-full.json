@@ -1,0 +1,986 @@
+{
+  "schema": "goose-wasm-qualification-v1",
+  "source_dir": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/source",
+  "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+  "compiler_sha256": "9ae8f0125457d5975bdb033bebf26946d9a79c327c948a17798b0efed20cd640",
+  "compiler_sha256_after": "9ae8f0125457d5975bdb033bebf26946d9a79c327c948a17798b0efed20cd640",
+  "memory64": false,
+  "native_differential": true,
+  "native_gcc": null,
+  "full_curated_corpus": true,
+  "passed": 194,
+  "failed": 0,
+  "seconds": 113.165,
+  "results": [
+    {
+      "name": "boundary/exact_capacity/O0",
+      "ok": true,
+      "seconds": 0.63
+    },
+    {
+      "name": "boundary/exact_capacity/O2",
+      "ok": true,
+      "seconds": 1.131
+    },
+    {
+      "name": "boundary/exact_float/O0",
+      "ok": true,
+      "seconds": 0.57
+    },
+    {
+      "name": "boundary/exact_float/O2",
+      "ok": true,
+      "seconds": 1.349
+    },
+    {
+      "name": "boundary/exact_format/O0",
+      "ok": true,
+      "seconds": 0.562
+    },
+    {
+      "name": "boundary/exact_format/O2",
+      "ok": true,
+      "seconds": 1.18
+    },
+    {
+      "name": "boundary/exact_prefix/O0",
+      "ok": true,
+      "seconds": 0.561
+    },
+    {
+      "name": "boundary/exact_prefix/O2",
+      "ok": true,
+      "seconds": 1.172
+    },
+    {
+      "name": "boundary/exact_quoted/O0",
+      "ok": true,
+      "seconds": 0.54
+    },
+    {
+      "name": "boundary/exact_quoted/O2",
+      "ok": true,
+      "seconds": 1.189
+    },
+    {
+      "name": "boundary/overflow_append/O0",
+      "ok": true,
+      "seconds": 0.538
+    },
+    {
+      "name": "boundary/overflow_append/O2",
+      "ok": true,
+      "seconds": 1.1
+    },
+    {
+      "name": "boundary/overflow_decode/O0",
+      "ok": true,
+      "seconds": 0.544
+    },
+    {
+      "name": "boundary/overflow_decode/O2",
+      "ok": true,
+      "seconds": 1.055
+    },
+    {
+      "name": "boundary/overflow_format/O0",
+      "ok": true,
+      "seconds": 0.513
+    },
+    {
+      "name": "boundary/overflow_format/O2",
+      "ok": true,
+      "seconds": 1.123
+    },
+    {
+      "name": "boundary/overflow_freelist/O0",
+      "ok": true,
+      "seconds": 0.541
+    },
+    {
+      "name": "boundary/overflow_freelist/O2",
+      "ok": true,
+      "seconds": 1.037
+    },
+    {
+      "name": "boundary/overflow_prefix/O0",
+      "ok": true,
+      "seconds": 0.49
+    },
+    {
+      "name": "boundary/overflow_prefix/O2",
+      "ok": true,
+      "seconds": 1.001
+    },
+    {
+      "name": "boundary/overflow_push/O0",
+      "ok": true,
+      "seconds": 0.509
+    },
+    {
+      "name": "boundary/overflow_push/O2",
+      "ok": true,
+      "seconds": 1.077
+    },
+    {
+      "name": "boundary/overflow_quoted/O0",
+      "ok": true,
+      "seconds": 0.53
+    },
+    {
+      "name": "boundary/overflow_quoted/O2",
+      "ok": true,
+      "seconds": 1.069
+    },
+    {
+      "name": "boundary/overflow_resize/O0",
+      "ok": true,
+      "seconds": 0.506
+    },
+    {
+      "name": "boundary/overflow_resize/O2",
+      "ok": true,
+      "seconds": 1.001
+    },
+    {
+      "name": "boundary/overflow_serialize/O0",
+      "ok": true,
+      "seconds": 0.493
+    },
+    {
+      "name": "boundary/overflow_serialize/O2",
+      "ok": true,
+      "seconds": 0.999
+    },
+    {
+      "name": "boundary/overflow_size/O0",
+      "ok": true,
+      "seconds": 0.52
+    },
+    {
+      "name": "boundary/overflow_size/O2",
+      "ok": true,
+      "seconds": 1.083
+    },
+    {
+      "name": "boundary/overflow_slice_move/O0",
+      "ok": true,
+      "seconds": 0.518
+    },
+    {
+      "name": "boundary/overflow_slice_move/O2",
+      "ok": true,
+      "seconds": 1.253
+    },
+    {
+      "name": "boundary/overflow_spans/O0",
+      "ok": true,
+      "seconds": 0.532
+    },
+    {
+      "name": "boundary/overflow_spans/O2",
+      "ok": true,
+      "seconds": 1.099
+    },
+    {
+      "name": "boundary/stdin_exact/O0",
+      "ok": true,
+      "seconds": 0.722
+    },
+    {
+      "name": "boundary/stdin_exact/O2",
+      "ok": true,
+      "seconds": 1.285
+    },
+    {
+      "name": "boundary/stdin_overflow/O0",
+      "ok": true,
+      "seconds": 0.509
+    },
+    {
+      "name": "boundary/stdin_overflow/O2",
+      "ok": true,
+      "seconds": 1.092
+    },
+    {
+      "name": "example/stable_tree/O0",
+      "ok": true,
+      "seconds": 0.586
+    },
+    {
+      "name": "example/stable_tree/O2",
+      "ok": true,
+      "seconds": 1.229
+    },
+    {
+      "name": "extern/builder_exact/O0",
+      "ok": true,
+      "seconds": 0.698
+    },
+    {
+      "name": "extern/builder_exact/O2",
+      "ok": true,
+      "seconds": 1.27
+    },
+    {
+      "name": "extern/builder_overflow/O0",
+      "ok": true,
+      "seconds": 0.561
+    },
+    {
+      "name": "extern/builder_overflow/O2",
+      "ok": true,
+      "seconds": 1.012
+    },
+    {
+      "name": "extern/scalar/O0",
+      "ok": true,
+      "seconds": 0.52
+    },
+    {
+      "name": "extern/scalar/O2",
+      "ok": true,
+      "seconds": 0.99
+    },
+    {
+      "name": "reject/alias_cycle/O2",
+      "ok": true,
+      "seconds": 0.146
+    },
+    {
+      "name": "reject/bad_escape/O2",
+      "ok": true,
+      "seconds": 0.138
+    },
+    {
+      "name": "reject/const_self_relative_render/O2",
+      "ok": true,
+      "seconds": 0.128
+    },
+    {
+      "name": "reject/dup_struct/O2",
+      "ok": true,
+      "seconds": 0.125
+    },
+    {
+      "name": "reject/dynamic_library/O2",
+      "ok": true,
+      "seconds": 0.12
+    },
+    {
+      "name": "reject/holder_view_alias/O2",
+      "ok": true,
+      "seconds": 0.141
+    },
+    {
+      "name": "reject/literal_bytes_of_return/O2",
+      "ok": true,
+      "seconds": 0.134
+    },
+    {
+      "name": "reject/shrink_under_construction_push/O2",
+      "ok": true,
+      "seconds": 0.124
+    },
+    {
+      "name": "reject/threads/O2",
+      "ok": true,
+      "seconds": 0.126
+    },
+    {
+      "name": "reject/varint_field_ref_readonly/O2",
+      "ok": true,
+      "seconds": 0.13
+    },
+    {
+      "name": "upstream/codegen/adt_adaptation/O0",
+      "ok": true,
+      "seconds": 0.684
+    },
+    {
+      "name": "upstream/codegen/adt_adaptation/O2",
+      "ok": true,
+      "seconds": 1.311
+    },
+    {
+      "name": "upstream/codegen/append_constructed_results/O0",
+      "ok": true,
+      "seconds": 0.524
+    },
+    {
+      "name": "upstream/codegen/append_constructed_results/O2",
+      "ok": true,
+      "seconds": 1.076
+    },
+    {
+      "name": "upstream/codegen/append_destination_storage/O0",
+      "ok": true,
+      "seconds": 0.508
+    },
+    {
+      "name": "upstream/codegen/append_destination_storage/O2",
+      "ok": true,
+      "seconds": 1.065
+    },
+    {
+      "name": "upstream/codegen/append_references/O0",
+      "ok": true,
+      "seconds": 0.573
+    },
+    {
+      "name": "upstream/codegen/append_references/O2",
+      "ok": true,
+      "seconds": 1.118
+    },
+    {
+      "name": "upstream/codegen/array_length_boundaries/O0",
+      "ok": true,
+      "seconds": 0.516
+    },
+    {
+      "name": "upstream/codegen/array_length_boundaries/O2",
+      "ok": true,
+      "seconds": 1.077
+    },
+    {
+      "name": "upstream/codegen/array_length_overflow_runtime/O0",
+      "ok": true,
+      "seconds": 0.508
+    },
+    {
+      "name": "upstream/codegen/array_length_overflow_runtime/O2",
+      "ok": true,
+      "seconds": 1.078
+    },
+    {
+      "name": "upstream/codegen/call_array_adaptation/O0",
+      "ok": true,
+      "seconds": 0.84
+    },
+    {
+      "name": "upstream/codegen/call_array_adaptation/O2",
+      "ok": true,
+      "seconds": 2.807
+    },
+    {
+      "name": "upstream/codegen/codegen_exec/O0",
+      "ok": true,
+      "seconds": 1.436
+    },
+    {
+      "name": "upstream/codegen/codegen_exec/O2",
+      "ok": true,
+      "seconds": 4.956
+    },
+    {
+      "name": "upstream/codegen/continue_restores/O0",
+      "ok": true,
+      "seconds": 11.543
+    },
+    {
+      "name": "upstream/codegen/continue_restores/O2",
+      "ok": true,
+      "seconds": 4.744
+    },
+    {
+      "name": "upstream/codegen/copy_slot_layouts/O0",
+      "ok": true,
+      "seconds": 0.684
+    },
+    {
+      "name": "upstream/codegen/copy_slot_layouts/O2",
+      "ok": true,
+      "seconds": 1.753
+    },
+    {
+      "name": "upstream/codegen/discarded_resizable_results/O0",
+      "ok": true,
+      "seconds": 0.635
+    },
+    {
+      "name": "upstream/codegen/discarded_resizable_results/O2",
+      "ok": true,
+      "seconds": 1.311
+    },
+    {
+      "name": "upstream/codegen/dispatch_result_prefix/O0",
+      "ok": true,
+      "seconds": 0.65
+    },
+    {
+      "name": "upstream/codegen/dispatch_result_prefix/O2",
+      "ok": true,
+      "seconds": 1.857
+    },
+    {
+      "name": "upstream/codegen/evaluation_order/O0",
+      "ok": true,
+      "seconds": 0.597
+    },
+    {
+      "name": "upstream/codegen/evaluation_order/O2",
+      "ok": true,
+      "seconds": 1.392
+    },
+    {
+      "name": "upstream/codegen/fat_optional/O0",
+      "ok": true,
+      "seconds": 0.55
+    },
+    {
+      "name": "upstream/codegen/fat_optional/O2",
+      "ok": true,
+      "seconds": 1.207
+    },
+    {
+      "name": "upstream/codegen/frame_return_from/O0",
+      "ok": true,
+      "seconds": 0.549
+    },
+    {
+      "name": "upstream/codegen/frame_return_from/O2",
+      "ok": true,
+      "seconds": 1.257
+    },
+    {
+      "name": "upstream/codegen/global_tail_alias/O0",
+      "ok": true,
+      "seconds": 0.582
+    },
+    {
+      "name": "upstream/codegen/global_tail_alias/O2",
+      "ok": true,
+      "seconds": 1.214
+    },
+    {
+      "name": "upstream/codegen/multi_value_reference_results/O0",
+      "ok": true,
+      "seconds": 0.643
+    },
+    {
+      "name": "upstream/codegen/multi_value_reference_results/O2",
+      "ok": true,
+      "seconds": 1.37
+    },
+    {
+      "name": "upstream/codegen/named_init_inplace/O0",
+      "ok": true,
+      "seconds": 0.549
+    },
+    {
+      "name": "upstream/codegen/named_init_inplace/O2",
+      "ok": true,
+      "seconds": 1.399
+    },
+    {
+      "name": "upstream/codegen/named_result_destinations/O0",
+      "ok": true,
+      "seconds": 0.697
+    },
+    {
+      "name": "upstream/codegen/named_result_destinations/O2",
+      "ok": true,
+      "seconds": 1.729
+    },
+    {
+      "name": "upstream/codegen/pad_only_layouts/O0",
+      "ok": true,
+      "seconds": 0.782
+    },
+    {
+      "name": "upstream/codegen/pad_only_layouts/O2",
+      "ok": true,
+      "seconds": 1.437
+    },
+    {
+      "name": "upstream/codegen/print_variable_size_elements/O0",
+      "ok": true,
+      "seconds": 0.698
+    },
+    {
+      "name": "upstream/codegen/print_variable_size_elements/O2",
+      "ok": true,
+      "seconds": 1.297
+    },
+    {
+      "name": "upstream/codegen/reftops_call_sync/O0",
+      "ok": true,
+      "seconds": 0.6
+    },
+    {
+      "name": "upstream/codegen/reftops_call_sync/O2",
+      "ok": true,
+      "seconds": 1.536
+    },
+    {
+      "name": "upstream/codegen/render_adt_self_references/O0",
+      "ok": true,
+      "seconds": 0.938
+    },
+    {
+      "name": "upstream/codegen/render_adt_self_references/O2",
+      "ok": true,
+      "seconds": 2.622
+    },
+    {
+      "name": "upstream/codegen/render_fn_overload_stacks/O0",
+      "ok": true,
+      "seconds": 0.596
+    },
+    {
+      "name": "upstream/codegen/render_fn_overload_stacks/O2",
+      "ok": true,
+      "seconds": 1.593
+    },
+    {
+      "name": "upstream/codegen/render_recursive_overloads/O0",
+      "ok": true,
+      "seconds": 0.731
+    },
+    {
+      "name": "upstream/codegen/render_recursive_overloads/O2",
+      "ok": true,
+      "seconds": 1.761
+    },
+    {
+      "name": "upstream/codegen/render_self_relative_hooks/O0",
+      "ok": true,
+      "seconds": 0.663
+    },
+    {
+      "name": "upstream/codegen/render_self_relative_hooks/O2",
+      "ok": true,
+      "seconds": 1.479
+    },
+    {
+      "name": "upstream/codegen/rendered_varint_storage/O0",
+      "ok": true,
+      "seconds": 0.645
+    },
+    {
+      "name": "upstream/codegen/rendered_varint_storage/O2",
+      "ok": true,
+      "seconds": 1.379
+    },
+    {
+      "name": "upstream/codegen/shrink_frame_prefix/O0",
+      "ok": true,
+      "seconds": 0.696
+    },
+    {
+      "name": "upstream/codegen/shrink_frame_prefix/O2",
+      "ok": true,
+      "seconds": 1.188
+    },
+    {
+      "name": "upstream/codegen/stack_top_classes/O0",
+      "ok": true,
+      "seconds": 0.722
+    },
+    {
+      "name": "upstream/codegen/stack_top_classes/O2",
+      "ok": true,
+      "seconds": 1.861
+    },
+    {
+      "name": "upstream/codegen/temporary_stack_base/O0",
+      "ok": true,
+      "seconds": 0.615
+    },
+    {
+      "name": "upstream/codegen/temporary_stack_base/O2",
+      "ok": true,
+      "seconds": 1.434
+    },
+    {
+      "name": "upstream/codegen/variable_prefix_frame_tail/O0",
+      "ok": true,
+      "seconds": 1.105
+    },
+    {
+      "name": "upstream/codegen/variable_prefix_frame_tail/O2",
+      "ok": true,
+      "seconds": 2.499
+    },
+    {
+      "name": "upstream/codegen/varint_elements/O0",
+      "ok": true,
+      "seconds": 0.816
+    },
+    {
+      "name": "upstream/codegen/varint_elements/O2",
+      "ok": true,
+      "seconds": 2.318
+    },
+    {
+      "name": "upstream/optimizer/bce_push_alias/O0",
+      "ok": true,
+      "seconds": 0.596
+    },
+    {
+      "name": "upstream/optimizer/bce_push_alias/O2",
+      "ok": true,
+      "seconds": 1.342
+    },
+    {
+      "name": "upstream/optimizer/bce_receiver_resize/O0",
+      "ok": true,
+      "seconds": 0.655
+    },
+    {
+      "name": "upstream/optimizer/bce_receiver_resize/O2",
+      "ok": true,
+      "seconds": 1.301
+    },
+    {
+      "name": "upstream/optimizer/checkfree_bfs/O0",
+      "ok": true,
+      "seconds": 1.018
+    },
+    {
+      "name": "upstream/optimizer/checkfree_bfs/O2",
+      "ok": true,
+      "seconds": 1.32
+    },
+    {
+      "name": "upstream/optimizer/loop_shapes/O0",
+      "ok": true,
+      "seconds": 0.706
+    },
+    {
+      "name": "upstream/optimizer/loop_shapes/O2",
+      "ok": true,
+      "seconds": 3.379
+    },
+    {
+      "name": "upstream/runtime/div_euclid_zero/O0",
+      "ok": true,
+      "seconds": 0.596
+    },
+    {
+      "name": "upstream/runtime/div_euclid_zero/O2",
+      "ok": true,
+      "seconds": 1.128
+    },
+    {
+      "name": "upstream/runtime/float_text_digits/O0",
+      "ok": true,
+      "seconds": 0.567
+    },
+    {
+      "name": "upstream/runtime/float_text_digits/O2",
+      "ok": true,
+      "seconds": 1.516
+    },
+    {
+      "name": "upstream/runtime/float_text_f32/O0",
+      "ok": true,
+      "seconds": 0.616
+    },
+    {
+      "name": "upstream/runtime/float_text_f32/O2",
+      "ok": true,
+      "seconds": 1.455
+    },
+    {
+      "name": "upstream/runtime/float_text_nonfinite/O0",
+      "ok": true,
+      "seconds": 0.674
+    },
+    {
+      "name": "upstream/runtime/float_text_nonfinite/O2",
+      "ok": true,
+      "seconds": 1.392
+    },
+    {
+      "name": "upstream/runtime/integer_text/O0",
+      "ok": true,
+      "seconds": 0.69
+    },
+    {
+      "name": "upstream/runtime/integer_text/O2",
+      "ok": true,
+      "seconds": 1.606
+    },
+    {
+      "name": "upstream/runtime/overflow_abort_location/O0",
+      "ok": true,
+      "seconds": 0.557
+    },
+    {
+      "name": "upstream/runtime/overflow_abort_location/O2",
+      "ok": true,
+      "seconds": 1.13
+    },
+    {
+      "name": "upstream/runtime/relative_optional_zero/O0",
+      "ok": true,
+      "seconds": 0.523
+    },
+    {
+      "name": "upstream/runtime/relative_optional_zero/O2",
+      "ok": true,
+      "seconds": 1.111
+    },
+    {
+      "name": "upstream/runtime/resize_negative/O0",
+      "ok": true,
+      "seconds": 0.522
+    },
+    {
+      "name": "upstream/runtime/resize_negative/O2",
+      "ok": true,
+      "seconds": 1.132
+    },
+    {
+      "name": "upstream/runtime/slice_pool/O0",
+      "ok": true,
+      "seconds": 0.886
+    },
+    {
+      "name": "upstream/runtime/slice_pool/O2",
+      "ok": true,
+      "seconds": 2.331
+    },
+    {
+      "name": "upstream/runtime/slice_pool_foreign/O0",
+      "ok": true,
+      "seconds": 0.609
+    },
+    {
+      "name": "upstream/runtime/slice_pool_foreign/O2",
+      "ok": true,
+      "seconds": 1.362
+    },
+    {
+      "name": "upstream/runtime/slice_pool_many_spans/O0",
+      "ok": true,
+      "seconds": 0.632
+    },
+    {
+      "name": "upstream/runtime/slice_pool_many_spans/O2",
+      "ok": true,
+      "seconds": 1.479
+    },
+    {
+      "name": "upstream/runtime/slice_pool_model/O0",
+      "ok": true,
+      "seconds": 0.894
+    },
+    {
+      "name": "upstream/runtime/slice_pool_model/O2",
+      "ok": true,
+      "seconds": 1.645
+    },
+    {
+      "name": "upstream/stdlib/stdlib_base64/O0",
+      "ok": true,
+      "seconds": 0.847
+    },
+    {
+      "name": "upstream/stdlib/stdlib_base64/O2",
+      "ok": true,
+      "seconds": 1.879
+    },
+    {
+      "name": "upstream/stdlib/stdlib_binary/O0",
+      "ok": true,
+      "seconds": 0.685
+    },
+    {
+      "name": "upstream/stdlib/stdlib_binary/O2",
+      "ok": true,
+      "seconds": 1.3
+    },
+    {
+      "name": "upstream/stdlib/stdlib_csv/O0",
+      "ok": true,
+      "seconds": 0.669
+    },
+    {
+      "name": "upstream/stdlib/stdlib_csv/O2",
+      "ok": true,
+      "seconds": 1.599
+    },
+    {
+      "name": "upstream/stdlib/stdlib_dictionary/O0",
+      "ok": true,
+      "seconds": 0.736
+    },
+    {
+      "name": "upstream/stdlib/stdlib_dictionary/O2",
+      "ok": true,
+      "seconds": 1.53
+    },
+    {
+      "name": "upstream/stdlib/stdlib_dictionary_model/O0",
+      "ok": true,
+      "seconds": 0.911
+    },
+    {
+      "name": "upstream/stdlib/stdlib_dictionary_model/O2",
+      "ok": true,
+      "seconds": 3.019
+    },
+    {
+      "name": "upstream/stdlib/stdlib_heap/O0",
+      "ok": true,
+      "seconds": 0.804
+    },
+    {
+      "name": "upstream/stdlib/stdlib_heap/O2",
+      "ok": true,
+      "seconds": 1.984
+    },
+    {
+      "name": "upstream/stdlib/stdlib_json/O0",
+      "ok": true,
+      "seconds": 1.981
+    },
+    {
+      "name": "upstream/stdlib/stdlib_json/O2",
+      "ok": true,
+      "seconds": 5.348
+    },
+    {
+      "name": "upstream/stdlib/stdlib_math/O0",
+      "ok": true,
+      "seconds": 0.908
+    },
+    {
+      "name": "upstream/stdlib/stdlib_math/O2",
+      "ok": true,
+      "seconds": 1.577
+    },
+    {
+      "name": "upstream/stdlib/stdlib_os/O0",
+      "ok": true,
+      "seconds": 0.891
+    },
+    {
+      "name": "upstream/stdlib/stdlib_os/O2",
+      "ok": true,
+      "seconds": 1.511
+    },
+    {
+      "name": "upstream/stdlib/stdlib_regex/O0",
+      "ok": true,
+      "seconds": 1.008
+    },
+    {
+      "name": "upstream/stdlib/stdlib_regex/O2",
+      "ok": true,
+      "seconds": 2.746
+    },
+    {
+      "name": "upstream/stdlib/stdlib_sort/O0",
+      "ok": true,
+      "seconds": 1.687
+    },
+    {
+      "name": "upstream/stdlib/stdlib_sort/O2",
+      "ok": true,
+      "seconds": 4.637
+    },
+    {
+      "name": "upstream/stdlib/stdlib_vec/O0",
+      "ok": true,
+      "seconds": 0.636
+    },
+    {
+      "name": "upstream/stdlib/stdlib_vec/O2",
+      "ok": true,
+      "seconds": 1.375
+    },
+    {
+      "name": "upstream/storage/pool_reference_rebinds/O0",
+      "ok": true,
+      "seconds": 0.816
+    },
+    {
+      "name": "upstream/storage/pool_reference_rebinds/O2",
+      "ok": true,
+      "seconds": 1.771
+    },
+    {
+      "name": "upstream/storage/relative_copy_forms/O0",
+      "ok": true,
+      "seconds": 0.638
+    },
+    {
+      "name": "upstream/storage/relative_copy_forms/O2",
+      "ok": true,
+      "seconds": 1.27
+    },
+    {
+      "name": "upstream/storage/relative_elements/O0",
+      "ok": true,
+      "seconds": 0.68
+    },
+    {
+      "name": "upstream/storage/relative_elements/O2",
+      "ok": true,
+      "seconds": 1.479
+    },
+    {
+      "name": "upstream/storage/self_relative_adt_payloads/O0",
+      "ok": true,
+      "seconds": 0.604
+    },
+    {
+      "name": "upstream/storage/self_relative_adt_payloads/O2",
+      "ok": true,
+      "seconds": 1.329
+    },
+    {
+      "name": "upstream/storage/serialize/O0",
+      "ok": true,
+      "seconds": 0.985
+    },
+    {
+      "name": "upstream/storage/serialize/O2",
+      "ok": true,
+      "seconds": 4.32
+    },
+    {
+      "name": "upstream/storage/serialize_image_checks/O0",
+      "ok": true,
+      "seconds": 0.59
+    },
+    {
+      "name": "upstream/storage/serialize_image_checks/O2",
+      "ok": true,
+      "seconds": 1.258
+    },
+    {
+      "name": "upstream/syntax/raw_strings/O0",
+      "ok": true,
+      "seconds": 0.542
+    },
+    {
+      "name": "upstream/syntax/raw_strings/O2",
+      "ok": true,
+      "seconds": 1.268
+    },
+    {
+      "name": "upstream/typing/generic_return_from/O0",
+      "ok": true,
+      "seconds": 0.706
+    },
+    {
+      "name": "upstream/typing/generic_return_from/O2",
+      "ok": true,
+      "seconds": 1.364
+    },
+    {
+      "name": "upstream/typing/int_float_conversions/O0",
+      "ok": true,
+      "seconds": 0.674
+    },
+    {
+      "name": "upstream/typing/int_float_conversions/O2",
+      "ok": true,
+      "seconds": 1.459
+    }
+  ]
+}

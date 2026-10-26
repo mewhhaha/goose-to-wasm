@@ -1,0 +1,98 @@
+Artifact SHA-256: d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7
+
+Timed call site from main (first clock through second clock):
+    142a:	e8 e1 0d 00 00       	call   2210 <bench_clock>
+    142f:	48 89 ef             	mov    %rbp,%rdi
+    1432:	49 89 c4             	mov    %rax,%r12
+    1435:	e8 56 0e 00 00       	call   2290 <bench_barrier>
+    143a:	48 89 c7             	mov    %rax,%rdi
+    143d:	e8 ee 0b 00 00       	call   2030 <kernel_g>
+    1442:	48 89 c5             	mov    %rax,%rbp
+    1445:	48 89 c7             	mov    %rax,%rdi
+    1448:	e8 63 0e 00 00       	call   22b0 <bench_sink>
+    144d:	e8 be 0d 00 00       	call   2210 <bench_clock>
+
+Recursive kernel:
+
+/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/3/program.bin:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .plt.got:
+
+Disassembly of section .plt.sec:
+
+Disassembly of section .text:
+
+0000000000002030 <kernel_g>:
+    2030:	41 56                	push   %r14
+    2032:	41 55                	push   %r13
+    2034:	41 54                	push   %r12
+    2036:	55                   	push   %rbp
+    2037:	31 ed                	xor    %ebp,%ebp
+    2039:	53                   	push   %rbx
+    203a:	48 89 fb             	mov    %rdi,%rbx
+    203d:	48 83 fb 01          	cmp    $0x1,%rbx
+    2041:	7e 0e                	jle    2051 <kernel_g+0x21>
+    2043:	49 89 dc             	mov    %rbx,%r12
+    2046:	48 83 fb 02          	cmp    $0x2,%rbx
+    204a:	75 14                	jne    2060 <kernel_g+0x30>
+    204c:	bb 01 00 00 00       	mov    $0x1,%ebx
+    2051:	48 8d 44 1d 00       	lea    0x0(%rbp,%rbx,1),%rax
+    2056:	5b                   	pop    %rbx
+    2057:	5d                   	pop    %rbp
+    2058:	41 5c                	pop    %r12
+    205a:	41 5d                	pop    %r13
+    205c:	41 5e                	pop    %r14
+    205e:	c3                   	ret
+    205f:	90                   	nop
+    2060:	48 83 fb 03          	cmp    $0x3,%rbx
+    2064:	75 1a                	jne    2080 <kernel_g+0x50>
+    2066:	bb 02 00 00 00       	mov    $0x2,%ebx
+    206b:	48 8d 44 1d 00       	lea    0x0(%rbp,%rbx,1),%rax
+    2070:	5b                   	pop    %rbx
+    2071:	5d                   	pop    %rbp
+    2072:	41 5c                	pop    %r12
+    2074:	41 5d                	pop    %r13
+    2076:	41 5e                	pop    %r14
+    2078:	c3                   	ret
+    2079:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+    2080:	48 8d 7b fd          	lea    -0x3(%rbx),%rdi
+    2084:	48 83 fb 04          	cmp    $0x4,%rbx
+    2088:	74 46                	je     20d0 <kernel_g+0xa0>
+    208a:	e8 a1 ff ff ff       	call   2030 <kernel_g>
+    208f:	48 83 eb 04          	sub    $0x4,%rbx
+    2093:	49 89 c5             	mov    %rax,%r13
+    2096:	48 83 fb 01          	cmp    $0x1,%rbx
+    209a:	74 44                	je     20e0 <kernel_g+0xb0>
+    209c:	48 89 df             	mov    %rbx,%rdi
+    209f:	e8 8c ff ff ff       	call   2030 <kernel_g>
+    20a4:	49 8d 7c 24 fb       	lea    -0x5(%r12),%rdi
+    20a9:	49 89 c6             	mov    %rax,%r14
+    20ac:	49 01 c5             	add    %rax,%r13
+    20af:	49 83 fc 06          	cmp    $0x6,%r12
+    20b3:	74 3b                	je     20f0 <kernel_g+0xc0>
+    20b5:	e8 76 ff ff ff       	call   2030 <kernel_g>
+    20ba:	4d 01 f5             	add    %r14,%r13
+    20bd:	49 01 c5             	add    %rax,%r13
+    20c0:	49 01 c6             	add    %rax,%r14
+    20c3:	4b 8d 44 35 00       	lea    0x0(%r13,%r14,1),%rax
+    20c8:	48 01 c5             	add    %rax,%rbp
+    20cb:	e9 6d ff ff ff       	jmp    203d <kernel_g+0xd>
+    20d0:	bb 03 00 00 00       	mov    $0x3,%ebx
+    20d5:	e9 77 ff ff ff       	jmp    2051 <kernel_g+0x21>
+    20da:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+    20e0:	48 8d 58 04          	lea    0x4(%rax),%rbx
+    20e4:	e9 68 ff ff ff       	jmp    2051 <kernel_g+0x21>
+    20e9:	0f 1f 80 00 00 00 00 	nopl   0x0(%rax)
+    20f0:	bf 02 00 00 00       	mov    $0x2,%edi
+    20f5:	4e 8d 6c 28 01       	lea    0x1(%rax,%r13,1),%r13
+    20fa:	bb 02 00 00 00       	mov    $0x2,%ebx
+    20ff:	e8 2c ff ff ff       	call   2030 <kernel_g>
+    2104:	4c 8d 70 01          	lea    0x1(%rax),%r14
+    2108:	eb b9                	jmp    20c3 <kernel_g+0x93>
+
+Disassembly of section .fini:

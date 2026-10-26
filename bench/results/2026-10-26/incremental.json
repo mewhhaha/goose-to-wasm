@@ -1,0 +1,5140 @@
+{
+  "schema": "goose-incremental-benchmark-v1",
+  "python": "3.12.14",
+  "started_utc": "2026-10-26T08:30:16.629125+00:00",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "cpu_count": 9,
+  "supplied_machine_label": "AMD EPYC 9V74; KVM guest, 9 logical CPUs, 9.7 GiB RAM",
+  "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+  "input_sha256": {
+    "bench/incremental.py": "53789aaff486d7f020c92ee92b27213240bfeaa969fd059c6dd5960d3370401f",
+    "scripts/goose_wasm.py": "123a5e8382f8ec2ff17c6875740388e0aa3c39a6ebd81d916fb0e6fff433cc15"
+  },
+  "optimization": "-O0",
+  "source_functions": 32,
+  "policy": "content-checked module cache; edits run full frontend and full backend",
+  "notes": [
+    "Warm cache samples exclude the first warming request.",
+    "Raw compiler includes native process startup and module output.",
+    "Wrapper samples include Python process startup, dependency checks and output handling.",
+    "Server samples include JSON request/response round-trip and content validation.",
+    "Bytecode hashes describe unchanged functions; no function emission is skipped yet."
+  ],
+  "measurements": {
+    "raw_compiler": {
+      "samples_ms": [
+        8.005594,
+        8.777045,
+        8.826344,
+        8.156352,
+        9.993496,
+        8.71897,
+        10.014697,
+        9.987578,
+        13.64986,
+        9.589328,
+        9.987708,
+        10.261914,
+        8.527847,
+        8.36854,
+        8.844275
+      ],
+      "median_ms": 8.844275,
+      "min_ms": 8.005594,
+      "max_ms": 13.64986,
+      "mad_ms": 0.7450530000000004,
+      "p90_ms": 10.261914
+    },
+    "uncached_wrapper": {
+      "samples_ms": [
+        64.556114,
+        58.03021,
+        64.819784,
+        57.202034,
+        56.093604,
+        58.43809,
+        59.515825,
+        65.816147,
+        62.388898,
+        55.610594,
+        58.099779,
+        65.561169,
+        60.527278,
+        59.889719,
+        60.891126
+      ],
+      "median_ms": 59.889719,
+      "min_ms": 55.610594,
+      "max_ms": 65.816147,
+      "mad_ms": 2.499178999999998,
+      "p90_ms": 65.561169
+    },
+    "unchanged_wrapper_cache": {
+      "samples_ms": [
+        59.205685,
+        58.97793,
+        52.320613,
+        45.168447,
+        48.338769,
+        50.57923,
+        52.423686,
+        47.334673,
+        53.502903,
+        42.785705,
+        50.315816,
+        42.515088,
+        52.426064,
+        44.147454,
+        45.242105
+      ],
+      "median_ms": 50.315816,
+      "min_ms": 42.515088,
+      "max_ms": 59.205685,
+      "mad_ms": 3.1870870000000053,
+      "p90_ms": 58.97793
+    },
+    "unchanged_persistent_server": {
+      "samples_ms": [
+        2.15452,
+        2.218735,
+        1.825021,
+        1.797101,
+        2.115642,
+        2.297431,
+        1.897919,
+        1.893603,
+        1.984107,
+        1.77651,
+        2.542885,
+        1.909386,
+        2.139207,
+        2.216361,
+        2.519409
+      ],
+      "median_ms": 2.115642,
+      "min_ms": 1.77651,
+      "max_ms": 2.542885,
+      "mad_ms": 0.20625599999999977,
+      "p90_ms": 2.519409
+    },
+    "single_function_edit_server": {
+      "samples_ms": [
+        14.856322,
+        14.289664,
+        12.746309,
+        18.777182,
+        14.516234,
+        14.152602,
+        16.046335,
+        14.581636,
+        14.221879,
+        17.267743,
+        18.075468,
+        16.431379,
+        16.220252,
+        15.079743,
+        16.692772
+      ],
+      "median_ms": 15.079743,
+      "min_ms": 12.746309,
+      "max_ms": 18.777182,
+      "mad_ms": 0.9665919999999986,
+      "p90_ms": 18.075468
+    }
+  },
+  "raw_phase_medians_ms": {
+    "parse_ns": 2.151575,
+    "resolve_ns": 0.170602,
+    "typecheck_ns": 2.501454,
+    "optimize_ns": 0.041461,
+    "bce_ns": 0.083073,
+    "backend_ns": 0.086297
+  },
+  "module_bytes": 2808,
+  "emitted_functions": 34,
+  "edits": [
+    {
+      "delta": 2,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 91365,
+        "parse_ns": 2310280,
+        "resolve_ns": 164033,
+        "typecheck_ns": 3142752,
+        "optimize_ns": 94781,
+        "bce_ns": 90243,
+        "frontend_ns": 5802360,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "17702719592793454689",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 3,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 95482,
+        "parse_ns": 2320836,
+        "resolve_ns": 154238,
+        "typecheck_ns": 2146528,
+        "optimize_ns": 42863,
+        "bce_ns": 114370,
+        "frontend_ns": 4779175,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "10463363033715975988",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 4,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 89121,
+        "parse_ns": 1962555,
+        "resolve_ns": 143663,
+        "typecheck_ns": 2227858,
+        "optimize_ns": 41692,
+        "bce_ns": 84054,
+        "frontend_ns": 4460203,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "14770191709596614083",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 5,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 94179,
+        "parse_ns": 2477858,
+        "resolve_ns": 196391,
+        "typecheck_ns": 4808258,
+        "optimize_ns": 254036,
+        "bce_ns": 88661,
+        "frontend_ns": 7825745,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "12071420995770236630",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 6,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 91756,
+        "parse_ns": 2205935,
+        "resolve_ns": 155630,
+        "typecheck_ns": 2836279,
+        "optimize_ns": 64666,
+        "bce_ns": 87600,
+        "frontend_ns": 5350530,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "10613297801206941661",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 7,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 146417,
+        "parse_ns": 2042053,
+        "resolve_ns": 143442,
+        "typecheck_ns": 2173457,
+        "optimize_ns": 41051,
+        "bce_ns": 86588,
+        "frontend_ns": 4486992,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "11961635564333872400",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 8,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 84335,
+        "parse_ns": 2389047,
+        "resolve_ns": 196781,
+        "typecheck_ns": 4347536,
+        "optimize_ns": 42964,
+        "bce_ns": 86147,
+        "frontend_ns": 7062766,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "9646201662016334159",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 9,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 87690,
+        "parse_ns": 2239546,
+        "resolve_ns": 180807,
+        "typecheck_ns": 2419322,
+        "optimize_ns": 42172,
+        "bce_ns": 85437,
+        "frontend_ns": 4967704,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "10119480425075864802",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 10,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 90844,
+        "parse_ns": 2149001,
+        "resolve_ns": 154940,
+        "typecheck_ns": 2720747,
+        "optimize_ns": 43685,
+        "bce_ns": 87990,
+        "frontend_ns": 5156784,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "11331978358494857193",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 11,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 88321,
+        "parse_ns": 2267236,
+        "resolve_ns": 163502,
+        "typecheck_ns": 2354856,
+        "optimize_ns": 48091,
+        "bce_ns": 88762,
+        "frontend_ns": 4922787,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "1837140543638808796",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 12,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 90434,
+        "parse_ns": 2235450,
+        "resolve_ns": 171383,
+        "typecheck_ns": 2163733,
+        "optimize_ns": 43395,
+        "bce_ns": 88170,
+        "frontend_ns": 4702592,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "8390868314612917483",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 13,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 332542,
+        "parse_ns": 2487282,
+        "resolve_ns": 188659,
+        "typecheck_ns": 2491669,
+        "optimize_ns": 43985,
+        "bce_ns": 198424,
+        "frontend_ns": 5410369,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "1257678808909987550",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 14,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 99367,
+        "parse_ns": 1953511,
+        "resolve_ns": 158745,
+        "typecheck_ns": 3363540,
+        "optimize_ns": 45137,
+        "bce_ns": 86417,
+        "frontend_ns": 5607781,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "3650216592004684069",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 15,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 89002,
+        "parse_ns": 1979851,
+        "resolve_ns": 151704,
+        "typecheck_ns": 2740397,
+        "optimize_ns": 61321,
+        "bce_ns": 88261,
+        "frontend_ns": 5021984,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "17673706929389110616",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "delta": 16,
+      "unchanged_body_hashes": 33,
+      "changed_body_hashes": 1,
+      "full_frontend_ran": true,
+      "full_backend_ran": true,
+      "backend_stats": {
+        "backend": "direct",
+        "functions": 34,
+        "code_bytes": 1611,
+        "module_bytes": 2808,
+        "backend_ns": 116683,
+        "parse_ns": 2655361,
+        "resolve_ns": 160197,
+        "typecheck_ns": 2895557,
+        "optimize_ns": 44045,
+        "bce_ns": 95191,
+        "frontend_ns": 5850761,
+        "source_files": 2,
+        "specializations": 90,
+        "function_info": [
+          {
+            "name": "main#0",
+            "index": 10,
+            "code_bytes": 37,
+            "body_hash": "5600726358518801719",
+            "dependencies": [
+              1,
+              6,
+              9,
+              11
+            ]
+          },
+          {
+            "name": "step31#2",
+            "index": 11,
+            "code_bytes": 33,
+            "body_hash": "3269339181175440715",
+            "dependencies": [
+              12
+            ]
+          },
+          {
+            "name": "step30#3",
+            "index": 12,
+            "code_bytes": 33,
+            "body_hash": "11731966997079493417",
+            "dependencies": [
+              13
+            ]
+          },
+          {
+            "name": "step29#4",
+            "index": 13,
+            "code_bytes": 33,
+            "body_hash": "7084807955264172167",
+            "dependencies": [
+              14
+            ]
+          },
+          {
+            "name": "step28#5",
+            "index": 14,
+            "code_bytes": 33,
+            "body_hash": "11172511918891195849",
+            "dependencies": [
+              15
+            ]
+          },
+          {
+            "name": "step27#6",
+            "index": 15,
+            "code_bytes": 33,
+            "body_hash": "16061219757970715659",
+            "dependencies": [
+              16
+            ]
+          },
+          {
+            "name": "step26#7",
+            "index": 16,
+            "code_bytes": 33,
+            "body_hash": "11345270601469462753",
+            "dependencies": [
+              17
+            ]
+          },
+          {
+            "name": "step25#8",
+            "index": 17,
+            "code_bytes": 33,
+            "body_hash": "6305484510956769951",
+            "dependencies": [
+              18
+            ]
+          },
+          {
+            "name": "step24#9",
+            "index": 18,
+            "code_bytes": 33,
+            "body_hash": "10591011491087613825",
+            "dependencies": [
+              19
+            ]
+          },
+          {
+            "name": "step23#10",
+            "index": 19,
+            "code_bytes": 33,
+            "body_hash": "3189223184297528635",
+            "dependencies": [
+              20
+            ]
+          },
+          {
+            "name": "step22#11",
+            "index": 20,
+            "code_bytes": 33,
+            "body_hash": "12903219264953867417",
+            "dependencies": [
+              21
+            ]
+          },
+          {
+            "name": "step21#12",
+            "index": 21,
+            "code_bytes": 33,
+            "body_hash": "4086253310150506055",
+            "dependencies": [
+              22
+            ]
+          },
+          {
+            "name": "step20#13",
+            "index": 22,
+            "code_bytes": 33,
+            "body_hash": "7007372640476618809",
+            "dependencies": [
+              23
+            ]
+          },
+          {
+            "name": "step19#14",
+            "index": 23,
+            "code_bytes": 33,
+            "body_hash": "18372507259638245403",
+            "dependencies": [
+              24
+            ]
+          },
+          {
+            "name": "step18#15",
+            "index": 24,
+            "code_bytes": 33,
+            "body_hash": "13310064687638001729",
+            "dependencies": [
+              25
+            ]
+          },
+          {
+            "name": "step17#16",
+            "index": 25,
+            "code_bytes": 33,
+            "body_hash": "9011965083145744751",
+            "dependencies": [
+              26
+            ]
+          },
+          {
+            "name": "step16#17",
+            "index": 26,
+            "code_bytes": 33,
+            "body_hash": "18192792892264782945",
+            "dependencies": [
+              27
+            ]
+          },
+          {
+            "name": "step15#18",
+            "index": 27,
+            "code_bytes": 33,
+            "body_hash": "3553590078006774379",
+            "dependencies": [
+              28
+            ]
+          },
+          {
+            "name": "step14#19",
+            "index": 28,
+            "code_bytes": 33,
+            "body_hash": "11910426157384699337",
+            "dependencies": [
+              29
+            ]
+          },
+          {
+            "name": "step13#20",
+            "index": 29,
+            "code_bytes": 33,
+            "body_hash": "11688034711327675175",
+            "dependencies": [
+              30
+            ]
+          },
+          {
+            "name": "step12#21",
+            "index": 30,
+            "code_bytes": 33,
+            "body_hash": "16560369322829793897",
+            "dependencies": [
+              31
+            ]
+          },
+          {
+            "name": "step11#22",
+            "index": 31,
+            "code_bytes": 33,
+            "body_hash": "12420954463292074987",
+            "dependencies": [
+              32
+            ]
+          },
+          {
+            "name": "step10#23",
+            "index": 32,
+            "code_bytes": 33,
+            "body_hash": "7504412760364094913",
+            "dependencies": [
+              33
+            ]
+          },
+          {
+            "name": "step9#24",
+            "index": 33,
+            "code_bytes": 33,
+            "body_hash": "12287749024828720031",
+            "dependencies": [
+              34
+            ]
+          },
+          {
+            "name": "step8#25",
+            "index": 34,
+            "code_bytes": 33,
+            "body_hash": "13351730868704140385",
+            "dependencies": [
+              35
+            ]
+          },
+          {
+            "name": "step7#26",
+            "index": 35,
+            "code_bytes": 33,
+            "body_hash": "7204326883754814907",
+            "dependencies": [
+              36
+            ]
+          },
+          {
+            "name": "step6#27",
+            "index": 36,
+            "code_bytes": 33,
+            "body_hash": "438739705116265881",
+            "dependencies": [
+              37
+            ]
+          },
+          {
+            "name": "step5#28",
+            "index": 37,
+            "code_bytes": 33,
+            "body_hash": "4779808651059416871",
+            "dependencies": [
+              38
+            ]
+          },
+          {
+            "name": "step4#29",
+            "index": 38,
+            "code_bytes": 33,
+            "body_hash": "11060457346922040377",
+            "dependencies": [
+              39
+            ]
+          },
+          {
+            "name": "step3#30",
+            "index": 39,
+            "code_bytes": 33,
+            "body_hash": "5908027699800643867",
+            "dependencies": [
+              40
+            ]
+          },
+          {
+            "name": "step2#31",
+            "index": 40,
+            "code_bytes": 33,
+            "body_hash": "14968209932260176801",
+            "dependencies": [
+              41
+            ]
+          },
+          {
+            "name": "step1#32",
+            "index": 41,
+            "code_bytes": 33,
+            "body_hash": "16855034435748431",
+            "dependencies": [
+              42
+            ]
+          },
+          {
+            "name": "step0#33",
+            "index": 42,
+            "code_bytes": 28,
+            "body_hash": "15722081629144704631",
+            "dependencies": []
+          },
+          {
+            "name": "_start",
+            "index": 43,
+            "code_bytes": 523,
+            "body_hash": "874782785738463394",
+            "dependencies": [
+              7,
+              10
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "last_edit_output_verified": true,
+  "finished_utc": "2026-10-26T08:30:18.899509+00:00"
+}

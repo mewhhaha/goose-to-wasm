@@ -1,0 +1,101 @@
+name: Compiler qualification
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qualification-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      EMCC_CORES: "2"
+      EM_CACHE: ${{ github.workspace }}/build/em-cache
+      TMPDIR: ${{ github.workspace }}/build/tmp
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read toolchain pins
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          pins = json.loads(Path("toolchain.json").read_text())
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              print("node=" + pins["node"], file=output)
+          PY
+          mkdir -p build/tmp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.pins.outputs.node }}
+      - name: Install build tools and Wasmtime
+        run: python -m pip install cmake==4.4.4 ninja==1.13.2 -r requirements.txt
+      - name: Build pinned compiler
+        run: python scripts/bootstrap.py --generator Ninja --jobs 2
+      - name: Install pinned Emscripten
+        run: |
+          python scripts/install_emsdk.py --jobs 2
+          echo "${{ github.workspace }}/build/emsdk/upstream/emscripten" >> "$GITHUB_PATH"
+      - name: Record engine and compiler identities
+        run: |
+          python scripts/goose_wasm.py version
+          node -p 'JSON.stringify({node: process.version, v8: process.versions.v8})'
+          python -c 'from importlib.metadata import version; print("Wasmtime", version("wasmtime"))'
+          cat build/toolchain.json
+      - name: Verify shared engine features
+        run: python scripts/check_engines.py --output build/engine-probes.json
+      - name: Oracle source and driver contracts
+        run: |
+          python oracle/tests/test_bootstrap.py
+          python oracle/tests/test_target.py
+          python oracle/tests/test_driver.py
+      - name: Full C-Wasm portability corpus
+        run: python oracle/tests/run_tests.py --full --jobs 2
+      - name: Memory64 and native GCC comparison
+        run: >-
+          python oracle/tests/run_tests.py --quick --memory64 --native-gcc gcc
+          --jobs 2 --output-dir build/oracle/memory64-results
+      - name: Direct, C-Wasm and native differential qualification
+        run: >-
+          python tests/run_differential.py --engines v8 wasmtime
+          --backends direct c-wasm native
+      - name: Incremental cache correctness
+        run: python tests/test_incremental.py
+      - name: Incremental rebuild measurement smoke
+        run: python bench/incremental.py --samples 3
+      - name: Benchmark harness correctness smoke
+        run: >-
+          python bench/benchmark.py --smoke --samples 2 --compile-samples 1
+          --warmups 1 --output-dir build/benchmark-smoke
+      - name: Package compiler and corresponding sources
+        run: |
+          tar --exclude=source/.git -C build -czf build/compiler-linux-x64.tar.gz bin source toolchain.json source.json
+      - name: Publish qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-linux-x64
+          if-no-files-found: warn
+          path: |
+            build/toolchain.json
+            build/source.json
+            build/engine-probes.json
+            build/compiler-linux-x64.tar.gz
+            build/oracle/**/report.json
+            build/oracle/driver-tests/
+            build/oracle/target-tests/
+            build/differential/
+            build/benchmark-smoke/
+            build/incremental-benchmark.json

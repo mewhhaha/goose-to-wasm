@@ -1,0 +1,75 @@
+{
+  "schema": "goose-native-fibonacci-audit-v1",
+  "observed_utc": "2026-10-26T08:31:26.109666+00:00",
+  "artifact_sha256": "d221e4686310c0c4453fc8bd66efa1ab78d9d4a1f0242b6b7d129bae102eb4a7",
+  "artifact": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/3/program.bin",
+  "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+  "driver_sha256": "123a5e8382f8ec2ff17c6875740388e0aa3c39a6ebd81d916fb0e6fff433cc15",
+  "native_cc": {
+    "command": [
+      "cc",
+      "--version"
+    ],
+    "exit_code": 0,
+    "output": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+  },
+  "disassembly_commands": [
+    [
+      "objdump",
+      "-d",
+      "--disassemble=kernel_g",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/3/program.bin"
+    ],
+    [
+      "objdump",
+      "-d",
+      "--disassemble=main",
+      "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/benchmark-published/compile/recursive_fibonacci/native/3/program.bin"
+    ]
+  ],
+  "timed_call_order": [
+    "bench_clock",
+    "bench_barrier",
+    "kernel_g",
+    "bench_sink",
+    "bench_clock"
+  ],
+  "varying_input_observations": [
+    {
+      "input": 20,
+      "kernel_warmups": 2,
+      "checksum": 6765,
+      "reference_checksum": 6765,
+      "diagnostic_timed_region_ns": 1002
+    },
+    {
+      "input": 30,
+      "kernel_warmups": 2,
+      "checksum": 832040,
+      "reference_checksum": 832040,
+      "diagnostic_timed_region_ns": 38647
+    },
+    {
+      "input": 35,
+      "kernel_warmups": 2,
+      "checksum": 9227465,
+      "reference_checksum": 9227465,
+      "diagnostic_timed_region_ns": 177953
+    },
+    {
+      "input": 40,
+      "kernel_warmups": 2,
+      "checksum": 102334155,
+      "reference_checksum": 102334155,
+      "diagnostic_timed_region_ns": 1078456
+    },
+    {
+      "input": 45,
+      "kernel_warmups": 2,
+      "checksum": 1134903170,
+      "reference_checksum": 1134903170,
+      "diagnostic_timed_region_ns": 8629695
+    }
+  ],
+  "diagnostic_times_are_single_observations_not_benchmark_estimates": true
+}

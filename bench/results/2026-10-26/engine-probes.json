@@ -1,0 +1,98 @@
+{
+  "schema": "goose-engine-probes-v1",
+  "node": "24.22.1",
+  "v8": "13.6.233.17-node.58",
+  "wasmtime_python": "50.0.1",
+  "features": {
+    "numeric": {
+      "expected": 42,
+      "wasmtime": 42,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": 42
+      }
+    },
+    "sign_extension": {
+      "expected": -1,
+      "wasmtime": -1,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": -1
+      }
+    },
+    "multi_value": {
+      "expected": [
+        7,
+        9
+      ],
+      "wasmtime": [
+        7,
+        9
+      ],
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": [
+          7,
+          9
+        ]
+      }
+    },
+    "bulk_memory": {
+      "expected": 42,
+      "wasmtime": 42,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": 42
+      }
+    },
+    "simd": {
+      "expected": 3,
+      "wasmtime": 3,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": 3
+      }
+    },
+    "tail_call": {
+      "expected": 42,
+      "wasmtime": 42,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": 42
+      }
+    },
+    "memory64": {
+      "expected": 42,
+      "wasmtime": 42,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": 42
+      }
+    },
+    "multi_memory": {
+      "expected": 2,
+      "wasmtime": 2,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": 2
+      }
+    },
+    "exceptions": {
+      "expected": 42,
+      "wasmtime": 42,
+      "wasmtime_ok": true,
+      "v8_ok": true,
+      "v8": {
+        "value": 42
+      }
+    }
+  }
+}

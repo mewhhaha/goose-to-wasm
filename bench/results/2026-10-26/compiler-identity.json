@@ -1,0 +1,38 @@
+{
+  "pin": {
+    "schema": "goose-to-wasm-toolchain-v1",
+    "repository": "https://github.com/aardappel/goose.git",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "emscripten": "6.0.13",
+    "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+    "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+    "node": "24.22.1",
+    "v8": "13.6.233.17-node.58",
+    "wasmtime_python": "50.0.1",
+    "patches": [
+      "oracle/patches/0001-webassembly-target.patch",
+      "patches/direct-target.patch"
+    ],
+    "minimum_cmake": "3.27",
+    "minimum_python": "3.10"
+  },
+  "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+  "patches": {
+    "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "patches/direct-target.patch": "79217b09dcd50f1514c27a78f779d49ebe46609192b19778f2018bc451594558"
+  },
+  "headers": {
+    "direct_wasm.h": "f1bdcf6602d6fc7d28b271c24467bf79232ab03b7300fc917d14036638461f7c",
+    "direct_wasm_emit.h": "e7fccae7869143027bbaf338d26d5fb21a389d97e0974f259f7d9f06b5e9e44b",
+    "direct_wasm_expr.h": "42ee5c5a46ce448b600a9593d510435261067253c443de51fad31d1b727e84c6",
+    "direct_wasm_numeric.h": "bd9e8135e7805a92095cb0bd278f80274e4885332402c529330d2978b8517173",
+    "wasm_binary.h": "bd6c4424c2557b38fb07ccdeea5134223e16ce06fb9bb0bb4ee4598e7effbe16"
+  },
+  "direct_enabled": true,
+  "compiler_sha256": "91d00fc48027f694e015c4c4fcac72cb3acba1aff98639b1433590ee9446af6a",
+  "runtime_sha256": "00941ed6ec7e3e740256d15f5a4ceeacd09fd9e5e838f28c07b16e3baf2147d8",
+  "source": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/source",
+  "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/bin/goose",
+  "build_type": "Release",
+  "cmake": "cmake version 4.4.4"
+}

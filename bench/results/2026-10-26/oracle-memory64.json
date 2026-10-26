@@ -1,0 +1,414 @@
+{
+  "schema": "goose-wasm-qualification-v1",
+  "source_dir": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/oracle-toolchain/source",
+  "compiler": "/workspace/scratch/ac45bbbd0688/goose-to-wasm/build/oracle-toolchain/bin/goose",
+  "memory64": true,
+  "native_differential": true,
+  "native_gcc": "gcc",
+  "full_curated_corpus": false,
+  "passed": 80,
+  "failed": 0,
+  "seconds": 47.012,
+  "results": [
+    {
+      "name": "boundary/exact_capacity/O0",
+      "ok": true,
+      "seconds": 1.267
+    },
+    {
+      "name": "boundary/exact_capacity/O2",
+      "ok": true,
+      "seconds": 1.403
+    },
+    {
+      "name": "boundary/exact_float/O0",
+      "ok": true,
+      "seconds": 1.119
+    },
+    {
+      "name": "boundary/exact_float/O2",
+      "ok": true,
+      "seconds": 1.599
+    },
+    {
+      "name": "boundary/exact_format/O0",
+      "ok": true,
+      "seconds": 1.211
+    },
+    {
+      "name": "boundary/exact_format/O2",
+      "ok": true,
+      "seconds": 1.184
+    },
+    {
+      "name": "boundary/exact_prefix/O0",
+      "ok": true,
+      "seconds": 1.107
+    },
+    {
+      "name": "boundary/exact_prefix/O2",
+      "ok": true,
+      "seconds": 1.238
+    },
+    {
+      "name": "boundary/exact_quoted/O0",
+      "ok": true,
+      "seconds": 1.181
+    },
+    {
+      "name": "boundary/exact_quoted/O2",
+      "ok": true,
+      "seconds": 1.637
+    },
+    {
+      "name": "boundary/overflow_append/O0",
+      "ok": true,
+      "seconds": 0.457
+    },
+    {
+      "name": "boundary/overflow_append/O2",
+      "ok": true,
+      "seconds": 1.088
+    },
+    {
+      "name": "boundary/overflow_decode/O0",
+      "ok": true,
+      "seconds": 0.5
+    },
+    {
+      "name": "boundary/overflow_decode/O2",
+      "ok": true,
+      "seconds": 1.073
+    },
+    {
+      "name": "boundary/overflow_format/O0",
+      "ok": true,
+      "seconds": 0.481
+    },
+    {
+      "name": "boundary/overflow_format/O2",
+      "ok": true,
+      "seconds": 1.02
+    },
+    {
+      "name": "boundary/overflow_freelist/O0",
+      "ok": true,
+      "seconds": 0.501
+    },
+    {
+      "name": "boundary/overflow_freelist/O2",
+      "ok": true,
+      "seconds": 1.018
+    },
+    {
+      "name": "boundary/overflow_prefix/O0",
+      "ok": true,
+      "seconds": 0.529
+    },
+    {
+      "name": "boundary/overflow_prefix/O2",
+      "ok": true,
+      "seconds": 1.143
+    },
+    {
+      "name": "boundary/overflow_push/O0",
+      "ok": true,
+      "seconds": 0.572
+    },
+    {
+      "name": "boundary/overflow_push/O2",
+      "ok": true,
+      "seconds": 1.082
+    },
+    {
+      "name": "boundary/overflow_quoted/O0",
+      "ok": true,
+      "seconds": 0.46
+    },
+    {
+      "name": "boundary/overflow_quoted/O2",
+      "ok": true,
+      "seconds": 1.02
+    },
+    {
+      "name": "boundary/overflow_resize/O0",
+      "ok": true,
+      "seconds": 0.482
+    },
+    {
+      "name": "boundary/overflow_resize/O2",
+      "ok": true,
+      "seconds": 1.055
+    },
+    {
+      "name": "boundary/overflow_serialize/O0",
+      "ok": true,
+      "seconds": 0.5
+    },
+    {
+      "name": "boundary/overflow_serialize/O2",
+      "ok": true,
+      "seconds": 1.029
+    },
+    {
+      "name": "boundary/overflow_size/O0",
+      "ok": true,
+      "seconds": 0.48
+    },
+    {
+      "name": "boundary/overflow_size/O2",
+      "ok": true,
+      "seconds": 0.988
+    },
+    {
+      "name": "boundary/overflow_slice_move/O0",
+      "ok": true,
+      "seconds": 0.456
+    },
+    {
+      "name": "boundary/overflow_slice_move/O2",
+      "ok": true,
+      "seconds": 1.117
+    },
+    {
+      "name": "boundary/overflow_spans/O0",
+      "ok": true,
+      "seconds": 0.521
+    },
+    {
+      "name": "boundary/overflow_spans/O2",
+      "ok": true,
+      "seconds": 1.095
+    },
+    {
+      "name": "boundary/stdin_exact/O0",
+      "ok": true,
+      "seconds": 1.261
+    },
+    {
+      "name": "boundary/stdin_exact/O2",
+      "ok": true,
+      "seconds": 1.414
+    },
+    {
+      "name": "boundary/stdin_overflow/O0",
+      "ok": true,
+      "seconds": 0.512
+    },
+    {
+      "name": "boundary/stdin_overflow/O2",
+      "ok": true,
+      "seconds": 1.042
+    },
+    {
+      "name": "example/stable_tree/O0",
+      "ok": true,
+      "seconds": 1.331
+    },
+    {
+      "name": "example/stable_tree/O2",
+      "ok": true,
+      "seconds": 1.322
+    },
+    {
+      "name": "extern/builder_exact/O0",
+      "ok": true,
+      "seconds": 0.659
+    },
+    {
+      "name": "extern/builder_exact/O2",
+      "ok": true,
+      "seconds": 1.194
+    },
+    {
+      "name": "extern/builder_overflow/O0",
+      "ok": true,
+      "seconds": 0.504
+    },
+    {
+      "name": "extern/builder_overflow/O2",
+      "ok": true,
+      "seconds": 1.033
+    },
+    {
+      "name": "extern/scalar/O0",
+      "ok": true,
+      "seconds": 0.506
+    },
+    {
+      "name": "extern/scalar/O2",
+      "ok": true,
+      "seconds": 1.02
+    },
+    {
+      "name": "reject/alias_cycle/O2",
+      "ok": true,
+      "seconds": 0.139
+    },
+    {
+      "name": "reject/bad_escape/O2",
+      "ok": true,
+      "seconds": 0.143
+    },
+    {
+      "name": "reject/const_self_relative_render/O2",
+      "ok": true,
+      "seconds": 0.178
+    },
+    {
+      "name": "reject/dup_struct/O2",
+      "ok": true,
+      "seconds": 0.141
+    },
+    {
+      "name": "reject/dynamic_library/O2",
+      "ok": true,
+      "seconds": 0.122
+    },
+    {
+      "name": "reject/holder_view_alias/O2",
+      "ok": true,
+      "seconds": 0.138
+    },
+    {
+      "name": "reject/literal_bytes_of_return/O2",
+      "ok": true,
+      "seconds": 0.135
+    },
+    {
+      "name": "reject/shrink_under_construction_push/O2",
+      "ok": true,
+      "seconds": 0.133
+    },
+    {
+      "name": "reject/threads/O2",
+      "ok": true,
+      "seconds": 0.131
+    },
+    {
+      "name": "reject/varint_field_ref_readonly/O2",
+      "ok": true,
+      "seconds": 0.144
+    },
+    {
+      "name": "upstream/codegen/codegen_exec/O0",
+      "ok": true,
+      "seconds": 2.215
+    },
+    {
+      "name": "upstream/codegen/codegen_exec/O2",
+      "ok": true,
+      "seconds": 6.199
+    },
+    {
+      "name": "upstream/codegen/render_fn_overload_stacks/O0",
+      "ok": true,
+      "seconds": 1.375
+    },
+    {
+      "name": "upstream/codegen/render_fn_overload_stacks/O2",
+      "ok": true,
+      "seconds": 1.462
+    },
+    {
+      "name": "upstream/codegen/stack_top_classes/O0",
+      "ok": true,
+      "seconds": 1.273
+    },
+    {
+      "name": "upstream/codegen/stack_top_classes/O2",
+      "ok": true,
+      "seconds": 2.256
+    },
+    {
+      "name": "upstream/codegen/variable_prefix_frame_tail/O0",
+      "ok": true,
+      "seconds": 1.696
+    },
+    {
+      "name": "upstream/codegen/variable_prefix_frame_tail/O2",
+      "ok": true,
+      "seconds": 2.728
+    },
+    {
+      "name": "upstream/codegen/varint_elements/O0",
+      "ok": true,
+      "seconds": 1.258
+    },
+    {
+      "name": "upstream/codegen/varint_elements/O2",
+      "ok": true,
+      "seconds": 2.426
+    },
+    {
+      "name": "upstream/runtime/integer_text/O0",
+      "ok": true,
+      "seconds": 1.241
+    },
+    {
+      "name": "upstream/runtime/integer_text/O2",
+      "ok": true,
+      "seconds": 1.598
+    },
+    {
+      "name": "upstream/runtime/slice_pool/O0",
+      "ok": true,
+      "seconds": 1.392
+    },
+    {
+      "name": "upstream/runtime/slice_pool/O2",
+      "ok": true,
+      "seconds": 2.664
+    },
+    {
+      "name": "upstream/stdlib/stdlib_dictionary/O0",
+      "ok": true,
+      "seconds": 1.638
+    },
+    {
+      "name": "upstream/stdlib/stdlib_dictionary/O2",
+      "ok": true,
+      "seconds": 2.351
+    },
+    {
+      "name": "upstream/stdlib/stdlib_math/O0",
+      "ok": true,
+      "seconds": 1.698
+    },
+    {
+      "name": "upstream/stdlib/stdlib_math/O2",
+      "ok": true,
+      "seconds": 1.629
+    },
+    {
+      "name": "upstream/stdlib/stdlib_os/O0",
+      "ok": true,
+      "seconds": 1.424
+    },
+    {
+      "name": "upstream/stdlib/stdlib_os/O2",
+      "ok": true,
+      "seconds": 1.919
+    },
+    {
+      "name": "upstream/storage/pool_reference_rebinds/O0",
+      "ok": true,
+      "seconds": 1.205
+    },
+    {
+      "name": "upstream/storage/pool_reference_rebinds/O2",
+      "ok": true,
+      "seconds": 1.76
+    },
+    {
+      "name": "upstream/storage/serialize/O0",
+      "ok": true,
+      "seconds": 1.507
+    },
+    {
+      "name": "upstream/storage/serialize/O2",
+      "ok": true,
+      "seconds": 4.187
+    }
+  ]
+}
