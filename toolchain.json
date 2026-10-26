@@ -10,7 +10,9 @@
   "wasmtime_python": "50.0.1",
   "patches": [
     "oracle/patches/0001-webassembly-target.patch",
-    "patches/direct-target.patch"
+    "oracle/patches/0002-limited-append-overlap.patch",
+    "patches/direct-target.patch",
+    "patches/direct-optimizer.patch"
   ],
   "minimum_cmake": "3.27",
   "minimum_python": "3.10"

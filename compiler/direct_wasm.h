@@ -8,6 +8,7 @@ namespace goose {
 
 struct DirectWasmOptions {
     bool debug = false;
+    int optimize_level = 0;
     uint32_t initial_pages = 16;
     uint32_t maximum_pages = 256;
 };
@@ -24,6 +25,9 @@ struct DirectWasmResult {
     string module;
     size_t functions = 0;
     size_t code_bytes = 0;
+    size_t static_memory_bytes = 0;
+    size_t initialized_data_bytes = 0;
+    size_t data_segments = 0;
     vector<DirectWasmFunctionInfo> function_info;
 };
 
@@ -57,6 +61,10 @@ struct Function {
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
     uint32_t framebase = 0, framebytes = 0;
+    bool bulk_fill_disabled = false;
+    bool uses_dynamic_stack = false;
+    vector<pair<uint32_t, TypeExpr *>> ownedframes;
+    unordered_set<TypeExpr *> rendering_types;
     Bytes code;
     vector<uint32_t> labels;
     uint32_t labelserial = 0;
@@ -67,6 +75,7 @@ struct Function {
         vector<uint32_t> values;
         bool breakable = false;
         optional<uint32_t> continue_label;
+        optional<uint32_t> limited_destination = nullopt;
     };
     vector<Exit> exits;
     // A print may be abandoned by a return/break in an argument. Restore
@@ -116,6 +125,10 @@ struct Function {
     void FloatWrap(TypeExpr *);
     void Truth(Node *);
     void BinaryOp(TType, TypeExpr *, Line);
+    bool TryConstantBinary(Binary *);
+    bool TrySelect(IfExpr *);
+    bool TryUnroll(ForLoop *);
+    bool TryBulkFill(ForLoop *);
     uint32_t Frame(TypeExpr *);
     uint32_t FrameBytes(uint32_t n, uint32_t align = 8);
     void FrameAddress(uint32_t off) { Get(framebase); if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); } }
@@ -155,9 +168,34 @@ struct Function {
     void For(ForLoop *);
     void ScanAddresses(Node *);
     void AggregateLiteral(Node *);
+    bool ConvertNominal(TypeExpr *, TypeExpr *, Line);
+    bool ConstructNominal(Node *);
+    bool MatchNominal(MatchExpr *);
+    bool PrintNominal(TypeExpr *, uint32_t, Line);
     void Slice(SliceExpr *);
     void EnsureMemory(uint32_t, Line);
     void Dynamic(uint32_t, Line);
+    void HeapAllocate(uint32_t, Line);
+    void HeapFree(uint32_t);
+    void ArrayEnsure(TypeExpr *, uint32_t, uint32_t, Line);
+    void ArrayValueView(TypeExpr *);
+    void ArrayAddress(uint32_t, uint32_t, TypeExpr *);
+    void ViewAddress(uint32_t, uint32_t, TypeExpr *, Line);
+    void DestroyOwned(TypeExpr *, uint32_t);
+    void ZeroOwned(TypeExpr *, uint32_t);
+    void StoreOwned(TypeExpr *, bool assignment = false, bool copy_capacity = true);
+    TypeExpr *StoredType(Node *);
+    bool LimitedWholeCopy(Node *, TypeExpr *);
+    void AssignLimitedValue(Node *, TypeExpr *, uint32_t);
+    void ArrayTruncate(TypeExpr *, uint32_t, uint32_t, Line);
+    void ArrayCopyView(TypeExpr *, uint32_t, uint32_t, Line, bool append = false);
+    bool ConvertArray(TypeExpr *, TypeExpr *, Line);
+    bool DynamicLiteral(Node *);
+    bool DynamicBuiltin(Call *);
+    void WriteView(uint32_t, Line);
+    void FormatValue(TypeExpr *, uint32_t, TypeExpr *, uint32_t, Line, bool nested = false);
+    void FormatText(TypeExpr *, uint32_t, string_view, Line);
+    void FormatNumber(TypeExpr *, uint32_t, TypeExpr *, uint32_t, Line);
     string Finish();
 };
 
@@ -172,10 +210,21 @@ struct Compiler {
     unordered_map<FnSpec *, uint8_t> intrinsic_opcode;
     unordered_map<VarDef *, Slot> globals;
     unordered_map<TypeExpr *, Layout> layouts;
+    unordered_set<TypeExpr *> active_layouts;
     map<string, uint32_t> strings;
-    string data;
     static constexpr uint32_t data_base = 1024;
-    enum Host : uint32_t { WRITE, PRINT_I64, PRINT_U64, PRINT_F64, PRINT_F32, PRINT_BOOL, NEWLINE, ABORT, EXIT };
+    // Fresh Wasm memory is zero initialized. Reserve addresses for globals,
+    // but serialize only actual initializer bytes (currently string literals).
+    // In particular, a large zero-filled global must not allocate/copy its
+    // entire capacity in the compiler or in the module's data section.
+    uint32_t data_end = data_base;
+    struct DataSegment { uint32_t offset; string bytes; };
+    vector<DataSegment> data_segments;
+    uint32_t dynamic_pages = 0, dynamic_runtime = 0;
+    vector<uint32_t> dynamic_types;
+    TypeExpr *text_builder = nullptr;
+    enum Host : uint32_t { WRITE, PRINT_I64, PRINT_U64, PRINT_F64, PRINT_F32, PRINT_BOOL, NEWLINE, ABORT, EXIT,
+                          FORMAT_F64, FORMAT_F32 };
 
     Compiler(Ast &a, const DirectWasmOptions &o) : ast(a), opts(o) {}
     [[noreturn]] void Fail(Line l, const string &msg) {
@@ -185,7 +234,17 @@ struct Compiler {
         d.text = ast.DiagnosticText(d, true);
         throw CompileError { d.text, { d } };
     }
-    bool Aggregate(TypeExpr *t) const { return t && (t->kind == TY_ARRAY || t->kind == TY_STRUCT); }
+    bool Aggregate(TypeExpr *t) const {
+        return t && (t->kind == TY_ARRAY || t->kind == TY_STRUCT ||
+                     t->kind == TY_ENUM || t->kind == TY_VARIANT);
+    }
+    Layout VariantLayout(TypeExpr *, int);
+    Layout NominalLayout(TypeExpr *);
+    uint32_t PayloadOffset(TypeExpr *);
+    TypeExpr *FieldType(TypeExpr *, size_t);
+    bool DynamicArray(TypeExpr *) const;
+    bool OwnsDynamic(TypeExpr *) const;
+    vector<string> DynamicBodies(vector<vector<uint32_t>> &);
     uint8_t W(TypeExpr *t) {
         if (!t || t->kind == TY_VOID) return VOID;
         switch (t->kind) {
@@ -199,7 +258,7 @@ struct Compiler {
                     Fail(t->line, "relative and pool references are not supported");
                 Size(t->ref->sub); return I32;
             case TY_SLICE: Size(t->sub); return I64; // packed pointer + length
-            case TY_ARRAY: case TY_STRUCT: Size(t); return I32;
+            case TY_ARRAY: case TY_STRUCT: case TY_ENUM: case TY_VARIANT: Size(t); return I32;
             default: {
                 string s; t->Dump(s);
                 Fail(t->line, "unsupported runtime type " + s);
@@ -209,6 +268,8 @@ struct Compiler {
     static uint32_t Align(uint32_t x, uint32_t n) { return (x + n - 1) & ~(n - 1); }
     const Layout &Size(TypeExpr *t) {
         auto it = layouts.find(t); if (it != layouts.end()) return it->second;
+        if (!active_layouts.insert(t).second)
+            Fail(t->line, "recursive owned value has no finite direct layout");
         Layout r;
         switch (t->kind) {
             case TY_BOOL: r.size = r.align = 1; break;
@@ -222,19 +283,24 @@ struct Compiler {
                 r.size = r.align = 4; break;
             case TY_SLICE: r.size = r.align = 8; break;
             case TY_ARRAY: {
-                if (t->arr->akind != A_FIXED)
-                    Fail(t->line, "only fixed-size owned arrays are supported; resizable arrays require the C oracle target");
+                if (t->arr->akind != A_FIXED) {
+                    if (t->arr->akind == A_LIMITED && t->arr->size > INT32_MAX)
+                        Fail(t->line, "array capacity exceeds the direct address range");
+                    r.size = 64; r.align = 8; break;
+                }
                 if (t->arr->size < 0) Fail(t->line, "array length was not resolved");
                 auto sub = Size(t->arr->sub);
-                auto bytes = uint64_t(sub.size) * uint64_t(t->arr->size);
-                if (bytes > uint64_t(opts.maximum_pages) * 65536)
+                auto count = uint64_t(t->arr->size);
+                auto limit = uint64_t(opts.maximum_pages) * 65536;
+                if (count > limit / sub.size)
                     Fail(t->line, "fixed array exceeds the configured linear-memory limit");
+                auto bytes = uint64_t(sub.size) * count;
                 r.size = uint32_t(max<uint64_t>(1, bytes)); r.align = sub.align;
                 break;
             }
             case TY_STRUCT: {
                 auto si = t->struc->inst;
-                if (!si || si->sclass != SC_FIXED) Fail(t->line, "only fixed-size structs are supported");
+                if (!si) Fail(t->line, "struct specialization was not resolved");
                 for (size_t i = 0; i < si->ftypes.size(); i++) {
                     auto &f = si->st->fields[i];
                     if (f.ispad) Fail(f.line, "explicit struct padding is not supported");
@@ -248,21 +314,30 @@ struct Compiler {
                 }
                 r.size = max<uint32_t>(1, Align(r.size, r.align)); break;
             }
+            case TY_ENUM: case TY_VARIANT: r = NominalLayout(t); break;
             default: { string s; t->Dump(s); Fail(t->line, "no direct layout for " + s); }
         }
+        active_layouts.erase(t);
         return layouts.emplace(t, std::move(r)).first->second;
     }
     uint32_t Data(uint32_t size, uint32_t align = 1) {
-        auto off = Align(data_base + uint32_t(data.size()), align);
-        if (uint64_t(off) + size > uint64_t(opts.maximum_pages) * 65536)
+        auto off = (uint64_t(data_end) + align - 1) & ~(uint64_t(align) - 1);
+        if (off + size > uint64_t(opts.maximum_pages) * 65536)
             Fail({}, "static data exceeds the configured linear-memory limit");
-        data.resize(size_t(off - data_base) + size, '\0');
-        return off;
+        data_end = uint32_t(off + size);
+        return uint32_t(off);
     }
     uint32_t Text(string_view s) {
         auto it = strings.find(string(s)); if (it != strings.end()) return it->second;
         auto off = Data(uint32_t(max<size_t>(s.size(), 1)));
-        data.replace(off - data_base, s.size(), s);
+        if (!s.empty()) {
+            // Adjacent literals share a segment, reducing section metadata
+            // without bringing zero-only reservations into the payload.
+            if (!data_segments.empty() &&
+                uint64_t(data_segments.back().offset) + data_segments.back().bytes.size() == off)
+                data_segments.back().bytes.append(s);
+            else data_segments.push_back({ off, string(s) });
+        }
         strings.emplace(s, off); return off;
     }
     uint32_t Sig(Signature s) {
@@ -392,7 +467,11 @@ inline uint32_t Function::FrameBytes(uint32_t n, uint32_t align) {
         Fail(spec ? spec->sf->line : Line{}, "activation frame exceeds the linear-memory limit");
     framebytes = off + n; return off;
 }
-inline uint32_t Function::Frame(TypeExpr *t) { auto l = c.Size(t); return FrameBytes(l.size, l.align); }
+inline uint32_t Function::Frame(TypeExpr *t) {
+    auto l = c.Size(t); auto off = FrameBytes(l.size, l.align);
+    if (c.OwnsDynamic(t)) ownedframes.emplace_back(off, t);
+    return off;
+}
 inline Slot Function::Lookup(VarDef *v, Line l) {
     v = Resolve(v);
     if (auto it = vars.find(v); it != vars.end()) return it->second;
@@ -421,6 +500,7 @@ inline void Function::Load(TypeExpr *t) {
     code.Mem(bits == 8 ? (u ? 0x2d : 0x2c) : bits == 16 ? (u ? 0x2f : 0x2e) : bits == 32 ? 0x28 : 0x29);
 }
 inline void Function::Store(TypeExpr *t) {
+    if (c.OwnsDynamic(t)) { StoreOwned(t); return; }
     if (c.Aggregate(t)) { code.I32Const(int32_t(c.Size(t).size)); code.Copy(); return; }
     if (t->kind == TY_FLT) { code.Mem(IsF32(t) ? 0x38 : 0x39); return; }
     if (t->kind == TY_SLICE) { code.Mem(0x37); return; }
@@ -470,6 +550,9 @@ inline void Function::ScanAddresses(Node *n) {
 } // namespace goose
 
 #include "direct_wasm_numeric.h"
+#include "direct_wasm_dynamic.h"
+#include "direct_wasm_variants.h"
+#include "direct_wasm_opt.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"
 

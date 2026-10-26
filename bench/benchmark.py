@@ -111,7 +111,8 @@ def metadata(args):
         wasmtime_version = importlib.metadata.version("wasmtime")
     except importlib.metadata.PackageNotFoundError:
         wasmtime_version = "not installed"
-    tracked_inputs = [ROOT / "scripts" / "goose_wasm.py", ROOT / "oracle" / "goose_wasm.py", ROOT / "scripts" / "run_wasm.mjs",
+    tracked_inputs = [ROOT / "scripts" / "goose_wasm.py", ROOT / "scripts" / "build_support.py",
+                      ROOT / "oracle" / "goose_wasm.py", ROOT / "scripts" / "run_wasm.mjs",
                       ROOT / "scripts" / "run_wasmtime.py", ROOT / "bench" / "host_input.c", Path(__file__)]
     return {"platform": platform.platform(), "machine": platform.machine(), "cpu": cpu,
             "supplied_machine_label": args.machine_label,

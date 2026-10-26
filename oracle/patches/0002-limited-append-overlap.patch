@@ -1,0 +1,15 @@
+diff --git a/src/codegen_builtins.h b/src/codegen_builtins.h
+--- a/src/codegen_builtins.h
++++ b/src/codegen_builtins.h
+@@ -726,7 +726,10 @@ inline void CodeGen::EmitAppend(vector<Node *> &an, Line ln) {
+         L("int64_t ", ol, " = ", v.len, ";");
+         L("if (", ol, " + ", nn, " > ", LimitedCap(lv), ") gs_abort(GS_E_CAPACITY, ",
+           LocArgs(ln), ");");
+-        L(CopyFn(), "(", ElemAddr(v, ol), ", ", se.elems, ", (size_t)(", nn, " * ",
++        // A retained limited-array slice may still name initialized slots
++        // after the owner shrinks. Appending that slice can overlap the
++        // destination, so memcpy would have undefined behavior.
++        L("gs_memmove(", ElemAddr(v, ol), ", ", se.elems, ", (size_t)(", nn, " * ",
+           FixedSize(elem), "));");
+         L(v.lenlv, " = (", LenCast(lv), ")(", ol, " + ", nn, ");");
+         return;

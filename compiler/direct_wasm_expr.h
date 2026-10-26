@@ -57,8 +57,8 @@ inline TypeExpr *Function::Object(Node *n) {
 inline void Function::View(Node *n) {
     auto t = Object(n);
     if (t->kind == TY_SLICE) return;
-    if (t->kind != TY_ARRAY) Fail(n->line, "expected a fixed array or slice");
-    c.Size(t); code.Op(0xad); code.I64Const(int64_t(uint64_t(t->arr->size) << 32)); code.Op(0x84);
+    if (t->kind != TY_ARRAY) Fail(n->line, "expected an array or slice");
+    ArrayValueView(t);
 }
 inline void Function::Address(Node *n) {
     if (auto id = Is<Ident>(n)) {
@@ -71,18 +71,29 @@ inline void Function::Address(Node *n) {
         auto t = idx->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
         auto elem = t->kind == TY_ARRAY ? t->arr->sub : t->kind == TY_SLICE ? t->sub : nullptr;
         if (!elem) Fail(n->line, "indexing this type is not supported");
+        if (t->kind == TY_ARRAY && !c.DynamicArray(t)) {
+            Object(idx->obj); auto base = Save(I32);
+            To(idx->idx, c.ast.inttypes[IS_U64]); auto pos = Save(I64);
+            if (!idx->nobc) {
+                Get(pos); code.I64Const(t->arr->size); code.Op(0x5a);
+                TrapIf(n->line, "array index out of bounds");
+            }
+            Get(base); Get(pos); code.Op(0xa7);
+            code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); return;
+        }
         View(idx->obj); auto view = Save(I64);
         To(idx->idx, c.ast.inttypes[IS_U64]); auto pos = Save(I64);
         if (!idx->nobc) {
             Get(pos); Get(view); code.I64Const(32); code.Op(0x88); code.Op(0x5a);
             TrapIf(n->line, "array index out of bounds");
         }
-        Get(view); code.Op(0xa7); Get(pos); code.Op(0xa7);
-        code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); return;
+        Get(pos); code.Op(0xa7); auto offset = Save(I32);
+        ViewAddress(view, offset, elem, n->line); return;
     }
     if (auto dot = Is<Dot>(n); dot && dot->IsField()) {
         auto t = Object(dot->obj);
-        if (t->kind != TY_STRUCT || dot->fieldidx < 0) Fail(n->line, "only fixed struct fields are supported");
+        if ((t->kind != TY_STRUCT && t->kind != TY_VARIANT) || dot->fieldidx < 0)
+            Fail(n->line, "only fixed nominal fields are supported");
         auto off = c.Size(t).fields.at(size_t(dot->fieldidx));
         if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
         return;
@@ -128,12 +139,21 @@ inline void Function::AssignNode(Assign *n) {
         } else Address(n->lval);
         addr = Save(I32);
     }
+    if ((n->op == T_ASSIGN || n->op == T_DOTASSIGN) && t->kind == TY_ARRAY &&
+        t->arr->akind == A_LIMITED && t->arr->size >= 0) {
+        if (scalar) { SlotAddress(*scalar); addr = Save(I32); }
+        AssignLimitedValue(n->rhs, t, addr); return;
+    }
     if (n->op != T_ASSIGN && n->op != T_DOTASSIGN) {
         if (c.Aggregate(t)) Fail(n->line, "elementwise aggregate assignment is not supported");
         if (scalar) Read(*scalar); else { Get(addr); Load(t); }
         To(n->rhs, t); BinaryOp(n->op, t, n->line);
     } else To(n->rhs, t);
-    if (scalar) Write(*scalar);
+    if (c.OwnsDynamic(t)) {
+        auto val = Save(t);
+        if (scalar) SlotAddress(*scalar); else Get(addr);
+        Get(val); StoreOwned(t, true, LimitedWholeCopy(n->rhs, t));
+    } else if (scalar) Write(*scalar);
     else { auto val = Save(t); Get(addr); Get(val); Store(t); }
 }
 inline void Function::IncNode(IncDec *n) {
@@ -154,9 +174,12 @@ inline void Function::IncNode(IncDec *n) {
 }
 
 inline void Function::AggregateLiteral(Node *n) {
+    if (ConstructNominal(n)) return;
+    if (DynamicLiteral(n)) return;
     auto t = n->exprtype;
     if (!c.Aggregate(t)) Fail(n->line, "this array/struct literal requires unsupported variable-size storage");
     auto off = Frame(t);
+    if (c.OwnsDynamic(t)) { FrameAddress(off); auto owner = Save(I32); DestroyOwned(t, owner); }
     FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
     if (auto a = Is<ArrayLit>(n)) {
         auto elem = t->arr->sub;
@@ -191,7 +214,7 @@ inline void Function::AggregateLiteral(Node *n) {
 inline void Function::Slice(SliceExpr *n) {
     auto at = n->obj->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
     auto elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
-    if (!elem || n->exprtype->kind != TY_SLICE) Fail(n->line, "only slices of fixed-layout elements are supported");
+    if (!elem) Fail(n->line, "only slices of fixed-layout elements are supported");
     View(n->obj); auto view = Save(I64);
     Get(view); code.I64Const(32); code.Op(0x88); auto len = Save(I64);
     if (n->lo) {
@@ -208,12 +231,16 @@ inline void Function::Slice(SliceExpr *n) {
         Get(lo); Get(hi); code.Op(0x56); Get(hi); Get(len); code.Op(0x56); code.Op(0x72);
         TrapIf(n->line, "slice bounds out of range");
     }
-    Get(view); code.Op(0xa7); Get(lo); code.Op(0xa7);
-    code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); code.Op(0xad);
+    Get(lo); code.Op(0xa7); auto offset = Save(I32);
+    ViewAddress(view, offset, elem, n->line);
+    Get(view); code.Op(0xa7); code.I32Const(INT32_MIN); code.Op(0x71); code.Op(0x72); code.Op(0xad);
     Get(hi); Get(lo); code.Op(0x7d); code.I64Const(32); code.Op(0x86); code.Op(0x84);
+    if (n->exprtype->kind != TY_SLICE) Convert(c.ast.SliceOf(elem, n->line), n->exprtype, n->line);
 }
 
 inline void Function::For(ForLoop *n) {
+    if (TryBulkFill(n)) return;
+    if (TryUnroll(n)) return;
     auto binding = Bind(n->vdef);
     optional<Slot> indexbinding;
     if (n->idxdef) indexbinding = Bind(n->idxdef);
@@ -242,8 +269,12 @@ inline void Function::For(ForLoop *n) {
     Get(lo); Get(hi); BinaryOp(T_GTEQ, ct, n->line); Br(done, true);
     if (numeric) { Get(lo); Convert(ct, binding.type, n->line); Write(binding); }
     else {
-        Get(view); code.Op(0xa7); Get(lo); code.Op(0xa7);
-        code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a);
+        Get(lo); code.Op(0xa7); auto position = Save(I32);
+        auto at = n->iter->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
+        if (at->kind == TY_ARRAY && !c.DynamicArray(at)) {
+            Get(view); code.Op(0xa7); Get(position);
+            code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a);
+        } else ViewAddress(view, position, elem, n->line);
         if (!n->byref || elem->kind == TY_REF) { Load(elem); Convert(elem, binding.type, n->line); }
         Write(binding);
     }
@@ -308,6 +339,7 @@ inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested)
     }
     if (t->kind == TY_FLT) { Get(value); CallIndex(IsF32(t) ? Compiler::PRINT_F32 : Compiler::PRINT_F64); return; }
     if (t->kind == TY_BOOL) { Get(value); CallIndex(Compiler::PRINT_BOOL); return; }
+    if (PrintNominal(t, value, line)) return;
     if (t->kind == TY_ARRAY || t->kind == TY_SLICE) {
         auto elem = t->kind == TY_ARRAY ? t->arr->sub : t->sub;
         uint32_t ptr, len;
@@ -332,6 +364,7 @@ inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested)
 }
 
 inline void Function::Builtin(Call *n) {
+    if (DynamicBuiltin(n)) return;
     auto args = n->ArgNodes();
     switch (BuiltinKind(n->builtin)) {
         case B_PRINT: {
@@ -358,6 +391,15 @@ inline void Function::Builtin(Call *n) {
                         if (x->kind == TY_ARRAY) return indirect(x->arr->sub);
                         if (x->kind == TY_STRUCT)
                             for (auto ft : x->struc->inst->ftypes) if (ft && indirect(ft)) return true;
+                        if (x->kind == TY_ENUM)
+                            for (auto &fields : x->enu->inst->vftypes)
+                                for (auto ft : fields) if (ft && indirect(ft)) return true;
+                        if (x->kind == TY_VARIANT) {
+                            auto owner = x->var->adt;
+                            auto vi = owner->enu->en->VariantIndex(x->var->variant);
+                            for (auto ft : owner->enu->inst->vftypes[size_t(vi)])
+                                if (ft && indirect(ft)) return true;
+                        }
                         return false;
                     };
                     if (indirect(t)) Fail(arg->line, "printing aggregates containing references or slices is not supported");
@@ -380,12 +422,26 @@ inline void Function::Builtin(Call *n) {
         }
         case B_ASSERT: Truth(args[0]); code.Op(0x45); TrapIf(n->line, "assertion failed"); return;
         case B_ABORT: {
-            View(args[0]); auto v = Save(I64); Get(v); code.Op(0xa7); Get(v); code.I64Const(32); code.Op(0x88); code.Op(0xa7);
+            View(args[0]); auto v = Save(I64);
+            Get(v); code.I64Const(32); code.Op(0x88); code.Op(0xa7); auto length = Save(I32);
+            Get(v); code.Op(0xa7); code.I32Const(0); code.Op(0x48); Begin(0x04, I32);
+            Dynamic(length, n->line); auto buffer = Save(I32);
+            code.I32Const(0); auto i = Save(I32); auto done = Begin(), loop = Begin(0x03);
+            Get(i); Get(length); code.Op(0x4f); Br(done, true);
+            Get(buffer); Get(i); code.Op(0x6a);
+            ViewAddress(v, i, c.ast.inttypes[IS_U8], n->line); code.Mem(0x2d); code.Mem(0x3a);
+            Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End(); Get(buffer);
+            Else(); Get(v); code.Op(0xa7); End(); Get(length);
             code.I32Const(n->line.line); CallIndex(Compiler::ABORT); code.Op(0x00); return;
         }
         case B_EXIT: To(args[0], c.ast.inttypes[IS_I32]); CallIndex(Compiler::EXIT); code.Op(0x00); return;
         case B_LEN: {
-            View(args[0]); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
+            auto t = Object(args[0]);
+            if (c.DynamicArray(t)) { code.Mem(0x28, 2, DA_LEN); code.Op(0xad); }
+            else if (t->kind == TY_ARRAY) { code.Op(0x1a); code.I64Const(t->arr->size); }
+            else if (t->kind == TY_SLICE) { code.I64Const(32); code.Op(0x88); }
+            else Fail(n->line, "length requires an array or slice");
+            Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
         }
         case B_COPY: {
             if (n->exprtype->kind == TY_SLICE) Fail(n->line, "copying a slice requires owned dynamic storage");
@@ -400,6 +456,7 @@ inline void Function::Builtin(Call *n) {
             auto t = n->rettypes[0];
             if (!c.Aggregate(t)) { Zero(W(t)); return; }
             auto off = Frame(t);
+            if (c.OwnsDynamic(t)) { FrameAddress(off); auto owner = Save(I32); DestroyOwned(t, owner); }
             FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
             if (n->defaultinit) {
                 if (t->kind == TY_ARRAY) {
@@ -425,6 +482,7 @@ inline void Function::Expr(Node *n) {
         case NK_BoolLit: code.I32Const(static_cast<BoolLit *>(n)->val ? 1 : 0); return;
         case NK_NullLit: W(n->exprtype); code.I32Const(0); return;
         case NK_StrLit: {
+            if (DynamicLiteral(n)) return;
             auto x = static_cast<StrLit *>(n); auto off = c.Text(x->val);
             if (n->exprtype->kind == TY_SLICE) code.I64Const(int64_t((uint64_t(x->val.size()) << 32) | off));
             else if (n->exprtype->kind == TY_ARRAY) {
@@ -462,6 +520,7 @@ inline void Function::Expr(Node *n) {
         }
         case NK_Binary: {
             auto b = static_cast<Binary *>(n);
+            if (TryConstantBinary(b)) return;
             if (b->op == T_ANDAND || b->op == T_OROR) {
                 Truth(b->left); Begin(0x04, I32);
                 if (b->op == T_ANDAND) Truth(b->right); else code.I32Const(1);
@@ -491,11 +550,27 @@ inline void Function::Expr(Node *n) {
         }
         case NK_Dot: {
             auto d = static_cast<Dot *>(n);
-            if (d->member == B_LEN) { View(d->obj); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return; }
+            if (d->variantconst && ConstructNominal(d)) return;
+            if (d->member == B_LEN) {
+                auto t = Object(d->obj);
+                if (c.DynamicArray(t)) { code.Mem(0x28, 2, DA_LEN); code.Op(0xad); }
+                else if (t->kind == TY_ARRAY) { code.Op(0x1a); code.I64Const(t->arr->size); }
+                else if (t->kind == TY_SLICE) { code.I64Const(32); code.Op(0x88); }
+                else Fail(n->line, "length requires an array or slice");
+                Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
+            }
+            if (d->member == B_CAP) {
+                auto t = Object(d->obj);
+                if (!c.DynamicArray(t) || t->arr->akind != A_LIMITED) Fail(n->line, "capacity requires a limited array");
+                if (t->arr->size >= 0) { code.Op(0x1a); code.I32Const(int32_t(t->arr->size)); }
+                else code.Mem(0x28, 2, DA_LIMIT);
+                code.Op(0xad);
+                Convert(c.ast.inttypes[IS_U64], n->exprtype, n->line); return;
+            }
             if (d->member >= 0 || d->variantconst) Fail(n->line, "this property/enum value is not supported");
             auto t = d->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
-            if (t->kind != TY_STRUCT) Fail(n->line, "only fixed struct fields are supported");
-            auto ft = t->struc->inst->ftypes.at(size_t(d->fieldidx)); Address(n);
+            if (t->kind != TY_STRUCT && t->kind != TY_VARIANT) Fail(n->line, "only fixed nominal fields are supported");
+            auto ft = c.FieldType(t, size_t(d->fieldidx)); Address(n);
             if (n->exprtype->kind != TY_REF || ft->kind == TY_REF) { Load(ft); Convert(ft, n->exprtype, n->line); }
             return;
         }
@@ -516,7 +591,9 @@ inline void Function::Expr(Node *n) {
             return;
         }
         case NK_IfExpr: {
-            auto i = static_cast<IfExpr *>(n); auto ts = Values(n); vector<uint32_t> vs;
+            auto i = static_cast<IfExpr *>(n);
+            if (TrySelect(i)) return;
+            auto ts = Values(n); vector<uint32_t> vs;
             for (auto t : ts) vs.push_back(Local(t));
             Truth(i->cond); Begin(0x04); BlockInto(i->thenb, ts, vs);
             if (i->elseb) {
@@ -560,7 +637,11 @@ inline void Function::Expr(Node *n) {
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j];
                 if (e.sf && e.sf == r->target) {
-                    SetResults(r->vals, e.types, e.values, n->line); UnwindPrints(j); Br(e.label); return;
+                    if (e.limited_destination) {
+                        if (r->vals.size() != 1) Fail(n->line, "limited assignment return needs one value");
+                        AssignLimitedValue(r->vals[0], e.types[0], *e.limited_destination);
+                    } else SetResults(r->vals, e.types, e.values, n->line);
+                    UnwindPrints(j); Br(e.label); return;
                 }
             }
             Fail(n->line, "return from an out-of-line enclosing function is not supported");
@@ -569,7 +650,10 @@ inline void Function::Expr(Node *n) {
             auto b = static_cast<Break *>(n);
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j]; if (!e.breakable) continue;
-                if (b->val) SetResults({ b->val }, e.types, e.values, n->line);
+                if (b->val) {
+                    if (e.limited_destination) AssignLimitedValue(b->val, e.types[0], *e.limited_destination);
+                    else SetResults({ b->val }, e.types, e.values, n->line);
+                }
                 UnwindPrints(j); Br(e.label); return;
             }
             Fail(n->line, "break has no direct control target");
@@ -581,6 +665,7 @@ inline void Function::Expr(Node *n) {
             Fail(n->line, "continue has no direct loop target");
         case NK_MatchExpr: {
             auto m = static_cast<MatchExpr *>(n); auto t = m->scrutinee->exprtype;
+            if (MatchNominal(m)) return;
             if (t->kind != TY_INT && t->kind != TY_BOOL) Fail(n->line, "only integer and bool match are supported");
             Expr(m->scrutinee); auto value = Save(t);
             auto ts = Values(n); vector<uint32_t> vs; for (auto rt : ts) vs.push_back(Local(rt));

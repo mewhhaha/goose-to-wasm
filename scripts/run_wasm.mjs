@@ -93,6 +93,17 @@ export async function runModule(bytes, input = "") {
     const bytes = memoryView(pointer, 8);
     return new DataView(bytes.buffer, bytes.byteOffset, 8).getBigUint64(0, true);
   };
+  const formatFloat = (value, pointer, capacity, bits) => {
+    // Builder formatting has a bounded, explicit destination. It neither
+    // truncates text nor writes a terminator outside the returned byte count.
+    if (!Number.isInteger(capacity) || capacity < 0 || capacity > 64) {
+      throw new Error("float formatting capacity must be between 0 and 64");
+    }
+    const encoded = Buffer.from(gooseFloat(value, bits));
+    if (encoded.length > capacity) throw new Error("float formatting buffer is too small");
+    memoryView(pointer, capacity).set(encoded);
+    return encoded.length;
+  };
   const iovecs = (pointer, count) => {
     const base = address(pointer);
     const length = address(count);
@@ -108,6 +119,8 @@ export async function runModule(bytes, input = "") {
       print_u64: (value) => append(BigInt.asUintN(64, value).toString()),
       print_f64: (value) => append(gooseFloat(value, 64)),
       print_f32: (value) => append(gooseFloat(value, 32)),
+      format_f64: (value, pointer, capacity) => formatFloat(value, pointer, capacity, 64),
+      format_f32: (value, pointer, capacity) => formatFloat(value, pointer, capacity, 32),
       print_bool: (value) => append(value ? "true" : "false"),
       newline: () => append("\n"),
       abort: (pointer, length, line) => {

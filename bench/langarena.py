@@ -133,6 +133,17 @@ def parse_port_result(stdout: str, returncode: int, expected: int, revision: int
             "timed_region_seconds": elapsed / 1e9, "revision_exit": revision}
 
 
+def load_engine_timing(path: Path) -> dict:
+    timings = json.loads(path.read_text())
+    if not isinstance(timings, dict):
+        raise ValueError("invalid engine timing metadata")
+    for key in ("compile_instantiate_ns", "start_function_ns", "engine_total_ns"):
+        value = timings.get(key)
+        if type(value) not in (int, float) or value < 0 or value != value or value == float("inf"):
+            raise ValueError("invalid engine timing metadata")
+    return timings
+
+
 def parse_whole_result(stdout: str, returncode: int, task: str) -> dict:
     if returncode:
         raise ValueError(f"whole-suite process exited {returncode}")
@@ -208,7 +219,8 @@ def tool_version(command: list[str]) -> dict:
 
 def metadata(args, manifest) -> dict:
     inputs = [Path(__file__), DATA / "manifest.json", DATA / "test.json", DATA / "run.json",
-              ROOT / "scripts" / "goose_wasm.py", ROOT / "oracle" / "goose_wasm.py",
+              ROOT / "scripts" / "goose_wasm.py", ROOT / "scripts" / "build_support.py",
+              ROOT / "oracle" / "goose_wasm.py",
               ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py",
               ROOT / "bench" / "host_input.c", *sorted((DATA / "ports").glob("*.goose"))]
     try:
@@ -517,11 +529,7 @@ def run_gauntlet(args, manifest):
         try:
             row.update(parse_port_result(result["stdout"], result["returncode"], case[profile]["checksum"], revision))
             if engine != "native":
-                timings = json.loads(timing_path.read_text())
-                for key in ("compile_instantiate_ns", "start_function_ns", "engine_total_ns"):
-                    if not isinstance(timings.get(key), (int, float)) or timings[key] < 0:
-                        raise ValueError("invalid engine timing metadata")
-                row["engine_timing"] = timings
+                row["engine_timing"] = load_engine_timing(timing_path)
             row["status"] = "passed"
         except (OSError, ValueError) as error:
             row.update(status="failed", error=str(error) + ": " + result["stderr"][-2000:])

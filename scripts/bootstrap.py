@@ -87,7 +87,7 @@ def prepare_source(args: argparse.Namespace, build: Path) -> tuple[Path, dict]:
     patch_names = PIN["patches"]
     headers = sorted((ROOT / "compiler").glob("*.h"))
     if args.without_direct:
-        patch_names = patch_names[:1]
+        patch_names = [name for name in patch_names if name.startswith("oracle/patches/")]
         headers = []
     elif not (ROOT / "compiler" / "direct_wasm.h").is_file():
         raise RuntimeError("compiler/direct_wasm.h is missing from this checkout")

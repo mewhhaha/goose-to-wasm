@@ -17,10 +17,12 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
     if (from->kind == TY_REF && to->kind != TY_REF) {
         Load(from->ref->sub); Convert(from->ref->sub, to, l); return;
     }
+    if (ConvertArray(from, to, l)) return;
     if (from->kind == TY_ARRAY && to->kind == TY_SLICE) {
         c.Size(from); code.Op(0xad);
         code.I64Const(int64_t(uint64_t(from->arr->size) << 32)); code.Op(0x84); return;
     }
+    if (ConvertNominal(from, to, l)) return;
     if (c.Aggregate(from) && to->kind == TY_REF) { W(to); return; }
     if (c.Aggregate(from) || c.Aggregate(to)) {
         if (from->kind != to->kind || c.Size(from).size != c.Size(to).size)
@@ -81,7 +83,7 @@ inline void Function::Cast(AsCast *n) {
         auto arr = Lookup(to->ix->arr, n->line);
         Read(arr); auto at = arr.type;
         if (at->kind == TY_REF) { Load(at->ref->sub); at = at->ref->sub; }
-        if (at->kind == TY_ARRAY) { code.Op(0x1a); code.I64Const(at->arr->size); }
+        if (at->kind == TY_ARRAY) { ArrayValueView(at); code.I64Const(32); code.Op(0x88); }
         else if (at->kind == TY_SLICE) { code.I64Const(32); code.Op(0x88); }
         else Fail(n->line, "index type requires a fixed array or slice");
         auto len = Save(I64);
@@ -126,9 +128,23 @@ inline void Function::Cast(AsCast *n) {
 inline void Function::Truth(Node *n) {
     Expr(n); auto t = n->exprtype;
     if (t->kind == TY_REF && !t->ref->optional) { Load(t->ref->sub); t = t->ref->sub; }
+    // Comparison and logical opcodes already produce canonical 0/1. Do not
+    // ask a baseline engine to materialize two extra inversions per test.
+    // Arbitrary bool locals/extern results still take the normalizing path.
+    if (t->kind == TY_BOOL) {
+        if (Is<BoolLit>(n)) return;
+        if (auto unary = Is<Unary>(n); unary && unary->op == T_NOT) return;
+        if (auto binary = Is<Binary>(n)) {
+            switch (binary->op) {
+                case T_EQ: case T_NEQ: case T_LT: case T_GT: case T_LTEQ: case T_GTEQ:
+                case T_DOTEQ: case T_DOTNEQ: case T_ANDAND: case T_OROR: return;
+                default: break;
+            }
+        }
+    }
     auto w = W(t);
-    if (w == I32) { code.Op(0x45); code.Op(0x45); }
-    else if (w == I64) { code.Op(0x50); code.Op(0x45); }
+    if (w == I32) { code.I32Const(0); code.Op(0x47); }
+    else if (w == I64) { code.I64Const(0); code.Op(0x52); }
     else { Zero(w); code.Op(w == F32 ? 0x5c : 0x62); }
 }
 
@@ -177,7 +193,9 @@ inline void Function::BinaryOp(TType op, TypeExpr *t, Line line) {
     }
     if (cmp) { code.Op(cmp); return; }
     if (op == T_SHL || op == T_SHR) {
-        Const(t, bits - 1); code.Op(wide ? 0x83 : 0x71);
+        // Wasm already masks full-width shift counts modulo 32/64. Narrow
+        // Goose integers still need their smaller modulo-8/16 mask.
+        if (bits < (wide ? 64 : 32)) { Const(t, bits - 1); code.Op(wide ? 0x83 : 0x71); }
         code.Op(op == T_SHL ? (wide ? 0x86 : 0x74) : wide ? (u ? 0x88 : 0x87) : (u ? 0x76 : 0x75));
         Normalize(t); return;
     }
