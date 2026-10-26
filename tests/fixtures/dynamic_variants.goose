@@ -43,7 +43,7 @@ fn main() {
     let left = nodes.push(Node.Leaf { "left" });
     let right = nodes.push(Node.Leaf { "right" });
     let root = nodes.push(Node.Pair { left, right });
-    for i in 96 { nodes.push(Node.Leaf { str(i) }); }
+    for i in 200 { nodes.push(Node.Leaf { str(i) }); }
     print(tree_score(root));
 
     var total = 0;

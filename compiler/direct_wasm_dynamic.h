@@ -28,7 +28,7 @@ inline string DynamicBody(Function &f) {
     result.Raw(f.code.data); return result.data;
 }
 
-inline vector<string> Compiler::DynamicBodies() {
+inline vector<string> Compiler::DynamicBodies(vector<vector<uint32_t>> &dependencies) {
     vector<string> bodies;
     auto signatures = DynamicSignatures();
     for (uint32_t which = 0; which < DH_COUNT; which++) {
@@ -182,6 +182,7 @@ inline vector<string> Compiler::DynamicBodies() {
             f.Else(); f.Get(anchor); f.Get(1); f.Get(2); b.Op(0x6c); b.Op(0x6a); f.End();
         }
         bodies.push_back(DynamicBody(f));
+        dependencies.emplace_back(f.dependencies.begin(), f.dependencies.end());
     }
     return bodies;
 }
@@ -209,6 +210,9 @@ inline void Function::HeapAllocate(uint32_t bytes, Line line) {
 }
 inline void Function::HeapFree(uint32_t block) { Get(block); CallIndex(c.dynamic_runtime + DH_FREE); }
 inline void Function::ArrayEnsure(TypeExpr *t, uint32_t owner, uint32_t length, Line line) {
+    // Validate static capacities before emitting any i32 representation of
+    // them, including types reached only through a builtin receiver.
+    c.Size(t);
     auto stride = c.Size(t->arr->sub).size;
     Get(length); code.Op(0xad); code.I64Const(stride); code.Op(0x7e);
     code.I64Const(int64_t(uint64_t(c.opts.maximum_pages) * 65536 - DH_PAGE)); code.Op(0x56);
@@ -317,7 +321,40 @@ inline void Function::DestroyOwned(TypeExpr *t, uint32_t address) {
     }
 }
 
-inline void Function::StoreOwned(TypeExpr *t, bool assignment) {
+inline void Function::ZeroOwned(TypeExpr *t, uint32_t address) {
+    if (!c.OwnsDynamic(t)) {
+        Get(address); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+    } else if (c.DynamicArray(t) && t->arr->akind == A_LIMITED) {
+        auto elem = t->arr->sub;
+        Get(address); code.Mem(0x28, 2, DA_CHUNKS);
+        Get(address); code.Mem(0x28, 2, DA_CHUNKCAP); code.Op(0x6c); auto count = Save(I32);
+        if (t->arr->size >= 0) code.I32Const(int32_t(t->arr->size));
+        else { Get(address); code.Mem(0x28, 2, DA_LIMIT); }
+        auto limit = Save(I32);
+        Get(count); Get(limit); code.Op(0x4b); Begin(0x04); Get(limit); Set(count); End();
+        code.I32Const(0); auto i = Save(I32); auto done = Begin(), loop = Begin(0x03);
+        Get(i); Get(count); code.Op(0x4f); Br(done, true);
+        ArrayAddress(address, i, elem); auto at = Save(I32); ZeroOwned(elem, at);
+        Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
+        Get(address); code.I32Const(0); code.Mem(0x36, 2, DA_LEN);
+        Get(address); Get(limit); code.Mem(0x36, 2, DA_LIMIT);
+    } else if (t->kind == TY_ARRAY && !c.DynamicArray(t)) {
+        auto elem = t->arr->sub;
+        code.I32Const(0); auto i = Save(I32); auto done = Begin(), loop = Begin(0x03);
+        Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
+        Get(address); Get(i); code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a);
+        auto at = Save(I32); ZeroOwned(elem, at);
+        Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
+    } else if (t->kind == TY_STRUCT || t->kind == TY_VARIANT) {
+        auto layout = c.Size(t);
+        for (size_t i = 0; i < layout.fields.size(); i++) {
+            Get(address); code.I32Const(int32_t(layout.fields[i])); code.Op(0x6a);
+            auto at = Save(I32); ZeroOwned(c.FieldType(t, i), at);
+        }
+    } else DestroyOwned(t, address);
+}
+
+inline void Function::StoreOwned(TypeExpr *t, bool assignment, bool copy_capacity) {
     auto source = Save(I32), dest = Save(I32);
     Get(source); Get(dest); code.Op(0x47); Begin(0x04);
     if (c.DynamicArray(t)) {
@@ -336,13 +373,43 @@ inline void Function::StoreOwned(TypeExpr *t, bool assignment) {
         // Only destruction of the owner can release those addresses.
         if (t->arr->akind != A_LIMITED || !assignment) DestroyOwned(t, dest);
         if (t->arr->akind == A_LIMITED) { Get(dest); Get(limit); code.Mem(0x36, 2, DA_LIMIT); }
-        ArrayEnsure(t, dest, length, t->line);
+        auto count = length;
+        optional<uint32_t> available;
+        if (t->arr->akind == A_LIMITED && t->arr->size >= 0 && copy_capacity) {
+            // A static limited array is a fixed value: its whole capacity
+            // is copied, including written slots past len. Never-allocated
+            // slots have a zero representation. Visit only storage that
+            // either value actually owns, avoiding eager capacity commits.
+            auto coverage = [&](uint32_t owner) {
+                Get(owner); code.Mem(0x28, 2, DA_CHUNKS);
+                Get(owner); code.Mem(0x28, 2, DA_CHUNKCAP); code.Op(0x6c);
+                auto slots = Save(I32);
+                Get(slots); Get(limit); code.Op(0x4b); Begin(0x04);
+                Get(limit); Set(slots); End();
+                return slots;
+            };
+            available = coverage(source); Get(*available); count = Save(I32);
+            if (assignment) {
+                auto old = coverage(dest);
+                Get(old); Get(count); code.Op(0x4b); Begin(0x04); Get(old); Set(count); End();
+            }
+        }
+        Get(count); Begin(0x04); ArrayEnsure(t, dest, count, t->line); End();
         code.I32Const(0); auto i = Save(I32); auto elem = t->arr->sub;
         auto done = Begin(), loop = Begin(0x03);
-        Get(i); Get(length); code.Op(0x4f); Br(done, true);
+        Get(i); Get(count); code.Op(0x4f); Br(done, true);
+        if (available) { Get(i); Get(*available); code.Op(0x49); Begin(0x04); }
         ArrayAddress(dest, i, elem); ArrayAddress(source, i, elem); Load(elem);
         if (assignment && t->arr->akind == A_LIMITED && c.OwnsDynamic(elem)) StoreOwned(elem, true);
         else Store(elem);
+        if (available) {
+            Else(); ArrayAddress(dest, i, elem);
+            // Zeroing is a distinct traversal: it preserves nested limited
+            // addresses without recursively generating both copy branches
+            // again for every level of a deeply nested fixed value.
+            auto at = Save(I32); ZeroOwned(elem, at);
+            End();
+        }
         Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
         Get(dest); Get(length); code.Mem(0x36, 2, DA_LEN);
     } else if (t->kind == TY_ARRAY) {
@@ -383,6 +450,108 @@ inline void Function::StoreOwned(TypeExpr *t, bool assignment) {
         Abort(t->line, "invalid enum tag"); End();
     } else Fail(t->line, "dynamic ownership in this value is not supported");
     End();
+}
+
+inline TypeExpr *Function::StoredType(Node *n) {
+    TypeExpr *t = n->exprtype;
+    if (auto id = Is<Ident>(n); id && id->vdef) t = Resolve(id->vdef)->type;
+    else if (auto dot = Is<Dot>(n); dot && dot->IsField()) {
+        auto owner = StoredType(dot->obj);
+        if (owner->kind == TY_STRUCT || owner->kind == TY_VARIANT)
+            t = c.FieldType(owner, size_t(dot->fieldidx));
+    } else if (auto idx = Is<Index>(n)) {
+        auto owner = StoredType(idx->obj);
+        if (owner->kind == TY_ARRAY) t = owner->arr->sub;
+        else if (owner->kind == TY_SLICE) t = owner->sub;
+    } else if (Is<SliceExpr>(n)) {
+        // Contextual typing can give a slice expression the destination's
+        // limited-array type, although its actual value is still a view.
+        auto slice = static_cast<SliceExpr *>(n);
+        auto owner = StoredType(slice->obj);
+        auto elem = owner->kind == TY_ARRAY ? owner->arr->sub : owner->sub;
+        return c.ast.SliceOf(elem, n->line);
+    }
+    while (t->kind == TY_REF) t = t->ref->sub;
+    return t;
+}
+
+inline bool Function::LimitedWholeCopy(Node *n, TypeExpr *t) {
+    if (t->kind != TY_ARRAY || t->arr->akind != A_LIMITED || t->arr->size < 0) return false;
+    auto from = StoredType(n);
+    return from->kind == TY_ARRAY && from->arr->akind == A_LIMITED && from->arr->size == t->arr->size;
+}
+
+inline void Function::AssignLimitedValue(Node *n, TypeExpr *t, uint32_t destination) {
+    // Limited assignment is a destination operation. A slice/path copies
+    // just its live prefix, whereas a fixed value overwrites all capacity.
+    // Route control-flow leaves to that same destination rather than first
+    // erasing the distinction in an intermediate fixed value.
+    if (auto block = Is<Block>(n)) {
+        for (auto statement : block->stmts) Discard(statement);
+        if (block->tail) AssignLimitedValue(block->tail, t, destination);
+        return;
+    }
+    if (auto conditional = Is<IfExpr>(n)) {
+        Truth(conditional->cond); Begin(0x04);
+        AssignLimitedValue(conditional->thenb, t, destination);
+        if (conditional->elseb) { Else(); AssignLimitedValue(conditional->elseb, t, destination); }
+        End(); return;
+    }
+    if (auto match = Is<MatchExpr>(n)) {
+        auto mt = Object(match->scrutinee);
+        auto object = Save(mt), value = object;
+        bool nominal = mt->kind == TY_ENUM;
+        if (nominal) { Get(value); code.Mem(0x28, 2); value = Save(I32); }
+        else if (mt->kind != TY_INT && mt->kind != TY_BOOL)
+            Fail(n->line, "unsupported limited-assignment match type");
+        auto done = Begin(); bool wildcard = false;
+        for (auto &arm : match->arms) {
+            bool any = arm.pat.kind == P_WILDCARD;
+            if (!any) {
+                bool first = true;
+                if (nominal) for (auto variant : arm.variants) {
+                    Get(value); code.I32Const(mt->enu->en->VariantIndex(variant)); code.Op(0x46);
+                    if (!first) code.Op(0x72);
+                    first = false;
+                } else for (auto range : arm.ranges) {
+                    Get(value); Const(mt, range.lo); BinaryOp(T_GTEQ, mt, n->line);
+                    Get(value); Const(mt, range.hi); BinaryOp(T_LTEQ, mt, n->line); code.Op(0x71);
+                    if (!first) code.Op(0x72);
+                    first = false;
+                }
+                if (first) Fail(n->line, "match arm has no resolved alternatives");
+                Begin(0x04);
+            }
+            if (arm.binder) {
+                if (!nominal) Fail(n->line, "integer match payload is not supported");
+                auto binding = Bind(arm.binder);
+                Get(object); code.I32Const(int32_t(c.PayloadOffset(mt))); code.Op(0x6a); Write(binding);
+            }
+            AssignLimitedValue(arm.body, t, destination); Br(done);
+            if (!any) End(); else { wildcard = true; break; }
+        }
+        if (!wildcard) Abort(n->line, "non-exhaustive match");
+        End(); return;
+    }
+    if (auto block = Is<EarlyBlock>(n)) {
+        auto done = Begin(); exits.push_back({ done, nullptr, {t}, {}, true, {}, destination });
+        AssignLimitedValue(block->body, t, destination); exits.pop_back(); End(); return;
+    }
+    if (auto loop = Is<LoopExpr>(n)) {
+        auto done = Begin(), again = Begin(0x03);
+        exits.push_back({ done, nullptr, {t}, {}, true, again, destination });
+        BlockInto(loop->body, {}, {}); exits.pop_back(); Br(again); End(); End(); return;
+    }
+    if (auto block = Is<InlineBlock>(n); block && block->spec && block->spec->rets.size() == 1) {
+        auto own = block->spec->rets[0];
+        if (own->kind == TY_ARRAY && own->arr->akind == A_LIMITED && own->arr->size == t->arr->size) {
+            auto done = Begin(); exits.push_back({ done, block->sf, {t}, {}, false, {}, destination });
+            AssignLimitedValue(block->body, t, destination); exits.pop_back(); End(); return;
+        }
+    }
+    if (Values(n).empty()) { Discard(n); return; }
+    To(n, t); auto value = Save(I32);
+    Get(destination); Get(value); StoreOwned(t, true, LimitedWholeCopy(n, t));
 }
 
 inline void Function::ArrayCopyView(TypeExpr *t, uint32_t owner, uint32_t view, Line line, bool append) {
@@ -678,6 +847,13 @@ inline bool Function::DynamicBuiltin(Call *n) {
     if (kind == B_COPY && (c.DynamicArray(n->exprtype) || n->exprtype->kind == TY_SLICE)) {
         auto t = n->rettypes.empty() ? n->exprtype : n->rettypes[0];
         if (t->kind == TY_SLICE) t = c.ast.ArrayOf(t->sub, A_VAR, n->line);
+        if (t->arr->akind == A_LIMITED && t->arr->size >= 0) {
+            // Copy a fixed-capacity value, including retained tail slots.
+            // Going through a slice would discard those slots too early.
+            To(args[0], t); auto source = Save(I32), offset = Frame(t);
+            FrameAddress(offset); Get(source); StoreOwned(t);
+            FrameAddress(offset); Convert(t, n->exprtype, n->line); return true;
+        }
         View(args[0]); auto view = Save(I64), offset = Frame(t);
         FrameAddress(offset); auto owner = Save(I32); DestroyOwned(t, owner);
         if (c.DynamicArray(t) && t->arr->akind == A_LIMITED) {

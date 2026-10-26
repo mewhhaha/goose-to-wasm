@@ -45,6 +45,14 @@ and recursively releases owned fields/elements. Returning an owned value copies
 it into caller-owned storage before callee cleanup. References and slices remain
 borrowed views, governed by Goose's frontend lifetime rules.
 
+Limited arrays retain initialized slots and their addresses across `pop`,
+`clear`, and shrinking operations. A same-type static-capacity whole-value copy
+also replaces retained tail slots, including logical zeros where the source
+has not materialized storage. Runtime-capacity assignment and adaptation from
+another array/slice representation copy the live prefix and preserve the
+receiver's capacity and retained tail. Only destruction of the owner releases
+these stable slots and their nested owned values.
+
 Initial memory defaults to 16 pages (1 MiB), maximum memory to 256 pages (16 MiB). Driver options
 `--initial-pages` and `--maximum-pages` configure them; one page is 64 KiB. These
 limits are independent of the C oracle's 16 MiB per data stack profile.

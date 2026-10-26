@@ -75,6 +75,7 @@ struct Function {
         vector<uint32_t> values;
         bool breakable = false;
         optional<uint32_t> continue_label;
+        optional<uint32_t> limited_destination = nullopt;
     };
     vector<Exit> exits;
     // A print may be abandoned by a return/break in an argument. Restore
@@ -181,7 +182,11 @@ struct Function {
     void ArrayAddress(uint32_t, uint32_t, TypeExpr *);
     void ViewAddress(uint32_t, uint32_t, TypeExpr *, Line);
     void DestroyOwned(TypeExpr *, uint32_t);
-    void StoreOwned(TypeExpr *, bool assignment = false);
+    void ZeroOwned(TypeExpr *, uint32_t);
+    void StoreOwned(TypeExpr *, bool assignment = false, bool copy_capacity = true);
+    TypeExpr *StoredType(Node *);
+    bool LimitedWholeCopy(Node *, TypeExpr *);
+    void AssignLimitedValue(Node *, TypeExpr *, uint32_t);
     void ArrayTruncate(TypeExpr *, uint32_t, uint32_t, Line);
     void ArrayCopyView(TypeExpr *, uint32_t, uint32_t, Line, bool append = false);
     bool ConvertArray(TypeExpr *, TypeExpr *, Line);
@@ -239,7 +244,7 @@ struct Compiler {
     TypeExpr *FieldType(TypeExpr *, size_t);
     bool DynamicArray(TypeExpr *) const;
     bool OwnsDynamic(TypeExpr *) const;
-    vector<string> DynamicBodies();
+    vector<string> DynamicBodies(vector<vector<uint32_t>> &);
     uint8_t W(TypeExpr *t) {
         if (!t || t->kind == TY_VOID) return VOID;
         switch (t->kind) {
@@ -279,6 +284,8 @@ struct Compiler {
             case TY_SLICE: r.size = r.align = 8; break;
             case TY_ARRAY: {
                 if (t->arr->akind != A_FIXED) {
+                    if (t->arr->akind == A_LIMITED && t->arr->size > INT32_MAX)
+                        Fail(t->line, "array capacity exceeds the direct address range");
                     r.size = 64; r.align = 8; break;
                 }
                 if (t->arr->size < 0) Fail(t->line, "array length was not resolved");

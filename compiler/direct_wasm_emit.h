@@ -123,10 +123,12 @@ inline DirectWasmResult Compiler::Compile() {
     vector<uint32_t> ftypes;
     {
         static constexpr const char *names[] = { "__goose_alloc", "__goose_free", "__goose_array_ensure", "__goose_view_address" };
-        auto runtime = DynamicBodies();
+        vector<vector<uint32_t>> runtime_dependencies;
+        auto runtime = DynamicBodies(runtime_dependencies);
         for (uint32_t i = 0; i < DH_COUNT; i++) {
             auto &body = runtime[i];
-            result.function_info.push_back({ names[i], dynamic_runtime + i, body.size(), BodyHash(body), {} });
+            result.function_info.push_back({ names[i], dynamic_runtime + i, body.size(), BodyHash(body),
+                                             std::move(runtime_dependencies[i]) });
             result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(dynamic_types[i]);
         }
     }

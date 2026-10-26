@@ -42,8 +42,8 @@ def main() -> int:
         command = ["build", str(source), "--goose", str(compiler), "--cache-dir", str(cache),
                    "-o", str(output), "--json"]
 
-        def build(extra=(), expect_success=True):
-            result = subprocess.run([sys.executable, str(DRIVER), *command, *extra],
+        def build(extra=(), expect_success=True, arguments=None):
+            result = subprocess.run([sys.executable, str(DRIVER), *(arguments or command), *extra],
                                     text=True, capture_output=True, check=False)
             if expect_success and result.returncode:
                 raise AssertionError(result.stderr)
@@ -123,21 +123,40 @@ def main() -> int:
         passed.append("UTF-8 BOM normalization matches the semantic frontend")
 
         # Keep both target files unchanged while retargeting only the import.
-        first = helper.with_name("first.goose")
-        second = helper.with_name("second.goose")
-        helper.rename(first)
+        # Give this contract its own source tree: the later resident-worker
+        # stress exercises ordinary source edits independently of link history.
+        link_project = directory / "symlink-project"
+        link_helper = link_project / "helper" / "helper.goose"
+        link_helper.parent.mkdir(parents=True)
+        link_source = link_project / "main.goose"
+        link_source.write_text(source.read_text())
+        link_command = command.copy()
+        link_command[1] = str(link_source)
+        first = link_helper.with_name("first.goose")
+        second = link_helper.with_name("second.goose")
+        first.write_text(good)
         second.write_text(good.replace("42", "44"))
-        helper.symlink_to(first.name)
-        assert build()["cache"] == "miss"
-        assert build()["cache"] == "hit"
-        helper.unlink()
-        helper.symlink_to(second.name)
-        assert build()["cache"] == "miss"
+        link_helper.symlink_to(first.name)
+        assert build(arguments=link_command)["cache"] == "miss"
+        run("42\n")
+        assert build(arguments=link_command)["cache"] == "hit"
+        link_helper.unlink()
+        link_helper.symlink_to(second.name)
+        assert build(arguments=link_command)["cache"] == "miss"
         run("44\n")
-        helper.unlink()
-        helper.write_text(good)
+        assert build(arguments=link_command)["cache"] == "hit"
+        link_helper.unlink()
+        link_helper.write_text(good)
         first.unlink()
         second.unlink()
+        assert link_helper.is_file() and not link_helper.is_symlink()
+        assert link_helper.read_text() == good
+        assert build(arguments=link_command)["cache"] == "miss"
+        run("42\n")
+        assert build(arguments=link_command)["cache"] == "hit"
+        assert link_helper.is_file() and not link_helper.is_symlink()
+        assert link_helper.read_text() == good
+        assert not helper.is_symlink() and helper.read_text() == good
         build()
         passed.append("retargeted imported symlink invalidates an unchanged old target")
 

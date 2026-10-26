@@ -139,6 +139,11 @@ inline void Function::AssignNode(Assign *n) {
         } else Address(n->lval);
         addr = Save(I32);
     }
+    if ((n->op == T_ASSIGN || n->op == T_DOTASSIGN) && t->kind == TY_ARRAY &&
+        t->arr->akind == A_LIMITED && t->arr->size >= 0) {
+        if (scalar) { SlotAddress(*scalar); addr = Save(I32); }
+        AssignLimitedValue(n->rhs, t, addr); return;
+    }
     if (n->op != T_ASSIGN && n->op != T_DOTASSIGN) {
         if (c.Aggregate(t)) Fail(n->line, "elementwise aggregate assignment is not supported");
         if (scalar) Read(*scalar); else { Get(addr); Load(t); }
@@ -147,7 +152,7 @@ inline void Function::AssignNode(Assign *n) {
     if (c.OwnsDynamic(t)) {
         auto val = Save(t);
         if (scalar) SlotAddress(*scalar); else Get(addr);
-        Get(val); StoreOwned(t, true);
+        Get(val); StoreOwned(t, true, LimitedWholeCopy(n->rhs, t));
     } else if (scalar) Write(*scalar);
     else { auto val = Save(t); Get(addr); Get(val); Store(t); }
 }
@@ -209,7 +214,7 @@ inline void Function::AggregateLiteral(Node *n) {
 inline void Function::Slice(SliceExpr *n) {
     auto at = n->obj->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
     auto elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
-    if (!elem || n->exprtype->kind != TY_SLICE) Fail(n->line, "only slices of fixed-layout elements are supported");
+    if (!elem) Fail(n->line, "only slices of fixed-layout elements are supported");
     View(n->obj); auto view = Save(I64);
     Get(view); code.I64Const(32); code.Op(0x88); auto len = Save(I64);
     if (n->lo) {
@@ -230,6 +235,7 @@ inline void Function::Slice(SliceExpr *n) {
     ViewAddress(view, offset, elem, n->line);
     Get(view); code.Op(0xa7); code.I32Const(INT32_MIN); code.Op(0x71); code.Op(0x72); code.Op(0xad);
     Get(hi); Get(lo); code.Op(0x7d); code.I64Const(32); code.Op(0x86); code.Op(0x84);
+    if (n->exprtype->kind != TY_SLICE) Convert(c.ast.SliceOf(elem, n->line), n->exprtype, n->line);
 }
 
 inline void Function::For(ForLoop *n) {
@@ -631,7 +637,11 @@ inline void Function::Expr(Node *n) {
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j];
                 if (e.sf && e.sf == r->target) {
-                    SetResults(r->vals, e.types, e.values, n->line); UnwindPrints(j); Br(e.label); return;
+                    if (e.limited_destination) {
+                        if (r->vals.size() != 1) Fail(n->line, "limited assignment return needs one value");
+                        AssignLimitedValue(r->vals[0], e.types[0], *e.limited_destination);
+                    } else SetResults(r->vals, e.types, e.values, n->line);
+                    UnwindPrints(j); Br(e.label); return;
                 }
             }
             Fail(n->line, "return from an out-of-line enclosing function is not supported");
@@ -640,7 +650,10 @@ inline void Function::Expr(Node *n) {
             auto b = static_cast<Break *>(n);
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j]; if (!e.breakable) continue;
-                if (b->val) SetResults({ b->val }, e.types, e.values, n->line);
+                if (b->val) {
+                    if (e.limited_destination) AssignLimitedValue(b->val, e.types[0], *e.limited_destination);
+                    else SetResults({ b->val }, e.types, e.values, n->line);
+                }
                 UnwindPrints(j); Br(e.label); return;
             }
             Fail(n->line, "break has no direct control target");

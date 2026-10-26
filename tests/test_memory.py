@@ -124,20 +124,24 @@ def main():
         assert target.read_bytes() == previous, "failed build replaced a valid output"
 
     record("static-limit-and-output-preservation", limit)
-    def overflow():
-        source = output / "layout-overflow.goose"
-        source.write_text("var huge: i64[2305843009213693952] = [0; 2305843009213693952];\n"
-                          "fn main() { print(huge.len); }\n")
-        target = output / "overflow-preserved.wasm"
+    def overflow(name, text, diagnostic):
+        source = output / (name + ".goose")
+        source.write_text(text)
+        target = output / (name + "-preserved.wasm")
         previous = (output / "O2/direct/program.wasm").read_bytes()
         target.write_bytes(previous)
         cmd = [args.goose, source, "--target", "wasm-direct", "--offline", "-o", target]
         result, _ = execute(cmd, cwd=ROOT)
-        save_log(output, "layout-overflow", cmd, result)
-        assert result.returncode != 0, "fixed-array byte multiplication wrapped and was accepted"
-        assert "fixed array exceeds the configured linear-memory limit" in result.stdout + result.stderr
+        save_log(output, name, cmd, result)
+        assert result.returncode != 0, "an unrepresentable array layout was accepted"
+        assert diagnostic in result.stdout + result.stderr
         assert target.read_bytes() == previous, "overflowing layout replaced a valid output"
-    record("fixed-layout-multiplication-overflow", overflow)
+    record("fixed-layout-multiplication-overflow", lambda: overflow(
+        "layout-overflow", "var huge: i64[2305843009213693952] = [0; 2305843009213693952];\n"
+        "fn main() { print(huge.len); }\n", "fixed array exceeds the configured linear-memory limit"))
+    record("limited-capacity-narrowing-overflow", lambda: overflow(
+        "capacity-overflow", "var huge: i64[..4294967296] = [];\nfn main() { print(huge.cap); }\n",
+        "array capacity exceeds the direct address range"))
     failures = sum(row["status"] != "pass" for row in rows)
     report = {"schema": "goose-memory-qualification-v1", "observations": len(rows),
               "failures": failures, "compiler_sha256": hashlib.sha256(args.goose.read_bytes()).hexdigest(),

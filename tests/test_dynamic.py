@@ -3,8 +3,10 @@
 
 Native Goose C is the independent semantic reference. The same source runs
 at Goose O0 and O2 on V8 and Wasmtime. Direct runs use a one-MiB memory limit
-to expose abandoned loop/return allocations; deliberate exhaustion has its
-own bounded direct-only case, never an uncontrolled native allocation.
+to expose abandoned loop/return allocations. The variant fixture retains
+200 live owners and uses two MiB; its 10,000 reuse iterations still expose
+leaks. Deliberate exhaustion uses its own one-MiB direct-only case, never
+an uncontrolled native allocation.
 """
 from __future__ import annotations
 
@@ -47,6 +49,7 @@ def main():
         "dynamic_strings": [(str(n), f"{n}\n", 0) for n in (-7, 42)],
         "dynamic_variants": [(str(n), f"{n}\n", 0) for n in (-1, 4, 7)],
         "dynamic_limited_reuse": [("retained", "", 0)],
+        "dynamic_limited_assignments": [(str(n), f"{n}\n", 0) for n in (0, 1)],
         "dynamic_errors": [(str(mode), f"{mode}\n", 1) for mode in (0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11)],
     }
 
@@ -78,8 +81,9 @@ def main():
                         result, c_seconds = execute(command, cwd=ROOT)
                         compile_seconds += c_seconds
                 elif backend == "direct":
+                    maximum_pages = "32" if fixture == "dynamic_variants" else "16"
                     command = [args.goose, source, "--target", "wasm-direct", "--offline", f"-O{level}",
-                               "--wasm-initial-pages", "1", "--wasm-max-pages", "16", "-o", artifact]
+                               "--wasm-initial-pages", "1", "--wasm-max-pages", maximum_pages, "-o", artifact]
                     result, compile_seconds = execute(command, cwd=ROOT)
                 else:
                     command = [sys.executable, ROOT / "scripts" / "goose_wasm.py", "build", source,
@@ -122,11 +126,11 @@ def main():
             source, artifact = directory / "main.goose", directory / "program.wasm"
             if name == "memory-exhaustion":
                 source.write_text("fn main() { var a: u8[>..<] = []; var b: u8[>..<] = []; var c: u8[>..<] = []; "
-                                  "a.resize(100000, 1); b.resize(100000, 2); c.resize(100000, 3); print(a.len, b.len, c.len); }\n")
+                                  "a.resize(400000, 1); b.resize(400000, 2); c.resize(400000, 3); print(a.len, b.len, c.len); }\n")
             else:
                 source.write_text(f"fn main() {{ var values: i64[>..<] = []; values.resize({count}, 1); print(values.len); }}\n")
             command = [args.goose, source, "--target", "wasm-direct", "--offline", "-O2",
-                       "--wasm-initial-pages", "1", "--wasm-max-pages", "4", "-o", artifact]
+                       "--wasm-initial-pages", "1", "--wasm-max-pages", "16", "-o", artifact]
             result, _ = execute(command, cwd=ROOT)
             save_log(directory, "compile", command, result)
             for engine in ("v8", "wasmtime"):

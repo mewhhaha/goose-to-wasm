@@ -36,4 +36,17 @@ fn main() {
     print(runtime, " ", runtime.cap, " ", stale);
     runtime.resize(2, 99);
     print(stale);
+
+    var checksum = 0;
+    for i in 10000 {
+        var reused: Inside[..3] = [Inside { [i, i + 1] }, Inside { [i + 2, i + 3] }];
+        let nested_ref: i64& = reused[1].values[1];
+        reused.clear();
+        checksum += nested_ref;
+        reused = [Inside { [i + 4] }];
+        checksum += nested_ref;
+        reused.push(Inside { [i + 5, i + 6] });
+        checksum += nested_ref;
+    }
+    print(checksum);
 }
