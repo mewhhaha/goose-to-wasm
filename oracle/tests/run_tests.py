@@ -394,12 +394,16 @@ def main():
                 print(result["error"], flush=True)
     results.sort(key=lambda item: item["name"])
     failed = sum(not result["ok"] for result in results)
+    compiler_after = hashlib.sha256(args.goose.read_bytes()).hexdigest()
+    compiler_unchanged = compiler_sha256 == compiler_after
     report = {
         "schema": "goose-wasm-qualification-v1",
         "source_dir": str(args.source_dir),
         "compiler": str(args.goose),
         "compiler_sha256": compiler_sha256,
-        "compiler_sha256_after": hashlib.sha256(args.goose.read_bytes()).hexdigest(),
+        "compiler_sha256_after": compiler_after,
+        "compiler_unchanged": compiler_unchanged,
+        "qualified": failed == 0 and compiler_unchanged,
         "memory64": args.memory64,
         "native_differential": not args.skip_native,
         "native_gcc": args.native_gcc,
@@ -412,7 +416,9 @@ def main():
     report_path = args.output_dir / "report.json"
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(str(len(results) - failed) + " passed, " + str(failed) + " failed; report: " + str(report_path))
-    if failed:
+    if not compiler_unchanged:
+        print("Qualification invalid: compiler changed during the run", file=sys.stderr)
+    if failed or not compiler_unchanged:
         return 1
     return 0
 

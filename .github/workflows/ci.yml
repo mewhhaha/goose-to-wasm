@@ -64,6 +64,7 @@ jobs:
           python oracle/tests/test_bootstrap.py
           python oracle/tests/test_target.py
           python oracle/tests/test_driver.py
+          python oracle/tests/test_qualification.py
       - name: Full C-Wasm portability corpus
         run: python oracle/tests/run_tests.py --full --jobs 2
       - name: Memory64 and native GCC comparison
