@@ -286,6 +286,9 @@ the default writes edits to disk and measures artifact-cache validation too.
 `--driver PATH` selects a driver revision for controlled comparisons. Reports
 separate server round-trip, driver build, and native request medians, retaining
 the expected and actual final output in both edit modes.
+The [driver comparison](../bench/results/2026-10-30/driver-overhead.md) records
+lower local request medians after parser reuse and removal of artifact checks
+for unsaved overlays, with the same compiler and semantic-cache settings.
 
 ## Next architectural steps
 

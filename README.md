@@ -292,6 +292,8 @@ intact. `--stats FILE` writes driver timings and backend statistics as JSON.
 Unsaved overlays and `--no-cache` retain publication guards while skipping
 extra disk-cache validation. Benchmark unsaved edits with
 `--edit-source-mode overlay`; disk edits remain the benchmark default.
+On the retained 32-function local comparison, driver changes reduce unsaved-edit
+medians from 12.3–14.7 ms to 9.5–10.9 ms. [Raw timings and limitations](bench/results/2026-10-30/driver-overhead.md).
 
 ## Source organization
 
