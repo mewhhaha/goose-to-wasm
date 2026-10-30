@@ -42,8 +42,9 @@ an unchanged hit does not touch an already-correct output file's timestamp.
 
 `scripts/goose_wasm.py serve` retains the driver in a process and accepts
 JSON-lines requests. It avoids Python process startup and memoizes tool hashes
-against their filesystem identity. Source content is still checked on every
-request. It is a local build protocol, not a network service.
+against their filesystem identity. Artifact hits check source content on every
+request. Its argument parser is constructed once and produces a fresh options
+namespace for each request. It is a local build protocol, not a network service.
 
 `serve --native-worker` also retains one native compiler process. The worker
 uses a request API returning module bytes, exact parsed source dependencies,
@@ -60,6 +61,12 @@ With the default worker, `parsed_files` counts every reached file and
 builds bypass disk-only cache lookup and storage. Compiler-identity changes or
 worker failure cause a new process to be started. Failed requests preserve the
 previous output and do not poison the next request.
+
+Overlay builds and `--no-cache` skip the additional disk-content and recursive
+namespace checks used solely to qualify artifact retention. The compiler still
+loads reached sources, and all returned source/configuration/probe paths remain
+protected against output/statistics publication. Unchecked dependency snapshots
+are marked incomplete and cannot validate as reusable cache entries.
 
 `serve --native-worker --syntax-cache` retains pristine parsed modules. Each
 entry owns its source, AST, raw import records, and structured parse warnings;
@@ -274,6 +281,11 @@ separately from native process retention, or `--native-worker --syntax-cache`
 to measure parsed-module reuse.
 Use `--optimization O0`, `O1`, or `O2` to compare edit and release settings;
 the default is O0.
+Use `--edit-source-mode overlay` with a native worker to time unsaved edits;
+the default writes edits to disk and measures artifact-cache validation too.
+`--driver PATH` selects a driver revision for controlled comparisons. Reports
+separate server round-trip, driver build, and native request medians, retaining
+the expected and actual final output in both edit modes.
 
 ## Next architectural steps
 

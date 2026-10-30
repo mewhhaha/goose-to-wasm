@@ -289,6 +289,9 @@ The [chain comparison](bench/results/2026-10-30/checked-callers.md) verifies
 `--no-cache` disables whole-module artifact reuse; explicitly enabled native
 syntax/token caches remain active. A failed compile leaves the previous output
 intact. `--stats FILE` writes driver timings and backend statistics as JSON.
+Unsaved overlays and `--no-cache` retain publication guards while skipping
+extra disk-cache validation. Benchmark unsaved edits with
+`--edit-source-mode overlay`; disk edits remain the benchmark default.
 
 ## Source organization
 

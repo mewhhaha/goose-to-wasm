@@ -264,7 +264,7 @@ def valid_input(path: Path, item: dict, *, probe: bool = False) -> bool:
     return source_digest(path) == item["sha256"]
 
 
-def dependency_snapshot(transcript: list[dict], roots: list[Path]) -> tuple[dict, bool]:
+def dependency_snapshot(transcript: list[dict], roots: list[Path], *, validate: bool = True) -> tuple[dict, bool]:
     inputs, probes = {}, {}
     coherent, complete, saw_build = True, True, False
     for item in transcript:
@@ -284,11 +284,12 @@ def dependency_snapshot(transcript: list[dict], roots: list[Path]) -> tuple[dict
         if not isinstance(exists, bool):
             coherent = False
             continue
-        try:
-            resolved = str(path.resolve())
-        except (OSError, RuntimeError):
-            resolved = None
-            coherent = False
+        resolved = None
+        if validate:
+            try:
+                resolved = str(path.resolve())
+            except (OSError, RuntimeError):
+                coherent = False
         observation = {"exists": exists, "resolved": resolved}
         if kind != "probe" and exists:
             observation["sha256"] = sha256(item["text"].encode("utf-8"))
@@ -298,13 +299,17 @@ def dependency_snapshot(transcript: list[dict], roots: list[Path]) -> tuple[dict
         if str(path) in table and table[str(path)] != observation:
             coherent = False
         table[str(path)] = observation
-        try:
-            if not valid_input(path, observation, probe=kind == "probe"):
+        if validate:
+            try:
+                if not valid_input(path, observation, probe=kind == "probe"):
+                    coherent = False
+            except (OSError, RuntimeError):
                 coherent = False
-        except (OSError, RuntimeError):
-            coherent = False
-    directories = search_directories([Path(p) for p in inputs], roots)
-    complete = complete and saw_build
+    # Unsaved overlays and --no-cache cannot retain artifacts. They still
+    # collect every input path for publication guards, without disk-content
+    # validation or a recursive namespace snapshot that cannot be reused.
+    directories = search_directories([Path(p) for p in inputs], roots) if validate else None
+    complete = complete and saw_build and validate
     return {"files": inputs, "probes": probes, "complete": complete,
             "search_roots": [str(p) for p in roots], "directories": directories}, (
                 coherent and complete and directories is not None)
@@ -450,7 +455,8 @@ def build(args: argparse.Namespace, context: BuildContext) -> dict:
                 if os.environ.get("GOOSE_STDLIB"):
                     roots.append(Path(os.environ["GOOSE_STDLIB"]).absolute())
                 roots = sorted({p.absolute() for p in roots})
-                snapshot, coherent = dependency_snapshot(json.loads(deps.read_text()), roots)
+                snapshot, coherent = dependency_snapshot(json.loads(deps.read_text()), roots,
+                    validate=not args.no_cache and not context.sources)
                 protect_dependencies(snapshot["files"])
                 protect_dependencies(snapshot["probes"])
                 if not args.no_cache and not context.sources and coherent:
@@ -570,6 +576,7 @@ def parser() -> argparse.ArgumentParser:
 
 
 def serve(context: BuildContext) -> int:
+    request_parser = parser()
     for line in sys.stdin:
         context.sources = {}
         request: dict = {}
@@ -584,7 +591,7 @@ def serve(context: BuildContext) -> int:
                 raise BuildError("request requires an args array of command-line strings")
             if "--help" in argv or "-h" in argv:
                 raise BuildError("request help from the command line, outside the JSON-lines server")
-            args = parser().parse_args(argv)
+            args = request_parser.parse_args(argv)
             if args.command != "build":
                 raise BuildError("server requests must use the build command")
             overlays = request.get("sources", {})

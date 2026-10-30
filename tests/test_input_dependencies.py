@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT / "scripts/goose_wasm.py"
@@ -19,6 +20,23 @@ spec.loader.exec_module(driver)
 
 
 class SnapshotObservations(unittest.TestCase):
+    def test_unchecked_inputs_preserve_guards_and_cannot_be_reused(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / "build") as temp:
+            work = Path(temp)
+            source, config, probe = (work / n for n in ("main.goose", "main.build", "helper.goose"))
+            source.write_text("disk content differs from the unsaved overlay")
+            transcript = [{"path": str(source), "text": "fn main() {}"},
+                          {"path": str(config), "kind": "build", "exists": False, "complete": True},
+                          {"path": str(probe), "kind": "probe", "exists": False}]
+            with mock.patch.object(driver, "valid_input", side_effect=AssertionError("disk validation")), \
+                 mock.patch.object(driver, "search_directories", side_effect=AssertionError("namespace scan")):
+                snapshot, coherent = driver.dependency_snapshot(transcript, [work], validate=False)
+                self.assertFalse(coherent)
+                self.assertFalse(driver.valid_dependencies(snapshot))
+            self.assertEqual(set(snapshot["files"]), {str(source), str(config)})
+            self.assertEqual(set(snapshot["probes"]), {str(probe)})
+            self.assertFalse(snapshot["complete"])
+
     def test_reads_probes_duplicates_and_incomplete_transcripts(self):
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as temp:
             work = Path(temp)

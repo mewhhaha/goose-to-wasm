@@ -68,6 +68,7 @@ def call(command: list[str]) -> tuple[float, subprocess.CompletedProcess]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goose")
+    parser.add_argument("--driver", type=Path, default=ROOT / "scripts/goose_wasm.py")
     parser.add_argument("--node", default="node")
     parser.add_argument("--machine-label", help="independently observed hardware description")
     parser.add_argument("--samples", type=int, default=15)
@@ -75,6 +76,8 @@ def main() -> int:
     parser.add_argument("--optimization", choices=("O0", "O1", "O2"), default="O0")
     parser.add_argument("--shape", choices=("chain", "leaves"), default="chain",
                         help="a call chain, or independent scalar leaves in an unchanged helper module")
+    parser.add_argument("--edit-source-mode", choices=("disk", "overlay"), default="disk",
+                        help="write each edit to disk, or supply unsaved source text to the native worker")
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "incremental-benchmark.json")
     parser.add_argument("--native-worker", action="store_true", help="retain the native compiler in the server")
     parser.add_argument("--lexical-cache", action="store_true", help="reuse unchanged source tokens in the worker")
@@ -84,9 +87,12 @@ def main() -> int:
     args = parser.parse_args()
     if (args.lexical_cache or args.syntax_cache or args.checked_leaf_cache or args.checked_scalar_cache) and not args.native_worker:
         parser.error("native frontend caches require --native-worker")
+    if args.edit_source_mode == "overlay" and not args.native_worker:
+        parser.error("overlay edits require --native-worker")
     if args.samples < 3 or args.functions < 2 or args.functions > 128:
         parser.error("use at least three samples and 2..128 functions")
     compiler = args.goose.resolve()
+    driver = args.driver.resolve()
     optimization = "-" + args.optimization
     (ROOT / "build").mkdir(exist_ok=True)
     report = {"schema": "goose-incremental-benchmark-v1", "python": platform.python_version(),
@@ -94,16 +100,18 @@ def main() -> int:
               "platform": platform.platform(), "machine": platform.machine(), "cpu_count": os.cpu_count(),
               "supplied_machine_label": args.machine_label,
               "compiler_sha256": hashlib.sha256(compiler.read_bytes()).hexdigest(),
-              "input_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
-                               for path in (Path(__file__).resolve(), ROOT / "scripts" / "goose_wasm.py")},
+              "input_sha256": {str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path):
+                                   hashlib.sha256(path.read_bytes()).hexdigest()
+                               for path in (Path(__file__).resolve(), driver)},
               "optimization": optimization, "source_functions": args.functions + (args.shape == "leaves"),
               "shape": args.shape, "generated_leaf_functions": args.functions if args.shape == "leaves" else 0,
+              "driver": str(driver), "edit_source_mode": args.edit_source_mode,
               "native_worker": args.native_worker,
               "lexical_cache": args.lexical_cache,
               "syntax_cache": args.syntax_cache,
               "checked_leaf_cache": args.checked_leaf_cache,
               "checked_scalar_cache": args.checked_scalar_cache,
-              "policy": "content-checked module cache; edits recheck callers; optional checked scalar leaves; full backend",
+              "policy": "content-checked artifacts; optional checked scalar body reuse; full optimization/BCE/emission",
               "notes": ["Warm cache samples exclude the first warming request.",
                         "Raw compiler includes native process startup and module output.",
                         "Wrapper samples include Python process startup, dependency checks and output handling.",
@@ -124,7 +132,7 @@ def main() -> int:
                "--wasm-stats", str(stats)]
         wrapper_args = ["build", str(source), "--goose", str(compiler), optimization, "-o", str(output),
                         "--cache-dir", str(directory / "cache"), "--json"]
-        wrapper = [sys.executable, str(ROOT / "scripts" / "goose_wasm.py"), *wrapper_args]
+        wrapper = [sys.executable, str(driver), *wrapper_args]
         call(raw)
         samples, phases = [], []
         for _ in range(args.samples):
@@ -148,7 +156,7 @@ def main() -> int:
             samples.append(elapsed)
         report["measurements"]["unchanged_wrapper_cache"] = summary(samples)
 
-        server = subprocess.Popen([sys.executable, str(ROOT / "scripts" / "goose_wasm.py"), "serve",
+        server = subprocess.Popen([sys.executable, str(driver), "serve",
                                    *(["--native-worker"] if args.native_worker else []),
                                    *(["--lexical-cache"] if args.lexical_cache else []),
                                    *(["--syntax-cache"] if args.syntax_cache else []),
@@ -157,11 +165,14 @@ def main() -> int:
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             serial = 0
-            def request(extra=()):
+            def request(extra=(), sources=None):
                 nonlocal serial
                 serial += 1
                 started = time.perf_counter_ns()
-                server.stdin.write(json.dumps({"id": serial, "args": [*wrapper_args, *extra]}) + "\n")
+                payload = {"id": serial, "args": [*wrapper_args, *extra]}
+                if sources is not None:
+                    payload["sources"] = sources
+                server.stdin.write(json.dumps(payload) + "\n")
                 server.stdin.flush()
                 result = json.loads(server.stdout.readline())
                 elapsed = (time.perf_counter_ns() - started) / 1_000_000
@@ -183,9 +194,13 @@ def main() -> int:
             previous = {f["name"]: f["body_hash"] for f in phases[-1]["function_info"]}
             for index in range(args.samples):
                 delta = index + 2
-                source.write_text(program(delta, args.functions, args.shape))
-                elapsed, result = request()
-                assert result["cache"] == "miss"
+                text = program(delta, args.functions, args.shape)
+                if args.edit_source_mode == "overlay":
+                    elapsed, result = request(sources={str(source): text})
+                else:
+                    source.write_text(text)
+                    elapsed, result = request()
+                assert result["cache"] == ("disabled" if args.edit_source_mode == "overlay" else "miss")
                 current = {f["name"]: f["body_hash"] for f in result["backend_stats"]["function_info"]}
                 edits.append({"delta": delta,
                               "unchanged_body_hashes": sum(previous.get(k) == v for k, v in current.items()),
@@ -194,6 +209,8 @@ def main() -> int:
                                                         result["backend_stats"].get("semantic_reused", False)),
                               "full_semantic_analysis_ran": not result["backend_stats"].get("semantic_reused", False),
                               "full_backend_ran": True,
+                              "driver_build_ms": result["total_ms"],
+                              "compiler_request_ms": result["frontend_ms"],
                               "backend_stats": result["backend_stats"]})
                 previous = current
                 samples.append(elapsed)
@@ -202,6 +219,12 @@ def main() -> int:
             report["edited_phase_medians_ms"] = {
                 key: statistics.median(row["backend_stats"][key] / 1_000_000 for row in edits)
                 for key in ("parse_ns", "resolve_ns", "typecheck_ns", "optimize_ns", "bce_ns", "backend_ns")
+            }
+            report["edited_transport_medians_ms"] = {
+                "server_round_trip": statistics.median(samples),
+                "driver_build": statistics.median(e["driver_build_ms"] for e in edits),
+                "compiler_request": statistics.median(e["compiler_request_ms"] for e in edits),
+                "outside_build": statistics.median(t - e["driver_build_ms"] for t, e in zip(samples, edits)),
             }
             execution = subprocess.run([args.node, str(ROOT / "scripts" / "run_wasm.mjs"), str(output)],
                                        input="3\n", text=True, capture_output=True, check=False)

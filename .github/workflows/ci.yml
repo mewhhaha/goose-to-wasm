@@ -108,6 +108,7 @@ jobs:
           python bench/incremental.py --samples 3
           python bench/incremental.py --samples 3 --shape leaves --native-worker --syntax-cache --checked-leaf-cache
           python bench/incremental.py --samples 3 --native-worker --syntax-cache --checked-scalar-cache
+          python bench/incremental.py --samples 3 --native-worker --syntax-cache --checked-scalar-cache --edit-source-mode overlay
       - name: Benchmark harness correctness smoke
         run: >-
           python bench/benchmark.py --smoke --samples 2 --compile-samples 1
