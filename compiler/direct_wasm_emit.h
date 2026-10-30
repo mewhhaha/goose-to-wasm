@@ -155,7 +155,12 @@ inline DirectWasmResult Compiler::Compile() {
     for (auto &[name, idx] : exported) { ex.Name(name); ex.Byte(0); ex.U(idx); }
     module.Section(7, ex);
     Bytes codes; codes.U(bodies.size()); for (auto &b : bodies) { codes.U(b.size()); codes.Raw(b); } module.Section(10, codes);
-    Bytes ds; ds.U(1); ds.U(0); ds.I32Const(data_base); ds.Op(0x0b); ds.U(data.size()); ds.Raw(data); module.Section(11, ds);
+    auto segments = SparseDataSegments(data, data_base);
+    Bytes ds; ds.U(segments.size());
+    for (auto &s : segments) {
+        ds.U(0); ds.I32Const(int32_t(s.offset)); ds.Op(0x0b); ds.U(s.bytes.size()); ds.Raw(s.bytes);
+    }
+    module.Section(11, ds);
     Bytes debugnames; debugnames.Name("name");
     Bytes fnnames; fnnames.U(imports.size() + result.function_info.size());
     for (uint32_t i = 0; i < imports.size(); i++) { fnnames.U(i); fnnames.Name(imports[i].module + "." + imports[i].name); }

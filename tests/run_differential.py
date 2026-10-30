@@ -86,6 +86,7 @@ def cases():
         Case("remainder/minimum-divisor", "remainder", "-7 -9223372036854775808\n", "9223372036854775801\n"),
         Case("exit/seven", "exit", "7\n", "before exit\n", exit_code=7),
         Case("arrays/fixed", "fixed_arrays", "4\n", "12 33 180\n4 90\n", group="aggregate"),
+        Case("storage/sparse-data", "static_data", "255\n", "0 0 17 29\n255 0 20\nA\0B\n\0C\0D\0\n", group="aggregate"),
         Case("arrays/valid-index", "array_bounds", "1\n", "5\n", group="aggregate"),
         Case("arrays/upper-bound", "array_bounds", "3\n", exit_code=1, diagnostic="bounds", group="aggregate"),
         Case("arrays/negative-index", "array_bounds", "-1\n", exit_code=1, diagnostic="bounds", group="aggregate"),

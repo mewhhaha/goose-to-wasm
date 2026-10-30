@@ -76,6 +76,8 @@ jobs:
           --backends direct c-wasm native
       - name: Aggregate returns and scalar math qualification
         run: python tests/test_backend_extensions.py
+      - name: Sparse static data and memory limits
+        run: python tests/test_static_data.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py
       - name: LangArena official small cases and observable marker edits

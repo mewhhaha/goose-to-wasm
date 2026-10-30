@@ -52,4 +52,28 @@ inline uint64_t BodyHash(string_view s) {
     return h;
 }
 
+struct DataSegment { uint32_t offset; string_view bytes; };
+
+// Defined Wasm memory starts zeroed. Keep logical allocations and addresses
+// intact, but serialize only initialized spans. Short zero gaps cost less than
+// another active segment; cap fragmentation to bound engine startup overhead.
+inline vector<DataSegment> SparseDataSegments(string_view data, uint32_t base) {
+    vector<DataSegment> segments;
+    size_t pos = 0;
+    while ((pos = data.find_first_not_of('\0', pos)) != string_view::npos) {
+        auto start = pos, end = pos + 1;
+        if (segments.size() == 1023) {
+            end = data.find_last_not_of('\0') + 1;
+            segments.push_back({ base + uint32_t(start), data.substr(start, end - start) });
+            break;
+        }
+        for (pos = end; pos < data.size(); pos++) {
+            if (data[pos]) end = pos + 1;
+            else if (pos - end >= 16) break;
+        }
+        segments.push_back({ base + uint32_t(start), data.substr(start, end - start) });
+    }
+    return segments;
+}
+
 } // namespace goose::direct_wasm
