@@ -183,6 +183,9 @@ equivalence, excluded bodies, source reindexing, errors, and storage bounds.
 and evicts entries before optimizing/emitting the consumer under sanitizers.
 The benchmark's `--shape leaves` workload keeps independent helpers unchanged
 while editing their caller; its default `chain` workload remains available.
+The retained [O0/O2 comparison](../bench/results/2026-10-30/checked-leaves.md)
+demonstrates skipped body checks and smaller type-check phase medians, with
+mixed edited-build wall times at O2. The mode remains opt-in.
 
 Compiler statistics expose time spent in parsing, resolution, type checking,
 optimization, bounds analysis, and direct emission. Each emitted function also

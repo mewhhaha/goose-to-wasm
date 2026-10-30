@@ -269,6 +269,8 @@ each request recreates its own nodes, types, parameters, and source origins.
 records this limited reuse. Caller overload resolution and all later passes
 still run. Compare this mode using `bench/incremental.py --shape leaves
 --native-worker --syntax-cache --checked-leaf-cache`.
+The [retained comparison](bench/results/2026-10-30/checked-leaves.md) shows
+smaller type-check phase medians and mixed O2 edited-build wall times.
 
 `--no-cache` disables whole-module artifact reuse; explicitly enabled native
 syntax/token caches remain active. A failed compile leaves the previous output
