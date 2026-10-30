@@ -30,5 +30,6 @@ if __name__ == "__main__":
         env["UBSAN_OPTIONS"] = env.get("UBSAN_OPTIONS", "") + ":halt_on_error=1:print_stacktrace=1"
         if args.disable_leak_check:
             env["ASAN_OPTIONS"] = env.get("ASAN_OPTIONS", "") + ":detect_leaks=0"
-        subprocess.run([str(executable), str(ROOT / "tests/fixtures/checked_leaves.goose")],
+        subprocess.run([str(executable), str(ROOT / "tests/fixtures/checked_leaves.goose"),
+                        str(ROOT / "tests/fixtures/scalar_callers.goose")],
                        check=True, timeout=180, env=env)

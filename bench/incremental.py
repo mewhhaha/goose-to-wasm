@@ -80,9 +80,10 @@ def main() -> int:
     parser.add_argument("--lexical-cache", action="store_true", help="reuse unchanged source tokens in the worker")
     parser.add_argument("--syntax-cache", action="store_true", help="reuse parsed modules in the worker")
     parser.add_argument("--checked-leaf-cache", action="store_true", help="reuse checked closed scalar leaves in the worker")
+    parser.add_argument("--checked-scalar-cache", action="store_true", help="reuse checked leaves and straight-line i64 callers")
     args = parser.parse_args()
-    if (args.lexical_cache or args.syntax_cache or args.checked_leaf_cache) and not args.native_worker:
-        parser.error("--lexical-cache, --syntax-cache and --checked-leaf-cache require --native-worker")
+    if (args.lexical_cache or args.syntax_cache or args.checked_leaf_cache or args.checked_scalar_cache) and not args.native_worker:
+        parser.error("native frontend caches require --native-worker")
     if args.samples < 3 or args.functions < 2 or args.functions > 128:
         parser.error("use at least three samples and 2..128 functions")
     compiler = args.goose.resolve()
@@ -101,6 +102,7 @@ def main() -> int:
               "lexical_cache": args.lexical_cache,
               "syntax_cache": args.syntax_cache,
               "checked_leaf_cache": args.checked_leaf_cache,
+              "checked_scalar_cache": args.checked_scalar_cache,
               "policy": "content-checked module cache; edits recheck callers; optional checked scalar leaves; full backend",
               "notes": ["Warm cache samples exclude the first warming request.",
                         "Raw compiler includes native process startup and module output.",
@@ -150,7 +152,8 @@ def main() -> int:
                                    *(["--native-worker"] if args.native_worker else []),
                                    *(["--lexical-cache"] if args.lexical_cache else []),
                                    *(["--syntax-cache"] if args.syntax_cache else []),
-                                   *(["--checked-leaf-cache"] if args.checked_leaf_cache else [])],
+                                   *(["--checked-leaf-cache"] if args.checked_leaf_cache else []),
+                                   *(["--checked-scalar-cache"] if args.checked_scalar_cache else [])],
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             serial = 0

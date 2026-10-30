@@ -53,6 +53,12 @@ fresh AST. Callers, excluded functions, optimization, bounds analysis, and
 emission still run normally. Calls, globals, captures, references, and general
 specializations require subsequent dependency and environment contracts.
 
+Restricted scalar callers now revalidate closed callee contracts and bind
+current specializations. Editing the bottom of a 32-function canonical-i64
+chain can recheck one body and reuse 31 callers. This remains bounded to direct,
+uniquely resolved, acyclic calls and parameter-only arguments; general calls,
+lifetimes, globals, and generic specialization are subsequent work.
+
 Continue measuring parsing, specialization/type checking, optimization, bounds
 analysis, and emission separately. The retained 32-function experiment spends
 about 4.7 ms in parsing/type checking and 0.086 ms in direct emission, so a raw

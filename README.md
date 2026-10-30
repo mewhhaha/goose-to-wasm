@@ -111,6 +111,7 @@ python tests/test_lexical_cache.py
 python tests/test_syntax_cache.py
 python tests/test_syntax_importer.py
 python tests/test_checked_leaf_cache.py
+python tests/test_checked_scalar_cache.py
 python tests/test_checked_leaf_ownership.py
 python tests/test_langarena.py
 
@@ -224,7 +225,7 @@ The current incremental foundation is:
   providing a concrete basis for a future function cache.
 
 **Edits still rerun resolution, caller checking, optimization, and emission.** An
-optional checked-leaf cache skips checking unchanged closed scalar expressions.
+optional checked caches skip unchanged closed scalar leaves and restricted callers.
 The function hashes measure unchanged output; they do not skip function emission. Unchanged-build
 cache hits and edited builds are reported as separate measurements. See
 [incremental architecture](docs/INCREMENTAL.md).
@@ -271,6 +272,17 @@ still run. Compare this mode using `bench/incremental.py --shape leaves
 --native-worker --syntax-cache --checked-leaf-cache`.
 The [retained comparison](bench/results/2026-10-30/checked-leaves.md) shows
 smaller type-check phase medians and mixed O2 edited-build wall times.
+
+Use `--checked-scalar-cache` to include a restricted class of scalar callers.
+These have canonical `i64` signatures and one straight-line arithmetic result;
+direct named callees must resolve uniquely, and call arguments must be parameter
+identifiers. Every request revalidates the closed, acyclic source graph and
+binds current callee specializations. Editing a callee's body can therefore
+preserve its callers' checked arithmetic while optimization sees the new body.
+`checked_scalar_caller_hits` counts those reused callers. Overloads, namespace
+shadowing, changed signatures, effects, or excluded syntax trigger normal
+checking. This option includes the leaf support and supersedes
+`--checked-leaf-cache` when both are selected.
 
 `--no-cache` disables whole-module artifact reuse; explicitly enabled native
 syntax/token caches remain active. A failed compile leaves the previous output

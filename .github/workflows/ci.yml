@@ -99,12 +99,15 @@ jobs:
         run: python tests/test_syntax_importer.py
       - name: Checked scalar leaf reuse and invalidation
         run: python tests/test_checked_leaf_cache.py
-      - name: Checked scalar leaf ownership under sanitizers
+      - name: Checked scalar caller contracts and invalidation
+        run: python tests/test_checked_scalar_cache.py
+      - name: Checked scalar ownership, nested eviction, and bounds under sanitizers
         run: python tests/test_checked_leaf_ownership.py
       - name: Incremental rebuild measurement smoke
         run: |
           python bench/incremental.py --samples 3
           python bench/incremental.py --samples 3 --shape leaves --native-worker --syntax-cache --checked-leaf-cache
+          python bench/incremental.py --samples 3 --native-worker --syntax-cache --checked-scalar-cache
       - name: Benchmark harness correctness smoke
         run: >-
           python bench/benchmark.py --smoke --samples 2 --compile-samples 1

@@ -54,7 +54,7 @@ must exist on disk for the frontend's import discovery to find them.
 
 Each request owns and destroys a fresh mutable AST and its immutable source
 snapshots. No AST objects or source views survive into the next build. The
-checked-leaf cache described below retains pointer-free semantic values.
+checked caches described below retain pointer-free semantic values.
 With the default worker, `parsed_files` counts every reached file and
 `parsed_cache_hits` is zero. Python retains atomic artifact publication; overlay
 builds bypass disk-only cache lookup and storage. Compiler-identity changes or
@@ -84,9 +84,9 @@ resolution, source ordering, and global initialization ordering run afresh.
 On compiled requests, `parsed_files` counts files actually parsed and
 `parsed_cache_hits` counts reused templates. An unchanged request forced through
 the compiler can parse zero files; editing one helper can parse just that file.
-`parsed_syntax_reused` records syntax reuse. Resolution, checking,
-specialization, optimization, bounds analysis, and emission still run fully;
-Used without the checked-leaf cache, `semantic_reused` and the legacy
+`parsed_syntax_reused` records syntax reuse. With syntax reuse alone, resolution,
+checking, specialization, optimization, bounds analysis, and emission still run
+fully; `semantic_reused` and the legacy
 `frontend_reused` flag remain false. Whole-
 module artifact hits do not invoke the worker; their stored backend counters
 describe the original compilation.
@@ -131,8 +131,8 @@ reuse but does not establish an edited-build latency improvement.
 Any semantic source change misses the whole-module cache. The existing frontend
 then parses changed files (or every file without the syntax cache), constructs
 a fresh AST, resolves, checks, specializes, optimizes, and analyzes the program;
-the direct backend emits all reachable functions again. The optional
-checked-leaf cache can skip individual body checks as described below. This
+the direct backend emits all reachable functions again. The optional checked
+caches can skip individual body checks as described below. This
 is not a general incremental type checker or a function emission cache.
 
 ## Checked scalar leaf reuse
@@ -187,6 +187,63 @@ The retained [O0/O2 comparison](../bench/results/2026-10-30/checked-leaves.md)
 demonstrates skipped body checks and smaller type-check phase medians, with
 mixed edited-build wall times at O2. The mode remains opt-in.
 
+## Checked scalar callers
+
+`serve --native-worker --checked-scalar-cache` includes the leaf support and
+adds checked callers with a deliberately narrow contract: bare canonical
+`i64` parameters and result, one return or tail arithmetic expression, and
+direct named calls with parameter identifiers as their positional arguments.
+Arithmetic in these callers is limited to integer literals, parameter reads,
+unary minus, addition, subtraction, and multiplication. Calls with computed or
+literal arguments, conditionals in callers, short-circuiting, aliases or
+qualifiers in their signatures, defaults, generics, UFCS, and other call forms
+follow normal checking. Existing conditional/narrow/float leaf support remains
+available in this mode.
+
+A request-owned graph proof rechecks every selected function lookup and every
+reachable current source body. Callees must resolve uniquely, have canonical
+`i64` signatures, and form a closed acyclic graph. A caller parameter cannot
+hide its unqualified callee name. Builtin names are excluded. Closure checks
+also inspect dead branches of leaves. Overload additions, namespace shadows,
+unsupported body edits, effects, and recursion cause conservative fallback.
+Proof memoization lasts for one request, and is discarded when the declaration
+table grows. It is bounded by 256 declarations, 4,096 syntax nodes, and 128
+function levels; memoized graph heights enforce the depth limit too.
+
+Each function keeps its own exact body key. Caller keys additionally include
+the direct callee's filename, qualified name, declaration start, canonical
+signature, and required attributes. A callee's body and end position are not
+part of its caller's type-check contract. Thus changing `step0`'s literal in
+the 32-function chain can recheck that body while reusing all 31 callers.
+Shifting a declaration still conservatively invalidates position-based keys.
+
+Restoration runs inside the normal checker's frame, after parameter and result
+setup. The body importer preserves those fresh objects and the normal
+epilogue. Calls are visited in source evaluation order, bind current
+specializations through the normal specialization lookup/check path, enforce
+`checkfree`, and require successful scalar return and empty-effect summaries.
+Changed callee errors therefore retain the ordinary caller chain. Optimization
+and BCE run again; inlining reads the edited callee's current body.
+
+Frozen calls contain owned names/contracts and indices. The complete body and
+contract strings are copied into request-owned storage before dependent checks
+can evict cache entries. No `FnSpec*` is retained. The sanitizer harness covers
+a capacity-one cache in which checking an edited callee evicts the caller
+currently being restored, followed by cache clearing before optimization.
+
+The storage pool retains the same 256-entry/16 MiB bound. This mode reports
+`checked_scalar_cache_hits` with separate `checked_scalar_leaf_hits` and
+`checked_scalar_caller_hits`, plus misses, stored/refused entries, evictions,
+entry count, and estimated bytes. `semantic_reused` records any body reuse;
+`frontend_reused` remains false. The narrower leaf option keeps its existing
+counter names; selecting both options uses scalar mode.
+
+`tests/test_checked_scalar_cache.py` compares warm and edited chains, diamonds,
+argument order, namespaces, overloads, changed signatures, effects, recursion,
+diagnostics, `checkfree`, source reindexing, and depth fallback against fresh
+compilation. The ownership harness now covers leaf and caller import, nested
+eviction, cold and memoized depth limits, and O0/O2/debug/source-index variants.
+
 Compiler statistics expose time spent in parsing, resolution, type checking,
 optimization, bounds analysis, and direct emission. Each emitted function also
 has a name, current module index, body byte count, deterministic bytecode hash,
@@ -217,8 +274,9 @@ the default is O0.
 
 ## Next architectural steps
 
-**Persistent semantic state.** The session, syntax importer, and checked scalar
-leaves establish ownership for a narrow reusable semantic result. General
+**Persistent semantic state.** The session, syntax importer, checked scalar
+leaves and restricted callers establish ownership and contract dependencies
+for narrow reusable semantic results. General
 functions need explicit dependency versions and summaries for calls, globals,
 lifetimes, and environments. Existing Goose clones
 share declaration symbols and mutable types, so checked ASTs cannot simply be

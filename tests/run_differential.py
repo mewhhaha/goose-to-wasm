@@ -49,6 +49,7 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    result.append(Case("checked-callers/diamond", "scalar_callers", stdout="18 0 22 72\n"))
     for n in (-1, 0, 4):
         result.append(Case(f"enums/layouts/{n}", "fixed_enums", f"{n}\n",
                            f"20 11.5\n10 {n + 0.5}\n20 0.0\n50\n{n + 2}\n7 9\n77\n8\n10\n1 2 5\n{2 * n + 1}\n{n + 200}\n", group="aggregate"))

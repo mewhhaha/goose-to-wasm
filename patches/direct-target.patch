@@ -1,42 +1,33 @@
 diff --git a/src/main.cpp b/src/main.cpp
 --- a/src/main.cpp
 +++ b/src/main.cpp
-@@ -3,6 +3,8 @@
- #include "includes.h"
+@@ -4,4 +4,6 @@
  #include "utils.h"
 +#include "direct_input_trace.h"
  #include "small_vector.h"
  #include "flat_map.h"
 +#include "lexer_cache.h"
  #include "lexer.h"
- #include "ast.h"
-@@ -10,4 +12,6 @@
- #include "clone.h"
+@@ -11,4 +13,6 @@
  #include "parser.h"
 +#include "parsed_module_cache.h"
-+#include "checked_leaf_cache.h"
  #include "resolve.h"
  #include "builtins.h"
-@@ -39,4 +43,5 @@
- #include "codegen_stacks.h"
++#include "checked_leaf_cache.h"
+ #include "gfx.h"
+@@ -40,2 +44,3 @@
  #include "codegen_nodes.h"
 +#include "direct_wasm.h"
  #include "runtime_inline.h"
- #include "process.h"
-@@ -51,4 +56,5 @@
- #include "native.h"
+@@ -52,2 +57,3 @@
  #include "lsp_rpc.h"
 +#include "direct_wasm_dependencies.h"
  #include "lsp_analysis.h"
- #include "lsp_workspace.h"
-@@ -68,4 +74,5 @@
-     auto f = fopen(path.c_str(), "rb");
+@@ -69,2 +75,3 @@
      if (f) fclose(f);
 +    ObserveDirectProbe(path, f != nullptr);
      return f != nullptr;
- }
-@@ -273,7 +280,6 @@
-         importsof.emplace_back();
+@@ -274,5 +281,4 @@
          auto &[filename, source] = ast.sources.back();
 -        Parser parser(ast, filename, source->c_str(), fileidx);
 -        parser.ParseTop();
@@ -44,9 +35,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        auto module_imports = ParseDirectModule(ast, filename, *source, fileidx);
 +        for (auto &imp : module_imports) {
              // The package this import declares or loads, where it does.
-             string pkgname;
-@@ -692,6 +698,12 @@
- R"(  --diagnostics json    Print the errors and warnings as JSON on stdout, and
+@@ -693,4 +699,10 @@
                          the progress lines on stderr.
 -  --target native|wasm  Select the platform profile (default native). The wasm
 -                        profile emits checked, standalone C for goose_wasm.py.
@@ -59,18 +48,14 @@ diff --git a/src/main.cpp b/src/main.cpp
 +  --wasm-stats path       Write direct backend counters as JSON.
 +  --wasm-session          Serve direct compile requests as JSON lines on stdin/stdout.
    --offline             Fetch nothing: a package that is not fetched is an
-                         error at its import, which goose fetch resolves.
-@@ -1065,5 +1077,7 @@
-     auto stacks = false;
+@@ -1066,3 +1078,5 @@
      auto forcejit = false, standalone = false;
 -    auto wasm_target = false;
 +    auto wasm_target = false, wasm_direct = false;
 +    DirectWasmOptions direct_options;
 +    string wasm_deps, wasm_stats;
      auto json = false, refresh = false, debug = false, verbose = false, dryrun = false;
-     auto jsondiag = false;
-@@ -1117,10 +1131,24 @@
-         else if (arg == "--target" && i + 1 < argc) {
+@@ -1118,8 +1132,22 @@
              string target = argv[++i];
 -            if (target != "native" && target != "wasm") {
 -                fprintf(stderr, "--target takes native or wasm, not %s\n", target.c_str());
@@ -97,54 +82,40 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        else if (arg == "--wasm-deps" && i + 1 < argc) wasm_deps = argv[++i];
 +        else if (arg == "--wasm-stats" && i + 1 < argc) wasm_stats = argv[++i];
          else if (arg == "--multi-test") multitest = true;
-         else if (arg == "--gen-runtime-header") {
-@@ -1233,4 +1261,8 @@
-         buildopts = BuildOptions { debug, verbose, dryrun, standalone, outname };
+@@ -1234,2 +1262,6 @@
          outname.clear();
 +    }
 +    if (wasm_direct && direct_options.initial_pages > direct_options.maximum_pages) {
 +        fprintf(stderr, "--wasm-initial-pages exceeds --wasm-max-pages\n");
 +        return 1;
      }
-     if (wasm_target) {
-@@ -1300,4 +1332,7 @@
-     vector<Diagnostic> found;
+@@ -1301,2 +1333,5 @@
      auto compile = [&]() -> int {
 +        DirectInputTrace input_trace;
 +        DirectInputTraceScope input_scope(wasm_direct ? &input_trace : nullptr);
 +        auto compile_started = chrono::steady_clock::now();
          if (tokens) {
-             DumpTokens(filename);
-@@ -1309,4 +1344,5 @@
-         auto stdlibdirs = StdlibDirs(stdlibdir, exe);
+@@ -1310,2 +1345,3 @@
          ParseProgram(ast, filename, stdlibdirs, DirOf(exe), {}, wasm_target);
 +        auto parse_finished = chrono::steady_clock::now();
          // The parser reported what it recovered from as it went; nothing
-         // further is asked of a program with a syntax error.
-@@ -1337,4 +1373,5 @@
-         }
+@@ -1338,2 +1374,3 @@
          ResolveTypeNames(ast);
 +        auto resolve_finished = chrono::steady_clock::now();
          // As after the parse, which an unknown type name is part of.
-         if (!ast.errors.empty()) return 1;
-@@ -1352,7 +1389,9 @@
-         if (parseonly) return 0;
+@@ -1353,2 +1390,3 @@
          TypeCheckProgram(ast, library, nocgen);
 +        auto check_finished = chrono::steady_clock::now();
          // The checker reported the errors it went on past, root by root.
-         if (!ast.errors.empty()) return 1;
+@@ -1356,2 +1394,3 @@
          Optimizer opt(ast, optlevel);
 +        auto optimize_finished = chrono::steady_clock::now();
          if (specs) {
-             string s;
-@@ -1379,4 +1418,5 @@
-                 }
+@@ -1380,2 +1419,3 @@
          }
 +        auto bce_finished = chrono::steady_clock::now();
          // Per-line outcomes, for comparing two builds of the pass.
-         if (bcelines)
-@@ -1396,4 +1436,54 @@
-         // the backend for them and writes nothing.
+@@ -1397,2 +1437,52 @@
          if (nocgen && !stacks && !wasm_target) return 0;
 +        if (wasm_direct) {
 +            direct_options.debug = debug || std::find(cdefines.begin(), cdefines.end(), "GS_DEBUG=1") != cdefines.end();
@@ -197,26 +168,20 @@ diff --git a/src/main.cpp b/src/main.cpp
 +            return 0;
 +        }
          // A quoted include resolves against the including file's own directory
-         // first, so the --include headers are written relative to where the .c
-@@ -1745,4 +1835,6 @@
- }  // namespace goose
+@@ -1746,2 +1836,4 @@
  
 +#include "direct_wasm_session.h"
 +
  int main(int argc, char **argv) {
-     #ifdef _MSC_VER
-@@ -1755,4 +1847,6 @@
-         _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+@@ -1756,2 +1848,4 @@
      #endif
 +    if (argc == 2 && std::string_view(argv[1]) == "--wasm-session")
 +        return goose::RunDirectSession(goose::ExePath(argv[0]));
      return goose::Main(argc, argv);
- }
 diff --git a/src/lexer.h b/src/lexer.h
 --- a/src/lexer.h
 +++ b/src/lexer.h
-@@ -135,7 +135,13 @@
-     int curlies = 0;
+@@ -136,5 +136,11 @@
  
 -    Lexer(string_view _filename, const char *_source, int _fileidx = 0)
 +    shared_ptr<LexicalFile> cached_file;
@@ -229,9 +194,7 @@ diff --git a/src/lexer.h b/src/lexer.h
 +            cached_file = active_lexical_cache->Attach(filename,
 +                source_size == string_view::npos ? string_view(source) : string_view(source, source_size));
          Next();
-     }
-@@ -219,4 +225,47 @@
- 
+@@ -220,2 +226,45 @@
      void Next() {
 +        auto cache = active_lexical_cache;
 +        if (!cache || !cached_file) {
@@ -277,12 +240,10 @@ diff --git a/src/lexer.h b/src/lexer.h
 +
 +    void ScanNext() {
          prevend = p;
-         prevendline = line;
 diff --git a/src/parser.h b/src/parser.h
 --- a/src/parser.h
 +++ b/src/parser.h
-@@ -70,6 +70,7 @@
-     bool eoferror = false;
+@@ -71,4 +71,5 @@
  
 -    Parser(Ast &_ast, string_view filename, const char *source, int _fileidx)
 -        : ast(_ast), lex(filename, source, _fileidx), fileidx(_fileidx) {}
@@ -290,39 +251,54 @@ diff --git a/src/parser.h b/src/parser.h
 +           size_t source_size = string_view::npos)
 +        : ast(_ast), lex(filename, source, _fileidx, source_size), fileidx(_fileidx) {}
  
-     [[noreturn]] void Error(const string &msg) { lex.Error(msg); }
 diff --git a/src/buildfile.h b/src/buildfile.h
 --- a/src/buildfile.h
 +++ b/src/buildfile.h
-@@ -135,4 +135,5 @@
-     string source;
+@@ -136,2 +136,3 @@
      found = LoadSource(path, source);
 +    ObserveDirectBuildInput(path, found, source);
      if (!found) {
-         BuildFile bf;
 diff --git a/src/native.h b/src/native.h
 --- a/src/native.h
 +++ b/src/native.h
-@@ -132,4 +132,5 @@
- // program with C of its own.
+@@ -133,2 +133,3 @@
  inline vector<string> PackageExternNames(const Ast &ast, int pkg, set<string> *libs = nullptr) {
 +    DirectInputsIncomplete();
      set<string> names;
-     if (pkg == 0) {
 diff --git a/src/typecheck_calls.h b/src/typecheck_calls.h
 --- a/src/typecheck_calls.h
 +++ b/src/typecheck_calls.h
-@@ -2763,4 +2763,7 @@
- inline void TypeCheck::CheckSpecBody(FnSpec *spec, vector<Val> *argvals, Line callline) {
-     ast.CheckCancel();
-+    auto leaf = active_checked_leaf_cache ? checked_leaf::Prepare(ast, spec) : optional<checked_leaf::Source>();
-+    if (leaf && active_checked_leaf_cache->Restore(ast, *spec, *leaf, storeevents.size(), CurDepth())) return;
+@@ -2892,2 +2892,4 @@
+     if (sf->isextern) { CheckExternSpec(spec); return; }
++    auto leaf = PrepareCheckedScalar(ast, spec);
 +    auto leaf_warnings = warned.size(), leaf_casts = castverdicts.size();
-     struct RoundScope {
-         TypeCheck &tc;
-@@ -2799,3 +2802,5 @@
-     }
-     if (spec->incycle && CycleHead(spec) == spec) ShareCycleEnvReads(spec);
+     spec->record.eventstart = storeevents.size();
+@@ -3173,2 +3175,16 @@
+     // carry (FnValBind).
++    auto restored = leaf && active_checked_leaf_cache->RestoreBody(ast, *spec, *leaf,
++        [&](Call *call, SFunction *target) {
++            MatchInfo mi; mi.sf = target; mi.nwritten = call->args.size();
++            mi.paramtypes.assign(call->args.size(), ast.inttypes[IS_I64]);
++            vector<Val> values;
++            for (auto arg : call->args) values.push_back(CheckValue(arg, ast.inttypes[IS_I64]));
++            auto callee = GetOrCreateSpec(mi, values, call);
++            if (!checked_leaf::EmptyEffects(*callee, true) || callee->rets.size() != 1 ||
++                callee->rets[0] != ast.inttypes[IS_I64]) return false;
++            call->spec = callee;
++            CalleesReturn(call, {callee}, true);
++            CallResult(call, callee, values);
++            return true;
++        });
+     if (!spec->body) spec->body = (Block *)sf->body->Clone(ast);
+@@ -3181,3 +3197,5 @@
+     auto abandoned = false;
+-    {
++    if (restored) {
++        NoteExit(fi); reachable = false;
++    } else {
+         auto nscopes = scopes.size(), nvars = vars.size(), nlocalfns = localfns.size();
+@@ -3284,2 +3302,4 @@
+     spec->rounds++;
 +    if (leaf) active_checked_leaf_cache->Store(*spec, *leaf,
 +        warned.size() != leaf_warnings || castverdicts.size() != leaf_casts);
  }

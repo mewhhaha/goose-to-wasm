@@ -24,8 +24,8 @@ unique_ptr<Ast> Input(const string &text, bool reindex = false) {
     Errors(*ast); ResolveTypeNames(*ast); Errors(*ast);
     return ast;
 }
-void Check(Ast &ast, CheckedLeafCache *cache) {
-    CheckedLeafCacheScope scope(cache);
+void Check(Ast &ast, CheckedLeafCache *cache, bool callers = false) {
+    CheckedLeafCacheScope scope(cache, callers);
     if (cache) cache->BeginRequest();
     TypeCheckProgram(ast); Errors(ast);
 }
@@ -35,15 +35,16 @@ string Emit(Ast &ast, int level, bool debug) {
     DirectWasmOptions options; options.debug = debug;
     return CompileDirectWasm(ast, options).module;
 }
-void Ownership(const string &text, int level, bool debug, bool reindex) {
+void Ownership(const string &text, int level, bool debug, bool reindex, bool callers = false) {
     CheckedLeafCache cache;
     {
-        auto producer = Input(text); Check(*producer, &cache);
-        assert(cache.stored == 10 && cache.hits == 0);
+        auto producer = Input(text); Check(*producer, &cache, callers);
+        assert(cache.stored == (callers ? 8 : 10) && cache.hits == 0);
         Emit(*producer, level, debug);
     }
-    auto consumer = Input(text, reindex); Check(*consumer, &cache);
-    assert(cache.hits == 10);
+    auto consumer = Input(text, reindex); Check(*consumer, &cache, callers);
+    assert(cache.hits == (callers ? 8 : 10));
+    if (callers) assert(cache.caller_hits == 6);
     cache.Clear(); assert(cache.entries.empty() && !cache.estimated_bytes);
     auto file = reindex ? 2 : 1;
     for (auto sf : consumer->functions) if (sf->line.fileidx == file) {
@@ -54,6 +55,10 @@ void Ownership(const string &text, int level, bool debug, bool reindex) {
                 if (n->line.line) assert(n->line.fileidx == file);
                 if (n->origin && n->origin->line.line) assert(n->origin->line.fileidx == file);
                 if (auto r = Is<Return>(n)) assert(r->target == sf && r->targetspec == spec);
+                if (auto c = Is<Call>(n)) {
+                    assert(c->spec && !c->spec->inprogress);
+                    assert(find(consumer->fnspecs.begin(), consumer->fnspecs.end(), c->spec) != consumer->fnspecs.end());
+                }
                 n->Children(verify);
             };
             verify(spec->body);
@@ -61,6 +66,40 @@ void Ownership(const string &text, int level, bool debug, bool reindex) {
     }
     auto fresh = Input(text, reindex); Check(*fresh, nullptr);
     assert(Emit(*consumer, level, debug) == Emit(*fresh, level, debug));
+}
+void NestedEviction(int level, bool debug, bool reindex) {
+    string text = "fn base(x: i64) -> i64 { x + 1 }\n"
+                  "fn parent(x: i64) -> i64 { base(x) * 2 }\n"
+                  "fn main() { print(parent(3)); }\n";
+    CheckedLeafCache cache(1024 * 1024, 1);
+    {
+        auto producer = Input(text); Check(*producer, &cache, true);
+        assert(cache.entries.size() == 1 && cache.stored == 2);
+        Emit(*producer, level, debug);
+    }
+    text.replace(text.find("x + 1"), 5, "x + 10");
+    auto consumer = Input(text, reindex); Check(*consumer, &cache, true);
+    assert(cache.caller_hits == 1 && cache.misses == 1 && cache.evictions >= 1);
+    cache.Clear();
+    auto fresh = Input(text, reindex); Check(*fresh, nullptr);
+    assert(Emit(*consumer, level, debug) == Emit(*fresh, level, debug));
+}
+void GraphDepth() {
+    string text = "fn step0(x: i64) -> i64 { x + 1 }\n";
+    for (int i = 1; i < 130; ++i)
+        Append(text, "fn step", i, "(x: i64) -> i64 { step", i - 1, "(x) * 3 + ", i, " }\n");
+    text += "fn main() { print(step129(3)); }\n";
+    auto ast = Input(text);
+    auto candidate = [&](int i) {
+        FnSpec spec; spec.sf = ast->LookupFunctions(cat("step", i), "").at(0);
+        spec.argtypes = {ast->inttypes[IS_I64]}; return spec;
+    };
+    auto root = candidate(129), suffix = candidate(100);
+    checked_leaf::GraphContext cold, warm;
+    assert(!cold.PrepareCaller(*ast, &root));
+    assert(warm.PrepareCaller(*ast, &suffix));
+    assert(!warm.PrepareCaller(*ast, &root));
+    cout << "PASS scalar graph depth with cold and memoized suffixes\n" << flush;
 }
 void Bounds(const string &text) {
     CheckedLeafCache tiny(64, 2), bounded(1024 * 1024, 2);
@@ -74,7 +113,7 @@ void Bounds(const string &text) {
     assert(count > 0);
 }
 int main(int argc, char **argv) {
-    if (argc != 2) return 2;
+    if (argc != 3) return 2;
     try {
         string text; assert(LoadSource(argv[1], text));
         for (int level : {0, 2}) for (bool debug : {false, true}) for (bool reindex : {false, true}) {
@@ -82,6 +121,14 @@ int main(int argc, char **argv) {
             cout << "PASS checked leaf ownership O" << level << " debug=" << debug << " reindex=" << reindex << '\n' << flush;
         }
         Bounds(text); cout << "PASS checked leaf bounded retention\n" << flush;
+        assert(LoadSource(argv[2], text));
+        for (int level : {0, 2}) for (bool debug : {false, true}) for (bool reindex : {false, true}) {
+            Ownership(text, level, debug, reindex, true);
+            cout << "PASS scalar caller ownership O" << level << " debug=" << debug << " reindex=" << reindex << '\n' << flush;
+            NestedEviction(level, debug, reindex);
+            cout << "PASS scalar nested eviction O" << level << " debug=" << debug << " reindex=" << reindex << '\n' << flush;
+        }
+        GraphDepth();
     } catch (const CompileError &e) { cerr << e.msg << '\n'; return 1; }
       catch (const exception &e) { cerr << e.what() << '\n'; return 1; }
 }

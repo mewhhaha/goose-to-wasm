@@ -10,6 +10,7 @@ struct DirectCompileRequest {
     int optimization = 2;
     bool offline = false, lexical_cache = false, syntax_cache = false;
     bool checked_leaf_cache = false;
+    bool checked_scalar_cache = false;
     DirectWasmOptions options;
     map<string, string> sources;
 };
@@ -41,7 +42,7 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
                                                 CheckedLeafCache *leaves = nullptr) {
     LexicalCacheScope cache_scope(lexical);
     ParsedModuleCacheScope syntax_scope(syntax);
-    CheckedLeafCacheScope leaf_scope(leaves);
+    CheckedLeafCacheScope leaf_scope(leaves, request.checked_scalar_cache);
     DirectInputTrace input_trace;
     DirectInputTraceScope input_scope(&input_trace);
     if (lexical) lexical->BeginRequest();
@@ -107,16 +108,23 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
     stats.Member("parsed_syntax_reused", syntax && syntax->cache_hits > 0);
     stats.Member("syntax_cache_enabled", syntax != nullptr);
     stats.Member("semantic_reused", leaves && leaves->hits > 0);
-    stats.Member("checked_leaf_cache_enabled", leaves != nullptr);
-    stats.Member("checked_leaf_reused", leaves && leaves->hits > 0);
+    stats.Member("checked_leaf_cache_enabled", leaves && !request.checked_scalar_cache);
+    stats.Member("checked_scalar_cache_enabled", leaves && request.checked_scalar_cache);
+    stats.Member("checked_leaf_reused", leaves && leaves->leaf_hits > 0);
+    stats.Member("checked_scalar_reused", leaves && request.checked_scalar_cache && leaves->hits > 0);
     if (leaves) {
-        stats.Member("checked_leaf_cache_hits", leaves->hits);
-        stats.Member("checked_leaf_cache_misses", leaves->misses);
-        stats.Member("checked_leaf_cache_stored", leaves->stored);
-        stats.Member("checked_leaf_cache_refused", leaves->refused);
-        stats.Member("checked_leaf_cache_evictions", leaves->evictions);
-        stats.Member("checked_leaf_cache_entries", int64_t(leaves->entries.size()));
-        stats.Member("checked_leaf_cache_estimated_bytes", int64_t(leaves->estimated_bytes));
+        string prefix = request.checked_scalar_cache ? "checked_scalar_cache_" : "checked_leaf_cache_";
+        stats.Member(prefix + "hits", leaves->hits);
+        stats.Member(prefix + "misses", leaves->misses);
+        stats.Member(prefix + "stored", leaves->stored);
+        stats.Member(prefix + "refused", leaves->refused);
+        stats.Member(prefix + "evictions", leaves->evictions);
+        stats.Member(prefix + "entries", int64_t(leaves->entries.size()));
+        stats.Member(prefix + "estimated_bytes", int64_t(leaves->estimated_bytes));
+        if (request.checked_scalar_cache) {
+            stats.Member("checked_scalar_leaf_hits", leaves->leaf_hits);
+            stats.Member("checked_scalar_caller_hits", leaves->caller_hits);
+        }
     }
     stats.Member("frontend_reused", false);
     if (syntax) {
@@ -201,6 +209,7 @@ inline int RunDirectSession(const string &exe) {
             request.lexical_cache = boolean("lexical_cache");
             request.syntax_cache = boolean("syntax_cache");
             request.checked_leaf_cache = boolean("checked_leaf_cache");
+            request.checked_scalar_cache = boolean("checked_scalar_cache");
             if (auto overlays = json.Get("sources")) {
                 if (overlays->kind != Json::OBJECT) throw runtime_error("sources must be a path-to-text object");
                 for (auto &[path, value] : overlays->obj) {
@@ -220,7 +229,7 @@ inline int RunDirectSession(const string &exe) {
             RunOnCompilerStack([&]() {
                 result = CompileDirectRequest(request, exe, diagnostics,
                     request.lexical_cache ? &lexical : nullptr, request.syntax_cache ? &syntax : nullptr,
-                    request.checked_leaf_cache ? &leaves : nullptr);
+                    request.checked_leaf_cache || request.checked_scalar_cache ? &leaves : nullptr);
                 return 0;
             });
             if (DirectSessionSameFile(output, exe)) throw runtime_error("output must not overwrite the compiler");

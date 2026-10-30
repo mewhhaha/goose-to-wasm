@@ -3,7 +3,7 @@
 
 The direct path invokes one native compiler and writes WebAssembly bytes. It
 never emits C or launches a C compiler. Its artifact cache checks dependencies;
-optional native caches reuse syntax and checked closed scalar leaves.
+optional native caches reuse syntax and checked closed scalar functions.
 """
 from __future__ import annotations
 
@@ -123,12 +123,14 @@ class NativeWorker:
 class BuildContext:
     """Process-lifetime tool identity memoization; source contents are always read."""
     def __init__(self, *, native_worker: bool = False, lexical_cache: bool = False,
-                 syntax_cache: bool = False, checked_leaf_cache: bool = False) -> None:
+                 syntax_cache: bool = False, checked_leaf_cache: bool = False,
+                 checked_scalar_cache: bool = False) -> None:
         self.tools: dict[str, tuple[tuple[int, ...], str]] = {}
         self.native_worker = native_worker
         self.lexical_cache = lexical_cache
         self.syntax_cache = syntax_cache
         self.checked_leaf_cache = checked_leaf_cache
+        self.checked_scalar_cache = checked_scalar_cache
         self.sources: dict[str, str] = {}
         self.worker: NativeWorker | None = None
         self.worker_key: tuple | None = None
@@ -153,7 +155,8 @@ class BuildContext:
                    "optimization": int(args.optimization[-1]), "debug": args.debug, "offline": args.offline,
                    "initial_pages": args.initial_pages, "maximum_pages": args.maximum_pages,
                    "sources": self.sources, "lexical_cache": self.lexical_cache,
-                   "syntax_cache": self.syntax_cache, "checked_leaf_cache": self.checked_leaf_cache}
+                   "syntax_cache": self.syntax_cache, "checked_leaf_cache": self.checked_leaf_cache,
+                   "checked_scalar_cache": self.checked_scalar_cache}
         start = time.perf_counter_ns()
         try:
             reply = self.worker.request(payload)
@@ -534,6 +537,8 @@ def parser() -> argparse.ArgumentParser:
                         help="reuse parsed modules in a fresh AST (requires --native-worker)")
     server.add_argument("--checked-leaf-cache", action="store_true",
                         help="reuse checked closed scalar expression functions (requires --native-worker)")
+    server.add_argument("--checked-scalar-cache", action="store_true",
+                        help="reuse checked leaves and closed straight-line i64 callers (requires --native-worker)")
     b = commands.add_parser("build", help="compile with one of the three backends")
     b.add_argument("source", type=Path)
     b.add_argument("-o", "--output", type=Path, required=True)
@@ -609,12 +614,14 @@ def main() -> int:
         if args.command == "version":
             print((ROOT / "toolchain.json").read_text(), end="")
             return 0
-        if any(getattr(args, name, False) for name in ("lexical_cache", "syntax_cache", "checked_leaf_cache")) and not args.native_worker:
-            raise BuildError("--lexical-cache, --syntax-cache and --checked-leaf-cache require --native-worker")
+        if any(getattr(args, name, False) for name in ("lexical_cache", "syntax_cache", "checked_leaf_cache",
+                                                      "checked_scalar_cache")) and not args.native_worker:
+            raise BuildError("native frontend caches require --native-worker")
         context = BuildContext(native_worker=getattr(args, "native_worker", False),
                                lexical_cache=getattr(args, "lexical_cache", False),
                                syntax_cache=getattr(args, "syntax_cache", False),
-                               checked_leaf_cache=getattr(args, "checked_leaf_cache", False))
+                               checked_leaf_cache=getattr(args, "checked_leaf_cache", False),
+                               checked_scalar_cache=getattr(args, "checked_scalar_cache", False))
         if args.command == "serve":
             return serve(context)
         report = build(args, context)
