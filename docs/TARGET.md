@@ -31,6 +31,13 @@ and are restored when their scope/function exits. Initial memory defaults to
 `--initial-pages` and `--maximum-pages` configure them; one page is 64 KiB. These
 limits are independent of the C oracle's 16 MiB per data stack profile.
 
+The module defines fresh, zero-initialized memory. Static allocations retain
+their full logical size, but data segments contain only initialized nonzero
+spans, coalescing zero gaps of at most 16 bytes. At most 1,024 segments are
+emitted; further spans are merged into the final segment. Omitted zeros still
+count toward static addresses, stack placement, initial pages, and maximum
+memory checks. This reduces file size without reducing runtime memory use.
+
 Modules export `memory` and `_start`. The host calls `_start` once to initialize
 globals and run Goose's main function. Public scalar function exports may also
 be used after initialization. Imports under module `goose` are:

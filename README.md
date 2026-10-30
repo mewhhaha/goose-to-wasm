@@ -14,7 +14,7 @@ This is an initial, explicitly bounded backend. It supports a useful fixed-value
 fragment, including scalar functions, recursion, control flow, fixed arrays,
 struct fields, owned aggregate returns, slices, and references. Unsupported constructs produce compile
 errors, with no fallback to the C backend. It is not yet full Goose parity; see
-[the target contract](docs/TARGET.md).
+[the target contract](docs/TARGET.md) and [next milestones](docs/ROADMAP.md).
 
 ## Quick start: direct compilation
 
@@ -102,6 +102,7 @@ python scripts/check_engines.py --output build/engine-probes.json
 python tests/run_differential.py --engines v8 wasmtime \
   --backends direct c-wasm native
 python tests/test_backend_extensions.py
+python tests/test_static_data.py
 python tests/test_incremental.py
 python tests/test_langarena.py
 
@@ -122,6 +123,13 @@ The retained oracle corpus also checks the fixed data-stack runtime, capacity
 boundaries, serialization, relative references, builders, and other Goose features
 that the new direct backend does not yet implement. Passing that corpus validates
 the reference path, not direct-backend coverage.
+
+Direct modules omit zero-filled static storage from their data segments while
+preserving its addresses and memory limits. On the seven adapted LangArena
+entrypoints, this reduces six modules from 1.0–4.8 MB to 3.2–6.6 KB. All seven
+pass the official small-input checks on V8 and Wasmtime. See the
+[artifact-size comparison](bench/results/2026-10-30/README.md); this measures
+file size, not execution speed or a reduction in runtime memory.
 
 GitHub Actions builds from the immutable inputs, executes qualification, runs
 benchmark correctness smoke tests, and publishes reports plus the compiler and
