@@ -110,6 +110,8 @@ python tests/test_compiler_session.py
 python tests/test_lexical_cache.py
 python tests/test_syntax_cache.py
 python tests/test_syntax_importer.py
+python tests/test_checked_leaf_cache.py
+python tests/test_checked_leaf_ownership.py
 python tests/test_langarena.py
 
 python oracle/tests/test_bootstrap.py
@@ -198,7 +200,7 @@ The harness retains all 50 coverage rows, explicit Wasm refusals, complete cold
 builds, observable marker-edit rebuilds, computational regions, engine startup,
 and process wall times. Wrong checksums fail qualification. These measurements
 are local backend comparisons, not published LangArena ranks or a claim of
-complete Goose support. Edits still rerun the complete frontend.
+complete Goose support. Those edited builds reran the complete frontend.
 
 The [2026-10-26 gauntlet results](bench/results/2026-10-26/langarena/README.md)
 retain all raw evidence. The seven direct cold builds took 73–94 ms each,
@@ -221,8 +223,9 @@ The current incremental foundation is:
 - Per-function bytecode fingerprints and call dependencies in compiler statistics,
   providing a concrete basis for a future function cache.
 
-**Edits still rerun resolution, checking, optimization, and emission.** The function hashes
-measure unchanged output; they do not skip function compilation. Unchanged-build
+**Edits still rerun resolution, caller checking, optimization, and emission.** An
+optional checked-leaf cache skips checking unchanged closed scalar expressions.
+The function hashes measure unchanged output; they do not skip function emission. Unchanged-build
 cache hits and edited builds are reported as separate measurements. See
 [incremental architecture](docs/INCREMENTAL.md).
 
@@ -255,6 +258,17 @@ their imported syntax under sanitizers. Compare session timings with
 measure parsed-module reuse.
 The retained [O0/O2 syntax-cache comparison](bench/results/2026-10-30/syntax-cache.md)
 shows less parsing but no established edited-build wall-time improvement.
+
+Add `--checked-leaf-cache` to reuse checked numeric/bool leaf functions with one
+explicit scalar result and explicitly typed scalar parameters. Their bodies may
+contain arithmetic, parameter reads, conditionals, blocks, and local returns.
+Calls, globals, captures, locals, loops, explicit casts, generic functions, and
+aggregate/reference types recheck normally. Entries contain values and indices;
+each request recreates its own nodes, types, parameters, and source origins.
+`checked_leaf_cache_hits` counts skipped body checks, and `semantic_reused`
+records this limited reuse. Caller overload resolution and all later passes
+still run. Compare this mode using `bench/incremental.py --shape leaves
+--native-worker --syntax-cache --checked-leaf-cache`.
 
 `--no-cache` disables whole-module artifact reuse; explicitly enabled native
 syntax/token caches remain active. A failed compile leaves the previous output

@@ -53,7 +53,8 @@ through symlinks. An omitted overlay set means disk contents again. New files
 must exist on disk for the frontend's import discovery to find them.
 
 Each request owns and destroys a fresh mutable AST and its immutable source
-snapshots. No resolved types or checked nodes survive into the next build.
+snapshots. No AST objects or source views survive into the next build. The
+checked-leaf cache described below retains pointer-free semantic values.
 With the default worker, `parsed_files` counts every reached file and
 `parsed_cache_hits` is zero. Python retains atomic artifact publication; overlay
 builds bypass disk-only cache lookup and storage. Compiler-identity changes or
@@ -85,7 +86,8 @@ On compiled requests, `parsed_files` counts files actually parsed and
 the compiler can parse zero files; editing one helper can parse just that file.
 `parsed_syntax_reused` records syntax reuse. Resolution, checking,
 specialization, optimization, bounds analysis, and emission still run fully;
-`semantic_reused` and the legacy `frontend_reused` flag remain false. Whole-
+Used without the checked-leaf cache, `semantic_reused` and the legacy
+`frontend_reused` flag remain false. Whole-
 module artifact hits do not invoke the worker; their stored backend counters
 describe the original compilation.
 
@@ -129,8 +131,58 @@ reuse but does not establish an edited-build latency improvement.
 Any semantic source change misses the whole-module cache. The existing frontend
 then parses changed files (or every file without the syntax cache), constructs
 a fresh AST, resolves, checks, specializes, optimizes, and analyzes the program;
-the direct backend emits all reachable functions again. This is **not yet an
-incremental type checker or a function compilation cache**.
+the direct backend emits all reachable functions again. The optional
+checked-leaf cache can skip individual body checks as described below. This
+is not a general incremental type checker or a function emission cache.
+
+## Checked scalar leaf reuse
+
+`serve --native-worker --checked-leaf-cache` reuses successfully checked closed
+scalar expression functions across requests. This is independent of parsed
+module reuse and can be combined with both frontend caches. Eligible functions
+have one explicit integer/float/bool result and fully typed scalar parameters.
+Their bodies contain literals, parameter reads, arithmetic/boolean operations,
+blocks, conditionals, and returns to themselves. Functions using calls, globals,
+locals, loops, references/aggregates, captures, generic or literal parameters,
+explicit casts, defaults, recursion, threads, or exports follow normal checking.
+The preflight checks excluded constructs even in dead branches.
+
+An exact key includes the filename, qualified name, declaration lines and
+coordinates, resolved scalar signature, and concrete argument types. Positions
+in the key conservatively invalidate shifted declarations. Scalar alias changes
+invalidate their users even when the function text is unchanged. These closed
+bodies have no external value dependencies or call edges.
+
+Entries own strings, scalar type descriptors, node indices, parameter indices,
+and source-origin ordinals. They retain no AST nodes or pointers. Import creates
+fresh AST allocations, binds parameter owners and return targets to the current
+specialization, and maps origins and locations to the current source index.
+Float bits are preserved exactly. Implicit numeric casts retain their checked
+target separately from their expression's result type. Optimizer and BCE facts
+are not cached; both passes run on the fresh imported body.
+
+Retention requires empty environment/effect/literal summaries, no cycle or
+capture state, default scalar return-root summaries, and no store events.
+Diagnostic or deferred cast-verdict changes refuse retention. Explicit source
+casts are excluded because their warnings are decided after all roots check.
+On import, store-event positions are rebased to the current checker's event
+cursor. Caller overload resolution, argument fitting, signature checking, and
+all other bodies continue through the normal checker.
+
+The cache has a conservative 16 MiB storage estimate and 256-entry LRU bound.
+Declarations larger than 64 KiB, syntax above 4,096 nodes or depth 128, and
+oversized frozen entries bypass reuse. `checked_leaf_cache_hits` counts actual
+body-check skips; misses, stored/refused entries, evictions, entry count, and
+estimated retained bytes are reported separately. `semantic_reused` becomes
+true when at least one checked leaf is imported. `frontend_reused` remains false.
+An artifact hit reports the original build's stored statistics.
+
+`tests/test_checked_leaf_cache.py` checks edits, alias changes, fresh module
+equivalence, excluded bodies, source reindexing, errors, and storage bounds.
+`tests/test_checked_leaf_ownership.py` destroys the producer AST before import
+and evicts entries before optimizing/emitting the consumer under sanitizers.
+The benchmark's `--shape leaves` workload keeps independent helpers unchanged
+while editing their caller; its default `chain` workload remains available.
 
 Compiler statistics expose time spent in parsing, resolution, type checking,
 optimization, bounds analysis, and direct emission. Each emitted function also
@@ -145,7 +197,7 @@ skipped, and module indices are not a persistent symbol identity.
 2. An uncached Python-driver invocation.
 3. A fresh driver process hitting its dependency-checked module cache.
 4. An unchanged request through the persistent server.
-5. A single-function source edit through the server, with full semantic analysis/emission.
+5. A single-function source edit through the server, rechecking callers and emitting again.
 
 It preserves raw timings, phase medians, function-hash changes, and a verified
 result for the final edited program. The Python wrapper may cost more than a
@@ -162,9 +214,10 @@ the default is O0.
 
 ## Next architectural steps
 
-**Persistent semantic state.** The session and pristine syntax cache now
-establish source and declaration ownership. The next boundary is reusable
-semantic results with explicit dependency versions. Existing Goose clones
+**Persistent semantic state.** The session, syntax importer, and checked scalar
+leaves establish ownership for a narrow reusable semantic result. General
+functions need explicit dependency versions and summaries for calls, globals,
+lifetimes, and environments. Existing Goose clones
 share declaration symbols and mutable types, so checked ASTs cannot simply be
 retained across requests. Measure the cost of syntax import and repeated
 resolution/checking before choosing their replacement representations.

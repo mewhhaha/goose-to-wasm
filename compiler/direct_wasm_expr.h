@@ -537,7 +537,11 @@ inline void Function::Expr(Node *n) {
             for (auto t : ts) vs.push_back(Local(t));
             Truth(i->cond); Begin(0x04); BlockInto(i->thenb, ts, vs);
             if (i->elseb) {
-                Else(); if (ts.empty()) Discard(i->elseb); else { To(i->elseb, ts[0]); Set(vs[0]); }
+                // A value-producing guard can return from its else branch.
+                // That branch supplies the enclosing function's result and
+                // never reaches the local result slot of this conditional.
+                Else(); if (ts.empty() || Values(i->elseb).empty()) Discard(i->elseb);
+                else { To(i->elseb, ts[0]); Set(vs[0]); }
             }
             End(); for (auto v : vs) Get(v); return;
         }

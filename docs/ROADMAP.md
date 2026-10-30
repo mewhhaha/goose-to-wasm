@@ -46,6 +46,13 @@ wall time has no established improvement. Both frontend caches remain opt-in.
 Artifact reuse additionally validates configuration reads and module-search
 probes; untracked embedded inputs and package-wide scans bypass storage.
 
+The next implemented semantic slice is opt-in reuse of checked closed scalar
+leaf functions. Exact declaration/resolved-signature keys and pointer-free
+frozen bodies allow unchanged eligible functions to skip body checking in a
+fresh AST. Callers, excluded functions, optimization, bounds analysis, and
+emission still run normally. Calls, globals, captures, references, and general
+specializations require subsequent dependency and environment contracts.
+
 Continue measuring parsing, specialization/type checking, optimization, bounds
 analysis, and emission separately. The retained 32-function experiment spends
 about 4.7 ms in parsing/type checking and 0.086 ms in direct emission, so a raw

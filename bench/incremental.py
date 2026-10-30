@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Measure compile/rebuild paths without conflating caching and incremental analysis.
 
-Edits run semantic analysis and the backend again. Optional syntax caching can
-skip parsing unchanged modules. Function fingerprints expose future reuse
+Edits recheck callers and run the backend again. Optional caches skip parsing
+unchanged modules or checking closed scalar leaves. Function fingerprints expose future reuse
 opportunities but are not counted as cached function compilation work.
 """
 from __future__ import annotations
@@ -32,16 +32,22 @@ def summary(samples: list[float]) -> dict:
             "p90_ms": ordered[min(len(ordered) - 1, int(len(ordered) * 0.9))]}
 
 
-def program(delta: int, count: int) -> str:
-    lines = ["import std;", "extern fn bench_input() -> i64;",
+def program(delta: int, count: int, shape: str = "chain") -> str:
+    lines = ["import std;", *(["import helpers;"] if shape == "leaves" else []), "extern fn bench_input() -> i64;",
              f"fn step0(x: i64) -> i64 {{ return x + {delta}; }}"]
+    if shape == "leaves":
+        total = " + ".join(f"helpers::leaf{i}(x)" for i in range(count))
+        return "\n".join([*lines, f"fn main() {{ let x = bench_input(); print(step0(x) + {total}); }}"]) + "\n"
     lines += [f"fn step{i}(x: i64) -> i64 {{ return step{i-1}(x) * 3 + {i}; }}"
               for i in range(1, count)]
     lines += [f"fn main() {{ print(step{count-1}(bench_input())); }}"]
     return "\n".join(lines) + "\n"
 
 
-def expected(delta: int, count: int, value: int = 3) -> str:
+def expected(delta: int, count: int, value: int = 3, shape: str = "chain") -> str:
+    if shape == "leaves":
+        return str(value + delta + sum(((value * 3 + i) ^ (value << 1)) + ((value * 5 - i) & 255)
+                                      for i in range(count))) + "\n"
     value += delta
     for i in range(1, count):
         value = (value * 3 + i) & ((1 << 64) - 1)
@@ -67,13 +73,16 @@ def main() -> int:
     parser.add_argument("--samples", type=int, default=15)
     parser.add_argument("--functions", type=int, default=32)
     parser.add_argument("--optimization", choices=("O0", "O1", "O2"), default="O0")
+    parser.add_argument("--shape", choices=("chain", "leaves"), default="chain",
+                        help="a call chain, or independent scalar leaves in an unchanged helper module")
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "incremental-benchmark.json")
     parser.add_argument("--native-worker", action="store_true", help="retain the native compiler in the server")
     parser.add_argument("--lexical-cache", action="store_true", help="reuse unchanged source tokens in the worker")
     parser.add_argument("--syntax-cache", action="store_true", help="reuse parsed modules in the worker")
+    parser.add_argument("--checked-leaf-cache", action="store_true", help="reuse checked closed scalar leaves in the worker")
     args = parser.parse_args()
-    if (args.lexical_cache or args.syntax_cache) and not args.native_worker:
-        parser.error("--lexical-cache and --syntax-cache require --native-worker")
+    if (args.lexical_cache or args.syntax_cache or args.checked_leaf_cache) and not args.native_worker:
+        parser.error("--lexical-cache, --syntax-cache and --checked-leaf-cache require --native-worker")
     if args.samples < 3 or args.functions < 2 or args.functions > 128:
         parser.error("use at least three samples and 2..128 functions")
     compiler = args.goose.resolve()
@@ -86,11 +95,13 @@ def main() -> int:
               "compiler_sha256": hashlib.sha256(compiler.read_bytes()).hexdigest(),
               "input_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                                for path in (Path(__file__).resolve(), ROOT / "scripts" / "goose_wasm.py")},
-              "optimization": optimization, "source_functions": args.functions,
+              "optimization": optimization, "source_functions": args.functions + (args.shape == "leaves"),
+              "shape": args.shape, "generated_leaf_functions": args.functions if args.shape == "leaves" else 0,
               "native_worker": args.native_worker,
               "lexical_cache": args.lexical_cache,
               "syntax_cache": args.syntax_cache,
-              "policy": "content-checked module cache; edits run full semantic analysis and full backend",
+              "checked_leaf_cache": args.checked_leaf_cache,
+              "policy": "content-checked module cache; edits recheck callers; optional checked scalar leaves; full backend",
               "notes": ["Warm cache samples exclude the first warming request.",
                         "Raw compiler includes native process startup and module output.",
                         "Wrapper samples include Python process startup, dependency checks and output handling.",
@@ -101,7 +112,12 @@ def main() -> int:
         directory = Path(temporary)
         source, output = directory / "program.goose", directory / "program.wasm"
         stats = directory / "stats.json"
-        source.write_text(program(1, args.functions))
+        if args.shape == "leaves":
+            helpers = ["namespace helpers;"] + [
+                f"fn leaf{i}(x: i64) -> i64 {{ ((x * 3 + {i}) ^ (x << 1)) + ((x * 5 - {i}) & 255) }}"
+                for i in range(args.functions)]
+            (directory / "helpers.goose").write_text("\n".join(helpers) + "\n")
+        source.write_text(program(1, args.functions, args.shape))
         raw = [str(compiler), str(source), "--target", "wasm-direct", optimization, "-o", str(output),
                "--wasm-stats", str(stats)]
         wrapper_args = ["build", str(source), "--goose", str(compiler), optimization, "-o", str(output),
@@ -133,7 +149,8 @@ def main() -> int:
         server = subprocess.Popen([sys.executable, str(ROOT / "scripts" / "goose_wasm.py"), "serve",
                                    *(["--native-worker"] if args.native_worker else []),
                                    *(["--lexical-cache"] if args.lexical_cache else []),
-                                   *(["--syntax-cache"] if args.syntax_cache else [])],
+                                   *(["--syntax-cache"] if args.syntax_cache else []),
+                                   *(["--checked-leaf-cache"] if args.checked_leaf_cache else [])],
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             serial = 0
@@ -163,15 +180,17 @@ def main() -> int:
             previous = {f["name"]: f["body_hash"] for f in phases[-1]["function_info"]}
             for index in range(args.samples):
                 delta = index + 2
-                source.write_text(program(delta, args.functions))
+                source.write_text(program(delta, args.functions, args.shape))
                 elapsed, result = request()
                 assert result["cache"] == "miss"
                 current = {f["name"]: f["body_hash"] for f in result["backend_stats"]["function_info"]}
                 edits.append({"delta": delta,
                               "unchanged_body_hashes": sum(previous.get(k) == v for k, v in current.items()),
                               "changed_body_hashes": sum(previous.get(k) != v for k, v in current.items()),
-                              "full_frontend_ran": not result["backend_stats"].get("parsed_syntax_reused", False),
-                              "full_semantic_analysis_ran": True, "full_backend_ran": True,
+                              "full_frontend_ran": not (result["backend_stats"].get("parsed_syntax_reused", False) or
+                                                        result["backend_stats"].get("semantic_reused", False)),
+                              "full_semantic_analysis_ran": not result["backend_stats"].get("semantic_reused", False),
+                              "full_backend_ran": True,
                               "backend_stats": result["backend_stats"]})
                 previous = current
                 samples.append(elapsed)
@@ -184,8 +203,11 @@ def main() -> int:
             execution = subprocess.run([args.node, str(ROOT / "scripts" / "run_wasm.mjs"), str(output)],
                                        input="3\n", text=True, capture_output=True, check=False)
             assert execution.returncode == 0, execution.stderr
-            assert execution.stdout == expected(args.samples + 1, args.functions), execution.stdout
+            assert execution.stdout == expected(args.samples + 1, args.functions, shape=args.shape), execution.stdout
             report["last_edit_output_verified"] = True
+            report["last_edit_stdin"] = "3\n"
+            report["last_edit_stdout"] = execution.stdout
+            report["last_edit_expected_stdout"] = expected(args.samples + 1, args.functions, shape=args.shape)
         finally:
             server.stdin.close()
             server.wait(timeout=30)
