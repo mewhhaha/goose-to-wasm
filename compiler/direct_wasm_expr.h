@@ -604,7 +604,7 @@ inline void Function::Expr(Node *n) {
             if (t->kind == TY_ENUM) { W(t); base = Save(I32); Get(*base); code.Mem(0x28, 2); }
             else if (t->kind != TY_INT && t->kind != TY_BOOL)
                 Fail(n->line, "only integer, bool and fixed enum match are supported");
-            auto value = Save(base ? I32 : W(t));
+            auto value = Save(base ? uint8_t(I32) : W(t));
             auto ts = Values(n); vector<uint32_t> vs; for (auto rt : ts) vs.push_back(Local(rt));
             auto done = Begin(); bool wildcard = false;
             for (auto &arm : m->arms) {

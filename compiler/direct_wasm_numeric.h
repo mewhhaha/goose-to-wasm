@@ -143,6 +143,46 @@ inline void Function::Truth(Node *n) {
     else { Zero(w); code.Op(w == F32 ? 0x5c : 0x62); }
 }
 
+// C fmod/fmodf semantics, including the dividend's signed zero. Binary long
+// division avoids an overflowing/rounded quotient. Accepted powers-of-two
+// scalings are exact; each subtraction has scale <= remainder < 2*scale and
+// is exact by Sterbenz's lemma, including gradual underflow. Both loops are
+// bounded by the IEEE exponent range.
+inline void Function::FloatRemainder(TypeExpr *t) {
+    auto w = W(t);
+    auto op = [&](uint8_t f32, uint8_t f64) { code.Op(w == F32 ? f32 : f64); };
+    auto divisor = Save(w), dividend = Save(w);
+    Get(dividend); op(0x8b, 0x99); auto remainder = Save(w);
+    Get(divisor); op(0x8b, 0x99); auto bound = Save(w);
+    Get(bound); Zero(w); op(0x5b, 0x61);
+    Get(remainder);
+    if (w == F32) code.F32Const(bit_cast<float>(UINT32_C(0x7f800000)));
+    else code.F64Const(bit_cast<double>(UINT64_C(0x7ff0000000000000)));
+    op(0x5b, 0x61); code.Op(0x72);
+    Get(dividend); Get(dividend); op(0x5c, 0x62); code.Op(0x72);
+    Get(divisor); Get(divisor); op(0x5c, 0x62); code.Op(0x72);
+    Begin(0x04, w);
+    Zero(w); Zero(w); op(0x95, 0xa3); // Invalid operands yield NaN, never a trap.
+    Else();
+    Get(remainder); Get(bound); op(0x5d, 0x63);
+    Begin(0x04, w); Get(dividend); Else(); // Also handles finite % infinity.
+    Get(bound); auto scale = Save(w);
+    auto done = Begin(), up = Begin(0x03);
+    Get(scale); Get(scale); op(0x92, 0xa0); auto twice = Save(w);
+    Get(twice); Get(remainder); op(0x5e, 0x64); Br(done, true);
+    // Test before assigning: an overflowing double must not enter scale.
+    Get(twice); Set(scale); Br(up); End(); End();
+    auto down = Begin(0x03);
+    Get(remainder); Get(scale); op(0x60, 0x66); Begin(0x04);
+    Get(remainder); Get(scale); op(0x93, 0xa1); Set(remainder); End();
+    Get(scale);
+    if (w == F32) code.F32Const(2); else code.F64Const(2);
+    op(0x95, 0xa3); Set(scale);
+    Get(scale); Get(bound); op(0x60, 0x66); Br(down, true); End();
+    Get(remainder); Get(dividend); op(0x98, 0xa6);
+    End(); End();
+}
+
 inline void Function::BinaryOp(TType op, TypeExpr *t, Line line) {
     switch (op) {
         case T_PLUSEQ: op = T_PLUS; break; case T_MINUSEQ: op = T_MINUS; break;
@@ -155,6 +195,7 @@ inline void Function::BinaryOp(TType op, TypeExpr *t, Line line) {
     }
     auto w = W(t);
     if (t->kind == TY_FLT) {
+        if (op == T_MOD) { FloatRemainder(t); return; }
         auto f64 = w == F64;
         uint8_t byte = 0;
         switch (op) {
@@ -168,7 +209,7 @@ inline void Function::BinaryOp(TType op, TypeExpr *t, Line line) {
             case T_GT: byte = f64 ? 0x64 : 0x5e; break;
             case T_LTEQ: byte = f64 ? 0x65 : 0x5f; break;
             case T_GTEQ: byte = f64 ? 0x66 : 0x60; break;
-            default: Fail(line, "this floating-point operation is not supported (floating remainder needs a runtime helper)");
+            default: Fail(line, "this floating-point operation is not supported");
         }
         code.Op(byte); return;
     }

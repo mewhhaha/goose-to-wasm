@@ -13,6 +13,7 @@ import argparse
 from dataclasses import dataclass
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -116,6 +117,21 @@ def cases():
         value = struct.unpack("<d", struct.pack("<Q", rng.randrange(1 << 64)))[0]
         values.append(repr(value))
     result.append(Case("float/render-corpus", "float_render", str(len(values)) + "\n" + "\n".join(values) + "\n"))
+    edges = [0.0, -0.0, 1.0, -1.0, 5.5, -5.5, float("inf"), float("-inf"), float("nan"),
+             5e-324, 1.5e-323, 2.2250738585072014e-308, 2.225073858507201e-308,
+             1.7976931348623157e308, 1e308, 1.401298464324817e-45, 4.203895392974451e-45,
+             1.1754943508222875e-38, 1.1754942106924411e-38, 3.4028234663852886e38]
+    pairs = [(a, b) for a in edges for b in edges]
+    for fmt, integer, bits in (("<f", "<I", 32), ("<d", "<Q", 64)):
+        for _ in range(128):
+            pairs.append(tuple(struct.unpack(fmt, struct.pack(integer, rng.randrange(1 << bits)))[0] for _ in range(2)))
+    # Values immediately around the subtraction/scaling boundaries.
+    for value in (1.0, 1e308, 2.2250738585072014e-308):
+        pairs.extend([(math.nextafter(value, 0.0), value), (math.nextafter(value, float("inf")), value)])
+        if math.isfinite(2 * value):
+            pairs.extend([(math.nextafter(2 * value, 0.0), value), (math.nextafter(2 * value, float("inf")), value)])
+    data = str(len(pairs)) + "\n" + "".join(f"{a!r} {b!r}\n" for a, b in pairs)
+    result.append(Case("float/remainder-corpus", "float_remainder", data))
     return result
 
 

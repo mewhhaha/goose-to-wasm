@@ -114,6 +114,7 @@ struct Function {
     void Convert(TypeExpr *, TypeExpr *, Line);
     void Cast(AsCast *);
     void FloatWrap(TypeExpr *);
+    void FloatRemainder(TypeExpr *);
     void Truth(Node *);
     void BinaryOp(TType, TypeExpr *, Line);
     uint32_t Frame(TypeExpr *);

@@ -89,6 +89,10 @@ even when another variant of its enum requires unsupported dynamic storage.
 
 - Signed/unsigned integer widths, narrow wrapping, masked shifts, arithmetic,
   comparisons, booleans, f32/f64 operations, and checked conversions.
+  Floating `%` and `%=` follow `fmod`/`fmodf`: the result retains the dividend's
+  sign, including signed zero. Invalid operands yield NaN. Binary scaling and
+  exact subtraction run inside Wasm, without a host math import or a potentially
+  overflowing quotient. Their loops are bounded by the IEEE exponent range.
 - Functions, recursion, scalar/fixed-aggregate multi-return, globals, and declared scalar
   externs; specialization and ordinary upstream optimizations remain in use.
 - If/while/count/range/array loops, break/continue, integer matches, value blocks,
@@ -110,7 +114,7 @@ enum rendering and comparison;
 relative and pool references; runtime function values;
 non-inlined captured environments and dynamic nonlocal
 returns; threads/queues; binary framing/serialization; custom formatters and
-unsupported aggregate rendering; explicit packed padding; and floating remainder.
+unsupported aggregate rendering; and explicit packed padding.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.
 
 The generic frontend can understand more language features than this target can

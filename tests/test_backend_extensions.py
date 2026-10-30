@@ -45,6 +45,8 @@ def main():
     rows = []
     reference = {}
     cases = {
+        "float_remainder": [("signs-and-order", "4\n5.5 2\n-5.5 2\n4 -2\n-0.0 3\n",
+                             "1.5 1.5 1.5 1.5 12\n-1.5 -1.5 -1.5 -1.5 12\n0.0 0.0 0.0 0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n")],
         "aggregate_returns": [(str(n), f"{n}\n", aggregate_answer(n)) for n in (0, 1, 4, 7)],
         "math_intrinsics": [(str(i), f"{value} {bits}\n", None)
                             for i, (value, bits) in enumerate((
@@ -83,7 +85,7 @@ def main():
                     record(f"O{level}/{fixture}/{backend}/compile", compile_failure)
                     continue
                 artifact_hash = hashlib.sha256(artifact.read_bytes()).hexdigest()
-                if backend == "direct" and fixture == "math_intrinsics":
+                if backend == "direct" and fixture in ("math_intrinsics", "float_remainder"):
                     def imports_check():
                         command = [args.node, "-e", "const fs=require('node:fs');console.log(JSON.stringify(WebAssembly.Module.imports(new WebAssembly.Module(fs.readFileSync(process.argv[1])))))", artifact]
                         observed, _ = execute(command, cwd=directory)
