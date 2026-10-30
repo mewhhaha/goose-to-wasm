@@ -8,7 +8,7 @@ namespace goose {
 struct DirectCompileRequest {
     string source, stdlib;
     int optimization = 2;
-    bool offline = false;
+    bool offline = false, lexical_cache = false;
     DirectWasmOptions options;
     map<string, string> sources;
 };
@@ -28,7 +28,10 @@ inline bool DirectSessionSameFile(const string &a, const string &b) {
 }
 
 inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &request,
-                                                const string &exe, string &diagnostics) {
+                                                const string &exe, string &diagnostics,
+                                                LexicalCache *lexical = nullptr) {
+    LexicalCacheScope cache_scope(lexical);
+    if (lexical) lexical->BeginRequest();
     auto started = chrono::steady_clock::now();
     struct FetchMode {
         bool previous;
@@ -91,6 +94,18 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
     stats.Member("parsed_cache_hits", 0);
     stats.Member("frontend_reused", false);
     stats.Member("overlay_files", int64_t(request.sources.size()));
+    stats.Member("lexical_cache_enabled", lexical != nullptr);
+    if (lexical) {
+        stats.Member("scanned_source_files", lexical->scanned_files + lexical->bypassed_files);
+        stats.Member("lexical_reused_files", lexical->reused_files);
+        stats.Member("lexical_scanned_tokens", lexical->scanned_tokens);
+        stats.Member("lexical_reused_tokens", lexical->reused_tokens);
+        stats.Member("lexical_lookahead_hits", lexical->lookahead_hits);
+        stats.Member("lexical_cache_evictions", lexical->evictions);
+        stats.Member("lexical_cache_bypassed_files", lexical->bypassed_files);
+        stats.Member("lexical_cache_files", int64_t(lexical->files.size()));
+        stats.Member("lexical_cache_estimated_bytes", int64_t(lexical->accounted_bytes));
+    }
     stats.Key("function_info"); stats.BeginArray();
     for (auto &f : compiled.function_info) {
         stats.BeginObject(); stats.Member("name", f.name); stats.Member("index", int64_t(f.index));
@@ -104,6 +119,7 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
 }
 
 inline int RunDirectSession(const string &exe) {
+    LexicalCache lexical;
     string line;
     while (getline(cin, line)) {
         string id = "null", diagnostics;
@@ -148,6 +164,7 @@ inline int RunDirectSession(const string &exe) {
             request.options.initial_pages = uint32_t(integer("initial_pages", 16, 1, 32768));
             request.options.maximum_pages = uint32_t(integer("maximum_pages", 256, 1, 32768));
             request.options.debug = boolean("debug"); request.offline = boolean("offline");
+            request.lexical_cache = boolean("lexical_cache");
             if (auto overlays = json.Get("sources")) {
                 if (overlays->kind != Json::OBJECT) throw runtime_error("sources must be a path-to-text object");
                 for (auto &[path, value] : overlays->obj) {
@@ -162,7 +179,10 @@ inline int RunDirectSession(const string &exe) {
                 }
             }
             DirectCompileOutput result;
-            RunOnCompilerStack([&]() { result = CompileDirectRequest(request, exe, diagnostics); return 0; });
+            RunOnCompilerStack([&]() {
+                result = CompileDirectRequest(request, exe, diagnostics, request.lexical_cache ? &lexical : nullptr);
+                return 0;
+            });
             if (DirectSessionSameFile(output, exe)) throw runtime_error("output must not overwrite the compiler");
             for (auto &input : result.inputs)
                 if (DirectSessionSameFile(output, input)) throw runtime_error("output must not overwrite a source input");

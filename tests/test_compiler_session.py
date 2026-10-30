@@ -30,7 +30,7 @@ class CompilerSession(unittest.TestCase):
         self.log = tempfile.TemporaryFile(mode="w+t")
         self.addCleanup(self.log.close)
         self.server = subprocess.Popen([sys.executable, str(ROOT / "scripts/goose_wasm.py"),
-                                        "serve", "--native-worker"], cwd=ROOT, text=True,
+                                        "serve", "--native-worker", "--lexical-cache"], cwd=ROOT, text=True,
                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log)
         self.addCleanup(self.stop)
         self.sequence = 0
@@ -156,6 +156,56 @@ class CompilerSession(unittest.TestCase):
             self.assertEqual(self.helper.read_bytes(), original)
             self.assertEqual(self.output.read_bytes(), output)
 
+    def test_lexical_reuse_and_import_edit(self):
+        cold = self.request(extra=["--no-cache"])["backend_stats"]
+        self.assertTrue(cold["lexical_cache_enabled"])
+        self.assertEqual(cold["scanned_source_files"], 2)
+        self.assertEqual(cold["lexical_reused_tokens"], 0)
+        baseline = self.output.read_bytes()
+        warm = self.request(extra=["--no-cache"])["backend_stats"]
+        self.assertEqual(warm["scanned_source_files"], 0)
+        self.assertEqual(warm["lexical_scanned_tokens"], 0)
+        self.assertEqual(warm["lexical_reused_files"], 2)
+        self.assertGreater(warm["lexical_reused_tokens"], 0)
+        self.assertEqual(self.output.read_bytes(), baseline)
+        edited = self.request(sources={self.helper: 'fn value() -> i64 { 42 }\n'})["backend_stats"]
+        self.assertEqual(edited["scanned_source_files"], 1)
+        self.assertEqual(edited["lexical_reused_files"], 1)
+        self.assertEqual(edited["parsed_files"], 2)
+        self.assertEqual(edited["parsed_cache_hits"], 0)
+        self.assertFalse(edited["frontend_reused"])
+        self.run_output("42\n")
+        restored = self.request(extra=["--no-cache"])["backend_stats"]
+        self.assertEqual(restored["scanned_source_files"], 1)
+        self.assertEqual(restored["lexical_reused_files"], 1)
+        self.run_output("41\n")
+
+    def test_cached_errors_match_cold_diagnostics(self):
+        cases = [
+            'fn main() { "bad\\q"; }\nfn later() -> i64 { 4 }\n',
+            'fn main() { let x = """\n  wrong\n    """; }\nfn later() {}\n',
+            'fn main() { let x = ; { } }\nfn later( { }\n',
+            'fn main() { /* unterminated\n',
+            'fn main() { print(missing); }\n',
+        ]
+        for text in cases:
+            with self.subTest(text=text):
+                overlays = {self.source: text}
+                first = self.request(sources=overlays, success=False)
+                second = self.request(sources=overlays, success=False)
+                self.assertEqual(first["error"], second["error"])
+                # A new process has no transitions from the erroneous parse.
+                fresh = self.work / "error.wasm"
+                payload = {"source": str(self.source), "output": str(fresh), "offline": True,
+                           "sources": {str(k): v for k, v in overlays.items()}}
+                cold = subprocess.run([str(GOOSE), "--wasm-session"], input=json.dumps(payload) + "\n",
+                                      capture_output=True, text=True, timeout=60)
+                reply = json.loads(cold.stdout)
+                self.assertFalse(reply["ok"], reply)
+                self.assertEqual(second["error"], "native compiler worker failed:\n" + reply["error"])
+        self.request(extra=["--no-cache"])
+        self.run_output("41\n")
+
     @unittest.skipIf(os.name == "nt", "POSIX executable wrappers and process signals")
     def test_worker_failure_and_changed_compiler_restart(self):
         wrapper = self.work / "compiler"
@@ -251,6 +301,8 @@ class CompilerSession(unittest.TestCase):
                                f"-O{level}", "-o", str(fresh), *(["-D", "GS_DEBUG=1"] if debug else [])]
                     result = subprocess.run(command, capture_output=True, text=True, timeout=60)
                     self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(self.output.read_bytes(), fresh.read_bytes())
+                    self.request(source=source, extra=extra)
                     self.assertEqual(self.output.read_bytes(), fresh.read_bytes())
 
     @unittest.skipUnless(Path("/proc/self/statm").exists(), "Linux RSS measurement")

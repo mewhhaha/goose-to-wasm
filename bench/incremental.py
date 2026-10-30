@@ -67,7 +67,10 @@ def main() -> int:
     parser.add_argument("--functions", type=int, default=32)
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "incremental-benchmark.json")
     parser.add_argument("--native-worker", action="store_true", help="retain the native compiler in the server")
+    parser.add_argument("--lexical-cache", action="store_true", help="reuse unchanged source tokens in the worker")
     args = parser.parse_args()
+    if args.lexical_cache and not args.native_worker:
+        parser.error("--lexical-cache requires --native-worker")
     if args.samples < 3 or args.functions < 2 or args.functions > 128:
         parser.error("use at least three samples and 2..128 functions")
     compiler = args.goose.resolve()
@@ -81,6 +84,7 @@ def main() -> int:
                                for path in (Path(__file__).resolve(), ROOT / "scripts" / "goose_wasm.py")},
               "optimization": "-O0", "source_functions": args.functions,
               "native_worker": args.native_worker,
+              "lexical_cache": args.lexical_cache,
               "policy": "content-checked module cache; edits run full frontend and full backend",
               "notes": ["Warm cache samples exclude the first warming request.",
                         "Raw compiler includes native process startup and module output.",
@@ -122,7 +126,8 @@ def main() -> int:
         report["measurements"]["unchanged_wrapper_cache"] = summary(samples)
 
         server = subprocess.Popen([sys.executable, str(ROOT / "scripts" / "goose_wasm.py"), "serve",
-                                   *(["--native-worker"] if args.native_worker else [])],
+                                   *(["--native-worker"] if args.native_worker else []),
+                                   *(["--lexical-cache"] if args.lexical_cache else [])],
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             serial = 0

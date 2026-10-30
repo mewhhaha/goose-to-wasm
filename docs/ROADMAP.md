@@ -33,7 +33,8 @@ bindings into fixed-mode enum payloads.
 ## Incremental frontend reuse
 
 Implemented foundation: an opt-in persistent native worker, request-owned
-source overlays, and a fresh AST per request. Process startup can be reused;
+source overlays, a fresh AST per request, and optional bounded reuse of scanner
+transitions for unchanged files. Process startup and token scanning can be reused;
 parsed syntax and semantic work are still rebuilt. The next boundary is an
 immutable parsed module and complete declaration/type/source remapping into a
 fresh compilation AST, as described in [the architecture](INCREMENTAL.md).

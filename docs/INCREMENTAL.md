@@ -41,6 +41,34 @@ builds bypass disk-only cache lookup and storage. Compiler-identity changes or
 worker failure cause a new process to be started. Failed requests preserve the
 previous output and do not poison the next request.
 
+`serve --native-worker --lexical-cache` additionally retains scanner
+transitions for unchanged files. Exact filename and complete parsed source bytes
+(after normal UTF-8 BOM removal)
+identify a snapshot; timestamps and source addresses are not cache keys.
+Transitions contain source offsets, token values, and guards for the incoming
+line, line-start position, and brace depth. Replaying them rebases every source
+view into the new request's source allocation. Failed scans are never cached,
+so lexical errors and parser recovery follow the normal scanner path.
+
+The cache uses a 32 MiB retained-storage estimate and at most 256 files, with
+least-recently-used eviction. Lexer copies pin live entries. Oversized sources
+or exhausted budgets fall back to scanning. String tokens retain only their
+own decoded payload, rather than copying a previous string into later tokens.
+This limit covers retained cache storage; it is not a limit on AST or total
+compiler memory.
+
+`lexical_reused_tokens` counts transitions created by an earlier request;
+`lexical_lookahead_hits` counts reuse within the current request.
+`scanned_source_files` counts lexer input files requiring real scanning, and
+`lexical_reused_files` counts files with transitions reused across requests.
+These can include package build/configuration files beyond the AST's Goose
+source files.
+A file may contribute to both when only some transitions are retained.
+Changing one module can reuse unchanged imports' tokens, but all files are
+still parsed and checked: `parsed_cache_hits` remains zero and
+`frontend_reused` remains false. This mode is opt-in while its performance is
+measured.
+
 ## What an edit currently costs
 
 Any semantic source change misses the whole-module cache. The existing frontend
@@ -70,6 +98,8 @@ very small raw compilation; the report keeps that overhead visible.
 The [native-session comparison](../bench/results/2026-10-30/native-session.md)
 records repeated local measurements with and without `--native-worker`,
 including scheduling noise and first-request costs.
+Pass `--native-worker --lexical-cache` to the benchmark to measure token reuse
+separately from native process retention.
 
 ## Next architectural steps
 
