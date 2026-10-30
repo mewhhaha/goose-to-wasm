@@ -66,8 +66,9 @@ source files.
 A file may contribute to both when only some transitions are retained.
 Changing one module can reuse unchanged imports' tokens, but all files are
 still parsed and checked: `parsed_cache_hits` remains zero and
-`frontend_reused` remains false. This mode is opt-in while its performance is
-measured.
+`frontend_reused` remains false. The mode remains opt-in: the retained
+[comparison](../bench/results/2026-10-30/lexical-cache.md) demonstrates token
+reuse but does not establish an edited-build latency improvement.
 
 ## What an edit currently costs
 
