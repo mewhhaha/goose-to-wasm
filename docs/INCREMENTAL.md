@@ -243,6 +243,9 @@ argument order, namespaces, overloads, changed signatures, effects, recursion,
 diagnostics, `checkfree`, source reindexing, and depth fallback against fresh
 compilation. The ownership harness now covers leaf and caller import, nested
 eviction, cold and memoized depth limits, and O0/O2/debug/source-index variants.
+The retained [32-function chain comparison](../bench/results/2026-10-30/checked-callers.md)
+demonstrates reuse of all 31 callers after a `step0` edit, with no established
+end-to-end latency improvement. Validation and import remain part of the cost.
 
 Compiler statistics expose time spent in parsing, resolution, type checking,
 optimization, bounds analysis, and direct emission. Each emitted function also

@@ -283,6 +283,8 @@ preserve its callers' checked arithmetic while optimization sees the new body.
 shadowing, changed signatures, effects, or excluded syntax trigger normal
 checking. This option includes the leaf support and supersedes
 `--checked-leaf-cache` when both are selected.
+The [chain comparison](bench/results/2026-10-30/checked-callers.md) verifies
+31 reused callers but does not establish an end-to-end speedup.
 
 `--no-cache` disables whole-module artifact reuse; explicitly enabled native
 syntax/token caches remain active. A failed compile leaves the previous output
