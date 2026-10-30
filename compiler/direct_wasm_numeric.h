@@ -22,6 +22,17 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
         code.I64Const(int64_t(uint64_t(from->arr->size) << 32)); code.Op(0x84); return;
     }
     if (c.Aggregate(from) && to->kind == TY_REF) { W(to); return; }
+    if (from->kind == TY_VARIANT && to->kind == TY_ENUM) {
+        if (from->var->adt->enu->inst != to->enu->inst)
+            Fail(l, "variant belongs to a different enum");
+        auto source = Save(I32), destination = Frame(to);
+        auto layout = c.Size(to);
+        FrameAddress(destination); code.I32Const(0); code.I32Const(int32_t(layout.size)); code.Fill();
+        FrameAddress(destination);
+        code.I32Const(to->enu->inst->en->VariantIndex(from->var->variant)); code.Mem(0x36, 2);
+        FrameAddress(destination + layout.payload); Get(source); Store(from);
+        FrameAddress(destination); return;
+    }
     if (c.Aggregate(from) || c.Aggregate(to)) {
         if (from->kind != to->kind || c.Size(from).size != c.Size(to).size)
             Fail(l, "aggregate conversion is not supported");

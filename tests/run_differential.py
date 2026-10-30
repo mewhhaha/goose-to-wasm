@@ -48,6 +48,16 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = []
+    for n in (-1, 0, 4):
+        result.append(Case(f"enums/layouts/{n}", "fixed_enums", f"{n}\n",
+                           f"20 11.5\n10 {n + 0.5}\n20 0.0\n50\n{n + 2}\n7 9\n77\n8\n10\n1 2 5\n{2 * n + 1}\n{n + 200}\n", group="aggregate"))
+        def score(value):
+            return -1 if value < 0 else 30 if value == 0 else 3 * value + 3
+        result.append(Case(f"enums/returns/{n}", "enum_returns", f"{n}\n",
+                           f"{score(n)} {score(n + 1)} 57\n{score(n)} {n * 2} {n + 7}\n{n + 50}\n"
+                           f"-1 {n} 6\n{9 if n > 0 else 19} {22 if n == 0 else 12}\n{n + 100}\n", group="aggregate"))
+        result.append(Case(f"enums/snapshots/{n}", "enum_snapshots", f"{n}\n",
+                           f"66 -1 66\n{n} {n + 1} {n + 2} -1\n15 99 -1\n6 123\n6\n", group="aggregate"))
     for a, b in ((17, 5), (-7, 3), (-7, -3), (0, 2), (1099511627779, 17)):
         quotient = abs(a) // abs(b)
         if (a < 0) != (b < 0):

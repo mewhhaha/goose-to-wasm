@@ -82,7 +82,7 @@ inline void Function::Address(Node *n) {
     }
     if (auto dot = Is<Dot>(n); dot && dot->IsField()) {
         auto t = Object(dot->obj);
-        if (t->kind != TY_STRUCT || dot->fieldidx < 0) Fail(n->line, "only fixed struct fields are supported");
+        c.FieldType(t, dot->fieldidx);
         auto off = c.Size(t).fields.at(size_t(dot->fieldidx));
         if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
         return;
@@ -176,13 +176,22 @@ inline void Function::AggregateLiteral(Node *n) {
             }
         }
     } else if (auto s = Is<StructLit>(n)) {
-        if (!s->sinst || s->einst) Fail(n->line, "enum construction is not supported");
         auto layout = c.Size(t);
+        uint32_t payload = 0;
+        if (s->einst) {
+            auto vi = s->einst->en->VariantIndex(s->variant);
+            if (t->kind == TY_ENUM) {
+                payload = layout.payload;
+                FrameAddress(off); code.I32Const(vi); code.Mem(0x36, 2);
+            } else if (t->kind != TY_VARIANT) Fail(n->line, "unsupported variant construction");
+            layout = c.Payload(s->einst, vi);
+        } else if (!s->sinst) Fail(n->line, "struct type was not resolved");
         for (size_t i = 0; i < s->inits.size(); i++) {
             auto fi = i < s->fieldindices.size() ? s->fieldindices[i] : int(i);
             if (fi < 0 || size_t(fi) >= layout.fields.size()) Fail(n->line, "unsupported struct initializer");
-            auto ft = s->sinst->ftypes[size_t(fi)];
-            FrameAddress(off + layout.fields[size_t(fi)]); To(s->inits[i].val, ft); Store(ft);
+            auto ft = s->einst ? s->einst->vftypes[size_t(s->einst->en->VariantIndex(s->variant))][size_t(fi)]
+                               : s->sinst->ftypes[size_t(fi)];
+            FrameAddress(off + payload + layout.fields[size_t(fi)]); To(s->inits[i].val, ft); Store(ft);
         }
     }
     FrameAddress(off);
@@ -492,10 +501,18 @@ inline void Function::Expr(Node *n) {
         case NK_Dot: {
             auto d = static_cast<Dot *>(n);
             if (d->member == B_LEN) { View(d->obj); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return; }
-            if (d->member >= 0 || d->variantconst) Fail(n->line, "this property/enum value is not supported");
+            if (d->variantconst) {
+                auto t = n->exprtype;
+                auto off = Frame(t);
+                FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+                if (t->kind == TY_ENUM) {
+                    FrameAddress(off); code.I32Const(d->einst->en->VariantIndex(d->variantconst)); code.Mem(0x36, 2);
+                }
+                FrameAddress(off); return;
+            }
+            if (d->member >= 0) Fail(n->line, "this property is not supported");
             auto t = d->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
-            if (t->kind != TY_STRUCT) Fail(n->line, "only fixed struct fields are supported");
-            auto ft = t->struc->inst->ftypes.at(size_t(d->fieldidx)); Address(n);
+            auto ft = c.FieldType(t, d->fieldidx); Address(n);
             if (n->exprtype->kind != TY_REF || ft->kind == TY_REF) { Load(ft); Convert(ft, n->exprtype, n->line); }
             return;
         }
@@ -581,23 +598,37 @@ inline void Function::Expr(Node *n) {
             Fail(n->line, "continue has no direct loop target");
         case NK_MatchExpr: {
             auto m = static_cast<MatchExpr *>(n); auto t = m->scrutinee->exprtype;
-            if (t->kind != TY_INT && t->kind != TY_BOOL) Fail(n->line, "only integer and bool match are supported");
-            Expr(m->scrutinee); auto value = Save(t);
+            Expr(m->scrutinee);
+            if (t->kind == TY_REF) { Load(t->ref->sub); t = t->ref->sub; }
+            optional<uint32_t> base;
+            if (t->kind == TY_ENUM) { W(t); base = Save(I32); Get(*base); code.Mem(0x28, 2); }
+            else if (t->kind != TY_INT && t->kind != TY_BOOL)
+                Fail(n->line, "only integer, bool and fixed enum match are supported");
+            auto value = Save(base ? I32 : W(t));
             auto ts = Values(n); vector<uint32_t> vs; for (auto rt : ts) vs.push_back(Local(rt));
             auto done = Begin(); bool wildcard = false;
             for (auto &arm : m->arms) {
-                if (arm.binder) Fail(n->line, "match payload bindings are not supported");
                 bool any = arm.pat.kind == P_WILDCARD;
                 if (!any) {
-                    if (arm.ranges.empty()) Fail(n->line, "match pattern has no resolved integer ranges");
                     bool first = true;
-                    for (auto range : arm.ranges) {
+                    if (base) for (auto variant : arm.variants) {
+                        Get(value); code.I32Const(t->enu->inst->en->VariantIndex(variant)); code.Op(0x46);
+                        if (!first) code.Op(0x72);
+                        first = false;
+                    }
+                    else for (auto range : arm.ranges) {
                         Get(value); Const(t, range.lo); BinaryOp(T_GTEQ, t, n->line);
                         Get(value); Const(t, range.hi); BinaryOp(T_LTEQ, t, n->line); code.Op(0x71);
                         if (!first) code.Op(0x72);
                         first = false;
                     }
+                    if (first) Fail(n->line, "match pattern has no resolved alternatives");
                     Begin(0x04);
+                }
+                if (arm.binder) {
+                    if (!base || arm.pat.byref) Fail(n->line, "only by-value fixed enum payload bindings are supported");
+                    auto slot = Bind(arm.binder);
+                    Get(*base); code.I32Const(int32_t(c.Size(t).payload)); code.Op(0x6a); Write(slot);
                 }
                 if (ts.empty()) Discard(arm.body); else { To(arm.body, ts[0]); Set(vs[0]); }
                 Br(done); if (!any) End(); else { wildcard = true; break; }

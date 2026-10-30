@@ -34,7 +34,7 @@ struct Signature {
     bool operator==(const Signature &) const = default;
 };
 struct Import { string module, name; uint32_t type; };
-struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; };
+struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; uint32_t payload = 0; };
 struct Slot {
     enum Kind { LOCAL, FRAME, GLOBAL } kind = LOCAL;
     uint32_t index = 0;
@@ -172,6 +172,9 @@ struct Compiler {
     unordered_map<FnSpec *, uint8_t> intrinsic_opcode;
     unordered_map<VarDef *, Slot> globals;
     unordered_map<TypeExpr *, Layout> layouts;
+    // A payload can contain a sibling variant by value. Its layout must not
+    // depend on computing the whole parent enum's union first.
+    map<pair<EnumInst *, int>, Layout> payload_layouts;
     map<string, uint32_t> strings;
     string data;
     static constexpr uint32_t data_base = 1024;
@@ -185,7 +188,35 @@ struct Compiler {
         d.text = ast.DiagnosticText(d, true);
         throw CompileError { d.text, { d } };
     }
-    bool Aggregate(TypeExpr *t) const { return t && (t->kind == TY_ARRAY || t->kind == TY_STRUCT); }
+    bool Aggregate(TypeExpr *t) const {
+        return t && (t->kind == TY_ARRAY || t->kind == TY_STRUCT || t->kind == TY_ENUM || t->kind == TY_VARIANT);
+    }
+    const Layout &Payload(EnumInst *ei, int vi) {
+        auto key = make_pair(ei, vi);
+        if (auto it = payload_layouts.find(key); it != payload_layouts.end()) return it->second;
+        Layout r;
+        for (size_t i = 0; i < ei->vftypes.at(size_t(vi)).size(); i++) {
+            auto &field = ei->en->variants.at(size_t(vi)).fields[i];
+            if (field.ispad) Fail(field.line, "explicit variant padding is not supported");
+            auto sub = Size(ei->vftypes[size_t(vi)][i]);
+            r.align = max(r.align, sub.align);
+            r.size = Align(r.size, sub.align);
+            r.fields.push_back(r.size);
+            if (uint64_t(r.size) + sub.size > uint64_t(opts.maximum_pages) * 65536)
+                Fail(field.line, "variant exceeds the configured linear-memory limit");
+            r.size += sub.size;
+        }
+        r.size = max<uint32_t>(1, Align(r.size, r.align));
+        return payload_layouts.emplace(key, std::move(r)).first->second;
+    }
+    TypeExpr *FieldType(TypeExpr *t, int field) {
+        if (t->kind == TY_STRUCT) return t->struc->inst->ftypes.at(size_t(field));
+        if (t->kind == TY_VARIANT) {
+            auto ei = t->var->adt->enu->inst;
+            return ei->vftypes.at(size_t(ei->en->VariantIndex(t->var->variant))).at(size_t(field));
+        }
+        Fail(t->line, "only fixed struct and variant fields are supported");
+    }
     uint8_t W(TypeExpr *t) {
         if (!t || t->kind == TY_VOID) return VOID;
         switch (t->kind) {
@@ -199,7 +230,7 @@ struct Compiler {
                     Fail(t->line, "relative and pool references are not supported");
                 Size(t->ref->sub); return I32;
             case TY_SLICE: Size(t->sub); return I64; // packed pointer + length
-            case TY_ARRAY: case TY_STRUCT: Size(t); return I32;
+            case TY_ARRAY: case TY_STRUCT: case TY_ENUM: case TY_VARIANT: Size(t); return I32;
             default: {
                 string s; t->Dump(s);
                 Fail(t->line, "unsupported runtime type " + s);
@@ -247,6 +278,28 @@ struct Compiler {
                     r.size += sub.size;
                 }
                 r.size = max<uint32_t>(1, Align(r.size, r.align)); break;
+            }
+            case TY_VARIANT: {
+                auto ei = t->var->adt->enu->inst;
+                if (!ei) Fail(t->line, "variant type was not resolved");
+                r = Payload(ei, ei->en->VariantIndex(t->var->variant)); break;
+            }
+            case TY_ENUM: {
+                auto ei = t->enu->inst;
+                if (t->enu->varmode || !ei || !ei->allfixed)
+                    Fail(t->line, "only fixed-mode enums with fixed-size payloads are supported");
+                r.align = 4;
+                uint32_t bytes = 0, alignment = 1;
+                for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
+                    auto sub = Payload(ei, int(vi));
+                    bytes = max(bytes, sub.size); alignment = max(alignment, sub.align);
+                }
+                r.align = max(r.align, alignment);
+                r.payload = Align(4, alignment);
+                auto size = (uint64_t(r.payload) + bytes + r.align - 1) & ~uint64_t(r.align - 1);
+                if (size > uint64_t(opts.maximum_pages) * 65536)
+                    Fail(t->line, "enum exceeds the configured linear-memory limit");
+                r.size = uint32_t(size); break;
             }
             default: { string s; t->Dump(s); Fail(t->line, "no direct layout for " + s); }
         }

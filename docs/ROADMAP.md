@@ -1,33 +1,33 @@
 # Next development milestones
 
-## Fixed-mode enums and payload matches
+## Implemented: fixed-mode enums and payload matches
 
-Extend the existing fixed-value backend with fixed `TY_ENUM` and `TY_VARIANT`
+The fixed-value backend now supports fixed `TY_ENUM` and `TY_VARIANT`
 values: constructors, fieldless constants, local/global/fixed-array storage,
 function parameters and owned results, and matches with copied payload bindings.
-Keep variable-mode `E..`, dynamic dispatch, enum rendering/comparison, and
-aggregate host imports/exports outside this milestone.
+Variable-mode `E..`, dynamic dispatch, enum rendering/comparison, and aggregate
+host imports/exports remain outside this milestone.
 
-Implementation order:
+The implementation:
 
-1. Define a target-specific tag and aligned payload layout. Cache each variant's
+1. Defines a target-specific tag and aligned payload layout. It caches each variant's
    layout independently of the full enum, so sibling-variant fields do not
    introduce artificial layout recursion.
-2. Extend aggregate classification, construction, field access, and
+2. Extends aggregate classification, construction, field access, and
    variant-to-enum conversion. A payload needs a newly initialized tag and
    destination; its address alone does not represent an enum.
-3. Extend matches using the frontend's resolved variant and binder metadata.
-   Evaluate the scrutinee once and copy the selected payload before executing
+3. Extends matches using the frontend's resolved variant and binder metadata.
+   It evaluates the scrutinee once and copies the selected payload before executing
    the arm. References to fixed enums still produce by-value payload bindings.
-4. Reuse the existing caller-owned aggregate-return storage and snapshots.
-   Respect concrete function result types when an optimized call or inline
+4. Reuses the existing caller-owned aggregate-return storage and snapshots.
+   It respects concrete function result types when an optimized call or inline
    block has already been adapted to an enum expression type.
 
-Acceptance requires O0/O2 differential checks across native, C-Wasm, V8 and
+Qualification uses O0/O2 differential checks across native, C-Wasm, V8 and
 Wasmtime for empty and differently aligned payloads, generic and nested enums,
 variant replacement, arrays, defaults, reference scrutinees, copy independence,
 recursive/mixed returns, and argument/result evaluation order. Excluded forms
-must retain explicit refusal tests. The frontend already rejects by-reference
+have explicit refusal tests. The frontend already rejects by-reference
 bindings into fixed-mode enum payloads.
 
 ## Incremental frontend reuse

@@ -121,6 +121,12 @@ def main():
     # Returning aggregates stays an internal Goose ABI, never an implicit
     # contract with an arbitrary host function or public Wasm export.
     refusals = {
+        "variable-mode-enum": ('enum E { Empty, Data { x: i64 } }\nfn main() { let e: E.. = E.Data { 1 }; match e { Data p => print(p.x), _ => {} } }\n',
+                               "only fixed-mode enums"),
+        "enum-export": ('enum E { Empty, Data { x: i64 } }\nexport fn exported() -> E { E.Data { 1 } }\nfn main() {}\n',
+                        "public exports currently return numeric and bool values only"),
+        "enum-extern": ('enum E { Empty, Data { x: i64 } }\nextern fn foreign() -> E;\nfn main() { let e = foreign(); match e { Data p => print(p.x), _ => {} } }\n',
+                        "externs currently return numeric and bool values only"),
         "aggregate-extern": ('struct Pair { x: i64, y: i64 }\nextern fn foreign() -> Pair;\nfn main() { let p = foreign(); print(p.x); }\n',
                              "externs currently return numeric and bool values only"),
         "aggregate-export": ('struct Pair { x: i64, y: i64 }\nexport fn exported() -> Pair { Pair { 1, 2 } }\nfn main() {}\n',

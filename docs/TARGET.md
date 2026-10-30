@@ -64,12 +64,26 @@ Hosts must provide matching signatures and semantics for remaining imports. The 
 include input, timing, and barrier functions used by the tests and benchmarks.
 Arbitrary external native libraries are not loaded into a Wasm module.
 
-Internal functions can return fixed arrays and structs, including recursion and
+Internal functions can return fixed arrays, structs, enums and variant payloads, including recursion and
 mixed scalar/aggregate multiple results. The caller reserves each owned result's
 storage and passes a hidden i32 destination parameter. The callee captures result
 expressions in order and copies owned results before releasing its frame. The
 ordinary i32 result is the caller-owned address. Aggregate extern/public exports
 remain refused until an explicit host ABI is provided.
+
+Fixed-mode enums use a u32 tag at offset zero and a payload region aligned to
+the most strictly aligned variant. The total size accommodates the largest
+payload and is rounded to the enum's alignment. Standalone variant values hold
+only their payload. Variant-to-enum conversion initializes fresh tagged storage
+and copies the payload; it does not reinterpret a payload pointer as an enum.
+These layouts are specific to this target, rather than the C backend's ABI.
+
+Fixed enums and variants have the same owned parameter/result and snapshot
+rules as other aggregates. Matches evaluate the scrutinee once and copy a
+selected payload into its by-value binding before executing the arm. References
+to fixed enums may be matched, but references into replaceable fixed-enum
+payloads are prohibited by the frontend. A fixed standalone variant can be used
+even when another variant of its enum requires unsupported dynamic storage.
 
 ## Initial supported fragment
 
@@ -81,6 +95,9 @@ remain refused until an explicit host ABI is provided.
   and supported optimized inline returns.
 - Fixed arrays, fixed struct fields, slices, and supported plain/nullable
   references, with checked indexed access and activation-local storage.
+- Fixed-mode enums and fixed variant payloads, including generic/nested types,
+  constructors/defaults, arrays, owned returns, and exhaustive/list/wildcard
+  matches with by-value payload bindings.
 - Scalar/string and supported fixed-array rendering, including argument
   evaluation and snapshot ordering.
 
@@ -88,7 +105,8 @@ The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
 
-The current backend refuses variable/resizable arrays; enum/variant layouts;
+The current backend refuses variable/resizable arrays; variable-mode enums;
+enum rendering and comparison;
 relative and pool references; runtime function values;
 non-inlined captured environments and dynamic nonlocal
 returns; threads/queues; binary framing/serialization; custom formatters and
