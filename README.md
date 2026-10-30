@@ -107,6 +107,8 @@ python tests/test_static_data.py
 python tests/test_incremental.py
 python tests/test_compiler_session.py
 python tests/test_lexical_cache.py
+python tests/test_syntax_cache.py
+python tests/test_syntax_importer.py
 python tests/test_langarena.py
 
 python oracle/tests/test_bootstrap.py
@@ -212,10 +214,12 @@ The current incremental foundation is:
   module-search candidates, compiler identity, flags, and relevant environment.
 - A persistent JSON-lines build server that avoids Python startup on repeated
   requests and validates source content before reusing a module.
+- An optional native worker with source overlays and bounded parsed-module
+  reuse, importing syntax into a fresh request AST.
 - Per-function bytecode fingerprints and call dependencies in compiler statistics,
   providing a concrete basis for a future function cache.
 
-**Edits currently rerun the entire frontend and emitter.** The function hashes
+**Edits still rerun resolution, checking, optimization, and emission.** The function hashes
 measure unchanged output; they do not skip function compilation. Unchanged-build
 cache hits and edited builds are reported as separate measurements. See
 [incremental architecture](docs/INCREMENTAL.md).
@@ -236,13 +240,20 @@ unsaved source text. Each request supplies the complete overlay set; omitting
 it restores disk contents. Overlay builds bypass the disk module cache and do
 not modify source files. New virtual files are not supported by import discovery.
 
-The native worker owns a fresh frontend for every changed build. It does not
-reuse parsed or checked syntax; statistics report zero parsed-cache hits.
+The native worker owns a fresh compilation AST for every changed build.
+Add `--syntax-cache` to reuse unchanged files' parsed syntax while rebuilding
+all semantic results. `parsed_files` and `parsed_cache_hits` expose actual
+parsing and reuse; no checked syntax survives into the next request.
 `python tests/test_compiler_session.py` checks request isolation, module
-equivalence, recovery, aliases, process restart, and retained memory. Compare
-session timings with `python bench/incremental.py --native-worker`.
+equivalence, recovery, aliases, process restart, and retained memory.
+`tests/test_syntax_cache.py` checks cache invalidation and context;
+`tests/test_syntax_importer.py` destroys templates before checking/emitting
+their imported syntax under sanitizers. Compare session timings with
+`python bench/incremental.py --native-worker`, adding `--syntax-cache` to
+measure parsed-module reuse.
 
-`--no-cache` forces full compilation. A failed compile leaves the previous output
+`--no-cache` disables whole-module artifact reuse; explicitly enabled native
+syntax/token caches remain active. A failed compile leaves the previous output
 intact. `--stats FILE` writes driver timings and backend statistics as JSON.
 
 ## Source organization

@@ -20,6 +20,7 @@ if __name__ == "__main__":
                         "-fno-omit-frame-pointer", "-I", str(args.source_dir / "src"),
                         str(ROOT / "tests/lexical_cache.cpp"), "-o", str(executable)], check=True)
         environment = os.environ.copy()
+        environment["UBSAN_OPTIONS"] = environment.get("UBSAN_OPTIONS", "") + ":halt_on_error=1:print_stacktrace=1"
         if args.disable_leak_check:
             environment["ASAN_OPTIONS"] = environment.get("ASAN_OPTIONS", "") + ":detect_leaks=0"
         subprocess.run([str(executable)], check=True, timeout=60, env=environment)

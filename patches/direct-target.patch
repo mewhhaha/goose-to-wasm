@@ -1,33 +1,35 @@
 diff --git a/src/main.cpp b/src/main.cpp
 --- a/src/main.cpp
 +++ b/src/main.cpp
-@@ -4,6 +4,7 @@
- #include "utils.h"
+@@ -5,4 +5,5 @@
  #include "small_vector.h"
  #include "flat_map.h"
 +#include "lexer_cache.h"
  #include "lexer.h"
  #include "ast.h"
- #include "dump.h"
-@@ -38,6 +39,7 @@
- #include "codegen_emit.h"
+@@ -10,4 +11,5 @@
+ #include "clone.h"
+ #include "parser.h"
++#include "parsed_module_cache.h"
+ #include "resolve.h"
+ #include "builtins.h"
+@@ -39,4 +41,5 @@
  #include "codegen_stacks.h"
  #include "codegen_nodes.h"
 +#include "direct_wasm.h"
  #include "runtime_inline.h"
  #include "process.h"
- #include "jit.h"
-@@ -272,7 +274,7 @@
-         fileof[path] = fileidx;
+@@ -273,7 +276,6 @@
          importsof.emplace_back();
          auto &[filename, source] = ast.sources.back();
 -        Parser parser(ast, filename, source->c_str(), fileidx);
-+        Parser parser(ast, filename, source->c_str(), fileidx, source->size());
-         parser.ParseTop();
-         for (auto &imp : parser.imports) {
+-        parser.ParseTop();
+-        for (auto &imp : parser.imports) {
++        auto module_imports = ParseDirectModule(ast, filename, *source, fileidx);
++        for (auto &imp : module_imports) {
              // The package this import declares or loads, where it does.
-@@ -691,8 +693,14 @@
- constexpr const char *COMPILEOPTIONS =
+             string pkgname;
+@@ -692,6 +694,12 @@
  R"(  --diagnostics json    Print the errors and warnings as JSON on stdout, and
                          the progress lines on stderr.
 -  --target native|wasm  Select the platform profile (default native). The wasm
@@ -42,9 +44,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +  --wasm-session          Serve direct compile requests as JSON lines on stdin/stdout.
    --offline             Fetch nothing: a package that is not fetched is an
                          error at its import, which goose fetch resolves.
-   -D NAME[=VALUE]       Define a C macro in the generated program (or -DNAME).
-@@ -1064,7 +1072,9 @@
-     auto nobce = false, bcetest = false, bcelines = false, norfcheck = false;
+@@ -1065,5 +1073,7 @@
      auto stacks = false;
      auto forcejit = false, standalone = false;
 -    auto wasm_target = false;
@@ -53,9 +53,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +    string wasm_deps, wasm_stats;
      auto json = false, refresh = false, debug = false, verbose = false, dryrun = false;
      auto jsondiag = false;
-     string ccrequest;
-@@ -1116,12 +1126,26 @@
-         else if (arg == "--standalone") standalone = true;
+@@ -1117,10 +1127,24 @@
          else if (arg == "--target" && i + 1 < argc) {
              string target = argv[++i];
 -            if (target != "native" && target != "wasm") {
@@ -84,9 +82,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        else if (arg == "--wasm-stats" && i + 1 < argc) wasm_stats = argv[++i];
          else if (arg == "--multi-test") multitest = true;
          else if (arg == "--gen-runtime-header") {
-             try {
-@@ -1232,6 +1256,10 @@
-         }
+@@ -1233,4 +1257,8 @@
          buildopts = BuildOptions { debug, verbose, dryrun, standalone, outname };
          outname.clear();
 +    }
@@ -95,33 +91,25 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        return 1;
      }
      if (wasm_target) {
-         if (forcejit || verb == "build" || verb == "run" ||
-@@ -1299,6 +1327,7 @@
-     // as they come, then the error's.
+@@ -1300,4 +1328,5 @@
      vector<Diagnostic> found;
      auto compile = [&]() -> int {
 +        auto compile_started = chrono::steady_clock::now();
          if (tokens) {
              DumpTokens(filename);
-             return 0;
-@@ -1308,6 +1337,7 @@
-         if (jsondiag) ast.sink = [&](const Diagnostic &d) { found.push_back(d); };
+@@ -1309,4 +1338,5 @@
          auto stdlibdirs = StdlibDirs(stdlibdir, exe);
          ParseProgram(ast, filename, stdlibdirs, DirOf(exe), {}, wasm_target);
 +        auto parse_finished = chrono::steady_clock::now();
          // The parser reported what it recovered from as it went; nothing
          // further is asked of a program with a syntax error.
-         if (!ast.errors.empty()) return 1;
-@@ -1336,6 +1366,7 @@
-             fclose(f);
+@@ -1337,4 +1367,5 @@
          }
          ResolveTypeNames(ast);
 +        auto resolve_finished = chrono::steady_clock::now();
          // As after the parse, which an unknown type name is part of.
          if (!ast.errors.empty()) return 1;
-         // Printed by every run that gets this far, so that one which goes on
-@@ -1351,9 +1382,11 @@
-         }
+@@ -1352,7 +1383,9 @@
          if (parseonly) return 0;
          TypeCheckProgram(ast, library, nocgen);
 +        auto check_finished = chrono::steady_clock::now();
@@ -131,17 +119,13 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        auto optimize_finished = chrono::steady_clock::now();
          if (specs) {
              string s;
-             opt.DumpSpecs(s);
-@@ -1378,6 +1411,7 @@
-                     break;
+@@ -1379,4 +1412,5 @@
                  }
          }
 +        auto bce_finished = chrono::steady_clock::now();
          // Per-line outcomes, for comparing two builds of the pass.
          if (bcelines)
-             for (auto &[where, counts] : bce.lineout)
-@@ -1395,6 +1429,65 @@
-         // --stacks needs the generated program's bounds, so --check runs
+@@ -1396,4 +1430,63 @@
          // the backend for them and writes nothing.
          if (nocgen && !stacks && !wasm_target) return 0;
 +        if (wasm_direct) {
@@ -205,18 +189,14 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        }
          // A quoted include resolves against the including file's own directory
          // first, so the --include headers are written relative to where the .c
-         // goes: the generated file then compiles wherever the tree sits,
-@@ -1744,6 +1837,8 @@
- 
+@@ -1745,4 +1838,6 @@
  }  // namespace goose
  
 +#include "direct_wasm_session.h"
 +
  int main(int argc, char **argv) {
      #ifdef _MSC_VER
-         // Asserts and aborts go to stderr and exit, never a dialog, so failing
-@@ -1754,5 +1849,7 @@
-         _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+@@ -1755,4 +1850,6 @@
          _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
      #endif
 +    if (argc == 2 && std::string_view(argv[1]) == "--wasm-session")
@@ -226,8 +206,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 diff --git a/src/lexer.h b/src/lexer.h
 --- a/src/lexer.h
 +++ b/src/lexer.h
-@@ -134,9 +134,15 @@
-     // (DepthBefore).
+@@ -135,7 +135,13 @@
      int curlies = 0;
  
 -    Lexer(string_view _filename, const char *_source, int _fileidx = 0)
@@ -242,9 +221,7 @@ diff --git a/src/lexer.h b/src/lexer.h
 +                source_size == string_view::npos ? string_view(source) : string_view(source, source_size));
          Next();
      }
- 
-@@ -218,6 +224,49 @@
-     }
+@@ -219,4 +225,47 @@
  
      void Next() {
 +        auto cache = active_lexical_cache;
@@ -292,12 +269,10 @@ diff --git a/src/lexer.h b/src/lexer.h
 +    void ScanNext() {
          prevend = p;
          prevendline = line;
-         prevendlinestart = linestart;
 diff --git a/src/parser.h b/src/parser.h
 --- a/src/parser.h
 +++ b/src/parser.h
-@@ -69,7 +69,8 @@
-     // the end once more.
+@@ -70,6 +70,7 @@
      bool eoferror = false;
  
 -    Parser(Ast &_ast, string_view filename, const char *source, int _fileidx)

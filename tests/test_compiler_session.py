@@ -17,7 +17,8 @@ GOOSE = ROOT / "build/bin/goose"
 NODE = "node"
 
 
-class CompilerSession(unittest.TestCase):
+class SessionHarness(unittest.TestCase):
+    SERVER_FLAGS = ("--native-worker", "--lexical-cache")
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(dir=ROOT / "build")
         self.addCleanup(self.temp.cleanup)
@@ -30,7 +31,7 @@ class CompilerSession(unittest.TestCase):
         self.log = tempfile.TemporaryFile(mode="w+t")
         self.addCleanup(self.log.close)
         self.server = subprocess.Popen([sys.executable, str(ROOT / "scripts/goose_wasm.py"),
-                                        "serve", "--native-worker", "--lexical-cache"], cwd=ROOT, text=True,
+                                        "serve", *self.SERVER_FLAGS], cwd=ROOT, text=True,
                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log)
         self.addCleanup(self.stop)
         self.sequence = 0
@@ -68,6 +69,8 @@ class CompilerSession(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, expected)
 
+
+class CompilerSession(SessionHarness):
     def test_overlays_cache_isolation_errors_and_removal(self):
         first = self.request()
         pid = first["compiler_worker_pid"]

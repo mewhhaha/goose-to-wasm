@@ -16,7 +16,7 @@ concurrency:
 jobs:
   qualify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     env:
       EMCC_CORES: "2"
       EM_CACHE: ${{ github.workspace }}/build/em-cache
@@ -91,6 +91,10 @@ jobs:
         run: python tests/test_compiler_session.py
       - name: Lexer transition reuse and source ownership under sanitizers
         run: python tests/test_lexical_cache.py
+      - name: Parsed module caching and semantic isolation
+        run: python tests/test_syntax_cache.py
+      - name: Syntax import ownership under sanitizers
+        run: python tests/test_syntax_importer.py
       - name: Incremental rebuild measurement smoke
         run: python bench/incremental.py --samples 3
       - name: Benchmark harness correctness smoke

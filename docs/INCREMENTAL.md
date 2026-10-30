@@ -34,12 +34,44 @@ must exist on disk for the frontend's import discovery to find them.
 
 Each request owns and destroys a fresh mutable AST and its immutable source
 snapshots. No resolved types or checked nodes survive into the next build.
-`frontend_reused` is false, `parsed_files` counts every reached file, and
-`parsed_cache_hits` is zero. This is native session infrastructure, not parsed
-syntax or semantic reuse. Python retains atomic artifact publication; overlay
+With the default worker, `parsed_files` counts every reached file and
+`parsed_cache_hits` is zero. Python retains atomic artifact publication; overlay
 builds bypass disk-only cache lookup and storage. Compiler-identity changes or
 worker failure cause a new process to be started. Failed requests preserve the
 previous output and do not poison the next request.
+
+`serve --native-worker --syntax-cache` retains pristine parsed modules. Each
+entry owns its source, AST, raw import records, and structured parse warnings;
+it is never resolved, checked, optimized, or emitted. A dedicated importer
+copies live syntax into the new request AST, remapping declarations, types,
+shared type details, defaults, nested functions, names, and source indices.
+Canonical primitives belong to the request, and source-backed views are
+rebased into its source buffers. No origin or semantic pointer refers to the
+cached AST. Abandoned parser allocations are not traversed, since they can
+contain edges to types or declarations that backtracking already deleted.
+
+The cache checks exact filename, complete parsed source bytes, and fetched
+package status, which controls deprecated-syntax warnings. It retains at most
+128 entries within a conservative 64 MiB storage estimate, evicting the least
+recently used entry first. Oversized entries compile without retention. A failed isolated
+parse, or a type/global name collision with preceding modules, runs the original
+parser in the request AST to preserve diagnostics and recovery. Successful
+imports replay warnings with the current source index. Imported `main`
+registration follows the current root role. Package discovery, import target
+resolution, source ordering, and global initialization ordering run afresh.
+
+On compiled requests, `parsed_files` counts files actually parsed and
+`parsed_cache_hits` counts reused templates. An unchanged request forced through
+the compiler can parse zero files; editing one helper can parse just that file.
+`parsed_syntax_reused` records syntax reuse. Resolution, checking,
+specialization, optimization, bounds analysis, and emission still run fully;
+`semantic_reused` and the legacy `frontend_reused` flag remain false. Whole-
+module artifact hits do not invoke the worker; their stored backend counters
+describe the original compilation.
+
+The syntax cache is opt-in pending latency measurements. It can be combined
+with the separate token cache below. The storage estimates cover retained
+caches, rather than request ASTs or total compiler memory.
 
 `serve --native-worker --lexical-cache` additionally retains scanner
 transitions for unchanged files. Exact filename and complete parsed source bytes
@@ -64,8 +96,8 @@ compiler memory.
 These can include package build/configuration files beyond the AST's Goose
 source files.
 A file may contribute to both when only some transitions are retained.
-Changing one module can reuse unchanged imports' tokens, but all files are
-still parsed and checked: `parsed_cache_hits` remains zero and
+Used without the syntax cache, changing one module can reuse unchanged imports'
+tokens, but all files are still parsed and checked: `parsed_cache_hits` remains zero and
 `frontend_reused` remains false. The mode remains opt-in: the retained
 [comparison](../bench/results/2026-10-30/lexical-cache.md) demonstrates token
 reuse but does not establish an edited-build latency improvement.
@@ -73,7 +105,8 @@ reuse but does not establish an edited-build latency improvement.
 ## What an edit currently costs
 
 Any semantic source change misses the whole-module cache. The existing frontend
-then reparses, resolves, checks, specializes, optimizes, and analyzes the program;
+then parses changed files (or every file without the syntax cache), constructs
+a fresh AST, resolves, checks, specializes, optimizes, and analyzes the program;
 the direct backend emits all reachable functions again. This is **not yet an
 incremental type checker or a function compilation cache**.
 
@@ -90,7 +123,7 @@ skipped, and module indices are not a persistent symbol identity.
 2. An uncached Python-driver invocation.
 3. A fresh driver process hitting its dependency-checked module cache.
 4. An unchanged request through the persistent server.
-5. A single-function source edit through the server, with full frontend/emission.
+5. A single-function source edit through the server, with full semantic analysis/emission.
 
 It preserves raw timings, phase medians, function-hash changes, and a verified
 result for the final edited program. The Python wrapper may cost more than a
@@ -100,24 +133,17 @@ The [native-session comparison](../bench/results/2026-10-30/native-session.md)
 records repeated local measurements with and without `--native-worker`,
 including scheduling noise and first-request costs.
 Pass `--native-worker --lexical-cache` to the benchmark to measure token reuse
-separately from native process retention.
+separately from native process retention, or `--native-worker --syntax-cache`
+to measure parsed-module reuse.
 
 ## Next architectural steps
 
-**Persistent frontend state.** Introduce a compiler session owning source
-snapshots and dependency nodes. Goose's existing source-provider interface can
-supply edited buffers without requiring changes to the language parser. AST and
-type lifetimes must be explicit before nodes can survive across requests.
-
-The native worker now supplies the request/source ownership boundary. The next
-step is an immutable parsed-module representation and a complete syntax-import
-cloner. Existing Goose clones share declaration symbols and parsed types that
-resolution/checking mutate, so they cannot safely be reused as this cache.
-The cloner must remap types, declaration ownership, source strings/indices,
-namespaces, defaults, and nested declarations into a fresh compilation AST.
-Import resolution and global initialization order must be recomputed. A first
-syntax-cache milestone should prove one reparsed module after a one-module
-edit, while resolution, checking, optimization and emission still run fully.
+**Persistent semantic state.** The session and pristine syntax cache now
+establish source and declaration ownership. The next boundary is reusable
+semantic results with explicit dependency versions. Existing Goose clones
+share declaration symbols and mutable types, so checked ASTs cannot simply be
+retained across requests. Measure the cost of syntax import and repeated
+resolution/checking before choosing their replacement representations.
 
 **Stable semantic keys.** Function identities should be based on declaration,
 specialization arguments, relevant type/layout facts, captures, and target

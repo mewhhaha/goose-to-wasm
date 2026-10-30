@@ -8,7 +8,7 @@ namespace goose {
 struct DirectCompileRequest {
     string source, stdlib;
     int optimization = 2;
-    bool offline = false, lexical_cache = false;
+    bool offline = false, lexical_cache = false, syntax_cache = false;
     DirectWasmOptions options;
     map<string, string> sources;
 };
@@ -29,9 +29,12 @@ inline bool DirectSessionSameFile(const string &a, const string &b) {
 
 inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &request,
                                                 const string &exe, string &diagnostics,
-                                                LexicalCache *lexical = nullptr) {
+                                                LexicalCache *lexical = nullptr,
+                                                ParsedModuleCache *syntax = nullptr) {
     LexicalCacheScope cache_scope(lexical);
+    ParsedModuleCacheScope syntax_scope(syntax);
     if (lexical) lexical->BeginRequest();
+    if (syntax) syntax->BeginRequest();
     auto started = chrono::steady_clock::now();
     struct FetchMode {
         bool previous;
@@ -90,9 +93,18 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
     stats.Member("frontend_ns", ns(started, bounded));
     stats.Member("source_files", int64_t(ast.sources.size()));
     stats.Member("specializations", int64_t(ast.fnspecs.size()));
-    stats.Member("parsed_files", int64_t(ast.sources.size()));
-    stats.Member("parsed_cache_hits", 0);
+    stats.Member("parsed_files", syntax ? syntax->parsed_files : int64_t(ast.sources.size()));
+    stats.Member("parsed_cache_hits", syntax ? syntax->cache_hits : 0);
+    stats.Member("parsed_syntax_reused", syntax && syntax->cache_hits > 0);
+    stats.Member("syntax_cache_enabled", syntax != nullptr);
+    stats.Member("semantic_reused", false);
     stats.Member("frontend_reused", false);
+    if (syntax) {
+        stats.Member("syntax_cache_files", int64_t(syntax->modules.size()));
+        stats.Member("syntax_cache_estimated_bytes", int64_t(syntax->estimated_bytes));
+        stats.Member("syntax_cache_evictions", syntax->evictions);
+        stats.Member("syntax_cache_bypassed_files", syntax->bypassed_files);
+    }
     stats.Member("overlay_files", int64_t(request.sources.size()));
     stats.Member("lexical_cache_enabled", lexical != nullptr);
     if (lexical) {
@@ -120,6 +132,7 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
 
 inline int RunDirectSession(const string &exe) {
     LexicalCache lexical;
+    ParsedModuleCache syntax;
     string line;
     while (getline(cin, line)) {
         string id = "null", diagnostics;
@@ -165,13 +178,16 @@ inline int RunDirectSession(const string &exe) {
             request.options.maximum_pages = uint32_t(integer("maximum_pages", 256, 1, 32768));
             request.options.debug = boolean("debug"); request.offline = boolean("offline");
             request.lexical_cache = boolean("lexical_cache");
+            request.syntax_cache = boolean("syntax_cache");
             if (auto overlays = json.Get("sources")) {
                 if (overlays->kind != Json::OBJECT) throw runtime_error("sources must be a path-to-text object");
                 for (auto &[path, value] : overlays->obj) {
                     if (path.find('\0') != string::npos) throw runtime_error("paths must not contain NUL bytes");
                     if (value.kind != Json::STRING) throw runtime_error("source text must be a string");
                     if (!FileExists(path)) throw runtime_error("source overlays require existing files");
-                    auto text = value.str; StripBom(text);
+                    // ParseProgram removes one UTF-8 BOM, just as LoadSource
+                    // does for disk inputs. Keep the overlay bytes intact here.
+                    auto text = value.str;
                     for (auto &[name, previous] : request.sources)
                         if (DirectSessionSameFile(path, name)) throw runtime_error("duplicate source overlay path");
                     if (!request.sources.emplace(DirectSessionPath(path), std::move(text)).second)
@@ -180,7 +196,8 @@ inline int RunDirectSession(const string &exe) {
             }
             DirectCompileOutput result;
             RunOnCompilerStack([&]() {
-                result = CompileDirectRequest(request, exe, diagnostics, request.lexical_cache ? &lexical : nullptr);
+                result = CompileDirectRequest(request, exe, diagnostics,
+                    request.lexical_cache ? &lexical : nullptr, request.syntax_cache ? &syntax : nullptr);
                 return 0;
             });
             if (DirectSessionSameFile(output, exe)) throw runtime_error("output must not overwrite the compiler");

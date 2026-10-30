@@ -121,10 +121,12 @@ class NativeWorker:
 
 class BuildContext:
     """Process-lifetime tool identity memoization; source contents are always read."""
-    def __init__(self, *, native_worker: bool = False, lexical_cache: bool = False) -> None:
+    def __init__(self, *, native_worker: bool = False, lexical_cache: bool = False,
+                 syntax_cache: bool = False) -> None:
         self.tools: dict[str, tuple[tuple[int, ...], str]] = {}
         self.native_worker = native_worker
         self.lexical_cache = lexical_cache
+        self.syntax_cache = syntax_cache
         self.sources: dict[str, str] = {}
         self.worker: NativeWorker | None = None
         self.worker_key: tuple | None = None
@@ -148,7 +150,8 @@ class BuildContext:
                    "stdlib": str(args.stdlib.expanduser().resolve()) if args.stdlib else "",
                    "optimization": int(args.optimization[-1]), "debug": args.debug, "offline": args.offline,
                    "initial_pages": args.initial_pages, "maximum_pages": args.maximum_pages,
-                   "sources": self.sources, "lexical_cache": self.lexical_cache}
+                   "sources": self.sources, "lexical_cache": self.lexical_cache,
+                   "syntax_cache": self.syntax_cache}
         start = time.perf_counter_ns()
         try:
             reply = self.worker.request(payload)
@@ -465,6 +468,8 @@ def parser() -> argparse.ArgumentParser:
                         help="retain a native compiler process; each edited build still runs the full frontend")
     server.add_argument("--lexical-cache", action="store_true",
                         help="reuse unchanged source tokens in the native worker (requires --native-worker)")
+    server.add_argument("--syntax-cache", action="store_true",
+                        help="reuse parsed modules in a fresh AST (requires --native-worker)")
     b = commands.add_parser("build", help="compile with one of the three backends")
     b.add_argument("source", type=Path)
     b.add_argument("-o", "--output", type=Path, required=True)
@@ -540,10 +545,11 @@ def main() -> int:
         if args.command == "version":
             print((ROOT / "toolchain.json").read_text(), end="")
             return 0
-        if getattr(args, "lexical_cache", False) and not args.native_worker:
-            raise BuildError("--lexical-cache requires --native-worker")
+        if (getattr(args, "lexical_cache", False) or getattr(args, "syntax_cache", False)) and not args.native_worker:
+            raise BuildError("--lexical-cache and --syntax-cache require --native-worker")
         context = BuildContext(native_worker=getattr(args, "native_worker", False),
-                               lexical_cache=getattr(args, "lexical_cache", False))
+                               lexical_cache=getattr(args, "lexical_cache", False),
+                               syntax_cache=getattr(args, "syntax_cache", False))
         if args.command == "serve":
             return serve(context)
         report = build(args, context)
