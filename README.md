@@ -211,8 +211,9 @@ Observable direct rebuilds took 61–77 ms and still recompile the whole program
 
 The current incremental foundation is:
 
-- A content-checked module cache, including resolved imports, symlink targets,
-  module-search candidates, compiler identity, flags, and relevant environment.
+- A content-checked module cache, including parsed configurations, resolved
+  imports, missing-path probes, symlink targets, module-search candidates,
+  compiler identity, flags, and relevant environment.
 - A persistent JSON-lines build server that avoids Python startup on repeated
   requests and validates source content before reusing a module.
 - An optional native worker with source overlays and bounded parsed-module
@@ -252,6 +253,8 @@ equivalence, recovery, aliases, process restart, and retained memory.
 their imported syntax under sanitizers. Compare session timings with
 `python bench/incremental.py --native-worker`, adding `--syntax-cache` to
 measure parsed-module reuse.
+The retained [O0/O2 syntax-cache comparison](bench/results/2026-10-30/syntax-cache.md)
+shows less parsing but no established edited-build wall-time improvement.
 
 `--no-cache` disables whole-module artifact reuse; explicitly enabled native
 syntax/token caches remain active. A failed compile leaves the previous output

@@ -89,9 +89,11 @@ specialization, optimization, bounds analysis, and emission still run fully;
 module artifact hits do not invoke the worker; their stored backend counters
 describe the original compilation.
 
-The syntax cache is opt-in pending latency measurements. It can be combined
-with the separate token cache below. The storage estimates cover retained
-caches, rather than request ASTs or total compiler memory.
+The syntax cache remains opt-in. The retained [O0/O2 comparison](../bench/results/2026-10-30/syntax-cache.md)
+shows a smaller parse phase but no established end-to-end edited-build latency
+improvement. It can be combined with the separate token cache below. The
+storage estimates cover retained caches, rather than request ASTs or total
+compiler memory.
 
 `serve --native-worker --lexical-cache` additionally retains scanner
 transitions for unchanged files. Exact filename and complete parsed source bytes
@@ -155,6 +157,8 @@ including scheduling noise and first-request costs.
 Pass `--native-worker --lexical-cache` to the benchmark to measure token reuse
 separately from native process retention, or `--native-worker --syntax-cache`
 to measure parsed-module reuse.
+Use `--optimization O0`, `O1`, or `O2` to compare edit and release settings;
+the default is O0.
 
 ## Next architectural steps
 

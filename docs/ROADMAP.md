@@ -40,6 +40,12 @@ resolution and all semantic analysis still run afresh. A one-module edit can
 now reparse one module. The next boundary is semantic reuse with explicit
 dependencies, as described in [the architecture](INCREMENTAL.md).
 
+The [retained O0/O2 measurements](../bench/results/2026-10-30/syntax-cache.md)
+complete this syntax-reuse slice: parsing is reduced, while edited-build
+wall time has no established improvement. Both frontend caches remain opt-in.
+Artifact reuse additionally validates configuration reads and module-search
+probes; untracked embedded inputs and package-wide scans bypass storage.
+
 Continue measuring parsing, specialization/type checking, optimization, bounds
 analysis, and emission separately. The retained 32-function experiment spends
 about 4.7 ms in parsing/type checking and 0.086 ms in direct emission, so a raw
