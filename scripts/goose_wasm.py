@@ -77,10 +77,96 @@ def invoke(command: list[str], *, verbose: bool = False) -> float:
     return elapsed
 
 
+class NativeWorker:
+    """One sequential compiler process; every request owns a fresh frontend."""
+    def __init__(self, compiler: Path) -> None:
+        self.log = tempfile.TemporaryFile(mode="w+t")
+        try:
+            self.process = subprocess.Popen([str(compiler), "--wasm-session"], stdin=subprocess.PIPE,
+                                            stdout=subprocess.PIPE, stderr=self.log, text=True)
+        except OSError:
+            self.log.close()
+            raise
+        self.sequence = 0
+
+    def request(self, payload: dict) -> dict:
+        self.sequence += 1
+        payload = {**payload, "id": self.sequence}
+        try:
+            self.process.stdin.write(canonical(payload).decode() + "\n")
+            self.process.stdin.flush()
+            line = self.process.stdout.readline()
+            if not line:
+                raise BuildError("native compiler worker exited before replying")
+            reply = json.loads(line)
+            if not isinstance(reply, dict) or reply.get("id") != self.sequence:
+                raise BuildError("native compiler worker returned an invalid response")
+        except (BrokenPipeError, OSError, ValueError) as error:
+            raise BuildError(f"native compiler worker communication failed: {error}") from error
+        return reply
+
+    def close(self) -> None:
+        try:
+            self.process.stdin.close()
+        except OSError:
+            pass
+        try:
+            self.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
+            self.process.wait()
+        self.process.stdout.close()
+        self.log.close()
+
+
 class BuildContext:
     """Process-lifetime tool identity memoization; source contents are always read."""
-    def __init__(self) -> None:
+    def __init__(self, *, native_worker: bool = False) -> None:
         self.tools: dict[str, tuple[tuple[int, ...], str]] = {}
+        self.native_worker = native_worker
+        self.sources: dict[str, str] = {}
+        self.worker: NativeWorker | None = None
+        self.worker_key: tuple | None = None
+
+    def close(self) -> None:
+        if self.worker is not None:
+            self.worker.close()
+            self.worker = None
+            self.worker_key = None
+
+    def compile_direct(self, compiler: Path, args: argparse.Namespace, module: Path,
+                       deps: Path, stats: Path) -> tuple[float, dict]:
+        key = (str(compiler), self.tool_hash(compiler), str(Path.cwd()),
+               os.environ.get("GOOSE_STDLIB"), os.environ.get("GOOSE_HOME"))
+        if self.worker is not None and (self.worker_key != key or self.worker.process.poll() is not None):
+            self.close()
+        if self.worker is None:
+            self.worker = NativeWorker(compiler)
+            self.worker_key = key
+        payload = {"source": str(args.source.expanduser().resolve()), "output": str(module),
+                   "stdlib": str(args.stdlib.expanduser().resolve()) if args.stdlib else "",
+                   "optimization": int(args.optimization[-1]), "debug": args.debug, "offline": args.offline,
+                   "initial_pages": args.initial_pages, "maximum_pages": args.maximum_pages,
+                   "sources": self.sources}
+        start = time.perf_counter_ns()
+        try:
+            reply = self.worker.request(payload)
+        except BuildError:
+            self.close()
+            raise
+        elapsed = (time.perf_counter_ns() - start) / 1_000_000
+        if not reply.get("ok"):
+            raise BuildError("native compiler worker failed:\n" + str(reply.get("error", "unknown error")))
+        if not isinstance(reply.get("dependencies"), list) or not isinstance(reply.get("stats"), dict):
+            self.close()
+            raise BuildError("native compiler worker returned invalid build metadata")
+        if args.verbose:
+            sys.stderr.write(reply.get("diagnostics", ""))
+        atomic_write(deps, canonical(reply["dependencies"]))
+        atomic_write(stats, canonical(reply["stats"]))
+        return elapsed, {"compiler_worker_pid": self.worker.process.pid,
+                         "compiler_worker_request": self.worker.sequence,
+                         "compiler_process_reused": self.worker.sequence > 1}
 
     def tool_hash(self, path: Path) -> str:
         st = path.stat()
@@ -216,14 +302,22 @@ def frontend_options(args: argparse.Namespace, *, oracle: bool = False) -> list[
 
 def build(args: argparse.Namespace, context: BuildContext) -> dict:
     started = time.perf_counter_ns()
+    if context.sources and (not context.native_worker or args.backend != "direct"):
+        raise BuildError("source overlays require the direct backend in serve --native-worker")
     source = args.source.expanduser().resolve()
     if not source.is_file():
         raise BuildError(f"source does not exist: {source}")
     compiler = locate(args.goose or args.build_dir / "bin" / ("goose.exe" if os.name == "nt" else "goose"),
                       "Goose compiler (run scripts/bootstrap.py)")
     output = args.output.expanduser().resolve()
-    protected = {source, *(p.expanduser().resolve() for p in args.c_source),
+    protected = {source, compiler, *(Path(p) for p in context.sources), *(p.expanduser().resolve() for p in args.c_source),
                  *(p.expanduser().resolve() for p in args.include)}
+    def protect_dependencies(files):
+        protected.update(Path(path).resolve() for path in files)
+        if output in protected or output.with_suffix(".wasm") in protected:
+            raise BuildError("an output would overwrite a source dependency")
+        if args.stats and args.stats.expanduser().resolve() in protected:
+            raise BuildError("--stats must not overwrite a source dependency")
     if output in protected or output.with_suffix(".wasm") in protected:
         raise BuildError("an output would overwrite an input")
     if args.backend == "direct" and output.suffix != ".wasm":
@@ -254,9 +348,10 @@ def build(args: argparse.Namespace, context: BuildContext) -> dict:
                     "env": {k: os.environ.get(k) for k in ("GOOSE_STDLIB", "GOOSE_HOME")}}
         key = sha256(canonical(identity))
         report["compiler_sha256"] = identity["compiler_sha256"]
-        cached = None if args.no_cache else cache_lookup(args.cache_dir, key)
+        cached = None if args.no_cache or context.sources else cache_lookup(args.cache_dir, key)
         if cached:
             data, entry = cached
+            protect_dependencies(entry["dependencies"]["files"])
             # Avoid touching an already correct output on an unchanged rebuild.
             if not output.is_file() or sha256(output.read_bytes()) != entry["module_sha256"]:
                 atomic_write(output, data)
@@ -270,7 +365,11 @@ def build(args: argparse.Namespace, context: BuildContext) -> dict:
                            "--wasm-deps", str(deps), "--wasm-stats", str(stats),
                            "--wasm-initial-pages", str(args.initial_pages),
                            "--wasm-max-pages", str(args.maximum_pages), *common]
-                report["frontend_ms"] = invoke(command, verbose=args.verbose)
+                if context.native_worker:
+                    report["frontend_ms"], worker_info = context.compile_direct(compiler, args, module, deps, stats)
+                    report.update(worker_info)
+                else:
+                    report["frontend_ms"] = invoke(command, verbose=args.verbose)
                 data = module.read_bytes()
                 if data[:8] != b"\0asm\x01\0\0\0":
                     raise BuildError("compiler did not emit a WebAssembly module")
@@ -284,11 +383,12 @@ def build(args: argparse.Namespace, context: BuildContext) -> dict:
                 # Normalize '..' without resolving symlinks away.
                 roots = sorted({Path(os.path.abspath(p)) for p in roots})
                 snapshot, coherent = dependency_snapshot(json.loads(deps.read_text()), roots)
-                if not args.no_cache and coherent:
+                protect_dependencies(snapshot["files"])
+                if not args.no_cache and not context.sources and coherent:
                     cache_store(args.cache_dir, key, data, snapshot, backend_stats)
                 atomic_write(output, data)
-                report.update(cache="disabled" if args.no_cache else "miss",
-                              cache_stored=not args.no_cache and coherent,
+                report.update(cache="disabled" if args.no_cache or context.sources else "miss",
+                              cache_stored=not args.no_cache and not context.sources and coherent,
                               module_sha256=sha256(data), output_bytes=len(data),
                               backend_stats=backend_stats, dependencies=len(snapshot["files"]))
     elif args.backend == "native":
@@ -359,7 +459,9 @@ def parser() -> argparse.ArgumentParser:
     p = Parser(description=__doc__)
     commands = p.add_subparsers(dest="command", required=True, parser_class=Parser)
     commands.add_parser("version", help="show pinned toolchain versions")
-    commands.add_parser("serve", help="persistent JSON-lines build server on stdin/stdout")
+    server = commands.add_parser("serve", help="persistent JSON-lines build server on stdin/stdout")
+    server.add_argument("--native-worker", action="store_true",
+                        help="retain a native compiler process; each edited build still runs the full frontend")
     b = commands.add_parser("build", help="compile with one of the three backends")
     b.add_argument("source", type=Path)
     b.add_argument("-o", "--output", type=Path, required=True)
@@ -392,6 +494,7 @@ def parser() -> argparse.ArgumentParser:
 
 def serve(context: BuildContext) -> int:
     for line in sys.stdin:
+        context.sources = {}
         request: dict = {}
         try:
             if len(line) > 1_048_576:
@@ -407,6 +510,17 @@ def serve(context: BuildContext) -> int:
             args = parser().parse_args(argv)
             if args.command != "build":
                 raise BuildError("server requests must use the build command")
+            overlays = request.get("sources", {})
+            if not isinstance(overlays, dict) or not all(isinstance(k, str) and isinstance(v, str)
+                                                       for k, v in overlays.items()):
+                raise BuildError("sources must be an object mapping existing paths to source text")
+            for path, text in overlays.items():
+                resolved = str(Path(path).expanduser().resolve())
+                if not Path(resolved).is_file():
+                    raise BuildError("source overlays require existing files")
+                if resolved in context.sources:
+                    raise BuildError("duplicate source overlay path")
+                context.sources[resolved] = text
             result = build(args, context)
             response = {"id": request.get("id"), "ok": True, "result": result}
         except (BuildError, OSError, ValueError, TypeError, SystemExit) as error:
@@ -417,12 +531,13 @@ def serve(context: BuildContext) -> int:
 
 
 def main() -> int:
+    context = None
     try:
         args = parser().parse_args()
         if args.command == "version":
             print((ROOT / "toolchain.json").read_text(), end="")
             return 0
-        context = BuildContext()
+        context = BuildContext(native_worker=getattr(args, "native_worker", False))
         if args.command == "serve":
             return serve(context)
         report = build(args, context)
@@ -435,6 +550,9 @@ def main() -> int:
     except (BuildError, OSError, ValueError) as error:
         print(f"goose-wasm: {error}", file=sys.stderr)
         return 1
+    finally:
+        if context is not None:
+            context.close()
 
 
 if __name__ == "__main__":

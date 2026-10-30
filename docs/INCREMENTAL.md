@@ -25,6 +25,22 @@ JSON-lines requests. It avoids Python process startup and memoizes tool hashes
 against their filesystem identity. Source content is still checked on every
 request. It is a local build protocol, not a network service.
 
+`serve --native-worker` also retains one native compiler process. The worker
+uses a request API returning module bytes, exact parsed source dependencies,
+diagnostics, and phase statistics. Its source provider accepts complete
+per-request overlays for existing files, including imported files reached
+through symlinks. An omitted overlay set means disk contents again. New files
+must exist on disk for the frontend's import discovery to find them.
+
+Each request owns and destroys a fresh mutable AST and its immutable source
+snapshots. No resolved types or checked nodes survive into the next build.
+`frontend_reused` is false, `parsed_files` counts every reached file, and
+`parsed_cache_hits` is zero. This is native session infrastructure, not parsed
+syntax or semantic reuse. Python retains atomic artifact publication; overlay
+builds bypass disk-only cache lookup and storage. Compiler-identity changes or
+worker failure cause a new process to be started. Failed requests preserve the
+previous output and do not poison the next request.
+
 ## What an edit currently costs
 
 Any semantic source change misses the whole-module cache. The existing frontend
@@ -57,6 +73,16 @@ very small raw compilation; the report keeps that overhead visible.
 snapshots and dependency nodes. Goose's existing source-provider interface can
 supply edited buffers without requiring changes to the language parser. AST and
 type lifetimes must be explicit before nodes can survive across requests.
+
+The native worker now supplies the request/source ownership boundary. The next
+step is an immutable parsed-module representation and a complete syntax-import
+cloner. Existing Goose clones share declaration symbols and parsed types that
+resolution/checking mutate, so they cannot safely be reused as this cache.
+The cloner must remap types, declaration ownership, source strings/indices,
+namespaces, defaults, and nested declarations into a fresh compilation AST.
+Import resolution and global initialization order must be recomputed. A first
+syntax-cache milestone should prove one reparsed module after a one-module
+edit, while resolution, checking, optimization and emission still run fully.
 
 **Stable semantic keys.** Function identities should be based on declaration,
 specialization arguments, relevant type/layout facts, captures, and target

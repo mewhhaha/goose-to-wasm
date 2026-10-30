@@ -32,6 +32,12 @@ bindings into fixed-mode enum payloads.
 
 ## Incremental frontend reuse
 
+Implemented foundation: an opt-in persistent native worker, request-owned
+source overlays, and a fresh AST per request. Process startup can be reused;
+parsed syntax and semantic work are still rebuilt. The next boundary is an
+immutable parsed module and complete declaration/type/source remapping into a
+fresh compilation AST, as described in [the architecture](INCREMENTAL.md).
+
 Continue measuring parsing, specialization/type checking, optimization, bounds
 analysis, and emission separately. The retained 32-function experiment spends
 about 4.7 ms in parsing/type checking and 0.086 ms in direct emission, so a raw

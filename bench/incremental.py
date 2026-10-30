@@ -66,6 +66,7 @@ def main() -> int:
     parser.add_argument("--samples", type=int, default=15)
     parser.add_argument("--functions", type=int, default=32)
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "incremental-benchmark.json")
+    parser.add_argument("--native-worker", action="store_true", help="retain the native compiler in the server")
     args = parser.parse_args()
     if args.samples < 3 or args.functions < 2 or args.functions > 128:
         parser.error("use at least three samples and 2..128 functions")
@@ -79,6 +80,7 @@ def main() -> int:
               "input_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                                for path in (Path(__file__).resolve(), ROOT / "scripts" / "goose_wasm.py")},
               "optimization": "-O0", "source_functions": args.functions,
+              "native_worker": args.native_worker,
               "policy": "content-checked module cache; edits run full frontend and full backend",
               "notes": ["Warm cache samples exclude the first warming request.",
                         "Raw compiler includes native process startup and module output.",
@@ -119,21 +121,26 @@ def main() -> int:
             samples.append(elapsed)
         report["measurements"]["unchanged_wrapper_cache"] = summary(samples)
 
-        server = subprocess.Popen([sys.executable, str(ROOT / "scripts" / "goose_wasm.py"), "serve"],
+        server = subprocess.Popen([sys.executable, str(ROOT / "scripts" / "goose_wasm.py"), "serve",
+                                   *(["--native-worker"] if args.native_worker else [])],
                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             serial = 0
-            def request():
+            def request(extra=()):
                 nonlocal serial
                 serial += 1
                 started = time.perf_counter_ns()
-                server.stdin.write(json.dumps({"id": serial, "args": wrapper_args}) + "\n")
+                server.stdin.write(json.dumps({"id": serial, "args": [*wrapper_args, *extra]}) + "\n")
                 server.stdin.flush()
                 result = json.loads(server.stdout.readline())
                 elapsed = (time.perf_counter_ns() - started) / 1_000_000
                 if not result.get("ok"):
                     raise RuntimeError(result)
                 return elapsed, result["result"]
+            if args.native_worker:
+                first_ms, first = request(["--no-cache"])
+                assert not first["compiler_process_reused"]
+                report["native_worker_first_uncached_request_ms"] = first_ms
             request()
             samples = []
             for _ in range(args.samples):
@@ -158,6 +165,10 @@ def main() -> int:
                 samples.append(elapsed)
             report["measurements"]["single_function_edit_server"] = summary(samples)
             report["edits"] = edits
+            report["edited_phase_medians_ms"] = {
+                key: statistics.median(row["backend_stats"][key] / 1_000_000 for row in edits)
+                for key in ("parse_ns", "resolve_ns", "typecheck_ns", "optimize_ns", "bce_ns", "backend_ns")
+            }
             execution = subprocess.run([args.node, str(ROOT / "scripts" / "run_wasm.mjs"), str(output)],
                                        input="3\n", text=True, capture_output=True, check=False)
             assert execution.returncode == 0, execution.stderr

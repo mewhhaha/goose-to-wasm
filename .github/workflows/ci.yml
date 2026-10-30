@@ -87,6 +87,8 @@ jobs:
           python bench/langarena.py check --output-dir build/langarena-smoke
       - name: Incremental cache correctness
         run: python tests/test_incremental.py
+      - name: Native compiler sessions and source overlays
+        run: python tests/test_compiler_session.py
       - name: Incremental rebuild measurement smoke
         run: python bench/incremental.py --samples 3
       - name: Benchmark harness correctness smoke

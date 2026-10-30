@@ -228,6 +228,18 @@ Each stdin line is a request, and each stdout line is a response:
 {"id":1,"args":["build","examples/squares.goose","--backend","direct","-o","build/squares.wasm"]}
 ```
 
+Use `serve --native-worker` to retain the native compiler process too. This
+mode also accepts a `sources` object mapping existing absolute file paths to
+unsaved source text. Each request supplies the complete overlay set; omitting
+it restores disk contents. Overlay builds bypass the disk module cache and do
+not modify source files. New virtual files are not supported by import discovery.
+
+The native worker owns a fresh frontend for every changed build. It does not
+reuse parsed or checked syntax; statistics report zero parsed-cache hits.
+`python tests/test_compiler_session.py` checks request isolation, module
+equivalence, recovery, aliases, process restart, and retained memory. Compare
+session timings with `python bench/incremental.py --native-worker`.
+
 `--no-cache` forces full compilation. A failed compile leaves the previous output
 intact. `--stats FILE` writes driver timings and backend statistics as JSON.
 
