@@ -67,6 +67,10 @@ It preserves raw timings, phase medians, function-hash changes, and a verified
 result for the final edited program. The Python wrapper may cost more than a
 very small raw compilation; the report keeps that overhead visible.
 
+The [native-session comparison](../bench/results/2026-10-30/native-session.md)
+records repeated local measurements with and without `--native-worker`,
+including scheduling noise and first-request costs.
+
 ## Next architectural steps
 
 **Persistent frontend state.** Introduce a compiler session owning source
