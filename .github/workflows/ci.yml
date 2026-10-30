@@ -87,6 +87,8 @@ jobs:
           python bench/langarena.py check --output-dir build/langarena-smoke
       - name: Incremental cache correctness
         run: python tests/test_incremental.py
+      - name: Configuration and module-search dependency tracking
+        run: python tests/test_input_dependencies.py
       - name: Native compiler sessions and source overlays
         run: python tests/test_compiler_session.py
       - name: Lexer transition reuse and source ownership under sanitizers

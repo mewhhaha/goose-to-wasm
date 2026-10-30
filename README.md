@@ -105,6 +105,7 @@ python tests/run_differential.py --engines v8 wasmtime \
 python tests/test_backend_extensions.py
 python tests/test_static_data.py
 python tests/test_incremental.py
+python tests/test_input_dependencies.py
 python tests/test_compiler_session.py
 python tests/test_lexical_cache.py
 python tests/test_syntax_cache.py

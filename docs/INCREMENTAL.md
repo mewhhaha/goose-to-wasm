@@ -9,12 +9,32 @@ per-program C toolchain from the direct path.
 
 The driver caches complete modules. A cache identity includes the native
 compiler's SHA-256, the source path, optimization/debug flags, memory settings,
-working directory, and relevant Goose environment. The compiler returns the
-exact source text it parsed, including imports. Cache records retain hashes of
-that content, lexical import paths, their resolved targets, and module-search
-candidates. A hit rechecks contents, including when an editor preserves size and
+working directory, and relevant Goose environment, including the home-directory
+fallback used to locate packages. The compiler returns the exact source and
+`.build` configuration text it parsed, plus module-existence probes and absent
+configuration paths. Cache records retain hashes of that content, lexical
+import paths, their resolved targets, and module-search candidates. A hit
+rechecks contents and negative observations, including when an editor preserves size and
 timestamps. UTF-8 BOM handling matches the frontend. Retargeting a symlink or
 adding a module that may shadow another import invalidates the entry.
+
+The compiler records observations on its compilation thread. The driver
+validates every observation against disk before retaining an artifact and
+rejects conflicting repeated reads. This prevents accepting an artifact after
+a configuration was read and then restored, or after a new local module
+appeared after import selection. These checks cover recorded observations;
+they do not provide a transactional filesystem snapshot. Builds that read
+embedded files/shaders or perform a package-wide extern scan currently bypass
+artifact storage, since those additional inputs are not fully traced. They
+still compile normally. Configuration and probe paths, including absent ones,
+are protected against output and statistics publication.
+
+`--wasm-deps` and native-session responses use the same dependency transcript.
+Source entries carry `path` and `text`; `kind: "build"` entries also carry
+`exists`, `complete`, and the parsed `text` when readable; `kind: "probe"`
+entries carry `path` and `exists`. Repeated observations are intentional. An
+absent or false completeness marker disables artifact retention, including
+when using a compiler built before this protocol extension.
 
 A content-addressed Wasm blob is published before its cache record. Its digest
 is verified on retrieval. A failed build never publishes a new executable, and

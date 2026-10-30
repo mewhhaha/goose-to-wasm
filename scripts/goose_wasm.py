@@ -20,7 +20,8 @@ import time
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA = "goose-direct-build-v1"
+SCHEMA = "goose-direct-build-v2"
+INPUT_ENV = ("GOOSE_STDLIB", "GOOSE_HOME", "HOME", "USERPROFILE")
 
 
 class BuildError(Exception):
@@ -140,7 +141,7 @@ class BuildContext:
     def compile_direct(self, compiler: Path, args: argparse.Namespace, module: Path,
                        deps: Path, stats: Path) -> tuple[float, dict]:
         key = (str(compiler), self.tool_hash(compiler), str(Path.cwd()),
-               os.environ.get("GOOSE_STDLIB"), os.environ.get("GOOSE_HOME"))
+               *(os.environ.get(k) for k in INPUT_ENV))
         if self.worker is not None and (self.worker_key != key or self.worker.process.poll() is not None):
             self.close()
         if self.worker is None:
@@ -238,37 +239,88 @@ def source_digest(path: Path) -> str:
     return sha256(path.read_bytes().removeprefix(b"\xef\xbb\xbf"))
 
 
-def dependency_snapshot(transcript: list[dict[str, str]], roots: list[Path]) -> tuple[dict, bool]:
-    inputs = {}
-    coherent = True
+def absent(path: Path) -> bool:
+    # A failed compiler read is only a stable negative dependency when the
+    # name is genuinely absent. Unreadable files and dangling links bypass reuse.
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return True
+    return False
+
+
+def valid_input(path: Path, item: dict, *, probe: bool = False) -> bool:
+    if not item["exists"]:
+        return absent(path)
+    if str(path.resolve()) != item["resolved"]:
+        return False
+    if probe:
+        with path.open("rb"):
+            return path.is_file()
+    return source_digest(path) == item["sha256"]
+
+
+def dependency_snapshot(transcript: list[dict], roots: list[Path]) -> tuple[dict, bool]:
+    inputs, probes = {}, {}
+    coherent, complete, saw_build = True, True, False
     for item in transcript:
         # Keep the lexical import path AND its resolved target. A symlink may
         # be retargeted while the previous target remains completely unchanged.
-        path = Path(os.path.abspath(item["path"]))
-        compiled = item["text"].encode("utf-8")
-        digest = sha256(compiled)
-        inputs[str(path)] = {"sha256": digest, "resolved": str(path.resolve())}
+        # Preserve '..' until filesystem resolution: link/../file can name
+        # a different file from lexically collapsing that path first.
+        path = Path(item["path"]).absolute()
+        kind = item.get("kind", "source")
+        if kind not in ("source", "build", "probe"):
+            coherent = False
+            continue
+        if kind == "build":
+            saw_build = True
+            complete = complete and item.get("complete") is True
+        exists = True if kind == "source" else item.get("exists")
+        if not isinstance(exists, bool):
+            coherent = False
+            continue
         try:
-            coherent = coherent and source_digest(path) == digest
-        except OSError:
+            resolved = str(path.resolve())
+        except (OSError, RuntimeError):
+            resolved = None
+            coherent = False
+        observation = {"exists": exists, "resolved": resolved}
+        if kind != "probe" and exists:
+            observation["sha256"] = sha256(item["text"].encode("utf-8"))
+        table = probes if kind == "probe" else inputs
+        # Validate every read before collapsing duplicates. Last-write-wins
+        # would accept an A -> B -> A edit during compilation.
+        if str(path) in table and table[str(path)] != observation:
+            coherent = False
+        table[str(path)] = observation
+        try:
+            if not valid_input(path, observation, probe=kind == "probe"):
+                coherent = False
+        except (OSError, RuntimeError):
             coherent = False
     directories = search_directories([Path(p) for p in inputs], roots)
-    return {"files": inputs, "search_roots": [str(p) for p in roots],
-            "directories": directories}, coherent and directories is not None
+    complete = complete and saw_build
+    return {"files": inputs, "probes": probes, "complete": complete,
+            "search_roots": [str(p) for p in roots], "directories": directories}, (
+                coherent and complete and directories is not None)
 
 
 def valid_dependencies(snapshot: dict) -> bool:
     try:
         files = snapshot["files"]
-        if not files:
+        if not files or snapshot.get("complete") is not True:
             return False
         for path, item in files.items():
-            if str(Path(path).resolve()) != item["resolved"] or source_digest(Path(path)) != item["sha256"]:
+            if not valid_input(Path(path), item):
+                return False
+        for path, item in snapshot["probes"].items():
+            if not valid_input(Path(path), item, probe=True):
                 return False
         roots = [Path(p) for p in snapshot["search_roots"]]
         directories = search_directories([Path(p) for p in files], roots)
         return directories is not None and directories == snapshot["directories"]
-    except (OSError, KeyError, TypeError):
+    except (OSError, KeyError, TypeError, RuntimeError):
         return False
 
 
@@ -317,7 +369,15 @@ def build(args: argparse.Namespace, context: BuildContext) -> dict:
     protected = {source, compiler, *(Path(p) for p in context.sources), *(p.expanduser().resolve() for p in args.c_source),
                  *(p.expanduser().resolve() for p in args.include)}
     def protect_dependencies(files):
-        protected.update(Path(path).resolve() for path in files)
+        for path in files:
+            lexical = Path(path).absolute()
+            protected.add(lexical)
+            try:
+                protected.add(lexical.resolve())
+            except (OSError, RuntimeError):
+                # A failed read behind a cyclic link remains uncacheable.
+                # Keep its lexical name protected without failing the build.
+                pass
         if output in protected or output.with_suffix(".wasm") in protected:
             raise BuildError("an output would overwrite a source dependency")
         if args.stats and args.stats.expanduser().resolve() in protected:
@@ -349,13 +409,14 @@ def build(args: argparse.Namespace, context: BuildContext) -> dict:
                     "compiler_sha256": context.tool_hash(compiler), "options": common,
                     "initial_pages": args.initial_pages, "maximum_pages": args.maximum_pages,
                     "cwd": str(Path.cwd()),
-                    "env": {k: os.environ.get(k) for k in ("GOOSE_STDLIB", "GOOSE_HOME")}}
+                    "env": {k: os.environ.get(k) for k in INPUT_ENV}}
         key = sha256(canonical(identity))
         report["compiler_sha256"] = identity["compiler_sha256"]
         cached = None if args.no_cache or context.sources else cache_lookup(args.cache_dir, key)
         if cached:
             data, entry = cached
             protect_dependencies(entry["dependencies"]["files"])
+            protect_dependencies(entry["dependencies"]["probes"])
             # Avoid touching an already correct output on an unchanged rebuild.
             if not output.is_file() or sha256(output.read_bytes()) != entry["module_sha256"]:
                 atomic_write(output, data)
@@ -384,10 +445,10 @@ def build(args: argparse.Namespace, context: BuildContext) -> dict:
                     roots.append(args.stdlib.expanduser().absolute())
                 if os.environ.get("GOOSE_STDLIB"):
                     roots.append(Path(os.environ["GOOSE_STDLIB"]).absolute())
-                # Normalize '..' without resolving symlinks away.
-                roots = sorted({Path(os.path.abspath(p)) for p in roots})
+                roots = sorted({p.absolute() for p in roots})
                 snapshot, coherent = dependency_snapshot(json.loads(deps.read_text()), roots)
                 protect_dependencies(snapshot["files"])
+                protect_dependencies(snapshot["probes"])
                 if not args.no_cache and not context.sources and coherent:
                     cache_store(args.cache_dir, key, data, snapshot, backend_stats)
                 atomic_write(output, data)
@@ -531,7 +592,7 @@ def serve(context: BuildContext) -> int:
                 context.sources[resolved] = text
             result = build(args, context)
             response = {"id": request.get("id"), "ok": True, "result": result}
-        except (BuildError, OSError, ValueError, TypeError, SystemExit) as error:
+        except (BuildError, OSError, ValueError, TypeError, RuntimeError, SystemExit) as error:
             response = {"id": request.get("id") if isinstance(request, dict) else None,
                         "ok": False, "error": str(error)}
         print(json.dumps(response), flush=True)
@@ -559,7 +620,7 @@ def main() -> int:
             print(f"Wrote {report['output']} ({report['output_bytes']} bytes; "
                   f"{report['total_ms']:.3f} ms; cache {report['cache']})")
         return 0
-    except (BuildError, OSError, ValueError) as error:
+    except (BuildError, OSError, ValueError, RuntimeError) as error:
         print(f"goose-wasm: {error}", file=sys.stderr)
         return 1
     finally:

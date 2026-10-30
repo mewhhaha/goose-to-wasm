@@ -21,10 +21,16 @@ inline string DirectSessionPath(const string &path) {
     return PathKey(resolved.string());
 }
 inline bool DirectSessionSameFile(const string &a, const string &b) {
-    if (DirectSessionPath(a) == DirectSessionPath(b)) return true;
+    auto left = filesystem::absolute(a);
+    auto right = filesystem::absolute(b);
+    if (left == right) return true;
     error_code error;
     auto same = filesystem::equivalent(a, b, error);
-    return !error && same;
+    if (!error && same) return true;
+    left = filesystem::weakly_canonical(left, error);
+    if (error) return false;
+    right = filesystem::weakly_canonical(right, error);
+    return !error && PathKey(left.string()) == PathKey(right.string());
 }
 
 inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &request,
@@ -33,6 +39,8 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
                                                 ParsedModuleCache *syntax = nullptr) {
     LexicalCacheScope cache_scope(lexical);
     ParsedModuleCacheScope syntax_scope(syntax);
+    DirectInputTrace input_trace;
+    DirectInputTraceScope input_scope(&input_trace);
     if (lexical) lexical->BeginRequest();
     if (syntax) syntax->BeginRequest();
     auto started = chrono::steady_clock::now();
@@ -72,13 +80,10 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
     auto ns = [](auto a, auto b) -> int64_t {
         return chrono::duration_cast<chrono::nanoseconds>(b - a).count();
     };
-    JsonOut deps; deps.BeginArray();
+    auto dependencies = DirectDependenciesJson(ast, input_trace);
     vector<string> inputs;
-    for (auto &[path, text] : ast.sources) {
-        deps.BeginObject(); deps.Member("path", path); deps.Member("text", *text); deps.EndObject();
-        inputs.push_back(path);
-    }
-    deps.EndArray();
+    for (auto &[path, text] : ast.sources) inputs.push_back(path);
+    for (auto &input : input_trace.observations) inputs.push_back(input.path);
     JsonOut stats; stats.BeginObject();
     stats.Member("backend", "direct");
     stats.Member("functions", int64_t(compiled.functions));
@@ -127,7 +132,7 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
         stats.EndArray(); stats.EndObject();
     }
     stats.EndArray(); stats.EndObject();
-    return { std::move(compiled.module), std::move(deps.s), std::move(stats.s), std::move(inputs) };
+    return { std::move(compiled.module), std::move(dependencies), std::move(stats.s), std::move(inputs) };
 }
 
 inline int RunDirectSession(const string &exe) {
@@ -169,7 +174,7 @@ inline int RunDirectSession(const string &exe) {
                 if (value && value->kind != Json::BOOL) throw runtime_error(cat(key, " must be a bool"));
                 return value && value->b;
             };
-            request.source = CanonicalPath(string_field("source", true));
+            request.source = DirectSessionPath(string_field("source", true));
             if (!FileExists(request.source)) throw runtime_error("source file does not exist");
             auto output = string_field("output", true);
             request.stdlib = string_field("stdlib");

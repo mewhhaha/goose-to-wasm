@@ -1,25 +1,40 @@
 diff --git a/src/main.cpp b/src/main.cpp
 --- a/src/main.cpp
 +++ b/src/main.cpp
-@@ -5,4 +5,5 @@
+@@ -3,6 +3,8 @@
+ #include "includes.h"
+ #include "utils.h"
++#include "direct_input_trace.h"
  #include "small_vector.h"
  #include "flat_map.h"
 +#include "lexer_cache.h"
  #include "lexer.h"
  #include "ast.h"
-@@ -10,4 +11,5 @@
+@@ -10,4 +12,5 @@
  #include "clone.h"
  #include "parser.h"
 +#include "parsed_module_cache.h"
  #include "resolve.h"
  #include "builtins.h"
-@@ -39,4 +41,5 @@
+@@ -39,4 +42,5 @@
  #include "codegen_stacks.h"
  #include "codegen_nodes.h"
 +#include "direct_wasm.h"
  #include "runtime_inline.h"
  #include "process.h"
-@@ -273,7 +276,6 @@
+@@ -51,4 +55,5 @@
+ #include "native.h"
+ #include "lsp_rpc.h"
++#include "direct_wasm_dependencies.h"
+ #include "lsp_analysis.h"
+ #include "lsp_workspace.h"
+@@ -68,4 +73,5 @@
+     auto f = fopen(path.c_str(), "rb");
+     if (f) fclose(f);
++    ObserveDirectProbe(path, f != nullptr);
+     return f != nullptr;
+ }
+@@ -273,7 +279,6 @@
          importsof.emplace_back();
          auto &[filename, source] = ast.sources.back();
 -        Parser parser(ast, filename, source->c_str(), fileidx);
@@ -29,7 +44,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        for (auto &imp : module_imports) {
              // The package this import declares or loads, where it does.
              string pkgname;
-@@ -692,6 +694,12 @@
+@@ -692,6 +697,12 @@
  R"(  --diagnostics json    Print the errors and warnings as JSON on stdout, and
                          the progress lines on stderr.
 -  --target native|wasm  Select the platform profile (default native). The wasm
@@ -44,7 +59,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +  --wasm-session          Serve direct compile requests as JSON lines on stdin/stdout.
    --offline             Fetch nothing: a package that is not fetched is an
                          error at its import, which goose fetch resolves.
-@@ -1065,5 +1073,7 @@
+@@ -1065,5 +1076,7 @@
      auto stacks = false;
      auto forcejit = false, standalone = false;
 -    auto wasm_target = false;
@@ -53,7 +68,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +    string wasm_deps, wasm_stats;
      auto json = false, refresh = false, debug = false, verbose = false, dryrun = false;
      auto jsondiag = false;
-@@ -1117,10 +1127,24 @@
+@@ -1117,10 +1130,24 @@
          else if (arg == "--target" && i + 1 < argc) {
              string target = argv[++i];
 -            if (target != "native" && target != "wasm") {
@@ -82,7 +97,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        else if (arg == "--wasm-stats" && i + 1 < argc) wasm_stats = argv[++i];
          else if (arg == "--multi-test") multitest = true;
          else if (arg == "--gen-runtime-header") {
-@@ -1233,4 +1257,8 @@
+@@ -1233,4 +1260,8 @@
          buildopts = BuildOptions { debug, verbose, dryrun, standalone, outname };
          outname.clear();
 +    }
@@ -91,25 +106,27 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        return 1;
      }
      if (wasm_target) {
-@@ -1300,4 +1328,5 @@
+@@ -1300,4 +1331,7 @@
      vector<Diagnostic> found;
      auto compile = [&]() -> int {
++        DirectInputTrace input_trace;
++        DirectInputTraceScope input_scope(wasm_direct ? &input_trace : nullptr);
 +        auto compile_started = chrono::steady_clock::now();
          if (tokens) {
              DumpTokens(filename);
-@@ -1309,4 +1338,5 @@
+@@ -1309,4 +1343,5 @@
          auto stdlibdirs = StdlibDirs(stdlibdir, exe);
          ParseProgram(ast, filename, stdlibdirs, DirOf(exe), {}, wasm_target);
 +        auto parse_finished = chrono::steady_clock::now();
          // The parser reported what it recovered from as it went; nothing
          // further is asked of a program with a syntax error.
-@@ -1337,4 +1367,5 @@
+@@ -1337,4 +1372,5 @@
          }
          ResolveTypeNames(ast);
 +        auto resolve_finished = chrono::steady_clock::now();
          // As after the parse, which an unknown type name is part of.
          if (!ast.errors.empty()) return 1;
-@@ -1352,7 +1383,9 @@
+@@ -1352,7 +1388,9 @@
          if (parseonly) return 0;
          TypeCheckProgram(ast, library, nocgen);
 +        auto check_finished = chrono::steady_clock::now();
@@ -119,13 +136,13 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        auto optimize_finished = chrono::steady_clock::now();
          if (specs) {
              string s;
-@@ -1379,4 +1412,5 @@
+@@ -1379,4 +1417,5 @@
                  }
          }
 +        auto bce_finished = chrono::steady_clock::now();
          // Per-line outcomes, for comparing two builds of the pass.
          if (bcelines)
-@@ -1396,4 +1430,63 @@
+@@ -1396,4 +1435,54 @@
          // the backend for them and writes nothing.
          if (nocgen && !stacks && !wasm_target) return 0;
 +        if (wasm_direct) {
@@ -136,16 +153,7 @@ diff --git a/src/main.cpp b/src/main.cpp
 +            if (!outfile.empty() && !nocgen && !WriteFileMakingDirs(outfile, compiled.module))
 +                throw CompileError { cat("cannot write WebAssembly output: ", outfile) };
 +            if (!wasm_deps.empty()) {
-+                string deps = "[";
-+                for (size_t i = 0; i < ast.sources.size(); i++) {
-+                    if (i) deps += ",";
-+                    deps += "{\"path\":";
-+                    JsonQuote(deps, ast.sources[i].first);
-+                    deps += ",\"text\":";
-+                    JsonQuote(deps, *ast.sources[i].second);
-+                    deps += "}";
-+                }
-+                deps += "]\n";
++                auto deps = DirectDependenciesJson(ast, input_trace) + "\n";
 +                if (!WriteFileMakingDirs(wasm_deps, deps))
 +                    throw CompileError { cat("cannot write dependency manifest: ", wasm_deps) };
 +            }
@@ -189,14 +197,14 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        }
          // A quoted include resolves against the including file's own directory
          // first, so the --include headers are written relative to where the .c
-@@ -1745,4 +1838,6 @@
+@@ -1745,4 +1834,6 @@
  }  // namespace goose
  
 +#include "direct_wasm_session.h"
 +
  int main(int argc, char **argv) {
      #ifdef _MSC_VER
-@@ -1755,4 +1850,6 @@
+@@ -1755,4 +1846,6 @@
          _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
      #endif
 +    if (argc == 2 && std::string_view(argv[1]) == "--wasm-session")
@@ -282,3 +290,21 @@ diff --git a/src/parser.h b/src/parser.h
 +        : ast(_ast), lex(filename, source, _fileidx, source_size), fileidx(_fileidx) {}
  
      [[noreturn]] void Error(const string &msg) { lex.Error(msg); }
+diff --git a/src/buildfile.h b/src/buildfile.h
+--- a/src/buildfile.h
++++ b/src/buildfile.h
+@@ -135,4 +135,5 @@
+     string source;
+     found = LoadSource(path, source);
++    ObserveDirectBuildInput(path, found, source);
+     if (!found) {
+         BuildFile bf;
+diff --git a/src/native.h b/src/native.h
+--- a/src/native.h
++++ b/src/native.h
+@@ -132,4 +132,5 @@
+ // program with C of its own.
+ inline vector<string> PackageExternNames(const Ast &ast, int pkg, set<string> *libs = nullptr) {
++    DirectInputsIncomplete();
+     set<string> names;
+     if (pkg == 0) {
