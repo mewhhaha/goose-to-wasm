@@ -66,6 +66,7 @@ def main() -> int:
     parser.add_argument("--machine-label", help="independently observed hardware description")
     parser.add_argument("--samples", type=int, default=15)
     parser.add_argument("--functions", type=int, default=32)
+    parser.add_argument("--optimization", choices=("O0", "O1", "O2"), default="O0")
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "incremental-benchmark.json")
     parser.add_argument("--native-worker", action="store_true", help="retain the native compiler in the server")
     parser.add_argument("--lexical-cache", action="store_true", help="reuse unchanged source tokens in the worker")
@@ -76,6 +77,7 @@ def main() -> int:
     if args.samples < 3 or args.functions < 2 or args.functions > 128:
         parser.error("use at least three samples and 2..128 functions")
     compiler = args.goose.resolve()
+    optimization = "-" + args.optimization
     (ROOT / "build").mkdir(exist_ok=True)
     report = {"schema": "goose-incremental-benchmark-v1", "python": platform.python_version(),
               "started_utc": datetime.now(timezone.utc).isoformat(),
@@ -84,7 +86,7 @@ def main() -> int:
               "compiler_sha256": hashlib.sha256(compiler.read_bytes()).hexdigest(),
               "input_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                                for path in (Path(__file__).resolve(), ROOT / "scripts" / "goose_wasm.py")},
-              "optimization": "-O0", "source_functions": args.functions,
+              "optimization": optimization, "source_functions": args.functions,
               "native_worker": args.native_worker,
               "lexical_cache": args.lexical_cache,
               "syntax_cache": args.syntax_cache,
@@ -100,9 +102,9 @@ def main() -> int:
         source, output = directory / "program.goose", directory / "program.wasm"
         stats = directory / "stats.json"
         source.write_text(program(1, args.functions))
-        raw = [str(compiler), str(source), "--target", "wasm-direct", "-O0", "-o", str(output),
+        raw = [str(compiler), str(source), "--target", "wasm-direct", optimization, "-o", str(output),
                "--wasm-stats", str(stats)]
-        wrapper_args = ["build", str(source), "--goose", str(compiler), "-O0", "-o", str(output),
+        wrapper_args = ["build", str(source), "--goose", str(compiler), optimization, "-o", str(output),
                         "--cache-dir", str(directory / "cache"), "--json"]
         wrapper = [sys.executable, str(ROOT / "scripts" / "goose_wasm.py"), *wrapper_args]
         call(raw)
