@@ -67,7 +67,7 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
         Get(view); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
         Get(count); code.I64Const(to->arr->size); code.Op(0x56); TrapIf(l, "array capacity exceeded");
         LocationAddress(dest); code.I32Const(0); code.I32Const(int32_t(c.Size(to).size)); code.Fill();
-        LocationAddress(dest); Get(count); code.Op(0xa7); code.Mem(0x36, 2);
+        LocationAddress(dest); Get(count); code.Op(0xa7); WriteStaticArrayLength(to);
         LocationAddress(OffsetLocation(dest, c.Size(to).payload, to->arr->sub)); Get(view); code.Op(0xa7);
         Get(count); code.Op(0xa7); code.I32Const(int32_t(c.Size(to->arr->sub).size)); code.Op(0x6c); code.Copy();
         LocationAddress(dest); return;

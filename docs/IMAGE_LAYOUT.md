@@ -1,7 +1,8 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=7;enum-tags=compact;variable-enums=active-payloads`, alongside
+internal `layout=8;static-limited=compact-lengths;enum-tags=compact`, with
+`variable-enums=active-payloads`, alongside
 `record-values=packed-single-tail;owner-control=24` and
 the unsigned array value and packed fixed-record/variant markers.
 Compiler identity invalidates cached complete modules when layouts change.
@@ -29,8 +30,8 @@ padding. Empty outer alternatives remain valid. Tests cover both overwrite
 directions, signed values, nested offsets, generic array strides, saved field
 references, ordinary/inline results and owned storage paths.
 
-Other payloads remain outside that proof. Static-limited arrays retain their
-length/header layout; nested fixed enums remain outside the recursive integer
+Other payloads remain outside that proof. Static-limited arrays now use minimum unsigned length prefixes but retain their
+separate spare-slot proof boundary; nested fixed enums remain outside the recursive integer
 overlap proof despite their compact tags; references and slices
 use the direct target's wasm32 representation. Bool, float, varints and embedded
 empty aggregates remain gated for replacement overlap. Packing their parent
@@ -45,7 +46,9 @@ terminal array images together. Their aligned controls remain separate, and the
 outer variable enum now stores the compact tag and active payload only. Aligned
 owner envelopes retain separate persistent controls for each nonfixed variant,
 so saved typed views survive replacement. Inactive payloads consume no data bytes.
-Further steps are compact static-limited metadata and general variable walkers. Those require dynamic
+[Static-capacity arrays](STATIC_LIMITED_IMAGES.md) now pack their minimum length
+metadata and inline allocation, including standalone zero-capacity placeholders.
+Further steps are general variable walkers. Those require dynamic
 walkers, including partial construction and canceled nonlocal returns,
 before variable elements, nonfinal variable fields, relative references,
 serialization or general byte-overlap parity can qualify. Reference-containing

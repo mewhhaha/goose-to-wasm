@@ -51,6 +51,11 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    for debug in (False,True):
+        for name,answer in {"wide":"65535 65536 2 3\n3\n2 1 1\n65536 7 1\n65535 7\n2 9 8\n", "zero":"0 0 0 0 0 1\n", "boundaries":"255 255 1 2\n2\n2 1\n255 7\n0\n256 256 4 5\n14 14 256 6 7\n256 14 4 9\n0\n",
+                            "values":"[7, 8] [17, 8] [7, 8] [7, 8]\n17 2 13125 30600 85\nabc! 4 256\n0 0 0 0\n"}.items():
+            result.append(Case("compact-limited/"+name+("-debug" if debug else ""),"compact_limited_"+name,
+                               stdout=answer,debug=debug,group="storage"))
     enum_nonlocal = {"limited_sparse":"9\n17 70000 70000 1 0\n", "inner_forwarding":"9\n7\nA 17\nA 1\n", "nested_replacement":"9\nB 7\n", "canceled_prefix":"9\nA 17 1\n", "named_anchor":"9\n68\nA 17 1\n", "sparse":"9\n17 70000 1 0\n", "all_starts":"9\n7\nA 17\nA 1\n", "replacement":"B 7\n", "forwarding":"5\nA 3\nB 7\n"}
     for debug in (False,True):
         for name,answer in enum_nonlocal.items():

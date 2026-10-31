@@ -1,6 +1,18 @@
 #pragma once
 namespace goose::direct_wasm {
 
+inline void Function::ReadStaticArrayLength(TypeExpr *type) {
+    auto bytes = c.StaticLimitedLengthBytes(type);
+    code.Mem(bytes == 1 ? 0x2d : bytes == 2 ? 0x2f : bytes == 4 ? 0x28 : 0x29, 0);
+    if (bytes == 8) code.Op(0xa7);
+}
+
+inline void Function::WriteStaticArrayLength(TypeExpr *type) {
+    auto bytes = c.StaticLimitedLengthBytes(type);
+    if (bytes == 8) code.Op(0xad);
+    code.Mem(bytes == 1 ? 0x3a : bytes == 2 ? 0x3b : bytes == 4 ? 0x36 : 0x37, 0);
+}
+
 // Array addresses always name the owner, not the first element. Keep the
 // target's header/padding details here so indexing, slices, casts and loops
 // all observe the same current length.
@@ -20,7 +32,7 @@ inline void Function::PackArrayView(TypeExpr *t) {
     } else {
         auto base = Save(I32);
         Get(base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a); code.Op(0xad);
-        Get(base); code.Mem(0x28, 2); code.Op(0xad); code.I64Const(32); code.Op(0x86); code.Op(0x84);
+        Get(base); ReadStaticArrayLength(t); code.Op(0xad); code.I64Const(32); code.Op(0x86); code.Op(0x84);
     }
 }
 
@@ -128,8 +140,8 @@ inline void Function::ArrayBuiltin(Call *n) {
     auto base = Save(I32);
     auto elem = t->arr->sub;
     auto stride = c.Size(elem).size;
-    auto length = [&]() { if (region) ReadArrayLength(base); else { Get(base); code.Mem(0x28, 2); } };
-    auto write_length = [&](uint32_t len) { if (region) WriteArrayLength(base, len); else { Get(base); Get(len); code.Mem(0x36, 2); } };
+    auto length = [&]() { if (region) ReadArrayLength(base); else { Get(base); ReadStaticArrayLength(t); } };
+    auto write_length = [&](uint32_t len) { if (region) WriteArrayLength(base, len); else { Get(base); Get(len); WriteStaticArrayLength(t); } };
     auto logical_limit = [&](uint32_t count) {
         Get(count); code.I64Const(UINT32_MAX); code.Op(0x56); TrapIf(n->line, "data region exhausted");
     };

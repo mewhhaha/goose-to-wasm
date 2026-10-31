@@ -779,19 +779,22 @@
       },
       "A_LIMITED": {
         "status": "qualified_subset",
-        "scope": "Resolved static capacity and runtime capacity with supported fixed-layout elements, mutation and owned results. Runtime values store in-region u32 capacity/length metadata and copies preserve the capacity extent; assignment preserves its pinned destination capacity after full RHS construction. Natural result channels preserve cross-kind conversion and named-result header aliases. Variable elements/containing values remain pending.",
+        "scope": "Resolved static capacity and runtime capacity with supported fixed-layout elements, mutation and owned results. Runtime values store in-region u32 capacity/length metadata and copies preserve the capacity extent; assignment preserves its pinned destination capacity after full RHS construction. Natural result channels preserve cross-kind conversion and named-result header aliases. Variable elements/containing values remain pending. Static capacities use the minimum unsigned length, packed inline slots and a standalone capacity-zero C allocation placeholder; zero-capacity containing forms remain frontend-invalid. Runtime owner controls remain unchanged.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
           "tests/fixtures/limited_array_paths.goose",
           "tests/fixtures/runtime_limited.goose",
           "tests/fixtures/runtime_limited_aggregate.goose",
-          "tests/fixtures/array_image_construction.goose"
+          "tests/fixtures/array_image_construction.goose",
+          "tests/fixtures/compact_limited_boundaries.goose",
+          "tests/fixtures/compact_limited_values.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/runtime_limited_errors.goose",
           "tests/test_regions.py",
-          "tests/test_array_images.py"
+          "tests/test_array_images.py",
+          "tests/test_static_limited_images.py"
         ]
       },
       "A_VAR": {
@@ -834,7 +837,7 @@
       },
       "variant": {
         "status": "qualified_subset",
-        "scope": "Fixed standalone variant payloads and variant-to-enum conversion; standalone SC_VARIABLE variants with fixed prefixes and one terminal variable/runtime-limited array, including nested nonframe record tails. Independent owned copies/parameters/results and whole-record NRVO; per-variant eligibility independent of siblings. Resizable standalone variants and nonfixed E.. payloads remain pending. Compact u8/u16 tags share width-aware construction, conversion, match, dispatch and cleanup accessors. Fixed enum images have packed tag-plus-maximum-payload strides; empty alternatives contribute zero payload bytes. Variable payload record images follow the aligned enum tag/control union; logical extent validation preserves the physical construction cursor.",
+        "scope": "Fixed standalone variant payloads and variant-to-enum conversion; standalone SC_VARIABLE variants with fixed prefixes and one terminal variable/runtime-limited array, including nested nonframe record tails. Independent owned copies/parameters/results and whole-record NRVO; per-variant eligibility independent of siblings. Resizable standalone variants remain pending; supported variable payloads embed in active E.. images. Compact u8/u16 tags share width-aware construction, conversion, match, dispatch and cleanup accessors. Fixed enum images have packed tag-plus-maximum-payload strides; empty alternatives contribute zero payload bytes. Variable payload record images follow the compact enum tag, with persistent typed controls outside the image; logical extent validation preserves the physical construction cursor.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
           "tests/fixtures/variable_mode_enums.goose",
@@ -1125,10 +1128,21 @@
     },
     "images": {
       "layout": {
-        "status": "pending",
-        "scope": "Versioned migration from natural direct alignment to serializable C.2 images pending.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, explicit padding, varints and general variable walkers/serialization remain separate boundaries.",
+        "fixtures": [
+          "tests/fixtures/packed_record_storage.goose",
+          "tests/fixtures/record_image_aliases.goose",
+          "tests/fixtures/compact_enum_tags.goose",
+          "tests/fixtures/enum_image_views.goose",
+          "tests/fixtures/compact_limited_boundaries.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/test_static_limited_images.py",
+          "tests/test_enum_images.py",
+          "tests/test_record_images.py",
+          "tests/test_packed_layout_boundaries.py"
+        ]
       },
       "padding": {
         "status": "pending",

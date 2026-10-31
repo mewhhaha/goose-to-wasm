@@ -56,8 +56,9 @@ environment configuration is not republished as part of this work.
 ## Phase 1: static-capacity arrays
 
 Keep these values in the existing fixed aggregate ownership model. The initial
-direct representation is a u32 runtime length, alignment padding and inline
-capacity slots. The capacity comes from the type. Centralize owner-to-view
+direct representation used a u32 runtime length, alignment padding and inline
+capacity slots. Layout 8 now packs the smallest unsigned length followed by slots,
+with a standalone capacity-zero C allocation placeholder. The capacity comes from the type. Centralize owner-to-view
 conversion so rendering, slices, loops, indexing and conversions use the live
 length rather than capacity.
 

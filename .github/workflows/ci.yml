@@ -96,6 +96,7 @@ jobs:
           python tests/test_enum_tags.py
           python tests/test_enum_images.py
           python tests/test_enum_image_returns.py
+          python tests/test_static_limited_images.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py
       - name: LangArena official small cases and observable marker edits
