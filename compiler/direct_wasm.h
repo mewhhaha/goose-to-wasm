@@ -426,8 +426,31 @@ struct Compiler {
     }
     static bool PackedIntegerEnum(EnumInst *ei) {
         if (!ei || !ei->allfixed) return false;
-        for (auto &fields : ei->vftypes) for (auto field : fields)
-            if (!field || field->kind != TY_INT || field->intstorage == IS_VARINT) return false;
+        unordered_set<TypeExpr *> visiting;
+        function<bool(TypeExpr *)> packed = [&](TypeExpr *type) {
+            if (!type) return false;
+            if (type->kind == TY_INT) return type->intstorage != IS_VARINT;
+            if (!visiting.insert(type).second) return false;
+            bool valid = false;
+            if (type->kind == TY_ARRAY) {
+                valid = type->arr->akind == A_FIXED && type->arr->size > 0 && packed(type->arr->sub);
+            } else if (type->kind == TY_STRUCT || type->kind == TY_VARIANT) {
+                const vector<TypeExpr *> *fields = nullptr;
+                const vector<Field> *definitions = nullptr;
+                if (type->kind == TY_STRUCT && type->struc->inst && type->struc->inst->sclass == SC_FIXED) {
+                    fields = &type->struc->inst->ftypes; definitions = &type->struc->inst->st->fields;
+                } else if (type->kind == TY_VARIANT && type->var->adt->enu->inst) {
+                    auto inst = type->var->adt->enu->inst;
+                    auto index = inst->en->VariantIndex(type->var->variant);
+                    fields = &inst->vftypes.at(size_t(index)); definitions = &inst->en->variants.at(size_t(index)).fields;
+                }
+                valid = fields && !fields->empty();
+                if (valid) for (size_t i = 0; i < fields->size(); i++)
+                    valid &= !definitions->at(i).ispad && packed(fields->at(i));
+            }
+            visiting.erase(type); return valid;
+        };
+        for (auto &fields : ei->vftypes) for (auto field : fields) if (!packed(field)) return false;
         return true;
     }
     const Layout &EnumImageLayout(EnumInst *ei, Line line) {
@@ -642,10 +665,15 @@ struct Compiler {
                     r.payload = Align(4, sub.align);
                     r.align = max<uint32_t>(4, sub.align);
                 } else r.align = sub.align;
-                auto bytes = uint64_t(r.payload) + uint64_t(sub.size) * uint64_t(t->arr->size);
-                if (bytes > uint64_t(opts.maximum_pages) * 65536)
+                auto limit = uint64_t(opts.maximum_pages) * 65536;
+                auto count = uint64_t(t->arr->size);
+                if (r.payload > limit || (sub.size && count > (limit - r.payload) / sub.size))
                     Fail(t->line, "fixed array exceeds the configured linear-memory limit");
-                r.size = max<uint32_t>(1, Align(uint32_t(bytes), r.align));
+                auto bytes = uint64_t(r.payload) + uint64_t(sub.size) * count;
+                auto aligned = (bytes + r.align - 1) & ~uint64_t(r.align - 1);
+                if (aligned > limit || aligned > UINT32_MAX)
+                    Fail(t->line, "fixed array exceeds the configured linear-memory limit");
+                r.size = max<uint32_t>(1, uint32_t(aligned));
                 break;
             }
             case TY_STRUCT: {
@@ -655,14 +683,12 @@ struct Compiler {
                     auto &f = si->st->fields[i];
                     if (f.ispad) Fail(f.line, "explicit struct padding is not supported");
                     auto sub = Size(si->ftypes[i]);
-                    r.align = max(r.align, sub.align);
-                    r.size = Align(r.size, sub.align);
                     r.fields.push_back(r.size);
                     if (uint64_t(r.size) + sub.size > uint64_t(opts.maximum_pages) * 65536)
                         Fail(t->line, "struct exceeds the configured linear-memory limit");
                     r.size += sub.size;
                 }
-                r.size = max<uint32_t>(1, Align(r.size, r.align)); break;
+                r.size = max<uint32_t>(1, r.size); break;
             }
             case TY_VARIANT: {
                 auto ei = t->var->adt->enu->inst;

@@ -1,36 +1,39 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=2;variant-payloads=packed-fields`. The unchanged 16-byte owner
-control ABI is described separately in [TARGET.md](TARGET.md). Compiler identity
-continues to invalidate cached complete modules when layouts change.
+internal `layout=3;variant-payloads=packed-fields;fixed-records=packed-fields`.
+Compiler identity invalidates cached complete modules when layouts change.
+The 16-byte owner control ABI remains separately aligned as described in
+[TARGET.md](TARGET.md); it is not a serialized image.
 
-Fixed standalone variant payloads now place fields next to each other, without
-inter-field or trailing alignment. Every field retains its own current
-representation. A `u8` followed by an `i64` therefore occupies nine bytes and has
-alignment one. Arrays use that packed stride; containing structs respect the
-variant's new size/alignment. Wasm permits the resulting unaligned scalar loads
-and stores. Empty standalone variants keep a one-byte placeholder allocation;
-their enum constructors write no payload fields.
+Fixed structs and standalone variant payloads place fields next to each other,
+without inter-field or trailing alignment. Each field retains its own current
+representation. A `u8` followed by a `u16` occupies three bytes with alignment one;
+fixed arrays use that stride. This applies recursively through nested and generic
+fixed records. Wasm permits the resulting unaligned scalar loads and stores.
+Empty standalone records retain a one-byte allocation placeholder. That placeholder
+does not establish their native image extent, so embedded empty records remain
+outside the byte-overlap proof. Zero-length array fields are frontend-invalid.
 
 The outer fixed enum still has an internal u32 tag and payload offset four.
-That common translation does not affect relative overwrite observations between
-variants. The compiler permits a nonempty named replacement observed through an
-old payload reference only when every variant contains fixed-width integer fields
-or is empty. This bounded proof reproduces pinned packed byte overlap, including
-mixed widths, signed values, both overwrite directions and inline results.
+That common translation preserves relative overwrite observations between
+variants when every field recursively consists of fixed-width integers, nonempty
+fixed arrays, or nonempty fixed structs/standalone variants without explicit
+padding. Empty outer alternatives remain valid. Tests cover both overwrite
+directions, signed values, nested offsets, generic array strides, saved field
+references, ordinary/inline results and owned storage paths.
 
-Other payloads remain outside that proof. Fixed structs still have their previous
-field alignment; static-limited arrays still use their previous length/header
-layout; nested fixed enums still have u32 tags; references and slices use the
-direct target's wasm32 representation. Bool, float and aggregate payload overlap
-remain conservatively gated while their byte-level contracts are qualified.
-Packing a parent alone does not establish compatibility for those fields.
+Other payloads remain outside that proof. Static-limited arrays retain their
+length/header layout; nested fixed enums retain u32 tags; references and slices
+use the direct target's wasm32 representation. Bool, float, varints and embedded
+empty aggregates remain gated for replacement overlap. Packing their parent
+does not establish compatibility for those fields. Fixed-array extent checks
+reject oversized counts before multiplication, including odd packed strides.
 
-Further steps are recursive packed fixed records/array strides, compact fixed
-metadata with centralized tag/length access, and deliberate contiguous variable
-images. The latter must replace detached control headers with dynamic image
-walkers before variable elements, nonfinal variable fields, relative references,
+Further steps are compact fixed metadata with centralized tag/length access and
+authoritative contiguous variable images. Those images require dynamic walkers
+and in-region metadata, including partial construction and canceled returns,
+before variable elements, nonfinal variable fields, relative references,
 serialization or general byte-overlap parity can qualify. Reference-containing
-overlaps also expose platform-specific address bits; width changes alone do not
-make native/memory64 and wasm32 addresses equivalent.
+overlaps expose platform-specific address bits; width changes alone do not make
+native/memory64 and wasm32 addresses equivalent.

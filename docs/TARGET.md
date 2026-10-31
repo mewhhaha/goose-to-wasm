@@ -17,15 +17,16 @@ The compiler has no need to preserve compatibility with older browser engines.
 
 The direct target uses i32/i64/f32/f64 numeric values. References are i32 linear
 memory addresses; slices are an i64 containing a pointer in the low 32 bits and an
-element count in the high 32 bits. Fixed structs and arrays use target-specific
-layouts with natural alignment. This is a semantic target, not binary-layout
+element count in the high 32 bits. Fixed structs and variants place fields next
+to each other with alignment one; arrays use their element's allocation stride.
+Other representations remain target-specific. This is a semantic target, not binary-layout
 compatibility with Goose's packed 64-bit C ABI. Explicit padding, relative/pool
 references, and binary serialization are refused until their target semantics
 are implemented and qualified.
 
-Fixed variant fields are an exception: internal layout version 2 packs those
-fields without inter-field/trailing alignment, while each field keeps its own
-representation. The producer marker records that transition. See
+Internal layout version 3 records packed fixed struct and variant fields,
+without inter-field/trailing alignment. Each field keeps its own representation;
+owner controls remain separately aligned. See
 [the layout migration](IMAGE_LAYOUT.md) for its qualified byte-overlap subset.
 
 Address-taken locals and fixed aggregates live in checked activation frames in
@@ -279,7 +280,9 @@ fixed receiving results snapshot it. Same-instance mode/variant conversions,
 owned parameters/results and copied or by-reference payload matches share the
 owner channels. This layout has a maximum-union per-owner resource cost and is
 not a C.2 serialized image. Observing old named payload storage after a nonempty
-replacement return is conservatively refused until that packed layout exists.
+replacement return is admitted for recursively packed fixed-width integer
+records, standalone variants and nonempty fixed arrays. Other representations
+remain outside that proof.
 See [the enum contract](VARIABLE_ENUMS.md).
 
 ## Initial supported fragment

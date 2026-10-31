@@ -30,7 +30,8 @@ environment configuration is not republished as part of this work.
 - Pinned Goose function values are static and nonescaping. Remaining work concerns
   specialization, capture environments and nonlocal returns. Runtime-selected
   function pointers and heap closures are not additional language requirements.
-- Current natural-alignment layouts are target-specific. Image serialization and
+- Current layouts are target-specific, with packed fixed record fields but
+  separately aligned owner controls and internal metadata. Image serialization and
   zero-copy `bytes_of` require a versioned layout decision. Match the pinned C.2
   image rules for serializable values before claiming cross-backend byte parity.
 - Cached state must own its data, use stable identities and revalidate semantic

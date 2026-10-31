@@ -28,8 +28,9 @@ Nonresizable variable-mode enums with fixed or single-tail payloads use independ
 mode conversions, owned calls/results and copied or borrowed payload matches.
 Standalone variable-size variants share the single-tail record walker, including
 nested tails and supported payloads whose siblings require other storage forms.
-Fixed variant fields are packed; integer-only enum replacements preserve the
-native byte-overlap behavior through saved payload references.
+Fixed struct and variant fields are packed; enum replacements with supported
+recursive integer records and arrays preserve native byte overlap through saved
+payload references.
 Nested functions receive hidden addresses for their captured bindings, including
 transitive and recursive captures, mutable reference/slice bindings and supported
 owned values. Static function-value calls support fixed and supported owned

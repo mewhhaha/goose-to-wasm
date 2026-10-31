@@ -154,6 +154,20 @@ def cases():
         for fixture, answer in multiple_answers.items():
             result.append(Case("multiple-nonlocal/" + fixture + ("-debug" if debug else ""),
                                "nonlocal_multiple_" + fixture, stdout=answer, debug=debug, group="control"))
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
+        for n in (-1, 0, 1):
+            value = 0 if n > 0 else 4294967295 if n < 0 else 33752069
+            answer = f"{value} {value} {0 if n > 0 else 65536}\n"
+            result.append(Case(f"packed-record/overlap/{n}{suffix}", "packed_record_overlap", f"{n}\n",
+                               answer, debug=debug, group="aggregate"))
+        for n in (0, 1):
+            result.append(Case(f"packed-record/arrays/{n}{suffix}", "packed_record_arrays", f"{n}\n",
+                               "0 0 0 0\n" if n else "515 1286 3138462378 13124\n", debug=debug, group="aggregate"))
+        for n in (0, 3):
+            answer = f"1 {n + 10} {n + 11} {n + 12}\n{2 * n + 120}\n3 {n + 12}\n16 [{n}, {n + 1}]\n"
+            result.append(Case(f"packed-record/storage/{n}{suffix}", "packed_record_storage", f"{n}\n",
+                               answer, debug=debug, group="aggregate"))
     dispatch_upstream = {
         "dispatch_evaluation_order": "first\nchoice\nlast\n3 A 7\nfirst\nchoice\nlast\n3 B 7\n1 A 9\n3 A 4\n3 A 4\n1\n2\ncopied\n",
         "dispatch_copied_reference": "copied A\n0\n7\n7\nvalue arm\n",
