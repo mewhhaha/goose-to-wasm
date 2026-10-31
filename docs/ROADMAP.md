@@ -4,6 +4,24 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: whole growable-owner assignment
+
+Assignment pins the destination header before evaluating its RHS, keeps its data
+region and reconstructs in place. The frontend rejects RHS access to the owner
+being rebuilt, including through calls. Copies, fixed producers, conditional
+values, reference targets, mutable owned parameters and repeated replacement are
+qualified.
+
+Length publication follows the producer: literals publish before element/fill
+effects; a call or control expression waits for its selected producer. Interrupted
+construction checks a surviving header's advertised extent before continuing.
+Private headers that die at that exit need no reservation, including owned
+parameters and named-result locals whose data region survives elsewhere.
+
+Tests compare those interruption states with the C oracle, preserve neighboring
+region canaries after oversized advertised lengths, and exercise aliases,
+reference retargeting, surviving loop owners and repeated scope cleanup.
+
 ## Implemented: owned construction through control flow
 
 Conditionals, ordinary/early blocks, value-producing loops and integer/bool/fixed
@@ -14,7 +32,7 @@ use their enclosing return destination, and scrutinees are evaluated once.
 
 Tests cover nested loop/match/block cleanup under a small memory budget, payload
 bindings, local-owner copies, early returns and repeated exported calls. General
-anonymous temporaries and whole-owner assignment remain subsequent work.
+anonymous temporaries remain subsequent work.
 
 ## Implemented: multiple owned results and named-result construction
 
@@ -77,8 +95,8 @@ through the call graph and recursive components. Runtime acquisition/growth,
 activation frames and print scratch all check their own limits. Module metadata
 and compiler statistics publish the resulting partition budgets.
 
-General result/temporary destinations, whole-owner
-assignment, variable elements and dynamic containing structs remain explicit
+General result/temporary destinations,
+variable elements and dynamic containing structs remain explicit
 boundaries. Single owned results now use the receiving-region ABI above.
 
 ## Implemented: typed storage and cleanup boundary

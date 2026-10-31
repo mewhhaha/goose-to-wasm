@@ -68,7 +68,8 @@ inline CapturedValue Function::CaptureBorrowed(Node *node, TypeExpr *wanted) {
 
 inline ConstructionDestination Function::FreshDestination(TypeExpr *type, ConstructionDestination::Lifetime lifetime) {
     c.FixedLayout(type);
-    if (lifetime == ConstructionDestination::Caller || lifetime == ConstructionDestination::Static)
+    if (lifetime == ConstructionDestination::Caller || lifetime == ConstructionDestination::Static ||
+        lifetime == ConstructionDestination::Existing)
         Fail(type->line, "a fresh activation destination cannot have caller or static lifetime");
     return { { type, Slot { Slot::FRAME, Frame(type), type } }, lifetime };
 }

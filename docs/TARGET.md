@@ -73,6 +73,15 @@ channels. Break values construct before exited scopes release their regions;
 loop iterations release body-local owners while retaining the receiving region.
 Match scrutinees are evaluated once and divergent arms use their enclosing exit.
 
+Whole-owner assignment reconstructs in the pinned header's existing region;
+the frontend rejects RHS reads of the owner under reconstruction. Literals publish
+their length before evaluating elements/fill values. Calls and control expressions
+publish when their selected producer does. An exit from partial construction
+checks/commits the advertised extent of headers that survive that exit. Logical
+header lifetimes distinguish them from dying locals, owned parameters and private
+named-result headers, even when the underlying region survives. Oversized
+published counts saturate instead of wrapping before the resource check.
+
 The planner reserves dedicated global regions plus a call-graph/SCC bound on
 simultaneously live transient owners. Scoped cleanup restores transient region
 watermarks on normal exit, return, break and continue. Borrowed calls grow the
@@ -195,7 +204,7 @@ The executable differential suite is the authority for qualified behavior.
 
 The current backend refuses owned dynamic function-value parameters/results,
 fixed/slice-to-owned multi-result adaptation, anonymous dynamic
-temporaries, whole-owner assignment, dynamic containing structs, variable-element
+temporaries, dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;

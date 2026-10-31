@@ -22,6 +22,7 @@ inline void Function::Discard(Node *n) {
 inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const vector<uint32_t> &slots,
                                 const ResultDestinations &destinations) {
     auto cleanup_depth = cleanups.size();
+    auto private_depth = private_headers.size();
     auto live = region_live;
     if (c.needs_regions) {
         code.OpU(0x23, G_REGION_NEXT);
@@ -36,6 +37,7 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
         else SetResults({ b->tail }, types, slots, b->line, destinations);
     }
     if (c.needs_regions) { CloseCleanups(cleanup_depth); region_live = live; }
+    private_headers.resize(private_depth);
 }
 inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
     // A later result expression can mutate the aggregate just evaluated.
@@ -131,6 +133,8 @@ inline void Function::Decl(VarDecl *n) {
     for (auto v : n->defs) {
         if (v->type->kind == TY_FN) Fail(n->line, "runtime function values require inlining");
         slots.push_back(n->isglobal ? Lookup(v, n->line) : Bind(v));
+        if (!n->isglobal && Compiler::RegionArray(v->type))
+            private_headers.push_back({ { v->type, slots.back() }, cleanups.size() });
     }
     if (slots.size() > 1 && n->inits.size() == 1) {
         auto types = Values(n->inits[0]);
@@ -153,13 +157,12 @@ inline void Function::Decl(VarDecl *n) {
     for (size_t i = 0; i < slots.size(); i++) {
         auto init = i < n->inits.size() ? n->inits[i] : nullptr;
         if (Compiler::RegionArray(slots[i].type)) {
-            if (!init && !n->isglobal) continue;
             optional<uint32_t> global;
             if (n->isglobal) global = c.global_regions.at(n->defs[i]);
             Location place { slots[i].type, slots[i] };
             if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
                 ShareRegion(place, named->second);
-                ConstructRegionInto(init, { place, ConstructionDestination::Caller });
+                ConstructRegionInto(init, { place, ConstructionDestination::Block });
             } else ConstructRegion(init, place, global);
             continue;
         }
@@ -172,6 +175,14 @@ inline void Function::Decl(VarDecl *n) {
 inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
+    if (Compiler::RegionArray(t)) {
+        if (n->op != T_ASSIGN && n->op != T_DOTASSIGN)
+            Fail(n->line, "compound owned array assignment is not supported");
+        // The frontend forbids RHS use of the owner under reconstruction.
+        // Pin its header, preserve its region and let the producer publish
+        // length at the same point as ordinary in-place construction.
+        ConstructRegionInto(n->rhs, { place, ConstructionDestination::Existing }); return;
+    }
     if (n->op != T_ASSIGN && n->op != T_DOTASSIGN) {
         if (c.Aggregate(t)) Fail(n->line, "elementwise aggregate assignment is not supported");
         ReadLocation(place, t);

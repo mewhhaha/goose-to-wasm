@@ -34,7 +34,9 @@ inline string Function::Finish() {
         // parameters are spilled once so reads and references share storage.
         for (auto p : spec->params) {
             if (p->type->kind == TY_FN) continue;
-            if (Compiler::RegionArray(p->type)) continue;
+            if (Compiler::RegionArray(p->type)) {
+                private_headers.push_back({ { p->type, vars.at(p) }, cleanups.size() + 1 }); continue;
+            }
             auto old = vars.at(p);
             if (c.Aggregate(p->type) || addressed.count(p)) {
                 Slot slot { Slot::FRAME, Frame(p->type), p->type };

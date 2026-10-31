@@ -387,6 +387,72 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
+    def test_interrupted_global_assignment_cannot_publish_unsafe_extent(self):
+        for count in (1000000, 4294967296):
+            source = f'''extern fn bench_input() -> i64;
+var values: i64[>..] = [1]; var neighbor: i64[>..] = [{CANARY}];
+fn reset() -> i64 {{ values = [if bench_input() >= 0 {{ return 7; }} else {{ 1 }}; {count}]; return 0; }}
+fn main() {{ reset(); values[bench_input()] = 123; }}'''
+            for level in (0, 2):
+                path, runtime = self.compile(source, level)
+                self.assertEqual((runtime["global_regions"], runtime["region_count"]), (2, 2))
+                index = runtime["region_bytes"] // 8
+                for engine, observed in self.engines(path, runtime, input_value=index, canary_index=1):
+                    with self.subTest(count=count, level=level, engine=engine):
+                        self.assertIn("data region exhausted", observed["error"])
+                        self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_abandoned_dying_headers_do_not_reserve_their_extent(self):
+        source = '''fn local(n: i64) -> i64 {
+    var values: i64[>..] = [1]; let alias: i64[>..]& = values;
+    alias = [if n >= 0 { return 7; } else { 1 }; 4294967296]; return 0;
+}
+fn parameter(values: i64[>..], n: i64) -> i64 {
+    let alias: i64[>..]& = values;
+    alias = [if n >= 0 { return 7; } else { 1 }; 4294967296]; return 0;
+}
+fn named(n: i64) -> i64[>..] {
+    var values: i64[>..] = [1];
+    values = [if n >= 0 { return [7]; } else { 1 }; 4294967296]; return values;
+}
+export fn tick(n: i64) -> i64 {
+    let a = local(n); let b = parameter([1], n);
+    for i in 2 {
+        var dying: i64[>..] = [1];
+        dying = [if n >= 0 { continue; } else { 1 }; 4294967296];
+    }
+    let result = named(n);
+    if a != 7 || b != 7 { abort("wrong interrupted result"); } return n + result[0] - 6;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_outer_headers_surviving_loop_exits_check_their_extent(self):
+        bodies = (
+            'loop { values = [if bench_input() >= 0 { break; } else { 1 }; 1000000]; }',
+            'for i in 1 { values = [if bench_input() >= 0 { continue; } else { 1 }; 1000000]; }',
+        )
+        for body in bodies:
+            source = f'''extern fn bench_input() -> i64;
+fn main() {{
+    var values: i64[>..] = [1]; var neighbor: i64[>..] = [{CANARY}];
+    {body}
+    values[bench_input()] = 123;
+}}'''
+            for level in (0, 2):
+                path, runtime = self.compile(source, level)
+                self.assertEqual(runtime["region_count"], 2)
+                index = runtime["region_bytes"] // 8
+                for engine, observed in self.engines(path, runtime, input_value=index, canary_index=1):
+                    with self.subTest(body=body, level=level, engine=engine):
+                        self.assertIn("data region exhausted", observed["error"])
+                        self.assertEqual(observed["canary"], str(CANARY))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

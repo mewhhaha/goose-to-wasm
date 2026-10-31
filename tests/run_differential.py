@@ -53,6 +53,12 @@ def cases():
     result.append(Case("growable/minimal", "growable_minimal", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/forwarding", "dynamic_forwarding", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/mixed-minimal", "dynamic_result_minimal", stdout="1\n", group="aggregate"))
+    for n in (0, 3):
+        answer = (f"[{n}, {n + 1}]\n[{n + 2}, {n + 3}]\n" +
+                  ("[7, 8]\n" if n > 0 else "[]\n") + "[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n" +
+                  ("7 3 1\n8 4 10\n" if n > 0 else "0 3 1\n0 2 0\n") +
+                  "[5, 6]\n70 71 [72]\n3 1\n")
+        result.append(Case(f"dynamic/assignment/{n}", "dynamic_assignments", f"{n}\n", answer, group="aggregate"))
     for n, answer in ((-1, "[1] [1] [99] [] 1\n[9]\n"),
                       (0, "[2] [2] [] [] 1\n[10]\n"),
                       (3, "[3, 4] [5] [3, 4] [8, 9] 1\n[13]\n")):

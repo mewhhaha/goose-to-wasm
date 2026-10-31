@@ -201,10 +201,18 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     }
 
     uint32_t count;
+    auto cleanup_depth = cleanups.size();
+    bool check_abandoned = false;
     if (auto array = Is<ArrayLit>(node)) {
-        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
         auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
         code.I64Const(size); count = Save(I64);
+        Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 4);
+        // Existing owners and callee result channels can survive an exit
+        // during element evaluation. Commit/check the published extent on
+        // that exit, while ordinary construction keeps its effect ordering.
+        check_abandoned = destination.lifetime == ConstructionDestination::Existing ||
+                          destination.lifetime == ConstructionDestination::Caller;
+        if (check_abandoned) cleanups.push_back({ CleanupAction::CheckAbandonedRegion, header, element, line });
         if (array->fillval) {
             auto value = CaptureBorrowed(array->fillval, element);
             ReserveRegion(header, count, element, node->line);
@@ -233,6 +241,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Copy();
     }
     Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
+    if (check_abandoned) CloseCleanups(cleanup_depth);
 }
 
 // Validate the final length before multiplying or adding a pointer. All

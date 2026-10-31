@@ -12,6 +12,27 @@ GOOSE = ROOT / "build/bin/goose"
 
 
 class DynamicBoundaries(unittest.TestCase):
+    def test_assignment_cannot_read_the_owner_under_reconstruction(self):
+        cases = (
+            'fn main() { var xs: i64[>..] = [1]; xs = copy(xs); }',
+            'fn main() { var xs: i64[>..] = [1]; xs = xs[..]; }',
+            'var xs: i64[>..] = [1]; fn same() -> i64[>..] { return xs[..]; } fn main() { xs = same(); }',
+        )
+        with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
+            work = Path(directory)
+            for index, source in enumerate(cases):
+                path = work / f"self-use-{index}.goose"; path.write_text(source)
+                for level in (0, 2):
+                    for target in ("native", "wasm-direct"):
+                        with self.subTest(index=index, level=level, target=target):
+                            output = work / f"{target}{level}"; output.unlink(missing_ok=True)
+                            command = [str(GOOSE), str(path), "--offline", f"-O{level}", "--target", target, "-o", str(output)]
+                            if target == "native": command.append("--standalone")
+                            rejected = subprocess.run(command, capture_output=True, text=True, timeout=60)
+                            self.assertNotEqual(rejected.returncode, 0)
+                            self.assertFalse(output.exists())
+                            self.assertIn("value assigned to xs", rejected.stdout + rejected.stderr)
+
     def test_owned_parameter_storage_cannot_escape_the_call(self):
         cases = {
             "element": ('i64&', 'values[0]'),

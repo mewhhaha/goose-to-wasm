@@ -55,7 +55,7 @@ struct CapturedValue {
 };
 struct ConstructionDestination {
     Location location;
-    enum Lifetime { Statement, Block, Activation, Caller, Static } lifetime;
+    enum Lifetime { Statement, Block, Activation, Caller, Static, Existing } lifetime;
 };
 using ResultDestinations = vector<optional<ConstructionDestination>>;
 struct Compiler;
@@ -91,27 +91,42 @@ struct Function {
         ResultDestinations destinations;
     };
     vector<Exit> exits;
+    struct PrivateHeader { Location location; size_t cleanup_depth; };
+    vector<PrivateHeader> private_headers;
     struct CleanupAction {
-        enum Kind { RestoreScratchTop, RestoreRegionNext } kind;
+        enum Kind { RestoreScratchTop, RestoreRegionNext, CheckAbandonedRegion } kind;
         uint32_t saved_local;
+        TypeExpr *element = nullptr;
+        Line line {};
     };
     vector<CleanupAction> cleanups;
     void PushExit(Exit target, const ResultDestinations &destinations = {}) {
         target.destinations = destinations;
         target.cleanup_depth = cleanups.size(); exits.push_back(std::move(target));
     }
-    void EmitCleanups(size_t depth) {
+    void EmitCleanups(size_t depth, bool abandoning = false) {
         for (auto i = cleanups.size(); i-- > depth;) {
             auto &action = cleanups[i];
             if (action.kind == CleanupAction::RestoreScratchTop) { Get(action.saved_local); code.OpU(0x24, 0); }
             else if (action.kind == CleanupAction::RestoreRegionNext) { Get(action.saved_local); code.OpU(0x24, G_REGION_NEXT); }
+            else if (action.kind == CleanupAction::CheckAbandonedRegion && abandoning) {
+                auto done = Begin();
+                // A private header declared inside the exited scope dies
+                // there, even if its data region belongs to a result.
+                for (auto &header : private_headers) if (header.cleanup_depth > depth) {
+                    Get(action.saved_local); LocationAddress(header.location); code.Op(0x46); Br(done, true);
+                }
+                Get(action.saved_local); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
+                ReserveRegion(action.saved_local, count, action.element, action.line);
+                End();
+            }
         }
     }
     void CloseCleanups(size_t depth) {
         EmitCleanups(depth); cleanups.resize(depth);
     }
     void UnwindCleanups(size_t target) {
-        EmitCleanups(exits.at(target).cleanup_depth);
+        EmitCleanups(exits.at(target).cleanup_depth, true);
     }
     set<uint32_t> dependencies;
 
