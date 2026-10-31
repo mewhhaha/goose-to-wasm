@@ -125,8 +125,8 @@ def main():
     refusals = {
         "varint-array-length": ('fn main() { let a: i64[varint] = [1, 2]; print(a.len); }\n',
                                 "varint variable-array length storage is not supported"),
-        "variable-mode-enum": ('enum E { Empty, Data { x: i64 } }\nfn main() { let e: E.. = E.Data { 1 }; match e { Data p => print(p.x), _ => {} } }\n',
-                               "only fixed-mode enums"),
+        "variable-payload-enum": ('enum E { Empty, Data { values: i64[] } }\nfn main() { let e: E.. = E.Data { [1] }; match e { Data p => print(p.values.len), _ => {} } }\n',
+                               "variable-mode enums currently require fixed-size payloads"),
         "enum-export": ('enum E { Empty, Data { x: i64 } }\nexport fn exported() -> E { E.Data { 1 } }\nfn main() {}\n',
                         "public exports currently return numeric and bool values only"),
         "enum-extern": ('enum E { Empty, Data { x: i64 } }\nextern fn foreign() -> E;\nfn main() { let e = foreign(); match e { Data p => print(p.x), _ => {} } }\n',

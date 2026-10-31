@@ -104,6 +104,13 @@ inline void Function::ConstructionView(Node *node, bool elements) {
 
 inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionDestination &destination, Line line) {
     auto target = destination.location.storage_type;
+    if (Compiler::RegionEnum(type) || Compiler::RegionEnum(target)) {
+        auto ei = type->kind == TY_ENUM ? type->enu->inst :
+                  type->kind == TY_VARIANT ? type->var->adt->enu->inst : nullptr;
+        if (!Compiler::RegionEnum(target) || !ei || ei != target->enu->inst)
+            Fail(line, "owned enum construction requires the same enum instantiation");
+        c.EnumImageLayout(ei, line); return;
+    }
     if (Compiler::RegionStruct(type) || Compiler::RegionStruct(target)) {
         if (!Compiler::RegionStruct(type) || !Compiler::RegionStruct(target) || type->struc->inst != target->struc->inst)
             Fail(line, "owned struct construction requires the same struct instantiation");
@@ -125,7 +132,7 @@ inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeE
         }
         plan.values[i] = receivers[i];
         CheckRegionDestination(types[i], *receivers[i], line);
-        if (Compiler::RegionStruct(types[i])) { plan.producers[i] = receivers[i]; continue; }
+        if (Compiler::RegionStruct(types[i]) || Compiler::RegionEnum(types[i])) { plan.producers[i] = receivers[i]; continue; }
         auto receiving = receivers[i]->location.storage_type;
         auto reprefix = types[i]->arr->akind == A_VAR && receiving->arr->akind == A_VAR &&
                         Compiler::LengthStorage(types[i]) != Compiler::LengthStorage(receiving);
@@ -169,6 +176,12 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
         if (!Compiler::RegionOwner(types[i]) || destinations.size() != types.size() || !destinations[i]) continue;
         auto candidate = goose::NamedResultOf(body, target, types.size(), i);
         if (!candidate || named_regions.count(candidate) || !Compiler::RegionOwner(candidate->type)) continue;
+        if (Compiler::RegionEnum(types[i]) || Compiler::RegionEnum(candidate->type)) {
+            if (!Compiler::RegionEnum(types[i]) || !Compiler::RegionEnum(candidate->type) ||
+                candidate->type->enu->inst != types[i]->enu->inst || destinations[i]->elements) continue;
+            CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
+            named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
+        }
         if (Compiler::RegionStruct(types[i]) || Compiler::RegionStruct(candidate->type)) {
             if (!Compiler::RegionStruct(types[i]) || !Compiler::RegionStruct(candidate->type) ||
                 candidate->type->struc->inst != types[i]->struc->inst || destinations[i]->elements) continue;
@@ -212,6 +225,9 @@ inline void Function::ShareRegion(const Location &place, const ConstructionDesti
 
 inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_t source,
         const ConstructionDestination &destination, Line line) {
+    if (Compiler::RegionEnum(destination.location.storage_type)) {
+        ConstructEnumFromCaptured(source_type, source, destination, line); return;
+    }
     if (Compiler::RegionStruct(destination.location.storage_type)) {
         ConstructStructFromCaptured(source_type, source, destination, line); return;
     }
@@ -282,6 +298,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
 }
 
 inline void Function::ConstructRegionInto(Node *node, const ConstructionDestination &destination) {
+    if (Compiler::RegionEnum(destination.location.storage_type)) { ConstructEnumInto(node, destination); return; }
     if (Compiler::RegionStruct(destination.location.storage_type)) { ConstructStructInto(node, destination); return; }
     auto place = destination.location;
     auto type = place.storage_type;

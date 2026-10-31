@@ -4,6 +4,23 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: variable-mode enums with fixed payloads
+
+`E..` owns a stable region image without entering the fixed-copy path. Ordinary,
+inline and recursive calls, parameters, mixed results, named aliasing, fixed mode
+conversions and copied/borrowed payload matches share the ownership channels.
+The [enum contract](VARIABLE_ENUMS.md) records maximum-union resource costs and
+the remaining nonfixed payload, containing owner and image ABI boundaries.
+
+## Implemented: growable frame structs and nested single-tail owners
+
+Frame objects snapshot every prefix and the tail length at each named return,
+while sharing stable tail elements. Whole reconstruction pins the receiver and
+writes fields in declaration order, preserving later fields on an early exit.
+Final owner fields may nest through two or more fixed prefixes to a single
+terminal array; allocation and cleanup reach its one ultimate header. The
+[struct contract](VARIABLE_STRUCTS.md) describes both variable and frame rules.
+
 ## Implemented: fixed-prefix structs with one variable/capacity-limited tail
 
 Standalone variable structs use a fixed control layout with one embedded array
@@ -13,7 +30,8 @@ tail data. Named results alias the whole receiving object, including prefix and
 tail-header mutations by later result expressions. Generic types, checked global
 defaults, borrowed prefix/element references, by-value calls, control results,
 interrupted construction and limited field assignment share this path.
-Nested owners, multiple variable fields and growable-tail frame objects remain
+This original slice covered immediate array tails. Nested final owners and
+growable-tail frame objects are described above; multiple variable fields remain
 pending. The reviewed [struct design](VARIABLE_STRUCTS.md) records the boundary.
 
 ## Implemented: unsigned variable-array lengths and element-run calls

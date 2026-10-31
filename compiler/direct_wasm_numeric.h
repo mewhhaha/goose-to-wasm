@@ -20,6 +20,22 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
     if (from->kind == TY_ARRAY && to->kind == TY_SLICE) {
         PackArrayView(from); return;
     }
+    if (Compiler::RegionEnum(from) || Compiler::RegionEnum(to)) {
+        if (c.Aggregate(from) && to->kind == TY_REF) { W(to); return; }
+        auto ei = from->kind == TY_ENUM ? from->enu->inst :
+                  from->kind == TY_VARIANT ? from->var->adt->enu->inst : nullptr;
+        if (!ei || to->kind != TY_ENUM || ei != to->enu->inst)
+            Fail(l, "variable-mode enum adaptation requires the same enum instantiation");
+        c.EnumImageLayout(ei, l);
+        if (Compiler::RegionEnum(from) && Compiler::RegionEnum(to)) return;
+        if (Compiler::RegionEnum(from)) {
+            c.FixedLayout(to); code.Mem(0x28, 2); return; // borrowed fixed image, not its control descriptor
+        }
+        auto source = Save(from);
+        auto destination = TemporaryDestination(to, l);
+        ConstructEnumFromCaptured(from, source, destination, l);
+        LocationAddress(destination.location); return;
+    }
     if (Compiler::RegionStruct(from) || Compiler::RegionStruct(to)) {
         if (Compiler::RegionStruct(from) && Compiler::RegionStruct(to) && from->struc->inst == to->struc->inst) {
             W(from); W(to); return; // borrowed object address; fixed-copy gates still reject it

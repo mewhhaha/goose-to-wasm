@@ -56,7 +56,7 @@ header and owned construction channels. Their size class remains variable;
 their descriptor never enters the fixed-copy path. The frontend freezes their
 length at construction while permitting element writes. Narrow value lengths
 are checked before publication; default length storage normalizes to u32. Varint lengths,
-variable elements and containing structs remain refused. Named-result binding
+variable elements remain refused. Supported containing structs are described below. Named-result binding
 also shares a growable local's data with its variable-array result, matching
 the pinned native emitter's element-run construction.
 
@@ -167,6 +167,10 @@ capacity. Whole-object named-result aliasing makes prefix, length and element
 mutations by later result expressions visible in an earlier result. Ordinary
 and inline calls, by-value parameters and control results use owned destinations.
 These objects retain `SC_VARIABLE` and never enter the fixed-copy path.
+Final owner fields may nest recursively through fixed prefixes to the one
+terminal array. Growable-tail frame structs use private prefix/length snapshots
+and shared elements for named results, and support pinned whole reconstruction.
+Interrupted initializers preserve fields whose positions have not been reached.
 
 Regions partition the memory budget remaining after final static allocation.
 For maximum bytes `M`, aligned static end `S` and region count `R > 0`, each data
@@ -255,6 +259,16 @@ to fixed enums may be matched, but references into replaceable fixed-enum
 payloads are prohibited by the frontend. A fixed standalone variant can be used
 even when another variant of its enum requires unsupported dynamic storage.
 
+Variable-mode enums with supported fixed-size payloads instead own a stable
+image through the 16-byte region header. The image has the same internal tag and
+maximum-union layout as its fixed-mode counterpart, with all inactive bytes
+initialized. Copies own independent images; external reference/slice fields
+preserve their referents. Named variable results alias the whole image, while
+fixed receiving results snapshot it. Same-instance mode/variant conversions,
+owned parameters/results and copied or by-reference payload matches share the
+owner channels. This layout has a maximum-union per-owner resource cost and is
+not a C.2 serialized image. See [the enum contract](VARIABLE_ENUMS.md).
+
 ## Initial supported fragment
 
 - Signed/unsigned integer widths, narrow wrapping, masked shifts, arithmetic,
@@ -276,6 +290,8 @@ even when another variant of its enum requires unsupported dynamic storage.
 - Fixed-mode enums and fixed variant payloads, including generic/nested types,
   constructors/defaults, arrays, owned returns, and exhaustive/list/wildcard
   matches with by-value payload bindings.
+- Variable-mode enums with fixed payloads, independent copies, internal owned
+  parameters/results, mode conversion and by-value/by-reference payload matches.
 - Scalar/string and supported fixed-array rendering, including argument
   evaluation and snapshot ordering.
 
@@ -284,9 +300,9 @@ The executable differential suite is the authority for qualified behavior.
 ## Explicit refusals and remaining work
 
 The current backend refuses owned dynamic function-value parameters/results,
-unsupported containing shapes (nested owners, multiple variable fields and
-growable-tail frame objects), variable-element
-growables, varint variable-array lengths; variable-mode enums;
+unsupported containing shapes (nonfinal owners, multiple variable fields and
+containing variable-mode enums), variable-element
+growables, varint variable-array lengths; nonfixed enum payloads;
 enum rendering and comparison;
 relative and pool references;
 non-inlined captured environments and dynamic nonlocal

@@ -15,6 +15,7 @@ inline bool Function::MayMaterialize(Node *node) {
     auto type = node->exprtype;
     auto owned = Compiler::RegionOwner(type) ||
         (type && type->kind == TY_REF && Compiler::RegionOwner(type->ref->sub));
+    if (Compiler::RegionEnum(type)) return true;
     if (auto call = Is<Call>(node)) {
         for (auto result : NaturalResults(node)) if (Compiler::RegionOwner(result)) return true;
         if (owned) return true;

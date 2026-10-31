@@ -121,7 +121,8 @@
         "scope": "Zero/default construction for supported fixed-layout types.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
-          "tests/fixtures/fixed_arrays.goose"
+          "tests/fixtures/fixed_arrays.goose",
+          "tests/fixtures/variable_mode_enums.goose"
         ],
         "boundary_fixtures": []
       },
@@ -571,7 +572,8 @@
         "status": "qualified_subset",
         "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame array tail are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
-          "tests/fixtures/fixed_enums.goose"
+          "tests/fixtures/fixed_enums.goose",
+          "tests/fixtures/variable_mode_enums.goose"
         ],
         "boundary_fixtures": []
       },
@@ -790,7 +792,8 @@
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
           "tests/fixtures/enum_returns.goose",
-          "tests/fixtures/enum_snapshots.goose"
+          "tests/fixtures/enum_snapshots.goose",
+          "tests/fixtures/variable_mode_enums.goose"
         ],
         "boundary_fixtures": []
       },
@@ -798,15 +801,21 @@
         "status": "qualified_subset",
         "scope": "Fixed standalone variant payloads and variant-to-enum conversion.",
         "fixtures": [
-          "tests/fixtures/fixed_enums.goose"
+          "tests/fixtures/fixed_enums.goose",
+          "tests/fixtures/variable_mode_enums.goose"
         ],
         "boundary_fixtures": []
       },
       "variable": {
-        "status": "pending",
-        "scope": "Variable-mode E.. and variable payload destinations require dynamic construction.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "E.. with supported fixed-size payloads: stable maximum-union images, independent copies and parameters, named aliasing, ordinary/inline/recursive/control and mixed results, same-instance fixed/variable/variant adaptation, by-value payload snapshots and by-reference bindings. External refs/slices keep referents. Nonfixed payloads, containing E.. owners and serialized images remain pending.",
+        "fixtures": [
+          "tests/fixtures/variable_mode_enums.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/test_variable_enum_boundaries.py",
+          "tests/test_regions.py"
+        ]
       }
     },
     "references": {

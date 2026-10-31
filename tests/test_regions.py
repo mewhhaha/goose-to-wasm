@@ -899,6 +899,81 @@ fn main() {{ replace(p); }}'''
                     self.assertEqual(observed["canary"], str(CANARY))
 
 
+    def test_variable_enum_images_copies_payload_references_and_temporaries(self):
+        source = '''enum Event { Empty, Data { id: i64, values: i64[2] } }
+recursive fn make(n: i64) -> Event.. { var e: Event.. = Event.Data { n, [n, n + 1] }; return e; }
+fn changed(e: Event..) -> Event.. { match e { Data &p => { p.id += 10; p.values[0] += 20; }, _ => {} } return e; }
+export fn tick(n: i64) -> i64 {
+    let a = make(n); let b = copy(a); let c = changed(copy(a));
+    match a { Data &p => {
+        let kept: const i64& = p.id;
+        match b { Data &q => { q.values[0] += 100; }, _ => {} }
+        if kept != n || p.values[0] != n { abort("bad enum alias"); }
+        for i in 100 { let got = match make(i) { Data q => q.id, _ => -1 }; if got != i { abort("bad enum temporary"); } }
+        if kept != n || p.values[0] != n { abort("overwritten enum image"); }
+    }, _ => abort("wrong enum tag") }
+    let b_value = match b { Data p => p.values[0], _ => -1 };
+    let c_value = match c { Data p => p.id + p.values[0], _ => -1 };
+    if b_value != n + 100 || c_value != 2 * n + 30 { abort("bad enum copy"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_enum_interrupted_field_releases_owner(self):
+        source = '''enum Event { Data { id: i64 }, Other { id: i64 } }
+recursive fn make(n: i64) -> Event.. {
+    return Event.Data { if n % 2 > 0 { return Event.Other { n + 10 }; } else { n } };
+}
+export fn tick(n: i64) -> i64 {
+    let e = make(n); let value = match e { Data p => p.id, Other p => p.id - 10 };
+    if value != n { abort("bad interrupted enum"); } return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_enum_image_limit_preserves_field_effects_and_neighbor(self):
+        source = f'''enum Event {{ Small {{ id: i64 }}, Big {{ values: i64[8192] }} }}
+var neighbor: i64[>..] = [{CANARY}];
+fn value() -> i64 {{ print(123); return 1; }}
+fn main() {{ let e: Event.. = Event.Small {{ value() }}; }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["numbers"], ["123"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+
+    def test_variable_enum_payload_borrows_survive_later_argument_temporaries(self):
+        source = '''enum Event { Data { id: i64 } }
+recursive fn make(n: i64) -> Event.. { return Event.Data { n }; }
+fn observe(a: const i64&, b: const i64&) -> i64 { return a + b; }
+export fn tick(n: i64) -> i64 {
+    let value = observe(match make(n) { Data &p => p.id }, match make(n + 1) { Data &p => p.id });
+    if value != 2 * n + 1 { abort("bad enum temporary borrow"); } return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--goose", type=Path, default=GOOSE)

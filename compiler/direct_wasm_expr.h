@@ -219,6 +219,7 @@ inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
     if (Compiler::RegionOwner(t)) {
+        if (Compiler::RegionEnum(t)) Fail(n->line, "whole variable-mode enum assignment is not supported");
         if (Compiler::RegionStruct(t)) {
             if (!Compiler::FrameStruct(t)) Fail(n->line, "whole variable-struct assignment is not supported");
             if (n->op != T_ASSIGN) Fail(n->line, "compound frame-object assignment is not supported");
@@ -476,6 +477,7 @@ inline void Function::PrintText(string_view text) {
     code.I32Const(int32_t(c.Text(text))); code.I32Const(int32_t(text.size())); CallIndex(Compiler::WRITE);
 }
 inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested) {
+    if (Compiler::RegionEnum(t)) Fail(line, "variable-mode enum rendering is not supported");
     if (t->kind == TY_REF) {
         if (t->ref->optional) Fail(line, "printing optional references is not supported");
         Get(value); Load(t->ref->sub); auto v = Save(t->ref->sub); Print(t->ref->sub, v, line, nested); return;
@@ -533,6 +535,7 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
                 }
                 auto v = Save(t);
                 if (Compiler::RegionStruct(t)) Fail(arg->line, "variable-struct rendering is not supported");
+                if (Compiler::RegionEnum(t)) Fail(arg->line, "variable-mode enum rendering is not supported");
                 if (Compiler::RegionArray(t)) {
                     Get(v); PackArrayView(t); v = Save(I64);
                     t = c.ast.SliceOf(t->arr->sub, arg->line);
@@ -600,6 +603,7 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
         }
         case B_DEFAULT: {
             auto t = n->rettypes[0];
+            if (Compiler::RegionEnum(t)) { Materialize(n, t, adapt_result); return; }
             if (!c.Aggregate(t)) {
                 Zero(W(t)); if (adapt_result) Convert(t, n->exprtype, n->line); return;
             }
@@ -706,7 +710,10 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
     Expr(m->scrutinee);
     if (t->kind == TY_REF) { Load(t->ref->sub); t = t->ref->sub; }
     optional<uint32_t> base;
-    if (t->kind == TY_ENUM) { W(t); base = Save(I32); Get(*base); code.Mem(0x28, 2); }
+    if (t->kind == TY_ENUM) {
+        W(t); if (Compiler::RegionEnum(t)) code.Mem(0x28, 2);
+        base = Save(I32); Get(*base); code.Mem(0x28, 2);
+    }
     else if (t->kind != TY_INT && t->kind != TY_BOOL)
         Fail(n->line, "only integer, bool and fixed enum match are supported");
     auto value = Save(base ? uint8_t(I32) : W(t));
@@ -731,9 +738,11 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
         }
         auto scope = BeginTempScope(arm.body);
         if (arm.binder) {
-            if (!base || arm.pat.byref) Fail(n->line, "only by-value fixed enum payload bindings are supported");
+            if (!base || (arm.pat.byref && !Compiler::RegionEnum(t)))
+                Fail(n->line, "only variable-mode enum payloads bind by reference");
             auto slot = Bind(arm.binder);
-            Get(*base); code.I32Const(int32_t(c.Size(t).payload)); code.Op(0x6a); Write(slot);
+            auto layout = Compiler::RegionEnum(t) ? c.EnumImageLayout(t->enu->inst, n->line) : c.Size(t);
+            Get(*base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a); Write(slot);
         }
         if (ts.empty() || Values(arm.body).empty()) Discard(arm.body);
         else SetResults({ arm.body }, ts, vs, arm.body->line, destinations);
@@ -849,6 +858,7 @@ inline void Function::Expr(Node *n) {
             }
             if (d->variantconst) {
                 auto t = n->exprtype;
+                if (Compiler::RegionEnum(t)) { Materialize(n, t); return; }
                 auto place = FreshDestination(t, ConstructionDestination::Statement).location;
                 LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
                 if (t->kind == TY_ENUM) {

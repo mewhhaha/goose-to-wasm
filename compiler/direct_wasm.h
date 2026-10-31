@@ -251,6 +251,8 @@ struct Function {
     Location TailHeaderLocation(const Location &);
     void ConstructStructInto(Node *, const ConstructionDestination &);
     void ConstructStructFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
+    void ConstructEnumInto(Node *, const ConstructionDestination &);
+    void ConstructEnumFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     void ConstructRegionView(uint32_t, const ConstructionDestination &, Line, optional<uint32_t> capacity = {});
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
     void ConstructionView(Node *, bool elements = false);
@@ -301,6 +303,7 @@ struct Compiler {
     // A payload can contain a sibling variant by value. Its layout must not
     // depend on computing the whole parent enum's union first.
     map<pair<EnumInst *, int>, Layout> payload_layouts;
+    unordered_map<EnumInst *, Layout> enum_image_layouts;
     map<string, uint32_t> strings;
     string data;
     static constexpr uint32_t data_base = 1024;
@@ -335,6 +338,23 @@ struct Compiler {
         r.size = max<uint32_t>(1, Align(r.size, r.align));
         return payload_layouts.emplace(key, std::move(r)).first->second;
     }
+    const Layout &EnumImageLayout(EnumInst *ei, Line line) {
+        if (!ei || !ei->allfixed)
+            Fail(line, "variable-mode enums currently require fixed-size payloads");
+        if (auto found = enum_image_layouts.find(ei); found != enum_image_layouts.end()) return found->second;
+        Layout r; r.align = 4;
+        uint32_t bytes = 0, alignment = 1;
+        for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
+            auto sub = Payload(ei, int(vi));
+            bytes = max(bytes, sub.size); alignment = max(alignment, sub.align);
+        }
+        r.align = max(r.align, alignment); r.payload = Align(4, alignment);
+        auto size = (uint64_t(r.payload) + bytes + r.align - 1) & ~uint64_t(r.align - 1);
+        if (size > uint64_t(opts.maximum_pages) * 65536)
+            Fail(line, "enum exceeds the configured linear-memory limit");
+        r.size = uint32_t(size);
+        return enum_image_layouts.emplace(ei, std::move(r)).first->second;
+    }
     TypeExpr *FieldType(TypeExpr *t, int field) {
         if (t->kind == TY_STRUCT) return t->struc->inst->ftypes.at(size_t(field));
         if (t->kind == TY_VARIANT) {
@@ -361,7 +381,8 @@ struct Compiler {
                 if (RegionArray(t)) HeaderLayout(t); else Size(t);
                 return I32;
             case TY_STRUCT: if (RegionStruct(t)) ControlLayout(t); else Size(t); return I32;
-            case TY_ENUM: case TY_VARIANT: Size(t); return I32;
+            case TY_ENUM: if (RegionEnum(t)) ControlLayout(t); else Size(t); return I32;
+            case TY_VARIANT: Size(t); return I32;
             default: {
                 string s; t->Dump(s);
                 Fail(t->line, "unsupported runtime type " + s);
@@ -386,8 +407,9 @@ struct Compiler {
         return t && t->kind == TY_STRUCT && t->struc->inst &&
                (t->struc->inst->sclass == SC_VARIABLE || FrameStruct(t));
     }
-    static bool RegionOwner(TypeExpr *t) { return RegionArray(t) || RegionStruct(t); }
-    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || (RegionStruct(t) && !FrameStruct(t)); }
+    static bool RegionEnum(TypeExpr *t) { return t && t->kind == TY_ENUM && t->enu->varmode; }
+    static bool RegionOwner(TypeExpr *t) { return RegionArray(t) || RegionStruct(t) || RegionEnum(t); }
+    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || RegionEnum(t) || (RegionStruct(t) && !FrameStruct(t)); }
     static IntStorage LengthStorage(TypeExpr *t) {
         return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
     }
@@ -402,6 +424,10 @@ struct Compiler {
         if (auto found = control_layouts.find(t); found != control_layouts.end()) return found->second;
         Layout layout;
         if (RegionArray(t)) layout = HeaderLayout(t);
+        else if (RegionEnum(t)) {
+            EnumImageLayout(t->enu->inst, t->line);
+            layout.size = 16; layout.align = 4;
+        }
         else if (RegionStruct(t)) {
             auto inst = t->struc->inst;
             auto tail = inst->ftypes.empty() ? nullptr : inst->ftypes.back();
@@ -517,18 +543,7 @@ struct Compiler {
                 auto ei = t->enu->inst;
                 if (t->enu->varmode || !ei || !ei->allfixed)
                     Fail(t->line, "only fixed-mode enums with fixed-size payloads are supported");
-                r.align = 4;
-                uint32_t bytes = 0, alignment = 1;
-                for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
-                    auto sub = Payload(ei, int(vi));
-                    bytes = max(bytes, sub.size); alignment = max(alignment, sub.align);
-                }
-                r.align = max(r.align, alignment);
-                r.payload = Align(4, alignment);
-                auto size = (uint64_t(r.payload) + bytes + r.align - 1) & ~uint64_t(r.align - 1);
-                if (size > uint64_t(opts.maximum_pages) * 65536)
-                    Fail(t->line, "enum exceeds the configured linear-memory limit");
-                r.size = uint32_t(size); break;
+                r = EnumImageLayout(ei, t->line); break;
             }
             default: { string s; t->Dump(s); Fail(t->line, "no direct layout for " + s); }
         }
@@ -769,6 +784,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_numeric.h"
 #include "direct_wasm_storage.h"
 #include "direct_wasm_owned.h"
+#include "direct_wasm_enums.h"
 #include "direct_wasm_regions.h"
 #include "direct_wasm_temps.h"
 #include "direct_wasm_arrays.h"

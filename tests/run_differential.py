@@ -150,6 +150,14 @@ def cases():
                            "prefix\ntail\n" + ("3 42 255 7\n" if n == 255 else ""),
                            exit_code=0 if n == 255 else 1, diagnostic="" if n == 255 else "storage range", group="aggregate"))
     for n in (0, 3):
+        answer = (f"7 9\n{n + 5} {n + 35} {n}\n{n + 35} {n + 10} {n + 35}\n"
+                  f"{n} 2 {n + 35}\n{n + 35} {2 * n + 81} {n + 61}\n"
+                  f"{65 if n > 0 else 0} 75 {17 if n > 0 else 9} 12\n{n + 80} {n + 10}\n"
+                  f"{n + 5} {2 * n + 3} {n + 13} 3\n"
+                  f"{n} {n + 1000} {n + 12}\n{n + 100} {n + 1000} {n + 12}\n"
+                  f"1\n2\n3\n4\n9\n{2 * n + 190}\n")
+        result.append(Case(f"variable-enum/fixed-payloads/{n}", "variable_mode_enums", f"{n}\n", answer, group="aggregate"))
+    for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
                   f"[{n + 1}] {n + 5}\n[{n + 1}, 8]\n77 [{n + 1}, 8] [{n + 1}, 8]\n"

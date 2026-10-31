@@ -24,6 +24,8 @@ Growable-tail frame structs also support whole-object reconstruction, with
 private prefix/length snapshots and shared tail elements for named returns.
 Supported structs may nest through their final field to a single array tail;
 each enclosing prefix remains fixed-layout.
+Variable-mode enums with fixed-size payloads use independent region images,
+mode conversions, owned calls/results and copied or borrowed payload matches.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.
