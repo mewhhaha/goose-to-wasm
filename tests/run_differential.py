@@ -49,6 +49,22 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    limited_answer = ("0 8 []\n[1, 2, 3, 4] [1, 2] 4 8\n[1, 2, 3, 4, 9, 9]\n9\n[1, 2, 3]\n0\n"
+                      "[7, 9]\n[7, 9]\n[7, 9, 7, 9]\n[10, 11, 12] [30, 31, 32] [20, 21, 22]\n"
+                      "[77, 11, 12] [10, 11, 12]\n[1, 2] 5 [99, 2, 3]\n"
+                      "[99, 2, 3] 5 [99, 2, 3, 3]\n[99, 2, 3, 3, 6] [50]\n"
+                      "[6, 6, 6] 3\n0 0\n[] 4\nabc!\n"
+                      "[10, 11, 12]\n2 5 42\n[14, 13] 14 0\n1\n[2, 3, 2, 3]\n"
+                      "[10, 11, 12] [10, 11, 12]\n500532\n")
+    for debug in (False, True):
+        result.append(Case("limited/values" + ("-debug" if debug else ""), "limited_arrays",
+                           stdout=limited_answer, debug=debug, group="aggregate"))
+        result.append(Case("limited/paths" + ("-debug" if debug else ""), "limited_array_paths",
+                           stdout="9\n9 1\n2 2\n1\n30 30 40 2\n10 23 23 10\n6\n6\n1\n6\n6\n6\n", debug=debug, group="aggregate"))
+        for mode, diagnostic in enumerate(("capacity", "capacity", "capacity", "negative", "pop", "pop",
+                                           "pop", "fill", "bounds", "bounds", "capacity")):
+            result.append(Case(f"limited/errors/{mode}" + ("-debug" if debug else ""), "limited_array_errors",
+                               f"{mode}\n2\n", exit_code=1, diagnostic=diagnostic, debug=debug, group="aggregate"))
     result.append(Case("checked-callers/diamond", "scalar_callers", stdout="18 0 22 72\n"))
     for n in (-1, 0, 4):
         result.append(Case(f"enums/layouts/{n}", "fixed_enums", f"{n}\n",
@@ -92,6 +108,7 @@ def cases():
         Case("short-circuit/true", "short_circuit", "5\n", "called\ntrue\ncalled\ntrue\n15\n"),
         Case("assert/pass", "assertion", "1\n", "accepted\n"),
         Case("assert/fail", "assertion", "0\n", exit_code=1, diagnostic="assert"),
+        Case("abort/message", "abort", exit_code=1, diagnostic="custom abort message"),
         Case("division/zero", "scalar_arithmetic", "7 0\n", exit_code=1, diagnostic="division by zero"),
         Case("division/i64-overflow", "scalar_arithmetic", "-9223372036854775808 -1\n", exit_code=1, diagnostic="overflow"),
         Case("remainder/minus-one", "remainder", "-9223372036854775808 -1\n", "0\n"),

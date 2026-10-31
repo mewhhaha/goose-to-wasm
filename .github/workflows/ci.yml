@@ -47,6 +47,8 @@ jobs:
           echo "EM_NODE_JS=$(command -v node)" >> "$GITHUB_ENV"
       - name: Build pinned compiler
         run: python scripts/bootstrap.py --generator Ninja --jobs 2
+      - name: Pinned language capability inventory
+        run: python scripts/check_capabilities.py
       - name: Install pinned Emscripten
         run: |
           python scripts/install_emsdk.py --jobs 2

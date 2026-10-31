@@ -71,6 +71,24 @@ expressions in order and copies owned results before releasing its frame. The
 ordinary i32 result is the caller-owned address. Aggregate extern/public exports
 remain refused until an explicit host ABI is provided.
 
+Static-capacity limited arrays `T[..k]` are fixed owned values with a u32 live
+length, padding to the element alignment and inline storage for `k` elements.
+Capacity is part of the type. Their views contain the element address and live
+length; copying/assignment/parameters/results retain the existing fixed-value
+ownership rules. Mutations evaluate the receiver once before their arguments,
+then read its current length. Capacity/count/fill checks precede writes, and
+`append` supports overlapping views. `push` returns a stable element reference.
+Limited arrays can nest in other supported fixed values. This is a direct-target
+layout, not the packed C image layout.
+
+Sequence loops retain their location recipe: index expressions and calls on
+the path run once, while reference/slice links and live lengths are reread as
+iteration proceeds. Replacing a limited-array or slice slot can shorten the
+remaining iteration. Bounds expressions on an index/slice capture their view
+before side effects, following the pinned emitter's ordering. Indexing an outer
+slice pins its element base as the native emitter does; the indexed row's live
+length still changes when that slot is replaced.
+
 Fixed-mode enums use a u32 tag at offset zero and a payload region aligned to
 the most strictly aligned variant. The total size accommodates the largest
 payload and is rounded to the enum's alignment. Standalone variant values hold
@@ -99,6 +117,8 @@ even when another variant of its enum requires unsupported dynamic storage.
   and supported optimized inline returns.
 - Fixed arrays, fixed struct fields, slices, and supported plain/nullable
   references, with checked indexed access and activation-local storage.
+- Static-capacity limited arrays, including len/cap/index_of, push/append,
+  pop/pop_n/resize/clear, slices, nested storage and owned results.
 - Fixed-mode enums and fixed variant payloads, including generic/nested types,
   constructors/defaults, arrays, owned returns, and exhaustive/list/wildcard
   matches with by-value payload bindings.
@@ -109,13 +129,18 @@ The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
 
-The current backend refuses variable/resizable arrays; variable-mode enums;
+The current backend refuses growable arrays, variable arrays and construction-time
+limited capacity; variable-mode enums;
 enum rendering and comparison;
-relative and pool references; runtime function values;
+relative and pool references;
 non-inlined captured environments and dynamic nonlocal
 returns; threads/queues; binary framing/serialization; custom formatters and
 unsupported aggregate rendering; and explicit packed padding.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.
+
+Pinned Goose function values are static and nonescaping. Runtime-selected
+function pointers and heap closures are outside that language contract; the
+remaining direct-target work concerns static specialization and environments.
 
 The generic frontend can understand more language features than this target can
 lower. A successful ordinary Goose type check alone is not proof that a program

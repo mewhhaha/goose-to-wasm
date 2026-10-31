@@ -12,10 +12,12 @@ repository. The compiler itself is built as a native C++ executable.
 
 This is an initial, explicitly bounded backend. It supports a useful fixed-value
 fragment, including scalar functions, recursion, control flow, fixed arrays,
-struct fields, fixed-mode enums and payload matches, owned aggregate returns,
+static-capacity resizable arrays, struct fields, fixed-mode enums and payload matches, owned aggregate returns,
 slices, and references. Unsupported constructs produce compile
 errors, with no fallback to the C backend. It is not yet full Goose parity; see
 [the target contract](docs/TARGET.md) and [next milestones](docs/ROADMAP.md).
+The [completion plan](docs/IMPLEMENTATION_PLAN.md) and checked
+[capability inventory](docs/capabilities.json) track the remaining work.
 
 ## Quick start: direct compilation
 

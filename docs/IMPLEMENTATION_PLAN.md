@@ -6,6 +6,12 @@ qualified support for the pinned language and its supported host profile, with
 explicit incremental-cache contracts. Engine feature probes or adapted benchmark
 ports alone do not establish language parity.
 
+The machine-readable [capability inventory](capabilities.json) enumerates every
+pinned builtin, AST node and array kind, plus enum/reference/host/incremental
+boundaries. `python scripts/check_capabilities.py` checks vocabulary coverage and
+evidence paths. A `qualified_subset` entry records only its stated scope, not
+whole-feature parity. Pending entries remain in the inventory denominator.
+
 The existing C target remains the independent semantic oracle. Each implementation
 slice receives differential tests and is pushed to `main` after validation. Cloud
 environment configuration is not republished as part of this work.
@@ -18,9 +24,9 @@ environment configuration is not republished as part of this work.
 - Separate fixed by-value storage, borrowed locations/views and owned dynamic
   construction. Dynamic owners cannot be introduced by merely assigning a fixed
   descriptor size and reusing shallow aggregate copies.
-- Reuse frontend lifetime/stack-assignment decisions, including constructor
-  destinations and nonlocal effects; do not create a second weaker lifetime
-  checker in the emitter.
+- Reuse frontend lifetime/effect decisions and port the pinned backend's data-stack
+  allocation planner; physical region assignment is not a ready-made frontend AST
+  annotation. Do not create a second weaker lifetime checker in the emitter.
 - Pinned Goose function values are static and nonescaping. Remaining work concerns
   specialization, capture environments and nonlocal returns. Runtime-selected
   function pointers and heap closures are not additional language requirements.
@@ -63,18 +69,30 @@ reference parameters, nested fixed values, side effects and repeated loops.
 
 ## Phases 2–4: ownership and stable dynamic storage
 
-Introduce a location carrying type, owner/header, address and stack provenance,
-and a construction destination carrying storage class, lifetime and cleanup
-watermarks. Audit every `Store`, `CaptureResult`, argument snapshot and aggregate
-return path. Fixed values retain copy semantics; nonfixed values construct into
-owned regions or travel as checked borrowed locations.
+First introduce a typed location carrying the physical storage type and slot or
+pinned address, a captured value distinguishing scalars/headers, borrowed object
+addresses and owned fixed snapshots, and a construction destination carrying
+storage class and lifetime. Migrate reads/writes/addressing and the repeated
+argument/result/pop snapshots without changing the existing ABI. Then route fresh
+literals, conversions and call results through destinations; assignment still
+evaluates into a temporary before publishing to its pinned destination. Audit
+every `Store`, `CaptureResult`, argument snapshot and aggregate return path.
+Nonfixed values later construct into owned regions or travel as borrowed locations.
+Use one fail-closed fixed-copy gate for snapshots and publication; a future
+dynamic descriptor must never become an owned value through shallow byte copying.
+Keep the iteration replay recipe distinct from a pinned assignment location.
+Then introduce fresh construction destinations and a cleanup-action stack, initially
+implementing the current scratch-top restorations on normal and nonlocal exits.
+Keep conservative snapshots and the current return ABI throughout this refactor.
 
-Use frontend-assigned data stacks with stable regions, checked top/limit pairs
-and explicit scope watermarks. Partition sizes and total memory limits must be
+Port the `CodeGen::AllocStk`/`SaveBase` scope planner to assign stable regions,
+with checked top/limit pairs and explicit scope watermarks. Partition sizes and total memory limits must be
 observable configuration, not silent arbitrary array capacities. Reserve before
 writing, reject arithmetic overflow before pointer arithmetic, and grow linear
 memory without moving already assigned regions. Give globals lasting regions;
 recursive activations and temporaries must release their regions on every exit.
+Carry the pinned call-graph/SCC bounds into region planning, including checks on
+recursive edges retaining local regions. Report region count and high-water usage.
 Retain the option of a later handle ABI only as a separate measured migration.
 
 Qualify scalar/fixed-element grow-only and grow/shrink arrays before variable

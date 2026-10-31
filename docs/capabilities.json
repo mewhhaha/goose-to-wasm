@@ -1,0 +1,874 @@
+{
+  "schema": "goose-capabilities-v1",
+  "upstream_revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+  "interpretation": "Entries inventory vocabulary and scoped evidence, not a percentage of language parity. Pending fixtures may be native-only candidates until direct qualification passes.",
+  "capabilities": {
+    "builtins": {
+      "B_ABORT": {
+        "status": "qualified_subset",
+        "scope": "Byte-view message and source-line termination.",
+        "fixtures": [
+          "tests/fixtures/abort.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "B_ALLOC_INDEX": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_ALLOC_REF": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_ALLOC_SLICE": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_APPEND": {
+        "status": "qualified_subset",
+        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_ASSERT": {
+        "status": "qualified_subset",
+        "scope": "Boolean assertions and termination.",
+        "fixtures": [
+          "tests/fixtures/assertion.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "B_BYTES_OF": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_CAP": {
+        "status": "qualified_subset",
+        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_CLEAR": {
+        "status": "qualified_subset",
+        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_COPY": {
+        "status": "qualified_subset",
+        "scope": "Supported fixed owned values; owned dynamic copies and slice-temporary copies remain pending.",
+        "fixtures": [
+          "tests/fixtures/nullable_and_copy.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "B_DEFAULT": {
+        "status": "qualified_subset",
+        "scope": "Zero/default construction for supported fixed-layout types.",
+        "fixtures": [
+          "tests/fixtures/fixed_enums.goose",
+          "tests/fixtures/fixed_arrays.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "B_EMBED_FILE": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_EMBED_SHADER": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_EXIT": {
+        "status": "qualified_subset",
+        "scope": "Process exit status through the host.",
+        "fixtures": [
+          "tests/fixtures/exit.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "B_FORMAT": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_FREE": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_FREE_SLICE": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_FROM_BYTES": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_HARDWARE_THREADS": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_INDEX_OF": {
+        "status": "qualified_subset",
+        "scope": "Fixed and static-capacity limited arrays, with checker-proven element reference and fixed stride.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_LEN": {
+        "status": "qualified_subset",
+        "scope": "Fixed arrays and fixed-element slices; dynamic array lengths follow array milestones.",
+        "fixtures": [
+          "tests/fixtures/fixed_arrays.goose",
+          "tests/fixtures/value_forms.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "B_POP": {
+        "status": "qualified_subset",
+        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_POP_N": {
+        "status": "qualified_subset",
+        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_PRINT": {
+        "status": "qualified_subset",
+        "scope": "Scalars, top-level byte sequences and fixed arrays of supported scalar elements; no custom formatters or general nested images.",
+        "fixtures": [
+          "tests/fixtures/value_forms.goose",
+          "tests/fixtures/float_render.goose",
+          "tests/fixtures/fixed_arrays.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "B_PUSH": {
+        "status": "qualified_subset",
+        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_QGET": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_QLIMIT": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_QPOLL": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_QPUT": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_REALLOC_SLICE": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_RESIZE": {
+        "status": "qualified_subset",
+        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "B_STR": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_THREAD_SPAWN": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_THREAD_SPAWN_CONTAINED": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_THREAD_WAIT": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "B_TO_BYTES": {
+        "status": "pending",
+        "scope": "Pending direct lowering; see implementation plan phases 3\u20138.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    },
+    "nodes": {
+      "NK_AliasDecl": {
+        "status": "frontend_only",
+        "scope": "Compile-time declaration or expansion; no independent runtime value. Runtime bodies and constructed types retain their own gates.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "NK_ArrayLit": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/fixed_arrays.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_AsCast": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/float_to_integer.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Assign": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/nullable_and_copy.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Binary": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/scalar_arithmetic.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Block": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/control_flow.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_BoolLit": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/short_circuit.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Break": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/control_flow.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Call": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/recursion.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_ConstFor": {
+        "status": "frontend_only",
+        "scope": "Compile-time declaration or expansion; no independent runtime value. Runtime bodies and constructed types retain their own gates.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "NK_Continue": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/control_flow.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Dot": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/struct_values.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_EarlyBlock": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/value_forms.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_EnumDecl": {
+        "status": "frontend_only",
+        "scope": "Compile-time declaration or expansion; no independent runtime value. Runtime bodies and constructed types retain their own gates.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "NK_FltLit": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/float_operations.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_FnDecl": {
+        "status": "frontend_only",
+        "scope": "Compile-time declaration or expansion; no independent runtime value. Runtime bodies and constructed types retain their own gates.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "NK_ForLoop": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/fixed_arrays.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_FunVal": {
+        "status": "pending",
+        "scope": "Static nonescaping values only in pinned v1; out-of-line environments and nonlocal effects remain pending.",
+        "fixtures": [
+          "tests/fixtures/value_forms.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Ident": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/scalar_arithmetic.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_IfExpr": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/control_flow.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_IncDec": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/control_flow.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Index": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/array_bounds.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_InlineBlock": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/inline_print_unwind.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_IntLit": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/scalar_arithmetic.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_LoopExpr": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/aggregate_returns.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_MatchExpr": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/fixed_enums.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_NullLit": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/nullable_and_copy.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_RangeExpr": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/control_flow.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Return": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/aggregate_returns.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_SelfRef": {
+        "status": "pending",
+        "scope": "Pending direct lowering or explicit frontend transformation contract.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "NK_SliceExpr": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/fixed_arrays.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_StrLit": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/value_forms.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_StructDecl": {
+        "status": "frontend_only",
+        "scope": "Compile-time declaration or expansion; no independent runtime value. Runtime bodies and constructed types retain their own gates.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "NK_StructLit": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/struct_values.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_Unary": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/scalar_arithmetic.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_VarDecl": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/struct_values.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "NK_While": {
+        "status": "qualified_subset",
+        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "fixtures": [
+          "tests/fixtures/control_flow.goose"
+        ],
+        "boundary_fixtures": []
+      }
+    },
+    "arrays": {
+      "A_FIXED": {
+        "status": "qualified_subset",
+        "scope": "Fixed-layout elements, inline owned copies and caller-owned returns.",
+        "fixtures": [
+          "tests/fixtures/fixed_arrays.goose",
+          "tests/fixtures/aggregate_returns.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/array_bounds.goose"
+        ]
+      },
+      "A_GROW": {
+        "status": "pending",
+        "scope": "Pending owned dynamic storage and construction.",
+        "fixtures": [],
+        "boundary_fixtures": [
+          "tests/fixtures/unsupported_growable.goose"
+        ]
+      },
+      "A_GROWSHRINK": {
+        "status": "pending",
+        "scope": "Pending owned dynamic storage and construction.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "A_LIMITED": {
+        "status": "qualified_subset",
+        "scope": "Resolved compile-time capacity, supported fixed-layout/nested/reference/slice elements, mutation and owned results. Construction-time capacity still requires dynamic storage.",
+        "fixtures": [
+          "tests/fixtures/limited_arrays.goose",
+          "tests/fixtures/limited_array_paths.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/limited_array_errors.goose"
+        ]
+      },
+      "A_VAR": {
+        "status": "pending",
+        "scope": "Pending owned dynamic storage and construction.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    },
+    "enums": {
+      "fixed": {
+        "status": "qualified_subset",
+        "scope": "Fixed enum tags/payloads, constructors, copies, parameters/results and by-value matches; rendering/comparison are pending.",
+        "fixtures": [
+          "tests/fixtures/fixed_enums.goose",
+          "tests/fixtures/enum_returns.goose",
+          "tests/fixtures/enum_snapshots.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "variant": {
+        "status": "qualified_subset",
+        "scope": "Fixed standalone variant payloads and variant-to-enum conversion.",
+        "fixtures": [
+          "tests/fixtures/fixed_enums.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "variable": {
+        "status": "pending",
+        "scope": "Variable-mode E.. and variable payload destinations require dynamic construction.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    },
+    "references": {
+      "plain": {
+        "status": "qualified_subset",
+        "scope": "Supported fixed-layout plain references, including implicit parameter/address adaptation.",
+        "fixtures": [
+          "tests/fixtures/implicit_references.goose",
+          "tests/fixtures/value_forms.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "optional": {
+        "status": "qualified_subset",
+        "scope": "Null/identity/narrowing for supported fixed pointees; optional rendering is pending.",
+        "fixtures": [
+          "tests/fixtures/nullable_and_copy.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "slice": {
+        "status": "qualified_subset",
+        "scope": "Packed wasm32 pointer/count views of fixed-layout elements.",
+        "fixtures": [
+          "tests/fixtures/fixed_arrays.goose",
+          "tests/fixtures/value_forms.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "relative": {
+        "status": "pending",
+        "scope": "Slot-relative offset loads/stores, widths and root validation pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "pool_relative": {
+        "status": "pending",
+        "scope": "Pool identity, offset validation and pool lifetime lowering pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "reusable": {
+        "status": "pending",
+        "scope": "Slot/slice freelists and allocation/reallocation/free pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    },
+    "calls": {
+      "direct": {
+        "status": "qualified_subset",
+        "scope": "Concrete supported scalar/fixed-layout specialization and recursion.",
+        "fixtures": [
+          "tests/fixtures/recursion.goose",
+          "tests/fixtures/aggregate_returns.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "captured_environment": {
+        "status": "pending",
+        "scope": "Out-of-line hidden captured locations and transitive requirements pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "overload_dispatch": {
+        "status": "pending",
+        "scope": "Runtime variant dispatch with arguments evaluated once pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "nonlocal_return": {
+        "status": "pending",
+        "scope": "Cross-activation target identity, result destinations and cleanup propagation pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "aggregate_host_abi": {
+        "status": "pending",
+        "scope": "Versioned ownership/range/result-destination contract pending.",
+        "fixtures": [],
+        "boundary_fixtures": [
+          "tests/fixtures/unsupported_pointer_extern.goose"
+        ]
+      }
+    },
+    "images": {
+      "layout": {
+        "status": "pending",
+        "scope": "Versioned migration from natural direct alignment to serializable C.2 images pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "padding": {
+        "status": "pending",
+        "scope": "Explicit packed field padding pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "varints": {
+        "status": "pending",
+        "scope": "Bounded ULEB128 and zigzag storage and validation pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "validation": {
+        "status": "pending",
+        "scope": "Framing, extent, tags and relative-link target verification pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    },
+    "host": {
+      "output": {
+        "status": "qualified_subset",
+        "scope": "Synchronous write/numeric print/newline imports on V8 and Wasmtime.",
+        "fixtures": [
+          "tests/fixtures/float_render.goose",
+          "tests/fixtures/value_forms.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "input": {
+        "status": "qualified_subset",
+        "scope": "Benchmark scalar input adapters only; general standard-library IO pending.",
+        "fixtures": [
+          "tests/fixtures/scalar_arithmetic.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "numeric_intrinsics": {
+        "status": "qualified_subset",
+        "scope": "Exact supported sqrt/ceil/floor/trunc/fabs/clz signatures; remainder is pure Wasm.",
+        "fixtures": [
+          "tests/fixtures/math_intrinsics.goose",
+          "tests/fixtures/float_remainder.goose"
+        ],
+        "boundary_fixtures": []
+      },
+      "filesystem": {
+        "status": "pending",
+        "scope": "General standard-library file and package host adapters pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "threads_queues": {
+        "status": "pending",
+        "scope": "Independent instances, copied globals/arguments, canonical typed queues and lifecycle pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    },
+    "incremental": {
+      "artifacts": {
+        "status": "qualified_subset",
+        "scope": "Complete-module cache with recorded source/config/probes; embedded/package-scan builds bypass reuse.",
+        "fixtures": [
+          "tests/test_incremental.py",
+          "tests/test_input_dependencies.py"
+        ],
+        "boundary_fixtures": []
+      },
+      "sessions": {
+        "status": "qualified_subset",
+        "scope": "Fresh request AST, persistent worker, per-request overlays.",
+        "fixtures": [
+          "tests/test_compiler_session.py"
+        ],
+        "boundary_fixtures": []
+      },
+      "lexer": {
+        "status": "qualified_subset",
+        "scope": "Opt-in bounded immutable scanner transitions.",
+        "fixtures": [
+          "tests/test_lexical_cache.py"
+        ],
+        "boundary_fixtures": []
+      },
+      "parser": {
+        "status": "qualified_subset",
+        "scope": "Opt-in bounded pristine syntax imports.",
+        "fixtures": [
+          "tests/test_syntax_cache.py",
+          "tests/test_syntax_importer.py"
+        ],
+        "boundary_fixtures": []
+      },
+      "closed_scalar_leaves": {
+        "status": "qualified_subset",
+        "scope": "Exact bounded closed-leaf eligibility only.",
+        "fixtures": [
+          "tests/test_checked_leaf_cache.py"
+        ],
+        "boundary_fixtures": []
+      },
+      "closed_scalar_callers": {
+        "status": "qualified_subset",
+        "scope": "Closed acyclic canonical-i64 callers with parameter-only call arguments.",
+        "fixtures": [
+          "tests/test_checked_scalar_cache.py"
+        ],
+        "boundary_fixtures": []
+      },
+      "general_semantics": {
+        "status": "pending",
+        "scope": "Stable specialization/type/root/effect dependencies, broader checking and SCC reuse pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "function_output": {
+        "status": "pending",
+        "scope": "Symbolic references, LEB-safe relocations and optimization/BCE dependencies pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    },
+    "benchmarks": {
+      "adapted": {
+        "status": "qualified_subset",
+        "scope": "Seven bounded adapted cross-backend programs; does not qualify original growable/threaded programs.",
+        "fixtures": [
+          "tests/test_langarena.py"
+        ],
+        "boundary_fixtures": []
+      },
+      "original_small": {
+        "status": "pending",
+        "scope": "All 50 unadapted original task entrypoints including real threads pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "original_production": {
+        "status": "pending",
+        "scope": "All 50 production cases with sufficient explicit runtime limits pending.",
+        "fixtures": [],
+        "boundary_fixtures": []
+      }
+    }
+  }
+}

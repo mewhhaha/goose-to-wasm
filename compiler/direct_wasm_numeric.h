@@ -18,8 +18,20 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
         Load(from->ref->sub); Convert(from->ref->sub, to, l); return;
     }
     if (from->kind == TY_ARRAY && to->kind == TY_SLICE) {
-        c.Size(from); code.Op(0xad);
-        code.I64Const(int64_t(uint64_t(from->arr->size) << 32)); code.Op(0x84); return;
+        PackArrayView(from); return;
+    }
+    if (to->kind == TY_ARRAY && to->arr->akind == A_LIMITED &&
+        (from->kind == TY_SLICE || (from->kind == TY_ARRAY &&
+         (from->arr->akind != A_LIMITED || from->arr->size != to->arr->size)))) {
+        if (from->kind == TY_ARRAY) PackArrayView(from);
+        auto view = Save(I64), dest = Frame(to);
+        Get(view); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
+        Get(count); code.I64Const(to->arr->size); code.Op(0x56); TrapIf(l, "array capacity exceeded");
+        FrameAddress(dest); code.I32Const(0); code.I32Const(int32_t(c.Size(to).size)); code.Fill();
+        FrameAddress(dest); Get(count); code.Op(0xa7); code.Mem(0x36, 2);
+        FrameAddress(dest + c.Size(to).payload); Get(view); code.Op(0xa7);
+        Get(count); code.Op(0xa7); code.I32Const(int32_t(c.Size(to->arr->sub).size)); code.Op(0x6c); code.Copy();
+        FrameAddress(dest); return;
     }
     if (c.Aggregate(from) && to->kind == TY_REF) { W(to); return; }
     if (from->kind == TY_VARIANT && to->kind == TY_ENUM) {
@@ -92,7 +104,7 @@ inline void Function::Cast(AsCast *n) {
         auto arr = Lookup(to->ix->arr, n->line);
         Read(arr); auto at = arr.type;
         if (at->kind == TY_REF) { Load(at->ref->sub); at = at->ref->sub; }
-        if (at->kind == TY_ARRAY) { code.Op(0x1a); code.I64Const(at->arr->size); }
+        if (at->kind == TY_ARRAY) { PackArrayView(at); code.I64Const(32); code.Op(0x88); }
         else if (at->kind == TY_SLICE) { code.I64Const(32); code.Op(0x88); }
         else Fail(n->line, "index type requires a fixed array or slice");
         auto len = Save(I64);

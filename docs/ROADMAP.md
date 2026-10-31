@@ -5,6 +5,21 @@ runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Its first implementation slice is
 static-capacity resizable arrays.
 
+## Implemented: static-capacity limited arrays
+
+`T[..k]` now uses a runtime length and stable inline storage within the existing
+fixed-value ABI. Shared views feed indexing, slicing, iteration and rendering.
+Construction, copying, parameters and owned results retain fixed-value semantics;
+len/cap/index_of and push/append/pop/pop_n/resize/clear use checked mutation paths.
+Loops capture calls and indices once and reload the current sequence location,
+including nested array/slice slots replaced during iteration.
+
+Qualification includes boundary failures, nested values, reference elements,
+retained references through refill, overlapping append, receiver rebinding,
+argument-side mutation, copies and recursive/multiple results at O0/O2 and debug.
+Construction-time capacity and growable arrays still need the location,
+construction-destination and stable-region runtime phases in the completion plan.
+
 ## Implemented: fixed-mode enums and payload matches
 
 The fixed-value backend now supports fixed `TY_ENUM` and `TY_VARIANT`

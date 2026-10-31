@@ -57,8 +57,8 @@ inline TypeExpr *Function::Object(Node *n) {
 inline void Function::View(Node *n) {
     auto t = Object(n);
     if (t->kind == TY_SLICE) return;
-    if (t->kind != TY_ARRAY) Fail(n->line, "expected a fixed array or slice");
-    c.Size(t); code.Op(0xad); code.I64Const(int64_t(uint64_t(t->arr->size) << 32)); code.Op(0x84);
+    if (t->kind != TY_ARRAY) Fail(n->line, "expected an array or slice");
+    PackArrayView(t);
 }
 inline void Function::Address(Node *n) {
     if (auto id = Is<Ident>(n)) {
@@ -161,18 +161,23 @@ inline void Function::AggregateLiteral(Node *n) {
     if (auto a = Is<ArrayLit>(n)) {
         auto elem = t->arr->sub;
         auto stride = c.Size(elem).size;
+        auto start = off + c.Size(t).payload;
+        auto count = a->fillval ? static_cast<IntLit *>(a->fillcount)->val : int64_t(a->elems.size());
+        if (t->arr->akind == A_LIMITED) {
+            FrameAddress(off); code.I32Const(int32_t(count)); code.Mem(0x36, 2);
+        }
         if (a->fillval) {
             // Goose evaluates a fill value once, then copies it into each slot.
             To(a->fillval, elem); auto value = Save(elem);
             auto i = Local(I32); code.I32Const(0); Set(i);
             auto done = Begin(), loop = Begin(0x03);
-            Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
-            FrameAddress(off); Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
+            Get(i); code.I32Const(int32_t(count)); code.Op(0x4f); Br(done, true);
+            FrameAddress(start); Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
             Get(value); Store(elem);
             Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
         } else {
             for (size_t i = 0; i < a->elems.size(); i++) {
-                FrameAddress(off + uint32_t(i) * stride); To(a->elems[i], elem); Store(elem);
+                FrameAddress(start + uint32_t(i) * stride); To(a->elems[i], elem); Store(elem);
             }
         }
     } else if (auto s = Is<StructLit>(n)) {
@@ -200,7 +205,7 @@ inline void Function::AggregateLiteral(Node *n) {
 inline void Function::Slice(SliceExpr *n) {
     auto at = n->obj->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
     auto elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
-    if (!elem || n->exprtype->kind != TY_SLICE) Fail(n->line, "only slices of fixed-layout elements are supported");
+    if (!elem) Fail(n->line, "only slices of fixed-layout elements are supported");
     View(n->obj); auto view = Save(I64);
     Get(view); code.I64Const(32); code.Op(0x88); auto len = Save(I64);
     if (n->lo) {
@@ -220,6 +225,10 @@ inline void Function::Slice(SliceExpr *n) {
     Get(view); code.Op(0xa7); Get(lo); code.Op(0xa7);
     code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); code.Op(0xad);
     Get(hi); Get(lo); code.Op(0x7d); code.I64Const(32); code.Op(0x86); code.Op(0x84);
+    // The checker leaves the destination array type on a slice used to
+    // construct an owned array. Its intermediate value is still a view.
+    if (n->exprtype->kind != TY_SLICE)
+        Convert(c.ast.SliceOf(elem, n->line), n->exprtype, n->line);
 }
 
 inline void Function::For(ForLoop *n) {
@@ -231,6 +240,7 @@ inline void Function::For(ForLoop *n) {
     auto ct = numeric ? (range ? range->exprtype : n->iter->exprtype) : c.ast.inttypes[IS_I64];
     uint32_t lo, hi, view = 0;
     TypeExpr *elem = nullptr;
+    function<void()> sequence;
     if (numeric) {
         if (range) To(range->lo, ct); else Const(ct, 0);
         lo = Save(ct); To(range ? range->hi : n->iter, ct); hi = Save(ct);
@@ -238,15 +248,19 @@ inline void Function::For(ForLoop *n) {
         auto at = n->iter->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
         elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
         if (!elem) Fail(n->line, "this iteration source is not supported");
-        View(n->iter); view = Save(I64);
+        auto value = SequenceValue(n->iter);
+        sequence = [this, value, at, n]() {
+            value();
+            if (n->iter->exprtype->kind == TY_REF) Load(at);
+            if (at->kind == TY_ARRAY) PackArrayView(at);
+        };
+        sequence(); view = Save(I64);
         code.I64Const(0); lo = Save(I64); Get(view); code.I64Const(32); code.Op(0x88); hi = Save(I64);
     }
     uint32_t ordinal = Local(I64); code.I64Const(0); Set(ordinal);
     auto done = Begin(), again = Begin(0x03);
-    // Slice variables may be rebound during iteration: the next iteration
-    // observes the new view, as upstream does. A temporary is evaluated once.
-    if (!numeric && !n->fixedlen && (Is<Ident>(n->iter) || Is<Dot>(n->iter))) {
-        View(n->iter); Set(view); Get(view); code.I64Const(32); code.Op(0x88); Set(hi);
+    if (!numeric && !n->fixedlen) {
+        sequence(); Set(view); Get(view); code.I64Const(32); code.Op(0x88); Set(hi);
     }
     Get(lo); Get(hi); BinaryOp(T_GTEQ, ct, n->line); Br(done, true);
     if (numeric) { Get(lo); Convert(ct, binding.type, n->line); Write(binding); }
@@ -322,7 +336,11 @@ inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested)
         uint32_t ptr, len;
         Get(value);
         if (t->kind == TY_SLICE) { code.Op(0xa7); ptr = Save(I32); Get(value); code.I64Const(32); code.Op(0x88); code.Op(0xa7); len = Save(I32); }
-        else { ptr = Save(I32); code.I32Const(int32_t(t->arr->size)); len = Save(I32); }
+        else {
+            PackArrayView(t); auto view = Save(I64);
+            Get(view); code.Op(0xa7); ptr = Save(I32);
+            Get(view); code.I64Const(32); code.Op(0x88); code.Op(0xa7); len = Save(I32);
+        }
         if (IsU8(elem)) {
             if (nested) Fail(line, "quoted nested byte-array rendering is not supported");
             Get(ptr); Get(len); CallIndex(Compiler::WRITE); return;
@@ -396,6 +414,12 @@ inline void Function::Builtin(Call *n) {
         case B_LEN: {
             View(args[0]); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
         }
+        case B_CAP: {
+            auto t = Object(args[0]); c.Size(t); code.Op(0x1a);
+            code.I64Const(t->arr->size); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
+        }
+        case B_INDEX_OF: case B_PUSH: case B_APPEND: case B_POP: case B_POP_N: case B_CLEAR: case B_RESIZE:
+            ArrayBuiltin(n); return;
         case B_COPY: {
             if (n->exprtype->kind == TY_SLICE) Fail(n->line, "copying a slice requires owned dynamic storage");
             To(args[0], n->exprtype);
@@ -411,14 +435,14 @@ inline void Function::Builtin(Call *n) {
             auto off = Frame(t);
             FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
             if (n->defaultinit) {
-                if (t->kind == TY_ARRAY) {
+                if (t->kind == TY_ARRAY && t->arr->akind == A_FIXED) {
                     auto i = Local(I32); code.I32Const(0); Set(i);
                     auto done = Begin(), loop = Begin(0x03);
                     Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
                     FrameAddress(off); Get(i); code.I32Const(int32_t(c.Size(t->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
                     To(n->defaultinit, t->arr->sub); Store(t->arr->sub);
                     Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
-                } else { FrameAddress(off); To(n->defaultinit, t); Store(t); }
+                } else if (t->kind != TY_ARRAY) { FrameAddress(off); To(n->defaultinit, t); Store(t); }
             }
             FrameAddress(off); Convert(t, n->exprtype, n->line); return;
         }
@@ -441,7 +465,10 @@ inline void Function::Expr(Node *n) {
                 if (x->val.size() > size) Fail(n->line, "string exceeds its fixed-array destination");
                 auto dest = Frame(n->exprtype);
                 FrameAddress(dest); code.I32Const(0); code.I32Const(int32_t(size)); code.Fill();
-                FrameAddress(dest); code.I32Const(int32_t(off)); code.I32Const(int32_t(x->val.size())); code.Copy();
+                if (n->exprtype->arr->akind == A_LIMITED) {
+                    FrameAddress(dest); code.I32Const(int32_t(x->val.size())); code.Mem(0x36, 2);
+                }
+                FrameAddress(dest + c.Size(n->exprtype).payload); code.I32Const(int32_t(off)); code.I32Const(int32_t(x->val.size())); code.Copy();
                 FrameAddress(dest);
             }
             else Fail(n->line, "unsupported string representation");
@@ -458,7 +485,11 @@ inline void Function::Expr(Node *n) {
         case NK_Unary: {
             auto u = static_cast<Unary *>(n);
             if (u->op == T_BITAND) {
-                if (n->exprtype->kind == TY_REF) Address(u->child); else To(u->child, n->exprtype);
+                // Rebinding synthesizes address nodes whose path was checked
+                // as an lvalue and has no expression type of its own.
+                if (n->exprtype->kind == TY_REF &&
+                    (!u->child->exprtype || u->child->exprtype->kind != TY_REF)) Address(u->child);
+                else To(u->child, n->exprtype);
                 return;
             }
             if (u->op == T_NOT) { Truth(u->child); code.Op(0x45); return; }
@@ -501,6 +532,10 @@ inline void Function::Expr(Node *n) {
         case NK_Dot: {
             auto d = static_cast<Dot *>(n);
             if (d->member == B_LEN) { View(d->obj); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return; }
+            if (d->member == B_CAP) {
+                auto t = Object(d->obj); c.Size(t); code.Op(0x1a);
+                code.I64Const(t->arr->size); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
+            }
             if (d->variantconst) {
                 auto t = n->exprtype;
                 auto off = Frame(t);

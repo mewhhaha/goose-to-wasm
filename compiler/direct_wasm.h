@@ -138,7 +138,10 @@ struct Function {
     void Store(TypeExpr *);
     void Address(Node *);
     TypeExpr *Object(Node *);
+    void PackArrayView(TypeExpr *);
     void View(Node *);
+    void ArrayBuiltin(Call *);
+    function<void()> SequenceValue(Node *, bool address = false);
     void Expr(Node *);
     void To(Node *, TypeExpr *);
     void Discard(Node *);
@@ -254,14 +257,19 @@ struct Compiler {
                 r.size = r.align = 4; break;
             case TY_SLICE: r.size = r.align = 8; break;
             case TY_ARRAY: {
-                if (t->arr->akind != A_FIXED)
-                    Fail(t->line, "only fixed-size owned arrays are supported; resizable arrays require the C oracle target");
-                if (t->arr->size < 0) Fail(t->line, "array length was not resolved");
+                if (t->arr->akind != A_FIXED && t->arr->akind != A_LIMITED)
+                    Fail(t->line, "this array kind is not supported without dynamic storage; use the C oracle target");
+                if (t->arr->size < 0)
+                    Fail(t->line, "construction-time array capacity is not supported without dynamic storage");
                 auto sub = Size(t->arr->sub);
-                auto bytes = uint64_t(sub.size) * uint64_t(t->arr->size);
+                if (t->arr->akind == A_LIMITED) {
+                    r.payload = Align(4, sub.align);
+                    r.align = max<uint32_t>(4, sub.align);
+                } else r.align = sub.align;
+                auto bytes = uint64_t(r.payload) + uint64_t(sub.size) * uint64_t(t->arr->size);
                 if (bytes > uint64_t(opts.maximum_pages) * 65536)
                     Fail(t->line, "fixed array exceeds the configured linear-memory limit");
-                r.size = uint32_t(max<uint64_t>(1, bytes)); r.align = sub.align;
+                r.size = max<uint32_t>(1, Align(uint32_t(bytes), r.align));
                 break;
             }
             case TY_STRUCT: {
@@ -524,6 +532,7 @@ inline void Function::ScanAddresses(Node *n) {
 } // namespace goose
 
 #include "direct_wasm_numeric.h"
+#include "direct_wasm_arrays.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"
 
