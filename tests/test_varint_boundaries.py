@@ -40,7 +40,15 @@ class VarintBoundaries(unittest.TestCase):
 
     def test_byte_record_image_effects_remain_separate(self):
         self.check_gate('struct R{n:varint} fn target()->R{recursive fn leave(){return R{1} from target;}leave();return R{0};} fn main(){let r=target();print(r.n);}',
-                        'this owned nonlocal target requires additional staging and landing support')
+                        'byte-walked record nonlocal targets require dedicated image staging')
+
+    def test_inline_byte_record_targets_remain_gated_after_optimization(self):
+        self.check_gate('''struct R{tag:u8,value:varint}
+inline fn stop()->i64{return 9 from canceled;}
+inline fn canceled()->i64{return R{0x11,stop()} from target;}
+inline fn target<F>()->R{print(F());return R{0xff,9223372036854775807};}
+fn main(){let r=target(){canceled()};print(r.tag as i64," ",r.value);}''',
+                        'byte-walked record nonlocal targets require dedicated image staging')
 
     def test_named_replacement_observations_require_bounded_overlap_proof(self):
         cases=(

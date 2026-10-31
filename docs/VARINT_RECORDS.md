@@ -30,6 +30,11 @@ varint array lengths, variable enum variants, containing byte records and
 records that also contain variable arrays require the next general walkers.
 The scalar external ABI remains unchanged.
 
+Actual byte-record nonlocal targets are explicitly refused across ordinary and
+optimized inline stacks. Canceled construction can make the original schema
+decode across a later fixed prefix, exposing an overlong encoding; native's
+unchecked shifts do not establish a bounded image landing contract.
+
 Alternative returns replacing a named record cannot observe that record through
 later result expressions until bounded overlap is proved. The conservative gate
 also includes otherwise valid fixed-field aliases and ordinary/dispatch calls
