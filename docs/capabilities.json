@@ -802,12 +802,14 @@
     "enums": {
       "fixed": {
         "status": "qualified_subset",
-        "scope": "Fixed enum tags/payloads, constructors, copies, parameters/results and by-value matches; rendering/comparison are pending.",
+        "scope": "Fixed enum tags/payloads, constructors, copies, parameters/results and by-value matches; rendering/comparison are pending. Internal layout v2 packs variant fields without padding; each field retains its current representation.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
           "tests/fixtures/enum_returns.goose",
           "tests/fixtures/enum_snapshots.goose",
-          "tests/fixtures/variable_mode_enums.goose"
+          "tests/fixtures/variable_mode_enums.goose",
+          "tests/fixtures/packed_variant_overlap.goose",
+          "tests/fixtures/packed_variant_storage.goose"
         ],
         "boundary_fixtures": []
       },
@@ -818,7 +820,9 @@
           "tests/fixtures/fixed_enums.goose",
           "tests/fixtures/variable_mode_enums.goose",
           "tests/fixtures/variable_variants.goose",
-          "tests/fixtures/variable_variant_narrow.goose"
+          "tests/fixtures/variable_variant_narrow.goose",
+          "tests/fixtures/packed_variant_overlap.goose",
+          "tests/fixtures/packed_variant_storage.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_variant_boundaries.py",
@@ -827,13 +831,15 @@
       },
       "variable": {
         "status": "qualified_subset",
-        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results require packed layout and are conservatively refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending.",
+        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results qualify for allfixed integer-only packed payloads; other such observations require further image layout and remain refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending.",
         "fixtures": [
           "tests/fixtures/variable_mode_enums.goose",
           "tests/fixtures/variable_enum_tails.goose",
           "tests/fixtures/variable_enum_nested_narrow.goose",
           "tests/fixtures/variable_enum_capacity_errors.goose",
-          "tests/fixtures/variable_enum_replacement_aliases.goose"
+          "tests/fixtures/variable_enum_replacement_aliases.goose",
+          "tests/fixtures/packed_variant_overlap.goose",
+          "tests/fixtures/packed_variant_storage.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_enum_boundaries.py",

@@ -341,15 +341,21 @@ struct Compiler {
             auto &field = ei->en->variants.at(size_t(vi)).fields[i];
             if (field.ispad) Fail(field.line, "explicit variant padding is not supported");
             auto sub = Size(ei->vftypes[size_t(vi)][i]);
-            r.align = max(r.align, sub.align);
-            r.size = Align(r.size, sub.align);
+            // Variant fields are adjacent in the pinned image format. Each
+            // field still uses its own current representation.
             r.fields.push_back(r.size);
             if (uint64_t(r.size) + sub.size > uint64_t(opts.maximum_pages) * 65536)
                 Fail(field.line, "variant exceeds the configured linear-memory limit");
             r.size += sub.size;
         }
-        r.size = max<uint32_t>(1, Align(r.size, r.align));
+        r.size = max<uint32_t>(1, r.size);
         return payload_layouts.emplace(key, std::move(r)).first->second;
+    }
+    static bool PackedIntegerEnum(EnumInst *ei) {
+        if (!ei || !ei->allfixed) return false;
+        for (auto &fields : ei->vftypes) for (auto field : fields)
+            if (!field || field->kind != TY_INT || field->intstorage == IS_VARINT) return false;
+        return true;
     }
     const Layout &EnumImageLayout(EnumInst *ei, Line line) {
         if (!ei) Fail(line, "enum instantiation was not resolved");

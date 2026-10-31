@@ -4,6 +4,15 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: packed fixed-variant fields
+
+Layout version 2 removes inter-field/trailing alignment from fixed variant
+payloads and updates their array strides and containing layouts. Integer-only
+enums reproduce native overwrite observations through saved named-payload
+references. Other representation-sensitive cases retain their explicit boundary.
+The [image layout plan](IMAGE_LAYOUT.md) separates this step from recursive fixed
+record packing, compact metadata and full variable images.
+
 ## Implemented: standalone variable-size variants
 
 Supported `E.Variant` payloads share the single-tail record walker with structs:

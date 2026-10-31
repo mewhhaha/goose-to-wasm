@@ -23,6 +23,11 @@ compatibility with Goose's packed 64-bit C ABI. Explicit padding, relative/pool
 references, and binary serialization are refused until their target semantics
 are implemented and qualified.
 
+Fixed variant fields are an exception: internal layout version 2 packs those
+fields without inter-field/trailing alignment, while each field keeps its own
+representation. The producer marker records that transition. See
+[the layout migration](IMAGE_LAYOUT.md) for its qualified byte-overlap subset.
+
 Address-taken locals and fixed aggregates live in checked activation frames in
 linear memory. Each recursive call receives its own frame. Temporary storage
 and frames grow memory when necessary, within the module's declared maximum,
@@ -249,9 +254,9 @@ before side effects, following the pinned emitter's ordering. Indexing an outer
 slice pins its element base as the native emitter does; the indexed row's live
 length still changes when that slot is replaced.
 
-Fixed-mode enums use a u32 tag at offset zero and a payload region aligned to
-the most strictly aligned variant. The total size accommodates the largest
-payload and is rounded to the enum's alignment. Standalone variant values hold
+Fixed-mode enums use a u32 tag at offset zero and a payload at offset four.
+The total size accommodates the largest packed variant payload and is rounded
+to four bytes. Standalone variant values hold
 only their payload. Variant-to-enum conversion initializes fresh tagged storage
 and copies the payload; it does not reinterpret a payload pointer as an enum.
 These layouts are specific to this target, rather than the C backend's ABI.
@@ -309,7 +314,7 @@ The current backend refuses owned dynamic function-value parameters/results,
 unsupported containing shapes (nonfinal owners, multiple variable fields and
 containing variable-mode enums), variable-element
 growables, varint variable-array lengths; resizable/multiple-owner enum payloads;
-packed-overlap observations after nonempty named enum replacement;
+unproven packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;
 relative and pool references;
 non-inlined captured environments and dynamic nonlocal

@@ -38,10 +38,12 @@ containing enum header; surviving caller storage retains the bounds check.
 
 Tag-only replacement returns preserve saved references into an earlier named
 payload. A nonempty alternative followed by a result that may reach the named
-local is conservatively refused: the native packed image can partially overwrite
+local is conservatively refused unless all variant fields are fixed-width integers
+with the qualified packed layout: the native image can partially overwrite
 those old fields, which this control layout cannot reproduce. A provenance-aware
-check reports that packed enum image layout is required. Disabling named return
+check reports that compatible packed image layout is required. Disabling named return
 construction would change semantics and is not used as a workaround.
+The [layout migration](IMAGE_LAYOUT.md) describes the current integer-only proof.
 
 Resizable enums, multiple/nonfinal variable fields, variable elements, containing
 `E..` owners, serialization, recursive rendering and comparison remain gated.

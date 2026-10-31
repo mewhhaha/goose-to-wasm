@@ -188,6 +188,15 @@ def cases():
     for n in (0, 1):
         answer = "0 0 0 0\n" if n > 0 else "100 100 100 200\n"
         result.append(Case(f"variable-enum-tail/replacement-aliases/{n}", "variable_enum_replacement_aliases", f"{n}\n", answer, group="aggregate"))
+    for n in (-1, 0, 1):
+        answer = ("72057594037927935 1 72057594037927935\n255 65535 4294967295 255\n-1\n" if n < 0 else
+                  "283686952306183 1 283686952306183\n8 1543 33752069 1\n50595078\n" if n == 0 else
+                  "0 0 0\n0 0 0 0\n0\n")
+        result.append(Case(f"image/packed-variant/{n}", "packed_variant_overlap", f"{n}\n", answer, group="aggregate"))
+    for n in (-1, 0, 3):
+        answer = (f"1 {n + 10} {n + 11} {n + 12}\n7 1 {n + 110} {n + 20}\n"
+                  f"4 {n + 11} {n + 12}\n{n + 12} {n + 112}\n")
+        result.append(Case(f"image/packed-storage/{n}", "packed_variant_storage", f"{n}\n", answer, group="aggregate"))
     for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"

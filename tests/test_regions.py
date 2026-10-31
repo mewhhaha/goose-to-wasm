@@ -1141,6 +1141,36 @@ fn main() {}'''
                     self.assertEqual(observed["error"], "")
 
 
+    def test_packed_nine_byte_elements_keep_references_and_region_bounds(self):
+        source = f'''enum Flat {{ Data {{ lead: u8, value: i64 }} }}
+var neighbor: i64[>..] = [{CANARY}];
+export fn tick(n: i64) -> i64 {{
+    var values: Flat.Data[>..] = [Flat.Data {{ 1, n }}];
+    let kept: const i64& = values[0].value;
+    values.append([Flat.Data {{ 2, n + 1 }}; 999]); values.append([Flat.Data {{ 3, n + 2 }}]);
+    if kept != n || values.len != 1001 || values[1000].value != n + 2 {{ abort("bad packed element stride"); }} return n + 1;
+}}
+fn main() {{}}'''
+        exhausted = f'''extern fn bench_input() -> i64;
+enum Flat {{ Data {{ lead: u8, value: i64 }} }}
+var values: Flat.Data[>..] = [];
+var neighbor: i64[>..] = [{CANARY}];
+fn main() {{ values.resize(bench_input(), Flat.Data {{ 1, 42 }}); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(kind="repeated", level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+            path, runtime = self.compile(exhausted, level)
+            count = runtime["region_bytes"] // 9 + 1
+            for engine, observed in self.engines(path, runtime, input_value=count, canary_index=1):
+                with self.subTest(kind="exhausted", level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--goose", type=Path, default=GOOSE)

@@ -89,10 +89,10 @@ class VariableEnumBoundaries(unittest.TestCase):
 
     def test_observing_nonempty_named_replacement_requires_packed_images(self):
         source = '''extern fn bench_input() -> i64;
-enum E { Old { lead: u8, value: u64 }, New { value: u64 }, Empty }
+enum E { Old { point: u64&, value: u64 }, New { value: u64 }, Empty }
 var fallback: u64 = 0;
 recursive fn replace(n: i64) -> E.., u64 {
-    var e: E.. = E.Old { 1, 0 };
+    var e: E.. = E.Old { fallback, 0 };
     let kept: u64& = match e { Old &p => p.value, _ => fallback };
     if n > 0 { return e, 0; } return E.New { 0x0102030405060708 }, kept;
 }

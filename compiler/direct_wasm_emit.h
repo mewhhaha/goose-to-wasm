@@ -219,7 +219,7 @@ inline DirectWasmResult Compiler::Compile() {
     for (auto &f : result.function_info) { fnnames.U(f.index); fnnames.Name(f.name); }
     debugnames.Byte(1); debugnames.U(fnnames.data.size()); debugnames.Raw(fnnames.data); module.Section(0, debugnames);
     Bytes producer; producer.Name("goose.direct");
-    producer.Name("abi=1;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
+    producer.Name("abi=1;layout=2;variant-payloads=packed-fields;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
     module.Section(0, producer);
     if (needs_regions) {
         Bytes regions; regions.Name("goose.regions");

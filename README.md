@@ -28,6 +28,8 @@ Nonresizable variable-mode enums with fixed or single-tail payloads use independ
 mode conversions, owned calls/results and copied or borrowed payload matches.
 Standalone variable-size variants share the single-tail record walker, including
 nested tails and supported payloads whose siblings require other storage forms.
+Fixed variant fields are packed; integer-only enum replacements preserve the
+native byte-overlap behavior through saved payload references.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

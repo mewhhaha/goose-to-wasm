@@ -211,7 +211,7 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
                 }
                 RunChildren(node, validate);
             };
-            validate(body);
+            if (!Compiler::PackedIntegerEnum(types[i]->enu->inst)) validate(body);
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }
         if (Compiler::RegionRecord(types[i]) || Compiler::RegionRecord(candidate->type)) {
