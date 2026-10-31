@@ -82,9 +82,49 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
         }
     } else if (nodes.size() == 1 && Values(nodes[0]).size() == types.size()) {
         auto vt = NaturalResults(nodes[0]);
-        ResultExpression(nodes[0], destinations);
+        // A forwarded producer may itself be an escape target. Its entry
+        // anchor belongs to this attempt, not to the outer receiving image.
+        // Keep each image control private and capture every start before args.
+        auto producers = destinations;
+        vector<optional<uint32_t>> starts(types.size()), headers(types.size());
+        vector<bool> lands(types.size());
+        auto cleanup_depth = cleanups.size(), private_depth = private_headers.size();
+        for (size_t i = 0; c.region_cursors && i < types.size(); i++) {
+            if (!Compiler::RegionOwner(vt[i]) || destinations.size() != types.size() || !destinations[i]) continue;
+            auto &destination = *destinations[i]; auto type = destination.location.storage_type;
+            auto record = Compiler::RegionRecord(type) && !Compiler::FrameStruct(type);
+            auto array = Compiler::RegionArray(type) &&
+                ((type->arr->akind == A_VAR && !destination.elements) || Compiler::RuntimeLimited(type));
+            if (!record && !array) continue;
+            LocationAddress(TailHeaderLocation(destination.location)); auto original = Save(I32);
+            starts[i] = RegionCursor(original);
+            lands[i] = destination.construction->open > destination.open0;
+            auto layout = c.ControlLayout(type);
+            Location stage { type, Slot { Slot::FRAME, FrameBytes(layout.size, layout.align), type } };
+            LocationAddress(TailHeaderLocation(stage)); auto header = Save(I32); headers[i] = header;
+            Get(header); code.I32Const(0); code.I32Const(int32_t(owner_control_bytes)); code.Fill();
+            Get(header); Get(original); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
+            Get(header); Get(*starts[i]); code.Mem(0x36, 2);
+            if (record) SetRecordImageAnchor(stage, *starts[i], l);
+            auto publication = record ? optional<uint32_t>{} : Publication(destination);
+            RegisterEffectOwner(stage, true, false, publication);
+            private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
+            if (array) cleanups.push_back({ CleanupAction::CheckAbandonedRegion, original, type->arr->sub, l, destination.enum_guard });
+            producers[i] = ConstructionDestination { stage, ConstructionDestination::Statement, destination.elements,
+                destination.enum_guard, true, false, publication, destination.construction, destination.open0 };
+        }
+        ResultExpression(nodes[0], producers);
         vector<uint32_t> captured(types.size());
         for (size_t i = types.size(); i-- > 0;) captured[i] = Save(vt[i]);
+        for (size_t i = 0; i < types.size(); i++) if (starts[i]) {
+            auto &destination = *destinations[i]; auto type = destination.location.storage_type;
+            if (Compiler::RegionRecord(type)) FinishRecordImage(destination.location, *starts[i], lands[i], l);
+            else {
+                LocationAddress(destination.location); auto original = Save(I32);
+                FinishArrayImage(original, *starts[i], *headers[i], type, lands[i], l);
+            }
+        }
+        CloseCleanups(cleanup_depth); private_headers.resize(private_depth);
         for (size_t i = 0; i < types.size(); i++) {
             if (Compiler::RegionOwner(types[i])) {
                 if (!Compiler::RegionOwner(vt[i])) ConstructRegionFromCaptured(vt[i], captured[i], *destinations[i], l);

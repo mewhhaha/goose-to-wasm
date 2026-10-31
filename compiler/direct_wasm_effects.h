@@ -2,13 +2,14 @@
 namespace goose::direct_wasm {
 
 inline bool Function::ImageTargetDestination(const ConstructionDestination &destination) const {
-    if (!spec || !c.effect_globals.count(spec) || !Compiler::ArrayImageEffectResult(destination.location.storage_type)) return false;
+    auto image = [&](TypeExpr *type) { return Compiler::ArrayImageEffectResult(type) || c.RecordImageEffectResult(type); };
+    if (!spec || !c.effect_globals.count(spec) || !image(destination.location.storage_type)) return false;
     optional<uint32_t> address;
     if (auto local = get_if<AddressLocal>(&destination.location.storage)) address = local->index;
     else if (auto slot = get_if<Slot>(&destination.location.storage); slot && slot->kind == Slot::ADDRESS) address = slot->index;
     if (!address) return false;
     for (size_t i = 0; i < resultdestinations.size(); i++)
-        if (resultdestinations[i] && *resultdestinations[i] == *address && Compiler::ArrayImageEffectResult(results[i])) return true;
+        if (resultdestinations[i] && *resultdestinations[i] == *address && image(results[i])) return true;
     return false;
 }
 
@@ -20,10 +21,19 @@ inline bool Compiler::ArrayImageEffectResult(TypeExpr *type) {
 }
 
 inline bool Compiler::OwnedEffectResult(TypeExpr *type) {
-    if (ArrayImageEffectResult(type)) return true;
+    if (ArrayImageEffectResult(type) || RecordImageEffectResult(type)) return true;
     if (GrowableArray(type)) return true;
     if (!FrameStruct(type)) return false;
     ControlLayout(type); return GrowableArray(TailType(type));
+}
+
+inline bool Compiler::RecordImageEffectResult(TypeExpr *type) {
+    if (!RegionRecord(type) || FrameStruct(type)) return false;
+    ControlLayout(type);
+    auto &fields = RecordFields(type);
+    for (size_t i = 0; i + 1 < fields.size(); i++) if (!PackedIntegerImage(fields[i])) return false;
+    auto tail = fields.back();
+    return RegionRecord(tail) ? RecordImageEffectResult(tail) : ArrayImageEffectResult(tail);
 }
 
 inline vector<size_t> Compiler::OwnedEffectOrdinals(FnSpec *target) {
@@ -171,6 +181,8 @@ inline void Function::EnterEffectFrame() {
             FrameAddress(metadata + 8); Get(base); code.Mem(0x36, 2);
             if (Compiler::ArrayImageEffectResult(spec->rets[ordinal]))
                 SetArrayImageAnchor(header, base, spec->rets[ordinal]);
+            else if (c.RecordImageEffectResult(spec->rets[ordinal]))
+                SetRecordImageAnchor({ spec->rets[ordinal], AddressLocal { *resultdestinations[ordinal] } }, base, spec->sf->line);
         }
         FrameAddress(mailbox); code.OpU(0x24, global);
     }

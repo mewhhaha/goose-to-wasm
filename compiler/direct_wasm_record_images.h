@@ -108,12 +108,26 @@ inline void Function::ConstructRecordImageLiteral(Node *node, const Construction
     DecodeRecordImage(destination.location, line);
 }
 
+inline void Function::FinishRecordImage(const Location &owner, uint32_t start, bool land, Line line) {
+    if (land) {
+        auto original_base = RecordImageBase(owner, line);
+        LocationAddress(TailHeaderLocation(owner)); auto original = Save(I32);
+        auto finish = RegionCursor(original);
+        Get(finish); code.Op(0xad); Get(start); code.Op(0xad); code.Op(0x7d); auto bytes = Save(I64);
+        Get(original_base); code.Op(0xad); Get(bytes); code.Op(0x7c); auto end = Save(I64);
+        Get(end); Get(original); code.Mem(0x28, 2, 8); code.Op(0xad); code.Op(0x56); TrapIf(line, "data region exhausted");
+        Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
+        Get(original_base); Get(start); Get(bytes); code.Op(0xa7); code.Copy();
+        Get(end); code.Op(0xa7); PublishCursor(original, Save(I32));
+    }
+    DecodeRecordImage(owner, line);
+}
+
 inline bool Function::ConstructNormalRecordImage(Node *value, const ConstructionDestination &destination) {
     auto type = destination.location.storage_type;
     if (!c.region_cursors || destination.escape_stage || !Compiler::RegionRecord(type) || Compiler::FrameStruct(type) ||
         !destination.normal_result) return false;
     auto line = value ? value->line : type->line;
-    auto original_base = RecordImageBase(destination.location, line);
     LocationAddress(TailHeaderLocation(destination.location)); auto original = Save(I32);
     auto start = RegionCursor(original);
     auto layout = c.ControlLayout(type);
@@ -126,17 +140,28 @@ inline bool Function::ConstructNormalRecordImage(Node *value, const Construction
     RegisterEffectOwner(stage); private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
     auto land = destination.construction->open > destination.open0;
     ConstructRecordInto(value, { stage, ConstructionDestination::Statement, false, destination.enum_guard, true, false, {}, destination.construction, destination.open0 });
-    if (land) {
-        auto finish = RegionCursor(original);
-        Get(finish); code.Op(0xad); Get(start); code.Op(0xad); code.Op(0x7d); auto bytes = Save(I64);
-        Get(original_base); code.Op(0xad); Get(bytes); code.Op(0x7c); auto end = Save(I64);
-        Get(end); Get(original); code.Mem(0x28, 2, 8); code.Op(0xad); code.Op(0x56); TrapIf(line, "data region exhausted");
-        Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
-        Get(original_base); Get(start); Get(bytes); code.Op(0xa7); code.Copy();
-        Get(end); code.Op(0xa7); PublishCursor(original, Save(I32));
-    }
-    DecodeRecordImage(destination.location, line);
+    FinishRecordImage(destination.location, start, land, line);
     CloseCleanups(depth); private_headers.erase(private_headers.begin() + private_index); return true;
+}
+
+inline void Function::LandRecordImage(const Location &owner, uint32_t start, uint32_t entry, Line line) {
+    LocationAddress(TailHeaderLocation(owner)); auto header = Save(I32);
+    auto finish = RegionCursor(header);
+    Get(header); code.Mem(0x28, 2, 8); auto limit = Save(I32);
+    Get(limit); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6b); auto region_base = Save(I32);
+    Get(start); Get(region_base); code.Op(0x49);
+    Get(entry); Get(region_base); code.Op(0x49); code.Op(0x72);
+    Get(start); Get(finish); code.Op(0x4b); code.Op(0x72);
+    Get(finish); Get(limit); code.Op(0x4b); code.Op(0x72);
+    TrapIf(line, "invalid nonlocal record image span");
+    Get(finish); code.Op(0xad); Get(start); code.Op(0xad); code.Op(0x7d); auto bytes = Save(I64);
+    Get(entry); code.Op(0xad); Get(bytes); code.Op(0x7c); auto end = Save(I64);
+    Get(end); Get(limit); code.Op(0xad); code.Op(0x56); TrapIf(line, "data region exhausted");
+    Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
+    Get(entry); Get(start); Get(bytes); code.Op(0xa7); code.Copy();
+    SetRecordImageAnchor(owner, entry, line);
+    DecodeRecordImage(owner, line);
+    Get(end); code.Op(0xa7); PublishCursor(header, Save(I32));
 }
 
 } // namespace goose::direct_wasm

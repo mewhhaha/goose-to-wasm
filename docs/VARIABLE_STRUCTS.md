@@ -55,7 +55,9 @@ surviving borrowed/global headers validate an abandoned advertised tail extent.
 Qualified boundaries remain explicit: nonfinal owners, multiple variable fields,
 variable elements, whole-variable-object assignment,
 variable-struct rendering/comparison, serialization and relative references remain
-outside this slice. Whole-record image nonlocal targets are still gated. The frontend rejects views escaping private by-value parameter storage.
+outside this slice. Nonlocal image targets admit recursively packed integer fixed
+prefixes and supported terminal array images. The frontend rejects views escaping
+private by-value parameter storage.
 Declared global defaults are checked initializer nodes; explicit
 `default<NonfixedStruct>()` remains frontend-invalid.
 

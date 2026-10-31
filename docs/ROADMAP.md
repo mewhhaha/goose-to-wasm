@@ -15,7 +15,7 @@ a value copy. See [static captures](STATIC_CAPTURES.md) and
 [owned function values](OWNED_FUNCTION_VALUES.md). Borrowed callback-local
 results remain conservatively gated. Fixed nonlocal effects are described below.
 
-## Implemented: fixed, growable/frame and supported array image nonlocal results
+## Implemented: fixed, growable/frame and qualified array/record image nonlocal results
 
 Activation mailboxes propagate fixed/scalar/mixed fixed returns through ordinary
 and dispatched calls, preserving the innermost concrete target across recursion.
@@ -41,8 +41,8 @@ full-capacity copies, normal return staging and control-only prefix adapters.
 The [array-image contract](ARRAY_IMAGES.md) records call ordering and receiving
 anchors. Standalone scalar and recursively packed integer aggregate array nonlocal
 targets preserve that anchor, move full suffixes and decode retained prefixes at
-catch. Other aggregate representations and general enclosing record/enum images
-remain subsequent work.
+catch. Other aggregate representations and enclosing enum images remain subsequent
+work. Qualified single-tail record effects are described below.
 
 ## Implemented: contiguous single-tail record images
 
@@ -52,7 +52,11 @@ across calls and globals; physical constructors append fields after evaluating
 them. Whole-image copies preserve capacity, and normal landing decodes the
 receiving anchor. Embedded enum payloads use the same record image after the
 existing control union. The [record-image contract](RECORD_IMAGES.md) describes
-layout 5; Frame objects and enclosing enum image NLR remain separate.
+layout 5. Integer-prefix records and standalone variants now support nonlocal
+image targets with qualified terminal array elements. Catch moves the full suffix
+and decodes the saved entry anchor. Tuple forwarding gives image producers
+private controls, preserving outer anchors through inner nonlocal targets. Frame
+objects and enclosing enum image NLR remain separate.
 
 ## Implemented: runtime enum case dispatch
 

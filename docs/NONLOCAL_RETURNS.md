@@ -7,8 +7,9 @@ still apply. Growable/grow-shrink arrays and fixed-prefix frames may accompany s
 fixed results under the staging and landing contract below. Standalone unsigned-
 length Var and runtime-limited arrays of scalar elements or recursively packed
 integer records/fixed arrays also qualify with byte-authoritative image landing.
-Other aggregate element representations, enums and non-frame-record owned kinds
-remain explicitly gated.
+Qualified single-tail records and standalone variants with recursively packed
+integer prefixes also land whole images. Other aggregate element representations
+and enclosing enum owned kinds remain explicitly gated.
 
 Final checked bodies identify actual escaping returns. Discovery skips raw
 declarations/function-value templates, walks checked callback/default bodies and
@@ -97,8 +98,8 @@ The initial owned-source admission accepts supported location/copy reads and
 closed ordinary producers with fixed, reference-free parameters/captures.
 Qualified growable forwarding can evaluate push arguments. Callback-result and
 unproved borrowed/owned producer environments receive a diagnostic. Variable,
-capacity-limited and enum/non-frame-record owned nonlocal results
-require further work; this is not a general owned-effect parity claim.
+capacity-limited and qualified record results now use the image contracts below;
+enclosing enum targets and other sources require further work.
 
 Differential fixtures cover recursive target identity, local source slices,
 argument ordering, canceled partial values followed by literal/copy/forwarded
@@ -215,3 +216,35 @@ elements, standalone variants with variable siblings, both prefix cancellation
 widths, argument snapshots before source mutation, mixed/recursive forwarding,
 full-capacity copies and adjacent-region canaries. The same landing and source
 proof protocol is used; the admission proof adds no control bytes or regions.
+
+
+## Record image targets
+
+Non-frame structs and standalone variants qualify when every fixed prefix field
+is a recursively packed integer image and the final owned field recursively ends
+in a qualified Var/runtime-limited array. The record's nominal identity remains
+unchanged. Frame objects retain their separate prefix/suffix protocol.
+
+Entry fixes the record anchor and ultimate tail anchor without writing data.
+Private named and escape controls share that region but choose their own physical
+construction starts after argument evaluation. Every attempt start still snapshots
+before the first result expression. Catch moves the entire suffix to the saved
+record entry, then derives fixed fields and decodes terminal length/capacity at
+the original packed offsets. Partial prefix writes and canceled array prefixes
+remain observable; staged values never repair them. Sparse extents are checked
+and mapped without advancing the physical cursor. Replaced-owner recognition
+continues to use the aligned control offset, independently of the image prefix.
+
+Normal tuple forwarding creates a private control for each image result before
+arguments execute. All returned Wasm values are captured before any receiving
+image is finished. An inner nonlocal target can therefore reanchor its private
+control without overwriting an outer target's logical entry. Finishing uses the
+same syntactic open-construction landing decision as single-result returns,
+retains the outer anchor and decodes its bytes. This adds no data regions.
+Array and record regression fixtures cancel an outer construction before
+forwarding a tuple through an inner actual nonlocal target.
+
+Record fixtures also cover cancellation in fixed fields and tails, nested records,
+standalone variants, interleaved physical writes, multiple heterogeneous result
+channels and sparse logical extents. Resource tests exercise repeated returns,
+recursive activation exhaustion and overflowing packed tails beside live canaries.

@@ -280,6 +280,8 @@ struct Function {
     void FinishArrayImage(uint32_t, uint32_t, uint32_t, TypeExpr *, bool, Line);
     void SetArrayImageAnchor(uint32_t, uint32_t, TypeExpr *);
     void LandArrayImage(uint32_t, uint32_t, uint32_t, TypeExpr *, Line);
+    void LandRecordImage(const Location &, uint32_t, uint32_t, Line);
+    void FinishRecordImage(const Location &, uint32_t, bool, Line);
     bool ImageTargetDestination(const ConstructionDestination &) const;
 
     void View(Node *);
@@ -784,6 +786,7 @@ struct Compiler {
     void AnalyzeCaptures();
     void AnalyzeEffects();
     static bool ArrayImageEffectResult(TypeExpr *);
+    bool RecordImageEffectResult(TypeExpr *);
     bool OwnedEffectResult(TypeExpr *);
     vector<size_t> OwnedEffectOrdinals(FnSpec *);
     bool SameEffectType(TypeExpr *, TypeExpr *);

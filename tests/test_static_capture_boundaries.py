@@ -21,10 +21,11 @@ class StaticCaptureBoundaries(unittest.TestCase):
         return subprocess.run(command, capture_output=True, text=True, timeout=60), output
 
     def test_record_image_nonlocal_targets_require_additional_landing_support(self):
-        source = '''struct Box { values: i64[] }
+        source = '''var fallback:i64=0;
+struct Box { point:i64&, values: i64[] }
 fn target() -> Box {
-    recursive fn leave() { return Box { [7, 8] } from target; }
-    leave(); return Box { [] };
+    recursive fn leave() { return Box { fallback, [7, 8] } from target; }
+    leave(); return Box { fallback, [] };
 }
 fn main() { print(target()); }'''
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
@@ -37,10 +38,11 @@ fn main() { print(target()); }'''
                 self.assertIn("this owned nonlocal target requires additional staging and landing support", direct.stdout + direct.stderr)
 
     def test_multiple_owned_nonlocal_image_targets_require_additional_support(self):
-        source = '''struct Box { values: i64[] }
+        source = '''var fallback:i64=0;
+struct Box { point:i64&, values: i64[] }
 fn target() -> i64[>..], Box {
-    recursive fn leave() { return [7], Box { [8] } from target; }
-    leave(); return [], Box { [] };
+    recursive fn leave() { return [7], Box { fallback, [8] } from target; }
+    leave(); return [], Box { fallback, [] };
 }
 fn main() { let a, b = target(); print(a.len, b.values.len); }'''
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
