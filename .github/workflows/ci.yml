@@ -16,7 +16,7 @@ concurrency:
 jobs:
   qualify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 55
+    timeout-minutes: 120
     env:
       EMCC_CORES: "2"
       EM_CACHE: ${{ github.workspace }}/build/em-cache
