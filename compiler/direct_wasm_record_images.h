@@ -4,6 +4,7 @@ namespace goose::direct_wasm {
 inline uint32_t Function::RecordImageBase(const Location &owner, Line line) {
     LocationAddress(TailHeaderLocation(owner)); auto header = Save(I32);
     Get(header); code.Mem(0x28, 2, 16); auto tail = Save(I32);
+    if (Compiler::ByteRecord(owner.storage_type)) return tail;
     auto prefix = c.RecordImageLayout(owner.storage_type).size;
     Get(tail); code.I32Const(int32_t(prefix)); code.Op(0x49);
     TrapIf(line, "invalid record image anchor");
@@ -11,6 +12,10 @@ inline uint32_t Function::RecordImageBase(const Location &owner, Line line) {
 }
 
 inline void Function::RecordFieldAddress(TypeExpr *type, size_t field, Line line) {
+    if (Compiler::ByteRecord(type)) {
+        auto control = Save(I32);
+        Get(WalkByteRecord({ type, AddressLocal { control } }, field, line)); return;
+    }
     if (Compiler::RegionRecord(type) && !Compiler::FrameStruct(type) && field + 1 < c.RecordFields(type).size()) {
         auto control = Save(I32);
         auto base = RecordImageBase({ type, AddressLocal { control } }, line);
@@ -29,6 +34,10 @@ inline void Function::RecordFieldAddress(TypeExpr *type, size_t field, Line line
 
 inline void Function::SetRecordImageAnchor(const Location &owner, uint32_t base, Line line) {
     LocationAddress(TailHeaderLocation(owner)); auto header = Save(I32);
+    if (Compiler::ByteRecord(owner.storage_type)) {
+        for (auto offset : { 0u, 16u }) { Get(header); Get(base); code.Mem(0x36, 2, offset); }
+        return;
+    }
     Get(base); code.Op(0xad); code.I64Const(c.RecordImageLayout(owner.storage_type).size); code.Op(0x7c);
     auto tail = Save(I64);
     Get(tail); code.I64Const(UINT32_MAX); code.Op(0x56); TrapIf(line, "record image anchor exceeds wasm32 range");
@@ -37,6 +46,11 @@ inline void Function::SetRecordImageAnchor(const Location &owner, uint32_t base,
 
 inline void Function::DecodeRecordImage(const Location &owner, Line line) {
     LocationAddress(TailHeaderLocation(owner)); auto header = Save(I32);
+    if (Compiler::ByteRecord(owner.storage_type)) {
+        auto end = WalkByteRecord(owner, {}, line);
+        Get(header); Get(end); Get(RecordImageBase(owner, line)); code.Op(0x6b); code.Mem(0x36, 2, 4);
+        return;
+    }
     auto type = c.TailType(owner.storage_type);
     auto prefix = Compiler::RuntimeLimited(type) ? 8u : uint32_t(IntBits(Compiler::LengthStorage(type)) / 8);
     Get(header); code.Mem(0x28, 2, 16); code.Op(0xad); code.I64Const(prefix); code.Op(0x7c); auto end = Save(I64);
@@ -56,6 +70,9 @@ inline void Function::DecodeRecordImage(const Location &owner, Line line) {
 
 inline uint32_t Function::RecordImageBytes(const Location &owner, Line line) {
     DecodeRecordImage(owner, line);
+    if (Compiler::ByteRecord(owner.storage_type)) {
+        LocationAddress(owner); code.Mem(0x28, 2, 4); code.Op(0xad); return Save(I64);
+    }
     auto base = RecordImageBase(owner, line);
     LocationAddress(TailHeaderLocation(owner)); auto header = Save(I32);
     auto tail = c.TailType(owner.storage_type);
@@ -94,7 +111,11 @@ inline void Function::ConstructRecordImageLiteral(Node *node, const Construction
             CommitImagePadding(header, uint64_t(max<int64_t>(0, definitions[i].padsize)), line); continue;
         }
         auto init = literal ? literal->InitFor(int(i)) : nullptr;
-        if (i + 1 < fields.size()) {
+        if (Compiler::ByteRecord(type) && Compiler::Varint(fields[i])) {
+            if (init) To(init, c.ast.inttypes[IS_I64]); else code.I64Const(0);
+            AppendVarint(header, Save(I64), line); continue;
+        }
+        if (Compiler::ByteRecord(type) || i + 1 < fields.size()) {
             optional<CapturedValue> value;
             if (init) value = CaptureBorrowed(init, fields[i]);
             auto bytes = c.FixedLayout(fields[i]).size;

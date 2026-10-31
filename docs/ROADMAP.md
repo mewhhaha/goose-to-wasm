@@ -80,6 +80,15 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: sequential varint record images
+
+Direct varint fields in otherwise fixed-field structs use one root control and
+one region. Sequential walks decode canonical zigzag ULEB128 images and compute
+later field offsets and copy extents from bytes. Normal results and copies reuse
+record staging; encoded varint references read decoded i64 values. Containing
+byte records, variable enum payloads/elements/lengths and image effects remain
+separate. See [varint records](VARINT_RECORDS.md).
+
 ## Implemented: fixed and variable-prefix record padding
 
 Fixed record/variant pads retain declaration indices and explicit alignment;

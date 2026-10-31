@@ -319,6 +319,9 @@ See [the enum contract](VARIABLE_ENUMS.md).
   parameters/results, mode conversion and by-value/by-reference payload matches.
 - Scalar/string and supported fixed-array rendering, including argument
   evaluation and snapshot ordering.
+- Struct images with direct varint fields and otherwise fixed-size fields,
+  sequential field offsets, bounded decoding, copies, references and normal results;
+  see [varint records](VARINT_RECORDS.md).
 
 The executable differential suite is the authority for qualified behavior.
 

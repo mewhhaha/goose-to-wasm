@@ -1,7 +1,8 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=9;record-padding=fixed-alignment-variable-explicit`, with
+internal `layout=10;varint-records=sequential`, with
+`record-padding=fixed-alignment-variable-explicit` and
 `static-limited=compact-lengths;enum-tags=compact` and
 `variable-enums=active-payloads`, alongside
 `record-values=packed-single-tail;owner-control=24` and
@@ -47,6 +48,9 @@ terminal array images together. Their aligned controls remain separate, and the
 outer variable enum now stores the compact tag and active payload only. Aligned
 owner envelopes retain separate persistent controls for each nonfixed variant,
 so saved typed views survive replacement. Inactive payloads consume no data bytes.
+[Varint record images](VARINT_RECORDS.md) use sequential field/extent walks
+and a root control. Containing byte records, variable elements/lengths and image
+effects require further walkers and overlap proofs.
 [Record padding](RECORD_PADDING.md) distinguishes fixed alignment pads from
 explicit-only variable prefix pads. Frame/suffix pads, ambiguous bare-pad fixed
 payloads in variable enums, overlap and image-effect proofs remain bounded.

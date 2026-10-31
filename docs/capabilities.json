@@ -1129,7 +1129,7 @@
     "images": {
       "layout": {
         "status": "qualified_subset",
-        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding forms, varints and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding.",
+        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding/varint forms and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding. Layout 10 adds sequential varint record images with root controls.",
         "fixtures": [
           "tests/fixtures/packed_record_storage.goose",
           "tests/fixtures/record_image_aliases.goose",
@@ -1159,10 +1159,20 @@
         ]
       },
       "varints": {
-        "status": "pending",
-        "scope": "Bounded ULEB128 and zigzag storage and validation pending.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "Direct varint fields in otherwise fixed-field structs use one root owner control and sequential image walks. Canonical signed zigzag ULEB128 construction, bounded i64 decoding, dynamic field offsets, encoded references, global defaults, copies and normal results. Physical FixedLayout and Store(varint), containing byte records, array elements/lengths, enum payloads, image effects, unproved replacement overlap and untrusted-image validation remain separate. Later calls after named replacement remain gated because captures may hide aliases.",
+        "fixtures": [
+          "tests/fixtures/varint_record_values.goose",
+          "tests/fixtures/varint_record_boundaries.goose",
+          "tests/fixtures/varint_record_callbacks.goose",
+          "tests/fixtures/varint_record_replacement.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/test_varint_records.py",
+          "tests/test_varint_boundaries.py",
+          "tests/test_regions.py",
+          "tests/test_varint_capture_boundaries.py"
+        ]
       },
       "validation": {
         "status": "pending",

@@ -237,6 +237,32 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
             if (!Compiler::RegionRecord(types[i]) || !Compiler::RegionRecord(candidate->type) ||
                 !Compiler::SameRecord(candidate->type, types[i]) || destinations[i]->elements) continue;
             CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
+            if (Compiler::ByteRecord(types[i])) {
+                // A stale encoded-field reference can see arbitrary continuation
+                // bytes after replacement. Native's unchecked decoder is not a
+                // bounded overlap proof. Rooted references cannot escape (§9.2);
+                // later result observations need their own proof.
+                function<void(Node *)> validate = [&](Node *node) {
+                    if (!node) return;
+                    if (auto ret = Is<Return>(node); ret && ret->target == target && ret->vals.size() == types.size()) {
+                        auto id = Is<Ident>(ret->vals[i]);
+                        if (!id || id->vdef != candidate)
+                            for (size_t j = i + 1; j < ret->vals.size(); j++) {
+                                if (goose::MayReachLocal(ret->vals[j], candidate))
+                                    Fail(ret->line, "observing a named varint record after replacement requires a bounded overlap proof");
+                                function<void(Node *)> no_opaque_read = [&](Node *part) {
+                                    if (!part) return;
+                                    if (auto call = Is<Call>(part); call && call->builtin < 0 && !call->fvbody)
+                                        Fail(part->line, "calls after named varint record replacement require a bounded overlap proof");
+                                    RunChildren(part, no_opaque_read);
+                                };
+                                no_opaque_read(ret->vals[j]);
+                            }
+                    }
+                    RunChildren(node, validate);
+                };
+                validate(body);
+            }
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }
         // The frontend requires identical array element types for this

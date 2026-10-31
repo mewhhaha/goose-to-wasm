@@ -28,7 +28,7 @@ inline bool Compiler::OwnedEffectResult(TypeExpr *type) {
 }
 
 inline bool Compiler::RecordImageEffectResult(TypeExpr *type) {
-    if (!RegionRecord(type) || FrameStruct(type)) return false;
+    if (!RegionRecord(type) || FrameStruct(type) || ByteRecord(type)) return false;
     ControlLayout(type);
     auto &fields = RecordFields(type);
     for (size_t i = 0; i + 1 < fields.size(); i++) if (!PackedIntegerImage(fields[i])) return false;
