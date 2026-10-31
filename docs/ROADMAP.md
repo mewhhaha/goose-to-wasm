@@ -15,7 +15,7 @@ a value copy. See [static captures](STATIC_CAPTURES.md) and
 [owned function values](OWNED_FUNCTION_VALUES.md). Borrowed callback-local
 results remain conservatively gated. Fixed nonlocal effects are described below.
 
-## Implemented: fixed nonlocal-return targets
+## Implemented: fixed and one-owned-result nonlocal targets
 
 Activation mailboxes propagate fixed/scalar/mixed fixed returns through ordinary
 and dispatched calls, preserving the innermost concrete target across recursion.
@@ -26,8 +26,8 @@ The original function-value capture program now qualifies at O0 as well as O2.
 A [single growable-array or frame target](NONLOCAL_RETURNS.md) now stages behind existing
 data and lands at its catch without acquiring another data region. Physical
 cursors preserve canceled partial data, while receiving controls publish lengths
-and frame fields during interrupted construction. Other owned contracts remain
-pending. Frame catch snapshots preserve nested fixed prefixes and adjust the
+and frame fields during interrupted construction. The owned result may appear beside fixed results at any ordinal. Multiple owned
+results and unsupported owned kinds remain pending. Frame catch snapshots preserve nested fixed prefixes and adjust the
 winning tail base relative to the copied suffix; canceled attempts retain tail
 bytes while discarding their private prefix.
 

@@ -320,7 +320,7 @@ unproven packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;
 relative and pool references;
 out-of-line nonlocal returns with variable, capacity-limited, enum/non-frame-record or
-mixed/multiple owned target results;
+multiple owned target results;
 threads/queues; binary framing/serialization; custom formatters and
 unsupported aggregate rendering; and explicit packed padding.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.
