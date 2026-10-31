@@ -505,12 +505,18 @@
         "boundary_fixtures": []
       },
       "NK_FunVal": {
-        "status": "pending",
-        "scope": "Static nonescaping values only in pinned v1; out-of-line environments and nonlocal effects remain pending.",
+        "status": "qualified_subset",
+        "scope": "Static nonescaping function-value specializations with current-activation captured locations, fixed and qualified owned parameters/results, ordinary/recursive forwarding and supported nonlocal effects. Borrowed callback-local results and unsupported owned layouts remain explicitly gated. Runtime-selected function pointers and heap closures are outside the pinned language contract.",
         "fixtures": [
-          "tests/fixtures/value_forms.goose"
+          "tests/fixtures/value_forms.goose",
+          "tests/fixtures/owned_function_values.goose",
+          "tests/fixtures/owned_function_value_recursion.goose",
+          "tests/fixtures/static_capture_bindings.goose"
         ],
-        "boundary_fixtures": []
+        "boundary_fixtures": [
+          "tests/test_static_capture_boundaries.py",
+          "tests/test_regions.py"
+        ]
       },
       "NK_Ident": {
         "status": "qualified_subset",
