@@ -124,7 +124,7 @@ inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, b
     owner_entries.push_back({ offset, temporary });
     FrameAddress(offset + 4); LocationAddress(TailHeaderLocation(owner)); code.Mem(0x36, 2);
     FrameAddress(offset + 8); code.I32Const(1); code.Mem(0x36, 2);
-    auto interior = Compiler::RegionEnum(owner.storage_type) ? c.EnumImageLayout(owner.storage_type->enu->inst, owner.storage_type->line).size : 0;
+    auto interior = Compiler::RegionEnum(owner.storage_type) ? c.ControlLayout(owner.storage_type).size : 0;
     FrameAddress(offset + 12); code.I32Const(int32_t(interior)); code.Mem(0x36, 2);
     if (c.region_cursors) {
         FrameAddress(offset + 36);
@@ -213,7 +213,7 @@ inline void Function::SkipDyingEffectOwner(uint32_t header,
     if (guard) { Get(guard->owner_header); Get(registered); code.Op(0x46); Br(done, true); }
     Get(entry); code.Mem(0x28, 2, 12); auto interior = Save(I32);
     Get(interior); Begin(0x04);
-    Get(registered); code.Mem(0x28, 2); auto base = Save(I32);
+    auto base = registered;
     Get(header); code.Op(0xad); Get(base); code.Op(0xad); code.Op(0x5a);
     Get(header); code.Op(0xad); code.I64Const(owner_control_bytes); code.Op(0x7c);
     Get(base); code.Op(0xad); Get(interior); code.Op(0xad); code.Op(0x7c); code.Op(0x58); code.Op(0x71);

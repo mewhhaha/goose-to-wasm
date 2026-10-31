@@ -94,6 +94,7 @@ jobs:
           python tests/test_sparse_array_images.py
           python tests/test_record_images.py
           python tests/test_enum_tags.py
+          python tests/test_enum_images.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py
       - name: LangArena official small cases and observable marker edits

@@ -87,12 +87,16 @@ inline void Function::EmitFunctionValue(Call *node, bool adapt_result, const Res
     // adaptation to another kind or length storage first builds a value.
     // Its receiving storage precedes argument evaluation, as in EmitFvCall.
     // Exact receivers avoid an unnecessary live region across recursive calls.
+    auto requested = destinations;
+    if (requested.empty() && adapt_result && natural.size() == 1 && Compiler::VariantSource(natural[0]) && Compiler::RegionEnum(node->exprtype))
+        requested = { TemporaryDestination(node->exprtype, node->line) };
+    auto prepared_enums = PrepareEnumResults(natural, requested, node->line, natural.size() != 1 || Compiler::RegionEnum(node->exprtype));
     RegionResultPlan plan { ResultDestinations(natural.size()), ResultDestinations(natural.size()),
                             ResultDestinations(natural.size()), ResultDestinations(natural.size()), ResultDestinations(natural.size()), vector<TypeExpr *>(natural.size(), nullptr) };
     if (!destinations.empty() && destinations.size() != natural.size())
         Fail(node->line, "function-value result channel arity mismatch");
     for (size_t i = 0; i < natural.size(); i++) if (Compiler::RegionOwner(natural[i])) {
-        auto receiver = destinations.empty() ? optional<ConstructionDestination> {} : destinations[i];
+        auto receiver = prepared_enums.producers.empty() ? optional<ConstructionDestination> {} : prepared_enums.producers[i];
         if (receiver) CheckRegionDestination(natural[i], *receiver, node->line);
         auto want = receiver ? receiver->location.storage_type : node->exprtype;
         auto run = Compiler::RegionArray(natural[i]) && !Compiler::RuntimeLimited(natural[i]) &&
@@ -106,6 +110,7 @@ inline void Function::EmitFunctionValue(Call *node, bool adapt_result, const Res
             if (receiver) plan.copies[i] = receiver;
         }
     }
+    ApplyPreparedEnumResults(plan, prepared_enums);
     bool group_needed = owns_parameters;
     for (auto arg : args) group_needed |= MayMaterialize(arg);
     auto private_depth = private_headers.size();
@@ -127,6 +132,7 @@ inline void Function::EmitFunctionValue(Call *node, bool adapt_result, const Res
     for (auto [from, to] : node->fvremap) remap[from] = to;
     aliases.push_back(std::move(remap));
     vector<uint32_t> values; for (auto type : natural) values.push_back(Local(type));
+    for (auto &producer : plan.producers) if (producer) RebaseEscapeStage(*producer);
     auto retain_arguments = anonymous_serial != group.serial;
     // Do not bind named results: a callback's value is a copy of its tail.
     BlockInto(node->fvbody, natural, values, plan.producers);
@@ -138,6 +144,7 @@ inline void Function::EmitFunctionValue(Call *node, bool adapt_result, const Res
     private_headers.resize(retained);
     for (auto value : values) Get(value);
     PublishRegionResults(natural, plan, node->line);
+    ClosePreparedEnumResults(prepared_enums);
     if (adapt_result && natural.size() == 1) {
         auto delivered = plan.values[0] ? plan.values[0]->location.storage_type : natural[0];
         if (node->exprtype->kind == TY_VOID) code.Op(0x1a);

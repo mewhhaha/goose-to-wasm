@@ -122,7 +122,9 @@ subsequent extensions. Contiguous single-tail record images use typed field
 addressing, private tail producers, full-image copies and normal suffix landing.
 Nonlocal targets admit recursively packed integer prefixes and supported array
 tails; tuple forwarding preserves each outer logical anchor through private
-producer controls.
+producer controls. Variable enums now store compact tags and active payloads,
+with separate persistent typed controls and normal/tuple image staging; actual
+enum nonlocal targets remain separate.
 Tests include O0 programs that cannot depend on optimizer inlining.
 
 Before serialization, document the image ABI, pointer width/encoding and the

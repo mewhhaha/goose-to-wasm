@@ -860,7 +860,7 @@
       },
       "variable": {
         "status": "qualified_subset",
-        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results qualify for allfixed recursively packed fixed-width integer records, variants and nonempty fixed arrays; other such observations require further image layout and remain refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending. Compact u8/u16 tags share width-aware construction, conversion, match, dispatch and cleanup accessors. Fixed enum images have packed tag-plus-maximum-payload strides; empty alternatives contribute zero payload bytes. Variable payload record images follow the aligned enum tag/control union; logical extent validation preserves the physical construction cursor.",
+        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Compact tag plus active payload only, with one persistent typed control slot per nonfixed variant outside the image. Independent active-byte copies, capacity preservation, normal and tuple image staging, named aliases, borrowed/copy match and dispatch, fixed-mode snapshots, final-annotation-aware variant adapters and native inline construction openings. Saved old typed views observe replacement bytes for proved integer payload images. Inactive alternatives reserve no data; sparse logical extents map without promoting physical cursors. Resizable/multiple-owner payloads, containing E.. owners, unproved overlap layouts, actual out-of-line enum effects and general serialization remain pending.",
         "fixtures": [
           "tests/fixtures/variable_mode_enums.goose",
           "tests/fixtures/variable_enum_tails.goose",
@@ -875,14 +875,30 @@
           "tests/fixtures/record_image_aliases.goose",
           "tests/fixtures/record_image_callbacks.goose",
           "tests/fixtures/record_image_sparse.goose",
-          "tests/fixtures/compact_enum_tags.goose"
+          "tests/fixtures/compact_enum_tags.goose",
+          "tests/fixtures/enum_image_views.goose",
+          "tests/fixtures/enum_image_forwarding.goose",
+          "tests/fixtures/enum_image_fixed_tuple.goose",
+          "tests/fixtures/enum_image_canceled_fixed.goose",
+          "tests/fixtures/enum_image_canceled_variable.goose",
+          "tests/fixtures/enum_image_inline_fixed.goose",
+          "tests/fixtures/enum_image_inline_variable.goose",
+          "tests/fixtures/enum_image_conditional.goose",
+          "tests/fixtures/enum_image_successful.goose",
+          "tests/fixtures/enum_image_borrowed.goose",
+          "tests/fixtures/enum_image_copy_borrowed.goose",
+          "tests/fixtures/enum_image_copy_borrowed_variable.goose",
+          "tests/fixtures/enum_image_fixed_enum_tuple.goose",
+          "tests/fixtures/enum_image_borrowed_tuple.goose",
+          "tests/fixtures/enum_image_borrowed_ordinary.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_enum_boundaries.py",
           "tests/test_regions.py",
           "tests/test_packed_layout_boundaries.py",
           "tests/test_record_images.py",
-          "tests/test_enum_tags.py"
+          "tests/test_enum_tags.py",
+          "tests/test_enum_images.py"
         ]
       }
     },

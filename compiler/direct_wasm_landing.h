@@ -42,6 +42,9 @@ inline void Function::RebaseEscapeStage(const ConstructionDestination &destinati
     if (!destination.escape_stage) return;
     LocationAddress(TailHeaderLocation(destination.location)); auto header = Save(I32);
     auto cursor = RegionCursor(header);
+    if (Compiler::RegionEnum(destination.location.storage_type)) {
+        SetEnumImageAnchor(destination.location, cursor, destination.location.storage_type->line); return;
+    }
     if (Compiler::RegionRecord(destination.location.storage_type) && !Compiler::FrameStruct(destination.location.storage_type)) {
         SetRecordImageAnchor(destination.location, cursor, destination.location.storage_type->line); return;
     }

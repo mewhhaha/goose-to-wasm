@@ -1,7 +1,7 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=6;enum-tags=compact;variable-enums=control-union`, alongside
+internal `layout=7;enum-tags=compact;variable-enums=active-payloads`, alongside
 `record-values=packed-single-tail;owner-control=24` and
 the unsigned array value and packed fixed-record/variant markers.
 Compiler identity invalidates cached complete modules when layouts change.
@@ -42,9 +42,10 @@ prefixes in their region and read that metadata through physical-mode accessors.
 Their fixed-layout elements retain the target representation.
 [Single-tail non-frame records](RECORD_IMAGES.md) now store packed prefixes and
 terminal array images together. Their aligned controls remain separate, and the
-outer variable enum retains its aligned maximum control union. Its compact
-tag does not establish the C.2 tag-plus-active-payload layout. Further steps are
-compact static-limited metadata and general contiguous variable images. Those require dynamic
+outer variable enum now stores the compact tag and active payload only. Aligned
+owner envelopes retain separate persistent controls for each nonfixed variant,
+so saved typed views survive replacement. Inactive payloads consume no data bytes.
+Further steps are compact static-limited metadata and general variable walkers. Those require dynamic
 walkers, including partial construction and canceled nonlocal returns,
 before variable elements, nonfinal variable fields, relative references,
 serialization or general byte-overlap parity can qualify. Reference-containing

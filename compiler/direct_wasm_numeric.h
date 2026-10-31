@@ -26,10 +26,18 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
                   from->kind == TY_VARIANT ? from->var->adt->enu->inst : nullptr;
         if (!ei || to->kind != TY_ENUM || ei != to->enu->inst)
             Fail(l, "variable-mode enum adaptation requires the same enum instantiation");
-        c.EnumImageLayout(ei, l);
+        if (Compiler::RegionEnum(from)) c.ControlLayout(from);
+        if (Compiler::RegionEnum(to)) c.ControlLayout(to);
         if (Compiler::RegionEnum(from) && Compiler::RegionEnum(to)) return;
         if (Compiler::RegionEnum(from)) {
-            c.FixedLayout(to); code.Mem(0x28, 2); return; // borrowed fixed image, not its control descriptor
+            auto layout = c.FixedLayout(to);
+            auto source = Save(I32);
+            auto bytes = EnumImageBytes({ from, AddressLocal { source } }, l);
+            Get(source); code.Mem(0x28, 2); auto base = Save(I32);
+            auto snapshot = FreshDestination(to, ConstructionDestination::Activation).location;
+            LocationAddress(snapshot); code.I32Const(0); code.I32Const(int32_t(layout.size)); code.Fill();
+            LocationAddress(snapshot); Get(base); Get(bytes); code.Op(0xa7); code.Copy();
+            LocationAddress(snapshot); return;
         }
         auto source = Save(from);
         auto destination = TemporaryDestination(to, l);
