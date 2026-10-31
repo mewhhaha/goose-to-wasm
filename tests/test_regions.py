@@ -1248,6 +1248,39 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_variable_prefix_padding_preserves_references_and_regions(self):
+        source = f'''struct R {{tag:u8,pad 3,word:u16,pad,values:u8[u8]}}
+var neighbor:i64[>..]=[{CANARY}];
+recursive fn make(n:i64)->R {{return R{{7,n as u16,[8]}};}}
+export fn tick(n:i64)->i64 {{
+    let r=make(n);let kept:const u16& =r.word;
+    for i in 10 {{if make(i).word!=i as u16 {{abort("bad padded temporary");}}}}
+    if kept!=n as u16 || r.values.len!=1 || r.values[0]!=8 {{abort("bad padded reference");}}
+    return n+1;
+}}
+fn main() {{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],3)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_variable_padding_reserves_at_its_declaration_position(self):
+        source = f'''struct R {{first:i64,pad 70000,second:i64,values:u8[u8]}}
+var neighbor:i64[>..]=[{CANARY}];
+fn value(n:i64)->i64 {{print(n);return n;}}
+fn main() {{let r=R{{value(123),value(456),[]}};}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],2)
+            for engine,observed in self.engines(path,info,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn('data region exhausted',observed['error'])
+                    self.assertEqual(observed['numbers'],['123'])
+                    self.assertEqual(observed['canary'],str(CANARY))
+
     def test_enum_image_escapes_reuse_independent_regions(self):
         source = f'''enum E {{ A{{id:u8,values:u16[u8]}}, B{{id:u8,values:u16[..]}}, Empty }}
 var neighbor:i64[>..] = [{CANARY}];

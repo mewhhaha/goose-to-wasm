@@ -359,12 +359,13 @@ inline void Function::AggregateLiteral(Node *n) {
             } else if (t->kind != TY_VARIANT) Fail(n->line, "unsupported variant construction");
             layout = c.Payload(s->einst, vi);
         } else if (!s->sinst) Fail(n->line, "struct type was not resolved");
-        for (size_t i = 0; i < s->inits.size(); i++) {
-            auto fi = i < s->fieldindices.size() ? s->fieldindices[i] : int(i);
-            if (fi < 0 || size_t(fi) >= layout.fields.size()) Fail(n->line, "unsupported struct initializer");
+        for (size_t fi = 0; fi < layout.fields.size(); fi++) {
+            auto init = s->InitFor(int(fi));
+            if (!init) continue;
             auto ft = s->einst ? s->einst->vftypes[size_t(s->einst->en->VariantIndex(s->variant))][size_t(fi)]
                                : s->sinst->ftypes[size_t(fi)];
-            ConstructInto(s->inits[i].val, { OffsetLocation(place, payload + layout.fields[size_t(fi)], ft), ConstructionDestination::Statement });
+            if (!ft) continue; // Padding retains a declaration index, not an initializer.
+            ConstructInto(init, { OffsetLocation(place, payload + layout.fields[fi], ft), ConstructionDestination::Statement });
         }
     }
     LocationAddress(place);
@@ -836,7 +837,7 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
                 AcquireRegion(place, n->line);
                 private_headers.push_back({ TailHeaderLocation(place), cleanups.size() });
                 ConstructRecordFromCaptured(arm.binder->type, source, { place, ConstructionDestination::Block }, n->line);
-            } else if (arm.binder->type->kind == TY_VARIANT && c.RecordFields(arm.binder->type).empty()) {
+            } else if (arm.binder->type->kind == TY_VARIANT && EmptyLayout(c.RecordFieldDefs(arm.binder->type))) {
                 code.Op(0x1a); // An empty alternative has no bytes to read behind the tag.
                 LocationAddress({ arm.binder->type, slot }); code.I32Const(0); code.I32Const(1); code.Fill();
             } else Write(slot);

@@ -82,7 +82,7 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
         LocationAddress(destination); code.I32Const(0); code.I32Const(int32_t(layout.size)); code.Fill();
         LocationAddress(destination);
         code.I32Const(to->enu->inst->en->VariantIndex(from->var->variant)); WriteEnumTag(c.EnumTagBytes(to->enu->inst));
-        if (!c.RecordFields(from).empty()) StoreCopy(OffsetLocation(destination, layout.payload, from), source);
+        if (!EmptyLayout(c.RecordFieldDefs(from))) StoreCopy(OffsetLocation(destination, layout.payload, from), source);
         LocationAddress(destination); return;
     }
     if (c.Aggregate(from) || c.Aggregate(to)) {

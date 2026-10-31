@@ -1129,7 +1129,7 @@
     "images": {
       "layout": {
         "status": "qualified_subset",
-        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, explicit padding, varints and general variable walkers/serialization remain separate boundaries.",
+        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding forms, varints and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding.",
         "fixtures": [
           "tests/fixtures/packed_record_storage.goose",
           "tests/fixtures/record_image_aliases.goose",
@@ -1145,10 +1145,18 @@
         ]
       },
       "padding": {
-        "status": "pending",
-        "scope": "Explicit packed field padding pending.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "Fixed record/variant explicit sizes and native bare-pad alignment; non-frame variable prefixes publish explicit padding at declaration positions and ignore bare pads. Semantic empty payload detection and whole-copy pad preservation. Frame/suffix pads, ambiguous fixed bare-gap payloads in E.., overlap and owned image-effect proofs remain gated.",
+        "fixtures": [
+          "tests/fixtures/padding_fixed.goose",
+          "tests/fixtures/padding_callbacks.goose",
+          "tests/fixtures/padding_enums.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/test_record_padding.py",
+          "tests/test_padding_boundaries.py",
+          "tests/test_regions.py"
+        ]
       },
       "varints": {
         "status": "pending",

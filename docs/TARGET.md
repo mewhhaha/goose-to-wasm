@@ -20,12 +20,13 @@ memory addresses; slices are an i64 containing a pointer in the low 32 bits and 
 element count in the high 32 bits. Fixed structs and variants place fields next
 to each other with alignment one; arrays use their element's allocation stride.
 Other representations remain target-specific. This is a semantic target, not binary-layout
-compatibility with Goose's packed 64-bit C ABI. Explicit padding, relative/pool
-references, and binary serialization are refused until their target semantics
+compatibility with Goose's packed 64-bit C ABI. Relative/pool
+references and binary serialization are refused until their target semantics
 are implemented and qualified.
 
 Internal layout version 3 records packed fixed struct and variant fields,
-without inter-field/trailing alignment. Each field keeps its own representation;
+without implicit inter-field/trailing alignment. Layout 9 adds fixed alignment
+and explicit variable-prefix [padding](RECORD_PADDING.md). Each field keeps its own representation;
 owner controls remain separately aligned. See
 [the layout migration](IMAGE_LAYOUT.md) for its qualified byte-overlap subset.
 
@@ -332,7 +333,8 @@ enum rendering and comparison;
 relative and pool references;
 out-of-line nonlocal returns with unproven aggregate-element Var/runtime-limited arrays or unproved enum/record owned target results;
 threads/queues; binary framing/serialization; custom formatters and
-unsupported aggregate rendering; and explicit packed padding.
+unsupported aggregate rendering; padded frame objects, suffix padding after
+owned tails and ambiguous bare-pad fixed payloads in variable enums.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.
 
 Pinned Goose function values are static and nonescaping. Runtime-selected
