@@ -1,8 +1,8 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=4;owner-control=24;array-values=unsigned-prefixes`, alongside
-the packed fixed-record and variant markers.
+internal `layout=5;record-values=packed-single-tail;owner-control=24`, alongside
+the unsigned array value and packed fixed-record/variant markers.
 Compiler identity invalidates cached complete modules when layouts change.
 The 24-byte owner control ABI remains separately aligned as described in
 [TARGET.md](TARGET.md); it is not a serialized image.
@@ -33,8 +33,10 @@ reject oversized counts before multiplication, including odd packed strides.
 
 [Array values](ARRAY_IMAGES.md) now place unsigned lengths or capacity/length
 prefixes in their region and read that metadata through physical-mode accessors.
-Their fixed-layout elements retain the target representation; existing enclosing
-records and enums still use separate control layouts. Further steps are compact
+Their fixed-layout elements retain the target representation.
+[Single-tail non-frame records](RECORD_IMAGES.md) now store packed prefixes and
+terminal array images together. Their aligned controls remain separate, and the
+outer enum tag/control union retains its current layout. Further steps are compact
 fixed metadata and general contiguous variable images. Those require dynamic
 walkers, including partial construction and canceled nonlocal returns,
 before variable elements, nonfinal variable fields, relative references,

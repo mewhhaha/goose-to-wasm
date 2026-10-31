@@ -44,6 +44,16 @@ targets preserve that anchor, move full suffixes and decode retained prefixes at
 catch. Other aggregate representations and general enclosing record/enum images
 remain subsequent work.
 
+## Implemented: contiguous single-tail record images
+
+Non-frame structs and standalone variable variants store fixed prefixes and
+terminal array images together. Typed field addresses preserve prefix references
+across calls and globals; physical constructors append fields after evaluating
+them. Whole-image copies preserve capacity, and normal landing decodes the
+receiving anchor. Embedded enum payloads use the same record image after the
+existing control union. The [record-image contract](RECORD_IMAGES.md) describes
+layout 5; Frame objects and enclosing enum image NLR remain separate.
+
 ## Implemented: runtime enum case dispatch
 
 Case calls evaluate shared arguments once, snapshot value payloads before later

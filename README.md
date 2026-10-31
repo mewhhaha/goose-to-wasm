@@ -26,7 +26,9 @@ support owned construction, independent copies, calls and named-result aliasing.
 Growable-tail frame structs also support whole-object reconstruction, with
 private prefix/length snapshots and shared tail elements for named returns.
 Supported structs may nest through their final field to a single array tail;
-each enclosing prefix remains fixed-layout.
+each enclosing prefix remains fixed-layout. Non-frame prefixes and terminal
+arrays now form [contiguous record images](docs/RECORD_IMAGES.md), with stable
+prefix references and independent full-image copies.
 Nonresizable variable-mode enums with fixed or single-tail payloads use independent region images,
 mode conversions, owned calls/results and copied or borrowed payload matches.
 Standalone variable-size variants share the single-tail record walker, including

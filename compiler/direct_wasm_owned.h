@@ -13,6 +13,15 @@ inline void Function::ConstructRecordFromCaptured(TypeExpr *source_type, uint32_
     if (source_type->kind == TY_REF) { source_type = source_type->ref->sub; Load(source_type); }
     CheckRegionDestination(source_type, destination, line);
     auto value = Save(I32);
+    if (!Compiler::FrameStruct(source_type)) {
+        Location original { source_type, AddressLocal { value } };
+        auto bytes = RecordImageBytes(original, line);
+        auto source_base = RecordImageBase(original, line);
+        LocationAddress(TailHeaderLocation(destination.location)); auto header = Save(I32);
+        auto end = ReserveImageBytes(header, bytes, line);
+        Get(RegionCursor(header)); Get(source_base); Get(bytes); code.Op(0xa7); code.Copy();
+        PublishCursor(header, end); DecodeRecordImage(destination.location, line); return;
+    }
     auto layout = c.ControlLayout(source_type);
     // Prefix fields have fixed value semantics; never copy the embedded
     // owner descriptor, whose region belongs to the receiving object.
@@ -58,6 +67,7 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
             return;
         }
     }
+    if (ConstructNormalRecordImage(node, destination)) return;
     if (ConstructNormalRecordResult(node, destination)) return;
     if (auto block = Is<Block>(node)) {
         BlockInto(block, { type }, { Local(I32) }, { destination }); return;
@@ -92,6 +102,7 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
         if (literal && (type->kind == TY_STRUCT ? literal->sinst != type->struc->inst :
             literal->einst != type->var->adt->enu->inst || literal->variant != type->var->variant))
             Fail(line, "owned record literal has a different nominal type");
+        if (!Compiler::FrameStruct(type)) { ConstructRecordImageLiteral(node, destination); return; }
         auto &fields = c.RecordFields(type);
         for (size_t i = 0; i < fields.size(); i++) {
             auto field = OffsetLocation(destination.location, layout.fields[i], fields[i]);

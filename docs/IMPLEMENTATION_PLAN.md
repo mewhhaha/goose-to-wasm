@@ -118,7 +118,9 @@ staging and landing beside fixed results. Standalone scalar Var/runtime-limited
 results and recursively packed integer aggregate array results land their
 authoritative byte images, preserving entry anchors and canceled prefixes.
 Other aggregate representations and non-frame record/enum image targets remain
-subsequent extensions.
+subsequent extensions. The contiguous single-tail record image prerequisite now
+uses typed field addressing, private tail producers, full-image copies and normal
+suffix landing; its NLR admission is the next effect extension.
 Tests include O0 programs that cannot depend on optimizer inlining.
 
 Before serialization, document the image ABI, pointer width/encoding and the

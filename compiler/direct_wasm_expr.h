@@ -139,8 +139,7 @@ inline void Function::Address(Node *n) {
     if (auto dot = Is<Dot>(n); dot && dot->IsField()) {
         auto t = Object(dot->obj);
         auto field_type = c.FieldType(t, dot->fieldidx);
-        auto off = c.FieldOffset(t, size_t(dot->fieldidx));
-        if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
+        RecordFieldAddress(t, size_t(dot->fieldidx), n->line);
         if (c.region_cursors && !Compiler::RegionOwner(field_type)) CanonicalAddress(c.FixedLayout(field_type).size);
         return;
     }

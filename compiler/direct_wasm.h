@@ -342,6 +342,15 @@ struct Function {
     Location TailHeaderLocation(const Location &);
     void ConstructRecordInto(Node *, const ConstructionDestination &);
     void ConstructRecordFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
+    void RecordFieldAddress(TypeExpr *, size_t, Line);
+    uint32_t RecordImageBase(const Location &, Line);
+    uint32_t RecordImageBytes(const Location &, Line);
+    void SetRecordImageAnchor(const Location &, uint32_t, Line);
+    void DecodeRecordImage(const Location &, Line);
+    uint32_t ReserveImageBytes(uint32_t, uint32_t, Line);
+    void ConstructRecordImageLiteral(Node *, const ConstructionDestination &);
+    bool ConstructNormalRecordImage(Node *, const ConstructionDestination &);
+
     void ConstructEnumInto(Node *, const ConstructionDestination &);
     void ConstructEnumFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     ConstructionDestination PrepareEnumPayload(const ConstructionDestination &, TypeExpr *, Line);
@@ -398,6 +407,7 @@ struct Compiler {
     unordered_map<VarDef *, Slot> globals;
     unordered_map<TypeExpr *, Layout> layouts;
     unordered_map<TypeExpr *, Layout> control_layouts;
+    unordered_map<TypeExpr *, Layout> record_image_layouts;
     bool needs_regions = false;
     unordered_map<VarDef *, uint32_t> global_regions;
     struct RegionCall { FnSpec *callee; uint32_t live; Line line; };
@@ -627,6 +637,23 @@ struct Compiler {
     }
     TypeExpr *TailType(TypeExpr *t) {
         ControlLayout(t); return RegionRecord(t) ? TailType(RecordFields(t).back()) : t;
+    }
+    const Layout &RecordImageLayout(TypeExpr *t) {
+        if (!RegionRecord(t) || FrameStruct(t)) Fail(t->line, "internal: expected a non-frame record image");
+        if (auto found = record_image_layouts.find(t); found != record_image_layouts.end()) return found->second;
+        ControlLayout(t);
+        Layout image;
+        auto &fields = RecordFields(t);
+        for (size_t i = 0; i < fields.size(); i++) {
+            image.fields.push_back(image.size);
+            auto bytes = i + 1 < fields.size() ? FixedLayout(fields[i]).size :
+                         RegionRecord(fields[i]) ? RecordImageLayout(fields[i]).size : 0u;
+            if (uint64_t(image.size) + bytes > uint64_t(opts.maximum_pages) * 65536)
+                Fail(t->line, "record image prefix exceeds linear memory");
+            image.size += bytes;
+        }
+        image.payload = image.size;
+        return record_image_layouts.emplace(t, std::move(image)).first->second;
     }
     uint32_t FieldOffset(TypeExpr *t, size_t field) {
         return (RegionRecord(t) ? ControlLayout(t) : Size(t)).fields.at(field);
@@ -1010,6 +1037,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_landing.h"
 #include "direct_wasm_publication.h"
 #include "direct_wasm_storage.h"
+#include "direct_wasm_record_images.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"
 #include "direct_wasm_regions.h"
