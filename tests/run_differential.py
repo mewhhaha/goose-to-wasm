@@ -51,6 +51,15 @@ def wrap(value, bits, signed=True):
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     result.append(Case("growable/minimal", "growable_minimal", stdout="1\n", group="aggregate"))
+    result.append(Case("dynamic/forwarding", "dynamic_forwarding", stdout="1\n", group="aggregate"))
+    for n in (-1, 0, 3):
+        answer = (f"[{n}, {n + 1}] [{n + 10}, {n + 11}] [7, 8] 3\n"
+                  f"[{n}, {n + 2}] " + (f"[{n}, {n + 1}]" if n > 0 else "[]") +
+                  " " + ("[-1]" if n < 0 else f"[{n * 2}]") + "\n"
+                  f"[{n + 3}, {n + 4}] [9, 10, 11]\n[{n + 5}] [1, 9]\n[20, 22] [41]\n" +
+                  ("[7, 8] " if n > 0 else "[1, 2, 3] ") + (f"[{n + 100}]" if n > 0 else "[0]") +
+                  f"\n44 55\n25010000 [{n}, {n + 1}] [{n + 10}, {n + 11}] 3\n")
+        result.append(Case(f"dynamic/owned-results/{n}", "dynamic_returns", f"{n}\n", answer, group="aggregate"))
     for debug in (False, True):
         result.append(Case("growable/owners-and-stable-views" + ("-debug" if debug else ""), "growable_arrays",
                            stdout="[]\n[5]\n5001 5000 12 12 1 4999 -4999\n[77, 0, 1] 12\n5001 88 12\n"
@@ -271,7 +280,7 @@ def main():
                         print(row["error"], flush=True)
     # The direct fragment must explicitly refuse these valid Goose programs.
     if "direct" in args.backends and not args.filter:
-        for fixture in ("unsupported_dynamic_result", "unsupported_pointer_extern", "invalid_source"):
+        for fixture in ("unsupported_dynamic_parameters", "unsupported_pointer_extern", "invalid_source"):
             directory = output / "refusals" / fixture
             directory.mkdir(parents=True, exist_ok=True)
             artifact = directory / "program.wasm"

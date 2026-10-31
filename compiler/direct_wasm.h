@@ -57,6 +57,7 @@ struct ConstructionDestination {
     Location location;
     enum Lifetime { Statement, Block, Activation, Caller, Static } lifetime;
 };
+using ResultDestinations = vector<optional<ConstructionDestination>>;
 struct Compiler;
 
 struct Function {
@@ -86,6 +87,7 @@ struct Function {
         bool breakable = false;
         optional<uint32_t> continue_label;
         size_t cleanup_depth = 0;
+        ResultDestinations destinations;
     };
     vector<Exit> exits;
     struct CleanupAction {
@@ -93,7 +95,8 @@ struct Function {
         uint32_t saved_local;
     };
     vector<CleanupAction> cleanups;
-    void PushExit(Exit target) {
+    void PushExit(Exit target, const ResultDestinations &destinations = {}) {
+        target.destinations = destinations;
         target.cleanup_depth = cleanups.size(); exits.push_back(std::move(target));
     }
     void EmitCleanups(size_t depth) {
@@ -187,14 +190,17 @@ struct Function {
     void Expr(Node *);
     void To(Node *, TypeExpr *);
     void Discard(Node *);
-    void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &);
+    void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
     void CaptureResult(TypeExpr *, uint32_t);
-    void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line);
+    void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
-    void EmitCall(Call *, bool adapt_result = true);
-    void EmitInline(InlineBlock *, bool adapt_result = true);
+    void EmitCall(Call *, bool adapt_result = true, optional<ConstructionDestination> = {});
+    void EmitInline(InlineBlock *, bool adapt_result = true, optional<ConstructionDestination> = {});
     void RecordRegionCall(FnSpec *, Line);
     void ConstructRegion(Node *, const Location &, optional<uint32_t> global_region = {});
+    void AcquireRegion(const Location &, Line, optional<uint32_t> = {});
+    void ConstructRegionInto(Node *, const ConstructionDestination &);
+    void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
     void ConstructionView(Node *);
     void ReserveRegion(uint32_t header, uint32_t count, TypeExpr *, Line);
     void ActivationLimit(uint32_t, Line);
@@ -448,7 +454,10 @@ struct Compiler {
             s.args.push_back(W(p->type));
         }
         for (auto t : sp->rets) {
-            if (RegionArray(t)) Fail(t->line, "owned dynamic results are not supported without a destination-region ABI");
+            if (RegionArray(t)) {
+                if (sp->rets.size() != 1) Fail(t->line, "multiple or mixed owned dynamic results are not supported yet");
+                needs_regions = true;
+            }
             if (Aggregate(t) && !sp->sf->isextern) s.args.push_back(I32);
             s.results.push_back(W(t));
         }

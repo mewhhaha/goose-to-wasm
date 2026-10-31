@@ -88,11 +88,20 @@ inline void Function::ConstructionView(Node *node) {
     else if (natural->kind != TY_SLICE) Fail(node->line, "array construction requires an array or slice");
 }
 
+inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionDestination &destination, Line line) {
+    auto target = destination.location.storage_type;
+    if (!Compiler::RegionArray(target) ||
+        c.FixedLayout(type->arr->sub).size != c.FixedLayout(target->arr->sub).size)
+        Fail(line, "owned dynamic element adaptation is not supported at this destination");
+}
+
 inline void Function::ConstructRegion(Node *node, const Location &place, optional<uint32_t> global_region) {
-    auto type = place.storage_type;
-    auto line = node ? node->line : type->line;
-    c.HeaderLayout(type);
-    auto element = type->arr->sub;
+    AcquireRegion(place, node ? node->line : place.storage_type->line, global_region);
+    ConstructRegionInto(node, { place, global_region ? ConstructionDestination::Static : ConstructionDestination::Block });
+}
+
+inline void Function::AcquireRegion(const Location &place, Line line, optional<uint32_t> global_region) {
+    c.HeaderLayout(place.storage_type);
     LocationAddress(place); auto header = Save(I32);
     if (global_region) code.I32Const(int32_t(*global_region));
     else code.OpU(0x23, G_REGION_NEXT);
@@ -109,13 +118,48 @@ inline void Function::ConstructRegion(Node *node, const Location &place, optiona
     Get(header); Get(base); code.Mem(0x36, 2);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); Get(base); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6a); code.Mem(0x36, 2, 8);
+}
+
+inline void Function::ConstructRegionInto(Node *node, const ConstructionDestination &destination) {
+    auto place = destination.location;
+    auto type = place.storage_type;
+    c.HeaderLayout(type);
+    auto element = type->arr->sub;
+    auto line = node ? node->line : type->line;
+    if (auto block = Is<Block>(node)) {
+        BlockInto(block, { type }, { Local(I32) }, { destination }); return;
+    }
+    if (auto conditional = Is<IfExpr>(node)) {
+        vector<TypeExpr *> types { type }; vector<uint32_t> values { Local(I32) };
+        ResultDestinations destinations { destination };
+        Truth(conditional->cond); Begin(0x04);
+        BlockInto(conditional->thenb, types, values, destinations);
+        if (conditional->elseb) {
+            Else();
+            if (Values(conditional->elseb).empty()) Discard(conditional->elseb);
+            else SetResults({ conditional->elseb }, types, values, line, destinations);
+        }
+        End(); return;
+    }
+    if (auto call = Is<Call>(node); call && call->builtin < 0 && call->spec &&
+        call->spec->rets.size() == 1 && Compiler::RegionArray(call->spec->rets[0])) {
+        EmitCall(call, false, destination); code.Op(0x1a); return;
+    }
+    if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec &&
+        inlined->spec->rets.size() == 1 && Compiler::RegionArray(inlined->spec->rets[0])) {
+        EmitInline(inlined, false, destination); code.Op(0x1a); return;
+    }
+    LocationAddress(place); auto header = Save(I32);
+    Get(header); code.Mem(0x28, 2); auto base = Save(I32);
 
     if (!node) {
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
         code.I64Const(0); auto count = Save(I64); ReserveRegion(header, count, element, line); return;
     }
 
     uint32_t count;
     if (auto array = Is<ArrayLit>(node)) {
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
         auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
         code.I64Const(size); count = Save(I64);
         if (array->fillval) {
@@ -140,6 +184,7 @@ inline void Function::ConstructRegion(Node *node, const Location &place, optiona
     } else {
         ConstructionView(node); auto source = Save(I64);
         Get(source); code.I64Const(32); code.Op(0x88); count = Save(I64);
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
         ReserveRegion(header, count, element, node->line);
         Get(base); Get(source); code.Op(0xa7); Get(count); code.Op(0xa7);
         code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Copy();

@@ -24,8 +24,11 @@ inline void Function::Dynamic(uint32_t bytes, Line line) {
 inline string Function::Finish() {
     auto line = spec ? spec->sf->line : Line{};
     auto done = Begin();
+    ResultDestinations destinations(results.size());
+    for (size_t i = 0; i < results.size(); i++) if (Compiler::RegionArray(results[i]))
+        destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller };
     if (spec) {
-        PushExit({ done, spec->sf, results, resultlocals, false, {} });
+        PushExit({ done, spec->sf, results, resultlocals, false, {} }, destinations);
         // Aggregate parameters have value semantics. Address-taken scalar
         // parameters are spilled once so reads and references share storage.
         for (auto p : spec->params) {
@@ -38,7 +41,7 @@ inline string Function::Finish() {
                 vars[p] = slot;
             }
         }
-        BlockInto(spec->body, results, resultlocals);
+        BlockInto(spec->body, results, resultlocals, destinations);
         exits.pop_back();
     } else {
         for (auto g : c.ast.globals) Decl(g);
@@ -53,6 +56,7 @@ inline string Function::Finish() {
     // activation. Returning a pointer into the released callee frame would
     // let the next sibling or recursive call overwrite the earlier value.
     for (size_t i = 0; i < resultdestinations.size(); i++) if (resultdestinations[i]) {
+        if (Compiler::RegionArray(results[i])) continue;
         StoreCopy({ results[i], AddressLocal { *resultdestinations[i] } },
                   { results[i], resultlocals[i], CapturedValue::BorrowedFixed });
         Get(*resultdestinations[i]); Set(resultlocals[i]);

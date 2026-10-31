@@ -219,6 +219,36 @@ fn main() {{ var caller: i64[>..] = [4]; print(helper() + caller[0]); }}'''
                     self.assertEqual(observed["error"], "")
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_owned_results_forward_one_destination_through_recursion(self):
+        source = f'''var neighbor: i64[>..] = [{CANARY}];
+recursive fn forward(n: i64) -> i64[>..] {{
+    if n <= 0 {{ var local: i64[>..] = [7]; return local; }}
+    return forward(n - 1);
+}}
+fn main() {{ let values = forward(100); print(values[0]); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            # One global, one caller result, one base-case local. Recursive
+            # forwarding must not acquire another result region per call.
+            self.assertEqual((runtime["global_regions"], runtime["region_count"]), (1, 3))
+            for engine, observed in self.engines(path, runtime, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["numbers"], ["7"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_owned_results_release_between_export_calls(self):
+        source = '''fn make(n: i64) -> i64[>..] { return [n, n + 1]; }
+export fn tick(n: i64) -> i64 { let values = make(n); return values[1]; }
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertLessEqual(observed["pages"], 3)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -607,10 +607,12 @@
       },
       "A_GROW": {
         "status": "qualified_subset",
-        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, initialization and mutation. Owned parameters/results, whole-owner assignment and anonymous temporaries remain pending.",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, initialization, mutation and single owned results into named receivers or forwarded returns. Owned parameters, mixed/multiple results, general temporary/control-expression destinations and whole-owner assignment remain pending.",
         "fixtures": [
           "tests/fixtures/growable_arrays.goose",
-          "tests/fixtures/growable_minimal.goose"
+          "tests/fixtures/growable_minimal.goose",
+          "tests/fixtures/dynamic_returns.goose",
+          "tests/fixtures/dynamic_forwarding.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
@@ -620,10 +622,12 @@
       },
       "A_GROWSHRINK": {
         "status": "qualified_subset",
-        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, initialization and mutation. Owned parameters/results, whole-owner assignment and anonymous temporaries remain pending.",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, initialization, mutation and single owned results into named receivers or forwarded returns. Owned parameters, mixed/multiple results, general temporary/control-expression destinations and whole-owner assignment remain pending.",
         "fixtures": [
           "tests/fixtures/growable_arrays.goose",
-          "tests/fixtures/growable_minimal.goose"
+          "tests/fixtures/growable_minimal.goose",
+          "tests/fixtures/dynamic_returns.goose",
+          "tests/fixtures/dynamic_forwarding.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",

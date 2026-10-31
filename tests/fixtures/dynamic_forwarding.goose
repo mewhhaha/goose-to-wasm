@@ -1,3 +1,4 @@
+// Recursive owned results reuse the receiving region.
 recursive fn make(n: i64) -> i64[>..] {
     if n <= 0 { return [1]; }
     return make(n - 1);

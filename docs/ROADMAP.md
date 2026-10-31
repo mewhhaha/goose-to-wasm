@@ -2,8 +2,21 @@
 
 The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
-ownership contracts and acceptance gates. Its first implementation slice is
-static-capacity resizable arrays.
+ownership contracts and acceptance gates. Completed slices are recorded below.
+
+## Implemented: single owned growable results
+
+A function returning one fixed-element growable value receives the caller's
+destination header. Named local/global receivers acquire a region before the
+call; the callee constructs into it before releasing its own locals. Forwarding
+calls, including recursive cycles, reuse that destination without acquiring
+another result region. Inline bodies carry the same destination on their return
+target, so nested returns select the correct owner.
+
+Literals, local owners, fixed/limited results, slices and conditional results
+are qualified at O0/O2. Owned parameters, mixed/multiple dynamic results,
+anonymous owner temporaries and general control-expression destinations remain
+explicit boundaries.
 
 ## Implemented: stable regions for named growable owners
 
@@ -20,10 +33,9 @@ through the call graph and recursive components. Runtime acquisition/growth,
 activation frames and print scratch all check their own limits. Module metadata
 and compiler statistics publish the resulting partition budgets.
 
-Owned dynamic parameters/results, anonymous owner temporaries, whole-owner
+Owned dynamic parameters, general result/temporary destinations, whole-owner
 assignment, variable elements and dynamic containing structs remain explicit
-boundaries. The next destination-ABI slice builds owned results directly into
-regions acquired by named receivers, forwarding that destination through calls.
+boundaries. Single owned results now use the receiving-region ABI above.
 
 ## Implemented: typed storage and cleanup boundary
 
@@ -40,7 +52,8 @@ reference/slice copies still preserve aliases. Physical size-class checks stop
 nonfixed owner descriptors from entering fixed aggregate copies.
 
 This preserves the fixed-frame ABI and supplies the boundary used by stable data
-regions. General dynamic result destinations remain subsequent work.
+regions and the single owned-result destination ABI. General dynamic result
+destinations remain subsequent work.
 
 ## Implemented: static-capacity limited arrays
 
@@ -54,8 +67,8 @@ including nested array/slice slots replaced during iteration.
 Qualification includes boundary failures, nested values, reference elements,
 retained references through refill, overlapping append, receiver rebinding,
 argument-side mutation, copies and recursive/multiple results at O0/O2 and debug.
-Construction-time capacity and growable arrays still need the location,
-construction-destination and stable-region runtime phases in the completion plan.
+Construction-time capacity remains subsequent work; named fixed-element
+growables use the stable-region runtime described above.
 
 ## Implemented: fixed-mode enums and payload matches
 

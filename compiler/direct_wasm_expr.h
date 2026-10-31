@@ -17,7 +17,8 @@ inline void Function::Discard(Node *n) {
     if (!n) return;
     Expr(n); for (size_t i = 0; i < Values(n).size(); i++) code.Op(0x1a);
 }
-inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const vector<uint32_t> &slots) {
+inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const vector<uint32_t> &slots,
+                                const ResultDestinations &destinations) {
     auto cleanup_depth = cleanups.size();
     auto live = region_live;
     if (c.needs_regions) {
@@ -30,7 +31,7 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
         // returns supply its results. The checker already proves that such
         // a tail cannot fall through; the loop itself produces no values.
         if (types.empty() || Values(b->tail).empty()) Discard(b->tail);
-        else SetResults({ b->tail }, types, slots, b->line);
+        else SetResults({ b->tail }, types, slots, b->line, destinations);
     }
     if (c.needs_regions) { CloseCleanups(cleanup_depth); region_live = live; }
 }
@@ -45,7 +46,13 @@ inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
     Set(slot);
 }
 inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeExpr *> &types,
-                                 const vector<uint32_t> &slots, Line l) {
+                                 const vector<uint32_t> &slots, Line l, const ResultDestinations &destinations) {
+    if (types.size() == 1 && Compiler::RegionArray(types[0])) {
+        if (nodes.size() != 1 || destinations.size() != 1 || !destinations[0])
+            Fail(l, "owned dynamic result is not supported without a receiving destination");
+        ConstructRegionInto(nodes[0], *destinations[0]);
+        LocationAddress(destinations[0]->location); Set(slots[0]); return;
+    }
     if (nodes.size() == types.size()) {
         for (size_t i = 0; i < nodes.size(); i++) { To(nodes[i], types[i]); CaptureResult(types[i], slots[i]); }
     } else if (nodes.size() == 1 && Values(nodes[0]).size() == types.size()) {
@@ -280,13 +287,15 @@ inline void Function::For(ForLoop *n) {
     Br(again); End(); End();
 }
 
-inline void Function::EmitCall(Call *n, bool adapt_result) {
+inline void Function::EmitCall(Call *n, bool adapt_result, optional<ConstructionDestination> destination) {
     if (n->builtin >= 0) { Builtin(n, adapt_result); return; }
     auto args = n->ValueArgNodes();
     if (n->fvbody) {
         if (args.size() != n->fvparams.size()) Fail(n->line, "function-value parameter mismatch");
         for (auto parameter : n->fvparams) if (c.Class(parameter->type) != SC_FIXED)
             Fail(n->line, "owned dynamic function-value parameters are not supported without receiving lifetimes");
+        for (auto result : n->rettypes) if (c.Class(result) != SC_FIXED)
+            Fail(n->line, "owned dynamic function-value results are not supported without result channels");
         for (size_t i = 0; i < args.size(); i++) { auto s = Bind(n->fvparams[i]); To(args[i], s.type); Write(s); }
         unordered_map<VarDef *, VarDef *> remap;
         for (auto [a, b] : n->fvremap) remap[a] = b;
@@ -301,6 +310,10 @@ inline void Function::EmitCall(Call *n, bool adapt_result) {
     auto sp = n->spec;
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
+    auto owned_result = sp->rets.size() == 1 && Compiler::RegionArray(sp->rets[0]);
+    if (owned_result && !destination)
+        Fail(n->line, "anonymous owned dynamic calls are not supported without a receiving destination");
+    if (owned_result) CheckRegionDestination(sp->rets[0], *destination, n->line);
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
     for (size_t i = 0; i < args.size(); i++) {
@@ -312,12 +325,14 @@ inline void Function::EmitCall(Call *n, bool adapt_result) {
             auto captured = CopyCaptured(CaptureStack(t)); Get(captured.value_local);
         }
     }
-    for (auto t : sp->rets) if (c.Aggregate(t))
-        LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
+    for (auto t : sp->rets) if (c.Aggregate(t)) {
+        if (Compiler::RegionArray(t)) LocationAddress(destination->location);
+        else LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
+    }
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
         code.Op(intrinsic->second);
     else { RecordRegionCall(sp, n->line); CallIndex(c.function_index.at(sp)); }
-    if (adapt_result && sp->rets.size() == 1) Convert(sp->rets[0], n->exprtype, n->line);
+    if (adapt_result && sp->rets.size() == 1 && !owned_result) Convert(sp->rets[0], n->exprtype, n->line);
 }
 
 inline void Function::PrintText(string_view text) {
@@ -460,20 +475,24 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
     }
 }
 
-inline void Function::EmitInline(InlineBlock *node, bool adapt_result) {
+inline void Function::EmitInline(InlineBlock *node, bool adapt_result, optional<ConstructionDestination> destination) {
     auto types = Values(node);
     auto own = node->spec ? node->spec->rets : types;
     if (node->spec) for (auto parameter : node->spec->params)
         if (c.Class(parameter->type) != SC_FIXED)
             Fail(node->line, "owned dynamic inline parameters are not supported without receiving lifetimes");
-    for (auto type : own) if (c.Class(type) != SC_FIXED)
-        Fail(node->line, "owned dynamic inline results are not supported without a destination-region ABI");
+    auto owned_result = own.size() == 1 && Compiler::RegionArray(own[0]);
+    for (auto type : own) if (c.Class(type) != SC_FIXED && (!owned_result || !destination))
+        Fail(node->line, "owned dynamic inline results are not supported without a receiving destination");
+    if (owned_result) CheckRegionDestination(own[0], *destination, node->line);
     vector<uint32_t> values;
     for (auto type : own) values.push_back(Local(type));
-    auto label = Begin(); PushExit({ label, node->sf, own, values, false, {} });
-    BlockInto(node->body, own, values); exits.pop_back(); End();
+    ResultDestinations destinations(own.size());
+    if (owned_result) destinations[0] = destination;
+    auto label = Begin(); PushExit({ label, node->sf, own, values, false, {} }, destinations);
+    BlockInto(node->body, own, values, destinations); exits.pop_back(); End();
     for (auto value : values) Get(value);
-    if (adapt_result && own.size() == 1 && types.size() == 1) Convert(own[0], types[0], node->line);
+    if (adapt_result && own.size() == 1 && types.size() == 1 && !owned_result) Convert(own[0], types[0], node->line);
     else if (adapt_result && types.empty()) for (size_t index = 0; index < own.size(); index++) code.Op(0x1a);
 }
 
@@ -632,7 +651,7 @@ inline void Function::Expr(Node *n) {
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j];
                 if (e.sf && e.sf == r->target) {
-                    SetResults(r->vals, e.types, e.values, n->line); UnwindCleanups(j); Br(e.label); return;
+                    SetResults(r->vals, e.types, e.values, n->line, e.destinations); UnwindCleanups(j); Br(e.label); return;
                 }
             }
             Fail(n->line, "return from an out-of-line enclosing function is not supported");
@@ -641,7 +660,7 @@ inline void Function::Expr(Node *n) {
             auto b = static_cast<Break *>(n);
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j]; if (!e.breakable) continue;
-                if (b->val) SetResults({ b->val }, e.types, e.values, n->line);
+                if (b->val) SetResults({ b->val }, e.types, e.values, n->line, e.destinations);
                 UnwindCleanups(j); Br(e.label); return;
             }
             Fail(n->line, "break has no direct control target");

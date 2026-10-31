@@ -38,7 +38,8 @@ construction destinations retain the current activation-frame policy, and
 assignment evaluates its complete RHS before publishing into its pinned target.
 Exit targets record cleanup depth so scratch restorations preserve enclosing
 operations that remain live. Stable regions use these same boundaries;
-general dynamic result destinations remain subsequent work.
+single growable results carry an explicit caller destination, while general
+dynamic result destinations remain subsequent work.
 
 Named fixed-element `T[>..]` and `T[>..<]` owners have a separate 12-byte control
 header `{base: u32, len: u32, limit: u32}` in frame/static storage. Owner references
@@ -46,6 +47,12 @@ point to that header; element references point directly into stable data regions
 The header is never copied through the fixed-value ownership path. Initializers
 construct into an acquired region, including implicit empty globals, literals,
 fills, copies, slices and natural fixed-array function results.
+
+An internal function returning one growable owner receives an additional i32
+destination-header parameter and returns that same header address. Its caller
+acquires the region; the callee constructs into it before scoped cleanup.
+Forwarded returns reuse the destination, including through recursive cycles.
+The header/data ownership is never transferred by a shallow descriptor copy.
 
 The planner reserves dedicated global regions plus a call-graph/SCC bound on
 simultaneously live transient owners. Scoped cleanup restores transient region
@@ -167,7 +174,8 @@ The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
 
-The current backend refuses owned dynamic parameters/results, anonymous dynamic
+The current backend refuses owned dynamic parameters, mixed/multiple owned
+dynamic results, general dynamic control-expression destinations, anonymous dynamic
 temporaries, whole-owner assignment, dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;
