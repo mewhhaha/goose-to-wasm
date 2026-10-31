@@ -102,6 +102,10 @@ enclosing temporary scope ends. Fully owned argument copies keep short call
 cleanup when no anonymous owner was created. No materialized value is cached by
 AST identity.
 
+Discarded mixed/multiple-result calls materialize a separate region for every
+owned result. Ordinary calls evaluate value arguments before acquiring anonymous
+result regions, so recursion in those arguments retains no result region.
+
 The planner reserves dedicated global regions plus a call-graph/SCC bound on
 simultaneously live transient owners. Scoped cleanup restores transient region
 watermarks on normal exit, return, break and continue. Borrowed calls grow the
@@ -223,7 +227,7 @@ The executable differential suite is the authority for qualified behavior.
 ## Explicit refusals and remaining work
 
 The current backend refuses owned dynamic function-value parameters/results,
-anonymous multiple-result owned calls, dynamic containing structs, variable-element
+dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;

@@ -21,8 +21,10 @@ anonymous owner was materialized.
 Qualification covers nested inline/mixed arguments followed by allocations,
 iteration/condition/default cleanup, constructor receiver preservation,
 interrupted arguments and recursion after a completed temporary statement.
-Multiple-result anonymous calls and function-value ownership remain explicit
-boundaries. The frontend rejects views escaping their temporary scope.
+Discarded mixed/multiple-result calls acquire each owned result after evaluating
+their arguments. Recursive argument calls therefore retain no premature result
+region. Function-value ownership remains an explicit boundary. The frontend
+rejects views escaping their temporary scope.
 
 ## Implemented: temporary scope foundation and condition exits
 

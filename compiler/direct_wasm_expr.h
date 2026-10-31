@@ -383,13 +383,13 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     auto sp = n->spec;
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
-    if (destinations.empty() && sp->rets.size() == 1 && Compiler::RegionArray(sp->rets[0])) {
-        Materialize(n, sp->rets[0], adapt_result); return;
-    }
+    auto receiving = destinations;
     for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionArray(sp->rets[i])) {
-        if (destinations.size() != sp->rets.size() || !destinations[i])
-            Fail(n->line, "anonymous owned dynamic calls are not supported without a receiving destination");
-        CheckRegionDestination(sp->rets[i], *destinations[i], n->line);
+        if (!receiving.empty()) {
+            if (receiving.size() != sp->rets.size() || !receiving[i])
+                Fail(n->line, "owned call result is missing its receiving destination");
+            CheckRegionDestination(sp->rets[i], *receiving[i], n->line);
+        }
     }
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
@@ -410,8 +410,15 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
             auto captured = CopyCaptured(CaptureStack(t)); Get(captured.value_local);
         }
     }
+    // Anonymous result storage is needed only after evaluating arguments.
+    // Reserving it earlier would keep a region live across recursive arguments.
+    if (receiving.empty()) {
+        receiving.resize(sp->rets.size());
+        for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionArray(sp->rets[i]))
+            receiving[i] = TemporaryDestination(sp->rets[i], n->line);
+    }
     for (size_t i = 0; i < sp->rets.size(); i++) if (auto t = sp->rets[i]; c.Aggregate(t)) {
-        if (Compiler::RegionArray(t)) LocationAddress(destinations[i]->location);
+        if (Compiler::RegionArray(t)) LocationAddress(receiving[i]->location);
         else LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
     }
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
@@ -421,7 +428,10 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     // private owner. External references carried by its elements survive.
     // These balanced cleanup instructions preserve the Wasm call results.
     EndArgumentGroup(group, anonymous_serial != group.serial);
-    if (adapt_result && sp->rets.size() == 1 && !Compiler::RegionArray(sp->rets[0])) Convert(sp->rets[0], n->exprtype, n->line);
+    if (adapt_result && sp->rets.size() == 1) {
+        if (n->exprtype->kind == TY_VOID) code.Op(0x1a);
+        else Convert(sp->rets[0], n->exprtype, n->line);
+    }
 }
 
 inline void Function::PrintText(string_view text) {

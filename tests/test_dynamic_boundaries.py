@@ -80,8 +80,6 @@ class DynamicBoundaries(unittest.TestCase):
 
     def test_valid_language_requires_unimplemented_receiving_lifetimes(self):
         cases = {
-            "anonymous-multiple-results": '''fn many() -> i64[>..], i64[>..] { return [1], [2]; }
-fn main() { many(); }''',
             "variable-array-result": '''fn make() -> i64[] { return [1, 2]; }
 fn main() { let values = make(); print(values); }''',
             "inlined-construction-time-capacity": '''extern fn bench_input() -> i64;

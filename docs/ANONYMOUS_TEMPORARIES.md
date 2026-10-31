@@ -4,8 +4,8 @@ This follows the Astra xhigh review of the pinned frontend and native allocation
 scopes. The scope foundation prepares named receivers before initializer
 watermarks and scopes statements, tails, match arms, short-circuit right operands,
 while conditions and fixed-array default iterations. The single-result
-materializers and argument lifetimes below are now implemented. Anonymous
-multiple-result calls and function-value ownership remain gated.
+materializers and argument lifetimes below are now implemented, including
+discarded mixed/multiple-result ordinary calls. Function-value ownership remains gated.
 
 `CheckBranchRoot` rejects references/slices into temporaries created inside a
 departing block. An owned construct's result instead needs a receiving temporary
@@ -21,6 +21,11 @@ only decides whether to save a watermark and allocates no region.
   materialization serial, construct into it and adapt its view afterward.
 - Initial producers are single-result direct calls/inline blocks, owned
   array/string literals, supported copies and owned control expressions.
+- Ordinary calls allocate missing result channels after evaluating value arguments,
+  before passing the hidden destination arguments. This also covers discarded
+  multiple results and permits recursion in argument evaluation. Explicit receiving
+  channels retain their existing allocation point. Inline result allocation precedes
+  its argument prelude, matching the pinned native emitter and named-result binding.
 - Determine call results from the specialization's natural results, including
   when the expression has already adapted to a slice. Existing identifiers,
   fields, indices and reference values remain locations.

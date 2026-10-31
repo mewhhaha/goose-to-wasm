@@ -574,6 +574,44 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
+    def test_discarded_multiple_owned_results_release_both_regions(self):
+        source = '''var calls = 0;
+fn many(n: i64) -> i64[>..], i64[2], i64[>..<] {
+    calls++; return [n], [n + 1, n + 2], [n + 3];
+}
+export fn tick(n: i64) -> i64 {
+    many(n); if calls != n + 1 { abort("wrong discarded call"); } return calls;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_anonymous_results_allocate_after_recursive_arguments(self):
+        source = '''var calls = 0;
+recursive fn pair(n: i64) -> i64, i64[>..], i64[>..<] {
+    calls++; return n, [n + 1], [n + 2];
+}
+fn single(n: i64) -> i64[>..] { calls++; return [n]; }
+recursive fn descend(n: i64) -> i64 {
+    if n <= 0 { return 0; }
+    pair(descend(n - 1)); single(descend(n - 1)); return n;
+}
+export fn tick(n: i64) -> i64 {
+    calls = 0;
+    if descend(5) != 5 || calls != 62 { abort("wrong recursive result"); } return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

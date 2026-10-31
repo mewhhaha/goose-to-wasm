@@ -51,6 +51,7 @@ def wrap(value, bits, signed=True):
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     result.append(Case("scope/while-condition-exits", "while_condition_exits", stdout="3 15 81 100\n", group="aggregate"))
+    result.append(Case("temporary/multiple-discard", "anonymous_multiple", stdout="2\n4 17\n", group="aggregate"))
     for n in (0, 3):
         answer = (f"2 {n + 1} 2\n[{n}, {n + 1}] [{n + 10}, {n + 11}] 4\n[1, 2] [1, 2]\n"
                   f"[{n}, {n + 1}]\n[2, {2 * n + 1}]\n"
