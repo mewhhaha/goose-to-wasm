@@ -4,6 +4,22 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: temporary scope foundation and condition exits
+
+Named declaration receivers are prepared before their initializer watermark.
+Statements, tails, match arms, logical right operands, while conditions and
+generated default-array iterations now have explicit temporary scopes. Their
+watermarks preserve named owners and restore runtime and compile-time region
+state together; a scope without a watermark must leave the region count unchanged.
+
+While exits are installed before their condition is emitted. Break/continue in an
+ordinary condition block therefore select that while loop, including inside an
+outer loop. The new C-oracle regression also exercises condition-local owners.
+
+Anonymous value producers remain refused. The reviewed
+[materialization plan](ANONYMOUS_TEMPORARIES.md) covers their allocation sites,
+inline argument preludes, borrowed argument lifetimes and remaining acceptance.
+
 ## Implemented: fixed and slice results into owned receivers
 
 Forwarded multi-result calls preserve each producer's natural ABI type, capture

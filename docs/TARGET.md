@@ -85,6 +85,13 @@ header lifetimes distinguish them from dying locals, owned parameters and privat
 named-result headers, even when the underlying region survives. Oversized
 published counts saturate instead of wrapping before the resource check.
 
+Named declaration receivers acquire their regions before the initializer's
+temporary watermark. Explicit scopes cover statements, tails, match arms,
+logical right operands, while conditions and generated default-array iterations.
+Scopes restore both runtime watermarks and compile-time live-region counts.
+While exits exist during condition evaluation, so condition break/continue
+unwind to the current while loop.
+
 The planner reserves dedicated global regions plus a call-graph/SCC bound on
 simultaneously live transient owners. Scoped cleanup restores transient region
 watermarks on normal exit, return, break and continue. Borrowed calls grow the

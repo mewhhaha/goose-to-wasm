@@ -34,13 +34,18 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
         code.OpU(0x23, G_REGION_NEXT);
         cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
     }
-    for (auto s : b->stmts) Discard(s);
+    for (auto s : b->stmts) {
+        if (auto declaration = Is<VarDecl>(s)) Decl(declaration);
+        else { auto scope = BeginTempScope(s); Discard(s); EndTempScope(scope); }
+    }
     if (b->tail) {
+        auto scope = BeginTempScope(b->tail);
         // A function may end in a void-typed infinite loop whose nested
         // returns supply its results. The checker already proves that such
         // a tail cannot fall through; the loop itself produces no values.
         if (types.empty() || Values(b->tail).empty()) Discard(b->tail);
         else SetResults({ b->tail }, types, slots, b->line, destinations);
+        EndTempScope(scope);
     }
     if (c.needs_regions) { CloseCleanups(cleanup_depth); region_live = live; }
     private_headers.resize(private_depth);
@@ -136,23 +141,38 @@ inline void Function::Address(Node *n) {
     Fail(n->line, "this expression has no addressable direct representation");
 }
 
-inline void Function::Decl(VarDecl *n) {
-    vector<Slot> slots;
+inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
+    PreparedDecl prepared;
+    auto &slots = prepared.slots;
     for (auto v : n->defs) {
         if (v->type->kind == TY_FN) Fail(n->line, "runtime function values require inlining");
         slots.push_back(n->isglobal ? Lookup(v, n->line) : Bind(v));
         if (!n->isglobal && Compiler::RegionArray(v->type))
             private_headers.push_back({ { v->type, slots.back() }, cleanups.size() });
     }
+    prepared.destinations.resize(slots.size());
+    for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionArray(slots[i].type)) {
+        Location place { slots[i].type, slots[i] };
+        if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) ShareRegion(place, named->second);
+        else AcquireRegion(place, n->line, n->isglobal ? optional<uint32_t>(c.global_regions.at(n->defs[i])) : nullopt);
+        prepared.destinations[i] = ConstructionDestination { place, n->isglobal ? ConstructionDestination::Static : ConstructionDestination::Block };
+    }
+    return prepared;
+}
+
+inline void Function::Decl(VarDecl *n) {
+    auto prepared = PrepareDecl(n);
+    auto scope = BeginTempScope(n);
+    InitializeDecl(n, prepared);
+    EndTempScope(scope);
+}
+
+inline void Function::InitializeDecl(VarDecl *n, const PreparedDecl &prepared) {
+    auto &slots = prepared.slots;
+    auto &destinations = prepared.destinations;
     if (slots.size() > 1 && n->inits.size() == 1) {
         auto types = NaturalResults(n->inits[0]);
         if (types.size() != slots.size()) Fail(n->line, "multi-binding arity mismatch");
-        ResultDestinations destinations(slots.size());
-        for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionArray(slots[i].type)) {
-            Location place { slots[i].type, slots[i] };
-            AcquireRegion(place, n->line);
-            destinations[i] = ConstructionDestination { place, ConstructionDestination::Block };
-        }
         ResultExpression(n->inits[0], destinations);
         vector<uint32_t> captured(types.size());
         for (size_t i = types.size(); i-- > 0;) captured[i] = Save(types[i]);
@@ -170,13 +190,7 @@ inline void Function::Decl(VarDecl *n) {
     for (size_t i = 0; i < slots.size(); i++) {
         auto init = i < n->inits.size() ? n->inits[i] : nullptr;
         if (Compiler::RegionArray(slots[i].type)) {
-            optional<uint32_t> global;
-            if (n->isglobal) global = c.global_regions.at(n->defs[i]);
-            Location place { slots[i].type, slots[i] };
-            if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
-                ShareRegion(place, named->second);
-                ConstructRegionInto(init, { place, ConstructionDestination::Block });
-            } else ConstructRegion(init, place, global);
+            ConstructRegionInto(init, *destinations[i]);
             continue;
         }
         if (!init) continue;
@@ -539,8 +553,10 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
                     auto i = Local(I32); code.I32Const(0); Set(i);
                     auto done = Begin(), loop = Begin(0x03);
                     Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
+                    auto scope = BeginTempScope(n->defaultinit);
                     LocationAddress(place); Get(i); code.I32Const(int32_t(c.Size(t->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
                     To(n->defaultinit, t->arr->sub); Store(t->arr->sub);
+                    EndTempScope(scope);
                     Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
                 } else if (t->kind != TY_ARRAY) ConstructInto(n->defaultinit, destination);
             }
@@ -614,6 +630,7 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
             if (first) Fail(n->line, "match pattern has no resolved alternatives");
             Begin(0x04);
         }
+        auto scope = BeginTempScope(arm.body);
         if (arm.binder) {
             if (!base || arm.pat.byref) Fail(n->line, "only by-value fixed enum payload bindings are supported");
             auto slot = Bind(arm.binder);
@@ -621,6 +638,7 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
         }
         if (ts.empty() || Values(arm.body).empty()) Discard(arm.body);
         else SetResults({ arm.body }, ts, vs, arm.body->line, destinations);
+        EndTempScope(scope);
         Br(done); if (!any) End(); else { wildcard = true; break; }
     }
     if (!wildcard) Abort(n->line, "non-exhaustive match");
@@ -678,9 +696,13 @@ inline void Function::Expr(Node *n) {
         case NK_Binary: {
             auto b = static_cast<Binary *>(n);
             if (b->op == T_ANDAND || b->op == T_OROR) {
+                auto right = [&]() {
+                    auto scope = BeginTempScope(b->right); Truth(b->right); auto value = Save(I32);
+                    EndTempScope(scope); Get(value);
+                };
                 Truth(b->left); Begin(0x04, I32);
-                if (b->op == T_ANDAND) Truth(b->right); else code.I32Const(1);
-                Else(); if (b->op == T_OROR) Truth(b->right); else code.I32Const(0); End(); return;
+                if (b->op == T_ANDAND) right(); else code.I32Const(1);
+                Else(); if (b->op == T_OROR) right(); else code.I32Const(0); End(); return;
             }
             if (b->op == T_DOTEQ || b->op == T_DOTNEQ ||
                 ((b->op == T_EQ || b->op == T_NEQ) && (Is<NullLit>(b->left) || Is<NullLit>(b->right)))) {
@@ -765,8 +787,10 @@ inline void Function::Expr(Node *n) {
         }
         case NK_While: {
             auto w = static_cast<While *>(n); auto done = Begin(), again = Begin(0x03);
-            Truth(w->cond); code.Op(0x45); Br(done, true);
-            PushExit({ done, nullptr, {}, {}, true, again }); BlockInto(w->body, {}, {}); exits.pop_back();
+            PushExit({ done, nullptr, {}, {}, true, again });
+            auto scope = BeginTempScope(w->cond); Truth(w->cond); auto condition = Save(I32); EndTempScope(scope);
+            Get(condition); code.Op(0x45); Br(done, true);
+            BlockInto(w->body, {}, {}); exits.pop_back();
             Br(again); End(); End(); return;
         }
         case NK_ForLoop: For(static_cast<ForLoop *>(n)); return;

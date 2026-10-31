@@ -70,7 +70,7 @@ inline ConstructionDestination Function::FreshDestination(TypeExpr *type, Constr
     c.FixedLayout(type);
     if (lifetime == ConstructionDestination::Caller || lifetime == ConstructionDestination::Static ||
         lifetime == ConstructionDestination::Existing)
-        Fail(type->line, "a fresh activation destination cannot have caller or static lifetime");
+        Fail(type->line, "a fresh activation destination requires a fresh local lifetime");
     return { { type, Slot { Slot::FRAME, Frame(type), type } }, lifetime };
 }
 

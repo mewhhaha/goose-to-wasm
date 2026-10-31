@@ -366,7 +366,8 @@
         "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
-          "tests/fixtures/cleanup_nested_loop.goose"
+          "tests/fixtures/cleanup_nested_loop.goose",
+          "tests/fixtures/while_condition_exits.goose"
         ],
         "boundary_fixtures": []
       },
@@ -389,7 +390,8 @@
         "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
-          "tests/fixtures/cleanup_exits.goose"
+          "tests/fixtures/cleanup_exits.goose",
+          "tests/fixtures/while_condition_exits.goose"
         ],
         "boundary_fixtures": []
       },
@@ -589,7 +591,8 @@
         "status": "qualified_subset",
         "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
-          "tests/fixtures/control_flow.goose"
+          "tests/fixtures/control_flow.goose",
+          "tests/fixtures/while_condition_exits.goose"
         ],
         "boundary_fixtures": []
       }

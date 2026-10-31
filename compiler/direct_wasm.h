@@ -93,6 +93,15 @@ struct Function {
     vector<Exit> exits;
     struct PrivateHeader { Location location; size_t cleanup_depth; };
     vector<PrivateHeader> private_headers;
+    struct TempScope {
+        size_t cleanup_depth, private_depth;
+        uint32_t region_live;
+        bool restores_regions;
+    };
+    vector<TempScope> temp_scopes;
+    bool MayMaterialize(Node *);
+    TempScope BeginTempScope(Node *);
+    void EndTempScope(const TempScope &);
     struct CleanupAction {
         enum Kind { RestoreScratchTop, RestoreRegionNext, CheckAbandonedRegion } kind;
         uint32_t saved_local;
@@ -232,6 +241,9 @@ struct Function {
     void Print(TypeExpr *, uint32_t, Line, bool nested = false);
     void PrintText(string_view);
     void Decl(VarDecl *);
+    struct PreparedDecl { vector<Slot> slots; ResultDestinations destinations; };
+    PreparedDecl PrepareDecl(VarDecl *);
+    void InitializeDecl(VarDecl *, const PreparedDecl &);
     void AssignNode(Assign *);
     void IncNode(IncDec *);
     void For(ForLoop *);
@@ -541,6 +553,10 @@ struct Compiler {
     }
     void Scan(Node *n) {
         if (!n) return;
+        auto type = n->exprtype;
+        if (RegionArray(type) || (type && type->kind == TY_REF && RegionArray(type->ref->sub))) needs_regions = true;
+        if (auto inlined = Is<InlineBlock>(n); inlined && inlined->spec)
+            for (auto result : inlined->spec->rets) if (RegionArray(result)) needs_regions = true;
         if (auto declaration = Is<VarDecl>(n))
             for (auto variable : declaration->defs) if (RegionArray(variable->type)) needs_regions = true;
         if (Is<FnDecl>(n) || Is<StructDecl>(n) || Is<EnumDecl>(n) || Is<AliasDecl>(n) || Is<FunVal>(n)) return;
@@ -673,6 +689,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_numeric.h"
 #include "direct_wasm_storage.h"
 #include "direct_wasm_regions.h"
+#include "direct_wasm_temps.h"
 #include "direct_wasm_arrays.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"
