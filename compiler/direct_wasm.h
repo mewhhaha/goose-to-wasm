@@ -235,6 +235,9 @@ struct Function {
     void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {});
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {});
     void ResultExpression(Node *, const ResultDestinations &);
+    struct RegionResultPlan { ResultDestinations producers, copies; };
+    RegionResultPlan PlanRegionResults(const vector<TypeExpr *> &, const ResultDestinations &, Line);
+    void PublishRegionResults(const vector<TypeExpr *> &, const RegionResultPlan &, Line);
     void ControlValue(Node *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
     vector<const VarDef *> BindNamedResults(Block *, SFunction *, const vector<TypeExpr *> &, const ResultDestinations &);
     void RecordRegionCall(FnSpec *, Line);
@@ -243,10 +246,13 @@ struct Function {
     void ShareRegion(const Location &, const ConstructionDestination &);
     void ConstructRegionInto(Node *, const ConstructionDestination &);
     void ConstructRegionFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
-    void ConstructRegionView(uint32_t, const ConstructionDestination &, Line);
+    void ConstructRegionView(uint32_t, const ConstructionDestination &, Line, optional<uint32_t> capacity = {});
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
     void ConstructionView(Node *);
+    struct CapturedSequence { uint32_t view; TypeExpr *type; optional<uint32_t> capacity; };
+    CapturedSequence CaptureSequence(Node *);
     void ReserveRegion(uint32_t header, uint32_t count, TypeExpr *, Line);
+    void ReserveArray(uint32_t header, uint32_t count, TypeExpr *, Line);
     void ActivationLimit(uint32_t, Line);
     void Builtin(Call *, bool adapt_result = true);
     void Print(TypeExpr *, uint32_t, Line, bool nested = false);
@@ -357,15 +363,18 @@ struct Compiler {
     static bool GrowableArray(TypeExpr *t) {
         return t && t->kind == TY_ARRAY && (t->arr->akind == A_GROW || t->arr->akind == A_GROWSHRINK);
     }
+    static bool RuntimeLimited(TypeExpr *t) {
+        return t && t->kind == TY_ARRAY && t->arr->akind == A_LIMITED && t->arr->size < 0;
+    }
     static bool RegionArray(TypeExpr *t) {
-        return GrowableArray(t) || (t && t->kind == TY_ARRAY && t->arr->akind == A_VAR);
+        return GrowableArray(t) || RuntimeLimited(t) || (t && t->kind == TY_ARRAY && t->arr->akind == A_VAR);
     }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
         if (t->arr->akind == A_VAR && t->arr->lenstorage >= 0 && t->arr->lenstorage != IS_U32)
             Fail(t->line, "variable-array length storage other than default/u32 is not supported");
         FixedLayout(t->arr->sub);
-        Layout header; header.size = 12; header.align = 4; return header;
+        Layout header; header.size = 16; header.align = 4; return header;
     }
     // The checker's physical size class is independent of a future runtime
     // descriptor's byte size. Only SC_FIXED values may use ordinary copies.
@@ -569,6 +578,7 @@ struct Compiler {
     }
     void Scan(Node *n) {
         if (!n) return;
+        if (auto literal = Is<ArrayLit>(n); literal && literal->capexpr) needs_regions = true;
         auto type = n->exprtype;
         if (RegionArray(type) || (type && type->kind == TY_REF && RegionArray(type->ref->sub))) needs_regions = true;
         if (auto inlined = Is<InlineBlock>(n); inlined && inlined->spec)

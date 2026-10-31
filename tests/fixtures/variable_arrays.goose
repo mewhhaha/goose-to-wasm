@@ -1,6 +1,10 @@
 var global: i64[] = [7, 8];
 fn make(n: i64) -> i64[] { return [n, n + 1]; }
-fn change(xs: i64[]) -> i64[] { xs[0] += 10; return xs; }
+fn change(xs: i64[u32]) -> i64[] { xs[0] += 10; return xs; }
+fn bump(xs: i64[]&) -> i64 { xs[0] += 10; return xs[0]; }
+fn twins(n: i64) -> i64[u32], i64, i64[] {
+    let xs: i64[] = [n, n + 1]; return xs, bump(xs), xs;
+}
 fn grow(xs: i64[>..]&) -> i64 { xs[0] += 10; xs.push(99); return xs.len; }
 fn named(n: i64) -> i64[], i64, i64[] {
     var xs: i64[>..] = [n]; return xs, grow(xs), xs;
@@ -20,4 +24,5 @@ fn main() {
     let from_variable: i64[>..] = copy(explicit);
     from_variable.push(7); print(explicit, " ", empty.len, " ", from_slice, " ", from_variable);
     let broken: i64[] = loop { let item: i64[] = [40]; break copy(item); }; print(broken);
+    let old, value, later = twins(5); print(old, " ", value, " ", later);
 }

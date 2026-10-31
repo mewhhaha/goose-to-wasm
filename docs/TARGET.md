@@ -41,8 +41,11 @@ operations that remain live. Stable regions use these same boundaries;
 single growable results carry an explicit caller destination, while general
 dynamic result destinations remain subsequent work.
 
-Named fixed-element `T[>..]` and `T[>..<]` owners have a separate 12-byte control
-header `{base: u32, len: u32, limit: u32}` in frame/static storage. Owner references
+Region-backed arrays use internal control ABI version 2: a separate 16-byte
+header `{base: u32, len: u32, resource_limit: u32, cap: u32}` in frame/static
+storage. This covers supported fixed-element growables, default/u32 variable
+arrays and runtime-capacity limited arrays. The cap word is semantic only for
+runtime-capacity limited arrays; other owners initialize it to zero. Owner references
 point to that header; element references point directly into stable data regions.
 The header is never copied through the fixed-value ownership path. Initializers
 construct into an acquired region, including implicit empty globals, literals,
@@ -69,6 +72,25 @@ mutate shared elements without changing a previously published result length.
 Forwarded calls capture their natural result representations before adapting
 them in order. Fixed-array/slice values and references to them can construct
 owned receiving arrays without copying an owner descriptor.
+
+Runtime-capacity limited named results instead alias their whole receiving
+header, matching the native image semantics: later result expressions can change
+an earlier result's live length as well as its elements. Cross-kind result
+conversions involving runtime-limited arrays construct into a natural temporary
+then copy into the receiving kind after capturing every returned value. Missing
+owned channels for fixed receiving ordinals use natural temporaries and the
+ordinary fixed-value conversion.
+
+`T[..]` keeps its declared capacity independently of the physical region limit.
+Same-type copies preserve spare capacity; construction from other array kinds
+or slices chooses capacity equal to initial length. A `[..capacity]` literal
+evaluates its expression once, checks the u32 range and reserves its extent with
+length zero. Its effects and range check survive inline/branch optimization and
+conversion to another array kind. Mutation checks both logical capacity and the
+physical region limit. Assignment constructs the complete RHS into temporary
+storage, copies live elements into the pinned receiver, and preserves its
+capacity. Reads of the existing owner are allowed during that RHS; an early exit
+before publication leaves its previous value intact apart from explicit RHS effects.
 
 An internal by-value growable parameter receives the address of a private
 header constructed by its caller. Each owned argument acquires a distinct region
@@ -236,7 +258,7 @@ The executable differential suite is the authority for qualified behavior.
 
 The current backend refuses owned dynamic function-value parameters/results,
 dynamic containing structs, variable-element
-growables, non-u32 variable-array lengths and construction-time limited capacity; variable-mode enums;
+growables, non-u32 variable-array lengths; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;
 non-inlined captured environments and dynamic nonlocal

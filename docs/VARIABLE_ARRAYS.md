@@ -3,6 +3,10 @@
 This follows the Astra xhigh review of the pinned frontend and C emitter.
 Implement in these slices, retaining fixed-value copy gates throughout:
 
+The default/u32 fixed-element slice and runtime-capacity slice below are
+implemented. Other length encodings and variable elements/containing values
+remain subsequent work.
+
 1. Fixed-layout elements in `T[]` and `T[u32]`: use checked stable regions,
    owned parameter/result channels, scoped temporaries, views and element writes.
    Keep the frontend's `SC_VARIABLE` classification and frozen length. Growable
@@ -24,6 +28,12 @@ Implement in these slices, retaining fixed-value copy gates throughout:
 The native named-result analysis also places a growable local's element run into
 an `A_VAR` result. Preserve the shared data identity when later result expressions
 mutate that local, while each result keeps its separately published length.
+
+Runtime-limited named results alias their entire receiving header, so a later
+result can change an earlier result's length. Other region-backed named locals
+retain private length headers. The internal region control ABI now uses 16 bytes:
+base at 0, length at 4, resource limit at 8, limited capacity at 12. Fixed static
+capacity arrays retain their inline layout.
 
 The initial region representation is target-specific. It establishes no packed
 image, serialization or `bytes_of` compatibility with the pinned C ABI.

@@ -16,6 +16,8 @@ static-capacity resizable arrays, struct fields, fixed-mode enums and payload ma
 slices, references, and named growable arrays of supported fixed-layout elements.
 Variable arrays with default/u32 length storage use these regions for owned
 construction, calls and returns, while keeping their length frozen.
+Runtime-capacity arrays preserve logical capacity through copies and assignment,
+with checked mutation and conversions between supported array kinds.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

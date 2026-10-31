@@ -82,10 +82,6 @@ class DynamicBoundaries(unittest.TestCase):
         cases = {
             "narrow-variable-array-result": '''fn make() -> i64[u16] { return [1, 2]; }
 fn main() { let values = make(); print(values); }''',
-            "inlined-construction-time-capacity": '''extern fn bench_input() -> i64;
-fn cap() -> i64 { print(123); return bench_input() + 5; }
-inline fn empty() -> i64[..] { return [..cap()]; }
-fn main() { var values: i64[>..] = empty(); print(values.len); }''',
         }
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
             work = Path(directory)

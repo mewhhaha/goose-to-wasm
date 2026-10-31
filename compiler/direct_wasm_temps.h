@@ -6,6 +6,12 @@ namespace goose::direct_wasm {
 inline bool Function::MayMaterialize(Node *node) {
     if (!node || Is<FnDecl>(node) || Is<FunVal>(node) || Is<StructDecl>(node) ||
         Is<EnumDecl>(node) || Is<AliasDecl>(node)) return false;
+    if (auto literal = Is<ArrayLit>(node); literal && literal->capexpr) return true;
+    if (auto assignment = Is<Assign>(node)) {
+        auto target = assignment->lval->exprtype;
+        if (target && target->kind == TY_REF) target = target->ref->sub;
+        if (Compiler::RuntimeLimited(target)) return true;
+    }
     auto type = node->exprtype;
     auto owned = Compiler::RegionArray(type) ||
         (type && type->kind == TY_REF && Compiler::RegionArray(type->ref->sub));

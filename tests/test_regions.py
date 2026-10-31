@@ -630,6 +630,54 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
+    def test_runtime_limited_assignment_pins_receiver_and_survives_rhs_exit(self):
+        source = '''fn replace(var route: i64[..]&, other: i64[..]&, n: i64) {
+    route = [if n >= 0 { route .= other; 42 } else { 43 }, 44];
+}
+fn interrupted(values: i64[..]&, n: i64) -> i64 { values = [1, if n >= 0 { return 77; } else { 2 }]; return 0; }
+export fn tick(n: i64) -> i64 {
+    var left: i64[..] = [..4]; left.push(1);
+    var right: i64[..] = [..5]; right.push(9);
+    replace(left, right, n);
+    if left.len != 2 || left[0] != 42 || left.cap != 4 || right[0] != 9 { abort("bad pinned receiver"); }
+    if interrupted(left, n) != 77 || left[0] != 42 || left.len != 2 { abort("bad interrupted assignment"); }
+    left = left[1..]; left.append([7, 8, 9]);
+    if left.len != 4 || left.cap != 4 || left[0] != 44 || left[3] != 9 { abort("bad retained capacity"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_runtime_limited_capacity_is_checked_independently_of_region_size(self):
+        for operation in ("push", "append", "resize", "assign"):
+            change = {"push": "values.push(3);", "append": "values.append([3]);",
+                      "resize": "values.resize(3, 0);", "assign": "values = [3, 4, 5];"}[operation]
+            source = f'''var values: i64[..] = [1, 2];
+var neighbor: i64[>..] = [{CANARY}];
+fn main() {{ {change} }}'''
+            for level in (0, 2):
+                path, runtime = self.compile(source, level)
+                for engine, observed in self.engines(path, runtime, canary_index=1):
+                    with self.subTest(operation=operation, level=level, engine=engine):
+                        self.assertIn("capacity", observed["error"])
+                        self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_runtime_limited_reservation_obeys_physical_region_limit(self):
+        source = f'''extern fn bench_input() -> i64;
+var neighbor: i64[>..] = [{CANARY}];
+fn main() {{ let values: i64[..] = [..bench_input()]; print(values.len); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            for engine, observed in self.engines(path, runtime, input_value=runtime["region_bytes"] // 8 + 1, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

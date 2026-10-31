@@ -4,6 +4,17 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: fixed-element runtime-capacity arrays
+
+Runtime `T[..]` owners now use the uniform 16-byte internal region header with
+separate logical capacity and resource limit. Copies preserve spare capacity;
+cross-kind construction chooses capacity from length. Assignment constructs its
+RHS before updating the pinned receiver and preserves capacity, including self
+reads and interrupted RHS evaluation. Natural result channels preserve limited
+array semantics during ordinary/inline, mixed, forwarded and named-result calls.
+Capacity-literal effects and range checks survive optimized conversions.
+Variable elements and containing values remain pending.
+
 ## Implemented: fixed-element variable arrays with default/u32 lengths
 
 `T[]` and `T[u32]` now use stable regions for construction, independent by-value

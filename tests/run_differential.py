@@ -52,7 +52,21 @@ def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     result.append(Case("scope/while-condition-exits", "while_condition_exits", stdout="3 15 81 100\n", group="aggregate"))
     result.append(Case("temporary/multiple-discard", "anonymous_multiple", stdout="2\n4 17\n", group="aggregate"))
-    result.append(Case("variable/owned-values", "variable_arrays", stdout="[3, 4] [13, 4] [7, 8]\n[14] 2 [14, 99]\n[20, 21] 8\nhello\n[8, 9]\n9\n[5, 6] 0 [30, 31] [5, 6, 7]\n[40]\n", group="aggregate"))
+    for n in (0, 3):
+        answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
+                  f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
+                  f"[{n + 1}] {n + 5}\n[{n + 1}, 8]\n77 [{n + 1}, 8] [{n + 1}, 8]\n"
+                  f"[{n + 10}, {n + 1}, 99] {n + 5} 3 [{n + 10}, {n + 1}, 99] {n + 5}\n"
+                  f"[{n + 10}, {n + 1}, 99, 100] 3 [{n + 10}, {n + 1}, 99]\n"
+                  f"[{n + 10}, {n + 1}, 99] 4 3 4\n"
+                  f"[{n}, {n + 1}] 2\n20\n0\n0 3\n[9] 6 7\n")
+        result.append(Case(f"runtime-limited/values/{n}", "runtime_limited", f"{n}\n", answer, group="aggregate"))
+        answer = f"{n} {n + 1} 30 40 4\n{n + 10} 3 4 3\n{n + 2} 40 2 4\n"
+        result.append(Case(f"runtime-limited/aggregate/{n}", "runtime_limited_aggregate", f"{n}\n", answer, group="aggregate"))
+    for mode in range(12):
+        diagnostic = "capacity" if mode <= 6 or mode == 11 else "pop" if mode in (7, 9) else "fill" if mode == 8 else "negative"
+        result.append(Case(f"runtime-limited/errors/{mode}", "runtime_limited_errors", f"{mode}\n", "cap\n" if mode == 11 else "", exit_code=1, diagnostic=diagnostic, group="aggregate"))
+    result.append(Case("variable/owned-values", "variable_arrays", stdout="[3, 4] [13, 4] [7, 8]\n[14] 2 [14, 99]\n[20, 21] 8\nhello\n[8, 9]\n9\n[5, 6] 0 [30, 31] [5, 6, 7]\n[40]\n[15, 6] 15 [15, 6]\n", group="aggregate"))
     for n in (0, 3):
         answer = (f"2 {n + 1} 2\n[{n}, {n + 1}] [{n + 10}, {n + 11}] 4\n[1, 2] [1, 2]\n"
                   f"[{n}, {n + 1}]\n[2, {2 * n + 1}]\n"

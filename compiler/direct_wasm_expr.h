@@ -148,6 +148,15 @@ inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
     auto &slots = prepared.slots;
     for (auto v : n->defs) {
         if (v->type->kind == TY_FN) Fail(n->line, "runtime function values require inlining");
+        // A runtime-limited named result is an image whose length/capacity
+        // header itself lives at the receiving destination. Later result
+        // expressions can mutate that same header, as in the native target.
+        auto named = named_regions.find(v);
+        if (!n->isglobal && Compiler::RuntimeLimited(v->type) && named != named_regions.end()) {
+            LocationAddress(named->second.location);
+            Slot slot { Slot::ADDRESS, Save(I32), v->type };
+            vars[v] = slot; slots.push_back(slot); continue;
+        }
         slots.push_back(n->isglobal ? Lookup(v, n->line) : Bind(v));
         if (!n->isglobal && Compiler::RegionArray(v->type))
             private_headers.push_back({ { v->type, slots.back() }, cleanups.size() });
@@ -155,7 +164,12 @@ inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
     prepared.destinations.resize(slots.size());
     for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionArray(slots[i].type)) {
         Location place { slots[i].type, slots[i] };
-        if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) ShareRegion(place, named->second);
+        if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
+            if (Compiler::RuntimeLimited(slots[i].type)) {
+                prepared.destinations[i] = ConstructionDestination { place, named->second.lifetime }; continue;
+            }
+            ShareRegion(place, named->second);
+        }
         else AcquireRegion(place, n->line, n->isglobal ? optional<uint32_t>(c.global_regions.at(n->defs[i])) : nullopt);
         prepared.destinations[i] = ConstructionDestination { place, n->isglobal ? ConstructionDestination::Static : ConstructionDestination::Block };
     }
@@ -205,6 +219,14 @@ inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
     if (Compiler::RegionArray(t)) {
+        if (Compiler::RuntimeLimited(t)) {
+            if (n->op != T_ASSIGN) Fail(n->line, "compound runtime-limited assignment is not supported");
+            auto temporary = TemporaryDestination(t, n->line);
+            ConstructRegionInto(n->rhs, temporary);
+            LocationAddress(temporary.location); auto source = Save(I32);
+            ConstructRegionFromCaptured(t, source, { place, ConstructionDestination::Existing }, n->line);
+            return;
+        }
         if (!Compiler::GrowableArray(t)) Fail(n->line, "whole variable-array assignment is not supported");
         if (n->op != T_ASSIGN && n->op != T_DOTASSIGN)
             Fail(n->line, "compound owned array assignment is not supported");
@@ -387,9 +409,8 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     auto receiving = destinations;
     for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionArray(sp->rets[i])) {
         if (!receiving.empty()) {
-            if (receiving.size() != sp->rets.size() || !receiving[i])
-                Fail(n->line, "owned call result is missing its receiving destination");
-            CheckRegionDestination(sp->rets[i], *receiving[i], n->line);
+            if (receiving.size() != sp->rets.size()) Fail(n->line, "owned call result channel arity mismatch");
+            if (receiving[i]) CheckRegionDestination(sp->rets[i], *receiving[i], n->line);
         }
     }
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
@@ -413,11 +434,8 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     // Anonymous result storage is needed only after evaluating arguments.
     // Reserving it earlier would keep a region live across recursive arguments.
-    if (receiving.empty()) {
-        receiving.resize(sp->rets.size());
-        for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionArray(sp->rets[i]))
-            receiving[i] = TemporaryDestination(sp->rets[i], n->line);
-    }
+    auto plan = PlanRegionResults(sp->rets, receiving, n->line);
+    receiving = plan.producers;
     for (size_t i = 0; i < sp->rets.size(); i++) if (auto t = sp->rets[i]; c.Aggregate(t)) {
         if (Compiler::RegionArray(t)) LocationAddress(receiving[i]->location);
         else LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
@@ -429,6 +447,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     // private owner. External references carried by its elements survive.
     // These balanced cleanup instructions preserve the Wasm call results.
     EndArgumentGroup(group, anonymous_serial != group.serial);
+    PublishRegionResults(sp->rets, plan, n->line);
     if (adapt_result && sp->rets.size() == 1) {
         if (n->exprtype->kind == TY_VOID) code.Op(0x1a);
         else Convert(sp->rets[0], n->exprtype, n->line);
@@ -538,7 +557,12 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
             View(args[0]); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
         }
         case B_CAP: {
-            auto t = Object(args[0]); c.Size(t); code.Op(0x1a);
+            auto t = Object(args[0]);
+            if (Compiler::RuntimeLimited(t)) {
+                code.Mem(0x28, 2, 12); code.Op(0xad);
+                Convert(c.ast.inttypes[IS_U64], n->exprtype, n->line); return;
+            }
+            c.Size(t); code.Op(0x1a);
             code.I64Const(t->arr->size); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
         }
         case B_INDEX_OF: case B_PUSH: case B_APPEND: case B_POP: case B_POP_N: case B_CLEAR: case B_RESIZE:
@@ -584,20 +608,18 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
 inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const ResultDestinations &destinations) {
     auto types = Values(node);
     auto own = node->spec ? node->spec->rets : types;
-    if (destinations.empty() && own.size() == 1 && Compiler::RegionArray(own[0])) {
-        Materialize(node, own[0], adapt_result); return;
-    }
     if (node->spec) for (auto parameter : node->spec->params)
         if (c.Class(parameter->type) != SC_FIXED && !Compiler::RegionArray(parameter->type))
             Fail(node->line, "owned dynamic inline parameters are not supported without receiving lifetimes");
     for (size_t i = 0; i < own.size(); i++) if (c.Class(own[i]) != SC_FIXED) {
-        if (!Compiler::RegionArray(own[i]) || destinations.size() != own.size() || !destinations[i])
+        if (!Compiler::RegionArray(own[i]))
             Fail(node->line, "owned dynamic inline results are not supported without a receiving destination");
-        CheckRegionDestination(own[i], *destinations[i], node->line);
     }
+    auto plan = PlanRegionResults(own, destinations, node->line);
+    auto &receiving = plan.producers;
     vector<uint32_t> values;
     for (auto type : own) values.push_back(Local(type));
-    auto named = BindNamedResults(node->body, node->sf, own, destinations);
+    auto named = BindNamedResults(node->body, node->sf, own, receiving);
     size_t prefix = 0;
     bool group_needed = false;
     for (auto statement : node->body->stmts) {
@@ -609,7 +631,7 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     }
     auto private_depth = private_headers.size();
     auto group = BeginArgumentGroup(group_needed);
-    auto label = Begin(); PushExit({ label, node->sf, own, values, false, {} }, destinations);
+    auto label = Begin(); PushExit({ label, node->sf, own, values, false, {} }, receiving);
     auto parameter_depth = cleanups.size() + 1;
     for (size_t i = 0; i < prefix; i++) {
         auto declaration = static_cast<VarDecl *>(node->body->stmts[i]);
@@ -619,7 +641,7 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
         InitializeDecl(declaration, prepared);
     }
     auto retain_arguments = anonymous_serial != group.serial;
-    BlockInto(node->body, own, values, destinations, prefix); exits.pop_back(); End();
+    BlockInto(node->body, own, values, receiving, prefix); exits.pop_back(); End();
     EndArgumentGroup(group, retain_arguments);
     auto retained = private_depth;
     for (size_t i = private_depth; i < private_headers.size(); i++)
@@ -627,7 +649,8 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     private_headers.resize(retained);
     for (auto variable : named) named_regions.erase(variable);
     for (auto value : values) Get(value);
-    if (adapt_result && own.size() == 1 && types.size() == 1 && !Compiler::RegionArray(own[0])) Convert(own[0], types[0], node->line);
+    PublishRegionResults(own, plan, node->line);
+    if (adapt_result && own.size() == 1 && types.size() == 1) Convert(own[0], types[0], node->line);
     else if (adapt_result && types.empty()) for (size_t index = 0; index < own.size(); index++) code.Op(0x1a);
 }
 
@@ -690,6 +713,12 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
 
 inline void Function::Expr(Node *n) {
     if (!n) return;
+    if (auto literal = Is<ArrayLit>(n); literal && literal->capexpr) {
+        auto type = n->exprtype;
+        auto element = type->kind == TY_ARRAY ? type->arr->sub : type->kind == TY_SLICE ? type->sub : nullptr;
+        if (!element) Fail(n->line, "capacity literal has no array element type");
+        Materialize(n, c.ast.ArrayOf(element, A_LIMITED, n->line)); return;
+    }
     if (Compiler::RegionArray(n->exprtype) && (Is<ArrayLit>(n) || Is<StrLit>(n) || Is<Block>(n) ||
         Is<IfExpr>(n) || Is<EarlyBlock>(n) || Is<LoopExpr>(n) || Is<MatchExpr>(n))) {
         Materialize(n, n->exprtype); return;
@@ -777,7 +806,12 @@ inline void Function::Expr(Node *n) {
             auto d = static_cast<Dot *>(n);
             if (d->member == B_LEN) { View(d->obj); code.I64Const(32); code.Op(0x88); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return; }
             if (d->member == B_CAP) {
-                auto t = Object(d->obj); c.Size(t); code.Op(0x1a);
+                auto t = Object(d->obj);
+                if (Compiler::RuntimeLimited(t)) {
+                    code.Mem(0x28, 2, 12); code.Op(0xad);
+                    Convert(c.ast.inttypes[IS_U64], n->exprtype, n->line); return;
+                }
+                c.Size(t); code.Op(0x1a);
                 code.I64Const(t->arr->size); Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
             }
             if (d->variantconst) {

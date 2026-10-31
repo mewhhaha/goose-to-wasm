@@ -54,17 +54,19 @@ inline void Function::ActivationLimit(uint32_t top, Line line) {
     TrapIf(line, "activation/scratch arena exhausted");
 }
 
-// Obtain the source's physical view rather than its contextually adapted
-// destination type. No anonymous dynamic owner is allocated on this path.
-inline void Function::ConstructionView(Node *node) {
-    if (auto slice = Is<SliceExpr>(node)) { SliceView(slice); return; }
+// Capture physical source metadata before publishing any receiving header.
+inline Function::CapturedSequence Function::CaptureSequence(Node *node) {
+    if (auto slice = Is<SliceExpr>(node)) {
+        SliceView(slice); return { Save(I64), node->exprtype, {} };
+    }
     if (auto call = Is<Call>(node); call && call->builtin == B_COPY) {
-        ConstructionView(call->FirstArg()); return;
+        return CaptureSequence(call->FirstArg());
     }
     TypeExpr *natural = node->exprtype;
     if (auto text = Is<StrLit>(node)) {
         auto address = c.Text(text->val);
-        code.I64Const(int64_t((uint64_t(text->val.size()) << 32) | address)); return;
+        code.I64Const(int64_t((uint64_t(text->val.size()) << 32) | address));
+        return { Save(I64), natural, {} };
     }
     if (Is<Ident>(node) || Is<Index>(node) || (Is<Dot>(node) && Is<Dot>(node)->IsField())) {
         auto place = PinPlace(node); natural = place.storage_type; ReadLocation(place, natural);
@@ -83,8 +85,18 @@ inline void Function::ConstructionView(Node *node) {
         else Expr(node);
     }
     if (natural->kind == TY_REF) { natural = natural->ref->sub; Load(natural); }
+    optional<uint32_t> capacity;
+    if (Compiler::RuntimeLimited(natural)) {
+        auto header = Save(I32);
+        Get(header); code.Mem(0x28, 2, 12); capacity = Save(I32); Get(header);
+    }
     if (natural->kind == TY_ARRAY) PackArrayView(natural);
     else if (natural->kind != TY_SLICE) Fail(node->line, "array construction requires an array or slice");
+    return { Save(I64), natural, capacity };
+}
+
+inline void Function::ConstructionView(Node *node) {
+    auto source = CaptureSequence(node); Get(source.view);
 }
 
 inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionDestination &destination, Line line) {
@@ -92,6 +104,34 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
     if (!Compiler::RegionArray(target) ||
         c.FixedLayout(type->arr->sub).size != c.FixedLayout(target->arr->sub).size)
         Fail(line, "owned dynamic element adaptation is not supported at this destination");
+}
+
+inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeExpr *> &types,
+        const ResultDestinations &receivers, Line line) {
+    RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()) };
+    for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionArray(types[i])) {
+        if (!receivers.empty() && receivers.size() != types.size()) Fail(line, "owned result channel arity mismatch");
+        // An empty ordinal can receive a fixed value after normal conversion.
+        if (receivers.empty() || !receivers[i]) { plan.producers[i] = TemporaryDestination(types[i], line); continue; }
+        CheckRegionDestination(types[i], *receivers[i], line);
+        auto receiving = receivers[i]->location.storage_type;
+        if (Compiler::RuntimeLimited(types[i]) != Compiler::RuntimeLimited(receiving)) {
+            plan.producers[i] = TemporaryDestination(types[i], line); plan.copies[i] = receivers[i];
+        } else plan.producers[i] = receivers[i];
+    }
+    return plan;
+}
+
+inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, const RegionResultPlan &plan, Line line) {
+    if (none_of(plan.copies.begin(), plan.copies.end(), [](auto &destination) { return bool(destination); })) return;
+    vector<uint32_t> values(types.size());
+    for (size_t i = types.size(); i-- > 0;) values[i] = Save(types[i]);
+    // Capture every natural result before adapting any ordinal.
+    for (size_t i = 0; i < types.size(); i++) if (plan.copies[i]) {
+        ConstructRegionFromCaptured(types[i], values[i], *plan.copies[i], line);
+        LocationAddress(plan.copies[i]->location); Set(values[i]);
+    }
+    for (auto value : values) Get(value);
 }
 
 inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction *target,
@@ -120,6 +160,7 @@ inline void Function::ShareRegion(const Location &place, const ConstructionDesti
         Get(local); Get(result); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset);
     }
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 4);
+    Get(local); code.I32Const(0); code.Mem(0x36, 2, 12);
 }
 
 inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_t source,
@@ -127,19 +168,35 @@ inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_
     Get(source);
     if (source_type->kind == TY_REF) { source_type = source_type->ref->sub; Load(source_type); }
     TypeExpr *element;
+    optional<uint32_t> capacity;
+    if (Compiler::RuntimeLimited(source_type)) {
+        auto header = Save(I32);
+        Get(header); code.Mem(0x28, 2, 12); capacity = Save(I32); Get(header);
+    }
     if (source_type->kind == TY_ARRAY) { element = source_type->arr->sub; PackArrayView(source_type); }
     else if (source_type->kind == TY_SLICE) element = source_type->sub;
     else Fail(line, "owned result adaptation requires an array or slice");
     if (c.FixedLayout(element).size != c.FixedLayout(destination.location.storage_type->arr->sub).size)
         Fail(line, "owned result element adaptation is not supported");
-    auto view = Save(I64); ConstructRegionView(view, destination, line);
+    auto view = Save(I64); ConstructRegionView(view, destination, line, capacity);
 }
 
-inline void Function::ConstructRegionView(uint32_t source, const ConstructionDestination &destination, Line line) {
+inline void Function::ConstructRegionView(uint32_t source, const ConstructionDestination &destination, Line line,
+                                          optional<uint32_t> capacity) {
     auto element = destination.location.storage_type->arr->sub;
     LocationAddress(destination.location); auto header = Save(I32);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
     Get(source); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
+    if (Compiler::RuntimeLimited(destination.location.storage_type)) {
+        if (destination.lifetime == ConstructionDestination::Existing) {
+            Get(count); Get(header); code.Mem(0x28, 2, 12); code.Op(0xad); code.Op(0x56);
+            TrapIf(line, "array capacity exceeded");
+        } else {
+            if (capacity) { Get(*capacity); code.Op(0xad); } else Get(count);
+            auto cap = Save(I64); ReserveRegion(header, cap, element, line);
+            Get(header); Get(cap); code.Op(0xa7); code.Mem(0x36, 2, 12);
+        }
+    }
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     ReserveRegion(header, count, element, line);
     Get(base); Get(source); code.Op(0xa7); Get(count); code.Op(0xa7);
@@ -170,6 +227,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
     Get(header); Get(base); code.Mem(0x36, 2);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); Get(base); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6a); code.Mem(0x36, 2, 8);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
 }
 
 inline void Function::ConstructRegionInto(Node *node, const ConstructionDestination &destination) {
@@ -178,6 +236,25 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     c.HeaderLayout(type);
     auto element = type->arr->sub;
     auto line = node ? node->line : type->line;
+    if (auto literal = Is<ArrayLit>(node); literal && literal->capexpr) {
+        if (!Compiler::RuntimeLimited(type)) {
+            // A capacity literal keeps its natural range check, reservation
+            // and effects even after an optimizer exposes it in another kind.
+            auto natural = c.ast.ArrayOf(element, A_LIMITED, line);
+            auto temporary = TemporaryDestination(natural, line);
+            ConstructRegionInto(node, temporary);
+            LocationAddress(temporary.location); auto source = Save(I32);
+            ConstructRegionFromCaptured(natural, source, destination, line); return;
+        }
+        To(literal->capexpr, c.ast.inttypes[IS_I64]); auto capacity = Save(I64);
+        Get(capacity); code.I64Const(0); code.Op(0x53);
+        Get(capacity); code.I64Const(UINT32_MAX); code.Op(0x56); code.Op(0x72);
+        TrapIf(line, "array capacity out of range");
+        LocationAddress(place); auto header = Save(I32);
+        ReserveRegion(header, capacity, element, line);
+        Get(header); Get(capacity); code.Op(0xa7); code.Mem(0x36, 2, 12);
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); return;
+    }
     if (auto copy = Is<Call>(node); copy && copy->builtin == B_COPY) {
         ConstructRegionInto(copy->FirstArg(), destination); return;
     }
@@ -192,6 +269,10 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
             // later growth from changing the length published here.
             LocationAddress(place);
             LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 4); code.Mem(0x36, 2, 4);
+            if (Compiler::RuntimeLimited(type)) {
+                LocationAddress(place);
+                LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 12); code.Mem(0x36, 2, 12);
+            }
             return;
         }
     }
@@ -226,6 +307,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
 
     if (!node) {
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
         code.I64Const(0); auto count = Save(I64); ReserveRegion(header, count, element, line); return;
     }
 
@@ -233,11 +315,12 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     auto cleanup_depth = cleanups.size();
     bool check_abandoned = false;
     if (auto array = Is<ArrayLit>(node)) {
-        if (array->capexpr)
-            Fail(node->line, "construction-time capacity array literals are not supported at an owned growable destination");
         auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
         code.I64Const(size); count = Save(I64);
         Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 4);
+        if (Compiler::RuntimeLimited(type)) {
+            Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 12);
+        }
         // Existing owners and callee result channels can survive an exit
         // during element evaluation. Commit/check the published extent on
         // that exit, while ordinary construction keeps its effect ordering.
@@ -264,8 +347,8 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
             }
         }
     } else {
-        ConstructionView(node); auto source = Save(I64);
-        ConstructRegionView(source, destination, line); return;
+        auto source = CaptureSequence(node);
+        ConstructRegionView(source.view, destination, line, source.capacity); return;
     }
     Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
     if (check_abandoned) CloseCleanups(cleanup_depth);
@@ -282,6 +365,14 @@ inline void Function::ReserveRegion(uint32_t header, uint32_t count, TypeExpr *e
     Get(header); code.Mem(0x28, 2); Get(count); code.Op(0xa7);
     code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Op(0x6a);
     auto top = Save(I32); EnsureMemory(top, line);
+}
+
+inline void Function::ReserveArray(uint32_t header, uint32_t count, TypeExpr *type, Line line) {
+    if (Compiler::RuntimeLimited(type)) {
+        Get(count); Get(header); code.Mem(0x28, 2, 12); code.Op(0xad); code.Op(0x56);
+        TrapIf(line, "array capacity exceeded");
+    }
+    ReserveRegion(header, count, type->arr->sub, line);
 }
 
 } // namespace goose::direct_wasm

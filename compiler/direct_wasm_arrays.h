@@ -144,7 +144,7 @@ inline void Function::ArrayBuiltin(Call *n) {
         length(); auto len = Save(I32);
         if (region) {
             Get(len); code.Op(0xad); code.I64Const(1); code.Op(0x7c);
-            auto next = Save(I64); ReserveRegion(base, next, elem, n->line);
+            auto next = Save(I64); ReserveArray(base, next, t, n->line);
         } else {
             Get(len); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); TrapIf(n->line, "array capacity exceeded");
         }
@@ -175,7 +175,7 @@ inline void Function::ArrayBuiltin(Call *n) {
         // captured before reloading len; memory.copy also handles overlap.
         if (region) {
             Get(count); code.Op(0xad); Get(len); code.Op(0xad); code.Op(0x7c);
-            auto next = Save(I64); ReserveRegion(base, next, elem, n->line);
+            auto next = Save(I64); ReserveArray(base, next, t, n->line);
         } else {
             Get(count); code.I32Const(int32_t(t->arr->size)); Get(len); code.Op(0x6b); code.Op(0x4b);
             TrapIf(n->line, "array capacity exceeded");
@@ -196,7 +196,7 @@ inline void Function::ArrayBuiltin(Call *n) {
     Get(count); Get(old); code.Op(0xad); code.Op(0x56); Begin(0x04);
     if (!fill) Abort(n->line, "array resize growth requires a fill value");
     else {
-        if (region) ReserveRegion(base, count, elem, n->line);
+        if (region) ReserveArray(base, count, t, n->line);
         else { Get(count); code.I64Const(t->arr->size); code.Op(0x56); TrapIf(n->line, "array capacity exceeded"); }
         auto i = Local(I32); Get(old); Set(i);
         auto done = Begin(), loop = Begin(0x03);
