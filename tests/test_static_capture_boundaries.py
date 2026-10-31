@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep static environments distinct from owned callbacks and nonlocal exits."""
+"""Keep static environments distinct from escaping borrows and nonlocal exits."""
 import argparse
 from pathlib import Path
 import subprocess
@@ -33,24 +33,27 @@ fn main() { print(find()); }'''
                 self.assertFalse(output.exists())
                 self.assertIn("return from an out-of-line enclosing function is not supported", direct.stdout + direct.stderr)
 
-    def test_owned_function_value_parameters_and_results_keep_their_gate(self):
+    def test_callback_local_borrowed_results_require_a_root_proof(self):
         cases = (
-            ('fn with_owned<F>() -> i64 { var values: i64[>..] = [1, 2]; F(copy(values)) } '
-             'fn main() { print(with_owned() { xs: i64[>..] => xs.len }); }',
-             "owned dynamic function-value parameters"),
-            ('fn make() -> i64[>..] { return [7, 8]; } fn count(xs: i64[:]) -> i64 { xs.len * 100 + xs[0] } '
-             'fn pass<F>() -> i64 { count(F()) } fn main() { print(pass() { make() }); }',
-             "owned dynamic function-value results"),
+            'fn observe(xs: const i64[:], n: i64) -> i64 { xs[0] + n } '
+            'fn churn() -> i64 { var fill: i64[>..] = [99, 98]; fill.len - 2 } '
+            'fn apply<F>() -> i64 { observe(F([7, 8]), churn()) } '
+            'fn main() { print(apply() { xs: i64[>..] => xs[..] }); }',
+            'fn size(xs: const i64[:]) -> i64 { xs.len } fn apply<F>() -> i64 { size(F()) } '
+            'fn main() { print(apply() { var xs: i64[>..] = [7, 8]; xs[..] }); }',
+            'struct View { xs: const i64[:] } fn size(v: View) -> i64 { v.xs.len } '
+            'fn apply<F>() -> i64 { size(F([7, 8])) } '
+            'fn main() { print(apply() { xs: i64[>..] => View { xs: xs[..] } }); }',
         )
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
-            for source, diagnostic in cases:
+            for source in cases:
                 for level in (0, 2):
                     native, _ = self.compile(Path(directory), source, "native", level)
                     self.assertEqual(native.returncode, 0, native.stdout + native.stderr)
                     direct, output = self.compile(Path(directory), source, "wasm-direct", level)
                     self.assertNotEqual(direct.returncode, 0)
                     self.assertFalse(output.exists())
-                    self.assertIn(diagnostic, direct.stdout + direct.stderr)
+                    self.assertIn("function-value result may borrow callback-local storage", direct.stdout + direct.stderr)
 
     def test_function_values_cannot_be_stored_by_the_frontend(self):
         source = 'fn named() -> i64 { 1 } fn main() { let stored = named; print(stored()); }'

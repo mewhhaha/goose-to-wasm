@@ -310,15 +310,15 @@ The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
 
-The current backend refuses owned dynamic function-value parameters/results,
-unsupported containing shapes (nonfinal owners, multiple variable fields and
+The current backend refuses callback results that may borrow callback-local
+storage, unsupported owned layouts and containing shapes (nonfinal owners, multiple variable fields and
 containing variable-mode enums), variable-element
 growables, varint variable-array lengths; resizable/multiple-owner enum payloads;
 unproven packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;
 relative and pool references;
-non-inlined captured environments and dynamic nonlocal
-returns; threads/queues; binary framing/serialization; custom formatters and
+out-of-line nonlocal returns and runtime overload dispatch;
+threads/queues; binary framing/serialization; custom formatters and
 unsupported aggregate rendering; and explicit packed padding.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.
 

@@ -20,9 +20,10 @@ requests recompute the environments from their own AST.
 
 Function-value bodies execute at their call site. Their checked body type defines
 the natural result, including when contextual adaptation requests an owned array.
-A fixed result is evaluated once before constructing that receiver. Actual owned
-function-value parameters/results and out-of-line nonlocal returns still produce
-explicit diagnostics. Optimizer inlining can eliminate a nonlocal boundary, so
+A fixed result is evaluated once before constructing that receiver. Supported
+owned parameters/results now use [receiving lifetimes](OWNED_FUNCTION_VALUES.md).
+Out-of-line nonlocal returns still produce explicit diagnostics.
+Optimizer inlining can eliminate a nonlocal boundary, so
 the original full function-value capture program qualifies at O2 only.
 
 The fixture provenance is pinned revision
@@ -43,8 +44,8 @@ frontend modes, V8 and Wasmtime. Resource tests separately exercise repeated
 captures of arrays, frame/enum owners, callbacks constructed exactly once and
 exhaustion checks on surviving caller-owned headers.
 
-Further work includes owned callback receiving lifetimes, nonlocal effects across
-ordinary calls, overload dispatch and original-corpus qualification. Borrowed
+Further work includes nonlocal effects across ordinary calls, overload dispatch
+and original-corpus qualification. Borrowed
 callback results rooted in callback-owned storage also require care: the pinned
 native emitter can release that storage before a later argument executes. Such
 cases must not silently receive a different lifetime in the direct backend.

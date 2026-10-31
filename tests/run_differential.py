@@ -51,6 +51,22 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
+        for n in (0, 3):
+            answer = (f"[{n}, {n + 1}] [{n + 100}, {n + 1}, 7] 1\n[{n + 2}, {n + 3}] 1\n702 1\n"
+                      f"{n} [{n + 1}, {n + 2}] {n + 10} [{n + 21}, {n + 2}]\n"
+                      f"{n + 3} [{n + 4}] {n + 33} [{n + 4}, 40]\n{n + 5} [{n + 6}]\n"
+                      f"{n + 5} [{n + 56}]\n{101 * n + 10} {n + 10}\n{n + 208}\n1 99\n[1] [2]\n1 99\n"
+                      f"{n + 70} [{n + 71}, {n + 72}]\n")
+            result.append(Case(f"owned-fv/values/{n}{suffix}", "owned_function_values", f"{n}\n", answer, debug=debug, group="aggregate"))
+        result.append(Case(f"owned-fv/recursive-forward{suffix}", "owned_function_value_recursion", "20\n", "[7, 8]\n[7, 8]\n", debug=debug, group="aggregate"))
+        for mode in range(3):
+            for n in (255, 256):
+                success = n == 255 or mode == 1
+                result.append(Case(f"owned-fv/narrow/{mode}/{n}{suffix}", "owned_function_value_narrow", f"{mode} {n}\n",
+                                   "make\n" + (f"{n}\n" if success else ""), exit_code=0 if success else 1,
+                                   diagnostic="" if success else "storage range", debug=debug, group="aggregate"))
     result.append(Case("scope/while-condition-exits", "while_condition_exits", stdout="3 15 81 100\n", group="aggregate"))
     result.append(Case("temporary/multiple-discard", "anonymous_multiple", stdout="2\n4 17\n", group="aggregate"))
     for mode in range(21):

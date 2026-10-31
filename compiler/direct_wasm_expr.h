@@ -397,30 +397,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     if (n->builtin >= 0) { Builtin(n, adapt_result); return; }
     auto args = n->ValueArgNodes();
     if (n->fvbody) {
-        if (args.size() != n->fvparams.size()) Fail(n->line, "function-value parameter mismatch");
-        for (auto parameter : n->fvparams) if (c.Class(parameter->type) != SC_FIXED)
-            Fail(n->line, "owned dynamic function-value parameters are not supported without receiving lifetimes");
-        auto natural = NaturalResults(n);
-        for (auto result : natural) if (c.Class(result) != SC_FIXED)
-            Fail(n->line, "owned dynamic function-value results are not supported without result channels");
-        for (size_t i = 0; i < args.size(); i++) { auto s = Bind(n->fvparams[i]); To(args[i], s.type); Write(s); }
-        unordered_map<VarDef *, VarDef *> remap;
-        for (auto [a, b] : n->fvremap) remap[a] = b;
-        aliases.push_back(std::move(remap));
-        vector<uint32_t> vals; for (auto t : natural) vals.push_back(Local(t));
-        BlockInto(n->fvbody, natural, vals);
-        aliases.pop_back();
-        for (auto x : vals) Get(x);
-        if (adapt_result && natural.size() == 1) {
-            if (n->exprtype->kind == TY_VOID) code.Op(0x1a);
-            else if (Compiler::RegionOwner(n->exprtype)) {
-                auto source = Save(natural[0]);
-                auto receiver = TemporaryDestination(n->exprtype, n->line);
-                ConstructRegionFromCaptured(natural[0], source, receiver, n->line);
-                LocationAddress(receiver.location);
-            }
-            else Convert(natural[0], n->exprtype, n->line);
-        }
+        EmitFunctionValue(n, adapt_result, destinations, elements);
         return;
     }
     auto sp = n->spec;

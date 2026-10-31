@@ -122,8 +122,8 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
     if (auto call = Is<Call>(node); call && call->builtin == B_DEFAULT) {
         ConstructEnumInto(call->defaultinit, destination); return;
     }
-    if (auto call = Is<Call>(node); call && call->builtin < 0 && call->spec &&
-        call->spec->rets.size() == 1 && (Compiler::RegionEnum(call->spec->rets[0]) || Compiler::RegionVariant(call->spec->rets[0]))) {
+    if (auto call = Is<Call>(node); call && call->builtin < 0 &&
+        NaturalResults(call).size() == 1 && (Compiler::RegionEnum(NaturalResults(call)[0]) || Compiler::RegionVariant(NaturalResults(call)[0]))) {
         EmitCall(call, false, { destination }); code.Op(0x1a); return;
     }
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec &&

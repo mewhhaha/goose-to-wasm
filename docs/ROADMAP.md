@@ -4,6 +4,17 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: static captured environments and owned callbacks
+
+Hidden addresses carry current-activation bindings through ordinary, recursive
+and transitive nested calls, including mutable reference/slice bindings and
+supported owners. Callback-owned parameters and single results use independent
+storage, natural result contracts, argument snapshots and scoped cleanup.
+Exact result forwarding preserves recursive region bounds; a callback tail is
+a value copy. See [static captures](STATIC_CAPTURES.md) and
+[owned function values](OWNED_FUNCTION_VALUES.md). Borrowed callback-local
+results, out-of-line nonlocal returns and overload dispatch remain gated.
+
 ## Implemented: packed fixed-variant fields
 
 Layout version 2 removes inter-field/trailing alignment from fixed variant
@@ -195,8 +206,8 @@ Qualification covers copy independence, later-argument mutation, literals,
 fixed/limited sources, owned-result arguments, grow/shrink operations, returned
 owners and fixed results, and valid surviving external references in elements.
 The frontend rejects escaping references/slices into the parameter's own storage.
-Static function-value owned parameters and anonymous reference/view temporaries
-remain explicit boundaries.
+Static function-value parameters are covered by the callback slice above.
+Anonymous reference/view shapes outside the admitted temporary scopes remain boundaries.
 
 ## Implemented: single owned growable results
 

@@ -5,7 +5,8 @@ scopes. The scope foundation prepares named receivers before initializer
 watermarks and scopes statements, tails, match arms, short-circuit right operands,
 while conditions and fixed-array default iterations. The single-result
 materializers and argument lifetimes below are now implemented, including
-discarded mixed/multiple-result ordinary calls. Function-value ownership remains gated.
+discarded mixed/multiple-result ordinary calls. Supported function-value ownership
+now follows the separate [callback contract](OWNED_FUNCTION_VALUES.md).
 
 `CheckBranchRoot` rejects references/slices into temporaries created inside a
 departing block. An owned construct's result instead needs a receiving temporary
@@ -37,7 +38,7 @@ only decides whether to save a watermark and allocates no region.
 Temporary private headers should record their actual temporary-scope lifetime,
 not the depth of an incidental argument-group cleanup. Add a temporary tag to
 the header registry for the inline-argument filtering below. Keep unsupported
-function-value ownership and variable elements refused.
+owned layouts and variable elements refused.
 
 ## Argument lifetimes
 

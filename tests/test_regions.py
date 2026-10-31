@@ -1224,6 +1224,44 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_owned_function_value_parameter_and_result_cleanup(self):
+        source = '''fn apply<F>(n: i64) -> i64[>..] { F([n, n + 1]) }
+export fn tick(n: i64) -> i64 {
+    let kept = apply(n) { xs: i64[>..] => xs.push(9); copy(xs) };
+    for i in 100 {
+        let value = apply(n + i) { xs: i64[>..] => xs[0] += 10; copy(xs) };
+        if value.len != 2 || value[0] != n + i + 10 { abort("wrong owned callback result"); }
+    }
+    if kept.len != 3 || kept[0] != n || kept[2] != 9 { abort("callback result was released"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_owned_function_value_body_local_result_is_copied(self):
+        source = '''fn build<F>(n: i64) -> i64[>..] { F(n) }
+export fn tick(n: i64) -> i64 {
+    let kept = build(n) { x => var local: i64[>..] = [x, x + 1]; copy(local) };
+    for i in 100 {
+        let other = build(n + i) { x => var local: i64[>..] = [x + 2]; copy(local) };
+        if other[0] != n + i + 2 { abort("wrong callback local copy"); }
+    }
+    if kept[0] != n || kept[1] != n + 1 { abort("callback local escaped"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
     def test_fixed_function_value_results_construct_owned_receivers_once(self):
         source = '''fn grown<F>() -> i64[>..] { return F(); }
 export fn tick(n: i64) -> i64 {

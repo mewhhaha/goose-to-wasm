@@ -72,8 +72,8 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
     if (Is<LoopExpr>(node) || Is<EarlyBlock>(node) || Is<MatchExpr>(node)) {
         ControlValue(node, { type }, { Local(I32) }, { destination }); return;
     }
-    if (auto call = Is<Call>(node); call && call->builtin < 0 && call->spec &&
-        call->spec->rets.size() == 1 && Compiler::RegionOwner(call->spec->rets[0])) {
+    if (auto call = Is<Call>(node); call && call->builtin < 0 &&
+        NaturalResults(call).size() == 1 && Compiler::RegionOwner(NaturalResults(call)[0])) {
         EmitCall(call, false, { destination }); code.Op(0x1a); return;
     }
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec &&
