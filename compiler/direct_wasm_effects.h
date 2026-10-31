@@ -108,6 +108,8 @@ inline void Compiler::AnalyzeEffects() {
                 for (auto type : ret->targetspec->rets) {
                     if (ULEBLength(type))
                         Fail(ret->line, "varint-length nonlocal targets require dedicated image staging");
+                    if (EncodedRecordTail(type))
+                        Fail(ret->line, "encoded record-tail nonlocal targets require dedicated image staging");
                     if (ByteRecord(type))
                         Fail(ret->line, "byte-walked record nonlocal targets require dedicated image staging");
                     if (RegionArray(type) && Varint(type->arr->sub))

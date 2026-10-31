@@ -13,9 +13,9 @@ class VarintArrayBoundaries(unittest.TestCase):
     compile=boundaries.VarintBoundaries.compile
     check_gate=boundaries.VarintBoundaries.check_gate
 
-    def test_varint_element_record_tails_require_general_walkers(self):
-        self.check_gate('struct R{tag:u8,values:varint[u8]} fn main(){let r=R{1,[64,-65]};print(r.values.len);}',
-                        'containing varint-element images require general record walkers')
+    def test_variable_prefix_before_encoded_tail_requires_general_walkers(self):
+        self.check_gate('struct R{tag:varint,values:varint[u8]} fn main(){let r=R{1,[64,-65]};print(r.values.len);}',
+                        'byte-walked records currently require varint or fixed-size fields')
 
     def test_array_targets_require_dedicated_image_staging(self):
         cases=(

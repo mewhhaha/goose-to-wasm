@@ -243,7 +243,7 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
             if (!Compiler::RegionRecord(types[i]) || !Compiler::RegionRecord(candidate->type) ||
                 !Compiler::SameRecord(candidate->type, types[i]) || destinations[i]->elements) continue;
             CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
-            if (Compiler::ByteRecord(types[i]))
+            if (Compiler::ByteRecord(types[i]) || c.EncodedRecordTail(types[i]))
                 CheckNamedVarintReturns(body, target, types.size(), i, candidate, "record");
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }

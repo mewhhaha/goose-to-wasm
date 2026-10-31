@@ -1,0 +1,3 @@
+struct R{tag:u8,word:u16,values:varint[varint]} recursive fn sum(xs:const varint[:])->i64{var s=0;for x in xs{s+=x;}return s;}
+struct Outer{lead:u8,inner:R}recursive fn make()->Outer{return Outer{9,R{1,7,[-65;128]}};}var global=Outer{8,R{2,11,[64,-65]}};var saved:const u16& =global.inner.word;
+fn main(){let a=make();let b=copy(a);print(saved as i64," ",b.lead as i64," ",b.inner.word as i64," ",b.inner.values.len," ",sum(b.inner.values));}

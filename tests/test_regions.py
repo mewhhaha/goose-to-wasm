@@ -1248,6 +1248,37 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_encoded_record_tail_recursive_results_reuse_region(self):
+        source=f'''var neighbor:i64[>..]=[{CANARY}];
+struct R{{tag:u8,word:u16,values:varint[varint]}}
+recursive fn make(n:i64)->R{{if n==0{{return R{{1,7,[64;128]}};}}return make(n-1);}}
+export fn tick(n:i64)->i64{{let a=make(20);var total=0;for x in a.values{{total+=x;}}
+if a.word!=7 || a.values.len!=128 || total!=8192{{abort("bad record tail");}}return n+1;}}
+fn main(){{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],2)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_encoded_record_tail_expansion_preserves_neighbor(self):
+        def source(count):
+            return f'''var neighbor:i64[>..]=[{CANARY}];
+struct R{{tag:u8,word:u16,values:varint[varint]}}
+recursive fn values()->varint[u32]{{print(77);return[0;{count}];}}
+fn main(){{let a=R{{1,7,values()}};print(a.values.len);}}'''
+        for level in (0,2):
+            _,baseline=self.compile(source(1),level)
+            path,info=self.compile(source(baseline['region_bytes']-4),level)
+            self.assertEqual(info['region_count'],2)
+            for engine,observed in self.engines(path,info,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn('data region exhausted',observed['error'])
+                    self.assertEqual(observed['numbers'],['77'])
+                    self.assertEqual(observed['canary'],str(CANARY))
+
     def test_combined_varint_repeated_named_grow_returns_reuse_region(self):
         source=f'''var neighbor:i64[>..]=[{CANARY}];
 recursive fn make()->varint[varint]{{var a:varint[>..]=[7;128];return a;}}

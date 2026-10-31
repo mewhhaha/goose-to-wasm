@@ -19,7 +19,8 @@ Grow conversions reuse the existing encoded-element contracts. The pinned
 frontend forbids indexing variable-size elements; random access requires a
 separately maintained reference array.
 
-Containing records/enums, actual encoded nonlocal targets, unproved named-Grow
+Layout 15 adds [fixed-prefix terminal record tails](ENCODED_RECORD_TAILS.md).
+Other containing shapes, actual encoded nonlocal targets, unproved named-Grow
 later observations and cancelable Value-to-raw landings remain explicit gates.
 This combination does not extend serialization or untrusted-image validation.
 

@@ -1,0 +1,2 @@
+struct R{tag:u8,word:u16,values:varint[varint]} recursive fn sum(xs:const varint[:])->i64{var s=0;for x in xs{s+=x;}return s;}
+recursive fn make<F>()->R{return R{1,F(),[64;128]};}fn target(stop:bool)->i64{let a=make(){if stop{return 77;}else{7 as u16}};return sum(a.values);}fn main(){print(target(true)," ",target(false));}

@@ -51,6 +51,11 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    record_tail_oracles=json.loads((FIXTURES/'encoded_record_tail_oracles.json').read_text())
+    for debug in (False,True):
+        for name,oracle in record_tail_oracles.items():
+            result.append(Case("encoded-record-tail/"+name+("-debug" if debug else ""),"encoded_record_tail_"+name,
+                               stdout=oracle['stdout'],exit_code=oracle['exit_code'],diagnostic=oracle['diagnostic'],debug=debug,group="storage"))
     combined_oracles=json.loads((FIXTURES/'combined_varint_oracles.json').read_text())
     for debug in (False,True):
         for name,oracle in combined_oracles.items():

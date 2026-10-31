@@ -14,12 +14,12 @@ class ULEBLengthBoundaries(unittest.TestCase):
     check_gate=boundaries.VarintBoundaries.check_gate
 
     def test_containing_combined_array_requires_record_walkers(self):
-        self.check_gate('struct R{tag:u8,values:varint[varint]} fn main(){let r=R{1,[64,-65]};print(r.values.len);}',
-                        'containing varint-length arrays require general record walkers')
+        self.check_gate('struct R{tag:varint,values:varint[varint]} fn main(){let r=R{1,[64,-65]};print(r.values.len);}',
+                        'byte-walked records currently require varint or fixed-size fields')
 
     def test_containing_unsigned_varint_lengths_require_record_walkers(self):
-        self.check_gate('struct R{tag:u8,values:u8[varint]} fn main(){let r=R{1,[7;128]};print(r.values.len);}',
-                        'containing varint-length arrays require general record walkers')
+        self.check_gate('struct R{tag:varint,values:u8[varint]} fn main(){let r=R{1,[7;128]};print(r.values.len);}',
+                        'byte-walked records currently require varint or fixed-size fields')
 
     def test_nonlocal_targets_remain_gated_across_inline_stacks(self):
         for modifier in ('recursive','inline'):

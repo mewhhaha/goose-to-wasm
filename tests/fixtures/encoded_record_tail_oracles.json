@@ -1,0 +1,57 @@
+{
+  "aliases": {
+    "stdout": "99 99 99 8192 8192\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "callbacks": {
+    "stdout": "77 8192\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "channels": {
+    "stdout": "1 7 8 128 -8320\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "dispatch": {
+    "stdout": "11 127 -8255\n7 128 8192\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "fixed_elements": {
+    "stdout": "0 128 8755\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "fixed_length": {
+    "stdout": "3 8191\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "grow_tail": {
+    "stdout": "129 129 8127\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "nested": {
+    "stdout": "11 9 7 128 -8320\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "tuple": {
+    "stdout": "128 9 127 8192 -8255\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "values": {
+    "stdout": "0 8755 8191\n128 128 8192\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "variant": {
+    "stdout": "1 128 -8320\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  }
+}

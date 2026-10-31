@@ -80,7 +80,7 @@ class DynamicBoundaries(unittest.TestCase):
 
     def test_valid_language_requires_unimplemented_receiving_lifetimes(self):
         cases = {
-            "containing-encoded-array-result": '''struct R{tag:u8,values:varint[varint]}
+            "containing-encoded-array-result": '''struct R{tag:varint,values:varint[varint]}
 fn make()->R{return R{1,[64,-65]};} fn main(){let r=make();print(r.values.len);}''',
         }
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
@@ -98,7 +98,7 @@ fn make()->R{return R{1,[64,-65]};} fn main(){let r=make();print(r.values.len);}
                                                 capture_output=True, text=True, timeout=60)
                         self.assertNotEqual(direct.returncode, 0, name)
                         self.assertFalse(output.exists())
-                        self.assertIn("require general record walkers", direct.stdout + direct.stderr)
+                        self.assertIn("byte-walked records currently require varint or fixed-size fields", direct.stdout + direct.stderr)
 
 
 if __name__ == "__main__":
