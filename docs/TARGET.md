@@ -47,12 +47,15 @@ operations that remain live. Stable regions use these same boundaries;
 single growable results carry an explicit caller destination, while general
 dynamic result destinations remain subsequent work.
 
-Region-backed arrays use internal control ABI version 2: a separate 16-byte
-header `{base: u32, len: u32, resource_limit: u32, cap: u32}` in frame/static
-storage. This covers supported fixed-element growables, unsigned-length variable
-arrays and runtime-capacity limited arrays. The cap word is semantic only for
-runtime-capacity limited arrays; other owners initialize it to zero. Owner references
-point to that header; element references point directly into stable data regions.
+Region-backed arrays use internal control ABI version 3: a separately aligned
+24-byte control in frame/static storage. Its u32 words are base, raw length,
+resource limit, raw capacity, image base and physical mode. Raw element runs use
+the first four words. Variable-array values store their unsigned length prefix
+in the data region; runtime-limited values store u32 capacity and length followed
+by capacity slots. Views decode image metadata and derive element addresses from
+the actual mode. Natural function types alone cannot identify an element-run
+receiver's physical form. Owner references point to the control; element
+references point directly into stable data regions. See [array images](ARRAY_IMAGES.md).
 The header is never copied through the fixed-value ownership path. Initializers
 construct into an acquired region, including implicit empty globals, literals,
 fills, copies, slices and natural fixed-array function results.
@@ -165,7 +168,7 @@ caller's region; growth does not relocate existing elements or slices.
 
 Supported standalone variable structs have fixed-layout prefix fields and one
 final fixed-element variable or runtime-capacity array. Their control layout
-contains naturally aligned fixed fields and an embedded 16-byte tail header.
+contains naturally aligned fixed fields and an embedded 24-byte tail control.
 Each owner acquires one data region; cleanup tracks its embedded header.
 Construction visits checked fields in declaration order. Copies transfer fixed
 prefix values and independently construct tail contents, preserving runtime
@@ -272,7 +275,7 @@ payloads are prohibited by the frontend. A fixed standalone variant can be used
 even when another variant of its enum requires unsupported dynamic storage.
 
 Nonresizable variable-mode enums with supported fixed or single-tail payloads own a stable
-image through the 16-byte region header. The image has the same internal tag and
+image through the 24-byte region control. The image has the same internal tag and
 maximum control union, with terminal data following it. Inactive fields remain
 untouched. Copies walk active payloads into independent images; external reference/slice fields
 preserve their referents. Named variable results alias the whole image, while

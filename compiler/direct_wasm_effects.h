@@ -43,7 +43,7 @@ inline Layout Compiler::MailboxLayout(FnSpec *target) {
     auto owned = OwnedEffectOrdinals(target);
     if (owned.size() > (UINT32_MAX - 4) / 12) Fail(target->sf->line, "nonlocal mailbox is too large");
     Layout layout { 4 + uint32_t(owned.size()) * 12, owned.empty() ? 4u : 8u };
-    if (!owned.empty()) owned_effects = true;
+    if (!owned.empty()) region_cursors = true;
     size_t next_owned = 0;
     for (size_t i = 0; i < target->rets.size(); i++) {
         auto is_owned = next_owned < owned.size() && i == owned[next_owned];
@@ -57,6 +57,9 @@ inline Layout Compiler::MailboxLayout(FnSpec *target) {
 }
 
 inline void Compiler::AnalyzeEffects() {
+    // Region image constructors use a physical cursor even without an
+    // emitted nonlocal target. Scan has established all reachable owners.
+    region_cursors |= needs_regions;
     unordered_set<FnSpec *> seen;
     for (auto spec : specs) {
         vector<SFunction *> local { spec->sf };
@@ -68,7 +71,7 @@ inline void Compiler::AnalyzeEffects() {
             }
             if (auto ret = Is<Return>(node); ret && ret->targetspec &&
                 (!ret->from.empty() || (!local.empty() && local.back() != ret->target)))
-                for (auto type : ret->targetspec->rets) if (RegionOwner(type)) owned_effects = true;
+                for (auto type : ret->targetspec->rets) if (RegionOwner(type)) region_cursors = true;
             if (auto ret = Is<Return>(node); ret &&
                 find(local.begin(), local.end(), ret->target) == local.end()) {
                 auto target = ret->targetspec;
@@ -82,19 +85,19 @@ inline void Compiler::AnalyzeEffects() {
     if (!Effects()) return;
     pending_effect = needs_regions ? 6 : 1; effect_frames = pending_effect + 1;
     cursor_global = effect_frames + 1;
-    for (size_t i = 0; i < effect_targets.size(); i++) effect_globals[effect_targets[i]] = effect_frames + 1 + uint32_t(owned_effects) + uint32_t(i);
+    for (size_t i = 0; i < effect_targets.size(); i++) effect_globals[effect_targets[i]] = effect_frames + 1 + uint32_t(region_cursors) + uint32_t(i);
 }
 
 inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, bool temporary,
         optional<uint32_t> publication, uint32_t prefix, bool frame) {
     if (!c.Effects()) return;
-    auto offset = FrameBytes(c.owned_effects ? 40 : 16, 4);
+    auto offset = FrameBytes(c.region_cursors ? 40 : 16, 4);
     owner_entries.push_back({ offset, temporary });
     FrameAddress(offset + 4); LocationAddress(TailHeaderLocation(owner)); code.Mem(0x36, 2);
     FrameAddress(offset + 8); code.I32Const(1); code.Mem(0x36, 2);
     auto interior = Compiler::RegionEnum(owner.storage_type) ? c.EnumImageLayout(owner.storage_type->enu->inst, owner.storage_type->line).size : 0;
     FrameAddress(offset + 12); code.I32Const(int32_t(interior)); code.Mem(0x36, 2);
-    if (c.owned_effects) {
+    if (c.region_cursors) {
         FrameAddress(offset + 36);
         if (publication) Get(*publication); else code.I32Const(0);
         code.Mem(0x36, 2);
@@ -113,7 +116,7 @@ inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, b
 }
 
 inline void Function::ClearEffectOwner(uint32_t offset) {
-    if (c.owned_effects) { FrameAddress(offset + 36); code.I32Const(0); code.Mem(0x36, 2); }
+    if (c.region_cursors) { FrameAddress(offset + 36); code.I32Const(0); code.Mem(0x36, 2); }
     // Keep all dying-owner evidence until every abandoning check has run.
     code.OpU(0x23, c.pending_effect); code.Op(0x45); Begin(0x04);
     FrameAddress(offset + 8); code.I32Const(0); code.Mem(0x36, 2); End();
@@ -133,7 +136,7 @@ inline void Function::EnterEffectFrame() {
         if (i + 1 < owner_entries.size()) FrameAddress(owner_entries[i + 1].offset); else code.I32Const(0);
         code.Mem(0x36, 2);
         FrameAddress(offset + 8); code.I32Const(0); code.Mem(0x36, 2);
-        if (c.owned_effects) { FrameAddress(offset + 36); code.I32Const(0); code.Mem(0x36, 2); }
+        if (c.region_cursors) { FrameAddress(offset + 36); code.I32Const(0); code.Mem(0x36, 2); }
     }
     FrameAddress(effect_frame); code.OpU(0x24, c.effect_frames);
     if (c.effect_globals.count(spec)) {
@@ -179,7 +182,7 @@ inline void Function::SkipDyingEffectOwner(uint32_t header,
     Get(interior); Begin(0x04);
     Get(registered); code.Mem(0x28, 2); auto base = Save(I32);
     Get(header); code.Op(0xad); Get(base); code.Op(0xad); code.Op(0x5a);
-    Get(header); code.Op(0xad); code.I64Const(16); code.Op(0x7c);
+    Get(header); code.Op(0xad); code.I64Const(owner_control_bytes); code.Op(0x7c);
     Get(base); code.Op(0xad); Get(interior); code.Op(0xad); code.Op(0x7c); code.Op(0x58); code.Op(0x71);
     Br(done, true); End(); End();
     Get(entry); code.Mem(0x28, 2); Set(entry); Br(entries); End(); End();

@@ -53,6 +53,13 @@ def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     for debug in (False, True):
         suffix = "-debug" if debug else ""
+        for named in (0, 1):
+            first = "2 1 2\n" if named else "2 7 8\n"
+            last = "2 2 1 0\n" if named else "2 2 7 7\n"
+            result.append(Case(f"array-image/construction/{named}{suffix}", "array_image_construction", f"{named}\n",
+                               first + "2 9\n256\n2 7 8 9\n" + last, debug=debug, group="storage"))
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
         for fixture, answer in (
             ("upstream_return_from_cycle", "42\n42\n"),
             ("upstream_return_from_cached_call", "42\ng normal exit\n1\n-1\n0\n"),

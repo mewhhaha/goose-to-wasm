@@ -25,6 +25,8 @@ inline ConstructionDestination Function::PrepareEnumPayload(const ConstructionDe
         Get(tail); code.I32Const(0); code.Mem(0x36, 2, 4);
         Get(tail); Get(header); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
         Get(tail); code.I32Const(0); code.Mem(0x36, 2, 12);
+        Get(tail); code.I32Const(0); code.Mem(0x36, 2, 16);
+        Get(tail); code.I32Const(0); code.Mem(0x36, 2, 20);
     }
     return destination;
 }
@@ -32,14 +34,16 @@ inline ConstructionDestination Function::PrepareEnumPayload(const ConstructionDe
 inline void Function::FinishEnumPayload(const ConstructionDestination &receiver, TypeExpr *variant, Line line) {
     LocationAddress(receiver.location); auto header = Save(I32);
     auto layout = c.EnumImageLayout(receiver.location.storage_type->enu->inst, line);
-    code.I64Const(layout.size);
     if (Compiler::RegionVariant(variant)) {
         Get(header); code.Mem(0x28, 2); auto base = Save(I32);
         auto payload = OffsetLocation({ variant, AddressLocal { base } }, layout.payload, variant);
         auto array = c.TailType(variant);
-        LocationAddress(TailHeaderLocation(payload)); code.Mem(0x28, 2, Compiler::RuntimeLimited(array) ? 12 : 4);
+        LocationAddress(TailHeaderLocation(payload)); auto tail = Save(I32);
+        Get(tail); code.Mem(0x28, 2); code.Op(0xad);
+        if (Compiler::RuntimeLimited(array)) ReadArrayCapacity(tail); else ReadArrayLength(tail);
         code.Op(0xad); code.I64Const(c.FixedLayout(array->arr->sub).size); code.Op(0x7e); code.Op(0x7c);
-    }
+        Get(base); code.Op(0xad); code.Op(0x7d);
+    } else code.I64Const(layout.size);
     auto bytes = Save(I64);
     ReserveRegion(header, bytes, c.ast.inttypes[IS_U8], line);
     Get(header); Get(bytes); code.Op(0xa7); code.Mem(0x36, 2, 4);

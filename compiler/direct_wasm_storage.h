@@ -35,7 +35,7 @@ inline Location Function::PinPlace(Node *node, bool pointee) {
 inline void Function::LocationAddress(const Location &place) {
     if (auto slot = get_if<Slot>(&place.storage)) SlotAddress(*slot);
     else Get(get<AddressLocal>(place.storage).index);
-    if (c.owned_effects && !Compiler::RegionOwner(place.storage_type)) CanonicalAddress(c.FixedLayout(place.storage_type).size);
+    if (c.region_cursors && !Compiler::RegionOwner(place.storage_type)) CanonicalAddress(c.FixedLayout(place.storage_type).size);
 }
 
 inline Location Function::OffsetLocation(const Location &place, uint32_t offset, TypeExpr *type) {

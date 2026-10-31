@@ -30,13 +30,17 @@ an `A_VAR` result. Preserve the shared data identity when later result expressio
 mutate that local, while each result keeps its separately published length.
 
 Runtime-limited named results alias their entire receiving header, so a later
-result can change an earlier result's length. Other region-backed named locals
-retain private length headers. The internal region control ABI now uses 16 bytes:
-base at 0, length at 4, resource limit at 8, limited capacity at 12. Fixed static
-capacity arrays retain their inline layout.
+result can change an earlier result's length. Named Var values alias their receiving image; named growable locals retain
+private length controls. The internal region control ABI uses 24 bytes: raw base
+at 0, raw length at 4, resource limit at 8, raw limited capacity at 12, image base
+at 16 and physical mode at 20. Fixed static-capacity arrays retain their inline
+layout.
 
-The initial region representation is target-specific. It establishes no packed
-image, serialization or `bytes_of` compatibility with the pinned C ABI.
+Var and runtime-limited values now carry their length/capacity prefixes in the
+data region. Raw element runs retain separate controls. Elements still use their
+target representation, and containing record/enum controls remain separate;
+this establishes no general serialization or `bytes_of` contract. See
+[the array-image contract](ARRAY_IMAGES.md).
 
 Normal and element-run function forms keep the producer's prefix contract separate
 from a receiving value's contract. Raw runs omit the producer's length-width check

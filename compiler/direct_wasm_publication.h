@@ -23,7 +23,7 @@ inline optional<uint32_t> Function::TailPublication(const ConstructionDestinatio
 }
 
 inline optional<uint32_t> Function::OffsetPublication(const ConstructionDestination &destination, uint32_t offset) {
-    if (!c.owned_effects) return {};
+    if (!c.region_cursors) return {};
     auto publication = Publication(destination);
     Get(publication); Begin(0x04, I32);
     Get(publication); code.I32Const(int32_t(offset)); code.Op(0x6a);
@@ -31,12 +31,12 @@ inline optional<uint32_t> Function::OffsetPublication(const ConstructionDestinat
 }
 
 inline void Function::CanonicalAddress(uint32_t bytes) {
-    if (!c.owned_effects || !bytes) return;
+    if (!c.region_cursors || !bytes) return;
     code.I32Const(int32_t(bytes)); CallIndex(c.prefix_helper);
 }
 
 inline void Function::PublishHeader(uint32_t header, uint32_t word) {
-    if (!c.owned_effects) return;
+    if (!c.region_cursors) return;
     Get(header); code.I32Const(int32_t(word)); CallIndex(c.header_helper);
 }
 

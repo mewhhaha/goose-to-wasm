@@ -144,7 +144,7 @@ inline DirectWasmResult Compiler::Compile() {
         run_index[sp] = uint32_t(imports.size() + specs.size() + runs.size()); runs.push_back(sp);
     }
     auto startindex = uint32_t(imports.size() + specs.size() + runs.size());
-    if (owned_effects) {
+    if (region_cursors) {
         prefix_helper = startindex++; header_helper = startindex++;
     }
     auto startsig = Sig({ {}, {} });
@@ -167,7 +167,7 @@ inline DirectWasmResult Compiler::Compile() {
                                         vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
     }
-    if (owned_effects) for (bool header : { false, true }) {
+    if (region_cursors) for (bool header : { false, true }) {
         auto signature = Sig({ { I32, I32 }, header ? vector<uint8_t>{} : vector<uint8_t>{ I32 } });
         Function f(*this, nullptr, header ? header_helper : prefix_helper, signature, false, true);
         auto body = f.PublicationHelper(header);
@@ -182,7 +182,7 @@ inline DirectWasmResult Compiler::Compile() {
     }
     result.functions = bodies.size();
     result.region_count = needs_regions ? BoundRegions() : 0;
-    if (owned_effects) {
+    if (region_cursors) {
         if (uint64_t(result.region_count) * 4 > UINT32_MAX) Fail({}, "region cursor table is too large");
         cursor_table = Data(result.region_count * 4, 4);
     }
@@ -209,7 +209,7 @@ inline DirectWasmResult Compiler::Compile() {
     module.Section(2, imp);
     Bytes funcs; funcs.U(ftypes.size()); for (auto t : ftypes) funcs.U(t); module.Section(3, funcs);
     Bytes memory; memory.U(1); memory.Byte(1); memory.U(initial); memory.U(opts.maximum_pages); module.Section(5, memory);
-    Bytes gl; gl.U((needs_regions ? 6 : 1) + (Effects() ? 2 + effect_targets.size() + uint32_t(owned_effects) : 0));
+    Bytes gl; gl.U((needs_regions ? 6 : 1) + (Effects() ? 2 + effect_targets.size() + uint32_t(region_cursors) : 0));
     auto global = [&](uint32_t value, bool mutable_) {
         gl.Byte(I32); gl.Byte(mutable_); gl.I32Const(int32_t(value)); gl.Op(0x0b);
     };
@@ -220,7 +220,7 @@ inline DirectWasmResult Compiler::Compile() {
     }
     if (Effects()) {
         global(0, true); global(0, true);
-        if (owned_effects) global(cursor_table, false);
+        if (region_cursors) global(cursor_table, false);
         for (size_t i = 0; i < effect_targets.size(); i++) global(0, true);
     }
     module.Section(6, gl);
@@ -254,14 +254,14 @@ inline DirectWasmResult Compiler::Compile() {
     for (auto &f : result.function_info) { fnnames.U(f.index); fnnames.Name(f.name); }
     debugnames.Byte(1); debugnames.U(fnnames.data.size()); debugnames.Raw(fnnames.data); module.Section(0, debugnames);
     Bytes producer; producer.Name("goose.direct");
-    producer.Name("abi=1;layout=3;variant-payloads=packed-fields;fixed-records=packed-fields;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
+    producer.Name("abi=1;layout=4;owner-control=24;array-values=unsigned-prefixes;variant-payloads=packed-fields;fixed-records=packed-fields;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
     module.Section(0, producer);
     if (needs_regions) {
         Bytes regions; regions.Name("goose.regions");
-        regions.Raw(cat("{\"schema\":", owned_effects ? 2 : 1, ",\"region_count\":", result.region_count,
+        regions.Raw(cat("{\"schema\":", region_cursors ? 2 : 1, ",\"region_count\":", result.region_count,
                         ",\"global_regions\":", global_regions.size(), ",\"region_bytes\":", result.region_bytes,
                         ",\"activation_base\":", stackbase, ",\"activation_limit\":", activation_limit,
-                        owned_effects ? cat(",\"cursor_base\":", cursor_table, ",\"cursor_stride\":4") : string(), "}"));
+                        region_cursors ? cat(",\"cursor_base\":", cursor_table, ",\"cursor_stride\":4") : string(), "}"));
         module.Section(0, regions);
     }
     result.module = std::move(module.data); return result;

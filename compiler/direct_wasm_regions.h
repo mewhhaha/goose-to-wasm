@@ -91,7 +91,7 @@ inline Function::CapturedSequence Function::CaptureSequence(Node *node, bool ele
     optional<uint32_t> capacity;
     if (Compiler::RuntimeLimited(natural)) {
         auto header = Save(I32);
-        Get(header); code.Mem(0x28, 2, 12); capacity = Save(I32); Get(header);
+        ReadArrayCapacity(header); capacity = Save(I32); Get(header);
     }
     if (natural->kind == TY_ARRAY) PackArrayView(natural);
     else if (natural->kind != TY_SLICE) Fail(node->line, "array construction requires an array or slice");
@@ -123,7 +123,7 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
 
 inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeExpr *> &types,
         const ResultDestinations &receivers, Line line, bool run, bool inlined) {
-    RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()), vector<TypeExpr *>(types.size(), nullptr) };
+    RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()), vector<TypeExpr *>(types.size(), nullptr) };
     for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionOwner(types[i])) {
         if (!receivers.empty() && receivers.size() != types.size()) Fail(line, "owned result channel arity mismatch");
         // An empty ordinal can receive a fixed value after normal conversion.
@@ -142,7 +142,15 @@ inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeE
                         Compiler::LengthStorage(types[i]) != Compiler::LengthStorage(receiving);
         auto capacity_adapter = Compiler::RuntimeLimited(types[i]) != Compiler::RuntimeLimited(receiving) &&
                                 !(inlined && types[i]->arr->akind == A_VAR);
-        if (capacity_adapter || (reprefix && !run)) {
+        auto grow_value_copy = !inlined && Compiler::GrowableArray(types[i]) &&
+                               receiving->arr->akind == A_VAR && !receivers[i]->elements;
+        auto value_adapter = !inlined && !run && types[i]->arr->akind == A_VAR &&
+                             (Compiler::GrowableArray(receiving) || receivers[i]->elements || reprefix);
+        if (value_adapter) {
+            plan.producers[i] = ValueArrayReceiver(*receivers[i], types[i]); plan.value_receivers[i] = receivers[i];
+        } else if (run && receiving->arr->akind == A_VAR && !receivers[i]->elements) {
+            plan.producers[i] = RawArrayReceiver(*receivers[i], line); plan.raw_receivers[i] = receivers[i];
+        } else if (capacity_adapter || grow_value_copy || (reprefix && !run)) {
             plan.producers[i] = TemporaryDestination(types[i], line); plan.copies[i] = receivers[i];
         } else plan.producers[i] = receivers[i];
     }
@@ -154,11 +162,13 @@ inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, cons
         if (!plan.values[i] || plan.values[i]->elements) return;
         auto &destination = *plan.values[i]; auto type = destination.location.storage_type;
         if (type->kind != TY_ARRAY || type->arr->akind != A_VAR) return;
-        LocationAddress(destination.location); code.Mem(0x28, 2, 4); code.Op(0xad);
+        LocationAddress(destination.location); ReadArrayLength(Save(I32)); code.Op(0xad);
         CheckArrayLength(type, Save(I64), line);
     };
     auto embedded = any_of(plan.enum_payloads.begin(), plan.enum_payloads.end(), [](auto type) { return type != nullptr; });
-    if (!embedded && none_of(plan.copies.begin(), plan.copies.end(), [](auto &destination) { return bool(destination); })) {
+    if (!embedded && none_of(plan.copies.begin(), plan.copies.end(), [](auto &destination) { return bool(destination); }) &&
+        none_of(plan.raw_receivers.begin(), plan.raw_receivers.end(), [](auto &destination) { return bool(destination); }) &&
+        none_of(plan.value_receivers.begin(), plan.value_receivers.end(), [](auto &destination) { return bool(destination); })) {
         for (size_t i = 0; i < types.size(); i++) check(i);
         return;
     }
@@ -166,7 +176,13 @@ inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, cons
     for (size_t i = types.size(); i-- > 0;) values[i] = Save(types[i]);
     // Capture every natural result before adapting any ordinal.
     for (size_t i = 0; i < types.size(); i++) {
-        if (plan.enum_payloads[i]) {
+        if (plan.value_receivers[i]) {
+            FinishValueArrayReceiver(*plan.producers[i], *plan.value_receivers[i], line);
+            LocationAddress(plan.value_receivers[i]->location); Set(values[i]);
+        } else if (plan.raw_receivers[i]) {
+            FinishRawArrayReceiver(*plan.producers[i], *plan.raw_receivers[i], line);
+            LocationAddress(plan.raw_receivers[i]->location); Set(values[i]);
+        } else if (plan.enum_payloads[i]) {
             FinishEnumPayload(*plan.values[i], plan.enum_payloads[i], line);
             LocationAddress(plan.values[i]->location); Set(values[i]);
         } else if (plan.copies[i]) {
@@ -248,14 +264,19 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
 inline void Function::ShareRegion(const Location &place, const ConstructionDestination &destination) {
     LocationAddress(TailHeaderLocation(place)); auto local = Save(I32);
     LocationAddress(TailHeaderLocation(destination.location)); auto result = Save(I32);
+    if (Compiler::GrowableArray(place.storage_type) && destination.location.storage_type->kind == TY_ARRAY &&
+        destination.location.storage_type->arr->akind == A_VAR && !destination.elements)
+        InitializeArrayImage(result, destination, place.storage_type->line);
     for (uint32_t offset : { 0u, 8u }) {
         Get(local); Get(result); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset);
     }
-    if (c.owned_effects && !Compiler::RuntimeLimited(TailHeaderLocation(place).storage_type)) {
+    if (c.region_cursors && !Compiler::RuntimeLimited(TailHeaderLocation(place).storage_type)) {
         Get(local); Get(RegionCursor(result)); code.Mem(0x36, 2);
     }
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 12);
+    Get(local); code.I32Const(0); code.Mem(0x36, 2, 16);
+    Get(local); code.I32Const(0); code.Mem(0x36, 2, 20);
     RegisterEffectOwner(place);
 }
 
@@ -273,7 +294,7 @@ inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_
     optional<uint32_t> capacity;
     if (Compiler::RuntimeLimited(source_type)) {
         auto header = Save(I32);
-        Get(header); code.Mem(0x28, 2, 12); capacity = Save(I32); Get(header);
+        ReadArrayCapacity(header); capacity = Save(I32); Get(header);
     }
     if (source_type->kind == TY_ARRAY) { element = source_type->arr->sub; PackArrayView(source_type); }
     else if (source_type->kind == TY_SLICE) element = source_type->sub;
@@ -287,25 +308,29 @@ inline void Function::ConstructRegionView(uint32_t source, const ConstructionDes
                                           optional<uint32_t> capacity) {
     auto element = destination.location.storage_type->arr->sub;
     LocationAddress(destination.location); auto header = Save(I32);
+    InitializeArrayImage(header, destination, line);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
     Get(source); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
     CheckArrayLength(destination.location.storage_type, count, line, destination.elements);
     if (Compiler::RuntimeLimited(destination.location.storage_type)) {
         if (destination.lifetime == ConstructionDestination::Existing) {
-            Get(count); Get(header); code.Mem(0x28, 2, 12); code.Op(0xad); code.Op(0x56);
+            Get(count); ReadArrayCapacity(header); code.Op(0xad); code.Op(0x56);
             TrapIf(line, "array capacity exceeded");
         } else {
             if (capacity) { Get(*capacity); code.Op(0xad); } else Get(count);
             auto cap = Save(I64); ReserveRegion(header, cap, element, line);
-            Get(header); Get(cap); code.Op(0xa7); code.Mem(0x36, 2, 12);
+            Get(cap); code.Op(0xa7); WriteArrayCapacity(header, Save(I32));
         }
     }
-    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+    code.I32Const(0); WriteArrayLength(header, Save(I32));
     ReserveRegion(header, count, element, line);
-    Get(base); Get(source); code.Op(0xa7); Get(count); code.Op(0xa7);
+    Get(base); Get(source); code.Op(0xa7);
+    if (Compiler::RuntimeLimited(destination.location.storage_type) && capacity && destination.lifetime != ConstructionDestination::Existing)
+        Get(*capacity);
+    else { Get(count); code.Op(0xa7); }
     code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Copy();
-    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
-    if (c.owned_effects) {
+    Get(count); code.Op(0xa7); WriteArrayLength(header, Save(I32));
+    if (c.region_cursors) {
         if (Compiler::RuntimeLimited(destination.location.storage_type)) {
             Get(header); code.Mem(0x28, 2, 12); code.Op(0xad); PublishArrayCursor(header, destination.location.storage_type, Save(I64));
         } else PublishArrayCursor(header, destination.location.storage_type, count);
@@ -336,6 +361,8 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); Get(base); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6a); code.Mem(0x36, 2, 8);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 16);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 20);
     PublishCursor(header, base);
     if (!global_region) RegisterEffectOwner(place, true, temporary);
 }
@@ -364,9 +391,10 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         Get(capacity); code.I64Const(UINT32_MAX); code.Op(0x56); code.Op(0x72);
         TrapIf(line, "array capacity out of range");
         LocationAddress(place); auto header = Save(I32);
+        InitializeArrayImage(header, destination, line);
         ReserveRegion(header, capacity, element, line);
-        Get(header); Get(capacity); code.Op(0xa7); code.Mem(0x36, 2, 12);
-        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+        Get(capacity); code.Op(0xa7); WriteArrayCapacity(header, Save(I32));
+        code.I32Const(0); WriteArrayLength(header, Save(I32));
         PublishArrayCursor(header, type, capacity); return;
     }
     if (auto copy = Is<Call>(node); copy && copy->builtin == B_COPY) {
@@ -381,9 +409,9 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         if (same) {
             // Data already lives at this result. Its private header keeps
             // later growth from changing the length published here.
-            LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
+            LocationAddress(PinPlace(node)); ReadArrayLength(Save(I32)); code.Op(0xad); auto count = Save(I64);
             CheckArrayLength(type, count, line, destination.elements);
-            LocationAddress(place); auto header = Save(I32); Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+            LocationAddress(place); auto header = Save(I32); Get(count); code.Op(0xa7); WriteArrayLength(header, Save(I32));
             if (Compiler::RuntimeLimited(type)) {
                 LocationAddress(place);
                 LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 12); code.Mem(0x36, 2, 12);
@@ -421,27 +449,28 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     }
     OpenConstruction open(destination);
     LocationAddress(place); auto header = Save(I32);
+    if (!node || Is<ArrayLit>(node)) InitializeArrayImage(header, destination, line);
     PublishHeader(header, 0);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
 
     if (!node) {
-        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+        code.I32Const(0); WriteArrayLength(header, Save(I32));
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
         code.I64Const(0); auto count = Save(I64); ReserveRegion(header, count, element, line);
         PublishCursor(header, base); return;
     }
 
     uint32_t count;
-    auto physical = c.owned_effects && !Compiler::RuntimeLimited(type);
+    auto physical = c.region_cursors && !Compiler::RuntimeLimited(type);
     auto cleanup_depth = cleanups.size();
     bool check_abandoned = false;
     if (auto array = Is<ArrayLit>(node)) {
         auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
         code.I64Const(size); count = Save(I64);
         CheckArrayLength(type, count, line, destination.elements);
-        Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+        code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); WriteArrayLength(header, Save(I32));
         if (Compiler::RuntimeLimited(type)) {
-            Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 12);
+            code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); WriteArrayCapacity(header, Save(I32));
         }
         // Existing owners and callee result channels can survive an exit
         // during element evaluation. Commit/check the published extent on
@@ -484,7 +513,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         RebaseEscapeStage(destination);
         ConstructRegionView(source.view, destination, line, source.capacity); return;
     }
-    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+    Get(count); code.Op(0xa7); WriteArrayLength(header, Save(I32));
     if (!physical) PublishArrayCursor(header, type, count);
     if (check_abandoned) {
         if (cleanups.size() <= cleanup_depth || cleanups[cleanup_depth].kind != CleanupAction::CheckAbandonedRegion)
@@ -512,7 +541,7 @@ inline void Function::ReserveRegion(uint32_t header, uint32_t count, TypeExpr *e
 
 inline void Function::ReserveArray(uint32_t header, uint32_t count, TypeExpr *type, Line line) {
     if (Compiler::RuntimeLimited(type)) {
-        Get(count); Get(header); code.Mem(0x28, 2, 12); code.Op(0xad); code.Op(0x56);
+        Get(count); ReadArrayCapacity(header); code.Op(0xad); code.Op(0x56);
         TrapIf(line, "array capacity exceeded");
     }
     ReserveRegion(header, count, type->arr->sub, line);

@@ -16,6 +16,9 @@ static-capacity resizable arrays, struct fields, fixed-mode enums and payload ma
 slices, references, and named growable arrays of supported fixed-layout elements.
 Variable arrays with default/u8/u16/u32/u64 length storage use these regions for owned
 construction, calls and returns, while keeping their length frozen.
+Their unsigned length prefixes, and runtime-limited capacity/length prefixes,
+live in the data region; [physical-mode accessors](docs/ARRAY_IMAGES.md) distinguish
+these values from raw element-run result channels.
 Runtime-capacity arrays preserve logical capacity through copies and assignment,
 with checked mutation and conversions between supported array kinds.
 Standalone structs with fixed fields and one variable/runtime-capacity array tail

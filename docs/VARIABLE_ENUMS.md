@@ -1,6 +1,6 @@
 # Nonresizable variable-mode enums
 
-`E..` retains `SC_VARIABLE`. Its 16-byte private header owns one stable region
+`E..` retains `SC_VARIABLE`. Its 24-byte private control owns one stable region
 containing a u32 tag and an aligned maximum control union. Each variant has
 supported fixed fields, or one final nonresizable variable/runtime-limited array
 through a supported record chain. The terminal array's data follows that union;

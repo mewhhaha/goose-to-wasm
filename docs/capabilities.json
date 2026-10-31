@@ -771,31 +771,35 @@
       },
       "A_LIMITED": {
         "status": "qualified_subset",
-        "scope": "Resolved static capacity and runtime capacity with supported fixed-layout elements, mutation and owned results. Runtime copies preserve capacity; assignment preserves its pinned destination capacity after full RHS construction. Natural result channels preserve cross-kind conversion and named-result header aliases. Variable elements/containing values remain pending.",
+        "scope": "Resolved static capacity and runtime capacity with supported fixed-layout elements, mutation and owned results. Runtime values store in-region u32 capacity/length metadata and copies preserve the capacity extent; assignment preserves its pinned destination capacity after full RHS construction. Natural result channels preserve cross-kind conversion and named-result header aliases. Variable elements/containing values remain pending.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
           "tests/fixtures/limited_array_paths.goose",
           "tests/fixtures/runtime_limited.goose",
-          "tests/fixtures/runtime_limited_aggregate.goose"
+          "tests/fixtures/runtime_limited_aggregate.goose",
+          "tests/fixtures/array_image_construction.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/runtime_limited_errors.goose",
-          "tests/test_regions.py"
+          "tests/test_regions.py",
+          "tests/test_array_images.py"
         ]
       },
       "A_VAR": {
         "status": "qualified_subset",
-        "scope": "Supported fixed-layout elements with default/u8/u16/u32/u64 length storage. Frozen owned values, width-checked local and parameter construction, normal/element-run results and forwarding, mixed receiving-width checks, inline retargeting, scoped views/indexing/loops and primitive rendering. Eager emitted forms use a conservative region bound. Varint lengths, variable elements and containing values remain pending.",
+        "scope": "Supported fixed-layout elements with default/u8/u16/u32/u64 length storage. In-region unsigned length prefixes with authoritative views; raw element-run forms remain distinct. Frozen owned values, width-checked local and parameter construction, normal/element-run results and forwarding, mixed receiving-width checks, inline retargeting, scoped views/indexing/loops and primitive rendering. Eager emitted forms use a conservative region bound. Varint lengths, variable elements and containing values remain pending.",
         "fixtures": [
           "tests/fixtures/variable_arrays.goose",
           "tests/fixtures/narrow_variable_arrays.goose",
-          "tests/fixtures/wide_variable_arrays.goose"
+          "tests/fixtures/wide_variable_arrays.goose",
+          "tests/fixtures/array_image_construction.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/unsupported_varint_array.goose",
           "tests/test_dynamic_boundaries.py",
-          "tests/test_regions.py"
+          "tests/test_regions.py",
+          "tests/test_array_images.py"
         ]
       }
     },

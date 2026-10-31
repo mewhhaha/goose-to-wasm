@@ -72,8 +72,9 @@ argument appends to the same receiving region.
 A per-region cursor table separates committed physical bytes from logical
 length. Grow/shrink mutation reserves and advances that cursor. Modules needing
 this contract publish `goose.regions` schema 2 with `cursor_base` and
-`cursor_stride: 4`; other modules retain schema 1. The existing 16-byte control
-layout and public scalar host ABI remain unchanged.
+`cursor_stride: 4`; other modules retain schema 1. The public scalar host ABI remains version 1. The later
+[array-image representation](ARRAY_IMAGES.md) uses separately aligned 24-byte
+controls; its additional target kinds retain their nonlocal-return gate.
 
 Interrupted normal construction preserves receiving-channel publication. Grow
 receivers expose length before literal element effects, including element-run

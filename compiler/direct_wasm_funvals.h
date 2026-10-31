@@ -88,7 +88,7 @@ inline void Function::EmitFunctionValue(Call *node, bool adapt_result, const Res
     // Its receiving storage precedes argument evaluation, as in EmitFvCall.
     // Exact receivers avoid an unnecessary live region across recursive calls.
     RegionResultPlan plan { ResultDestinations(natural.size()), ResultDestinations(natural.size()),
-                            ResultDestinations(natural.size()), vector<TypeExpr *>(natural.size(), nullptr) };
+                            ResultDestinations(natural.size()), ResultDestinations(natural.size()), ResultDestinations(natural.size()), vector<TypeExpr *>(natural.size(), nullptr) };
     if (!destinations.empty() && destinations.size() != natural.size())
         Fail(node->line, "function-value result channel arity mismatch");
     for (size_t i = 0; i < natural.size(); i++) if (Compiler::RegionOwner(natural[i])) {
