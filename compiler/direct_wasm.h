@@ -36,6 +36,8 @@ struct Signature {
     bool operator==(const Signature &) const = default;
 };
 struct Import { string module, name; uint32_t type; };
+enum class ArrayStorageMode : uint32_t { RawElements, VarU8, VarU16, VarU32, VarU64, RuntimeLimited };
+inline constexpr uint32_t owner_control_bytes = 24;
 struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; uint32_t payload = 0; };
 enum RuntimeGlobal { G_SCRATCH_TOP, G_REGION_NEXT, G_REGION_BASE, G_REGION_BYTES, G_REGION_COUNT, G_ACTIVATION_LIMIT };
 struct Slot {
@@ -173,7 +175,7 @@ struct Function {
                 }
                 SkipReplacedEffectOwner(action.saved_local, done);
                 SkipDyingEffectOwner(action.saved_local, action.enum_guard, done);
-                Get(action.saved_local); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
+                ReadArrayLength(action.saved_local); code.Op(0xad); auto count = Save(I64);
                 ReserveRegion(action.saved_local, count, action.element, action.line);
                 End();
             }
@@ -263,6 +265,19 @@ struct Function {
     void Address(Node *);
     TypeExpr *Object(Node *);
     void PackArrayView(TypeExpr *);
+    void ReadArrayLength(uint32_t);
+    void ReadArrayBase(uint32_t);
+    void ValidateArrayImage(uint32_t, uint32_t, TypeExpr *, Line);
+    void ReadArrayCapacity(uint32_t);
+    void WriteArrayLength(uint32_t, uint32_t);
+    void WriteArrayCapacity(uint32_t, uint32_t);
+    void InitializeArrayImage(uint32_t, const ConstructionDestination &, Line);
+    ConstructionDestination RawArrayReceiver(const ConstructionDestination &, Line);
+    void FinishRawArrayReceiver(const ConstructionDestination &, const ConstructionDestination &, Line);
+    ConstructionDestination ValueArrayReceiver(const ConstructionDestination &, TypeExpr *);
+    void FinishValueArrayReceiver(const ConstructionDestination &, const ConstructionDestination &, Line);
+    void FinishArrayImage(uint32_t, uint32_t, uint32_t, TypeExpr *, bool, Line);
+
     void View(Node *);
     void ArrayBuiltin(Call *);
     function<void()> SequenceValue(Node *, bool address = false);
@@ -309,7 +324,7 @@ struct Function {
     bool SafeEscapeRead(Node *, bool pushes = false);
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void ResultExpression(Node *, const ResultDestinations &);
-    struct RegionResultPlan { ResultDestinations producers, copies, values; vector<TypeExpr *> enum_payloads; };
+    struct RegionResultPlan { ResultDestinations producers, copies, values, raw_receivers, value_receivers; vector<TypeExpr *> enum_payloads; };
     RegionResultPlan PlanRegionResults(const vector<TypeExpr *> &, const ResultDestinations &, Line, bool run = false, bool inlined = false);
     void PublishRegionResults(const vector<TypeExpr *> &, const RegionResultPlan &, Line);
     void ControlValue(Node *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
@@ -368,10 +383,10 @@ struct Compiler {
     unordered_map<FnSpec *, uint32_t> effect_globals;
     unordered_map<FnSpec *, Layout> mailboxes;
     uint32_t pending_effect = 0, effect_frames = 0;
-    bool owned_effects = false;
+    bool region_cursors = false;
     uint32_t cursor_global = 0, cursor_table = 0;
     uint32_t prefix_helper = 0, header_helper = 0;
-    bool Effects() const { return !effect_targets.empty() || owned_effects; }
+    bool Effects() const { return !effect_targets.empty() || region_cursors; }
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;
     unordered_map<FnSpec *, uint32_t> run_index;
@@ -561,7 +576,7 @@ struct Compiler {
         return ei->en->variants.at(size_t(ei->en->VariantIndex(t->var->variant))).fields;
     }
     static bool RegionOwner(TypeExpr *t) { return RegionArray(t) || RegionRecord(t) || RegionEnum(t); }
-    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || RegionEnum(t) || (RegionRecord(t) && !FrameStruct(t)); }
+    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || (t && t->kind == TY_ARRAY && t->arr->akind == A_VAR) || RegionEnum(t) || (RegionRecord(t) && !FrameStruct(t)); }
     static IntStorage LengthStorage(TypeExpr *t) {
         return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
     }
@@ -570,7 +585,7 @@ struct Compiler {
         if (t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT)
             Fail(t->line, "varint variable-array length storage is not supported");
         FixedLayout(t->arr->sub);
-        Layout header; header.size = 16; header.align = 4; return header;
+        Layout header; header.size = owner_control_bytes; header.align = 4; return header;
     }
     const Layout &ControlLayout(TypeExpr *t) {
         if (auto found = control_layouts.find(t); found != control_layouts.end()) return found->second;
@@ -578,7 +593,7 @@ struct Compiler {
         if (RegionArray(t)) layout = HeaderLayout(t);
         else if (RegionEnum(t)) {
             EnumImageLayout(t->enu->inst, t->line);
-            layout.size = 16; layout.align = 4;
+            layout.size = owner_control_bytes; layout.align = 4;
         }
         else if (RegionRecord(t)) {
             auto &fields = RecordFields(t);
@@ -756,7 +771,7 @@ struct Compiler {
             }
             if (Aggregate(t) && !sp->sf->isextern) {
                 s.args.push_back(I32);
-                if (owned_effects && RegionOwner(t)) s.args.push_back(I32);
+                if (region_cursors && RegionOwner(t)) s.args.push_back(I32);
             }
             s.results.push_back(W(t));
         }
@@ -864,7 +879,7 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
             if (c.Aggregate(t)) {
                 resultdestinations.push_back(uint32_t(params.size()));
                 params.push_back(I32);
-                if (c.owned_effects && Compiler::RegionOwner(t)) {
+                if (c.region_cursors && Compiler::RegionOwner(t)) {
                     resultpublications.back() = uint32_t(params.size()); params.push_back(I32);
                 }
             } else resultdestinations.push_back(nullopt);
@@ -912,7 +927,7 @@ inline Slot Function::Bind(VarDef *v) {
     return vars.emplace(v, s).first->second;
 }
 inline void Function::Load(TypeExpr *t) {
-    if (c.owned_effects && !Compiler::RegionOwner(t)) CanonicalAddress(c.FixedLayout(t).size);
+    if (c.region_cursors && !Compiler::RegionOwner(t)) CanonicalAddress(c.FixedLayout(t).size);
     if (c.Aggregate(t)) return; // aggregate values are addresses
     if (t->kind == TY_FLT) { code.Mem(IsF32(t) ? 0x2a : 0x2b); return; }
     if (t->kind == TY_SLICE) { code.Mem(0x29); return; }
@@ -924,7 +939,7 @@ inline void Function::Load(TypeExpr *t) {
     code.Mem(bits == 8 ? (u ? 0x2d : 0x2c) : bits == 16 ? (u ? 0x2f : 0x2e) : bits == 32 ? 0x28 : 0x29);
 }
 inline void Function::Store(TypeExpr *t) {
-    if (c.owned_effects) {
+    if (c.region_cursors) {
         auto value = Save(t);
         CanonicalAddress(c.FixedLayout(t).size);
         Get(value);
@@ -991,6 +1006,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_enums.h"
 #include "direct_wasm_regions.h"
 #include "direct_wasm_temps.h"
+#include "direct_wasm_images.h"
 #include "direct_wasm_arrays.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"

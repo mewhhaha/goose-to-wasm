@@ -1,9 +1,10 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=3;variant-payloads=packed-fields;fixed-records=packed-fields`.
+internal `layout=4;owner-control=24;array-values=unsigned-prefixes`, alongside
+the packed fixed-record and variant markers.
 Compiler identity invalidates cached complete modules when layouts change.
-The 16-byte owner control ABI remains separately aligned as described in
+The 24-byte owner control ABI remains separately aligned as described in
 [TARGET.md](TARGET.md); it is not a serialized image.
 
 Fixed structs and standalone variant payloads place fields next to each other,
@@ -30,9 +31,12 @@ empty aggregates remain gated for replacement overlap. Packing their parent
 does not establish compatibility for those fields. Fixed-array extent checks
 reject oversized counts before multiplication, including odd packed strides.
 
-Further steps are compact fixed metadata with centralized tag/length access and
-authoritative contiguous variable images. Those images require dynamic walkers
-and in-region metadata, including partial construction and canceled returns,
+[Array values](ARRAY_IMAGES.md) now place unsigned lengths or capacity/length
+prefixes in their region and read that metadata through physical-mode accessors.
+Their fixed-layout elements retain the target representation; existing enclosing
+records and enums still use separate control layouts. Further steps are compact
+fixed metadata and general contiguous variable images. Those require dynamic
+walkers, including partial construction and canceled nonlocal returns,
 before variable elements, nonfinal variable fields, relative references,
 serialization or general byte-overlap parity can qualify. Reference-containing
 overlaps expose platform-specific address bits; width changes alone do not make

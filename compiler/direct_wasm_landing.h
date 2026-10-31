@@ -13,12 +13,12 @@ inline uint32_t Function::RegionCursor(uint32_t header) {
 }
 
 inline void Function::PublishCursor(uint32_t header, uint32_t top) {
-    if (!c.owned_effects) return;
+    if (!c.region_cursors) return;
     Get(CursorSlot(header)); Get(top); code.Mem(0x36, 2);
 }
 
 inline void Function::PublishArrayCursor(uint32_t header, TypeExpr *type, uint32_t count) {
-    if (!c.owned_effects) return;
+    if (!c.region_cursors) return;
     Get(header); code.Mem(0x28, 2); Get(count); code.Op(0xa7);
     code.I32Const(int32_t(c.FixedLayout(type->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
     PublishCursor(header, Save(I32));
@@ -157,7 +157,7 @@ inline void Function::LandArraySuffix(uint32_t original, uint32_t start, uint32_
 
 inline bool Function::ConstructNormalOwnedResult(Node *value, const ConstructionDestination &destination) {
     auto type = destination.location.storage_type;
-    if (!c.owned_effects || destination.escape_stage || !Compiler::RegionArray(type) || Compiler::RuntimeLimited(type) ||
+    if (!c.region_cursors || destination.escape_stage || !Compiler::RegionArray(type) ||
         !destination.normal_result)
         return false;
     auto call = Is<Call>(value);
@@ -179,12 +179,16 @@ inline bool Function::ConstructNormalOwnedResult(Node *value, const Construction
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); Get(original); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 16);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 20);
     auto depth = cleanups.size(), private_index = private_headers.size();
     RegisterEffectOwner(stage, true, false, publication); private_headers.push_back({ stage, cleanups.size() });
     cleanups.push_back({ CleanupAction::CheckAbandonedRegion, original, type->arr->sub, value ? value->line : type->line, destination.enum_guard });
     ConstructRegionInto(value, { stage, ConstructionDestination::Statement, destination.elements, {}, true, false, publication, destination.construction, destination.open0 });
     Get(header); code.Mem(0x28, 2, 4); auto length = Save(I32);
-    if (land)
+    if ((type->arr->akind == A_VAR && !destination.elements) || Compiler::RuntimeLimited(type))
+        FinishArrayImage(original, start, header, type, land, value ? value->line : type->line);
+    else if (land)
         LandArraySuffix(original, start, length, type, value ? value->line : type->line, landing_base);
     else {
         Get(original); Get(length); code.Mem(0x36, 2, 4); PublishHeader(original, 4);
@@ -195,7 +199,7 @@ inline bool Function::ConstructNormalOwnedResult(Node *value, const Construction
 
 inline bool Function::ConstructNormalRecordResult(Node *value, const ConstructionDestination &destination) {
     auto type = destination.location.storage_type;
-    if (!c.owned_effects || destination.escape_stage || !Compiler::RegionRecord(type) ||
+    if (!c.region_cursors || destination.escape_stage || !Compiler::RegionRecord(type) ||
         !destination.normal_result) return false;
     auto layout = c.ControlLayout(type);
     auto tail_type = c.TailType(type);
@@ -211,6 +215,8 @@ inline bool Function::ConstructNormalRecordResult(Node *value, const Constructio
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); Get(original); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 16);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 20);
     auto depth = cleanups.size(), private_index = private_headers.size();
     RegisterEffectOwner(stage, true, false, publication, layout.payload, true);
     private_headers.push_back({ staged_tail, cleanups.size() });
@@ -222,7 +228,9 @@ inline bool Function::ConstructNormalRecordResult(Node *value, const Constructio
     }
     Get(header); code.Mem(0x28, 2, 4); auto length = Save(I32);
     Get(header); code.Mem(0x28, 2); Get(start); code.Op(0x6b); Get(landing_base); code.Op(0x6a); auto final_base = Save(I32);
-    if (land)
+    if (!Compiler::FrameStruct(type))
+        FinishArrayImage(original, start, header, tail_type, land, value ? value->line : type->line);
+    else if (land)
         LandArraySuffix(original, start, length, tail_type, value ? value->line : type->line, landing_base);
     else {
         Get(original); Get(length); code.Mem(0x36, 2, 4); PublishHeader(original, 4);
@@ -230,9 +238,6 @@ inline bool Function::ConstructNormalRecordResult(Node *value, const Constructio
     }
     if (Compiler::FrameStruct(type)) {
         Get(original); Get(final_base); code.Mem(0x36, 2); PublishHeader(original, 0);
-    }
-    if (Compiler::RuntimeLimited(tail_type)) {
-        Get(original); Get(header); code.Mem(0x28, 2, 12); code.Mem(0x36, 2, 12);
     }
     CloseCleanups(depth); private_headers.erase(private_headers.begin() + private_index); return true;
 }
@@ -333,7 +338,7 @@ inline void Function::LandOwnedEffect() {
 }
 
 inline void Function::SkipReplacedEffectOwner(uint32_t header, uint32_t done) {
-    if (!c.owned_effects) return;
+    if (!c.region_cursors) return;
     for (auto target : c.effect_targets) {
         auto owned = c.OwnedEffectOrdinals(target);
         if (owned.empty()) continue;

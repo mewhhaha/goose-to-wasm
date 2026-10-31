@@ -32,6 +32,16 @@ together. Unsupported owned image kinds remain pending. Frame catch snapshots pr
 winning tail base relative to the copied suffix; canceled attempts retain tail
 bytes while discarding their private prefix.
 
+## Implemented: unsigned array value images
+
+Var values store unsigned length prefixes in their data region; runtime-limited
+values store capacity and length before their reserved slots. Physical modes
+separate those values from raw element-run channels, with authoritative views,
+full-capacity copies, normal return staging and control-only prefix adapters.
+The [array-image contract](ARRAY_IMAGES.md) records call ordering and receiving
+anchors. Actual image-valued nonlocal targets and general record/enum images
+remain subsequent work.
+
 ## Implemented: runtime enum case dispatch
 
 Case calls evaluate shared arguments once, snapshot value payloads before later
@@ -104,7 +114,7 @@ normal/inline outcomes. Varint images remain pending.
 
 ## Implemented: fixed-element runtime-capacity arrays
 
-Runtime `T[..]` owners now use the uniform 16-byte internal region header with
+Runtime `T[..]` owners now use the uniform internal region control with
 separate logical capacity and resource limit. Copies preserve spare capacity;
 cross-kind construction chooses capacity from length. Assignment constructs its
 RHS before updating the pinned receiver and preserves capacity, including self

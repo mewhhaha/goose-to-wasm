@@ -13,7 +13,7 @@ final non-frame owner fields; their nominal identity remains distinct from struc
 `RegionOwner` governs allocation, parameters, receiving channels, temporaries and
 cleanup. `RegionArray` remains specific to sequence operations and element runs.
 The separate `ControlLayout` cache describes fixed field offsets and an embedded
-16-byte array header; it does not turn the variable object into an `SC_FIXED`
+24-byte array control; it does not turn the variable object into an `SC_FIXED`
 value. `Size`/`FixedLayout` still reject ordinary copies of its descriptor.
 
 Each live owner acquires one data region through `TailHeaderLocation`. Private

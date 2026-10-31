@@ -85,6 +85,12 @@ jobs:
         run: |
           python tests/test_regions.py
           python tests/test_dynamic_boundaries.py
+          python tests/test_static_capture_boundaries.py
+          python tests/test_variable_enum_boundaries.py
+          python tests/test_variable_variant_boundaries.py
+          python tests/test_owned_struct_boundaries.py
+          python tests/test_packed_layout_boundaries.py
+          python tests/test_array_images.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py
       - name: LangArena official small cases and observable marker edits

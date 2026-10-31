@@ -141,7 +141,7 @@ inline void Function::Address(Node *n) {
         auto field_type = c.FieldType(t, dot->fieldidx);
         auto off = c.FieldOffset(t, size_t(dot->fieldidx));
         if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
-        if (c.owned_effects && !Compiler::RegionOwner(field_type)) CanonicalAddress(c.FixedLayout(field_type).size);
+        if (c.region_cursors && !Compiler::RegionOwner(field_type)) CanonicalAddress(c.FixedLayout(field_type).size);
         return;
     }
     if (auto u = Is<Unary>(n); u && u->op == T_BITAND) { Address(u->child); return; }
@@ -229,7 +229,7 @@ inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
     if (Compiler::RegionOwner(t)) {
-        if (c.owned_effects && (Compiler::GrowableArray(t) || Compiler::FrameStruct(t))) {
+        if (c.region_cursors && (Compiler::GrowableArray(t) || Compiler::FrameStruct(t))) {
             LocationAddress(TailHeaderLocation(place)); auto header = Save(I32);
             Get(header); code.Mem(0x28, 2); PublishCursor(header, Save(I32));
         }
@@ -464,7 +464,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     for (size_t i = 0; i < sp->rets.size(); i++) if (auto t = sp->rets[i]; c.Aggregate(t)) {
         if (Compiler::RegionOwner(t)) {
             LocationAddress(receiving[i]->location);
-            if (c.owned_effects) Get(Publication(*receiving[i]));
+            if (c.region_cursors) Get(Publication(*receiving[i]));
         }
         else LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
     }
@@ -594,7 +594,7 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
         case B_CAP: {
             auto t = Object(args[0]);
             if (Compiler::RuntimeLimited(t)) {
-                code.Mem(0x28, 2, 12); code.Op(0xad);
+                ReadArrayCapacity(Save(I32)); code.Op(0xad);
                 Convert(c.ast.inttypes[IS_U64], n->exprtype, n->line); return;
             }
             c.Size(t); code.Op(0x1a);
@@ -882,7 +882,7 @@ inline void Function::Expr(Node *n) {
             if (d->member == B_CAP) {
                 auto t = Object(d->obj);
                 if (Compiler::RuntimeLimited(t)) {
-                    code.Mem(0x28, 2, 12); code.Op(0xad);
+                    ReadArrayCapacity(Save(I32)); code.Op(0xad);
                     Convert(c.ast.inttypes[IS_U64], n->exprtype, n->line); return;
                 }
                 c.Size(t); code.Op(0x1a);

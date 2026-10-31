@@ -99,7 +99,7 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
             if (i + 1 == fields.size()) {
                 if (Compiler::FrameStruct(type) && Compiler::RegionArray(fields[i])) {
                     LocationAddress(field); auto header = Save(I32);
-                    if (c.owned_effects) {
+                    if (c.region_cursors) {
                         auto base = RegionCursor(header);
                         Get(header); Get(base); code.Mem(0x36, 2);
                     }

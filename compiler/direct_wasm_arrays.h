@@ -8,8 +8,10 @@ inline void Function::PackArrayView(TypeExpr *t) {
     if (Compiler::RegionArray(t)) {
         c.HeaderLayout(t);
         auto header = Save(I32);
-        Get(header); code.Mem(0x28, 2); code.Op(0xad);
-        Get(header); code.Mem(0x28, 2, 4); code.Op(0xad); code.I64Const(32); code.Op(0x86); code.Op(0x84);
+        ReadArrayLength(header); auto count = Save(I32);
+        ValidateArrayImage(header, count, t->arr->sub, t->line);
+        ReadArrayBase(header); code.Op(0xad);
+        Get(count); code.Op(0xad); code.I64Const(32); code.Op(0x86); code.Op(0x84);
         return;
     }
     auto layout = c.Size(t);
@@ -109,7 +111,7 @@ inline void Function::ArrayBuiltin(Call *n) {
     auto t = Object(args[0]);
     auto kind = BuiltinKind(n->builtin);
     if (kind == B_INDEX_OF) {
-        if (Compiler::RegionArray(t)) code.Mem(0x28, 2);
+        if (Compiler::RegionArray(t)) ReadArrayBase(Save(I32));
         else {
             auto layout = c.Size(t);
             if (layout.payload) { code.I32Const(int32_t(layout.payload)); code.Op(0x6a); }
@@ -120,27 +122,25 @@ inline void Function::ArrayBuiltin(Call *n) {
         Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
     }
     auto region = Compiler::RegionArray(t);
-    auto physical = c.owned_effects && Compiler::GrowableArray(t);
+    auto physical = c.region_cursors && Compiler::GrowableArray(t);
     if (t->kind != TY_ARRAY || (t->arr->akind != A_LIMITED && !Compiler::GrowableArray(t)))
         Fail(n->line, "this array mutation is not supported without dynamic storage");
     auto layout = region ? c.HeaderLayout(t) : c.Size(t);
     auto base = Save(I32);
     auto elem = t->arr->sub;
     auto stride = c.Size(elem).size;
-    auto length = [&]() { Get(base); code.Mem(0x28, 2, region ? 4 : 0); };
-    auto write_length = [&](uint32_t len) { Get(base); Get(len); code.Mem(0x36, 2, region ? 4 : 0); if (region) PublishHeader(base, 4); };
+    auto length = [&]() { if (region) ReadArrayLength(base); else { Get(base); code.Mem(0x28, 2); } };
+    auto write_length = [&](uint32_t len) { if (region) WriteArrayLength(base, len); else { Get(base); Get(len); code.Mem(0x36, 2); } };
     auto logical_limit = [&](uint32_t count) {
         Get(count); code.I64Const(UINT32_MAX); code.Op(0x56); TrapIf(n->line, "data region exhausted");
     };
     auto address = [&](uint32_t i) {
-        Get(base);
-        if (region) code.Mem(0x28, 2);
-        else { code.I32Const(int32_t(layout.payload)); code.Op(0x6a); }
+        if (region) ReadArrayBase(base);
+        else { Get(base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a); }
         Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
     };
     if (kind == B_CLEAR) {
-        Get(base); code.I32Const(0); code.Mem(0x36, 2, region ? 4 : 0);
-        if (region) PublishHeader(base, 4);
+        code.I32Const(0); write_length(Save(I32));
         if (physical) { Get(base); code.Mem(0x28, 2); PublishCursor(base, Save(I32)); } return;
     }
     if (kind == B_PUSH) {
