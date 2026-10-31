@@ -55,12 +55,12 @@ inline void Function::ActivationLimit(uint32_t top, Line line) {
 }
 
 // Capture physical source metadata before publishing any receiving header.
-inline Function::CapturedSequence Function::CaptureSequence(Node *node) {
+inline Function::CapturedSequence Function::CaptureSequence(Node *node, bool elements) {
     if (auto slice = Is<SliceExpr>(node)) {
         SliceView(slice); return { Save(I64), node->exprtype, {} };
     }
     if (auto call = Is<Call>(node); call && call->builtin == B_COPY) {
-        return CaptureSequence(call->FirstArg());
+        return CaptureSequence(call->FirstArg(), elements);
     }
     TypeExpr *natural = node->exprtype;
     if (auto text = Is<StrLit>(node)) {
@@ -73,15 +73,18 @@ inline Function::CapturedSequence Function::CaptureSequence(Node *node) {
     } else if (auto inlined = Is<InlineBlock>(node)) {
         auto types = inlined->spec ? inlined->spec->rets : Values(node);
         if (types.size() != 1) Fail(node->line, "array construction requires one inline result");
-        natural = types[0]; EmitInline(inlined, false);
+        natural = types[0]; EmitInline(inlined, false, {}, elements);
     } else if (auto call = Is<Call>(node); call && call->builtin == B_DEFAULT) {
         natural = call->rettypes.at(0); EmitCall(call, false);
     } else if (auto call = Is<Call>(node); call && call->builtin < 0) {
         auto types = call->fvbody ? call->rettypes : call->spec ? call->spec->rets : vector<TypeExpr *> {};
         if (types.size() != 1) Fail(node->line, "array construction requires one source value");
-        natural = types[0]; EmitCall(call, false);
+        natural = types[0]; EmitCall(call, false, {}, elements);
     } else {
-        if (Compiler::RegionArray(natural)) Materialize(node, natural, false);
+        if (Compiler::RegionArray(natural) && elements && !Compiler::RuntimeLimited(natural)) {
+            auto temporary = TemporaryDestination(natural, node->line); temporary.elements = true;
+            ConstructRegionInto(node, temporary); LocationAddress(temporary.location);
+        } else if (Compiler::RegionArray(natural)) Materialize(node, natural, false);
         else Expr(node);
     }
     if (natural->kind == TY_REF) { natural = natural->ref->sub; Load(natural); }
@@ -95,8 +98,8 @@ inline Function::CapturedSequence Function::CaptureSequence(Node *node) {
     return { Save(I64), natural, capacity };
 }
 
-inline void Function::ConstructionView(Node *node) {
-    auto source = CaptureSequence(node); Get(source.view);
+inline void Function::ConstructionView(Node *node, bool elements) {
+    auto source = CaptureSequence(node, elements); Get(source.view);
 }
 
 inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionDestination &destination, Line line) {
@@ -107,15 +110,22 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
 }
 
 inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeExpr *> &types,
-        const ResultDestinations &receivers, Line line) {
-    RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()) };
+        const ResultDestinations &receivers, Line line, bool run, bool inlined) {
+    RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()) };
     for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionArray(types[i])) {
         if (!receivers.empty() && receivers.size() != types.size()) Fail(line, "owned result channel arity mismatch");
         // An empty ordinal can receive a fixed value after normal conversion.
-        if (receivers.empty() || !receivers[i]) { plan.producers[i] = TemporaryDestination(types[i], line); continue; }
+        if (receivers.empty() || !receivers[i]) {
+            plan.producers[i] = TemporaryDestination(types[i], line); plan.values[i] = plan.producers[i]; continue;
+        }
+        plan.values[i] = receivers[i];
         CheckRegionDestination(types[i], *receivers[i], line);
         auto receiving = receivers[i]->location.storage_type;
-        if (Compiler::RuntimeLimited(types[i]) != Compiler::RuntimeLimited(receiving)) {
+        auto reprefix = types[i]->arr->akind == A_VAR && receiving->arr->akind == A_VAR &&
+                        Compiler::LengthStorage(types[i]) != Compiler::LengthStorage(receiving);
+        auto capacity_adapter = Compiler::RuntimeLimited(types[i]) != Compiler::RuntimeLimited(receiving) &&
+                                !(inlined && types[i]->arr->akind == A_VAR);
+        if (capacity_adapter || (reprefix && !run)) {
             plan.producers[i] = TemporaryDestination(types[i], line); plan.copies[i] = receivers[i];
         } else plan.producers[i] = receivers[i];
     }
@@ -123,19 +133,31 @@ inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeE
 }
 
 inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, const RegionResultPlan &plan, Line line) {
-    if (none_of(plan.copies.begin(), plan.copies.end(), [](auto &destination) { return bool(destination); })) return;
+    auto check = [&](size_t i) {
+        if (!plan.values[i] || plan.values[i]->elements) return;
+        auto &destination = *plan.values[i]; auto type = destination.location.storage_type;
+        if (type->arr->akind != A_VAR) return;
+        LocationAddress(destination.location); code.Mem(0x28, 2, 4); code.Op(0xad);
+        CheckArrayLength(type, Save(I64), line);
+    };
+    if (none_of(plan.copies.begin(), plan.copies.end(), [](auto &destination) { return bool(destination); })) {
+        for (size_t i = 0; i < types.size(); i++) check(i);
+        return;
+    }
     vector<uint32_t> values(types.size());
     for (size_t i = types.size(); i-- > 0;) values[i] = Save(types[i]);
     // Capture every natural result before adapting any ordinal.
-    for (size_t i = 0; i < types.size(); i++) if (plan.copies[i]) {
-        ConstructRegionFromCaptured(types[i], values[i], *plan.copies[i], line);
-        LocationAddress(plan.copies[i]->location); Set(values[i]);
+    for (size_t i = 0; i < types.size(); i++) {
+        if (plan.copies[i]) {
+            ConstructRegionFromCaptured(types[i], values[i], *plan.copies[i], line);
+            LocationAddress(plan.copies[i]->location); Set(values[i]);
+        } else check(i);
     }
     for (auto value : values) Get(value);
 }
 
 inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction *target,
-        const vector<TypeExpr *> &types, const ResultDestinations &destinations) {
+        const vector<TypeExpr *> &types, const ResultDestinations &destinations, bool inlined) {
     vector<const VarDef *> added;
     for (size_t i = 0; i < types.size(); i++) {
         if (!Compiler::RegionArray(types[i]) || destinations.size() != types.size() || !destinations[i]) continue;
@@ -145,8 +167,21 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
         // construction. DetectNrvo also binds a growable local's elements
         // directly to a variable-array result; later results observe aliases.
         auto same_mode = candidate->type->arr->akind == types[i]->arr->akind;
+        if (same_mode && types[i]->arr->akind == A_VAR)
+            same_mode = Compiler::LengthStorage(candidate->type) == Compiler::LengthStorage(types[i]);
         auto grow_to_variable = Compiler::GrowableArray(candidate->type) && types[i]->arr->akind == A_VAR;
         if (!same_mode && !grow_to_variable) continue;
+        if (inlined && !Compiler::GrowableArray(candidate->type)) {
+            auto receiving = destinations[i]->location.storage_type;
+            if (destinations[i]->elements || candidate->type->arr->akind != receiving->arr->akind) continue;
+            if (receiving->arr->akind == A_VAR &&
+                Compiler::LengthStorage(candidate->type) != Compiler::LengthStorage(receiving)) continue;
+        } else if (inlined) {
+            auto receiving = destinations[i]->location.storage_type;
+            auto raw = destinations[i]->elements || Compiler::GrowableArray(receiving);
+            if (raw ? (!Compiler::GrowableArray(receiving) && receiving->arr->akind != A_VAR)
+                    : receiving->arr->akind != A_VAR) continue;
+        }
         CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
         named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate);
     }
@@ -187,6 +222,7 @@ inline void Function::ConstructRegionView(uint32_t source, const ConstructionDes
     LocationAddress(destination.location); auto header = Save(I32);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
     Get(source); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
+    CheckArrayLength(destination.location.storage_type, count, line, destination.elements);
     if (Compiler::RuntimeLimited(destination.location.storage_type)) {
         if (destination.lifetime == ConstructionDestination::Existing) {
             Get(count); Get(header); code.Mem(0x28, 2, 12); code.Op(0xad); code.Op(0x56);
@@ -267,8 +303,9 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         if (same) {
             // Data already lives at this result. Its private header keeps
             // later growth from changing the length published here.
-            LocationAddress(place);
-            LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 4); code.Mem(0x36, 2, 4);
+            LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
+            CheckArrayLength(type, count, line, destination.elements);
+            LocationAddress(place); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
             if (Compiler::RuntimeLimited(type)) {
                 LocationAddress(place);
                 LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 12); code.Mem(0x36, 2, 12);
@@ -317,6 +354,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     if (auto array = Is<ArrayLit>(node)) {
         auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
         code.I64Const(size); count = Save(I64);
+        CheckArrayLength(type, count, line, destination.elements);
         Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 4);
         if (Compiler::RuntimeLimited(type)) {
             Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 12);
@@ -373,6 +411,14 @@ inline void Function::ReserveArray(uint32_t header, uint32_t count, TypeExpr *ty
         TrapIf(line, "array capacity exceeded");
     }
     ReserveRegion(header, count, type->arr->sub, line);
+}
+
+inline void Function::CheckArrayLength(TypeExpr *type, uint32_t count, Line line, bool elements) {
+    if (elements || type->kind != TY_ARRAY || type->arr->akind != A_VAR) return;
+    auto bits = IntBits(Compiler::LengthStorage(type));
+    if (bits >= 64) return;
+    Get(count); code.I64Const(int64_t((UINT64_C(1) << bits) - 1)); code.Op(0x56);
+    TrapIf(line, "array length exceeds storage range");
 }
 
 } // namespace goose::direct_wasm

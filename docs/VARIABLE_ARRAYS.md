@@ -3,9 +3,9 @@
 This follows the Astra xhigh review of the pinned frontend and C emitter.
 Implement in these slices, retaining fixed-value copy gates throughout:
 
-The default/u32 fixed-element slice and runtime-capacity slice below are
-implemented. Other length encodings and variable elements/containing values
-remain subsequent work.
+The fixed-element unsigned-length and runtime-capacity slices below are
+implemented. Varint lengths and variable elements/containing values remain
+subsequent work.
 
 1. Fixed-layout elements in `T[]` and `T[u32]`: use checked stable regions,
    owned parameter/result channels, scoped temporaries, views and element writes.
@@ -37,3 +37,13 @@ capacity arrays retain their inline layout.
 
 The initial region representation is target-specific. It establishes no packed
 image, serialization or `bytes_of` compatibility with the pinned C ABI.
+
+Normal and element-run function forms keep the producer's prefix contract separate
+from a receiving value's contract. Raw runs omit the producer's length-width check
+and function-level named-result binding; local and by-value parameter construction
+still checks its own width. Mixed results keep their natural checks and validate
+or copy receiving ordinals after all results return. Inline bodies follow the
+receiving construction request, with separate oracle expectations where the pinned
+optimizer changes observable narrow-length behavior. Both forms are emitted
+conservatively for eligible reachable specializations; unused forms can increase
+the region bound. The varint image form is still refused.

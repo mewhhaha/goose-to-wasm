@@ -80,7 +80,7 @@ class DynamicBoundaries(unittest.TestCase):
 
     def test_valid_language_requires_unimplemented_receiving_lifetimes(self):
         cases = {
-            "narrow-variable-array-result": '''fn make() -> i64[u16] { return [1, 2]; }
+            "varint-variable-array-result": '''fn make() -> i64[varint] { return [1, 2]; }
 fn main() { let values = make(); print(values); }''',
         }
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:

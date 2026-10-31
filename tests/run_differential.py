@@ -39,6 +39,7 @@ class Case:
     debug: bool = False
     group: str = "scalar"
     maximum_pages: int | None = None
+    levels: tuple[int, ...] = (0, 1, 2)
 
 
 def wrap(value, bits, signed=True):
@@ -52,6 +53,48 @@ def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     result.append(Case("scope/while-condition-exits", "while_condition_exits", stdout="3 15 81 100\n", group="aggregate"))
     result.append(Case("temporary/multiple-discard", "anonymous_multiple", stdout="2\n4 17\n", group="aggregate"))
+    for mode in range(21):
+        for n in (255, 256):
+            prefix = "mixed" if mode == 7 else "local" if mode == 9 else "inline-local" if mode == 16 else "inline" if mode in (10, 11, 12, 13, 14, 15, 17, 20) else "body"
+            choices = (0, 2) if n == 256 and mode in (12, 13) else (None,)
+            for level in choices:
+                success = n <= 255 or mode in (1, 2, 3, 8, 10, 11, 17, 18, 19, 20) or (mode in (12, 13) and level == 2)
+                suffix = "done" if mode == 14 else f"{n} 3" if mode == 7 else f"{n} {n}" if mode == 12 else str(n)
+                answer = prefix + "\n" + (suffix + "\n" if success else "")
+                result.append(Case(f"variable-length/u8/{mode}/{n}" + (f"/O{level}" if level is not None else ""),
+                                   "narrow_variable_arrays", f"{mode} {n}\n", answer,
+                                   exit_code=0 if success else 1, diagnostic="" if success else "storage range",
+                                   group="aggregate", levels=(level,) if level is not None else (0, 1, 2)))
+    for mode, inputs in ((0, (65535, 65536)), (1, (65535, 65536)), (2, (65535, 65536)),
+                         (3, (65535, 65536)), (4, (255, 256)), (5, (0, 65536)),
+                         (6, (65535, 65536)), (7, (65536,)), (8, (255, 256))):
+        for n in inputs:
+            success = not ((mode in (0, 3, 6) and n > 65535) or (mode in (4, 8) and n > 255))
+            prefix = "mixed16\nlater" if mode == 8 else "64" if mode in (5, 6, 7) else "16"
+            answer = prefix + "\n" + ((f"{n} 42\n" if mode == 8 else f"{n}\n") if success else "")
+            result.append(Case(f"variable-length/wide/{mode}/{n}", "wide_variable_arrays", f"{mode} {n}\n", answer,
+                               exit_code=0 if success else 1, diagnostic="" if success else "storage range", group="aggregate"))
+    for mode in (9, 10, 11, 12, 13):
+        for n in (255, 256):
+            success = n <= 255 or mode == 12
+            prefix = "pairs\n" if mode in (12, 13) else "16\n"
+            if success:
+                prefix += {9: "take\n", 10: "echo\n", 11: "echo-inline\n"}.get(mode, "")
+            answer = prefix + ((f"{n} 7\n" if mode in (12, 13) else f"{n}\n") if success else "")
+            result.append(Case(f"variable-length/owned-parameters/{mode}/{n}", "wide_variable_arrays", f"{mode} {n}\n", answer,
+                               exit_code=0 if success else 1, diagnostic="" if success else "storage range", group="aggregate"))
+    for mode in (14, 15):
+        for n in (255, 256):
+            success = n <= 255
+            prefix = "grow\n" if mode == 14 else "grow-mixed\nlater\n"
+            answer = prefix + ((f"{n} 42\n" if mode == 15 else f"{n}\n") if success else "")
+            result.append(Case(f"variable-length/grow-to-narrow/{mode}/{n}", "wide_variable_arrays", f"{mode} {n}\n", answer,
+                               exit_code=0 if success else 1, diagnostic="" if success else "storage range", group="aggregate"))
+    for n in (255, 256):
+        success = n <= 255
+        result.append(Case(f"variable-length/second-result/{n}", "wide_variable_arrays", f"16 {n}\n",
+                           "second\nlater\n" + (f"42 {n}\n" if success else ""),
+                           exit_code=0 if success else 1, diagnostic="" if success else "storage range", group="aggregate"))
     for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
@@ -273,6 +316,8 @@ def main():
     for level in args.levels:
         for backend in order:
             for case in selected:
+                if level not in case.levels:
+                    continue
                 key = (backend, case.fixture, case.debug, level, case.maximum_pages)
                 directory = output / f"O{level}" / ("debug" if case.debug else "release") / case.fixture / backend
                 if case.maximum_pages is not None:
@@ -332,7 +377,7 @@ def main():
                         print(row["error"], flush=True)
     # The direct fragment must explicitly refuse these valid Goose programs.
     if "direct" in args.backends and not args.filter:
-        for fixture in ("unsupported_variable_array", "unsupported_pointer_extern", "invalid_source"):
+        for fixture in ("unsupported_varint_array", "unsupported_pointer_extern", "invalid_source"):
             directory = output / "refusals" / fixture
             directory.mkdir(parents=True, exist_ok=True)
             artifact = directory / "program.wasm"

@@ -678,6 +678,30 @@ fn main() {{ let values: i64[..] = [..bench_input()]; print(values.len); }}'''
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_element_run_append_temporaries_and_recursive_arguments(self):
+        source = '''extern fn bench_input() -> i64;
+var target: u8[>..<] = [];
+var calls = 0;
+recursive fn produce(n: i64) -> u8[u8] {
+    var xs: u8[>..] = []; xs.resize(bench_input() + n, 7); return xs;
+}
+recursive fn descend(n: i64) -> i64 {
+    calls++; if n <= 0 { return 0; } return descend(n - 1) + 1;
+}
+export fn tick(n: i64) -> i64 {
+    target.clear(); calls = 0;
+    for i in 5 { target.append(produce(descend(i))); }
+    if calls != 15 || target.len != 1290 || target[1289] != 7 { abort("bad element run"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, input_value=256, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

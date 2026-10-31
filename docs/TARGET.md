@@ -43,7 +43,7 @@ dynamic result destinations remain subsequent work.
 
 Region-backed arrays use internal control ABI version 2: a separate 16-byte
 header `{base: u32, len: u32, resource_limit: u32, cap: u32}` in frame/static
-storage. This covers supported fixed-element growables, default/u32 variable
+storage. This covers supported fixed-element growables, unsigned-length variable
 arrays and runtime-capacity limited arrays. The cap word is semantic only for
 runtime-capacity limited arrays; other owners initialize it to zero. Owner references
 point to that header; element references point directly into stable data regions.
@@ -51,13 +51,29 @@ The header is never copied through the fixed-value ownership path. Initializers
 construct into an acquired region, including implicit empty globals, literals,
 fills, copies, slices and natural fixed-array function results.
 
-Fixed-element variable arrays `T[]` and `T[u32]` use the same region control
+Fixed-element variable arrays `T[]`, `T[u8/u16/u32/u64]` use the same region control
 header and owned construction channels. Their size class remains variable;
 their descriptor never enters the fixed-copy path. The frontend freezes their
-length at construction while permitting element writes. Other length encodings,
+length at construction while permitting element writes. Narrow value lengths
+are checked before publication; default length storage normalizes to u32. Varint lengths,
 variable elements and containing structs remain refused. Named-result binding
 also shares a growable local's data with its variable-array result, matching
 the pinned native emitter's element-run construction.
+
+Eligible single variable-array functions have normal and element-run emission
+forms. The run form omits the producer's prefix-width check and named-result
+binding. Growable receivers/append, different-width variable receivers and
+forwarded run requests select it; receiving value widths still check afterward.
+Local and by-value parameter construction retains its own width check. Mixed
+results keep natural checks and adapt receiving ordinals after all results return.
+Inline bodies follow their receiving request, which can change narrow-width
+behavior compared with ordinary calls, as in the pinned C oracle. Differential
+cases record those O0/O2 outcomes separately.
+
+Both forms are emitted for eligible reachable specializations. Region peaks
+take their maximum and call edges are accumulated across forms. This is a
+conservative bound: an unused form can increase the region count and reduce
+per-region capacity compared with demand-driven emission.
 
 Each growable result of an internal function receives an additional i32
 destination-header parameter and returns that same header address. Its caller
@@ -258,7 +274,7 @@ The executable differential suite is the authority for qualified behavior.
 
 The current backend refuses owned dynamic function-value parameters/results,
 dynamic containing structs, variable-element
-growables, non-u32 variable-array lengths; variable-mode enums;
+growables, varint variable-array lengths; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;
 non-inlined captured environments and dynamic nonlocal

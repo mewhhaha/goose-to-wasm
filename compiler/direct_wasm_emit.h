@@ -26,9 +26,9 @@ inline string Function::Finish() {
     auto done = Begin();
     ResultDestinations destinations(results.size());
     for (size_t i = 0; i < results.size(); i++) if (Compiler::RegionArray(results[i]))
-        destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller };
+        destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller, element_run };
     if (spec) {
-        BindNamedResults(spec->body, spec->sf, results, destinations);
+        if (!element_run) BindNamedResults(spec->body, spec->sf, results, destinations);
         PushExit({ done, spec->sf, results, resultlocals, false, {} }, destinations);
         // Aggregate parameters have value semantics. Address-taken scalar
         // parameters are spilled once so reads and references share storage.
@@ -55,7 +55,7 @@ inline string Function::Finish() {
         CallIndex(c.function_index.at(main->specs[0]));
     }
     End();
-    c.region_own[spec] = region_peak;
+    c.region_own[spec] = max(c.region_own[spec], region_peak);
     // Copy owned results while their source storage still belongs to this
     // activation. Returning a pointer into the released callee frame would
     // let the next sibling or recursive call overwrite the earlier value.
@@ -120,7 +120,14 @@ inline DirectWasmResult Compiler::Compile() {
     for (auto sf : ast.functions) if (sf->isexport)
         for (auto sp : sf->specs) if (!sp->failed && !sp->stale) Reach(sp);
     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
-    auto startindex = uint32_t(imports.size() + specs.size());
+    unordered_set<FnSpec *> return_targets;
+    for (auto sp : specs) for (auto target : sp->needs) return_targets.insert(target);
+    vector<FnSpec *> runs;
+    for (auto sp : specs) if (sp->body && sp->rets.size() == 1 &&
+        sp->rets[0]->kind == TY_ARRAY && sp->rets[0]->arr->akind == A_VAR && !return_targets.count(sp)) {
+        run_index[sp] = uint32_t(imports.size() + specs.size() + runs.size()); runs.push_back(sp);
+    }
+    auto startindex = uint32_t(imports.size() + specs.size() + runs.size());
     auto startsig = Sig({ {}, {} });
     DirectWasmResult result;
     vector<string> bodies;
@@ -129,6 +136,14 @@ inline DirectWasmResult Compiler::Compile() {
         Function f(*this, sp, function_index.at(sp), function_type.at(sp));
         auto body = f.Finish();
         string name = string(sp->sf->qname) + "#" + to_string(sp->id);
+        result.function_info.push_back({ name, f.index, body.size(), BodyHash(body),
+                                        vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
+        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
+    }
+    for (auto sp : runs) {
+        Function f(*this, sp, run_index.at(sp), function_type.at(sp), true);
+        auto body = f.Finish();
+        string name = string(sp->sf->qname) + "#" + to_string(sp->id) + "_elements";
         result.function_info.push_back({ name, f.index, body.size(), BodyHash(body),
                                         vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);

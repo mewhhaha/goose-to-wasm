@@ -168,7 +168,7 @@ inline void Function::ArrayBuiltin(Call *n) {
         return;
     }
     if (kind == B_APPEND) {
-        ConstructionView(args[1]); auto view = Save(I64);
+        ConstructionView(args[1], Compiler::GrowableArray(t)); auto view = Save(I64);
         Get(view); code.I64Const(32); code.Op(0x88); code.Op(0xa7); auto count = Save(I32);
         length(); auto len = Save(I32);
         // count <= cap-len avoids wrapping the sum. The source view is

@@ -14,7 +14,7 @@ This is an explicitly bounded backend. It supports scalar functions, recursion,
 control flow, fixed arrays,
 static-capacity resizable arrays, struct fields, fixed-mode enums and payload matches, owned fixed aggregate returns,
 slices, references, and named growable arrays of supported fixed-layout elements.
-Variable arrays with default/u32 length storage use these regions for owned
+Variable arrays with default/u8/u16/u32/u64 length storage use these regions for owned
 construction, calls and returns, while keeping their length frozen.
 Runtime-capacity arrays preserve logical capacity through copies and assignment,
 with checked mutation and conversions between supported array kinds.

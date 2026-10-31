@@ -93,7 +93,7 @@
       },
       "B_COPY": {
         "status": "qualified_subset",
-        "scope": "Supported fixed owned values and fixed-element region-backed growable, default/u32 variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Variable elements and function-value ownership remain pending.",
+        "scope": "Supported fixed owned values and fixed-element region-backed growable, unsigned-length variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Variable elements and function-value ownership remain pending.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
           "tests/fixtures/storage_locations.goose",
@@ -181,7 +181,7 @@
       },
       "B_LEN": {
         "status": "qualified_subset",
-        "scope": "Supported fixed/static-limited/runtime-limited/growable arrays, default/u32 variable arrays and fixed-element slices.",
+        "scope": "Supported fixed/static-limited/runtime-limited/growable arrays, unsigned-length variable arrays and fixed-element slices.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose",
           "tests/fixtures/value_forms.goose",
@@ -340,7 +340,7 @@
       },
       "NK_ArrayLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -348,7 +348,7 @@
       },
       "NK_AsCast": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/float_to_integer.goose"
         ],
@@ -356,7 +356,7 @@
       },
       "NK_Assign": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
           "tests/fixtures/storage_locations.goose"
@@ -365,7 +365,7 @@
       },
       "NK_Binary": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -373,7 +373,7 @@
       },
       "NK_Block": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -381,7 +381,7 @@
       },
       "NK_BoolLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/short_circuit.goose"
         ],
@@ -389,7 +389,7 @@
       },
       "NK_Break": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/cleanup_nested_loop.goose",
@@ -399,7 +399,7 @@
       },
       "NK_Call": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/recursion.goose"
         ],
@@ -413,7 +413,7 @@
       },
       "NK_Continue": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/cleanup_exits.goose",
@@ -423,7 +423,7 @@
       },
       "NK_Dot": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose"
         ],
@@ -431,7 +431,7 @@
       },
       "NK_EarlyBlock": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/value_forms.goose"
         ],
@@ -445,7 +445,7 @@
       },
       "NK_FltLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/float_operations.goose"
         ],
@@ -459,7 +459,7 @@
       },
       "NK_ForLoop": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -475,7 +475,7 @@
       },
       "NK_Ident": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -483,7 +483,7 @@
       },
       "NK_IfExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -491,7 +491,7 @@
       },
       "NK_IncDec": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -499,7 +499,7 @@
       },
       "NK_Index": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/array_bounds.goose"
         ],
@@ -507,7 +507,7 @@
       },
       "NK_InlineBlock": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/inline_print_unwind.goose"
         ],
@@ -515,7 +515,7 @@
       },
       "NK_IntLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -523,7 +523,7 @@
       },
       "NK_LoopExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/aggregate_returns.goose"
         ],
@@ -531,7 +531,7 @@
       },
       "NK_MatchExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose"
         ],
@@ -539,7 +539,7 @@
       },
       "NK_NullLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose"
         ],
@@ -547,7 +547,7 @@
       },
       "NK_RangeExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -555,7 +555,7 @@
       },
       "NK_Return": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/aggregate_returns.goose"
         ],
@@ -569,7 +569,7 @@
       },
       "NK_SliceExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -577,7 +577,7 @@
       },
       "NK_StrLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/value_forms.goose"
         ],
@@ -591,7 +591,7 @@
       },
       "NK_StructLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose"
         ],
@@ -599,7 +599,7 @@
       },
       "NK_Unary": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -607,7 +607,7 @@
       },
       "NK_VarDecl": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose"
         ],
@@ -615,7 +615,7 @@
       },
       "NK_While": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; variable containing types, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/while_condition_exits.goose"
@@ -702,12 +702,14 @@
       },
       "A_VAR": {
         "status": "qualified_subset",
-        "scope": "Fixed-layout elements with default/u32 length storage. Stable owned construction, by-value parameters, single/mixed results, growable-local named-result aliasing, scoped temporaries, views/indexing/loops and primitive rendering. Other length encodings, variable elements and containing values remain pending. Length is frozen at construction.",
+        "scope": "Supported fixed-layout elements with default/u8/u16/u32/u64 length storage. Frozen owned values, width-checked local and parameter construction, normal/element-run results and forwarding, mixed receiving-width checks, inline retargeting, scoped views/indexing/loops and primitive rendering. Eager emitted forms use a conservative region bound. Varint lengths, variable elements and containing values remain pending.",
         "fixtures": [
-          "tests/fixtures/variable_arrays.goose"
+          "tests/fixtures/variable_arrays.goose",
+          "tests/fixtures/narrow_variable_arrays.goose",
+          "tests/fixtures/wide_variable_arrays.goose"
         ],
         "boundary_fixtures": [
-          "tests/fixtures/unsupported_variable_array.goose",
+          "tests/fixtures/unsupported_varint_array.goose",
           "tests/test_dynamic_boundaries.py",
           "tests/test_regions.py"
         ]

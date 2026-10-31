@@ -23,6 +23,8 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
     if (Compiler::RegionArray(from) && Compiler::RegionArray(to)) {
         if (from->arr->akind != to->arr->akind)
             Fail(l, "dynamic owner type adaptation is not supported outside construction");
+        if (from->arr->akind == A_VAR && Compiler::LengthStorage(from) != Compiler::LengthStorage(to))
+            Fail(l, "variable-array length adaptation is not supported outside owned construction");
         return; // borrowed header address; fixed-copy gates never accept it
     }
     if (to->kind == TY_ARRAY && to->arr->akind == A_LIMITED &&

@@ -4,6 +4,16 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: unsigned variable-array lengths and element-run calls
+
+`T[u8]`, `T[u16]` and `T[u64]` join default/u32 variable arrays. Natural value
+construction checks the declared width; element-run calls propagate raw counts
+to growable or differently prefixed receivers, which check their own width.
+Owned parameters and local declarations retain their width requirements.
+Mixed results preserve natural checks, while inline construction follows its
+receiving request. The oracle matrix records the pinned optimizer's differing
+normal/inline outcomes. Varint images remain pending.
+
 ## Implemented: fixed-element runtime-capacity arrays
 
 Runtime `T[..]` owners now use the uniform 16-byte internal region header with
@@ -21,7 +31,7 @@ Variable elements and containing values remain pending.
 parameters, owned results and scoped temporaries. Views, element writes, loops
 and primitive rendering use their frozen length. Growable locals selected by the
 native named-result analysis share data with variable-array results, including
-mutations by later result expressions. Other length encodings, variable elements
+mutations by later result expressions. Varint lengths, variable elements
 and containing values remain pending. The reviewed
 [variable-array plan](VARIABLE_ARRAYS.md) separates these from runtime capacity
 and its distinct copy/assignment behavior.

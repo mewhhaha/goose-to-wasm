@@ -383,7 +383,7 @@ inline void Function::For(ForLoop *n) {
     Br(again); End(); End();
 }
 
-inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinations &destinations) {
+inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinations &destinations, bool elements) {
     if (n->builtin >= 0) { Builtin(n, adapt_result); return; }
     auto args = n->ValueArgNodes();
     if (n->fvbody) {
@@ -434,7 +434,20 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     // Anonymous result storage is needed only after evaluating arguments.
     // Reserving it earlier would keep a region live across recursive arguments.
-    auto plan = PlanRegionResults(sp->rets, receiving, n->line);
+    bool run = false;
+    if (c.run_index.count(sp)) {
+        run = elements;
+        if (!destinations.empty() && destinations[0]) {
+            auto &destination = *destinations[0]; auto target = destination.location.storage_type;
+            run |= destination.elements || Compiler::GrowableArray(target) ||
+                (target->arr->akind == A_VAR && Compiler::LengthStorage(target) != Compiler::LengthStorage(sp->rets[0]));
+        }
+    }
+    auto plan = PlanRegionResults(sp->rets, receiving, n->line, run);
+    if (run) {
+        plan.producers[0]->elements = true;
+        if (destinations.empty() || !destinations[0]) plan.values[0]->elements = true;
+    }
     receiving = plan.producers;
     for (size_t i = 0; i < sp->rets.size(); i++) if (auto t = sp->rets[i]; c.Aggregate(t)) {
         if (Compiler::RegionArray(t)) LocationAddress(receiving[i]->location);
@@ -442,7 +455,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
         code.Op(intrinsic->second);
-    else { RecordRegionCall(sp, n->line); CallIndex(c.function_index.at(sp)); }
+    else { RecordRegionCall(sp, n->line); CallIndex(run ? c.run_index.at(sp) : c.function_index.at(sp)); }
     // The frontend forbids results referring into a by-value parameter's
     // private owner. External references carried by its elements survive.
     // These balanced cleanup instructions preserve the Wasm call results.
@@ -605,7 +618,7 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
     }
 }
 
-inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const ResultDestinations &destinations) {
+inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const ResultDestinations &destinations, bool elements) {
     auto types = Values(node);
     auto own = node->spec ? node->spec->rets : types;
     if (node->spec) for (auto parameter : node->spec->params)
@@ -615,11 +628,25 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
         if (!Compiler::RegionArray(own[i]))
             Fail(node->line, "owned dynamic inline results are not supported without a receiving destination");
     }
-    auto plan = PlanRegionResults(own, destinations, node->line);
+    auto requested = destinations;
+    if (requested.empty() && own.size() == 1 && own[0]->kind == TY_ARRAY && own[0]->arr->akind == A_VAR &&
+        node->exprtype && node->exprtype->kind == TY_ARRAY && node->exprtype->arr->akind == A_LIMITED &&
+        !Compiler::RuntimeLimited(node->exprtype)) {
+        // A spliced body constructs as the fixed receiving array's kind.
+        // Its region-backed staging header avoids imposing the callee's
+        // unrelated narrow prefix before the fixed-capacity conversion.
+        auto stage = c.ast.ArrayOf(own[0]->arr->sub, A_LIMITED, node->line);
+        requested = { TemporaryDestination(stage, node->line) };
+    }
+    if (elements && requested.empty() && own.size() == 1 && Compiler::RegionArray(own[0]) && !Compiler::RuntimeLimited(own[0])) {
+        auto temporary = TemporaryDestination(own[0], node->line); temporary.elements = true;
+        requested = { temporary };
+    }
+    auto plan = PlanRegionResults(own, requested, node->line, own.size() == 1 && own[0]->kind == TY_ARRAY && own[0]->arr->akind == A_VAR, true);
     auto &receiving = plan.producers;
     vector<uint32_t> values;
     for (auto type : own) values.push_back(Local(type));
-    auto named = BindNamedResults(node->body, node->sf, own, receiving);
+    auto named = BindNamedResults(node->body, node->sf, own, receiving, true);
     size_t prefix = 0;
     bool group_needed = false;
     for (auto statement : node->body->stmts) {

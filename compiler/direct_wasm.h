@@ -56,6 +56,7 @@ struct CapturedValue {
 struct ConstructionDestination {
     Location location;
     enum Lifetime { Statement, Block, Activation, Caller, Static, Existing } lifetime;
+    bool elements = false; // raw element run, without a value's length prefix contract
 };
 using ResultDestinations = vector<optional<ConstructionDestination>>;
 struct Compiler;
@@ -64,6 +65,7 @@ struct Function {
     Compiler &c;
     FnSpec *spec;
     uint32_t index, sig;
+    bool element_run = false;
     vector<uint8_t> params, locals;
     vector<TypeExpr *> results;
     vector<uint32_t> resultlocals;
@@ -150,7 +152,7 @@ struct Function {
     }
     set<uint32_t> dependencies;
 
-    Function(Compiler &, FnSpec *, uint32_t, uint32_t);
+    Function(Compiler &, FnSpec *, uint32_t, uint32_t, bool element_run = false);
     [[noreturn]] void Fail(Line, const string &);
     uint8_t W(TypeExpr *);
     uint32_t Local(uint8_t t) { auto i = uint32_t(params.size() + locals.size()); locals.push_back(t); return i; }
@@ -232,14 +234,14 @@ struct Function {
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
     vector<TypeExpr *> NaturalResults(Node *);
-    void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {});
-    void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {});
+    void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
+    void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void ResultExpression(Node *, const ResultDestinations &);
-    struct RegionResultPlan { ResultDestinations producers, copies; };
-    RegionResultPlan PlanRegionResults(const vector<TypeExpr *> &, const ResultDestinations &, Line);
+    struct RegionResultPlan { ResultDestinations producers, copies, values; };
+    RegionResultPlan PlanRegionResults(const vector<TypeExpr *> &, const ResultDestinations &, Line, bool run = false, bool inlined = false);
     void PublishRegionResults(const vector<TypeExpr *> &, const RegionResultPlan &, Line);
     void ControlValue(Node *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
-    vector<const VarDef *> BindNamedResults(Block *, SFunction *, const vector<TypeExpr *> &, const ResultDestinations &);
+    vector<const VarDef *> BindNamedResults(Block *, SFunction *, const vector<TypeExpr *> &, const ResultDestinations &, bool inlined = false);
     void RecordRegionCall(FnSpec *, Line);
     void ConstructRegion(Node *, const Location &, optional<uint32_t> global_region = {});
     void AcquireRegion(const Location &, Line, optional<uint32_t> = {});
@@ -248,9 +250,10 @@ struct Function {
     void ConstructRegionFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     void ConstructRegionView(uint32_t, const ConstructionDestination &, Line, optional<uint32_t> capacity = {});
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
-    void ConstructionView(Node *);
+    void ConstructionView(Node *, bool elements = false);
     struct CapturedSequence { uint32_t view; TypeExpr *type; optional<uint32_t> capacity; };
-    CapturedSequence CaptureSequence(Node *);
+    CapturedSequence CaptureSequence(Node *, bool elements = false);
+    void CheckArrayLength(TypeExpr *, uint32_t count, Line, bool elements = false);
     void ReserveRegion(uint32_t header, uint32_t count, TypeExpr *, Line);
     void ReserveArray(uint32_t header, uint32_t count, TypeExpr *, Line);
     void ActivationLimit(uint32_t, Line);
@@ -281,6 +284,7 @@ struct Compiler {
     vector<FnSpec *> specs;
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;
+    unordered_map<FnSpec *, uint32_t> run_index;
     unordered_map<FnSpec *, uint8_t> intrinsic_opcode;
     unordered_map<VarDef *, Slot> globals;
     unordered_map<TypeExpr *, Layout> layouts;
@@ -369,10 +373,13 @@ struct Compiler {
     static bool RegionArray(TypeExpr *t) {
         return GrowableArray(t) || RuntimeLimited(t) || (t && t->kind == TY_ARRAY && t->arr->akind == A_VAR);
     }
+    static IntStorage LengthStorage(TypeExpr *t) {
+        return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
+    }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
-        if (t->arr->akind == A_VAR && t->arr->lenstorage >= 0 && t->arr->lenstorage != IS_U32)
-            Fail(t->line, "variable-array length storage other than default/u32 is not supported");
+        if (t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT)
+            Fail(t->line, "varint variable-array length storage is not supported");
         FixedLayout(t->arr->sub);
         Layout header; header.size = 16; header.align = 4; return header;
     }
@@ -598,8 +605,8 @@ struct Compiler {
     DirectWasmResult Compile();
 };
 
-inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty)
-    : c(compiler), spec(s), index(i), sig(ty) {
+inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run)
+    : c(compiler), spec(s), index(i), sig(ty), element_run(run) {
     if (spec) {
         results = spec->rets;
         ScanAddresses(spec->body);
