@@ -72,6 +72,7 @@ struct Function {
     // the same representation as an aggregate local or literal.
     vector<optional<uint32_t>> resultdestinations;
     unordered_map<VarDef *, Slot> vars;
+    unordered_map<const VarDef *, ConstructionDestination> named_regions;
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
     uint32_t framebase = 0, framebytes = 0;
@@ -195,11 +196,14 @@ struct Function {
     void CaptureResult(TypeExpr *, uint32_t);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
-    void EmitCall(Call *, bool adapt_result = true, optional<ConstructionDestination> = {});
-    void EmitInline(InlineBlock *, bool adapt_result = true, optional<ConstructionDestination> = {});
+    void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {});
+    void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {});
+    void ResultExpression(Node *, const ResultDestinations &);
+    vector<const VarDef *> BindNamedResults(Block *, SFunction *, const vector<TypeExpr *> &, const ResultDestinations &);
     void RecordRegionCall(FnSpec *, Line);
     void ConstructRegion(Node *, const Location &, optional<uint32_t> global_region = {});
     void AcquireRegion(const Location &, Line, optional<uint32_t> = {});
+    void ShareRegion(const Location &, const ConstructionDestination &);
     void ConstructRegionInto(Node *, const ConstructionDestination &);
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
     void ConstructionView(Node *);
@@ -456,7 +460,6 @@ struct Compiler {
         }
         for (auto t : sp->rets) {
             if (RegionArray(t)) {
-                if (sp->rets.size() != 1) Fail(t->line, "multiple or mixed owned dynamic results are not supported yet");
                 needs_regions = true;
             }
             if (Aggregate(t) && !sp->sf->isextern) s.args.push_back(I32);

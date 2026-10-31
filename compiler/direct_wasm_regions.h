@@ -95,6 +95,32 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
         Fail(line, "owned dynamic element adaptation is not supported at this destination");
 }
 
+inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction *target,
+        const vector<TypeExpr *> &types, const ResultDestinations &destinations) {
+    vector<const VarDef *> added;
+    for (size_t i = 0; i < types.size(); i++) {
+        if (!Compiler::RegionArray(types[i]) || destinations.size() != types.size() || !destinations[i]) continue;
+        auto candidate = goose::NamedResultOf(body, target, types.size(), i);
+        if (!candidate || named_regions.count(candidate) || !Compiler::RegionArray(candidate->type)) continue;
+        // The frontend requires identical array element types for this
+        // construction. Match the natural array mode as DetectNrvo does;
+        // mode adaptation must retain its ordinary copy.
+        if (candidate->type->arr->akind != types[i]->arr->akind) continue;
+        CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
+        named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate);
+    }
+    return added;
+}
+
+inline void Function::ShareRegion(const Location &place, const ConstructionDestination &destination) {
+    LocationAddress(place); auto local = Save(I32);
+    LocationAddress(destination.location); auto result = Save(I32);
+    for (uint32_t offset : { 0u, 8u }) {
+        Get(local); Get(result); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset);
+    }
+    Get(local); code.I32Const(0); code.Mem(0x36, 2, 4);
+}
+
 inline void Function::ConstructRegion(Node *node, const Location &place, optional<uint32_t> global_region) {
     AcquireRegion(place, node ? node->line : place.storage_type->line, global_region);
     ConstructRegionInto(node, { place, global_region ? ConstructionDestination::Static : ConstructionDestination::Block });
@@ -126,6 +152,20 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     c.HeaderLayout(type);
     auto element = type->arr->sub;
     auto line = node ? node->line : type->line;
+    if (auto id = Is<Ident>(node); id && named_regions.count(id->vdef)) {
+        auto &named = named_regions.at(id->vdef).location.storage;
+        auto &receiving = place.storage;
+        auto left = get_if<Slot>(&named), right = get_if<Slot>(&receiving);
+        auto same = left && right ? left->kind == right->kind && left->index == right->index
+                    : !left && !right && get<AddressLocal>(named).index == get<AddressLocal>(receiving).index;
+        if (same) {
+            // Data already lives at this result. Its private header keeps
+            // later growth from changing the length published here.
+            LocationAddress(place);
+            LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 4); code.Mem(0x36, 2, 4);
+            return;
+        }
+    }
     if (auto block = Is<Block>(node)) {
         BlockInto(block, { type }, { Local(I32) }, { destination }); return;
     }
@@ -143,11 +183,11 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     }
     if (auto call = Is<Call>(node); call && call->builtin < 0 && call->spec &&
         call->spec->rets.size() == 1 && Compiler::RegionArray(call->spec->rets[0])) {
-        EmitCall(call, false, destination); code.Op(0x1a); return;
+        EmitCall(call, false, { destination }); code.Op(0x1a); return;
     }
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec &&
         inlined->spec->rets.size() == 1 && Compiler::RegionArray(inlined->spec->rets[0])) {
-        EmitInline(inlined, false, destination); code.Op(0x1a); return;
+        EmitInline(inlined, false, { destination }); code.Op(0x1a); return;
     }
     LocationAddress(place); auto header = Save(I32);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);

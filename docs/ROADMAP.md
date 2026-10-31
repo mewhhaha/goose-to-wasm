@@ -4,6 +4,24 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: multiple owned results and named-result construction
+
+Each result position has its own destination channel. Calls can return growable
+owners alongside scalars and fixed values; multi-name receivers acquire their
+owned regions before the call. Forwarding passes those channels through recursive
+cycles without acquiring more result regions. Fixed result storage keeps its
+existing ABI.
+
+The pinned `NamedResultOf` analysis chooses eligible locals on the final body.
+A named local shares its receiving region from declaration onward, with its own
+length header. Its result publishes that length at the corresponding return
+position. Later result expressions may change the shared elements or grow the
+local; they do not change the earlier result's published length. Other returned
+positions copy as required. Tests cover these effects and rejected candidates.
+
+Fixed/slice-to-owned adaptation of a forwarded multi-result call, anonymous
+owners and general control-expression destinations remain explicit boundaries.
+
 ## Implemented: owned growable parameters
 
 Ordinary calls construct each by-value growable parameter into a private region
@@ -30,8 +48,8 @@ another result region. Inline bodies carry the same destination on their return
 target, so nested returns select the correct owner.
 
 Literals, local owners, fixed/limited results, slices and conditional results
-are qualified at O0/O2. Mixed/multiple dynamic results,
-anonymous owner temporaries and general control-expression destinations remain
+are qualified at O0/O2. Anonymous owner temporaries and general
+control-expression destinations remain
 explicit boundaries.
 
 ## Implemented: stable regions for named growable owners

@@ -607,14 +607,16 @@
       },
       "A_GROW": {
         "status": "qualified_subset",
-        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation and single owned results into named receivers or forwarded returns. Function-value owned parameters, mixed/multiple results, general temporary/control-expression destinations and whole-owner assignment remain pending.",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, named-result construction and mixed/multiple owned results into named receivers or forwarded returns. Function-value ownership, fixed/slice-to-owned multi-result adaptation, general temporary/control-expression destinations and whole-owner assignment remain pending.",
         "fixtures": [
           "tests/fixtures/growable_arrays.goose",
           "tests/fixtures/growable_minimal.goose",
           "tests/fixtures/dynamic_returns.goose",
           "tests/fixtures/dynamic_forwarding.goose",
           "tests/fixtures/dynamic_parameters.goose",
-          "tests/fixtures/dynamic_parameter_inline.goose"
+          "tests/fixtures/dynamic_parameter_inline.goose",
+          "tests/fixtures/dynamic_result_channels.goose",
+          "tests/fixtures/dynamic_result_minimal.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
@@ -624,14 +626,16 @@
       },
       "A_GROWSHRINK": {
         "status": "qualified_subset",
-        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation and single owned results into named receivers or forwarded returns. Function-value owned parameters, mixed/multiple results, general temporary/control-expression destinations and whole-owner assignment remain pending.",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, named-result construction and mixed/multiple owned results into named receivers or forwarded returns. Function-value ownership, fixed/slice-to-owned multi-result adaptation, general temporary/control-expression destinations and whole-owner assignment remain pending.",
         "fixtures": [
           "tests/fixtures/growable_arrays.goose",
           "tests/fixtures/growable_minimal.goose",
           "tests/fixtures/dynamic_returns.goose",
           "tests/fixtures/dynamic_forwarding.goose",
           "tests/fixtures/dynamic_parameters.goose",
-          "tests/fixtures/dynamic_parameter_inline.goose"
+          "tests/fixtures/dynamic_parameter_inline.goose",
+          "tests/fixtures/dynamic_result_channels.goose",
+          "tests/fixtures/dynamic_result_minimal.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
@@ -732,12 +736,13 @@
     "calls": {
       "direct": {
         "status": "qualified_subset",
-        "scope": "Concrete supported scalar/fixed-layout specialization and recursion, borrowed growable calls, by-value growable parameters and single owned growable result destinations.",
+        "scope": "Concrete supported scalar/fixed-layout specialization and recursion, borrowed growable calls, by-value growable parameters and mixed/multiple owned growable result destinations with named-result construction.",
         "fixtures": [
           "tests/fixtures/recursion.goose",
           "tests/fixtures/aggregate_returns.goose",
           "tests/fixtures/dynamic_returns.goose",
-          "tests/fixtures/dynamic_parameters.goose"
+          "tests/fixtures/dynamic_parameters.goose",
+          "tests/fixtures/dynamic_result_channels.goose"
         ],
         "boundary_fixtures": []
       },

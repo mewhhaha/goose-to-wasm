@@ -48,11 +48,16 @@ The header is never copied through the fixed-value ownership path. Initializers
 construct into an acquired region, including implicit empty globals, literals,
 fills, copies, slices and natural fixed-array function results.
 
-An internal function returning one growable owner receives an additional i32
+Each growable result of an internal function receives an additional i32
 destination-header parameter and returns that same header address. Its caller
-acquires the region; the callee constructs into it before scoped cleanup.
+acquires each region; the callee constructs into it before scoped cleanup.
 Forwarded returns reuse the destination, including through recursive cycles.
 The header/data ownership is never transferred by a shallow descriptor copy.
+Mixed/multiple results preserve the existing fixed result parameter order.
+Named-result locals selected by the pinned final-body analysis share their
+destination's base and limit while retaining a private length header. Each
+return position publishes its length at evaluation time; a later result can
+mutate shared elements without changing a previously published result length.
 
 An internal by-value growable parameter receives the address of a private
 header constructed by its caller. Each owned argument acquires a distinct region
@@ -182,8 +187,8 @@ The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
 
-The current backend refuses owned dynamic function-value parameters, mixed/multiple owned
-dynamic results, general dynamic control-expression destinations, anonymous dynamic
+The current backend refuses owned dynamic function-value parameters/results,
+fixed/slice-to-owned multi-result adaptation, general dynamic control-expression destinations, anonymous dynamic
 temporaries, whole-owner assignment, dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;

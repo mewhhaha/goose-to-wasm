@@ -16,7 +16,8 @@ static-capacity resizable arrays, struct fields, fixed-mode enums and payload ma
 slices, references, and named growable arrays of supported fixed-layout elements.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters and single owned results constructed into named receivers.
-General temporary/result channels remain subsequent work. Unsupported constructs produce compile
+Mixed/multiple owned results and named-result construction share those destination
+channels. General temporary/control-expression destinations remain subsequent work. Unsupported constructs produce compile
 errors, with no fallback to the C backend. It is not yet full Goose parity; see
 [the target contract](docs/TARGET.md) and [next milestones](docs/ROADMAP.md).
 The [completion plan](docs/IMPLEMENTATION_PLAN.md) and checked

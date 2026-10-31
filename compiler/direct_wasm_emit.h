@@ -28,6 +28,7 @@ inline string Function::Finish() {
     for (size_t i = 0; i < results.size(); i++) if (Compiler::RegionArray(results[i]))
         destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller };
     if (spec) {
+        BindNamedResults(spec->body, spec->sf, results, destinations);
         PushExit({ done, spec->sf, results, resultlocals, false, {} }, destinations);
         // Aggregate parameters have value semantics. Address-taken scalar
         // parameters are spilled once so reads and references share storage.

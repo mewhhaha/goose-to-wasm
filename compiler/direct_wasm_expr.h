@@ -4,6 +4,8 @@ namespace goose::direct_wasm {
 inline vector<TypeExpr *> Function::Values(Node *n) {
     if (!n) return {};
     if (auto call = Is<Call>(n); call && call->rettypes.size() > 1) return call->rettypes;
+    if (auto inlined = Is<InlineBlock>(n); inlined && inlined->spec && inlined->spec->rets.size() > 1)
+        return inlined->spec->rets;
     if (!n->exprtype || n->exprtype->kind == TY_VOID) return {};
     return { n->exprtype };
 }
@@ -47,18 +49,36 @@ inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
 }
 inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeExpr *> &types,
                                  const vector<uint32_t> &slots, Line l, const ResultDestinations &destinations) {
-    if (types.size() == 1 && Compiler::RegionArray(types[0])) {
-        if (nodes.size() != 1 || destinations.size() != 1 || !destinations[0])
-            Fail(l, "owned dynamic result is not supported without a receiving destination");
-        ConstructRegionInto(nodes[0], *destinations[0]);
-        LocationAddress(destinations[0]->location); Set(slots[0]); return;
-    }
+    for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionArray(types[i]) &&
+        (destinations.size() != types.size() || !destinations[i]))
+        Fail(l, "owned dynamic result is not supported without a receiving destination");
     if (nodes.size() == types.size()) {
-        for (size_t i = 0; i < nodes.size(); i++) { To(nodes[i], types[i]); CaptureResult(types[i], slots[i]); }
+        for (size_t i = 0; i < nodes.size(); i++) {
+            if (Compiler::RegionArray(types[i])) {
+                ConstructRegionInto(nodes[i], *destinations[i]);
+                LocationAddress(destinations[i]->location); Set(slots[i]);
+            } else { To(nodes[i], types[i]); CaptureResult(types[i], slots[i]); }
+        }
     } else if (nodes.size() == 1 && Values(nodes[0]).size() == types.size()) {
-        auto vt = Values(nodes[0]); Expr(nodes[0]);
-        for (size_t i = types.size(); i-- > 0;) { Convert(vt[i], types[i], l); CaptureResult(types[i], slots[i]); }
+        auto vt = Values(nodes[0]);
+        for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionArray(types[i]) && !Compiler::RegionArray(vt[i]))
+            Fail(l, "fixed or slice to owned multi-result adaptation is not supported yet");
+        ResultExpression(nodes[0], destinations);
+        for (size_t i = types.size(); i-- > 0;) {
+            if (Compiler::RegionArray(types[i])) Set(slots[i]);
+            else { Convert(vt[i], types[i], l); CaptureResult(types[i], slots[i]); }
+        }
     } else Fail(l, "return arity is not supported by the direct backend");
+}
+
+inline void Function::ResultExpression(Node *node, const ResultDestinations &destinations) {
+    if (auto call = Is<Call>(node)) EmitCall(call, false, destinations);
+    else if (auto inlined = Is<InlineBlock>(node)) EmitInline(inlined, false, destinations);
+    else {
+        if (any_of(destinations.begin(), destinations.end(), [](auto &d) { return bool(d); }))
+            Fail(node->line, "owned multi-result expression requires a supported producer");
+        Expr(node);
+    }
 }
 
 inline TypeExpr *Function::Object(Node *n) {
@@ -115,8 +135,16 @@ inline void Function::Decl(VarDecl *n) {
     if (slots.size() > 1 && n->inits.size() == 1) {
         auto types = Values(n->inits[0]);
         if (types.size() != slots.size()) Fail(n->line, "multi-binding arity mismatch");
-        Expr(n->inits[0]);
+        ResultDestinations destinations(slots.size());
+        for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionArray(slots[i].type)) {
+            if (!Compiler::RegionArray(types[i])) Fail(n->line, "fixed or slice to owned multi-binding adaptation is not supported yet");
+            Location place { slots[i].type, slots[i] };
+            AcquireRegion(place, n->line);
+            destinations[i] = ConstructionDestination { place, ConstructionDestination::Block };
+        }
+        ResultExpression(n->inits[0], destinations);
         for (size_t i = slots.size(); i-- > 0;) {
+            if (Compiler::RegionArray(slots[i].type)) { code.Op(0x1a); continue; }
             Convert(types[i], slots[i].type, n->line);
             StoreCopy({ slots[i].type, slots[i] }, CaptureStack(slots[i].type));
         }
@@ -128,7 +156,12 @@ inline void Function::Decl(VarDecl *n) {
             if (!init && !n->isglobal) continue;
             optional<uint32_t> global;
             if (n->isglobal) global = c.global_regions.at(n->defs[i]);
-            ConstructRegion(init, { slots[i].type, slots[i] }, global); continue;
+            Location place { slots[i].type, slots[i] };
+            if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
+                ShareRegion(place, named->second);
+                ConstructRegionInto(init, { place, ConstructionDestination::Caller });
+            } else ConstructRegion(init, place, global);
+            continue;
         }
         if (!init) continue;
         if (n->byref && init->exprtype->kind != TY_REF) Address(init);
@@ -287,7 +320,7 @@ inline void Function::For(ForLoop *n) {
     Br(again); End(); End();
 }
 
-inline void Function::EmitCall(Call *n, bool adapt_result, optional<ConstructionDestination> destination) {
+inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinations &destinations) {
     if (n->builtin >= 0) { Builtin(n, adapt_result); return; }
     auto args = n->ValueArgNodes();
     if (n->fvbody) {
@@ -310,10 +343,11 @@ inline void Function::EmitCall(Call *n, bool adapt_result, optional<Construction
     auto sp = n->spec;
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
-    auto owned_result = sp->rets.size() == 1 && Compiler::RegionArray(sp->rets[0]);
-    if (owned_result && !destination)
-        Fail(n->line, "anonymous owned dynamic calls are not supported without a receiving destination");
-    if (owned_result) CheckRegionDestination(sp->rets[0], *destination, n->line);
+    for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionArray(sp->rets[i])) {
+        if (destinations.size() != sp->rets.size() || !destinations[i])
+            Fail(n->line, "anonymous owned dynamic calls are not supported without a receiving destination");
+        CheckRegionDestination(sp->rets[i], *destinations[i], n->line);
+    }
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
     auto cleanup_depth = cleanups.size();
@@ -338,8 +372,8 @@ inline void Function::EmitCall(Call *n, bool adapt_result, optional<Construction
             auto captured = CopyCaptured(CaptureStack(t)); Get(captured.value_local);
         }
     }
-    for (auto t : sp->rets) if (c.Aggregate(t)) {
-        if (Compiler::RegionArray(t)) LocationAddress(destination->location);
+    for (size_t i = 0; i < sp->rets.size(); i++) if (auto t = sp->rets[i]; c.Aggregate(t)) {
+        if (Compiler::RegionArray(t)) LocationAddress(destinations[i]->location);
         else LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
     }
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
@@ -349,7 +383,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, optional<Construction
     // private owner. External references carried by its elements survive.
     // These balanced cleanup instructions preserve the Wasm call results.
     if (owned_arguments) { CloseCleanups(cleanup_depth); region_live = live; }
-    if (adapt_result && sp->rets.size() == 1 && !owned_result) Convert(sp->rets[0], n->exprtype, n->line);
+    if (adapt_result && sp->rets.size() == 1 && !Compiler::RegionArray(sp->rets[0])) Convert(sp->rets[0], n->exprtype, n->line);
 }
 
 inline void Function::PrintText(string_view text) {
@@ -492,24 +526,25 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
     }
 }
 
-inline void Function::EmitInline(InlineBlock *node, bool adapt_result, optional<ConstructionDestination> destination) {
+inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const ResultDestinations &destinations) {
     auto types = Values(node);
     auto own = node->spec ? node->spec->rets : types;
     if (node->spec) for (auto parameter : node->spec->params)
         if (c.Class(parameter->type) != SC_FIXED && !Compiler::RegionArray(parameter->type))
             Fail(node->line, "owned dynamic inline parameters are not supported without receiving lifetimes");
-    auto owned_result = own.size() == 1 && Compiler::RegionArray(own[0]);
-    for (auto type : own) if (c.Class(type) != SC_FIXED && (!owned_result || !destination))
-        Fail(node->line, "owned dynamic inline results are not supported without a receiving destination");
-    if (owned_result) CheckRegionDestination(own[0], *destination, node->line);
+    for (size_t i = 0; i < own.size(); i++) if (c.Class(own[i]) != SC_FIXED) {
+        if (!Compiler::RegionArray(own[i]) || destinations.size() != own.size() || !destinations[i])
+            Fail(node->line, "owned dynamic inline results are not supported without a receiving destination");
+        CheckRegionDestination(own[i], *destinations[i], node->line);
+    }
     vector<uint32_t> values;
     for (auto type : own) values.push_back(Local(type));
-    ResultDestinations destinations(own.size());
-    if (owned_result) destinations[0] = destination;
+    auto named = BindNamedResults(node->body, node->sf, own, destinations);
     auto label = Begin(); PushExit({ label, node->sf, own, values, false, {} }, destinations);
     BlockInto(node->body, own, values, destinations); exits.pop_back(); End();
+    for (auto variable : named) named_regions.erase(variable);
     for (auto value : values) Get(value);
-    if (adapt_result && own.size() == 1 && types.size() == 1 && !owned_result) Convert(own[0], types[0], node->line);
+    if (adapt_result && own.size() == 1 && types.size() == 1 && !Compiler::RegionArray(own[0])) Convert(own[0], types[0], node->line);
     else if (adapt_result && types.empty()) for (size_t index = 0; index < own.size(); index++) code.Op(0x1a);
 }
 

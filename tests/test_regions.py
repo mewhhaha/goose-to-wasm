@@ -310,7 +310,58 @@ export fn tick(n: i64) -> i64 {
 fn main() {}'''
         for level in (0, 2):
             path, runtime = self.compile(source, level)
-            self.assertEqual(runtime["region_count"], 3)
+            # At O2 the inline parameter bindings are named results and
+            # construct directly in the receiving region.
+            self.assertEqual(runtime["region_count"], 3 if level == 0 else 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_named_results_share_data_but_publish_separate_lengths(self):
+        source = f'''var neighbor: i64[>..] = [{CANARY}];
+fn grow(values: i64[>..]&) -> i64 {{ values[0] += 10; values.push(99); return values.len; }}
+fn make(n: i64) -> i64[>..], i64, i64[>..] {{
+    var values: i64[>..] = [n]; return values, grow(values), values;
+}}
+export fn tick(n: i64) -> i64 {{
+    let first, length, second = make(n);
+    if first.len != 1 || second.len != 2 || length != 2 || first[0] != n + 10 || second[1] != 99 {{ abort("bad result"); }}
+    return first[0] - 9;
+}}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual((runtime["global_regions"], runtime["region_count"]), (1, 3))
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_recursive_multiple_results_forward_two_regions(self):
+        source = '''recursive fn forward(n: i64) -> i64[>..], i64, i64[>..] {
+    if n <= 0 { return [7], 8, [9]; } return forward(n - 1);
+}
+fn main() { let a, b, c = forward(100); print(a[0] + b + c[0]); }'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["numbers"], ["24"])
+
+    def test_two_named_locals_bind_independent_result_regions(self):
+        source = '''fn make(n: i64) -> i64[>..], i64[>..] {
+    var a: i64[>..] = [n]; var b: i64[>..] = [n + 1]; return a, b;
+}
+export fn tick(n: i64) -> i64 {
+    let a, b = make(n); a[0] += 100;
+    if b[0] != n + 1 { abort("aliased result regions"); } return b[0];
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
             for engine, observed in self.engines(path, runtime, repeats=10000):
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")

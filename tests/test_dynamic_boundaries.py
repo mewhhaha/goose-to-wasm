@@ -42,8 +42,9 @@ class DynamicBoundaries(unittest.TestCase):
     var values: i64[>..] = [1]; values.push(2); return values;
 }
 fn main() { print(make().len); }''',
-            "mixed-owned-results": '''fn make() -> i64[>..], i64 { return [1], 2; }
-fn main() { let values, n = make(); print(values[n % values.len]); }''',
+            "fixed-to-owned-forwarding": '''fn fixed() -> i64[2], i64 { return [1, 2], 3; }
+fn promoted() -> i64[>..], i64 { return fixed(); }
+fn main() { let values, n = promoted(); print(values, " ", n); }''',
         }
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
             work = Path(directory)
