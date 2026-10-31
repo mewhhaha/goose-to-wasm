@@ -5,9 +5,10 @@ result types have fixed size, including scalars, references/slices, fixed
 aggregates and mixed/multiple fixed results. Existing frontend lifetime checks
 still apply. Growable/grow-shrink arrays and fixed-prefix frames may accompany supported
 fixed results under the staging and landing contract below. Standalone unsigned-
-length Var and runtime-limited arrays of scalar elements also qualify with
-byte-authoritative image landing. Aggregate-element array images, enums and
-non-frame-record owned kinds remain explicitly gated.
+length Var and runtime-limited arrays of scalar elements or recursively packed
+integer records/fixed arrays also qualify with byte-authoritative image landing.
+Other aggregate element representations, enums and non-frame-record owned kinds
+remain explicitly gated.
 
 Final checked bodies identify actual escaping returns. Discovery skips raw
 declarations/function-value templates, walks checked callback/default bodies and
@@ -169,10 +170,11 @@ Qualification covers scalar effects on both cursors, Grow/Frame combinations,
 three heterogeneous owners, aliases, cancellation, nested replacement, generic
 by-value copies, recursive forwarding and neighboring-region protection.
 
-## Scalar array image targets
+## Array image targets
 
 Standalone Var arrays with default/u8/u16/u32/u64 lengths, and runtime-limited
-arrays, support bool, fixed-width integer and floating elements. Each uses the
+arrays, support bool, fixed-width integer and floating elements, plus recursively
+packed integer records, standalone variants and nonempty fixed arrays. Each uses the
 existing mailbox metadata and 24-byte control snapshot. Function entry fixes the
 receiving image mode and anchor at the saved entry cursor, without reserving or
 writing a prefix. Actual image targets have no element-run twin.
@@ -182,7 +184,9 @@ physical suffix from the successful attempt start to the saved entry cursor,
 sets the target mode, and decodes length/capacity at that anchor. Winning staged
 counts and pointers do not replace those bytes. Bounds use absolute region
 addresses and wide arithmetic. A canceled prefix may describe more elements
-than the committed suffix; decoded extent is checked against the region limit.
+than the committed suffix; decoded extent is checked against the region limit
+and mapped into linear memory. Limited images map the full capacity. Mapping
+does not advance the physical cursor or change later construction ordering.
 
 Named image values use private frame controls sharing the receiving data region.
 Their construction address may follow canceled bytes, while the receiving
@@ -199,5 +203,15 @@ before the first ordinal. Argument mutation records the native distinction:
 O0 returns `[2,7,8]`, while O2 returns `[7,8]`.
 
 Closed-source and exact whole-tuple forwarding restrictions continue to apply.
-General containing images, aggregate element image targets and varint prefixes
-remain later extensions.
+The aggregate proof admits nonempty fixed records/standalone variants and
+nonempty fixed arrays with fixed-width integer leaves and no explicit padding.
+A standalone variant qualifies independently of nonfixed siblings. Empty embedded
+aggregates, references/slices, enums, static-limited headers, varints and bool/float
+aggregate fields remain outside this proof. Direct scalar bool/float arrays keep
+their existing support. General enclosing record/enum images remain later work.
+
+Packed-image tests exercise generic three-byte cells, nested records, fixed-array
+elements, standalone variants with variable siblings, both prefix cancellation
+widths, argument snapshots before source mutation, mixed/recursive forwarding,
+full-capacity copies and adjacent-region canaries. The same landing and source
+proof protocol is used; the admission proof adds no control bytes or regions.

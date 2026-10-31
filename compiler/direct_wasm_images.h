@@ -25,13 +25,20 @@ inline void Function::ValidateArrayImage(uint32_t header, uint32_t count, TypeEx
     Get(count); code.Op(0xad); code.I64Const(c.FixedLayout(element).size); code.Op(0x7e);
     Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); Get(base); code.Op(0xad); code.Op(0x7d);
     code.Op(0x56); TrapIf(line, "array image exceeds data region");
+    auto extent = Local(I32); Get(count); Set(extent);
     Get(header); code.Mem(0x28, 2, 20); code.I32Const(int32_t(ArrayStorageMode::RuntimeLimited)); code.Op(0x46);
     Begin(0x04);
     ReadArrayCapacity(header); auto cap = Save(I32);
     Get(count); Get(cap); code.Op(0x4b); TrapIf(line, "array image length exceeds capacity");
     Get(cap); code.Op(0xad); code.I64Const(c.FixedLayout(element).size); code.Op(0x7e);
     Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); Get(base); code.Op(0xad); code.Op(0x7d);
-    code.Op(0x56); TrapIf(line, "array image capacity exceeds data region"); End(); End();
+    code.Op(0x56); TrapIf(line, "array image capacity exceeds data region");
+    Get(cap); Set(extent); End();
+    // Canceled fills can publish a prefix without committing any elements.
+    // Map the validated logical span, while retaining the physical cursor.
+    Get(base); code.Op(0xad); Get(extent); code.Op(0xad);
+    code.I64Const(c.FixedLayout(element).size); code.Op(0x7e); code.Op(0x7c); code.Op(0xa7);
+    EnsureMemory(Save(I32), line); End();
 }
 
 inline void Function::ReadArrayLength(uint32_t header) {

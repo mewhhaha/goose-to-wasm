@@ -443,8 +443,7 @@ struct Compiler {
         r.size = max<uint32_t>(1, r.size);
         return payload_layouts.emplace(key, std::move(r)).first->second;
     }
-    static bool PackedIntegerEnum(EnumInst *ei) {
-        if (!ei || !ei->allfixed) return false;
+    static bool PackedIntegerImage(TypeExpr *root) {
         unordered_set<TypeExpr *> visiting;
         function<bool(TypeExpr *)> packed = [&](TypeExpr *type) {
             if (!type) return false;
@@ -469,7 +468,11 @@ struct Compiler {
             }
             visiting.erase(type); return valid;
         };
-        for (auto &fields : ei->vftypes) for (auto field : fields) if (!packed(field)) return false;
+        return packed(root);
+    }
+    static bool PackedIntegerEnum(EnumInst *ei) {
+        if (!ei || !ei->allfixed) return false;
+        for (auto &fields : ei->vftypes) for (auto field : fields) if (!PackedIntegerImage(field)) return false;
         return true;
     }
     const Layout &EnumImageLayout(EnumInst *ei, Line line) {
@@ -753,7 +756,7 @@ struct Compiler {
     }
     void AnalyzeCaptures();
     void AnalyzeEffects();
-    static bool ScalarArrayImage(TypeExpr *);
+    static bool ArrayImageEffectResult(TypeExpr *);
     bool OwnedEffectResult(TypeExpr *);
     vector<size_t> OwnedEffectOrdinals(FnSpec *);
     bool SameEffectType(TypeExpr *, TypeExpr *);

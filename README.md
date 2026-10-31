@@ -47,8 +47,9 @@ Nonlocal returns cross ordinary and dispatched calls for fixed target results,
 including mixed aggregates and recursive target activations, with cleanup of
 dying storage. [Owned nonlocal results](docs/NONLOCAL_RETURNS.md) support growable-array and
 single-tail frame result groups alongside fixed results, with staged construction
-and independent landing. Standalone scalar Var/runtime-limited results preserve
-byte-authoritative length/capacity prefixes across nonlocal returns. Other owned
+and independent landing. Standalone scalar and recursively packed integer
+aggregate Var/runtime-limited results preserve byte-authoritative length/capacity
+prefixes across nonlocal returns. Other owned
 image kinds remain pending.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.

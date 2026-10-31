@@ -1235,6 +1235,48 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_packed_image_escapes_reuse_independent_regions(self):
+        source = f'''struct Cell<T> {{ tag:u8,value:T }}
+enum E {{ Packed {{ tag:u8,value:u16 }}, Other {{ values:u8[] }} }}
+var neighbor:i64[>..] = [{CANARY}];
+recursive fn leave(depth:i64,value:i64) {{
+    if depth > 0 {{ leave(depth-1,value); return; }}
+    return [Cell<u16>{{7,value as u16}}],[E.Packed{{8,(value+1) as u16}}] from target;
+}}
+recursive fn target(depth:i64,value:i64) -> Cell<u16>[u8],E.Packed[..] {{
+    if depth > 0 {{ return target(depth-1,value); }}
+    leave(3,value); return [],[];
+}}
+export fn tick(n:i64) -> i64 {{
+    var left,right=target(12,n);
+    if left.len != 1 || right.len != 1 || right.cap != 1 || left[0].value != n as u16 {{ abort("bad packed image escape"); }}
+    right.pop(); right.push(E.Packed{{8,(n+1) as u16}}); return right[0].value as i64;
+}}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_packed_image_escape_overflow_preserves_live_neighbor(self):
+        source = f'''struct Cell {{ tag:u8,value:u16 }}
+fn target() -> Cell[u32] {{
+    var neighbor:i64[>..] = [{CANARY}];
+    recursive fn leave() {{ return [Cell{{1,2}};40000] from target; }}
+    leave(); print(neighbor[0]); return [];
+}}
+fn main() {{ let value=target(); print(value.len); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, canary_index=1):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
     def test_scalar_image_escapes_reuse_independent_regions(self):
         source = f'''var neighbor:i64[>..] = [{CANARY}];
 recursive fn leave(depth:i64,value:i64) {{

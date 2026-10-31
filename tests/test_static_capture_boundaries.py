@@ -52,6 +52,33 @@ fn main() { let a, b = target(); print(a.len, b.values.len); }'''
                 self.assertFalse(output.exists())
                 self.assertIn("this owned nonlocal target requires additional staging and landing support", direct.stdout + direct.stderr)
 
+    def test_noncanonical_aggregate_image_elements_remain_gated(self):
+        cases = (
+            ("", "flag:bool", "true"),
+            ("", "number:f64", "1.5"),
+            ("var fallback:i64=0;", "point:i64&", "fallback"),
+            ("enum E { A, B { n:u8 } }", "inner:E", "E.A"),
+            ("", "data:u8[..2]", "[1]"),
+            ("struct Empty {}", "empty:Empty", "Empty{}"),
+        )
+        with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
+            for extra, field, initial in cases:
+                source = f'''{extra}
+struct Element {{ {field}, value:u8 }}
+fn target() -> Element[u8] {{
+    recursive fn leave() {{ return [Element{{{initial},7}}] from target; }}
+    leave(); return [];
+}}
+fn main() {{ let value=target(); print(value.len); }}'''
+                for level in (0, 2):
+                    with self.subTest(field=field, level=level):
+                        native, _ = self.compile(Path(directory), source, "native", level)
+                        self.assertEqual(native.returncode, 0, native.stdout + native.stderr)
+                        direct, output = self.compile(Path(directory), source, "wasm-direct", level)
+                        self.assertNotEqual(direct.returncode, 0)
+                        self.assertFalse(output.exists())
+                        self.assertIn("this owned nonlocal target requires additional staging and landing support", direct.stdout + direct.stderr)
+
     def test_owned_nonlocal_forwarding_requires_closed_producer_arguments(self):
         source = '''recursive fn copy_view(xs: const i64[:]) -> i64[>..] { return xs; }
 fn target() -> i64[>..] {

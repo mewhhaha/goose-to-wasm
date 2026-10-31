@@ -22,7 +22,7 @@ Function-value bodies execute at their call site. Their checked body type define
 the natural result, including when contextual adaptation requests an owned array.
 A fixed result is evaluated once before constructing that receiver. Supported
 owned parameters/results now use [receiving lifetimes](OWNED_FUNCTION_VALUES.md).
-Out-of-line nonlocal returns now support [fixed, growable/frame and scalar array image result groups](NONLOCAL_RETURNS.md).
+Out-of-line nonlocal returns now support [fixed, growable/frame and supported array image result groups](NONLOCAL_RETURNS.md).
 The original full function-value capture program qualifies at O0 and O2.
 
 The fixture provenance is pinned revision

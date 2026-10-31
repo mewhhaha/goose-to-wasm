@@ -321,7 +321,7 @@ inline void Function::LandOwnedEffect() {
         FrameAddress(metadata + 8); code.Mem(0x28, 2); auto base = Save(I32);
         FrameAddress(mailbox + mailbox_layout.fields[ordinal]); auto winning = Save(I32);
         LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto tail = Save(I32);
-        if (Compiler::ScalarArrayImage(type)) {
+        if (Compiler::ArrayImageEffectResult(type)) {
             LandArrayImage(tail, start, base, type, spec->sf->line);
             Get(original); Set(resultlocals[ordinal]); continue;
         }
