@@ -32,3 +32,8 @@ rendering and comparison remain outside this implementation commit.
 
 Reports/logs: `build/variable-enum-release-*`,
 `build/variable-enum-debug-final-*` and `build/variable-enum-debug-resources.log`.
+
+Subsequent review found an uncovered replacement-alias case: clearing inactive
+bytes could erase a saved reference read by a later return expression. The
+[enum-tail qualification](2026-10-31-variable-enum-tails.md) records the active-field
+fix and the explicit boundary for remaining packed-overlap observations.
