@@ -255,6 +255,11 @@ struct Function {
     pair<uint32_t, uint32_t> ReadVarint(uint32_t, uint32_t, Line);
     void AppendVarint(uint32_t, uint32_t, Line);
     uint32_t WalkByteRecord(const Location &, optional<size_t>, Line);
+    uint32_t EncodedReadLimit(uint32_t);
+    pair<uint32_t, uint32_t> ReadVarintElement(uint32_t, uint32_t, Line);
+    uint32_t WalkVarintElements(uint32_t, uint32_t, uint32_t, Line);
+    void CopyVarintElements(uint32_t, uint32_t, uint32_t, Line);
+    void CheckNamedVarintReturns(Block *, SFunction *, size_t, size_t, const VarDef *, string_view);
     Location PinPlace(Node *, bool pointee = false);
     void LocationAddress(const Location &);
     Location OffsetLocation(const Location &, uint32_t, TypeExpr *);
@@ -587,7 +592,7 @@ struct Compiler {
                 if (RegionOwner(t->ref->sub)) ControlLayout(t->ref->sub);
                 else if (!Varint(t->ref->sub)) Size(t->ref->sub);
                 return I32;
-            case TY_SLICE: Size(t->sub); return I64; // packed pointer + length
+            case TY_SLICE: if (!Varint(t->sub)) Size(t->sub); return I64; // packed pointer + length
             case TY_ARRAY:
                 if (RegionArray(t)) HeaderLayout(t); else Size(t);
                 return I32;
@@ -666,7 +671,10 @@ struct Compiler {
         if (!RegionArray(t)) return FixedLayout(t);
         if (t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT)
             Fail(t->line, "varint variable-array length storage is not supported");
-        FixedLayout(t->arr->sub);
+        if (Varint(t->arr->sub)) {
+            if (t->arr->akind != A_VAR)
+                Fail(t->line, "varint elements currently require immutable variable arrays");
+        } else FixedLayout(t->arr->sub);
         Layout header; header.size = owner_control_bytes; header.align = 4; return header;
     }
     const Layout &ControlLayout(TypeExpr *t) {
@@ -715,6 +723,8 @@ struct Compiler {
             if (FrameStruct(t) && any_of(defs.begin(), defs.end(), [](auto &field) { return field.ispad; }))
                 Fail(t->line, "padding in frame objects is not supported");
             auto tail = fields.empty() ? nullptr : fields.back();
+            if (RegionArray(tail) && Varint(tail->arr->sub))
+                Fail(t->line, "containing varint-element images require general record walkers");
             if (ByteRecord(tail)) Fail(t->line, "containing byte-walked records require general image walkers");
             auto tail_array = tail && tail->kind == TY_ARRAY &&
                 (FrameStruct(t) ? GrowableArray(tail) : (tail->arr->akind == A_VAR || RuntimeLimited(tail)));
@@ -1143,6 +1153,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_publication.h"
 #include "direct_wasm_storage.h"
 #include "direct_wasm_varints.h"
+#include "direct_wasm_varint_arrays.h"
 #include "direct_wasm_record_images.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"

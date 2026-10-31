@@ -24,8 +24,9 @@ Walking sparse bytes can map memory without advancing the physical producer
 cursor. Default global fields encode zero as one byte.
 
 The layout 10 marker records this representation. FixedLayout(varint) remains
-invalid, and no byte-overlap or owned image-effect proof is widened. Varint
-array elements/lengths, variable enum variants, containing byte records and
+invalid, and no byte-overlap or owned image-effect proof is widened. Standalone
+immutable [varint-element arrays](VARINT_ARRAYS.md) now use sequential walkers;
+varint array lengths, variable enum variants, containing byte records and
 records that also contain variable arrays require the next general walkers.
 The scalar external ABI remains unchanged.
 

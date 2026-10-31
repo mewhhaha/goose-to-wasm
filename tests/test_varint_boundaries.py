@@ -34,9 +34,9 @@ class VarintBoundaries(unittest.TestCase):
         self.check_gate('enum E{Data{n:varint},Empty} fn main(){let e:E..=E.Data{1};match e{Data p=>print(p.n),Empty=>{}}}',
                         'variable enum payloads require one final nonresizable array tail')
 
-    def test_varint_array_elements_remain_separate(self):
+    def test_growable_varint_array_elements_remain_separate(self):
         self.check_gate('fn main(){let values:varint[>..]=[1,-2];for n in values{print(n);}}',
-                        'varint storage is not supported')
+                        'varint elements currently require immutable variable arrays')
 
     def test_byte_record_image_effects_remain_separate(self):
         self.check_gate('struct R{n:varint} fn target()->R{recursive fn leave(){return R{1} from target;}leave();return R{0};} fn main(){let r=target();print(r.n);}',

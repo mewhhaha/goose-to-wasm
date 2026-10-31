@@ -51,6 +51,11 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    array_oracles=json.loads((FIXTURES/'varint_array_oracles.json').read_text())
+    for debug in (False,True):
+        for name,oracle in array_oracles.items():
+            result.append(Case("varint-array/"+name+("-debug" if debug else ""),"varint_array_"+name,
+                               stdout=oracle['stdout'],exit_code=oracle['exit_code'],diagnostic=oracle['diagnostic'],debug=debug,group="storage"))
     varint_answers={
         "replacement":"65 7 17 23\n",
         "values":"0 0 0 0 0\n3 -65 300 9223372036854775807 500\n7 -8193 -8193 -9223372036854775808 501 -7892\n",

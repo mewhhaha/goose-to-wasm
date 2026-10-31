@@ -104,8 +104,13 @@ inline void Compiler::AnalyzeEffects() {
                 local.push_back(inlined->sf); walk(inlined->body); local.pop_back(); return;
             }
             if (auto ret = Is<Return>(node); ret && ret->targetspec &&
-                (!ret->from.empty() || (!local.empty() && local.back() != ret->target)))
-                for (auto type : ret->targetspec->rets) if (RegionOwner(type)) region_cursors = true;
+                (!ret->from.empty() || (!local.empty() && local.back() != ret->target))) {
+                for (auto type : ret->targetspec->rets) {
+                    if (RegionArray(type) && Varint(type->arr->sub))
+                        Fail(ret->line, "varint-element nonlocal targets require dedicated image staging");
+                    if (RegionOwner(type)) region_cursors = true;
+                }
+            }
             if (auto ret = Is<Return>(node); ret &&
                 find(local.begin(), local.end(), ret->target) == local.end()) {
                 auto target = ret->targetspec;

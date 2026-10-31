@@ -80,6 +80,16 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: immutable varint array elements
+
+Standalone Var arrays retain fixed unsigned metadata and walk encoded elements
+sequentially. Whole slices, checked loop references, rebinding/continue, raw
+copies, rendering snapshots and normal call/result channels share this path.
+Metadata views stay O(1), physical cursors stay separate from logical counts,
+and actual varint-element nonlocal targets remain gated across inline stacks.
+Growable/containing forms and unsigned varint lengths remain separate. See
+[varint arrays](VARINT_ARRAYS.md).
+
 ## Implemented: sequential varint record images
 
 Direct varint fields in otherwise fixed-field structs use one root control and

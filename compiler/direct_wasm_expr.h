@@ -384,6 +384,10 @@ inline void Function::SliceView(SliceExpr *n) {
     auto elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
     if (!elem) Fail(n->line, "only slices of fixed-layout elements are supported");
     View(n->obj); auto view = Save(I64);
+    if (Compiler::Varint(elem)) {
+        if (n->lo || n->hi) Fail(n->line, "varint elements support whole slices only");
+        Get(view); return;
+    }
     Get(view); code.I64Const(32); code.Op(0x88); auto len = Save(I64);
     if (n->lo) {
         if (n->lo_from_end) Get(len);
@@ -430,6 +434,11 @@ inline void Function::For(ForLoop *n) {
         sequence(); view = Save(I64);
         code.I64Const(0); lo = Save(I64); Get(view); code.I64Const(32); code.Op(0x88); hi = Save(I64);
     }
+    optional<uint32_t> encoded_cursor, encoded_base;
+    if (!numeric && Compiler::Varint(elem)) {
+        Get(view); code.Op(0xa7); encoded_cursor = Save(I32);
+        Get(*encoded_cursor); encoded_base = Save(I32);
+    }
     uint32_t ordinal = Local(I64); code.I64Const(0); Set(ordinal);
     auto done = Begin(), again = Begin(0x03);
     if (!numeric && !n->fixedlen) {
@@ -437,7 +446,20 @@ inline void Function::For(ForLoop *n) {
     }
     Get(lo); Get(hi); BinaryOp(T_GTEQ, ct, n->line); Br(done, true);
     if (numeric) { Get(lo); Convert(ct, binding.type, n->line); Write(binding); }
-    else {
+    else if (encoded_cursor) {
+        if (!n->fixedlen) {
+            Get(view); code.Op(0xa7); auto current_base = Save(I32);
+            Get(current_base); Get(*encoded_base); code.Op(0x47); Begin(0x04);
+            Get(WalkVarintElements(current_base, lo, EncodedReadLimit(current_base), n->line)); Set(*encoded_cursor);
+            Get(current_base); Set(*encoded_base); End();
+        }
+        auto decoded = ReadVarintElement(*encoded_cursor, EncodedReadLimit(*encoded_cursor), n->line);
+        // CheckFor represents variable elements as encoded references even
+        // when the source loop omits '&'. Use its checked binding type.
+        if (binding.type->kind == TY_REF) Get(*encoded_cursor);
+        else { Get(decoded.first); Convert(c.ast.inttypes[IS_I64], binding.type, n->line); }
+        Write(binding);
+    } else {
         Get(view); code.Op(0xa7); Get(lo); code.Op(0xa7);
         code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a);
         if (!n->byref || elem->kind == TY_REF) { Load(elem); Convert(elem, binding.type, n->line); }
@@ -446,6 +468,10 @@ inline void Function::For(ForLoop *n) {
     if (indexbinding) { Get(ordinal); Convert(c.ast.inttypes[IS_I64], indexbinding->type, n->line); Write(*indexbinding); }
     auto step = Begin(); PushExit({ done, nullptr, {}, {}, true, step });
     BlockInto(n->body, {}, {}); exits.pop_back(); End();
+    if (encoded_cursor) {
+        auto decoded = ReadVarintElement(*encoded_cursor, EncodedReadLimit(*encoded_cursor), n->line);
+        Get(decoded.second); Set(*encoded_cursor);
+    }
     // The counter's type is the range's type, not a narrowed loop binding.
     Get(lo); Const(ct, 1); code.Op(W(ct) == I64 ? 0x7c : 0x6a); Normalize(ct); Set(lo);
     Get(ordinal); code.I64Const(1); code.Op(0x7c); Set(ordinal);
@@ -574,8 +600,14 @@ inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested)
         auto done = Begin(), loop = Begin(0x03);
         Get(i); Get(len); code.Op(0x4f); Br(done, true);
         Get(i); Begin(0x04); PrintText(", "); End();
-        Get(ptr); Get(i); code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); Load(elem);
-        auto e = Save(elem); Print(elem, e, line, true);
+        if (Compiler::Varint(elem)) {
+            auto decoded = ReadVarintElement(ptr, EncodedReadLimit(ptr), line);
+            Print(c.ast.inttypes[IS_I64], decoded.first, line, true);
+            Get(decoded.second); Set(ptr);
+        } else {
+            Get(ptr); Get(i); code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); Load(elem);
+            auto e = Save(elem); Print(elem, e, line, true);
+        }
         Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
         PrintText("]"); return;
     }
@@ -627,7 +659,15 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
                         Fail(arg->line, "printing slices with indirect aggregate elements is not supported");
                     Get(v); code.I64Const(32); code.Op(0x88); code.Op(0xa7);
                     auto len = Save(I32);
-                    Get(len); code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); auto bytes = Save(I32);
+                    uint32_t bytes;
+                    if (Compiler::Varint(elem)) {
+                        Get(v); code.Op(0xa7); auto base = Save(I32);
+                        Get(len); code.Op(0xad); auto count = Save(I64);
+                        Get(WalkVarintElements(base, count, EncodedReadLimit(base), arg->line));
+                        Get(base); code.Op(0x6b); bytes = Save(I32);
+                    } else {
+                        Get(len); code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); bytes = Save(I32);
+                    }
                     Dynamic(bytes, arg->line); auto dest = Save(I32);
                     Get(dest); Get(v); code.Op(0xa7); Get(bytes); code.Copy();
                     Get(dest); code.Op(0xad); Get(len); code.Op(0xad); code.I64Const(32); code.Op(0x86); code.Op(0x84); Set(v);

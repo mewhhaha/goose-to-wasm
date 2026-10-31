@@ -322,6 +322,9 @@ See [the enum contract](VARIABLE_ENUMS.md).
 - Struct images with direct varint fields and otherwise fixed-size fields,
   sequential field offsets, bounded decoding, copies, references and normal results;
   see [varint records](VARINT_RECORDS.md).
+- Standalone immutable varint-element arrays with fixed unsigned length metadata,
+  whole slices, sequential loops, encoded copies and snapshots; see
+  [varint arrays](VARINT_ARRAYS.md).
 
 The executable differential suite is the authority for qualified behavior.
 

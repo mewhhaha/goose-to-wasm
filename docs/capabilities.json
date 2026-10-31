@@ -799,18 +799,23 @@
       },
       "A_VAR": {
         "status": "qualified_subset",
-        "scope": "Supported fixed-layout elements with default/u8/u16/u32/u64 length storage. In-region unsigned length prefixes with authoritative views; raw element-run forms remain distinct. Frozen owned values, width-checked local and parameter construction, normal/element-run results and forwarding, mixed receiving-width checks, inline retargeting, scoped views/indexing/loops and primitive rendering. Eager emitted forms use a conservative region bound. Varint lengths, variable elements and containing values remain pending.",
+        "scope": "Supported fixed-layout or scalar varint elements with default/u8/u16/u32/u64 length storage. In-region unsigned length prefixes with authoritative views; raw element-run forms remain distinct. Frozen owned values, width-checked local and parameter construction, normal/element-run results and forwarding, mixed receiving-width checks, inline retargeting, scoped views/indexing/loops and primitive rendering. Eager emitted forms use a conservative region bound. Varint elements use sequential encoded walks, whole slices, checked loop-reference bindings, normal calls/results and raw copies. Varint lengths, other variable elements, containing values and actual varint-element nonlocal targets remain pending.",
         "fixtures": [
           "tests/fixtures/variable_arrays.goose",
           "tests/fixtures/narrow_variable_arrays.goose",
           "tests/fixtures/wide_variable_arrays.goose",
-          "tests/fixtures/array_image_construction.goose"
+          "tests/fixtures/array_image_construction.goose",
+          "tests/fixtures/varint_array_views.goose",
+          "tests/fixtures/varint_array_cancellation.goose",
+          "tests/fixtures/varint_array_rebind_ref.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/unsupported_varint_array.goose",
           "tests/test_dynamic_boundaries.py",
           "tests/test_regions.py",
-          "tests/test_array_images.py"
+          "tests/test_array_images.py",
+          "tests/test_varint_arrays.py",
+          "tests/test_varint_array_boundaries.py"
         ]
       }
     },
@@ -1129,7 +1134,7 @@
     "images": {
       "layout": {
         "status": "qualified_subset",
-        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding/varint forms and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding. Layout 10 adds sequential varint record images with root controls.",
+        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding/varint forms and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding. Layout 10 adds sequential varint record images with root controls. Layout 11 adds sequential immutable varint elements without widening the control ABI.",
         "fixtures": [
           "tests/fixtures/packed_record_storage.goose",
           "tests/fixtures/record_image_aliases.goose",
@@ -1160,18 +1165,25 @@
       },
       "varints": {
         "status": "qualified_subset",
-        "scope": "Direct varint fields in otherwise fixed-field structs use one root owner control and sequential image walks. Canonical signed zigzag ULEB128 construction, bounded i64 decoding, dynamic field offsets, encoded references, global defaults, copies and normal results. Physical FixedLayout and Store(varint), containing byte records, array elements/lengths, enum payloads, image effects, unproved replacement overlap and untrusted-image validation remain separate. Later calls after named replacement remain gated because captures may hide aliases.",
+        "scope": "Direct varint fields in otherwise fixed-field structs use one root owner control and sequential image walks. Canonical signed zigzag ULEB128 construction, bounded i64 decoding, dynamic field offsets, encoded references, global defaults, copies and normal results. Physical FixedLayout and Store(varint), containing byte records, array elements/lengths, enum payloads, image effects, unproved replacement overlap and untrusted-image validation remain separate. Later calls after named replacement remain gated because captures may hide aliases. Standalone immutable Var arrays of varint elements use fixed unsigned metadata, O(1) views, byte-cursor loops, raw per-element copies and rendering snapshots. Whole slices and normal channels qualify; Grow/containing forms, VarULEB lengths and actual owned targets remain gated, including inline stacks.",
         "fixtures": [
           "tests/fixtures/varint_record_values.goose",
           "tests/fixtures/varint_record_boundaries.goose",
           "tests/fixtures/varint_record_callbacks.goose",
-          "tests/fixtures/varint_record_replacement.goose"
+          "tests/fixtures/varint_record_replacement.goose",
+          "tests/fixtures/varint_array_literal_fill.goose",
+          "tests/fixtures/varint_array_channels.goose",
+          "tests/fixtures/varint_array_rebind.goose",
+          "tests/fixtures/varint_array_narrow_ordinary.goose",
+          "tests/fixtures/varint_array_named_replacement.goose"
         ],
         "boundary_fixtures": [
           "tests/test_varint_records.py",
           "tests/test_varint_boundaries.py",
           "tests/test_regions.py",
-          "tests/test_varint_capture_boundaries.py"
+          "tests/test_varint_capture_boundaries.py",
+          "tests/test_varint_arrays.py",
+          "tests/test_varint_array_boundaries.py"
         ]
       },
       "validation": {

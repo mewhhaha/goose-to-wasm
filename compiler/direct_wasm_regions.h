@@ -116,6 +116,12 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
             Fail(line, "owned record construction requires the same nominal type");
         c.ControlLayout(type); c.ControlLayout(target); return;
     }
+    if (Compiler::RegionArray(type) && Compiler::RegionArray(target) &&
+        (Compiler::Varint(type->arr->sub) || Compiler::Varint(target->arr->sub))) {
+        if (!Compiler::Varint(type->arr->sub) || !Compiler::Varint(target->arr->sub))
+            Fail(line, "varint element adaptation requires matching encoded elements");
+        c.HeaderLayout(type); c.HeaderLayout(target); return;
+    }
     if (!Compiler::RegionArray(target) ||
         c.FixedLayout(type->arr->sub).size != c.FixedLayout(target->arr->sub).size)
         Fail(line, "owned dynamic element adaptation is not supported at this destination");
@@ -237,32 +243,8 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
             if (!Compiler::RegionRecord(types[i]) || !Compiler::RegionRecord(candidate->type) ||
                 !Compiler::SameRecord(candidate->type, types[i]) || destinations[i]->elements) continue;
             CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
-            if (Compiler::ByteRecord(types[i])) {
-                // A stale encoded-field reference can see arbitrary continuation
-                // bytes after replacement. Native's unchecked decoder is not a
-                // bounded overlap proof. Rooted references cannot escape (§9.2);
-                // later result observations need their own proof.
-                function<void(Node *)> validate = [&](Node *node) {
-                    if (!node) return;
-                    if (auto ret = Is<Return>(node); ret && ret->target == target && ret->vals.size() == types.size()) {
-                        auto id = Is<Ident>(ret->vals[i]);
-                        if (!id || id->vdef != candidate)
-                            for (size_t j = i + 1; j < ret->vals.size(); j++) {
-                                if (goose::MayReachLocal(ret->vals[j], candidate))
-                                    Fail(ret->line, "observing a named varint record after replacement requires a bounded overlap proof");
-                                function<void(Node *)> no_opaque_read = [&](Node *part) {
-                                    if (!part) return;
-                                    if (auto call = Is<Call>(part); call && call->builtin < 0 && !call->fvbody)
-                                        Fail(part->line, "calls after named varint record replacement require a bounded overlap proof");
-                                    RunChildren(part, no_opaque_read);
-                                };
-                                no_opaque_read(ret->vals[j]);
-                            }
-                    }
-                    RunChildren(node, validate);
-                };
-                validate(body);
-            }
+            if (Compiler::ByteRecord(types[i]))
+                CheckNamedVarintReturns(body, target, types.size(), i, candidate, "record");
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }
         // The frontend requires identical array element types for this
@@ -285,6 +267,8 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
                     : receiving->arr->akind != A_VAR) continue;
         }
         CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
+        if (Compiler::Varint(types[i]->arr->sub))
+            CheckNamedVarintReturns(body, target, types.size(), i, candidate, "array");
         named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate);
     }
     return added;
@@ -343,7 +327,11 @@ inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_
     if (source_type->kind == TY_ARRAY) { element = source_type->arr->sub; PackArrayView(source_type); }
     else if (source_type->kind == TY_SLICE) element = source_type->sub;
     else Fail(line, "owned result adaptation requires an array or slice");
-    if (c.FixedLayout(element).size != c.FixedLayout(destination.location.storage_type->arr->sub).size)
+    auto receiving_element = destination.location.storage_type->arr->sub;
+    if (Compiler::Varint(element) || Compiler::Varint(receiving_element)) {
+        if (!Compiler::Varint(element) || !Compiler::Varint(receiving_element))
+            Fail(line, "varint element adaptation requires matching encoded elements");
+    } else if (c.FixedLayout(element).size != c.FixedLayout(receiving_element).size)
         Fail(line, "owned result element adaptation is not supported");
     auto view = Save(I64); ConstructRegionView(view, destination, line, capacity);
 }
@@ -356,6 +344,10 @@ inline void Function::ConstructRegionView(uint32_t source, const ConstructionDes
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
     Get(source); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
     CheckArrayLength(destination.location.storage_type, count, line, destination.elements);
+    if (Compiler::Varint(element)) {
+        Get(count); code.Op(0xa7); WriteArrayLength(header, Save(I32));
+        Get(source); code.Op(0xa7); CopyVarintElements(header, Save(I32), count, line); return;
+    }
     if (Compiler::RuntimeLimited(destination.location.storage_type)) {
         if (destination.lifetime == ConstructionDestination::Existing) {
             Get(count); ReadArrayCapacity(header); code.Op(0xad); code.Op(0x56);
@@ -535,7 +527,19 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         check_abandoned = destination.lifetime == ConstructionDestination::Existing ||
                           destination.lifetime == ConstructionDestination::Caller;
         if (check_abandoned) cleanups.push_back({ CleanupAction::CheckAbandonedRegion, header, element, line, destination.enum_guard });
-        if (array->fillval) {
+        if (Compiler::Varint(element)) {
+            if (array->fillval) {
+                // Even a zero-count fill evaluates its value exactly once.
+                To(array->fillval, c.ast.inttypes[IS_I64]); auto value = Save(I64);
+                code.I64Const(0); auto index = Save(I64);
+                auto done = Begin(), loop = Begin(0x03);
+                Get(index); Get(count); code.Op(0x5a); Br(done, true);
+                AppendVarint(header, value, line);
+                Get(index); code.I64Const(1); code.Op(0x7c); Set(index); Br(loop); End(); End();
+            } else for (auto entry : array->elems) {
+                To(entry, c.ast.inttypes[IS_I64]); AppendVarint(header, Save(I64), line);
+            }
+        } else if (array->fillval) {
             auto value = CaptureBorrowed(array->fillval, element);
             optional<uint32_t> cursor, top;
             if (physical) { cursor = RegionCursor(header); top = ReserveCursor(header, count, element, node->line); }
@@ -567,6 +571,9 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         }
     } else {
         auto source = CaptureSequence(node);
+        auto source_element = source.type->kind == TY_ARRAY ? source.type->arr->sub : source.type->sub;
+        if (Compiler::Varint(source_element) != Compiler::Varint(element))
+            Fail(line, "varint element adaptation requires matching encoded elements");
         RebaseEscapeStage(destination);
         ConstructRegionView(source.view, destination, line, source.capacity); return;
     }
@@ -586,6 +593,14 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
 // Validate the final length before multiplying or adding a pointer. All
 // counts use i64 so negative or overflowing source counts cannot wrap in i32.
 inline void Function::ReserveRegion(uint32_t header, uint32_t count, TypeExpr *element, Line line) {
+    if (Compiler::Varint(element)) {
+        ReadArrayBase(header); auto base = Save(I32);
+        Get(base); code.Op(0xad); Get(count); code.Op(0x7c);
+        Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); code.Op(0x56);
+        TrapIf(line, "data region exhausted");
+        Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); auto limit = Save(I64);
+        WalkVarintElements(base, count, limit, line); return;
+    }
     Get(header); code.Mem(0x28, 2, 8);
     Get(header); code.Mem(0x28, 2); code.Op(0x6b); code.Op(0xad);
     code.I64Const(c.FixedLayout(element).size); code.Op(0x80);
