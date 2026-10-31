@@ -4,6 +4,18 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: owned construction through control flow
+
+Conditionals, ordinary/early blocks, value-producing loops and integer/bool/fixed
+enum matches construct growable results into their receiving region. A `break`
+constructs its value before releasing the scopes it leaves; loop iterations
+release their local owners while preserving the receiver. Divergent match arms
+use their enclosing return destination, and scrutinees are evaluated once.
+
+Tests cover nested loop/match/block cleanup under a small memory budget, payload
+bindings, local-owner copies, early returns and repeated exported calls. General
+anonymous temporaries and whole-owner assignment remain subsequent work.
+
 ## Implemented: multiple owned results and named-result construction
 
 Each result position has its own destination channel. Calls can return growable
@@ -19,8 +31,8 @@ position. Later result expressions may change the shared elements or grow the
 local; they do not change the earlier result's published length. Other returned
 positions copy as required. Tests cover these effects and rejected candidates.
 
-Fixed/slice-to-owned adaptation of a forwarded multi-result call, anonymous
-owners and general control-expression destinations remain explicit boundaries.
+Fixed/slice-to-owned adaptation of a forwarded multi-result call and anonymous
+owners remain explicit boundaries.
 
 ## Implemented: owned growable parameters
 
@@ -48,9 +60,7 @@ another result region. Inline bodies carry the same destination on their return
 target, so nested returns select the correct owner.
 
 Literals, local owners, fixed/limited results, slices and conditional results
-are qualified at O0/O2. Anonymous owner temporaries and general
-control-expression destinations remain
-explicit boundaries.
+are qualified at O0/O2. Anonymous owner temporaries remain explicit boundaries.
 
 ## Implemented: stable regions for named growable owners
 

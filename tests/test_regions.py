@@ -366,6 +366,27 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
+    def test_nested_owned_control_values_release_iteration_regions(self):
+        source = '''export fn tick(n: i64) -> i64 {
+    var step = 0;
+    let result: i64[>..] = loop {
+        var local: i64[>..] = [n];
+        if step == 0 { step++; continue; }
+        break match n % 2 {
+            0 => block { var nested: i64[>..] = [n + 1]; break copy(nested); },
+            _ => { local.push(n + 1); copy(local) }
+        };
+    };
+    return result[result.len - 1];
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -53,6 +53,10 @@ def cases():
     result.append(Case("growable/minimal", "growable_minimal", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/forwarding", "dynamic_forwarding", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/mixed-minimal", "dynamic_result_minimal", stdout="1\n", group="aggregate"))
+    for n, answer in ((-1, "[1] [1] [99] [] 1\n[9]\n"),
+                      (0, "[2] [2] [] [] 1\n[10]\n"),
+                      (3, "[3, 4] [5] [3, 4] [8, 9] 1\n[13]\n")):
+        result.append(Case(f"dynamic/control/{n}", "dynamic_control", f"{n}\n", answer, group="aggregate"))
     for n in (0, 3):
         answer = (f"{n} [{n + 1}, 99] [{n + 2}, {n + 3}] [{n + 4}]\n"
                   f"[{n + 10}] {n + 10} [{n + 10}]\n[{n + 10}] 2 [{n + 10}, 99]\n" +

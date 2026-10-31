@@ -67,6 +67,12 @@ unwinds it as well. Fixed results and caller-owned dynamic result destinations
 survive this cleanup. The frontend rejects escaping views into the parameter's
 storage; ordinary reference/slice fields pointing to caller data preserve aliases.
 
+Receiving regions also pass through conditionals, ordinary/early blocks,
+value-producing loops and supported matches. Each exit target carries its own
+channels. Break values construct before exited scopes release their regions;
+loop iterations release body-local owners while retaining the receiving region.
+Match scrutinees are evaluated once and divergent arms use their enclosing exit.
+
 The planner reserves dedicated global regions plus a call-graph/SCC bound on
 simultaneously live transient owners. Scoped cleanup restores transient region
 watermarks on normal exit, return, break and continue. Borrowed calls grow the
@@ -188,7 +194,7 @@ The executable differential suite is the authority for qualified behavior.
 ## Explicit refusals and remaining work
 
 The current backend refuses owned dynamic function-value parameters/results,
-fixed/slice-to-owned multi-result adaptation, general dynamic control-expression destinations, anonymous dynamic
+fixed/slice-to-owned multi-result adaptation, anonymous dynamic
 temporaries, whole-owner assignment, dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;

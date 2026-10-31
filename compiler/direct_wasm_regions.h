@@ -181,6 +181,9 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         }
         End(); return;
     }
+    if (Is<LoopExpr>(node) || Is<EarlyBlock>(node) || Is<MatchExpr>(node)) {
+        ControlValue(node, { type }, { Local(I32) }, { destination }); return;
+    }
     if (auto call = Is<Call>(node); call && call->builtin < 0 && call->spec &&
         call->spec->rets.size() == 1 && Compiler::RegionArray(call->spec->rets[0])) {
         EmitCall(call, false, { destination }); code.Op(0x1a); return;

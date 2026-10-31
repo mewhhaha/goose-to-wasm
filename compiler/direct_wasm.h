@@ -199,6 +199,7 @@ struct Function {
     void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {});
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {});
     void ResultExpression(Node *, const ResultDestinations &);
+    void ControlValue(Node *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
     vector<const VarDef *> BindNamedResults(Block *, SFunction *, const vector<TypeExpr *> &, const ResultDestinations &);
     void RecordRegionCall(FnSpec *, Line);
     void ConstructRegion(Node *, const Location &, optional<uint32_t> global_region = {});

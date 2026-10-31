@@ -15,9 +15,9 @@ control flow, fixed arrays,
 static-capacity resizable arrays, struct fields, fixed-mode enums and payload matches, owned fixed aggregate returns,
 slices, references, and named growable arrays of supported fixed-layout elements.
 Growable owners use stable checked data regions, borrowed calls, independent
-by-value parameters and single owned results constructed into named receivers.
-Mixed/multiple owned results and named-result construction share those destination
-channels. General temporary/control-expression destinations remain subsequent work. Unsupported constructs produce compile
+by-value parameters, mixed/multiple owned results and named-result construction.
+Owned results also construct through conditional, block, loop and match expressions.
+General anonymous temporaries remain subsequent work. Unsupported constructs produce compile
 errors, with no fallback to the C backend. It is not yet full Goose parity; see
 [the target contract](docs/TARGET.md) and [next milestones](docs/ROADMAP.md).
 The [completion plan](docs/IMPLEMENTATION_PLAN.md) and checked

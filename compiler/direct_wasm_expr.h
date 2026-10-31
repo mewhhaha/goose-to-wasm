@@ -548,6 +548,61 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     else if (adapt_result && types.empty()) for (size_t index = 0; index < own.size(); index++) code.Op(0x1a);
 }
 
+inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const vector<uint32_t> &vs,
+                                    const ResultDestinations &destinations) {
+    if (Is<LoopExpr>(n) || Is<EarlyBlock>(n)) {
+        auto done = Begin();
+        if (auto loop = Is<LoopExpr>(n)) {
+            auto again = Begin(0x03); PushExit({ done, nullptr, ts, vs, true, again }, destinations);
+            BlockInto(loop->body, {}, {}); exits.pop_back(); Br(again); End();
+        } else {
+            PushExit({ done, nullptr, ts, vs, true, {} }, destinations);
+            BlockInto(static_cast<EarlyBlock *>(n)->body, ts, vs, destinations); exits.pop_back();
+        }
+        End(); return;
+    }
+    auto m = Is<MatchExpr>(n);
+    if (!m) Fail(n->line, "internal: unsupported value control construct");
+    auto t = m->scrutinee->exprtype;
+    Expr(m->scrutinee);
+    if (t->kind == TY_REF) { Load(t->ref->sub); t = t->ref->sub; }
+    optional<uint32_t> base;
+    if (t->kind == TY_ENUM) { W(t); base = Save(I32); Get(*base); code.Mem(0x28, 2); }
+    else if (t->kind != TY_INT && t->kind != TY_BOOL)
+        Fail(n->line, "only integer, bool and fixed enum match are supported");
+    auto value = Save(base ? uint8_t(I32) : W(t));
+    auto done = Begin(); bool wildcard = false;
+    for (auto &arm : m->arms) {
+        bool any = arm.pat.kind == P_WILDCARD;
+        if (!any) {
+            bool first = true;
+            if (base) for (auto variant : arm.variants) {
+                Get(value); code.I32Const(t->enu->inst->en->VariantIndex(variant)); code.Op(0x46);
+                if (!first) code.Op(0x72);
+                first = false;
+            }
+            else for (auto range : arm.ranges) {
+                Get(value); Const(t, range.lo); BinaryOp(T_GTEQ, t, n->line);
+                Get(value); Const(t, range.hi); BinaryOp(T_LTEQ, t, n->line); code.Op(0x71);
+                if (!first) code.Op(0x72);
+                first = false;
+            }
+            if (first) Fail(n->line, "match pattern has no resolved alternatives");
+            Begin(0x04);
+        }
+        if (arm.binder) {
+            if (!base || arm.pat.byref) Fail(n->line, "only by-value fixed enum payload bindings are supported");
+            auto slot = Bind(arm.binder);
+            Get(*base); code.I32Const(int32_t(c.Size(t).payload)); code.Op(0x6a); Write(slot);
+        }
+        if (ts.empty() || Values(arm.body).empty()) Discard(arm.body);
+        else SetResults({ arm.body }, ts, vs, arm.body->line, destinations);
+        Br(done); if (!any) End(); else { wildcard = true; break; }
+    }
+    if (!wildcard) Abort(n->line, "non-exhaustive match");
+    End();
+}
+
 inline void Function::Expr(Node *n) {
     if (!n) return;
     switch (n->nkind) {
@@ -679,17 +734,10 @@ inline void Function::Expr(Node *n) {
             End(); for (auto v : vs) Get(v); return;
         }
         case NK_InlineBlock: EmitInline(static_cast<InlineBlock *>(n)); return;
-        case NK_EarlyBlock: case NK_LoopExpr: {
+        case NK_EarlyBlock: case NK_LoopExpr: case NK_MatchExpr: {
             auto ts = Values(n); vector<uint32_t> vs; for (auto t : ts) vs.push_back(Local(t));
-            auto done = Begin();
-            if (auto l = Is<LoopExpr>(n)) {
-                auto again = Begin(0x03); PushExit({ done, nullptr, ts, vs, true, again });
-                BlockInto(l->body, {}, {}); exits.pop_back(); Br(again); End();
-            } else {
-                PushExit({ done, nullptr, ts, vs, true, {} });
-                BlockInto(static_cast<EarlyBlock *>(n)->body, ts, vs); exits.pop_back();
-            }
-            End(); for (auto v : vs) Get(v); return;
+            ControlValue(n, ts, vs);
+            for (auto v : vs) Get(v); return;
         }
         case NK_While: {
             auto w = static_cast<While *>(n); auto done = Begin(), again = Begin(0x03);
@@ -722,46 +770,6 @@ inline void Function::Expr(Node *n) {
                 UnwindCleanups(j); Br(*exits[j].continue_label); return;
             }
             Fail(n->line, "continue has no direct loop target");
-        case NK_MatchExpr: {
-            auto m = static_cast<MatchExpr *>(n); auto t = m->scrutinee->exprtype;
-            Expr(m->scrutinee);
-            if (t->kind == TY_REF) { Load(t->ref->sub); t = t->ref->sub; }
-            optional<uint32_t> base;
-            if (t->kind == TY_ENUM) { W(t); base = Save(I32); Get(*base); code.Mem(0x28, 2); }
-            else if (t->kind != TY_INT && t->kind != TY_BOOL)
-                Fail(n->line, "only integer, bool and fixed enum match are supported");
-            auto value = Save(base ? uint8_t(I32) : W(t));
-            auto ts = Values(n); vector<uint32_t> vs; for (auto rt : ts) vs.push_back(Local(rt));
-            auto done = Begin(); bool wildcard = false;
-            for (auto &arm : m->arms) {
-                bool any = arm.pat.kind == P_WILDCARD;
-                if (!any) {
-                    bool first = true;
-                    if (base) for (auto variant : arm.variants) {
-                        Get(value); code.I32Const(t->enu->inst->en->VariantIndex(variant)); code.Op(0x46);
-                        if (!first) code.Op(0x72);
-                        first = false;
-                    }
-                    else for (auto range : arm.ranges) {
-                        Get(value); Const(t, range.lo); BinaryOp(T_GTEQ, t, n->line);
-                        Get(value); Const(t, range.hi); BinaryOp(T_LTEQ, t, n->line); code.Op(0x71);
-                        if (!first) code.Op(0x72);
-                        first = false;
-                    }
-                    if (first) Fail(n->line, "match pattern has no resolved alternatives");
-                    Begin(0x04);
-                }
-                if (arm.binder) {
-                    if (!base || arm.pat.byref) Fail(n->line, "only by-value fixed enum payload bindings are supported");
-                    auto slot = Bind(arm.binder);
-                    Get(*base); code.I32Const(int32_t(c.Size(t).payload)); code.Op(0x6a); Write(slot);
-                }
-                if (ts.empty()) Discard(arm.body); else { To(arm.body, ts[0]); Set(vs[0]); }
-                Br(done); if (!any) End(); else { wildcard = true; break; }
-            }
-            if (!wildcard) Abort(n->line, "non-exhaustive match");
-            End(); for (auto v : vs) Get(v); return;
-        }
         case NK_VarDecl: Decl(static_cast<VarDecl *>(n)); return;
         case NK_Assign: AssignNode(static_cast<Assign *>(n)); return;
         case NK_IncDec: IncNode(static_cast<IncDec *>(n)); return;
