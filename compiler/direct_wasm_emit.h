@@ -254,7 +254,7 @@ inline DirectWasmResult Compiler::Compile() {
     for (auto &f : result.function_info) { fnnames.U(f.index); fnnames.Name(f.name); }
     debugnames.Byte(1); debugnames.U(fnnames.data.size()); debugnames.Raw(fnnames.data); module.Section(0, debugnames);
     Bytes producer; producer.Name("goose.direct");
-    producer.Name("abi=1;layout=12;varint-elements=sequential-grow;varint-records=sequential;record-padding=fixed-alignment-variable-explicit;static-limited=compact-lengths;enum-tags=compact;variable-enums=active-payloads;record-values=packed-single-tail;owner-control=24;array-values=unsigned-prefixes;variant-payloads=packed-fields;fixed-records=packed-fields;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
+    producer.Name("abi=1;layout=13;array-lengths=unsigned-uleb;varint-elements=sequential-grow;varint-records=sequential;record-padding=fixed-alignment-variable-explicit;static-limited=compact-lengths;enum-tags=compact;variable-enums=active-payloads;record-values=packed-single-tail;owner-control=24;array-values=unsigned-prefixes;variant-payloads=packed-fields;fixed-records=packed-fields;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
     module.Section(0, producer);
     if (needs_regions) {
         Bytes regions; regions.Name("goose.regions");

@@ -3,7 +3,7 @@ namespace goose::direct_wasm {
 
 // Encoded storage and decoded values have different types and extents. The
 // reader returns an i64 value and the address immediately after its byte image.
-inline pair<uint32_t, uint32_t> Function::ReadVarint(uint32_t address, uint32_t limit, Line line) {
+inline pair<uint32_t, uint32_t> Function::ReadULEB(uint32_t address, uint32_t limit, Line line) {
     Get(address); auto cursor = Save(I32);
     code.I64Const(0); auto value = Save(I64);
     code.I32Const(0); auto shift = Save(I32);
@@ -19,9 +19,14 @@ inline pair<uint32_t, uint32_t> Function::ReadVarint(uint32_t address, uint32_t 
     Get(byte); code.I32Const(0x80); code.Op(0x71); code.Op(0x45); Br(done, true);
     Get(shift); code.I32Const(7); code.Op(0x6a); Set(shift); Br(loop);
     End(); End();
+    return { value, cursor };
+}
+
+inline pair<uint32_t, uint32_t> Function::ReadVarint(uint32_t address, uint32_t limit, Line line) {
+    auto decoded = ReadULEB(address, limit, line); auto value = decoded.first;
     Get(value); code.I64Const(1); code.Op(0x88);
     code.I64Const(0); Get(value); code.I64Const(1); code.Op(0x83); code.Op(0x7d); code.Op(0x85);
-    return { Save(I64), cursor };
+    return { Save(I64), decoded.second };
 }
 
 inline void Function::AppendVarint(uint32_t header, uint32_t value, Line line) {
