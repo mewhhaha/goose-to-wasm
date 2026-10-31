@@ -51,6 +51,11 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    length_oracles=json.loads((FIXTURES/'uleb_length_oracles.json').read_text())
+    for debug in (False,True):
+        for name,oracle in length_oracles.items():
+            result.append(Case("uleb-length/"+name+("-debug" if debug else ""),"uleb_length_"+name,
+                               stdout=oracle['stdout'],exit_code=oracle['exit_code'],diagnostic=oracle['diagnostic'],debug=debug,group="storage"))
     grow_oracles=json.loads((FIXTURES/'varint_grow_oracles.json').read_text())
     for debug in (False,True):
         for name,oracle in grow_oracles.items():

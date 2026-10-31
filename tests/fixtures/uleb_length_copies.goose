@@ -1,0 +1,1 @@
+fn main(){let a:u16[varint]=[0x1234;128];let b:u16[u16]=copy(a);let c:u16[varint]=b[..];let d:u16[varint]=copy(c);print(a.len," ",b.len," ",c.len," ",d[127] as i64);let z:u16[varint]=[];let zz:u16[varint]=copy(z);print(zz.len);}

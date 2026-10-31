@@ -14,6 +14,8 @@ inline void Function::ReadArrayBase(uint32_t header) {
         Get(mode); code.I32Const(int32_t(kind)); code.Op(0x46); Begin(0x04);
         Get(header); code.Mem(0x28, 2, 16); code.I32Const(int32_t(width)); code.Op(0x6a); Set(result); End();
     }
+    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
+    Get(ReadULEBArray(header, {}).second); Set(result); End();
     Get(result);
 }
 
@@ -66,6 +68,8 @@ inline void Function::ReadArrayLength(uint32_t header) {
         }
         Set(result); End();
     }
+    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
+    Get(ReadULEBArray(header, {}).first); Set(result); End();
     Get(result);
 }
 
@@ -88,6 +92,8 @@ inline void Function::WriteArrayLength(uint32_t header, uint32_t count) {
         if (kind == ArrayStorageMode::VarU64) code.Op(0xad);
         code.Mem(opcode, 0, offset); End();
     }
+    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
+    PatchULEBArrayLength(header, count, {}); End();
     PublishHeader(header, 4);
 }
 
@@ -99,6 +105,9 @@ inline void Function::WriteArrayCapacity(uint32_t header, uint32_t count) {
 
 inline void Function::InitializeArrayImage(uint32_t header, const ConstructionDestination &destination, Line line) {
     auto type = destination.location.storage_type;
+    if (Compiler::ULEBLength(type) && !destination.elements) {
+        code.I32Const(1); ReserveULEBArrayPrefix(header, Save(I32), line); return;
+    }
     ArrayStorageMode mode = ArrayStorageMode::RawElements;
     uint32_t prefix = 0;
     if (Compiler::RuntimeLimited(type)) { mode = ArrayStorageMode::RuntimeLimited; prefix = 8; }
@@ -171,23 +180,30 @@ inline void Function::FinishValueArrayReceiver(const ConstructionDestination &so
     Get(elements); Get(finish); code.Op(0x4b); TrapIf(line, "invalid array image adaptation span");
     Get(finish); Get(elements); code.Op(0x6b); auto bytes = Save(I32);
     auto target = destination.location.storage_type;
-    auto prefix = target->arr->akind == A_VAR && !destination.elements ? uint32_t(IntBits(Compiler::LengthStorage(target)) / 8) : 0u;
-    Get(anchor); code.Op(0xad); code.I64Const(prefix); code.Op(0x7c); Get(bytes); code.Op(0xad); code.Op(0x7c);
+    auto has_prefix = target->arr->akind == A_VAR && !destination.elements;
+    auto uleb = has_prefix && Compiler::ULEBLength(target);
+    auto fixed_prefix = has_prefix && !uleb ? uint32_t(IntBits(Compiler::LengthStorage(target)) / 8) : 0u;
+    uint32_t prefix;
+    if (uleb) { Get(count); code.Op(0xad); prefix = ULEBWidth(Save(I64)); }
+    else { code.I32Const(int32_t(fixed_prefix)); prefix = Save(I32); }
+    Get(anchor); code.Op(0xad); Get(prefix); code.Op(0xad); code.Op(0x7c); Get(bytes); code.Op(0xad); code.Op(0x7c);
     auto end = Save(I64);
     Get(end); Get(receiving); code.Mem(0x28, 2, 8); code.Op(0xad); code.Op(0x56); TrapIf(line, "data region exhausted");
     Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
-    Get(anchor); code.I32Const(int32_t(prefix)); code.Op(0x6a); auto target_elements = Save(I32);
+    Get(anchor); Get(prefix); code.Op(0x6a); auto target_elements = Save(I32);
     Get(target_elements); Get(elements); Get(bytes); code.Copy();
-    if (prefix) {
+    if (has_prefix) {
         Get(receiving); Get(anchor); code.Mem(0x36, 2, 16);
         Get(receiving); Get(target_elements); code.Mem(0x36, 2);
-        auto mode = prefix == 1 ? ArrayStorageMode::VarU8 : prefix == 2 ? ArrayStorageMode::VarU16 :
-                    prefix == 4 ? ArrayStorageMode::VarU32 : ArrayStorageMode::VarU64;
+        auto mode = uleb ? ArrayStorageMode::VarULEB : fixed_prefix == 1 ? ArrayStorageMode::VarU8 :
+                    fixed_prefix == 2 ? ArrayStorageMode::VarU16 : fixed_prefix == 4 ? ArrayStorageMode::VarU32 : ArrayStorageMode::VarU64;
         Get(receiving); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
+        if (uleb) { Get(receiving); Get(prefix); code.Mem(0x36, 2, 12); }
     } else {
         Get(receiving); code.I32Const(0); code.Mem(0x36, 2, 16);
         Get(receiving); code.I32Const(0); code.Mem(0x36, 2, 20);
     }
+    if (uleb) { Get(end); code.Op(0xa7); PublishCursor(receiving, Save(I32)); }
     WriteArrayLength(receiving, count);
     Get(end); code.Op(0xa7); PublishCursor(receiving, Save(I32));
 }
@@ -210,6 +226,10 @@ inline void Function::FinishArrayImage(uint32_t original, uint32_t start, uint32
         TrapIf(line, "invalid array image landing span");
         Get(finish); Get(start); code.Op(0x6b); auto bytes = Save(I32);
         Get(anchor); Get(start); Get(bytes); code.Copy();
+        if (Compiler::ULEBLength(type)) {
+            Get(original); code.Mem(0x28, 2, 20); code.Op(0x45); Begin(0x04);
+            Get(original); Get(stage); code.Mem(0x28, 2, 12); code.Mem(0x36, 2, 12); End();
+        }
         Get(original); Get(stage); code.Mem(0x28, 2, 20); code.Mem(0x36, 2, 20);
         Get(original); Get(anchor); code.Mem(0x36, 2, 16);
         Get(anchor); Get(bytes); code.Op(0x6a); PublishCursor(original, Save(I32));
@@ -234,6 +254,13 @@ inline void Function::FinishArrayImage(uint32_t original, uint32_t start, uint32
 }
 
 inline void Function::SetArrayImageAnchor(uint32_t header, uint32_t anchor, TypeExpr *type) {
+    if (Compiler::ULEBLength(type)) {
+        Get(header); Get(anchor); code.Mem(0x36, 2, 16);
+        Get(header); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Mem(0x36, 2, 20);
+        Get(header); Get(anchor); code.I32Const(1); code.Op(0x6a); code.Mem(0x36, 2);
+        Get(header); code.I32Const(1); code.Mem(0x36, 2, 12);
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); return;
+    }
     auto prefix = Compiler::RuntimeLimited(type) ? 8u : uint32_t(IntBits(Compiler::LengthStorage(type)) / 8);
     auto mode = Compiler::RuntimeLimited(type) ? ArrayStorageMode::RuntimeLimited :
                 prefix == 1 ? ArrayStorageMode::VarU8 : prefix == 2 ? ArrayStorageMode::VarU16 :

@@ -106,6 +106,8 @@ inline void Compiler::AnalyzeEffects() {
             if (auto ret = Is<Return>(node); ret && ret->targetspec &&
                 (!ret->from.empty() || (!local.empty() && local.back() != ret->target))) {
                 for (auto type : ret->targetspec->rets) {
+                    if (ULEBLength(type))
+                        Fail(ret->line, "varint-length nonlocal targets require dedicated image staging");
                     if (ByteRecord(type))
                         Fail(ret->line, "byte-walked record nonlocal targets require dedicated image staging");
                     if (RegionArray(type) && Varint(type->arr->sub))

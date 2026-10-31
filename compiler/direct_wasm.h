@@ -36,7 +36,7 @@ struct Signature {
     bool operator==(const Signature &) const = default;
 };
 struct Import { string module, name; uint32_t type; };
-enum class ArrayStorageMode : uint32_t { RawElements, VarU8, VarU16, VarU32, VarU64, RuntimeLimited };
+enum class ArrayStorageMode : uint32_t { RawElements, VarU8, VarU16, VarU32, VarU64, RuntimeLimited, VarULEB };
 inline constexpr uint32_t owner_control_bytes = 24;
 struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; uint32_t payload = 0; bool bare_pad_gap = false; };
 enum RuntimeGlobal { G_SCRATCH_TOP, G_REGION_NEXT, G_REGION_BASE, G_REGION_BYTES, G_REGION_COUNT, G_ACTIVATION_LIMIT };
@@ -253,6 +253,13 @@ struct Function {
     void Load(TypeExpr *);
     void Store(TypeExpr *);
     pair<uint32_t, uint32_t> ReadVarint(uint32_t, uint32_t, Line);
+    pair<uint32_t, uint32_t> ReadULEB(uint32_t, uint32_t, Line);
+    uint32_t ULEBWidth(uint32_t);
+    void WriteULEBAt(uint32_t, uint32_t);
+    pair<uint32_t, uint32_t> ReadULEBArray(uint32_t, Line);
+    void ReserveULEBArrayPrefix(uint32_t, uint32_t, Line);
+    void InitializeKnownArrayImage(uint32_t, const ConstructionDestination &, uint32_t, Line);
+    void PatchULEBArrayLength(uint32_t, uint32_t, Line);
     void AppendVarint(uint32_t, uint32_t, Line);
     uint32_t WalkByteRecord(const Location &, optional<size_t>, Line);
     uint32_t EncodedReadLimit(uint32_t);
@@ -662,6 +669,9 @@ struct Compiler {
     static IntStorage LengthStorage(TypeExpr *t) {
         return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
     }
+    static bool ULEBLength(TypeExpr *t) {
+        return t && t->kind == TY_ARRAY && t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT;
+    }
     static IntStorage StaticLimitedLengthStorage(TypeExpr *t) {
         auto cap = uint64_t(t->arr->size);
         return cap <= UINT8_MAX ? IS_U8 : cap <= UINT16_MAX ? IS_U16 : cap <= UINT32_MAX ? IS_U32 : IS_U64;
@@ -671,8 +681,8 @@ struct Compiler {
     }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
-        if (t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT)
-            Fail(t->line, "varint variable-array length storage is not supported");
+        if (ULEBLength(t) && Varint(t->arr->sub))
+            Fail(t->line, "combined varint elements and lengths are not supported in this image checkpoint");
         if (Varint(t->arr->sub)) {
             if (t->arr->akind != A_VAR && t->arr->akind != A_GROW)
                 Fail(t->line, "varint elements support immutable variable or growable arrays only");
@@ -725,6 +735,7 @@ struct Compiler {
             if (FrameStruct(t) && any_of(defs.begin(), defs.end(), [](auto &field) { return field.ispad; }))
                 Fail(t->line, "padding in frame objects is not supported");
             auto tail = fields.empty() ? nullptr : fields.back();
+            if (ULEBLength(tail)) Fail(t->line, "containing varint-length arrays require general record walkers");
             if (RegionArray(tail) && Varint(tail->arr->sub))
                 Fail(t->line, "containing varint-element images require general record walkers");
             if (ByteRecord(tail)) Fail(t->line, "containing byte-walked records require general image walkers");
@@ -1156,6 +1167,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_storage.h"
 #include "direct_wasm_varints.h"
 #include "direct_wasm_varint_arrays.h"
+#include "direct_wasm_uleb_arrays.h"
 #include "direct_wasm_record_images.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"

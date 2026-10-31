@@ -327,6 +327,8 @@ See [the enum contract](VARIABLE_ENUMS.md).
   [varint arrays](VARINT_ARRAYS.md).
 - Standalone growable varint elements with push/append/clear, whole assignment,
   stable references and private-count append forwarding; see [varint Grow](VARINT_GROW.md).
+- Standalone fixed-element arrays with unsigned varint lengths, byte-authoritative
+  views and successful-return prefix expansion; see [ULEB lengths](ULEB_LENGTHS.md).
 
 The executable differential suite is the authority for qualified behavior.
 

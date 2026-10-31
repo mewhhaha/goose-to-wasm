@@ -1248,6 +1248,37 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_uleb_length_repeated_named_grow_returns_reuse_region(self):
+        source=f'''var neighbor:i64[>..]=[{CANARY}];
+recursive fn make()->u8[varint]{{var a:u8[>..]=[7;128];return a;}}
+export fn tick(n:i64)->i64{{let a=make();if a.len!=128 || a[0]!=7 || a[127]!=7{{abort("bad ULEB result");}}return n+1;}}
+fn main(){{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            # The emitted ER specialization has a conservative local-Grow
+            # bound even though this exact Value call shares its named result.
+            self.assertEqual(info['region_count'],3)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_uleb_length_expansion_checks_space_before_moving_suffix(self):
+        def source(count):
+            return f'''var neighbor:i64[>..]=[{CANARY}];
+recursive fn make()->u8[u32]{{print(77);return[7;{count}];}}
+fn main(){{let a:u8[varint]=make();print(a.len);}}'''
+        for level in (0,2):
+            _,baseline=self.compile(source(1),level)
+            path,info=self.compile(source(baseline['region_bytes']-1),level)
+            self.assertEqual(info['region_count'],2)
+            self.assertEqual(info['region_bytes'],baseline['region_bytes'])
+            for engine,observed in self.engines(path,info,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn('data region exhausted',observed['error'])
+                    self.assertEqual(observed['numbers'],['77'])
+                    self.assertEqual(observed['canary'],str(CANARY))
+
     def test_varint_grow_recursive_append_uses_no_extra_data_lease(self):
         source=f'''var neighbor:i64[>..]=[{CANARY}];
 recursive fn values(n:i64)->varint[>..]{{if n==0{{return[64,-65];}}return values(n-1);}}

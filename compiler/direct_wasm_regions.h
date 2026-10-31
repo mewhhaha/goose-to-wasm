@@ -269,6 +269,9 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
         CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
         if (Compiler::Varint(types[i]->arr->sub))
             CheckNamedVarintReturns(body, target, types.size(), i, candidate, "array");
+        else if (Compiler::GrowableArray(candidate->type) &&
+                 Compiler::ULEBLength(destinations[i]->location.storage_type) && !destinations[i]->elements)
+            CheckNamedVarintReturns(body, target, types.size(), i, candidate, "length array");
         named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate);
     }
     return added;
@@ -340,10 +343,10 @@ inline void Function::ConstructRegionView(uint32_t source, const ConstructionDes
                                           optional<uint32_t> capacity) {
     auto element = destination.location.storage_type->arr->sub;
     LocationAddress(destination.location); auto header = Save(I32);
-    InitializeArrayImage(header, destination, line);
-    Get(header); code.Mem(0x28, 2); auto base = Save(I32);
     Get(source); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
     CheckArrayLength(destination.location.storage_type, count, line, destination.elements);
+    InitializeKnownArrayImage(header, destination, count, line);
+    Get(header); code.Mem(0x28, 2); auto base = Save(I32);
     if (Compiler::Varint(element)) {
         Get(count); code.Op(0xa7); WriteArrayLength(header, Save(I32));
         Get(source); code.Op(0xa7); CopyVarintElements(header, Save(I32), count, line); return;
@@ -358,7 +361,9 @@ inline void Function::ConstructRegionView(uint32_t source, const ConstructionDes
             Get(cap); code.Op(0xa7); WriteArrayCapacity(header, Save(I32));
         }
     }
-    code.I32Const(0); WriteArrayLength(header, Save(I32));
+    if (!Compiler::ULEBLength(destination.location.storage_type)) {
+        code.I32Const(0); WriteArrayLength(header, Save(I32));
+    }
     ReserveRegion(header, count, element, line);
     Get(base); Get(source); code.Op(0xa7);
     if (Compiler::RuntimeLimited(destination.location.storage_type) && capacity && destination.lifetime != ConstructionDestination::Existing)
@@ -498,13 +503,19 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     }
     OpenConstruction open(destination);
     LocationAddress(place); auto header = Save(I32);
-    if (!node || Is<ArrayLit>(node)) InitializeArrayImage(header, destination, line);
+    if (!node || Is<ArrayLit>(node)) {
+        auto literal = Is<ArrayLit>(node);
+        auto size = literal ? literal->fillval ? static_cast<IntLit *>(literal->fillcount)->val : int64_t(literal->elems.size()) : 0;
+        if (Compiler::ULEBLength(type) && uint64_t(size) > UINT32_MAX)
+            Fail(line, "varint-length fills beyond the wasm32 element limit are not supported");
+        code.I64Const(size); InitializeKnownArrayImage(header, destination, Save(I64), line);
+    }
     PublishHeader(header, 0);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
 
     if (!node) {
         code.I32Const(0); WriteArrayLength(header, Save(I32));
-        Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+        if (!Compiler::ULEBLength(type)) { Get(header); code.I32Const(0); code.Mem(0x36, 2, 12); }
         code.I64Const(0); auto count = Save(I64); ReserveRegion(header, count, element, line);
         PublishCursor(header, base); return;
     }

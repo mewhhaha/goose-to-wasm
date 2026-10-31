@@ -1,0 +1,67 @@
+{
+  "lengths": {
+    "stdout": "0\n0\n1 7 7\n127 7 7\n128 7 7\n16383 7 7\n16384 7 7\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "er_channels": {
+    "stdout": "narrow\nencoded\nencoded\n256 256 257 7 7\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "copies": {
+    "stdout": "128 128 128 4660\n0\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "nrvo": {
+    "stdout": "0 0\n1 1\n0 0\n127 127\n126 126\n128 128\n127 127\n16383 16383\n254 254\n16384 16384\n255 255\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "tuple": {
+    "stdout": "128 9 10 16384 4660\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "callbacks": {
+    "stdout": "128 9\n7 128\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "value_dispatch": {
+    "stdout": "127 8 128 8\n128 7 129 7\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "value_range": {
+    "stdout": "",
+    "exit_code": 1,
+    "diagnostic": "array length exceeds storage range"
+  },
+  "strings": {
+    "stdout": "0 1 127 128\na\n121\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "er_cancel": {
+    "stdout": "7 128\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "forward_strings": {
+    "stdout": "128 122 128 122 127\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "packed_elements": {
+    "stdout": "128 1 8755\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "narrow_receiver": {
+    "stdout": "encoded\n",
+    "exit_code": 1,
+    "diagnostic": "array length exceeds storage range"
+  }
+}

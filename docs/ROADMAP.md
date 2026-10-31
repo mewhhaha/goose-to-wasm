@@ -80,6 +80,15 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: unsigned varint array lengths
+
+Standalone fixed-element Var arrays use minimal unsigned ULEB128 metadata.
+Known counts write their exact prefix before elements; ER/NRVO reserves one
+untouched byte and patches the entire physical suffix after success. Public
+views decode bytes rather than construction-width caches. Containing/combined
+forms, actual targets and unproved named-Grow later observations remain gated.
+See [ULEB lengths](ULEB_LENGTHS.md).
+
 ## Implemented: growable varint elements
 
 Standalone Grow uses raw sequential images, exact push reservation and private
