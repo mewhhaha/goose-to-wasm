@@ -80,6 +80,15 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: fixed and variable-prefix record padding
+
+Fixed record/variant pads retain declaration indices and explicit alignment;
+non-frame variable image prefixes publish explicit pad bytes at their source
+position and ignore bare alignment pads. Empty payload detection includes pad-only
+alternatives, and whole copies preserve padding bytes. Frame/suffix pads,
+ambiguous bare-pad fixed payloads in variable enums, image-effect and overlap
+proofs remain gated. See [record padding](RECORD_PADDING.md).
+
 ## Implemented: compact static-capacity metadata
 
 `T[..k]` uses the smallest unsigned length and packed inline capacity slots.

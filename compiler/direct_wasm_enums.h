@@ -44,7 +44,7 @@ inline uint32_t Function::EnumImageBytes(const Location &owner, Line line) {
         if (Compiler::RegionVariant(variant)) {
             auto payload = EnumPayloadLocation(owner, variant, line);
             Get(RecordImageBytes(payload, line));
-        } else code.I64Const(c.RecordFields(variant).empty() ? 0 : c.FixedLayout(variant).size);
+        } else code.I64Const(EmptyLayout(c.RecordFieldDefs(variant)) ? 0 : c.FixedLayout(variant).size);
         code.I64Const(c.EnumTagBytes(ei)); code.Op(0x7c); Set(bytes); Br(done); End();
     }
     Abort(line, "invalid enum tag"); End();
@@ -141,7 +141,7 @@ inline void Function::FinishEnumPayload(const ConstructionDestination &receiver,
 
 inline void Function::AppendFixedEnumPayload(TypeExpr *variant, uint32_t value,
         const ConstructionDestination &destination, Line line) {
-    auto bytes = c.RecordFields(variant).empty() ? 0 : c.FixedLayout(variant).size;
+    auto bytes = EmptyLayout(c.RecordFieldDefs(variant)) ? 0 : c.FixedLayout(variant).size;
     LocationAddress(destination.location); auto header = Save(I32);
     code.I64Const(bytes); auto end = ReserveImageBytes(header, Save(I64), line);
     if (bytes) { Get(RegionCursor(header)); Get(value); code.I32Const(int32_t(bytes)); code.Copy(); }
@@ -282,6 +282,10 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
             LocationAddress(destination.location); auto header = Save(I32);
             auto &fields = ei->vftypes[size_t(vi)];
             for (size_t i = 0; i < fields.size(); i++) {
+                auto &definition = ei->en->variants[size_t(vi)].fields[i];
+                if (definition.ispad) {
+                    CommitImagePadding(header, uint64_t(max<int64_t>(0, definition.padsize)), line); continue;
+                }
                 auto ft = fields[i]; auto init = literal ? literal->InitFor(int(i)) : nullptr;
                 optional<CapturedValue> value;
                 if (init) value = CaptureBorrowed(init, ft);

@@ -38,7 +38,7 @@ struct Signature {
 struct Import { string module, name; uint32_t type; };
 enum class ArrayStorageMode : uint32_t { RawElements, VarU8, VarU16, VarU32, VarU64, RuntimeLimited };
 inline constexpr uint32_t owner_control_bytes = 24;
-struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; uint32_t payload = 0; };
+struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; uint32_t payload = 0; bool bare_pad_gap = false; };
 enum RuntimeGlobal { G_SCRATCH_TOP, G_REGION_NEXT, G_REGION_BASE, G_REGION_BYTES, G_REGION_COUNT, G_ACTIVATION_LIMIT };
 struct Slot {
     enum Kind { LOCAL, FRAME, GLOBAL, ADDRESS } kind = LOCAL;
@@ -366,6 +366,7 @@ struct Function {
     void SetRecordImageAnchor(const Location &, uint32_t, Line);
     void DecodeRecordImage(const Location &, Line);
     uint32_t ReserveImageBytes(uint32_t, uint32_t, Line);
+    void CommitImagePadding(uint32_t, uint64_t, Line);
     void ConstructRecordImageLiteral(Node *, const ConstructionDestination &);
     bool ConstructNormalRecordImage(Node *, const ConstructionDestination &);
 
@@ -453,22 +454,39 @@ struct Compiler {
     bool Aggregate(TypeExpr *t) const {
         return t && (t->kind == TY_ARRAY || t->kind == TY_STRUCT || t->kind == TY_ENUM || t->kind == TY_VARIANT);
     }
+    static uint32_t PadAlignment(TypeExpr *type) {
+        if (!type) return 1;
+        if (type->kind == TY_INT) return type->intstorage == IS_VARINT ? 1 : uint32_t(IntBits(type->intstorage) / 8);
+        if (type->kind == TY_FLT) return IsF32(type) ? 4 : 8;
+        if (type->kind == TY_REF) return type->ref->lenstorage < 0 ? 8 :
+            type->ref->lenstorage == IS_VARINT ? 1 : uint32_t(IntBits(IntStorage(type->ref->lenstorage)) / 8);
+        return type->kind == TY_SLICE ? 8 : 1;
+    }
+    Layout FixedRecordLayout(const vector<Field> &definitions, const vector<TypeExpr *> &types, Line line) {
+        Layout result; uint64_t bytes = 0, limit = uint64_t(opts.maximum_pages) * 65536;
+        auto append = [&](uint64_t amount) {
+            if (bytes > limit || amount > limit - bytes) Fail(line, "record exceeds the configured linear-memory limit");
+            bytes += amount;
+        };
+        for (size_t i = 0; i < definitions.size(); i++) {
+            result.fields.push_back(uint32_t(bytes));
+            if (definitions[i].ispad) {
+                if (definitions[i].padsize >= 0) append(uint64_t(definitions[i].padsize));
+                else {
+                    auto next = i + 1;
+                    while (next < definitions.size() && definitions[next].ispad) next++;
+                    auto alignment = next < types.size() ? PadAlignment(types[next]) : 1;
+                    auto gap = (alignment - bytes % alignment) % alignment;
+                    result.bare_pad_gap |= gap != 0; append(gap);
+                }
+            } else append(FixedLayout(types[i]).size);
+        }
+        result.size = max<uint32_t>(1, uint32_t(bytes)); return result;
+    }
     const Layout &Payload(EnumInst *ei, int vi) {
         auto key = make_pair(ei, vi);
         if (auto it = payload_layouts.find(key); it != payload_layouts.end()) return it->second;
-        Layout r;
-        for (size_t i = 0; i < ei->vftypes.at(size_t(vi)).size(); i++) {
-            auto &field = ei->en->variants.at(size_t(vi)).fields[i];
-            if (field.ispad) Fail(field.line, "explicit variant padding is not supported");
-            auto sub = Size(ei->vftypes[size_t(vi)][i]);
-            // Variant fields are adjacent in the pinned image format. Each
-            // field still uses its own current representation.
-            r.fields.push_back(r.size);
-            if (uint64_t(r.size) + sub.size > uint64_t(opts.maximum_pages) * 65536)
-                Fail(field.line, "variant exceeds the configured linear-memory limit");
-            r.size += sub.size;
-        }
-        r.size = max<uint32_t>(1, r.size);
+        auto r = FixedRecordLayout(ei->en->variants.at(size_t(vi)).fields, ei->vftypes.at(size_t(vi)), ei->en->variants.at(size_t(vi)).line);
         return payload_layouts.emplace(key, std::move(r)).first->second;
     }
     static bool PackedIntegerImage(TypeExpr *root) {
@@ -527,7 +545,7 @@ struct Compiler {
             auto vt = EnumVariantType(ei, int(vi), line);
             auto sub = FixedLayout(vt);
             // Empty alternatives take no bytes behind their enum's tag.
-            if (RecordFields(vt).empty()) sub.size = 0;
+            if (EmptyLayout(RecordFieldDefs(vt))) sub.size = 0;
             bytes = max(bytes, sub.size);
         }
         r.payload = EnumTagBytes(ei);
@@ -602,7 +620,8 @@ struct Compiler {
         if (!t || t->kind != TY_VARIANT || !t->var->adt->enu->inst) return false;
         auto ei = t->var->adt->enu->inst;
         auto &fields = ei->vftypes.at(size_t(ei->en->VariantIndex(t->var->variant)));
-        auto tail = fields.empty() ? nullptr : fields.back();
+        auto last = LastRealField(ei->en->variants.at(size_t(ei->en->VariantIndex(t->var->variant))).fields);
+        auto tail = last < 0 ? nullptr : fields.at(size_t(last));
         return (RegionArray(tail) && !GrowableArray(tail)) || (RegionRecord(tail) && !FrameStruct(tail));
     }
     static bool RegionRecord(TypeExpr *t) { return RegionStruct(t) || RegionVariant(t); }
@@ -652,7 +671,11 @@ struct Compiler {
                 Fail(t->line, "resizable variable-mode enums are not supported");
             for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
                 auto variant = EnumVariantType(ei, int(vi), t->line);
-                if (Class(variant) == SC_FIXED) { FixedLayout(variant); layout.fields.push_back(0); continue; }
+                if (Class(variant) == SC_FIXED) {
+                    if (FixedLayout(variant).bare_pad_gap)
+                        Fail(t->line, "variable enum fixed-payload bare-pad gaps require physical-layout qualification");
+                    layout.fields.push_back(0); continue;
+                }
                 if (!RegionVariant(variant))
                     Fail(t->line, "variable enum payloads require one final nonresizable array tail");
                 auto sub = ControlLayout(variant);
@@ -667,6 +690,10 @@ struct Compiler {
         else if (RegionRecord(t)) {
             auto &fields = RecordFields(t);
             auto &defs = RecordFieldDefs(t);
+            if (!defs.empty() && defs.back().ispad)
+                Fail(t->line, "padding after an owned tail requires a suffix-aware image walker");
+            if (FrameStruct(t) && any_of(defs.begin(), defs.end(), [](auto &field) { return field.ispad; }))
+                Fail(t->line, "padding in frame objects is not supported");
             auto tail = fields.empty() ? nullptr : fields.back();
             auto tail_array = tail && tail->kind == TY_ARRAY &&
                 (FrameStruct(t) ? GrowableArray(tail) : (tail->arr->akind == A_VAR || RuntimeLimited(tail)));
@@ -674,7 +701,7 @@ struct Compiler {
             if (!tail_array && !tail_struct)
                 Fail(t->line, "owned structs require one final variable-array field, runtime-limited array field or nested single-tail owner");
             for (size_t i = 0; i < fields.size(); i++) {
-                if (defs[i].ispad) Fail(t->line, "explicit record padding is not supported");
+                if (defs[i].ispad) { layout.fields.push_back(layout.size); continue; }
                 auto field = i + 1 == fields.size() ? ControlLayout(fields[i]) : FixedLayout(fields[i]);
                 layout.align = max(layout.align, field.align);
                 layout.size = Align(layout.size, field.align); layout.fields.push_back(layout.size);
@@ -696,13 +723,15 @@ struct Compiler {
         ControlLayout(t);
         Layout image;
         auto &fields = RecordFields(t);
+        auto &definitions = RecordFieldDefs(t);
         for (size_t i = 0; i < fields.size(); i++) {
             image.fields.push_back(image.size);
-            auto bytes = i + 1 < fields.size() ? FixedLayout(fields[i]).size :
+            auto bytes = definitions[i].ispad ? uint64_t(max<int64_t>(0, definitions[i].padsize)) :
+                         i + 1 < fields.size() ? uint64_t(FixedLayout(fields[i]).size) :
                          RegionRecord(fields[i]) ? RecordImageLayout(fields[i]).size : 0u;
             if (uint64_t(image.size) + bytes > uint64_t(opts.maximum_pages) * 65536)
                 Fail(t->line, "record image prefix exceeds linear memory");
-            image.size += bytes;
+            image.size += uint32_t(bytes);
         }
         image.payload = image.size;
         return record_image_layouts.emplace(t, std::move(image)).first->second;
@@ -782,16 +811,7 @@ struct Compiler {
             case TY_STRUCT: {
                 auto si = t->struc->inst;
                 if (!si || si->sclass != SC_FIXED) Fail(t->line, "only fixed-size structs are supported");
-                for (size_t i = 0; i < si->ftypes.size(); i++) {
-                    auto &f = si->st->fields[i];
-                    if (f.ispad) Fail(f.line, "explicit struct padding is not supported");
-                    auto sub = Size(si->ftypes[i]);
-                    r.fields.push_back(r.size);
-                    if (uint64_t(r.size) + sub.size > uint64_t(opts.maximum_pages) * 65536)
-                        Fail(t->line, "struct exceeds the configured linear-memory limit");
-                    r.size += sub.size;
-                }
-                r.size = max<uint32_t>(1, r.size); break;
+                r = FixedRecordLayout(si->st->fields, si->ftypes, t->line); break;
             }
             case TY_VARIANT: {
                 auto ei = t->var->adt->enu->inst;

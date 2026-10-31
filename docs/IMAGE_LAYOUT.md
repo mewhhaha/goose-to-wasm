@@ -1,7 +1,8 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=8;static-limited=compact-lengths;enum-tags=compact`, with
+internal `layout=9;record-padding=fixed-alignment-variable-explicit`, with
+`static-limited=compact-lengths;enum-tags=compact` and
 `variable-enums=active-payloads`, alongside
 `record-values=packed-single-tail;owner-control=24` and
 the unsigned array value and packed fixed-record/variant markers.
@@ -10,7 +11,7 @@ The 24-byte owner control ABI remains separately aligned as described in
 [TARGET.md](TARGET.md); it is not a serialized image.
 
 Fixed structs and standalone variant payloads place fields next to each other,
-without inter-field or trailing alignment. Each field retains its own current
+with alignment introduced only by explicit pad declarations. Each field retains its own current
 representation. A `u8` followed by a `u16` occupies three bytes with alignment one;
 fixed arrays use that stride. This applies recursively through nested and generic
 fixed records. Wasm permits the resulting unaligned scalar loads and stores.
@@ -46,6 +47,9 @@ terminal array images together. Their aligned controls remain separate, and the
 outer variable enum now stores the compact tag and active payload only. Aligned
 owner envelopes retain separate persistent controls for each nonfixed variant,
 so saved typed views survive replacement. Inactive payloads consume no data bytes.
+[Record padding](RECORD_PADDING.md) distinguishes fixed alignment pads from
+explicit-only variable prefix pads. Frame/suffix pads, ambiguous bare-pad fixed
+payloads in variable enums, overlap and image-effect proofs remain bounded.
 [Static-capacity arrays](STATIC_LIMITED_IMAGES.md) now pack their minimum length
 metadata and inline allocation, including standalone zero-capacity placeholders.
 Further steps are general variable walkers. Those require dynamic

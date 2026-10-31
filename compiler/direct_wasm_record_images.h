@@ -75,13 +75,24 @@ inline uint32_t Function::ReserveImageBytes(uint32_t header, uint32_t count, Lin
     Get(end); code.Op(0xa7); auto top = Save(I32); EnsureMemory(top, line); return top;
 }
 
+inline void Function::CommitImagePadding(uint32_t header, uint64_t bytes, Line line) {
+    if (!bytes) return;
+    code.I64Const(int64_t(bytes)); auto end = ReserveImageBytes(header, Save(I64), line);
+    Get(RegionCursor(header)); code.I32Const(0); code.I32Const(int32_t(bytes)); code.Fill();
+    PublishCursor(header, end);
+}
+
 inline void Function::ConstructRecordImageLiteral(Node *node, const ConstructionDestination &destination) {
     auto type = destination.location.storage_type;
     auto literal = Is<StructLit>(node);
     auto line = node ? node->line : type->line;
     LocationAddress(TailHeaderLocation(destination.location)); auto header = Save(I32);
     auto &fields = c.RecordFields(type);
+    auto &definitions = c.RecordFieldDefs(type);
     for (size_t i = 0; i < fields.size(); i++) {
+        if (definitions[i].ispad) {
+            CommitImagePadding(header, uint64_t(max<int64_t>(0, definitions[i].padsize)), line); continue;
+        }
         auto init = literal ? literal->InitFor(int(i)) : nullptr;
         if (i + 1 < fields.size()) {
             optional<CapturedValue> value;

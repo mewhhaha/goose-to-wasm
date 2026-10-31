@@ -213,11 +213,11 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
             // Tag-only alternatives leave every old payload field intact.
             auto tag_only = [&](Node *node) {
                 if (auto literal = Is<StructLit>(node); literal && literal->variant)
-                    return literal->variant->fields.empty();
+                    return EmptyLayout(literal->variant->fields);
                 if (auto constant = Is<Dot>(node); constant && constant->variantconst)
-                    return constant->variantconst->fields.empty();
+                    return EmptyLayout(constant->variantconst->fields);
                 auto natural = NaturalResults(node);
-                return natural.size() == 1 && natural[0]->kind == TY_VARIANT && c.RecordFieldDefs(natural[0]).empty();
+                return natural.size() == 1 && natural[0]->kind == TY_VARIANT && EmptyLayout(c.RecordFieldDefs(natural[0]));
             };
             function<void(Node *)> validate = [&](Node *node) {
                 if (!node) return;

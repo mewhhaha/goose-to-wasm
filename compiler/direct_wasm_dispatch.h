@@ -117,7 +117,7 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
         Get(tag); code.I32Const(int32_t(vi)); code.Op(0x46); Begin(0x04);
         for (size_t i = 0; i < args.size(); i++) {
             if (i != size_t(position)) Get(shared[i]);
-            else if (params[i]->type->kind != TY_REF && c.RecordFields(params[i]->type).empty()) {
+            else if (params[i]->type->kind != TY_REF && EmptyLayout(c.RecordFieldDefs(params[i]->type))) {
                 auto empty = FreshDestination(params[i]->type, ConstructionDestination::Activation);
                 LocationAddress(empty.location); code.I32Const(0); code.I32Const(int32_t(c.FixedLayout(params[i]->type).size)); code.Fill();
                 LocationAddress(empty.location);

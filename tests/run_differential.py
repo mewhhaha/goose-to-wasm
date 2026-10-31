@@ -52,6 +52,11 @@ def wrap(value, bits, signed=True):
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     for debug in (False,True):
+        for name,answer in {"fixed":"17 573785173 300 310 7\n17 true 300 1.5 17 2 5\n",
+                            "callbacks":"1\n2\n3\n3\n1\n7\n1\n2\n3\n6\n1\n7\n",
+                            "enums":"1\n2\n3\n4\n3\n17\n"}.items():
+            result.append(Case("padding/"+name+("-debug" if debug else ""),"padding_"+name,stdout=answer,debug=debug,group="storage"))
+    for debug in (False,True):
         for name,answer in {"wide":"65535 65536 2 3\n3\n2 1 1\n65536 7 1\n65535 7\n2 9 8\n", "zero":"0 0 0 0 0 1\n", "boundaries":"255 255 1 2\n2\n2 1\n255 7\n0\n256 256 4 5\n14 14 256 6 7\n256 14 4 9\n0\n",
                             "values":"[7, 8] [17, 8] [7, 8] [7, 8]\n17 2 13125 30600 85\nabc! 4 256\n0 0 0 0\n"}.items():
             result.append(Case("compact-limited/"+name+("-debug" if debug else ""),"compact_limited_"+name,
