@@ -72,6 +72,26 @@ inline void Function::FinishEnumImage(const Location &owner, uint32_t start, boo
     DecodeEnumImage(owner, line);
 }
 
+inline void Function::LandEnumImage(const Location &owner, uint32_t start, uint32_t entry, Line line) {
+    LocationAddress(owner); auto header = Save(I32);
+    auto finish = RegionCursor(header);
+    Get(header); code.Mem(0x28, 2, 8); auto limit = Save(I32);
+    Get(limit); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6b); auto region_base = Save(I32);
+    Get(start); Get(region_base); code.Op(0x49);
+    Get(entry); Get(region_base); code.Op(0x49); code.Op(0x72);
+    Get(entry); Get(limit); code.Op(0x4b); code.Op(0x72);
+    Get(start); Get(finish); code.Op(0x4b); code.Op(0x72);
+    Get(finish); Get(limit); code.Op(0x4b); code.Op(0x72);
+    TrapIf(line, "invalid nonlocal enum image span");
+    Get(finish); code.Op(0xad); Get(start); code.Op(0xad); code.Op(0x7d); auto bytes = Save(I64);
+    Get(entry); code.Op(0xad); Get(bytes); code.Op(0x7c); auto end = Save(I64);
+    Get(end); Get(limit); code.Op(0xad); code.Op(0x56); TrapIf(line, "data region exhausted");
+    Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
+    Get(entry); Get(start); Get(bytes); code.Op(0xa7); code.Copy();
+    SetEnumImageAnchor(owner, entry, line); DecodeEnumImage(owner, line);
+    Get(end); code.Op(0xa7); PublishCursor(header, Save(I32));
+}
+
 inline bool Function::ConstructNormalEnumImage(Node *value, const ConstructionDestination &destination) {
     if (!c.region_cursors || destination.escape_stage || !destination.normal_result) return false;
     auto type = destination.location.storage_type; auto line = value ? value->line : type->line;

@@ -9,7 +9,7 @@ length Var and runtime-limited arrays of scalar elements or recursively packed
 integer records/fixed arrays also qualify with byte-authoritative image landing.
 Qualified single-tail records and standalone variants with recursively packed
 integer prefixes also land whole images. Other aggregate element representations
-and enclosing enum owned kinds remain explicitly gated.
+and unproved enum payload images remain explicitly gated.
 
 Final checked bodies identify actual escaping returns. Discovery skips raw
 declarations/function-value templates, walks checked callback/default bodies and
@@ -99,7 +99,7 @@ closed ordinary producers with fixed, reference-free parameters/captures.
 Qualified growable forwarding can evaluate push arguments. Callback-result and
 unproved borrowed/owned producer environments receive a diagnostic. Variable,
 capacity-limited and qualified record results now use the image contracts below;
-enclosing enum targets and other sources require further work.
+qualified enum image targets use the contract below; other sources require further work.
 
 Differential fixtures cover recursive target identity, local source slices,
 argument ordering, canceled partial values followed by literal/copy/forwarded
@@ -248,3 +248,43 @@ Record fixtures also cover cancellation in fixed fields and tails, nested record
 standalone variants, interleaved physical writes, multiple heterogeneous result
 channels and sparse logical extents. Resource tests exercise repeated returns,
 recursive activation exhaustion and overflowing packed tails beside live canaries.
+
+
+## Enum image targets
+
+Nonresizable variable-mode enums qualify when every payload has a proved packed
+integer fixed image or a qualified integer-prefix single-tail record image.
+Fixed prefixes, Var widths, runtime-limited tails and empty alternatives keep the
+existing conservative representation proof. Other payload forms remain gated.
+
+Entry records the receiving cursor and anchors the original envelope without
+writing a tag or reserving payload data. Named enum results use private envelopes
+sharing that region, so a declaration after a canceled prefix can read its own
+later image while the returned value retains the original entry interpretation.
+The named-Ident shortcut does not republish the receiving anchor.
+
+Every source stage receives a private envelope, fixed attempt start and zero
+publication channel. Starts for all owned ordinals snapshot before any source
+expression. All snapshots commit together only after successful completion.
+The existing per-ordinal mailbox layout needs no change or additional data lease.
+Closed-source admission and exact natural tuple forwarding remain unchanged.
+
+Catch validates absolute region bounds, copies the complete physical suffix to
+the saved entry, reanchors the original envelope and decodes the active image.
+It publishes entry plus physical suffix bytes, independently of the decoded
+logical extent. Sparse Var/Limited images can map more memory without advancing
+that cursor. Winning control envelopes are not copied over original persistent
+views. Tags retain their compact width at the 256/257-alternative boundary.
+
+Pending remains set through every landing and cleanup. Replaced-owner recognition
+covers terminal controls within the original enum envelope, using widened range
+bounds. This range is defensively audited; current qualified source forms use
+private producer controls or Limited assignment temporaries, and no valid source
+witness for that specific original persistent-header branch has been established.
+Runtime tests cover dying private payloads, same/different-tag replacement,
+surviving global extent checks, neighboring canaries and activation exhaustion.
+
+Native/direct fixtures include canceled fixed prefixes, private named anchors,
+sparse Var/Limited tails, source starts before earlier scalar ordinals, exact
+producer tuples, nested winning replacement and forwarding through another
+actual enum target. All retained source/representation gates stay explicit.

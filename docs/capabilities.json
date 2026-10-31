@@ -860,7 +860,7 @@
       },
       "variable": {
         "status": "qualified_subset",
-        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Compact tag plus active payload only, with one persistent typed control slot per nonfixed variant outside the image. Independent active-byte copies, capacity preservation, normal and tuple image staging, named aliases, borrowed/copy match and dispatch, fixed-mode snapshots, final-annotation-aware variant adapters and native inline construction openings. Saved old typed views observe replacement bytes for proved integer payload images. Inactive alternatives reserve no data; sparse logical extents map without promoting physical cursors. Resizable/multiple-owner payloads, containing E.. owners, unproved overlap layouts, actual out-of-line enum effects and general serialization remain pending.",
+        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Compact tag plus active payload only, with one persistent typed control slot per nonfixed variant outside the image. Independent active-byte copies, capacity preservation, normal and tuple image staging, named aliases, borrowed/copy match and dispatch, fixed-mode snapshots, final-annotation-aware variant adapters and native inline construction openings. Saved old typed views observe replacement bytes for proved integer payload images. Inactive alternatives reserve no data; sparse logical extents map without promoting physical cursors. Resizable/multiple-owner payloads, containing E.. owners, unproved overlap layouts, unproved effect sources and general serialization remain pending. Qualified actual enum targets fix entry anchors, use private named/source envelopes, atomically commit multiple result snapshots and land full physical suffixes without extra data regions.",
         "fixtures": [
           "tests/fixtures/variable_mode_enums.goose",
           "tests/fixtures/variable_enum_tails.goose",
@@ -898,7 +898,8 @@
           "tests/test_packed_layout_boundaries.py",
           "tests/test_record_images.py",
           "tests/test_enum_tags.py",
-          "tests/test_enum_images.py"
+          "tests/test_enum_images.py",
+          "tests/test_enum_image_returns.py"
         ]
       }
     },
@@ -1013,7 +1014,7 @@
       },
       "nonlocal_return": {
         "status": "qualified_subset",
-        "scope": "Supported fixed results may accompany multiple Grow/GrowShrink or nested fixed-prefix Frame results. Every owned cursor snapshots before any source expression; independent private stages and fixed snapshots commit only after the attempt succeeds. Per-ordinal metadata preserves target entry cursors, physical suffixes, Frame base offsets, recursive activation identity and cross-frame cleanup. Exact-type tuples forward through closed ordinary producers without extra staging regions. Alias independence, cancellation, nested replacement, heterogeneous/generic results and region/activation exhaustion are qualified. Standalone unsigned-length Var and runtime-limited arrays of scalar elements or recursively packed fixed-width integer records/variants/nonempty fixed arrays land full suffixes at saved entry anchors and decode byte-authoritative metadata, including canceled prefixes and private named images. Other aggregate element representations (including refs/slices, enums, static-limited headers, empty aggregates and bool/float aggregate fields) and enclosing enum/unproved-record owned image kinds remain gated. Qualified integer-prefix single-tail record and standalone variant targets preserve full physical suffixes and decode authoritative entry images. Normal tuple forwarding uses private image controls before argument evaluation to preserve outer anchors across inner actual targets.",
+        "scope": "Supported fixed results may accompany multiple Grow/GrowShrink or nested fixed-prefix Frame results. Every owned cursor snapshots before any source expression; independent private stages and fixed snapshots commit only after the attempt succeeds. Per-ordinal metadata preserves target entry cursors, physical suffixes, Frame base offsets, recursive activation identity and cross-frame cleanup. Exact-type tuples forward through closed ordinary producers without extra staging regions. Alias independence, cancellation, nested replacement, heterogeneous/generic results and region/activation exhaustion are qualified. Standalone unsigned-length Var and runtime-limited arrays of scalar elements or recursively packed fixed-width integer records/variants/nonempty fixed arrays land full suffixes at saved entry anchors and decode byte-authoritative metadata, including canceled prefixes and private named images. Other aggregate element representations (including refs/slices, enums, static-limited headers, empty aggregates and bool/float aggregate fields) and unproved enum/record owned image kinds remain gated. Qualified integer-prefix single-tail record and standalone variant targets preserve full physical suffixes and decode authoritative entry images. Normal tuple forwarding uses private image controls before argument evaluation to preserve outer anchors across inner actual targets. Qualified nonresizable enum image targets preserve compact tag widths, saved entry anchors, private named envelopes, sparse decoded extents, multiple-result starts and whole physical suffixes. Replaced-owner bounds cover the extended control envelope; no additional data regions are leased. Existing closed-source/exact-tuple gates remain.",
         "fixtures": [
           "tests/fixtures/nonlocal_fixed_paths.goose",
           "tests/fixtures/nonlocal_frame_canceled.goose",
@@ -1096,11 +1097,21 @@
           "tests/fixtures/nonlocal_record_forwarding_arguments.goose",
           "tests/fixtures/nonlocal_record_forwarding_abandoned.goose",
           "tests/fixtures/nonlocal_record_forwarding_pair.goose",
-          "tests/fixtures/nonlocal_record_forwarding_limited.goose"
+          "tests/fixtures/nonlocal_record_forwarding_limited.goose",
+          "tests/fixtures/nonlocal_enum_canceled_prefix.goose",
+          "tests/fixtures/nonlocal_enum_named_anchor.goose",
+          "tests/fixtures/nonlocal_enum_sparse.goose",
+          "tests/fixtures/nonlocal_enum_limited_sparse.goose",
+          "tests/fixtures/nonlocal_enum_all_starts.goose",
+          "tests/fixtures/nonlocal_enum_replacement.goose",
+          "tests/fixtures/nonlocal_enum_forwarding.goose",
+          "tests/fixtures/nonlocal_enum_inner_forwarding.goose",
+          "tests/fixtures/nonlocal_enum_nested_replacement.goose"
         ],
         "boundary_fixtures": [
           "tests/test_regions.py",
-          "tests/test_static_capture_boundaries.py"
+          "tests/test_static_capture_boundaries.py",
+          "tests/test_enum_image_returns.py"
         ]
       },
       "aggregate_host_abi": {

@@ -281,6 +281,7 @@ struct Function {
     void SetArrayImageAnchor(uint32_t, uint32_t, TypeExpr *);
     void LandArrayImage(uint32_t, uint32_t, uint32_t, TypeExpr *, Line);
     void LandRecordImage(const Location &, uint32_t, uint32_t, Line);
+    void LandEnumImage(const Location &, uint32_t, uint32_t, Line);
     void FinishRecordImage(const Location &, uint32_t, bool, Line);
     void ReadEnumTag(uint32_t);
     void WriteEnumTag(uint32_t);
@@ -827,6 +828,7 @@ struct Compiler {
     void AnalyzeEffects();
     static bool ArrayImageEffectResult(TypeExpr *);
     bool RecordImageEffectResult(TypeExpr *);
+    bool EnumImageEffectResult(TypeExpr *);
     bool OwnedEffectResult(TypeExpr *);
     vector<size_t> OwnedEffectOrdinals(FnSpec *);
     bool SameEffectType(TypeExpr *, TypeExpr *);

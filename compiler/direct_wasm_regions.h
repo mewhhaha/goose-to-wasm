@@ -293,6 +293,8 @@ inline void Function::ShareRegion(const Location &place, const ConstructionDesti
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 20);
     if (Compiler::RegionRecord(place.storage_type) && !Compiler::FrameStruct(place.storage_type))
         SetRecordImageAnchor(place, RegionCursor(result), place.storage_type->line);
+    if (Compiler::RegionEnum(place.storage_type))
+        SetEnumImageAnchor(place, RegionCursor(result), place.storage_type->line);
     RegisterEffectOwner(place);
 }
 

@@ -67,7 +67,9 @@ staging, active-byte copies, fixed-mode snapshots, match/dispatch routing and
 dying-owner recognition share this representation without another data region.
 Single-call adaptation follows final checked annotations; inline and ordinary
 construction retain their different native opening rules. See [enum images](VARIABLE_ENUMS.md).
-Actual enum nonlocal targets and general variable-image shapes remain pending.
+Qualified actual enum targets now preserve saved entry anchors, private named
+controls, full physical suffixes and persistent-view identity through the existing
+mailbox. Unproved sources and general variable-image shapes remain pending.
 
 ## Implemented: runtime enum case dispatch
 

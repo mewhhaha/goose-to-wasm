@@ -69,8 +69,9 @@ Nonempty replacement observed through old named payload references qualifies
 only for proved packed integer fixed payloads or qualified integer-prefix record
 images with supported terminal elements. Other representation-sensitive overlap
 shapes retain their gate. Resizable enums, multiple/nonfinal variable fields,
-variable elements, containing `E..` owners, general enum nonlocal targets,
+variable elements, containing `E..` owners, unproved enum effect sources,
 serialization, recursive rendering and comparison remain subsequent work.
 Explicit `default<E..>()` remains frontend-invalid; checked globals use the first
-variant's declared defaults. Optimized local exits are distinct from unsupported
-actual out-of-line enum effect targets.
+variant's declared defaults. Optimized local exits retain their annotation/opening rules. Qualified actual
+out-of-line enum targets now use [the image effect contract](NONLOCAL_RETURNS.md#enum-image-targets),
+including private named controls and atomic mixed/multiple result snapshots.

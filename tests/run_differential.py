@@ -51,6 +51,11 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    enum_nonlocal = {"limited_sparse":"9\n17 70000 70000 1 0\n", "inner_forwarding":"9\n7\nA 17\nA 1\n", "nested_replacement":"9\nB 7\n", "canceled_prefix":"9\nA 17 1\n", "named_anchor":"9\n68\nA 17 1\n", "sparse":"9\n17 70000 1 0\n", "all_starts":"9\n7\nA 17\nA 1\n", "replacement":"B 7\n", "forwarding":"5\nA 3\nB 7\n"}
+    for debug in (False,True):
+        for name,answer in enum_nonlocal.items():
+            result.append(Case("enum-nonlocal/"+name+("-debug" if debug else ""),"nonlocal_enum_"+name,
+                               stdout=answer,debug=debug,group="control"))
     for debug in (False, True):
         for name, answer in {"fixed_enum_tuple":"3\nB 7\n", "borrowed_tuple":"3\nB 7\n", "borrowed_ordinary":"arg\nborrowed 7\nA 17\n", "views":"68 51 1\n13124 1 85\n", "fixed_tuple":"7\n300 17\n", "forwarding":"7 2 300 400\n8 1 500 17\n"}.items():
             result.append(Case("enum-image/" + name + ("-debug" if debug else ""), "enum_image_" + name,

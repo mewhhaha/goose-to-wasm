@@ -98,6 +98,43 @@ fn main() { print(target()); }'''
                 self.assertFalse(output.exists())
                 self.assertIn("owned nonlocal source requires a pure read or a closed producer", direct.stdout + direct.stderr)
 
+    def test_unproved_enum_image_nonlocal_payloads_remain_gated(self):
+        cases=(
+            ('', 'flag:bool', 'true'),
+            ('', 'number:f64', '1.5'),
+            ('var fallback:i64=0;', 'point:i64&', 'fallback'),
+            ('enum Inner{A,B{n:u8}}', 'inner:Inner', 'Inner.A'),
+            ('', 'data:u8[..2]', '[1]'),
+            ('struct Empty{}', 'empty:Empty', 'Empty{}'),
+        )
+        with tempfile.TemporaryDirectory(dir=ROOT/'build') as directory:
+            for extra,field,value in cases:
+                source=f'''{extra} enum E{{Data{{{field}}},None}}
+fn target()->E..{{recursive fn leave(){{return E.Data{{{value}}} from target;}} leave();return E.None;}}
+fn main(){{let e=target();}}'''
+                for level in (0,2):
+                    with self.subTest(field=field,level=level):
+                        native,_=self.compile(Path(directory),source,'native',level)
+                        self.assertEqual(native.returncode,0,native.stdout+native.stderr)
+                        direct,output=self.compile(Path(directory),source,'wasm-direct',level)
+                        self.assertNotEqual(direct.returncode,0)
+                        self.assertFalse(output.exists())
+                        self.assertIn('this owned nonlocal target requires additional staging and landing support',direct.stdout+direct.stderr)
+
+    def test_enum_nonlocal_tuple_sources_require_exact_natural_types(self):
+        source='''enum E{Data{values:u8[u8]},Empty}
+recursive fn make()->E.Data,i64{return E.Data{[7]},9;}
+fn target()->E..,i64{recursive fn leave(){return make() from target;} leave();return E.Empty,0;}
+fn main(){let e,n=target();print(n);}'''
+        with tempfile.TemporaryDirectory(dir=ROOT/'build') as directory:
+            for level in (0,2):
+                native,_=self.compile(Path(directory),source,'native',level)
+                self.assertEqual(native.returncode,0,native.stdout+native.stderr)
+                direct,output=self.compile(Path(directory),source,'wasm-direct',level)
+                self.assertNotEqual(direct.returncode,0)
+                self.assertFalse(output.exists())
+                self.assertIn('mixed owned escape forwarding requires an exact closed ordinary producer',direct.stdout+direct.stderr)
+
     def test_callback_local_borrowed_results_require_a_root_proof(self):
         cases = (
             'fn observe(xs: const i64[:], n: i64) -> i64 { xs[0] + n } '
