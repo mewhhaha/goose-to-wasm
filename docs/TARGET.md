@@ -58,6 +58,9 @@ Named-result locals selected by the pinned final-body analysis share their
 destination's base and limit while retaining a private length header. Each
 return position publishes its length at evaluation time; a later result can
 mutate shared elements without changing a previously published result length.
+Forwarded calls capture their natural result representations before adapting
+them in order. Fixed-array/slice values and references to them can construct
+owned receiving arrays without copying an owner descriptor.
 
 An internal by-value growable parameter receives the address of a private
 header constructed by its caller. Each owned argument acquires a distinct region
@@ -203,7 +206,7 @@ The executable differential suite is the authority for qualified behavior.
 ## Explicit refusals and remaining work
 
 The current backend refuses owned dynamic function-value parameters/results,
-fixed/slice-to-owned multi-result adaptation, anonymous dynamic
+anonymous dynamic
 temporaries, dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;

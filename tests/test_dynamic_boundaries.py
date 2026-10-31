@@ -63,9 +63,12 @@ class DynamicBoundaries(unittest.TestCase):
     var values: i64[>..] = [1]; values.push(2); return values;
 }
 fn main() { print(make().len); }''',
-            "fixed-to-owned-forwarding": '''fn fixed() -> i64[2], i64 { return [1, 2], 3; }
-fn promoted() -> i64[>..], i64 { return fixed(); }
-fn main() { let values, n = promoted(); print(values, " ", n); }''',
+            "variable-array-result": '''fn make() -> i64[] { return [1, 2]; }
+fn main() { let values = make(); print(values); }''',
+            "inlined-construction-time-capacity": '''extern fn bench_input() -> i64;
+fn cap() -> i64 { print(123); return bench_input() + 5; }
+inline fn empty() -> i64[..] { return [..cap()]; }
+fn main() { var values: i64[>..] = empty(); print(values.len); }''',
         }
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
             work = Path(directory)

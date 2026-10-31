@@ -453,6 +453,22 @@ fn main() {{
                         self.assertIn("data region exhausted", observed["error"])
                         self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_fixed_and_slice_results_adapt_in_two_receiving_regions(self):
+        source = '''var numbers: i64[2] = [10, 11];
+fn sources(n: i64) -> i64[2], i64[:], i64 { return [n, n + 1], numbers[..], n + 2; }
+fn roots(n: i64) -> i64[>..], i64[>..], i64 { return sources(n); }
+export fn tick(n: i64) -> i64 {
+    let a, b, c = roots(n);
+    if a[1] != n + 1 || b[0] != 10 || c != n + 2 { abort("wrong adapted result"); } return a[1];
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

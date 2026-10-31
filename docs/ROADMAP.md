@@ -4,6 +4,19 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: fixed and slice results into owned receivers
+
+Forwarded multi-result calls preserve each producer's natural ABI type, capture
+all results once and then adapt them in order. Fixed arrays, slices and references
+to them copy into supplied growable regions. Existing owned-result channels stay
+direct. Copies observe the completed call, including later result expressions
+that mutate an earlier slice's source or rebind its referenced slice slot.
+
+Tests cover mixed fixed/slice/grow/shrink/reference results, fixed elements holding
+external references, repeated calls and exact receiving-region counts. Runtime
+limited-capacity literals remain refused after inlining, preserving their pending
+status rather than dropping capacity-expression effects.
+
 ## Implemented: whole growable-owner assignment
 
 Assignment pins the destination header before evaluating its RHS, keeps its data
@@ -49,8 +62,7 @@ position. Later result expressions may change the shared elements or grow the
 local; they do not change the earlier result's published length. Other returned
 positions copy as required. Tests cover these effects and rejected candidates.
 
-Fixed/slice-to-owned adaptation of a forwarded multi-result call and anonymous
-owners remain explicit boundaries.
+Anonymous owners remain explicit boundaries.
 
 ## Implemented: owned growable parameters
 

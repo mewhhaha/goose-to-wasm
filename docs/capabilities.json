@@ -608,7 +608,7 @@
       },
       "A_GROW": {
         "status": "qualified_subset",
-        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, whole-owner assignment, named-result construction and mixed/multiple owned results into named receivers, forwarded returns and supported control expressions. Function-value ownership, fixed/slice-to-owned multi-result adaptation, anonymous temporaries remain pending.",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, whole-owner assignment, named-result construction and adapted fixed/slice or mixed/multiple owned results into named receivers, forwarded returns and supported control expressions. Function-value ownership and anonymous temporaries remain pending.",
         "fixtures": [
           "tests/fixtures/growable_arrays.goose",
           "tests/fixtures/growable_minimal.goose",
@@ -619,7 +619,9 @@
           "tests/fixtures/dynamic_result_channels.goose",
           "tests/fixtures/dynamic_result_minimal.goose",
           "tests/fixtures/dynamic_control.goose",
-          "tests/fixtures/dynamic_assignments.goose"
+          "tests/fixtures/dynamic_assignments.goose",
+          "tests/fixtures/dynamic_result_adaptation.goose",
+          "tests/fixtures/dynamic_adapted_channels.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
@@ -629,7 +631,7 @@
       },
       "A_GROWSHRINK": {
         "status": "qualified_subset",
-        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, whole-owner assignment, named-result construction and mixed/multiple owned results into named receivers, forwarded returns and supported control expressions. Function-value ownership, fixed/slice-to-owned multi-result adaptation, anonymous temporaries remain pending.",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, whole-owner assignment, named-result construction and adapted fixed/slice or mixed/multiple owned results into named receivers, forwarded returns and supported control expressions. Function-value ownership and anonymous temporaries remain pending.",
         "fixtures": [
           "tests/fixtures/growable_arrays.goose",
           "tests/fixtures/growable_minimal.goose",
@@ -640,7 +642,9 @@
           "tests/fixtures/dynamic_result_channels.goose",
           "tests/fixtures/dynamic_result_minimal.goose",
           "tests/fixtures/dynamic_control.goose",
-          "tests/fixtures/dynamic_assignments.goose"
+          "tests/fixtures/dynamic_assignments.goose",
+          "tests/fixtures/dynamic_result_adaptation.goose",
+          "tests/fixtures/dynamic_adapted_channels.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
@@ -741,13 +745,14 @@
     "calls": {
       "direct": {
         "status": "qualified_subset",
-        "scope": "Concrete supported scalar/fixed-layout specialization and recursion, borrowed growable calls, by-value growable parameters and mixed/multiple owned growable result destinations with named-result construction.",
+        "scope": "Concrete supported scalar/fixed-layout specialization and recursion, borrowed growable calls, by-value growable parameters and mixed/multiple owned growable result destinations with named-result construction. Forwarded fixed/slice/reference array results can construct growable receiving channels.",
         "fixtures": [
           "tests/fixtures/recursion.goose",
           "tests/fixtures/aggregate_returns.goose",
           "tests/fixtures/dynamic_returns.goose",
           "tests/fixtures/dynamic_parameters.goose",
-          "tests/fixtures/dynamic_result_channels.goose"
+          "tests/fixtures/dynamic_result_channels.goose",
+          "tests/fixtures/dynamic_adapted_channels.goose"
         ],
         "boundary_fixtures": []
       },

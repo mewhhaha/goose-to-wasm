@@ -121,6 +121,31 @@ inline void Function::ShareRegion(const Location &place, const ConstructionDesti
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 4);
 }
 
+inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_t source,
+        const ConstructionDestination &destination, Line line) {
+    Get(source);
+    if (source_type->kind == TY_REF) { source_type = source_type->ref->sub; Load(source_type); }
+    TypeExpr *element;
+    if (source_type->kind == TY_ARRAY) { element = source_type->arr->sub; PackArrayView(source_type); }
+    else if (source_type->kind == TY_SLICE) element = source_type->sub;
+    else Fail(line, "owned result adaptation requires an array or slice");
+    if (c.FixedLayout(element).size != c.FixedLayout(destination.location.storage_type->arr->sub).size)
+        Fail(line, "owned result element adaptation is not supported");
+    auto view = Save(I64); ConstructRegionView(view, destination, line);
+}
+
+inline void Function::ConstructRegionView(uint32_t source, const ConstructionDestination &destination, Line line) {
+    auto element = destination.location.storage_type->arr->sub;
+    LocationAddress(destination.location); auto header = Save(I32);
+    Get(header); code.Mem(0x28, 2); auto base = Save(I32);
+    Get(source); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+    ReserveRegion(header, count, element, line);
+    Get(base); Get(source); code.Op(0xa7); Get(count); code.Op(0xa7);
+    code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Copy();
+    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
+}
+
 inline void Function::ConstructRegion(Node *node, const Location &place, optional<uint32_t> global_region) {
     AcquireRegion(place, node ? node->line : place.storage_type->line, global_region);
     ConstructRegionInto(node, { place, global_region ? ConstructionDestination::Static : ConstructionDestination::Block });
@@ -204,6 +229,8 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     auto cleanup_depth = cleanups.size();
     bool check_abandoned = false;
     if (auto array = Is<ArrayLit>(node)) {
+        if (array->capexpr)
+            Fail(node->line, "construction-time capacity array literals are not supported at an owned growable destination");
         auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
         code.I64Const(size); count = Save(I64);
         Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 4);
@@ -234,11 +261,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         }
     } else {
         ConstructionView(node); auto source = Save(I64);
-        Get(source); code.I64Const(32); code.Op(0x88); count = Save(I64);
-        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
-        ReserveRegion(header, count, element, node->line);
-        Get(base); Get(source); code.Op(0xa7); Get(count); code.Op(0xa7);
-        code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Copy();
+        ConstructRegionView(source, destination, line); return;
     }
     Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
     if (check_abandoned) CloseCleanups(cleanup_depth);

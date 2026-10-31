@@ -53,6 +53,11 @@ def cases():
     result.append(Case("growable/minimal", "growable_minimal", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/forwarding", "dynamic_forwarding", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/mixed-minimal", "dynamic_result_minimal", stdout="1\n", group="aggregate"))
+    result.append(Case("dynamic/adapted-minimal", "dynamic_result_adaptation", stdout="[1, 2] 3\n", group="aggregate"))
+    for n in (0, 3):
+        answer = (f"[{n}, {n + 1}] {n + 2}\n[7, 8] [{n}, {n + 1}] [{n + 2}] [20, 21]\n"
+                  "[107, 8] [20, 21] 77 88\n44 55 5\n[8, 9] 6 67\n[30, 67] 9\n")
+        result.append(Case(f"dynamic/adapted-channels/{n}", "dynamic_adapted_channels", f"{n}\n", answer, group="aggregate"))
     for n in (0, 3):
         answer = (f"[{n}, {n + 1}]\n[{n + 2}, {n + 3}]\n" +
                   ("[7, 8]\n" if n > 0 else "[]\n") + "[33]\n[33] [34]\n[34] [35]\n[42, 44] [20]\n" +
@@ -303,7 +308,7 @@ def main():
                         print(row["error"], flush=True)
     # The direct fragment must explicitly refuse these valid Goose programs.
     if "direct" in args.backends and not args.filter:
-        for fixture in ("unsupported_dynamic_result_adaptation", "unsupported_pointer_extern", "invalid_source"):
+        for fixture in ("unsupported_variable_array", "unsupported_pointer_extern", "invalid_source"):
             directory = output / "refusals" / fixture
             directory.mkdir(parents=True, exist_ok=True)
             artifact = directory / "program.wasm"

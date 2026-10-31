@@ -18,6 +18,7 @@ Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.
 Whole-array assignment reconstructs growable owners in their existing regions.
+Forwarded results can adapt fixed arrays and slices into growable receivers.
 General anonymous temporaries remain subsequent work. Unsupported constructs produce compile
 errors, with no fallback to the C backend. It is not yet full Goose parity; see
 [the target contract](docs/TARGET.md) and [next milestones](docs/ROADMAP.md).

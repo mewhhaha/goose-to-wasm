@@ -211,6 +211,7 @@ struct Function {
     void CaptureResult(TypeExpr *, uint32_t);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
+    vector<TypeExpr *> NaturalResults(Node *);
     void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {});
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {});
     void ResultExpression(Node *, const ResultDestinations &);
@@ -221,6 +222,8 @@ struct Function {
     void AcquireRegion(const Location &, Line, optional<uint32_t> = {});
     void ShareRegion(const Location &, const ConstructionDestination &);
     void ConstructRegionInto(Node *, const ConstructionDestination &);
+    void ConstructRegionFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
+    void ConstructRegionView(uint32_t, const ConstructionDestination &, Line);
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
     void ConstructionView(Node *);
     void ReserveRegion(uint32_t header, uint32_t count, TypeExpr *, Line);

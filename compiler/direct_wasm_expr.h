@@ -9,6 +9,12 @@ inline vector<TypeExpr *> Function::Values(Node *n) {
     if (!n->exprtype || n->exprtype->kind == TY_VOID) return {};
     return { n->exprtype };
 }
+inline vector<TypeExpr *> Function::NaturalResults(Node *node) {
+    if (auto call = Is<Call>(node); call && call->builtin < 0 && !call->fvbody && call->spec)
+        return call->spec->rets;
+    if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec) return inlined->spec->rets;
+    return Values(node);
+}
 inline void Function::To(Node *n, TypeExpr *t) {
     auto values = Values(n);
     if (values.size() != 1) Fail(n ? n->line : Line{}, "expected one runtime value");
@@ -62,13 +68,15 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
             } else { To(nodes[i], types[i]); CaptureResult(types[i], slots[i]); }
         }
     } else if (nodes.size() == 1 && Values(nodes[0]).size() == types.size()) {
-        auto vt = Values(nodes[0]);
-        for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionArray(types[i]) && !Compiler::RegionArray(vt[i]))
-            Fail(l, "fixed or slice to owned multi-result adaptation is not supported yet");
+        auto vt = NaturalResults(nodes[0]);
         ResultExpression(nodes[0], destinations);
-        for (size_t i = types.size(); i-- > 0;) {
-            if (Compiler::RegionArray(types[i])) Set(slots[i]);
-            else { Convert(vt[i], types[i], l); CaptureResult(types[i], slots[i]); }
+        vector<uint32_t> captured(types.size());
+        for (size_t i = types.size(); i-- > 0;) captured[i] = Save(vt[i]);
+        for (size_t i = 0; i < types.size(); i++) {
+            if (Compiler::RegionArray(types[i])) {
+                if (!Compiler::RegionArray(vt[i])) ConstructRegionFromCaptured(vt[i], captured[i], *destinations[i], l);
+                LocationAddress(destinations[i]->location); Set(slots[i]);
+            } else { Get(captured[i]); Convert(vt[i], types[i], l); CaptureResult(types[i], slots[i]); }
         }
     } else Fail(l, "return arity is not supported by the direct backend");
 }
@@ -137,18 +145,23 @@ inline void Function::Decl(VarDecl *n) {
             private_headers.push_back({ { v->type, slots.back() }, cleanups.size() });
     }
     if (slots.size() > 1 && n->inits.size() == 1) {
-        auto types = Values(n->inits[0]);
+        auto types = NaturalResults(n->inits[0]);
         if (types.size() != slots.size()) Fail(n->line, "multi-binding arity mismatch");
         ResultDestinations destinations(slots.size());
         for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionArray(slots[i].type)) {
-            if (!Compiler::RegionArray(types[i])) Fail(n->line, "fixed or slice to owned multi-binding adaptation is not supported yet");
             Location place { slots[i].type, slots[i] };
             AcquireRegion(place, n->line);
             destinations[i] = ConstructionDestination { place, ConstructionDestination::Block };
         }
         ResultExpression(n->inits[0], destinations);
-        for (size_t i = slots.size(); i-- > 0;) {
-            if (Compiler::RegionArray(slots[i].type)) { code.Op(0x1a); continue; }
+        vector<uint32_t> captured(types.size());
+        for (size_t i = types.size(); i-- > 0;) captured[i] = Save(types[i]);
+        for (size_t i = 0; i < slots.size(); i++) {
+            if (Compiler::RegionArray(slots[i].type)) {
+                if (!Compiler::RegionArray(types[i])) ConstructRegionFromCaptured(types[i], captured[i], *destinations[i], n->line);
+                continue;
+            }
+            Get(captured[i]);
             Convert(types[i], slots[i].type, n->line);
             StoreCopy({ slots[i].type, slots[i] }, CaptureStack(slots[i].type));
         }
