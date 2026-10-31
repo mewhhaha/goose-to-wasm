@@ -7,6 +7,8 @@ Frame objects with a final `T[>..]`/`T[>..<]` field use the same control-layout
 walker with different named-return and assignment rules.
 The final field may also be another supported owner, recursively, while every
 earlier field remains fixed-layout. Each chain still ends in exactly one array.
+Standalone variable-size variants share this record walker and may appear as
+final non-frame owner fields; their nominal identity remains distinct from structs.
 
 `RegionOwner` governs allocation, parameters, receiving channels, temporaries and
 cleanup. `RegionArray` remains specific to sequence operations and element runs.

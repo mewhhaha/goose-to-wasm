@@ -4,6 +4,14 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: standalone variable-size variants
+
+Supported `E.Variant` payloads share the single-tail record walker with structs:
+independent owned copies/parameters, prefix references, nested tails, recursive
+and mixed results, control construction and whole-record named aliasing. Each
+variant is validated independently of its siblings. See [the variant contract](VARIABLE_VARIANTS.md).
+Resizable variants and nonfixed payloads inside `E..` still need later lowering.
+
 ## Implemented: variable-mode enums with fixed payloads
 
 `E..` owns a stable region image without entering the fixed-copy path. Ordinary,

@@ -2,12 +2,12 @@
 namespace goose::direct_wasm {
 
 inline Location Function::TailHeaderLocation(const Location &owner) {
-    if (!Compiler::RegionStruct(owner.storage_type)) return owner;
+    if (!Compiler::RegionRecord(owner.storage_type)) return owner;
     auto layout = c.ControlLayout(owner.storage_type);
     return OffsetLocation(owner, layout.payload, c.TailType(owner.storage_type));
 }
 
-inline void Function::ConstructStructFromCaptured(TypeExpr *source_type, uint32_t source,
+inline void Function::ConstructRecordFromCaptured(TypeExpr *source_type, uint32_t source,
         const ConstructionDestination &destination, Line line) {
     Get(source);
     if (source_type->kind == TY_REF) { source_type = source_type->ref->sub; Load(source_type); }
@@ -25,12 +25,12 @@ inline void Function::ConstructStructFromCaptured(TypeExpr *source_type, uint32_
         { TailHeaderLocation(destination.location), destination.lifetime }, line);
 }
 
-inline void Function::ConstructStructInto(Node *node, const ConstructionDestination &destination) {
+inline void Function::ConstructRecordInto(Node *node, const ConstructionDestination &destination) {
     auto type = destination.location.storage_type;
     auto layout = c.ControlLayout(type);
     auto line = node ? node->line : type->line;
     if (auto copy = Is<Call>(node); copy && copy->builtin == B_COPY) {
-        ConstructStructInto(copy->FirstArg(), destination); return;
+        ConstructRecordInto(copy->FirstArg(), destination); return;
     }
     if (auto id = Is<Ident>(node); id && named_regions.count(id->vdef)) {
         auto &named = named_regions.at(id->vdef).location.storage;
@@ -82,13 +82,14 @@ inline void Function::ConstructStructInto(Node *node, const ConstructionDestinat
     }
     if (!node || Is<StructLit>(node)) {
         auto literal = Is<StructLit>(node);
-        if (literal && literal->sinst != type->struc->inst)
-            Fail(line, "owned struct literal has a different instantiation");
-        auto inst = type->struc->inst;
-        for (size_t i = 0; i < inst->ftypes.size(); i++) {
-            auto field = OffsetLocation(destination.location, layout.fields[i], inst->ftypes[i]);
+        if (literal && (type->kind == TY_STRUCT ? literal->sinst != type->struc->inst :
+            literal->einst != type->var->adt->enu->inst || literal->variant != type->var->variant))
+            Fail(line, "owned record literal has a different nominal type");
+        auto &fields = c.RecordFields(type);
+        for (size_t i = 0; i < fields.size(); i++) {
+            auto field = OffsetLocation(destination.location, layout.fields[i], fields[i]);
             auto init = literal ? literal->InitFor(int(i)) : nullptr;
-            if (i + 1 == inst->ftypes.size()) ConstructRegionInto(init, { field, destination.lifetime });
+            if (i + 1 == fields.size()) ConstructRegionInto(init, { field, destination.lifetime });
             else if (init) ConstructInto(init, { field, destination.lifetime });
             else {
                 // Omitted optional fields become null when their position is
@@ -108,7 +109,7 @@ inline void Function::ConstructStructInto(Node *node, const ConstructionDestinat
         natural = types[0]; EmitCall(call, false);
     } else Expr(node);
     auto source = Save(natural);
-    ConstructStructFromCaptured(natural, source, destination, line);
+    ConstructRecordFromCaptured(natural, source, destination, line);
 }
 
 } // namespace goose::direct_wasm

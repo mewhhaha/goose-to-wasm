@@ -167,6 +167,10 @@ capacity. Whole-object named-result aliasing makes prefix, length and element
 mutations by later result expressions visible in an earlier result. Ordinary
 and inline calls, by-value parameters and control results use owned destinations.
 These objects retain `SC_VARIABLE` and never enter the fixed-copy path.
+Standalone variable-size variant payloads use the same record walker, validated
+independently of their siblings. Matching requires the same enum instance,
+variant and enclosing enum mode. Their named returns alias the whole record;
+resizable standalone variants remain outside this slice.
 Final owner fields may nest recursively through fixed prefixes to the one
 terminal array. Growable-tail frame structs use private prefix/length snapshots
 and shared elements for named results, and support pinned whole reconstruction.

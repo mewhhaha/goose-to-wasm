@@ -158,6 +158,20 @@ def cases():
                   f"1\n2\n3\n4\n9\n{2 * n + 190}\n")
         result.append(Case(f"variable-enum/fixed-payloads/{n}", "variable_mode_enums", f"{n}\n", answer, group="aggregate"))
     for n in (0, 3):
+        chosen = 30 if n > 0 else 40
+        exited = 80 if n > 0 else 2
+        answer = (f"0 0 0\n{n} [{n + 1}, {n + 2}] {n + 100} [{n + 201}, {n + 2}]\n"
+                  f"{n + 10} [{n + 21}, {n + 2}] {n + 10} {n + 10} [{n + 21}, {n + 2}]\n"
+                  f"{chosen} 50 {exited} 7 {n}\n"
+                  f"{n} {n + 60} [{n + 61}, {n + 62}] [{n + 161}, {n + 62}]\n"
+                  f"{n} [{n + 70}, {n + 71}] [{n + 270}, {n + 71}]\n"
+                  f"{n} [{n}, 99] 4 [{n}] 4\n")
+        result.append(Case(f"variable-variant/values/{n}", "variable_variants", f"{n}\n", answer, group="aggregate"))
+    for n in (255, 256):
+        result.append(Case(f"variable-variant/narrow/{n}", "variable_variant_narrow", f"{n}\n",
+                           "prefix\ntail\n" + ("42 255 7\n" if n == 255 else ""),
+                           exit_code=0 if n == 255 else 1, diagnostic="" if n == 255 else "storage range", group="aggregate"))
+    for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
                   f"[{n + 1}] {n + 5}\n[{n + 1}, 8]\n77 [{n + 1}, 8] [{n + 1}, 8]\n"

@@ -220,10 +220,10 @@ inline void Function::AssignNode(Assign *n) {
     auto t = place.storage_type;
     if (Compiler::RegionOwner(t)) {
         if (Compiler::RegionEnum(t)) Fail(n->line, "whole variable-mode enum assignment is not supported");
-        if (Compiler::RegionStruct(t)) {
+        if (Compiler::RegionRecord(t)) {
             if (!Compiler::FrameStruct(t)) Fail(n->line, "whole variable-struct assignment is not supported");
             if (n->op != T_ASSIGN) Fail(n->line, "compound frame-object assignment is not supported");
-            ConstructStructInto(n->rhs, { place, ConstructionDestination::Existing }); return;
+            ConstructRecordInto(n->rhs, { place, ConstructionDestination::Existing }); return;
         }
         if (Compiler::RuntimeLimited(t)) {
             if (n->op != T_ASSIGN) Fail(n->line, "compound runtime-limited assignment is not supported");
@@ -534,7 +534,8 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
                     Load(t->ref->sub); t = t->ref->sub;
                 }
                 auto v = Save(t);
-                if (Compiler::RegionStruct(t)) Fail(arg->line, "variable-struct rendering is not supported");
+                if (Compiler::RegionRecord(t)) Fail(arg->line, Compiler::RegionVariant(t) ?
+                    "variable-variant rendering is not supported" : "variable-struct rendering is not supported");
                 if (Compiler::RegionEnum(t)) Fail(arg->line, "variable-mode enum rendering is not supported");
                 if (Compiler::RegionArray(t)) {
                     Get(v); PackArrayView(t); v = Save(I64);

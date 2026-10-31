@@ -249,8 +249,8 @@ struct Function {
     void ConstructRegionInto(Node *, const ConstructionDestination &);
     void ConstructRegionFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     Location TailHeaderLocation(const Location &);
-    void ConstructStructInto(Node *, const ConstructionDestination &);
-    void ConstructStructFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
+    void ConstructRecordInto(Node *, const ConstructionDestination &);
+    void ConstructRecordFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     void ConstructEnumInto(Node *, const ConstructionDestination &);
     void ConstructEnumFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     void ConstructRegionView(uint32_t, const ConstructionDestination &, Line, optional<uint32_t> capacity = {});
@@ -382,7 +382,7 @@ struct Compiler {
                 return I32;
             case TY_STRUCT: if (RegionStruct(t)) ControlLayout(t); else Size(t); return I32;
             case TY_ENUM: if (RegionEnum(t)) ControlLayout(t); else Size(t); return I32;
-            case TY_VARIANT: Size(t); return I32;
+            case TY_VARIANT: if (RegionVariant(t)) ControlLayout(t); else Size(t); return I32;
             default: {
                 string s; t->Dump(s);
                 Fail(t->line, "unsupported runtime type " + s);
@@ -408,8 +408,32 @@ struct Compiler {
                (t->struc->inst->sclass == SC_VARIABLE || FrameStruct(t));
     }
     static bool RegionEnum(TypeExpr *t) { return t && t->kind == TY_ENUM && t->enu->varmode; }
-    static bool RegionOwner(TypeExpr *t) { return RegionArray(t) || RegionStruct(t) || RegionEnum(t); }
-    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || RegionEnum(t) || (RegionStruct(t) && !FrameStruct(t)); }
+    static bool RegionVariant(TypeExpr *t) {
+        if (!t || t->kind != TY_VARIANT || !t->var->adt->enu->inst) return false;
+        auto ei = t->var->adt->enu->inst;
+        auto &fields = ei->vftypes.at(size_t(ei->en->VariantIndex(t->var->variant)));
+        auto tail = fields.empty() ? nullptr : fields.back();
+        return (RegionArray(tail) && !GrowableArray(tail)) || (RegionRecord(tail) && !FrameStruct(tail));
+    }
+    static bool RegionRecord(TypeExpr *t) { return RegionStruct(t) || RegionVariant(t); }
+    static bool SameRecord(TypeExpr *left, TypeExpr *right) {
+        if (!left || !right || left->kind != right->kind) return false;
+        if (left->kind == TY_STRUCT) return left->struc->inst == right->struc->inst;
+        return left->kind == TY_VARIANT && left->var->adt->enu->inst == right->var->adt->enu->inst &&
+               left->var->variant == right->var->variant && left->var->adt->enu->varmode == right->var->adt->enu->varmode;
+    }
+    const vector<TypeExpr *> &RecordFields(TypeExpr *t) {
+        if (t->kind == TY_STRUCT) return t->struc->inst->ftypes;
+        auto ei = t->var->adt->enu->inst;
+        return ei->vftypes.at(size_t(ei->en->VariantIndex(t->var->variant)));
+    }
+    const vector<Field> &RecordFieldDefs(TypeExpr *t) {
+        if (t->kind == TY_STRUCT) return t->struc->inst->st->fields;
+        auto ei = t->var->adt->enu->inst;
+        return ei->en->variants.at(size_t(ei->en->VariantIndex(t->var->variant))).fields;
+    }
+    static bool RegionOwner(TypeExpr *t) { return RegionArray(t) || RegionRecord(t) || RegionEnum(t); }
+    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || RegionEnum(t) || (RegionRecord(t) && !FrameStruct(t)); }
     static IntStorage LengthStorage(TypeExpr *t) {
         return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
     }
@@ -428,17 +452,18 @@ struct Compiler {
             EnumImageLayout(t->enu->inst, t->line);
             layout.size = 16; layout.align = 4;
         }
-        else if (RegionStruct(t)) {
-            auto inst = t->struc->inst;
-            auto tail = inst->ftypes.empty() ? nullptr : inst->ftypes.back();
+        else if (RegionRecord(t)) {
+            auto &fields = RecordFields(t);
+            auto &defs = RecordFieldDefs(t);
+            auto tail = fields.empty() ? nullptr : fields.back();
             auto tail_array = tail && tail->kind == TY_ARRAY &&
                 (FrameStruct(t) ? GrowableArray(tail) : (tail->arr->akind == A_VAR || RuntimeLimited(tail)));
-            auto tail_struct = RegionStruct(tail) && FrameStruct(t) == FrameStruct(tail);
+            auto tail_struct = RegionRecord(tail) && FrameStruct(t) == FrameStruct(tail);
             if (!tail_array && !tail_struct)
                 Fail(t->line, "owned structs require one final variable-array field, runtime-limited array field or nested single-tail owner");
-            for (size_t i = 0; i < inst->ftypes.size(); i++) {
-                if (inst->st->fields[i].ispad) Fail(t->line, "explicit struct padding is not supported");
-                auto field = i + 1 == inst->ftypes.size() ? ControlLayout(inst->ftypes[i]) : FixedLayout(inst->ftypes[i]);
+            for (size_t i = 0; i < fields.size(); i++) {
+                if (defs[i].ispad) Fail(t->line, "explicit record padding is not supported");
+                auto field = i + 1 == fields.size() ? ControlLayout(fields[i]) : FixedLayout(fields[i]);
                 layout.align = max(layout.align, field.align);
                 layout.size = Align(layout.size, field.align); layout.fields.push_back(layout.size);
                 if (uint64_t(layout.size) + field.size > uint64_t(opts.maximum_pages) * 65536)
@@ -451,10 +476,10 @@ struct Compiler {
         return control_layouts.emplace(t, std::move(layout)).first->second;
     }
     TypeExpr *TailType(TypeExpr *t) {
-        ControlLayout(t); return RegionStruct(t) ? TailType(t->struc->inst->ftypes.back()) : t;
+        ControlLayout(t); return RegionRecord(t) ? TailType(RecordFields(t).back()) : t;
     }
     uint32_t FieldOffset(TypeExpr *t, size_t field) {
-        return (RegionStruct(t) ? ControlLayout(t) : Size(t)).fields.at(field);
+        return (RegionRecord(t) ? ControlLayout(t) : Size(t)).fields.at(field);
     }
     // The checker's physical size class is independent of a future runtime
     // descriptor's byte size. Only SC_FIXED values may use ordinary copies.

@@ -974,6 +974,82 @@ fn main() {}'''
                     self.assertEqual(observed["error"], "")
 
 
+    def test_variable_variant_copies_parameters_and_stable_prefix_references(self):
+        source = '''enum Event { Data { id: i64, values: i64[] }, Grow { values: i64[>..] } }
+recursive fn make(n: i64) -> Event.Data { var p = Event.Data { n, [n, n + 1] }; return p; }
+fn changed(p: Event.Data) -> Event.Data { p.id += 10; p.values[0] += 20; return p; }
+export fn tick(n: i64) -> i64 {
+    let a = make(n); let b = copy(a); let c = changed(copy(a));
+    let kept: const i64& = a.id; b.values[0] += 100;
+    if kept != n || a.values[0] != n || b.values[0] != n + 100 || c.id != n + 10 || c.values[0] != n + 20 { abort("bad variable variant copy"); }
+    for i in 100 { if make(i).values[1] != i + 1 { abort("bad variant temporary"); } }
+    if kept != n || a.values[0] != n { abort("overwritten variant"); } return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_variant_interrupted_prefix_and_tail_release_regions(self):
+        source = '''enum Event { Data { id: i64, values: i64[] } }
+recursive fn prefix(n: i64) -> Event.Data {
+    return Event.Data { if n > 0 { return Event.Data { 7, [8, 9] }; } else { 2 }, [3, 4] };
+}
+recursive fn tail(n: i64) -> Event.Data {
+    return Event.Data { 2, [3, if n > 0 { return Event.Data { 7, [8, 9] }; } else { 4 }] };
+}
+export fn tick(n: i64) -> i64 {
+    let a = prefix(n % 2); let b = tail(n % 2); let expected = if n % 2 > 0 { 7 } else { 2 };
+    if a.id != expected || b.id != expected || a.values[0] != expected + 1 || b.values[1] != expected + 2 { abort("bad interrupted variant"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_variant_tail_exhaustion_preserves_prefix_effects_and_neighbor(self):
+        source = f'''enum Event {{ Data {{ id: i64, values: i64[] }} }}
+var neighbor: i64[>..] = [{CANARY}];
+fn value(n: i64) -> i64 {{ print(n); return 1; }}
+var p = Event.Data {{ value(123), [value(456); 1000000] }};
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["numbers"], ["123", "456"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_limited_variant_field_assignment_pins_parent(self):
+        source = '''enum Event { Data { id: i64, values: i64[..] } }
+fn replace(var route: Event.Data&, other: Event.Data&) {
+    route.values = [if route.id >= 0 { route .= other; 42 } else { 43 }, 44];
+}
+export fn tick(n: i64) -> i64 {
+    let a = Event.Data { n, [..4] }; a.values.push(1);
+    let b = Event.Data { n + 10, [..5] }; b.values.push(9);
+    replace(a, b); a.values = a.values[1..]; a.values.append([7, 8, 9]);
+    if a.id != n || a.values.cap != 4 || a.values.len != 4 || a.values[0] != 44 || a.values[3] != 9 || b.values[0] != 9 { abort("bad limited variant"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--goose", type=Path, default=GOOSE)

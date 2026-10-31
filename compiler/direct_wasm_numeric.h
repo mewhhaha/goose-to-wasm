@@ -36,12 +36,12 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
         ConstructEnumFromCaptured(from, source, destination, l);
         LocationAddress(destination.location); return;
     }
-    if (Compiler::RegionStruct(from) || Compiler::RegionStruct(to)) {
-        if (Compiler::RegionStruct(from) && Compiler::RegionStruct(to) && from->struc->inst == to->struc->inst) {
+    if (Compiler::RegionRecord(from) || Compiler::RegionRecord(to)) {
+        if (Compiler::RegionRecord(from) && Compiler::RegionRecord(to) && Compiler::SameRecord(from, to)) {
             W(from); W(to); return; // borrowed object address; fixed-copy gates still reject it
         }
         if (c.Aggregate(from) && to->kind == TY_REF) { W(to); return; }
-        Fail(l, "owned variable-struct adaptation is not supported outside construction");
+        Fail(l, "owned variable-record adaptation is not supported outside construction");
     }
     if (Compiler::RegionArray(from) && Compiler::RegionArray(to)) {
         if (from->arr->akind != to->arr->akind)

@@ -111,9 +111,9 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
             Fail(line, "owned enum construction requires the same enum instantiation");
         c.EnumImageLayout(ei, line); return;
     }
-    if (Compiler::RegionStruct(type) || Compiler::RegionStruct(target)) {
-        if (!Compiler::RegionStruct(type) || !Compiler::RegionStruct(target) || type->struc->inst != target->struc->inst)
-            Fail(line, "owned struct construction requires the same struct instantiation");
+    if (Compiler::RegionRecord(type) || Compiler::RegionRecord(target)) {
+        if (!Compiler::RegionRecord(type) || !Compiler::RegionRecord(target) || !Compiler::SameRecord(type, target))
+            Fail(line, "owned record construction requires the same nominal type");
         c.ControlLayout(type); c.ControlLayout(target); return;
     }
     if (!Compiler::RegionArray(target) ||
@@ -132,7 +132,7 @@ inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeE
         }
         plan.values[i] = receivers[i];
         CheckRegionDestination(types[i], *receivers[i], line);
-        if (Compiler::RegionStruct(types[i]) || Compiler::RegionEnum(types[i])) { plan.producers[i] = receivers[i]; continue; }
+        if (Compiler::RegionRecord(types[i]) || Compiler::RegionEnum(types[i])) { plan.producers[i] = receivers[i]; continue; }
         auto receiving = receivers[i]->location.storage_type;
         auto reprefix = types[i]->arr->akind == A_VAR && receiving->arr->akind == A_VAR &&
                         Compiler::LengthStorage(types[i]) != Compiler::LengthStorage(receiving);
@@ -182,9 +182,9 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
             CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }
-        if (Compiler::RegionStruct(types[i]) || Compiler::RegionStruct(candidate->type)) {
-            if (!Compiler::RegionStruct(types[i]) || !Compiler::RegionStruct(candidate->type) ||
-                candidate->type->struc->inst != types[i]->struc->inst || destinations[i]->elements) continue;
+        if (Compiler::RegionRecord(types[i]) || Compiler::RegionRecord(candidate->type)) {
+            if (!Compiler::RegionRecord(types[i]) || !Compiler::RegionRecord(candidate->type) ||
+                !Compiler::SameRecord(candidate->type, types[i]) || destinations[i]->elements) continue;
             CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }
@@ -228,8 +228,8 @@ inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_
     if (Compiler::RegionEnum(destination.location.storage_type)) {
         ConstructEnumFromCaptured(source_type, source, destination, line); return;
     }
-    if (Compiler::RegionStruct(destination.location.storage_type)) {
-        ConstructStructFromCaptured(source_type, source, destination, line); return;
+    if (Compiler::RegionRecord(destination.location.storage_type)) {
+        ConstructRecordFromCaptured(source_type, source, destination, line); return;
     }
     Get(source);
     if (source_type->kind == TY_REF) { source_type = source_type->ref->sub; Load(source_type); }
@@ -299,7 +299,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
 
 inline void Function::ConstructRegionInto(Node *node, const ConstructionDestination &destination) {
     if (Compiler::RegionEnum(destination.location.storage_type)) { ConstructEnumInto(node, destination); return; }
-    if (Compiler::RegionStruct(destination.location.storage_type)) { ConstructStructInto(node, destination); return; }
+    if (Compiler::RegionRecord(destination.location.storage_type)) { ConstructRecordInto(node, destination); return; }
     auto place = destination.location;
     auto type = place.storage_type;
     c.HeaderLayout(type);

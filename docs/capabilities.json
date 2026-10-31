@@ -110,7 +110,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_dynamic_boundaries.py"
@@ -418,7 +420,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -452,7 +456,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -546,7 +552,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -605,7 +613,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -651,7 +661,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -677,7 +689,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -799,12 +813,17 @@
       },
       "variant": {
         "status": "qualified_subset",
-        "scope": "Fixed standalone variant payloads and variant-to-enum conversion.",
+        "scope": "Fixed standalone variant payloads and variant-to-enum conversion; standalone SC_VARIABLE variants with fixed prefixes and one terminal variable/runtime-limited array, including nested nonframe record tails. Independent owned copies/parameters/results and whole-record NRVO; per-variant eligibility independent of siblings. Resizable standalone variants and nonfixed E.. payloads remain pending.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
-          "tests/fixtures/variable_mode_enums.goose"
+          "tests/fixtures/variable_mode_enums.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
-        "boundary_fixtures": []
+        "boundary_fixtures": [
+          "tests/test_variable_variant_boundaries.py",
+          "tests/test_regions.py"
+        ]
       },
       "variable": {
         "status": "qualified_subset",
@@ -882,7 +901,9 @@
           "tests/fixtures/frame_structs.goose",
           "tests/fixtures/frame_struct_paths.goose",
           "tests/fixtures/nested_owned_structs.goose",
-          "tests/fixtures/nested_struct_narrow.goose"
+          "tests/fixtures/nested_struct_narrow.goose",
+          "tests/fixtures/variable_variants.goose",
+          "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
