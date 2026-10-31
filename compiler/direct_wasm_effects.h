@@ -2,7 +2,7 @@
 namespace goose::direct_wasm {
 
 inline bool Function::ImageTargetDestination(const ConstructionDestination &destination) const {
-    auto image = [&](TypeExpr *type) { return Compiler::ArrayImageEffectResult(type) || c.RecordImageEffectResult(type); };
+    auto image = [&](TypeExpr *type) { return Compiler::ArrayImageEffectResult(type) || c.RecordImageEffectResult(type) || c.EnumImageEffectResult(type); };
     if (!spec || !c.effect_globals.count(spec) || !image(destination.location.storage_type)) return false;
     optional<uint32_t> address;
     if (auto local = get_if<AddressLocal>(&destination.location.storage)) address = local->index;
@@ -21,7 +21,7 @@ inline bool Compiler::ArrayImageEffectResult(TypeExpr *type) {
 }
 
 inline bool Compiler::OwnedEffectResult(TypeExpr *type) {
-    if (ArrayImageEffectResult(type) || RecordImageEffectResult(type)) return true;
+    if (ArrayImageEffectResult(type) || RecordImageEffectResult(type) || EnumImageEffectResult(type)) return true;
     if (GrowableArray(type)) return true;
     if (!FrameStruct(type)) return false;
     ControlLayout(type); return GrowableArray(TailType(type));
@@ -34,6 +34,11 @@ inline bool Compiler::RecordImageEffectResult(TypeExpr *type) {
     for (size_t i = 0; i + 1 < fields.size(); i++) if (!PackedIntegerImage(fields[i])) return false;
     auto tail = fields.back();
     return RegionRecord(tail) ? RecordImageEffectResult(tail) : ArrayImageEffectResult(tail);
+}
+
+inline bool Compiler::EnumImageEffectResult(TypeExpr *type) {
+    if (!RegionEnum(type)) return false;
+    ControlLayout(type); return ProvenEnumImage(type->enu->inst, type->line);
 }
 
 inline vector<size_t> Compiler::OwnedEffectOrdinals(FnSpec *target) {
@@ -183,6 +188,8 @@ inline void Function::EnterEffectFrame() {
                 SetArrayImageAnchor(header, base, spec->rets[ordinal]);
             else if (c.RecordImageEffectResult(spec->rets[ordinal]))
                 SetRecordImageAnchor({ spec->rets[ordinal], AddressLocal { *resultdestinations[ordinal] } }, base, spec->sf->line);
+            else if (c.EnumImageEffectResult(spec->rets[ordinal]))
+                SetEnumImageAnchor({ spec->rets[ordinal], AddressLocal { *resultdestinations[ordinal] } }, base, spec->sf->line);
         }
         FrameAddress(mailbox); code.OpU(0x24, global);
     }

@@ -1248,6 +1248,113 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_enum_image_escapes_reuse_independent_regions(self):
+        source = f'''enum E {{ A{{id:u8,values:u16[u8]}}, B{{id:u8,values:u16[..]}}, Empty }}
+var neighbor:i64[>..] = [{CANARY}];
+recursive fn leave(depth:i64,value:i64) {{
+    if depth>0 {{leave(depth-1,value);return;}}
+    return E.A{{7,[value as u16]}},E.B{{8,[(value+1) as u16]}},17 from target;
+}}
+recursive fn target(depth:i64,value:i64)->E..,E..,i64 {{
+    if depth>0 {{return target(depth-1,value);}}
+    leave(3,value);return E.Empty,E.Empty,0;
+}}
+export fn tick(n:i64)->i64 {{
+    var left,right,k=target(12,n);
+    let value=match left {{A &p=>{{if p.id!=7 || p.values.len!=1 {{abort("bad enum left");}} p.values[0] as i64}},_=>-1}};
+    if value!=n || k!=17 {{abort("bad enum tuple");}}
+    return match right {{B &p=>{{if p.id!=8 || p.values.cap!=1 || p.values.len!=1 {{abort("bad enum right");}} p.values.pop();p.values.push((n+1) as u16);p.values[0] as i64}},_=>-1}};
+}}
+fn main() {{}}'''
+        for level in (0,2):
+            path,runtime=self.compile(source,level)
+            self.assertEqual(runtime["region_count"],3)
+            for engine,observed in self.engines(path,runtime,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed["error"],"")
+                    self.assertEqual(observed["canary"],str(CANARY))
+
+    def test_enum_image_escape_overflow_preserves_live_neighbor(self):
+        source = f'''struct Cell {{tag:u8,value:u16}}
+enum E {{Data{{values:Cell[u32]}},Empty}}
+fn target()->E.. {{
+    var neighbor:i64[>..] = [{CANARY}];
+    recursive fn leave() {{return E.Data{{[Cell{{1,2}};40000]}} from target;}}
+    leave();print(neighbor[0]);return E.Empty;
+}}
+fn main() {{let e=target();}}'''
+        for level in (0,2):
+            path,runtime=self.compile(source,level)
+            self.assertEqual(runtime["region_count"],2)
+            for engine,observed in self.engines(path,runtime,canary_index=1):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn("data region exhausted",observed["error"])
+                    self.assertEqual(observed["canary"],str(CANARY))
+
+    def test_enum_image_target_activation_exhaustion_preserves_canary(self):
+        source = f'''extern fn bench_input()->i64;
+enum E {{A{{values:u8[u8]}},B{{values:u16[..]}},Empty}}
+var neighbor:i64[>..] = [{CANARY}];
+recursive fn target(depth:i64)->E..,E.. {{
+    if depth>0 {{return target(depth-1);}}
+    recursive fn leave() {{return E.A{{[7]}},E.B{{[8]}} from target;}}
+    leave();return E.Empty,E.Empty;
+}}
+fn main() {{let left,right=target(bench_input());}}'''
+        for level in (0,2):
+            path,runtime=self.compile(source,level)
+            self.assertEqual(runtime["region_count"],3)
+            for engine,observed in self.engines(path,runtime,input_value=1000000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn("activation",observed["error"])
+                    self.assertEqual(observed["canary"],str(CANARY))
+
+    def test_enum_image_replacement_releases_dying_payload_controls(self):
+        source = f'''enum E {{Data{{values:u8[u32]}},Other{{marker:u8}},Empty}}
+var neighbor:i64[>..] = [{CANARY}];
+recursive fn leave(n:i64) {{
+    if n%2>0 {{return E.Other{{9}} from target;}}
+    return E.Data{{[8]}} from target;
+}}
+recursive fn target(n:i64)->E.. {{
+    var own:E..=E.Data{{[if n>=0 {{leave(n);0}} else {{7}};1000000]}};
+    return own;
+}}
+export fn tick(n:i64)->i64 {{
+    let e=target(n);
+    let value=match e {{Data &p=>p.values[0] as i64,Other p=>p.marker as i64,Empty=>0}};
+    if value!=(if n%2>0 {{9}} else {{8}}) {{abort("bad replaced enum");}}
+    return n+1;
+}}
+fn main() {{}}'''
+        for level in (0,2):
+            path,runtime=self.compile(source,level)
+            self.assertEqual(runtime["region_count"],2)
+            for engine,observed in self.engines(path,runtime,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed["error"],"")
+                    self.assertEqual(observed["canary"],str(CANARY))
+
+    def test_enum_image_escape_checks_surviving_global_extent(self):
+        source = f'''extern fn bench_input()->i64;
+enum E {{Done}}
+var values:i64[>..]=[1];
+var neighbor:i64[>..]=[{CANARY}];
+fn target()->E.. {{
+    recursive fn replace() {{
+        values=[if bench_input()>0 {{return E.Done from target;}} else {{7}};1000000];
+    }}
+    replace();return E.Done;
+}}
+fn main() {{let e=target();}}'''
+        for level in (0,2):
+            path,runtime=self.compile(source,level)
+            self.assertEqual(runtime["region_count"],3)
+            for engine,observed in self.engines(path,runtime,input_value=1,canary_index=1):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn("data region exhausted",observed["error"])
+                    self.assertEqual(observed["canary"],str(CANARY))
+
     def test_record_image_escapes_reuse_independent_regions(self):
         source = f'''struct R {{ tag:u8,values:u16[u8] }}
 struct L {{ tag:u8,values:u16[..] }}

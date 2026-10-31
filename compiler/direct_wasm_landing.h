@@ -293,6 +293,7 @@ inline void Function::NonlocalOwnedReturn(Return *node) {
         Get(header); Get(original_tail); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
         if (c.RecordImageEffectResult(type)) SetRecordImageAnchor(stage, starts[k], node->line);
+        if (c.EnumImageEffectResult(type)) SetEnumImageAnchor(stage, starts[k], node->line);
         RegisterEffectOwner(stage);
         private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
         destinations[ordinal] = ConstructionDestination { stage, ConstructionDestination::Statement, false, {}, true, false, private_publication };
@@ -328,6 +329,10 @@ inline void Function::LandOwnedEffect() {
         FrameAddress(metadata + 8); code.Mem(0x28, 2); auto base = Save(I32);
         FrameAddress(mailbox + mailbox_layout.fields[ordinal]); auto winning = Save(I32);
         LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto tail = Save(I32);
+        if (c.EnumImageEffectResult(type)) {
+            LandEnumImage({ type, AddressLocal { original } }, start, base, spec->sf->line);
+            Get(original); Set(resultlocals[ordinal]); continue;
+        }
         if (c.RecordImageEffectResult(type)) {
             LandRecordImage({ type, AddressLocal { original } }, start, base, spec->sf->line);
             Get(original); Set(resultlocals[ordinal]); continue;
@@ -364,6 +369,13 @@ inline void Function::SkipReplacedEffectOwner(uint32_t header, uint32_t done) {
         for (size_t k = 0; k < owned.size(); k++) {
             auto type = target->rets[owned[k]];
             code.OpU(0x23, c.pending_effect); code.Mem(0x28, 2, 4 + uint32_t(k) * 12);
+            if (Compiler::RegionEnum(type)) {
+                auto original = Save(I32);
+                Get(header); code.Op(0xad); Get(original); code.Op(0xad); code.Op(0x5a);
+                Get(header); code.Op(0xad); code.I64Const(owner_control_bytes); code.Op(0x7c);
+                Get(original); code.Op(0xad); code.I64Const(c.ControlLayout(type).size); code.Op(0x7c);
+                code.Op(0x58); code.Op(0x71); Br(done, true); continue;
+            }
             if (Compiler::RegionRecord(type)) {
                 code.I32Const(int32_t(c.ControlLayout(type).payload)); code.Op(0x6a);
             }

@@ -123,8 +123,9 @@ addressing, private tail producers, full-image copies and normal suffix landing.
 Nonlocal targets admit recursively packed integer prefixes and supported array
 tails; tuple forwarding preserves each outer logical anchor through private
 producer controls. Variable enums now store compact tags and active payloads,
-with separate persistent typed controls and normal/tuple image staging; actual
-enum nonlocal targets remain separate.
+with separate persistent typed controls and normal/tuple image staging. Qualified
+actual enum targets now share full-suffix landing, private named envelopes and
+atomic multiple-result snapshots; unproved payload/source forms remain separate.
 Tests include O0 programs that cannot depend on optimizer inlining.
 
 Before serialization, document the image ABI, pointer width/encoding and the
