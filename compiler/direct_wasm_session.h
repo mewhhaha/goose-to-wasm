@@ -93,6 +93,9 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
     stats.Member("backend", "direct");
     stats.Member("functions", int64_t(compiled.functions));
     stats.Member("code_bytes", int64_t(compiled.code_bytes));
+    stats.Member("region_count", int64_t(compiled.region_count));
+    stats.Member("region_bytes", int64_t(compiled.region_bytes));
+    stats.Member("activation_bytes", int64_t(compiled.activation_bytes));
     stats.Member("module_bytes", int64_t(compiled.module.size()));
     stats.Member("backend_ns", ns(bounded, emitted));
     stats.Member("parse_ns", ns(started, parsed));

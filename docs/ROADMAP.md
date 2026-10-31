@@ -5,6 +5,26 @@ runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Its first implementation slice is
 static-capacity resizable arrays.
 
+## Implemented: stable regions for named growable owners
+
+Named local/global `T[>..]` and `T[>..<]` values with supported fixed-layout
+elements now use stable data regions. Owner references point to frame/static
+headers; element references and slices remain valid across growth. Construction
+supports literals/fills, implicit empty globals, copies, slices and natural fixed
+results, including optimized inline producers. Borrowed reference parameters and
+results, shared mutation paths, primitive rendering and scope cleanup work at
+O0/O2.
+
+The static planner counts globals separately and bounds live transient owners
+through the call graph and recursive components. Runtime acquisition/growth,
+activation frames and print scratch all check their own limits. Module metadata
+and compiler statistics publish the resulting partition budgets.
+
+Owned dynamic parameters/results, anonymous owner temporaries, whole-owner
+assignment, variable elements and dynamic containing structs remain explicit
+boundaries. The next destination-ABI slice builds owned results directly into
+regions acquired by named receivers, forwarding that destination through calls.
+
 ## Implemented: typed storage and cleanup boundary
 
 Locations describe the actual variable/field/element storage separately from
@@ -19,8 +39,8 @@ an inner loop keeps its enclosing print's captured arguments alive. Ordinary
 reference/slice copies still preserve aliases. Physical size-class checks stop
 nonfixed owner descriptors from entering fixed aggregate copies.
 
-This preserves the fixed-frame ABI. Stable data regions and dynamic construction
-remain the next runtime phase.
+This preserves the fixed-frame ABI and supplies the boundary used by stable data
+regions. General dynamic result destinations remain subsequent work.
 
 ## Implemented: static-capacity limited arrays
 

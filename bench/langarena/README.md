@@ -16,9 +16,20 @@ path, from `/tmp/recompile_marker` to `recompile_marker` in that execution's
 isolated directory. The pinned checkout and any preexisting `/tmp` marker are
 never changed. The native executable must pass all 50 official small cases and
 all 50 production cases. Whole-suite Wasm compilation refusals remain visible.
-The current profiles refuse dynamic storage in the direct suite and reachable
+The current profiles refuse remaining dynamic destinations/references in the direct suite and reachable
 threads/queues in the C-Wasm suite. A refusal receives no successful compile-time
 score.
+
+An additional isolated Sieve profile copies the pinned `sieve.goose` byte for
+byte, retains its growable storage, and replaces the entrypoint plus the unused
+benchmark configuration module. It supplies official parameters through scalar
+input and includes the original warmup count in the checksum. This checks the
+original computational kernel, separately from the whole 50-task entrypoint and
+the bounded adapted ports:
+
+```sh
+python bench/qualify_sieve.py --profiles test run
+```
 
 **Seven adapted entrypoints.** The same port source is compiled as native C,
 C-Wasm, and direct Wasm. Each Wasm binary runs unchanged on V8 and Wasmtime.

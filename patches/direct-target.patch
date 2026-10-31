@@ -115,7 +115,7 @@ diff --git a/src/main.cpp b/src/main.cpp
          }
 +        auto bce_finished = chrono::steady_clock::now();
          // Per-line outcomes, for comparing two builds of the pass.
-@@ -1397,2 +1437,52 @@
+@@ -1397,2 +1437,55 @@
          if (nocgen && !stacks && !wasm_target) return 0;
 +        if (wasm_direct) {
 +            direct_options.debug = debug || std::find(cdefines.begin(), cdefines.end(), "GS_DEBUG=1") != cdefines.end();
@@ -135,6 +135,9 @@ diff --git a/src/main.cpp b/src/main.cpp
 +                };
 +                auto stats = cat("{\"backend\":\"direct\",\"functions\":", compiled.functions,
 +                                 ",\"code_bytes\":", compiled.code_bytes,
++                                 ",\"region_count\":", compiled.region_count,
++                                 ",\"region_bytes\":", compiled.region_bytes,
++                                 ",\"activation_bytes\":", compiled.activation_bytes,
 +                                 ",\"module_bytes\":", compiled.module.size(),
 +                                 ",\"backend_ns\":", elapsed,
 +                                 ",\"parse_ns\":", ns(compile_started, parse_finished),
@@ -168,12 +171,12 @@ diff --git a/src/main.cpp b/src/main.cpp
 +            return 0;
 +        }
          // A quoted include resolves against the including file's own directory
-@@ -1746,2 +1836,4 @@
+@@ -1746,2 +1839,4 @@
  
 +#include "direct_wasm_session.h"
 +
  int main(int argc, char **argv) {
-@@ -1756,2 +1848,4 @@
+@@ -1756,2 +1851,4 @@
      #endif
 +    if (argc == 2 && std::string_view(argv[1]) == "--wasm-session")
 +        return goose::RunDirectSession(goose::ExePath(argv[0]));

@@ -25,6 +25,7 @@ struct DirectWasmResult {
     string module;
     size_t functions = 0;
     size_t code_bytes = 0;
+    uint32_t region_count = 0, region_bytes = 0, activation_bytes = 0;
     vector<DirectWasmFunctionInfo> function_info;
 };
 
@@ -36,6 +37,7 @@ struct Signature {
 };
 struct Import { string module, name; uint32_t type; };
 struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; uint32_t payload = 0; };
+enum RuntimeGlobal { G_SCRATCH_TOP, G_REGION_NEXT, G_REGION_BASE, G_REGION_BYTES, G_REGION_COUNT, G_ACTIVATION_LIMIT };
 struct Slot {
     enum Kind { LOCAL, FRAME, GLOBAL } kind = LOCAL;
     uint32_t index = 0;
@@ -72,6 +74,7 @@ struct Function {
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
     uint32_t framebase = 0, framebytes = 0;
+    uint32_t region_live = 0, region_peak = 0;
     Bytes code;
     vector<uint32_t> labels;
     uint32_t labelserial = 0;
@@ -86,7 +89,7 @@ struct Function {
     };
     vector<Exit> exits;
     struct CleanupAction {
-        enum Kind { RestoreScratchTop } kind;
+        enum Kind { RestoreScratchTop, RestoreRegionNext } kind;
         uint32_t saved_local;
     };
     vector<CleanupAction> cleanups;
@@ -97,6 +100,7 @@ struct Function {
         for (auto i = cleanups.size(); i-- > depth;) {
             auto &action = cleanups[i];
             if (action.kind == CleanupAction::RestoreScratchTop) { Get(action.saved_local); code.OpU(0x24, 0); }
+            else if (action.kind == CleanupAction::RestoreRegionNext) { Get(action.saved_local); code.OpU(0x24, G_REGION_NEXT); }
         }
     }
     void CloseCleanups(size_t depth) {
@@ -187,8 +191,14 @@ struct Function {
     void CaptureResult(TypeExpr *, uint32_t);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line);
     vector<TypeExpr *> Values(Node *);
-    void EmitCall(Call *);
-    void Builtin(Call *);
+    void EmitCall(Call *, bool adapt_result = true);
+    void EmitInline(InlineBlock *, bool adapt_result = true);
+    void RecordRegionCall(FnSpec *, Line);
+    void ConstructRegion(Node *, const Location &, optional<uint32_t> global_region = {});
+    void ConstructionView(Node *);
+    void ReserveRegion(uint32_t header, uint32_t count, TypeExpr *, Line);
+    void ActivationLimit(uint32_t, Line);
+    void Builtin(Call *, bool adapt_result = true);
     void Print(TypeExpr *, uint32_t, Line, bool nested = false);
     void PrintText(string_view);
     void Decl(VarDecl *);
@@ -198,6 +208,7 @@ struct Function {
     void ScanAddresses(Node *);
     void AggregateLiteral(Node *);
     void Slice(SliceExpr *);
+    void SliceView(SliceExpr *);
     void EnsureMemory(uint32_t, Line);
     void Dynamic(uint32_t, Line);
     string Finish();
@@ -214,6 +225,12 @@ struct Compiler {
     unordered_map<FnSpec *, uint8_t> intrinsic_opcode;
     unordered_map<VarDef *, Slot> globals;
     unordered_map<TypeExpr *, Layout> layouts;
+    bool needs_regions = false;
+    unordered_map<VarDef *, uint32_t> global_regions;
+    struct RegionCall { FnSpec *callee; uint32_t live; Line line; };
+    unordered_map<FnSpec *, vector<RegionCall>> region_calls;
+    unordered_map<FnSpec *, uint32_t> region_own;
+    uint32_t BoundRegions();
     // A payload can contain a sibling variant by value. Its layout must not
     // depend on computing the whole parent enum's union first.
     map<pair<EnumInst *, int>, Layout> payload_layouts;
@@ -270,9 +287,13 @@ struct Compiler {
             case TY_REF:
                 if (t->ref->lenstorage >= 0 || t->ref->pool)
                     Fail(t->line, "relative and pool references are not supported");
-                Size(t->ref->sub); return I32;
+                if (RegionArray(t->ref->sub)) HeaderLayout(t->ref->sub); else Size(t->ref->sub);
+                return I32;
             case TY_SLICE: Size(t->sub); return I64; // packed pointer + length
-            case TY_ARRAY: case TY_STRUCT: case TY_ENUM: case TY_VARIANT: Size(t); return I32;
+            case TY_ARRAY:
+                if (RegionArray(t)) HeaderLayout(t); else Size(t);
+                return I32;
+            case TY_STRUCT: case TY_ENUM: case TY_VARIANT: Size(t); return I32;
             default: {
                 string s; t->Dump(s);
                 Fail(t->line, "unsupported runtime type " + s);
@@ -280,6 +301,14 @@ struct Compiler {
         }
     }
     static uint32_t Align(uint32_t x, uint32_t n) { return (x + n - 1) & ~(n - 1); }
+    static bool RegionArray(TypeExpr *t) {
+        return t && t->kind == TY_ARRAY && (t->arr->akind == A_GROW || t->arr->akind == A_GROWSHRINK);
+    }
+    Layout HeaderLayout(TypeExpr *t) {
+        if (!RegionArray(t)) return FixedLayout(t);
+        FixedLayout(t->arr->sub);
+        Layout header; header.size = 12; header.align = 4; return header;
+    }
     // The checker's physical size class is independent of a future runtime
     // descriptor's byte size. Only SC_FIXED values may use ordinary copies.
     SizeClass Class(TypeExpr *t) {
@@ -415,9 +444,11 @@ struct Compiler {
         Signature s;
         for (auto p : sp->params) {
             if (p->type->kind == TY_FN) continue;
+            if (RegionArray(p->type)) Fail(p->line, "owned dynamic parameters are not supported without a destination-region ABI");
             s.args.push_back(W(p->type));
         }
         for (auto t : sp->rets) {
+            if (RegionArray(t)) Fail(t->line, "owned dynamic results are not supported without a destination-region ABI");
             if (Aggregate(t) && !sp->sf->isextern) s.args.push_back(I32);
             s.results.push_back(W(t));
         }
@@ -478,6 +509,8 @@ struct Compiler {
     }
     void Scan(Node *n) {
         if (!n) return;
+        if (auto declaration = Is<VarDecl>(n))
+            for (auto variable : declaration->defs) if (RegionArray(variable->type)) needs_regions = true;
         if (Is<FnDecl>(n) || Is<StructDecl>(n) || Is<EnumDecl>(n) || Is<AliasDecl>(n) || Is<FunVal>(n)) return;
         if (auto call = Is<Call>(n)) {
             if (!call->dispatch.empty()) Fail(call->line, "runtime overload dispatch is not supported");
@@ -537,7 +570,8 @@ inline Slot Function::Bind(VarDef *v) {
     if (v->reusable) Fail(v->line, "reusable storage is not supported");
     Slot s;
     s.type = v->type;
-    if (c.Aggregate(v->type) || addressed.count(v)) { s.kind = Slot::FRAME; s.index = Frame(v->type); }
+    if (Compiler::RegionArray(v->type)) { s.kind = Slot::FRAME; s.index = FrameBytes(c.HeaderLayout(v->type).size, 4); }
+    else if (c.Aggregate(v->type) || addressed.count(v)) { s.kind = Slot::FRAME; s.index = Frame(v->type); }
     else { s.kind = Slot::LOCAL; s.index = Local(v->type); }
     return vars.emplace(v, s).first->second;
 }
@@ -603,6 +637,7 @@ inline void Function::ScanAddresses(Node *n) {
 
 #include "direct_wasm_numeric.h"
 #include "direct_wasm_storage.h"
+#include "direct_wasm_regions.h"
 #include "direct_wasm_arrays.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"

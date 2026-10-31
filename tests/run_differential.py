@@ -50,6 +50,18 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    result.append(Case("growable/minimal", "growable_minimal", stdout="1\n", group="aggregate"))
+    for debug in (False, True):
+        result.append(Case("growable/owners-and-stable-views" + ("-debug" if debug else ""), "growable_arrays",
+                           stdout="[]\n[5]\n5001 5000 12 12 1 4999 -4999\n[77, 0, 1] 12\n5001 88 12\n"
+                           "[1, 2, 3, 3, 3] 3\n[7, 9, 7, 9]\n[2, 3, 2, 3]\n"
+                           "[1, 2] 9 [1, 2, 3]\n[1, 2, 3, 4, 3, 2, 1]\n[1, 2, 3, 4, 3, 2, 1, 6] [50]\n"
+                           "abc!def\n[6, 6, 6]\n[0, 0, 0]\n[30, 31] 1\n1 4 1\n40 50\n25005000 210\n20 210\n",
+                           debug=debug, group="aggregate"))
+        for mode, diagnostic in enumerate(("negative", "pop", "pop", "pop", "fill", "bounds", "bounds", "bounds")):
+            index = -1 if mode == 6 else 3 if mode == 7 else 2
+            result.append(Case(f"growable/errors/{mode}" + ("-debug" if debug else ""), "growable_errors",
+                               f"{mode}\n{index}\n", exit_code=1, diagnostic=diagnostic, debug=debug, group="aggregate"))
     result.append(Case("storage/locations-and-copies", "storage_locations",
                        stdout="30 40 10\n35 41 2\n12 8\n21 22 13\n35 41\n", group="aggregate"))
     result.append(Case("storage/cleanup-exits", "cleanup_exits", stdout="49995000\n",
@@ -259,7 +271,7 @@ def main():
                         print(row["error"], flush=True)
     # The direct fragment must explicitly refuse these valid Goose programs.
     if "direct" in args.backends and not args.filter:
-        for fixture in ("unsupported_growable", "unsupported_pointer_extern", "invalid_source"):
+        for fixture in ("unsupported_dynamic_result", "unsupported_pointer_extern", "invalid_source"):
             directory = output / "refusals" / fixture
             directory.mkdir(parents=True, exist_ok=True)
             artifact = directory / "program.wasm"

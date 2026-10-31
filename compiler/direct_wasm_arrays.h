@@ -5,6 +5,13 @@ namespace goose::direct_wasm {
 // target's header/padding details here so indexing, slices, casts and loops
 // all observe the same current length.
 inline void Function::PackArrayView(TypeExpr *t) {
+    if (Compiler::RegionArray(t)) {
+        c.HeaderLayout(t);
+        auto header = Save(I32);
+        Get(header); code.Mem(0x28, 2); code.Op(0xad);
+        Get(header); code.Mem(0x28, 2, 4); code.Op(0xad); code.I64Const(32); code.Op(0x86); code.Op(0x84);
+        return;
+    }
     auto layout = c.Size(t);
     if (t->arr->akind == A_FIXED) {
         code.Op(0xad); code.I64Const(int64_t(uint64_t(t->arr->size) << 32)); code.Op(0x84);
@@ -102,35 +109,45 @@ inline void Function::ArrayBuiltin(Call *n) {
     auto t = Object(args[0]);
     auto kind = BuiltinKind(n->builtin);
     if (kind == B_INDEX_OF) {
-        auto layout = c.Size(t);
-        if (layout.payload) { code.I32Const(int32_t(layout.payload)); code.Op(0x6a); }
+        if (Compiler::RegionArray(t)) code.Mem(0x28, 2);
+        else {
+            auto layout = c.Size(t);
+            if (layout.payload) { code.I32Const(int32_t(layout.payload)); code.Op(0x6a); }
+        }
         auto start = Save(I32);
         Expr(args[1]); Get(start); code.Op(0x6b); code.Op(0xad);
         code.I64Const(c.Size(t->arr->sub).size); code.Op(0x80);
         Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
     }
-    if (t->kind != TY_ARRAY || t->arr->akind != A_LIMITED)
+    auto region = Compiler::RegionArray(t);
+    if (t->kind != TY_ARRAY || (t->arr->akind != A_LIMITED && !region))
         Fail(n->line, "this array mutation is not supported without dynamic storage");
-    auto layout = c.Size(t);
+    auto layout = region ? c.HeaderLayout(t) : c.Size(t);
     auto base = Save(I32);
     auto elem = t->arr->sub;
     auto stride = c.Size(elem).size;
-    auto length = [&]() { Get(base); code.Mem(0x28, 2); };
-    auto write_length = [&](uint32_t len) { Get(base); Get(len); code.Mem(0x36, 2); };
+    auto length = [&]() { Get(base); code.Mem(0x28, 2, region ? 4 : 0); };
+    auto write_length = [&](uint32_t len) { Get(base); Get(len); code.Mem(0x36, 2, region ? 4 : 0); };
     auto address = [&](uint32_t i) {
-        Get(base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a);
+        Get(base);
+        if (region) code.Mem(0x28, 2);
+        else { code.I32Const(int32_t(layout.payload)); code.Op(0x6a); }
         Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
     };
     if (kind == B_CLEAR) {
-        Get(base); code.I32Const(0); code.Mem(0x36, 2); return;
+        Get(base); code.I32Const(0); code.Mem(0x36, 2, region ? 4 : 0); return;
     }
     if (kind == B_PUSH) {
         To(args[1], elem); auto value = Save(elem);
         // The value expression may have mutated the receiver. Load len only
         // after it finishes, retaining the receiver address evaluated first.
         length(); auto len = Save(I32);
-        Get(len); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f);
-        TrapIf(n->line, "array capacity exceeded");
+        if (region) {
+            Get(len); code.Op(0xad); code.I64Const(1); code.Op(0x7c);
+            auto next = Save(I64); ReserveRegion(base, next, elem, n->line);
+        } else {
+            Get(len); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); TrapIf(n->line, "array capacity exceeded");
+        }
         address(len); auto dest = Save(I32);
         Get(dest); Get(value); Store(elem);
         Get(len); code.I32Const(1); code.Op(0x6a); auto next = Save(I32); write_length(next);
@@ -151,13 +168,18 @@ inline void Function::ArrayBuiltin(Call *n) {
         return;
     }
     if (kind == B_APPEND) {
-        View(args[1]); auto view = Save(I64);
+        ConstructionView(args[1]); auto view = Save(I64);
         Get(view); code.I64Const(32); code.Op(0x88); code.Op(0xa7); auto count = Save(I32);
         length(); auto len = Save(I32);
         // count <= cap-len avoids wrapping the sum. The source view is
         // captured before reloading len; memory.copy also handles overlap.
-        Get(count); code.I32Const(int32_t(t->arr->size)); Get(len); code.Op(0x6b); code.Op(0x4b);
-        TrapIf(n->line, "array capacity exceeded");
+        if (region) {
+            Get(count); code.Op(0xad); Get(len); code.Op(0xad); code.Op(0x7c);
+            auto next = Save(I64); ReserveRegion(base, next, elem, n->line);
+        } else {
+            Get(count); code.I32Const(int32_t(t->arr->size)); Get(len); code.Op(0x6b); code.Op(0x4b);
+            TrapIf(n->line, "array capacity exceeded");
+        }
         address(len); Get(view); code.Op(0xa7); Get(count); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Copy();
         Get(len); Get(count); code.Op(0x6a); auto next = Save(I32); write_length(next); return;
     }
@@ -174,7 +196,8 @@ inline void Function::ArrayBuiltin(Call *n) {
     Get(count); Get(old); code.Op(0xad); code.Op(0x56); Begin(0x04);
     if (!fill) Abort(n->line, "array resize growth requires a fill value");
     else {
-        Get(count); code.I64Const(t->arr->size); code.Op(0x56); TrapIf(n->line, "array capacity exceeded");
+        if (region) ReserveRegion(base, count, elem, n->line);
+        else { Get(count); code.I64Const(t->arr->size); code.Op(0x56); TrapIf(n->line, "array capacity exceeded"); }
         auto i = Local(I32); Get(old); Set(i);
         auto done = Begin(), loop = Begin(0x03);
         Get(i); Get(count); code.Op(0xa7); code.Op(0x4f); Br(done, true);

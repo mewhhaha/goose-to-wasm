@@ -1,0 +1,163 @@
+#pragma once
+namespace goose::direct_wasm {
+
+// The same SCC bound as the pinned backend: recursive back edges retain no
+// transient owners, and external callees start above the caller's live owners.
+inline uint32_t Compiler::BoundRegions() {
+    unordered_map<FnSpec *, uint32_t> index, low;
+    unordered_map<FnSpec *, uint64_t> need;
+    vector<FnSpec *> stack;
+    unordered_set<FnSpec *> active;
+    uint32_t next = 0;
+    function<void(FnSpec *)> visit = [&](FnSpec *node) {
+        index[node] = low[node] = next++;
+        stack.push_back(node); active.insert(node);
+        for (auto &call : region_calls[node]) {
+            if (!index.count(call.callee)) { visit(call.callee); low[node] = min(low[node], low[call.callee]); }
+            else if (active.count(call.callee)) low[node] = min(low[node], index[call.callee]);
+        }
+        if (low[node] != index[node]) return;
+        vector<FnSpec *> component;
+        for (;;) {
+            auto member = stack.back(); stack.pop_back(); active.erase(member); component.push_back(member);
+            if (member == node) break;
+        }
+        unordered_set<FnSpec *> members(component.begin(), component.end());
+        uint64_t bound = 0;
+        for (auto member : component) {
+            bound = max(bound, uint64_t(region_own[member]));
+            for (auto &call : region_calls[member]) {
+                if (members.count(call.callee)) {
+                    if (call.live) Fail(call.line, "internal: recursive call retains transient data regions");
+                } else bound = max(bound, uint64_t(call.live) + need[call.callee]);
+            }
+        }
+        for (auto member : component) need[member] = bound;
+    };
+    for (auto spec : specs) if (!index.count(spec)) visit(spec);
+    if (!index.count(nullptr)) visit(nullptr);
+    uint64_t peak = need[nullptr];
+    for (auto spec : specs) if (spec->sf->isexport || spec->sf == ast.MainFunction()) peak = max(peak, need[spec]);
+    peak += global_regions.size();
+    if (peak > UINT32_MAX) Fail({}, "data-region count exceeds wasm32 limits");
+    return uint32_t(peak);
+}
+
+inline void Function::RecordRegionCall(FnSpec *callee, Line line) {
+    if (c.needs_regions && !callee->sf->isextern)
+        c.region_calls[spec].push_back({ callee, region_live, line });
+}
+
+inline void Function::ActivationLimit(uint32_t top, Line line) {
+    if (!c.needs_regions) return;
+    Get(top); code.OpU(0x23, G_ACTIVATION_LIMIT); code.Op(0x4b);
+    TrapIf(line, "activation/scratch arena exhausted");
+}
+
+// Obtain the source's physical view rather than its contextually adapted
+// destination type. No anonymous dynamic owner is allocated on this path.
+inline void Function::ConstructionView(Node *node) {
+    if (auto slice = Is<SliceExpr>(node)) { SliceView(slice); return; }
+    if (auto call = Is<Call>(node); call && call->builtin == B_COPY) {
+        ConstructionView(call->FirstArg()); return;
+    }
+    TypeExpr *natural = node->exprtype;
+    if (auto text = Is<StrLit>(node)) {
+        auto address = c.Text(text->val);
+        code.I64Const(int64_t((uint64_t(text->val.size()) << 32) | address)); return;
+    }
+    if (Is<Ident>(node) || Is<Index>(node) || (Is<Dot>(node) && Is<Dot>(node)->IsField())) {
+        auto place = PinPlace(node); natural = place.storage_type; ReadLocation(place, natural);
+    } else if (auto inlined = Is<InlineBlock>(node)) {
+        auto types = inlined->spec ? inlined->spec->rets : Values(node);
+        if (types.size() != 1) Fail(node->line, "array construction requires one inline result");
+        natural = types[0]; EmitInline(inlined, false);
+    } else if (auto call = Is<Call>(node); call && call->builtin == B_DEFAULT) {
+        natural = call->rettypes.at(0); EmitCall(call, false);
+    } else if (auto call = Is<Call>(node); call && call->builtin < 0) {
+        auto types = call->fvbody ? call->rettypes : call->spec ? call->spec->rets : vector<TypeExpr *> {};
+        if (types.size() != 1) Fail(node->line, "array construction requires one source value");
+        natural = types[0]; EmitCall(call, false);
+    } else {
+        if (Compiler::RegionArray(natural))
+            Fail(node->line, "anonymous dynamic construction is not supported without a receiving region");
+        Expr(node);
+    }
+    if (natural->kind == TY_REF) { natural = natural->ref->sub; Load(natural); }
+    if (natural->kind == TY_ARRAY) PackArrayView(natural);
+    else if (natural->kind != TY_SLICE) Fail(node->line, "array construction requires an array or slice");
+}
+
+inline void Function::ConstructRegion(Node *node, const Location &place, optional<uint32_t> global_region) {
+    auto type = place.storage_type;
+    auto line = node ? node->line : type->line;
+    c.HeaderLayout(type);
+    auto element = type->arr->sub;
+    LocationAddress(place); auto header = Save(I32);
+    if (global_region) code.I32Const(int32_t(*global_region));
+    else code.OpU(0x23, G_REGION_NEXT);
+    auto region = Save(I32);
+    Get(region); code.OpU(0x23, G_REGION_COUNT); code.Op(0x4f);
+    TrapIf(line, "data-region count exhausted");
+    if (!global_region) {
+        Get(region); code.I32Const(1); code.Op(0x6a); code.OpU(0x24, G_REGION_NEXT);
+        if (region_live == UINT32_MAX) Fail(line, "too many live data regions");
+        region_peak = max(region_peak, ++region_live);
+    }
+    code.OpU(0x23, G_REGION_BASE); Get(region); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6c); code.Op(0x6a);
+    auto base = Save(I32);
+    Get(header); Get(base); code.Mem(0x36, 2);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+    Get(header); Get(base); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6a); code.Mem(0x36, 2, 8);
+
+    if (!node) {
+        code.I64Const(0); auto count = Save(I64); ReserveRegion(header, count, element, line); return;
+    }
+
+    uint32_t count;
+    if (auto array = Is<ArrayLit>(node)) {
+        auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
+        code.I64Const(size); count = Save(I64);
+        if (array->fillval) {
+            auto value = CaptureBorrowed(array->fillval, element);
+            ReserveRegion(header, count, element, node->line);
+            auto index = Local(I32); code.I32Const(0); Set(index);
+            auto done = Begin(), loop = Begin(0x03);
+            Get(index); Get(count); code.Op(0xa7); code.Op(0x4f); Br(done, true);
+            Get(base); Get(index); code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Op(0x6a);
+            Get(value.value_local); Store(element);
+            Get(index); code.I32Const(1); code.Op(0x6a); Set(index); Br(loop); End(); End();
+        } else {
+            if (array->elems.empty()) ReserveRegion(header, count, element, node->line);
+            for (size_t index = 0; index < array->elems.size(); index++) {
+                auto value = CaptureBorrowed(array->elems[index], element);
+                code.I64Const(int64_t(index + 1)); auto prefix = Save(I64);
+                ReserveRegion(header, prefix, element, node->line);
+                Get(base); code.I32Const(int32_t(index * c.Size(element).size)); code.Op(0x6a);
+                Get(value.value_local); Store(element);
+            }
+        }
+    } else {
+        ConstructionView(node); auto source = Save(I64);
+        Get(source); code.I64Const(32); code.Op(0x88); count = Save(I64);
+        ReserveRegion(header, count, element, node->line);
+        Get(base); Get(source); code.Op(0xa7); Get(count); code.Op(0xa7);
+        code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Copy();
+    }
+    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
+}
+
+// Validate the final length before multiplying or adding a pointer. All
+// counts use i64 so negative or overflowing source counts cannot wrap in i32.
+inline void Function::ReserveRegion(uint32_t header, uint32_t count, TypeExpr *element, Line line) {
+    Get(header); code.Mem(0x28, 2, 8);
+    Get(header); code.Mem(0x28, 2); code.Op(0x6b); code.Op(0xad);
+    code.I64Const(c.FixedLayout(element).size); code.Op(0x80);
+    auto capacity = Save(I64);
+    Get(count); Get(capacity); code.Op(0x56); TrapIf(line, "data region exhausted");
+    Get(header); code.Mem(0x28, 2); Get(count); code.Op(0xa7);
+    code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Op(0x6a);
+    auto top = Save(I32); EnsureMemory(top, line);
+}
+
+} // namespace goose::direct_wasm

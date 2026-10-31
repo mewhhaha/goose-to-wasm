@@ -32,13 +32,16 @@
       },
       "B_APPEND": {
         "status": "qualified_subset",
-        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "scope": "Static-capacity limited arrays and named fixed-element growable owners, subject to frontend growth/shrink permissions. Runtime limited capacity and variable elements remain pending.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
-          "tests/fixtures/limited_array_paths.goose"
+          "tests/fixtures/limited_array_paths.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": [
-          "tests/fixtures/limited_array_errors.goose"
+          "tests/fixtures/limited_array_errors.goose",
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py"
         ]
       },
       "B_ASSERT": {
@@ -68,23 +71,29 @@
       },
       "B_CLEAR": {
         "status": "qualified_subset",
-        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "scope": "Static-capacity limited arrays and named fixed-element growable owners, subject to frontend growth/shrink permissions. Runtime limited capacity and variable elements remain pending.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
-          "tests/fixtures/limited_array_paths.goose"
+          "tests/fixtures/limited_array_paths.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": [
-          "tests/fixtures/limited_array_errors.goose"
+          "tests/fixtures/limited_array_errors.goose",
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py"
         ]
       },
       "B_COPY": {
         "status": "qualified_subset",
-        "scope": "Supported fixed owned values; owned dynamic copies and slice-temporary copies remain pending.",
+        "scope": "Fixed owned values and named growable initialization; fixed reference/slice fields retain shallow aliases. Anonymous dynamic copies and general dynamic destinations remain pending.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
-          "tests/fixtures/storage_locations.goose"
+          "tests/fixtures/storage_locations.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
-        "boundary_fixtures": []
+        "boundary_fixtures": [
+          "tests/test_dynamic_boundaries.py"
+        ]
       },
       "B_DEFAULT": {
         "status": "qualified_subset",
@@ -147,10 +156,11 @@
       },
       "B_INDEX_OF": {
         "status": "qualified_subset",
-        "scope": "Fixed and static-capacity limited arrays, with checker-proven element reference and fixed stride.",
+        "scope": "Supported fixed-stride fixed, limited and growable arrays, with checker-proven element references.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
-          "tests/fixtures/limited_array_paths.goose"
+          "tests/fixtures/limited_array_paths.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose"
@@ -158,54 +168,65 @@
       },
       "B_LEN": {
         "status": "qualified_subset",
-        "scope": "Fixed arrays and fixed-element slices; dynamic array lengths follow array milestones.",
+        "scope": "Supported fixed/limited/named-growable arrays and fixed-element slices.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose",
-          "tests/fixtures/value_forms.goose"
+          "tests/fixtures/value_forms.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": []
       },
       "B_POP": {
         "status": "qualified_subset",
-        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "scope": "Static-capacity limited arrays and named fixed-element growable owners, subject to frontend growth/shrink permissions. Runtime limited capacity and variable elements remain pending.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
-          "tests/fixtures/limited_array_paths.goose"
+          "tests/fixtures/limited_array_paths.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": [
-          "tests/fixtures/limited_array_errors.goose"
+          "tests/fixtures/limited_array_errors.goose",
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py"
         ]
       },
       "B_POP_N": {
         "status": "qualified_subset",
-        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "scope": "Static-capacity limited arrays and named fixed-element growable owners, subject to frontend growth/shrink permissions. Runtime limited capacity and variable elements remain pending.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
-          "tests/fixtures/limited_array_paths.goose"
+          "tests/fixtures/limited_array_paths.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": [
-          "tests/fixtures/limited_array_errors.goose"
+          "tests/fixtures/limited_array_errors.goose",
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py"
         ]
       },
       "B_PRINT": {
         "status": "qualified_subset",
-        "scope": "Scalars, top-level byte sequences and fixed arrays of supported scalar elements; no custom formatters or general nested images.",
+        "scope": "Scalars, top-level byte sequences and supported scalar-element fixed/limited/named-growable arrays; no custom formatters or general nested images.",
         "fixtures": [
           "tests/fixtures/value_forms.goose",
           "tests/fixtures/float_render.goose",
-          "tests/fixtures/fixed_arrays.goose"
+          "tests/fixtures/fixed_arrays.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": []
       },
       "B_PUSH": {
         "status": "qualified_subset",
-        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "scope": "Static-capacity limited arrays and named fixed-element growable owners, subject to frontend growth/shrink permissions. Runtime limited capacity and variable elements remain pending.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
-          "tests/fixtures/limited_array_paths.goose"
+          "tests/fixtures/limited_array_paths.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": [
-          "tests/fixtures/limited_array_errors.goose"
+          "tests/fixtures/limited_array_errors.goose",
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py"
         ]
       },
       "B_QGET": {
@@ -240,13 +261,16 @@
       },
       "B_RESIZE": {
         "status": "qualified_subset",
-        "scope": "Static-capacity limited arrays with supported fixed-layout elements; growable/runtime-capacity forms remain pending.",
+        "scope": "Static-capacity limited arrays and named fixed-element growable owners, subject to frontend growth/shrink permissions. Runtime limited capacity and variable elements remain pending.",
         "fixtures": [
           "tests/fixtures/limited_arrays.goose",
-          "tests/fixtures/limited_array_paths.goose"
+          "tests/fixtures/limited_array_paths.goose",
+          "tests/fixtures/growable_arrays.goose"
         ],
         "boundary_fixtures": [
-          "tests/fixtures/limited_array_errors.goose"
+          "tests/fixtures/limited_array_errors.goose",
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py"
         ]
       },
       "B_STR": {
@@ -289,7 +313,7 @@
       },
       "NK_ArrayLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -297,7 +321,7 @@
       },
       "NK_AsCast": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/float_to_integer.goose"
         ],
@@ -305,7 +329,7 @@
       },
       "NK_Assign": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
           "tests/fixtures/storage_locations.goose"
@@ -314,7 +338,7 @@
       },
       "NK_Binary": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -322,7 +346,7 @@
       },
       "NK_Block": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -330,7 +354,7 @@
       },
       "NK_BoolLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/short_circuit.goose"
         ],
@@ -338,7 +362,7 @@
       },
       "NK_Break": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/cleanup_nested_loop.goose"
@@ -347,7 +371,7 @@
       },
       "NK_Call": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/recursion.goose"
         ],
@@ -361,7 +385,7 @@
       },
       "NK_Continue": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/cleanup_exits.goose"
@@ -370,7 +394,7 @@
       },
       "NK_Dot": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose"
         ],
@@ -378,7 +402,7 @@
       },
       "NK_EarlyBlock": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/value_forms.goose"
         ],
@@ -392,7 +416,7 @@
       },
       "NK_FltLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/float_operations.goose"
         ],
@@ -406,7 +430,7 @@
       },
       "NK_ForLoop": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -422,7 +446,7 @@
       },
       "NK_Ident": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -430,7 +454,7 @@
       },
       "NK_IfExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -438,7 +462,7 @@
       },
       "NK_IncDec": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -446,7 +470,7 @@
       },
       "NK_Index": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/array_bounds.goose"
         ],
@@ -454,7 +478,7 @@
       },
       "NK_InlineBlock": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/inline_print_unwind.goose"
         ],
@@ -462,7 +486,7 @@
       },
       "NK_IntLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -470,7 +494,7 @@
       },
       "NK_LoopExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/aggregate_returns.goose"
         ],
@@ -478,7 +502,7 @@
       },
       "NK_MatchExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose"
         ],
@@ -486,7 +510,7 @@
       },
       "NK_NullLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose"
         ],
@@ -494,7 +518,7 @@
       },
       "NK_RangeExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -502,7 +526,7 @@
       },
       "NK_Return": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/aggregate_returns.goose"
         ],
@@ -516,7 +540,7 @@
       },
       "NK_SliceExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -524,7 +548,7 @@
       },
       "NK_StrLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/value_forms.goose"
         ],
@@ -538,7 +562,7 @@
       },
       "NK_StructLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose"
         ],
@@ -546,7 +570,7 @@
       },
       "NK_Unary": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -554,7 +578,7 @@
       },
       "NK_VarDecl": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose"
         ],
@@ -562,7 +586,7 @@
       },
       "NK_While": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and the named fixed-element growable subset; remaining dynamic destinations, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -582,18 +606,30 @@
         ]
       },
       "A_GROW": {
-        "status": "pending",
-        "scope": "Pending owned dynamic storage and construction.",
-        "fixtures": [],
+        "status": "qualified_subset",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, initialization and mutation. Owned parameters/results, whole-owner assignment and anonymous temporaries remain pending.",
+        "fixtures": [
+          "tests/fixtures/growable_arrays.goose",
+          "tests/fixtures/growable_minimal.goose"
+        ],
         "boundary_fixtures": [
-          "tests/fixtures/unsupported_growable.goose"
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py",
+          "tests/test_dynamic_boundaries.py"
         ]
       },
       "A_GROWSHRINK": {
-        "status": "pending",
-        "scope": "Pending owned dynamic storage and construction.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, initialization and mutation. Owned parameters/results, whole-owner assignment and anonymous temporaries remain pending.",
+        "fixtures": [
+          "tests/fixtures/growable_arrays.goose",
+          "tests/fixtures/growable_minimal.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/growable_errors.goose",
+          "tests/test_regions.py",
+          "tests/test_dynamic_boundaries.py"
+        ]
       },
       "A_LIMITED": {
         "status": "qualified_subset",
@@ -871,6 +907,15 @@
         "status": "pending",
         "scope": "All 50 production cases with sufficient explicit runtime limits pending.",
         "fixtures": [],
+        "boundary_fixtures": []
+      },
+      "isolated_sieve": {
+        "status": "qualified_subset",
+        "scope": "Unchanged pinned Sieve computational kernel with isolated input/configuration harness; separate from the original 50-task entrypoint and bounded adapted ports.",
+        "fixtures": [
+          "bench/qualify_sieve.py",
+          "bench/langarena/isolated/sieve.goose"
+        ],
         "boundary_fixtures": []
       }
     }

@@ -18,6 +18,12 @@ inline void Function::Discard(Node *n) {
     Expr(n); for (size_t i = 0; i < Values(n).size(); i++) code.Op(0x1a);
 }
 inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const vector<uint32_t> &slots) {
+    auto cleanup_depth = cleanups.size();
+    auto live = region_live;
+    if (c.needs_regions) {
+        code.OpU(0x23, G_REGION_NEXT);
+        cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
+    }
     for (auto s : b->stmts) Discard(s);
     if (b->tail) {
         // A function may end in a void-typed infinite loop whose nested
@@ -26,6 +32,7 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
         if (types.empty() || Values(b->tail).empty()) Discard(b->tail);
         else SetResults({ b->tail }, types, slots, b->line);
     }
+    if (c.needs_regions) { CloseCleanups(cleanup_depth); region_live = live; }
 }
 inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
     // A later result expression can mutate the aggregate just evaluated.
@@ -109,8 +116,14 @@ inline void Function::Decl(VarDecl *n) {
         return;
     }
     for (size_t i = 0; i < slots.size(); i++) {
-        if (i >= n->inits.size()) continue;
-        auto init = n->inits[i];
+        auto init = i < n->inits.size() ? n->inits[i] : nullptr;
+        if (Compiler::RegionArray(slots[i].type)) {
+            if (!init && !n->isglobal) continue;
+            optional<uint32_t> global;
+            if (n->isglobal) global = c.global_regions.at(n->defs[i]);
+            ConstructRegion(init, { slots[i].type, slots[i] }, global); continue;
+        }
+        if (!init) continue;
         if (n->byref && init->exprtype->kind != TY_REF) Address(init);
         else To(init, slots[i].type);
         StoreCopy({ slots[i].type, slots[i] }, CaptureStack(slots[i].type));
@@ -187,6 +200,14 @@ inline void Function::AggregateLiteral(Node *n) {
 }
 
 inline void Function::Slice(SliceExpr *n) {
+    SliceView(n);
+    if (n->exprtype->kind != TY_SLICE) {
+        auto at = n->obj->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
+        auto elem = at->kind == TY_ARRAY ? at->arr->sub : at->sub;
+        Convert(c.ast.SliceOf(elem, n->line), n->exprtype, n->line);
+    }
+}
+inline void Function::SliceView(SliceExpr *n) {
     auto at = n->obj->exprtype; if (at->kind == TY_REF) at = at->ref->sub;
     auto elem = at->kind == TY_ARRAY ? at->arr->sub : at->kind == TY_SLICE ? at->sub : nullptr;
     if (!elem) Fail(n->line, "only slices of fixed-layout elements are supported");
@@ -209,10 +230,6 @@ inline void Function::Slice(SliceExpr *n) {
     Get(view); code.Op(0xa7); Get(lo); code.Op(0xa7);
     code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a); code.Op(0xad);
     Get(hi); Get(lo); code.Op(0x7d); code.I64Const(32); code.Op(0x86); code.Op(0x84);
-    // The checker leaves the destination array type on a slice used to
-    // construct an owned array. Its intermediate value is still a view.
-    if (n->exprtype->kind != TY_SLICE)
-        Convert(c.ast.SliceOf(elem, n->line), n->exprtype, n->line);
 }
 
 inline void Function::For(ForLoop *n) {
@@ -263,11 +280,13 @@ inline void Function::For(ForLoop *n) {
     Br(again); End(); End();
 }
 
-inline void Function::EmitCall(Call *n) {
-    if (n->builtin >= 0) { Builtin(n); return; }
+inline void Function::EmitCall(Call *n, bool adapt_result) {
+    if (n->builtin >= 0) { Builtin(n, adapt_result); return; }
     auto args = n->ValueArgNodes();
     if (n->fvbody) {
         if (args.size() != n->fvparams.size()) Fail(n->line, "function-value parameter mismatch");
+        for (auto parameter : n->fvparams) if (c.Class(parameter->type) != SC_FIXED)
+            Fail(n->line, "owned dynamic function-value parameters are not supported without receiving lifetimes");
         for (size_t i = 0; i < args.size(); i++) { auto s = Bind(n->fvparams[i]); To(args[i], s.type); Write(s); }
         unordered_map<VarDef *, VarDef *> remap;
         for (auto [a, b] : n->fvremap) remap[a] = b;
@@ -276,7 +295,7 @@ inline void Function::EmitCall(Call *n) {
         BlockInto(n->fvbody, n->rettypes, vals);
         aliases.pop_back();
         for (auto x : vals) Get(x);
-        if (n->rettypes.size() == 1) Convert(n->rettypes[0], n->exprtype, n->line);
+        if (adapt_result && n->rettypes.size() == 1) Convert(n->rettypes[0], n->exprtype, n->line);
         return;
     }
     auto sp = n->spec;
@@ -297,8 +316,8 @@ inline void Function::EmitCall(Call *n) {
         LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
         code.Op(intrinsic->second);
-    else CallIndex(c.function_index.at(sp));
-    if (sp->rets.size() == 1) Convert(sp->rets[0], n->exprtype, n->line);
+    else { RecordRegionCall(sp, n->line); CallIndex(c.function_index.at(sp)); }
+    if (adapt_result && sp->rets.size() == 1) Convert(sp->rets[0], n->exprtype, n->line);
 }
 
 inline void Function::PrintText(string_view text) {
@@ -342,7 +361,7 @@ inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested)
     Fail(line, "this value cannot yet be rendered by the direct backend");
 }
 
-inline void Function::Builtin(Call *n) {
+inline void Function::Builtin(Call *n, bool adapt_result) {
     auto args = n->ArgNodes();
     switch (BuiltinKind(n->builtin)) {
         case B_PRINT: {
@@ -361,6 +380,10 @@ inline void Function::Builtin(Call *n) {
                     Load(t->ref->sub); t = t->ref->sub;
                 }
                 auto v = Save(t);
+                if (Compiler::RegionArray(t)) {
+                    Get(v); PackArrayView(t); v = Save(I64);
+                    t = c.ast.SliceOf(t->arr->sub, arg->line);
+                }
                 if (c.Aggregate(t)) {
                     // A shallow byte copy would leave pointers into storage
                     // that later arguments can mutate. Refuse this rendering
@@ -415,7 +438,9 @@ inline void Function::Builtin(Call *n) {
         }
         case B_DEFAULT: {
             auto t = n->rettypes[0];
-            if (!c.Aggregate(t)) { Zero(W(t)); return; }
+            if (!c.Aggregate(t)) {
+                Zero(W(t)); if (adapt_result) Convert(t, n->exprtype, n->line); return;
+            }
             auto destination = FreshDestination(t, ConstructionDestination::Statement);
             auto place = destination.location;
             LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
@@ -429,10 +454,27 @@ inline void Function::Builtin(Call *n) {
                     Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
                 } else if (t->kind != TY_ARRAY) ConstructInto(n->defaultinit, destination);
             }
-            LocationAddress(place); Convert(t, n->exprtype, n->line); return;
+            LocationAddress(place); if (adapt_result) Convert(t, n->exprtype, n->line); return;
         }
         default: Fail(n->line, "builtin '" + string(BuiltinByKind(n->builtin).name) + "' is not supported by the direct backend");
     }
+}
+
+inline void Function::EmitInline(InlineBlock *node, bool adapt_result) {
+    auto types = Values(node);
+    auto own = node->spec ? node->spec->rets : types;
+    if (node->spec) for (auto parameter : node->spec->params)
+        if (c.Class(parameter->type) != SC_FIXED)
+            Fail(node->line, "owned dynamic inline parameters are not supported without receiving lifetimes");
+    for (auto type : own) if (c.Class(type) != SC_FIXED)
+        Fail(node->line, "owned dynamic inline results are not supported without a destination-region ABI");
+    vector<uint32_t> values;
+    for (auto type : own) values.push_back(Local(type));
+    auto label = Begin(); PushExit({ label, node->sf, own, values, false, {} });
+    BlockInto(node->body, own, values); exits.pop_back(); End();
+    for (auto value : values) Get(value);
+    if (adapt_result && own.size() == 1 && types.size() == 1) Convert(own[0], types[0], node->line);
+    else if (adapt_result && types.empty()) for (size_t index = 0; index < own.size(); index++) code.Op(0x1a);
 }
 
 inline void Function::Expr(Node *n) {
@@ -546,8 +588,10 @@ inline void Function::Expr(Node *n) {
         case NK_AsCast: Cast(static_cast<AsCast *>(n)); return;
         case NK_Call: EmitCall(static_cast<Call *>(n)); return;
         case NK_Block: {
-            auto b = static_cast<Block *>(n); for (auto s : b->stmts) Discard(s);
-            if (b->tail) { if (Values(n).empty()) Discard(b->tail); else To(b->tail, n->exprtype); }
+            auto types = Values(n); vector<uint32_t> values;
+            for (auto type : types) values.push_back(Local(type));
+            BlockInto(static_cast<Block *>(n), types, values);
+            for (auto value : values) Get(value);
             return;
         }
         case NK_IfExpr: {
@@ -563,18 +607,7 @@ inline void Function::Expr(Node *n) {
             }
             End(); for (auto v : vs) Get(v); return;
         }
-        case NK_InlineBlock: {
-            auto i = static_cast<InlineBlock *>(n); auto ts = Values(n); vector<uint32_t> vs;
-            // Return statements use the specialization's own result type.
-            auto own = i->spec ? i->spec->rets : ts;
-            for (auto t : own) vs.push_back(Local(t));
-            auto label = Begin(); PushExit({ label, i->sf, own, vs, false, {} });
-            BlockInto(i->body, own, vs); exits.pop_back(); End();
-            for (auto v : vs) Get(v);
-            if (own.size() == 1 && ts.size() == 1) Convert(own[0], ts[0], n->line);
-            else if (ts.empty()) for (size_t k = 0; k < own.size(); k++) code.Op(0x1a);
-            return;
-        }
+        case NK_InlineBlock: EmitInline(static_cast<InlineBlock *>(n)); return;
         case NK_EarlyBlock: case NK_LoopExpr: {
             auto ts = Values(n); vector<uint32_t> vs; for (auto t : ts) vs.push_back(Local(t));
             auto done = Begin();

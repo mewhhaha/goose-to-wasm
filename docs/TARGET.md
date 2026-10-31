@@ -37,8 +37,35 @@ owner's control descriptor cannot be copied as an owned fixed value. Fresh
 construction destinations retain the current activation-frame policy, and
 assignment evaluates its complete RHS before publishing into its pinned target.
 Exit targets record cleanup depth so scratch restorations preserve enclosing
-operations that remain live. These boundaries prepare the stable-region runtime;
-they do not add dynamic ownership to the current supported fragment.
+operations that remain live. Stable regions use these same boundaries;
+general dynamic result destinations remain subsequent work.
+
+Named fixed-element `T[>..]` and `T[>..<]` owners have a separate 12-byte control
+header `{base: u32, len: u32, limit: u32}` in frame/static storage. Owner references
+point to that header; element references point directly into stable data regions.
+The header is never copied through the fixed-value ownership path. Initializers
+construct into an acquired region, including implicit empty globals, literals,
+fills, copies, slices and natural fixed-array function results.
+
+The planner reserves dedicated global regions plus a call-graph/SCC bound on
+simultaneously live transient owners. Scoped cleanup restores transient region
+watermarks on normal exit, return, break and continue. Borrowed calls grow the
+caller's region; growth does not relocate existing elements or slices.
+
+Regions partition the memory budget remaining after final static allocation.
+For maximum bytes `M`, aligned static end `S` and region count `R > 0`, each data
+region receives `B = align_down((M-S)/(R+1), 8)` bytes. Activation frames and
+scratch occupy `[S, M-R*B)`, followed by the `R` stable regions. This is a
+documented per-owner resource limit, independent of language array capacity.
+Increasing `--maximum-pages` increases these budgets. Fixed-only modules retain
+the previous unpartitioned activation budget.
+
+Acquisition, growth, frames and scratch check their limits before writes;
+successful `memory.grow` does not permit crossing a partition boundary. Released
+regions are reused, while linear-memory pages remain allocated. The
+`goose.regions` custom section publishes region/global counts, region bytes and
+activation addresses. Compiler statistics publish `region_count`, `region_bytes`
+and `activation_bytes`.
 
 The module defines fresh, zero-initialized memory. Static allocations retain
 their full logical size, but data segments contain only initialized nonzero
@@ -128,6 +155,8 @@ even when another variant of its enum requires unsupported dynamic storage.
   references, with checked indexed access and activation-local storage.
 - Static-capacity limited arrays, including len/cap/index_of, push/append,
   pop/pop_n/resize/clear, slices, nested storage and owned results.
+- Named fixed-element growable owners, stable views/references, initialization,
+  borrowed calls, mutation, primitive rendering and scoped region reuse.
 - Fixed-mode enums and fixed variant payloads, including generic/nested types,
   constructors/defaults, arrays, owned returns, and exhaustive/list/wildcard
   matches with by-value payload bindings.
@@ -138,8 +167,9 @@ The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
 
-The current backend refuses growable arrays, variable arrays and construction-time
-limited capacity; variable-mode enums;
+The current backend refuses owned dynamic parameters/results, anonymous dynamic
+temporaries, whole-owner assignment, dynamic containing structs, variable-element
+growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;
 non-inlined captured environments and dynamic nonlocal

@@ -140,10 +140,13 @@ class CompilerSession(SessionHarness):
         semantic = self.request(sources={self.source: 'fn main() { print(missing); }\n'}, success=False)
         self.assertIn("missing", semantic["error"])
         self.assertEqual(self.output.read_bytes(), previous)
-        backend = self.request(sources={self.source: 'fn main() { var xs: i64[>..] = []; xs.push(1); print(xs); }\n'},
+        backend = self.request(sources={self.source: 'extern fn foreign(values: i64[:]) -> i64; fn main() { var xs = [1, 2]; print(foreign(xs[..])); }\n'},
                                success=False)
         self.assertIn("wasm-direct", backend["error"])
         self.assertEqual(self.output.read_bytes(), previous)
+        growable = self.request(sources={self.source: 'fn main() { var xs: i64[>..] = []; xs.push(1); print(xs); }\n'})
+        self.assertEqual(growable["backend_stats"]["region_count"], 1)
+        self.run_output("[1]\n")
         restored = self.request()
         self.assertEqual(restored["compiler_worker_pid"], root_only["compiler_worker_pid"])
         self.run_output("41\n")

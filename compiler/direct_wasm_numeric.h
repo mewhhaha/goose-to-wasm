@@ -20,6 +20,11 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
     if (from->kind == TY_ARRAY && to->kind == TY_SLICE) {
         PackArrayView(from); return;
     }
+    if (Compiler::RegionArray(from) && Compiler::RegionArray(to)) {
+        if (from->arr->akind != to->arr->akind)
+            Fail(l, "dynamic owner type adaptation is not supported outside construction");
+        return; // borrowed header address; fixed-copy gates never accept it
+    }
     if (to->kind == TY_ARRAY && to->arr->akind == A_LIMITED &&
         (from->kind == TY_SLICE || (from->kind == TY_ARRAY &&
          (from->arr->akind != A_LIMITED || from->arr->size != to->arr->size)))) {

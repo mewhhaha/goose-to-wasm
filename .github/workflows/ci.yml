@@ -81,12 +81,17 @@ jobs:
         run: python tests/test_backend_extensions.py
       - name: Sparse static data and memory limits
         run: python tests/test_static_data.py
+      - name: Stable regions, memory isolation and scoped owner cleanup
+        run: |
+          python tests/test_regions.py
+          python tests/test_dynamic_boundaries.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py
       - name: LangArena official small cases and observable marker edits
         run: |
           python bench/langarena.py fetch
           python bench/langarena.py check --output-dir build/langarena-smoke
+          python bench/qualify_sieve.py --output-dir build/isolated-sieve-smoke
       - name: Incremental cache correctness
         run: python tests/test_incremental.py
       - name: Configuration and module-search dependency tracking
@@ -135,5 +140,6 @@ jobs:
             build/differential/
             build/backend-extensions/
             build/langarena-smoke/
+            build/isolated-sieve-smoke/
             build/benchmark-smoke/
             build/incremental-benchmark.json
