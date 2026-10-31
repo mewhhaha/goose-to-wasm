@@ -18,6 +18,9 @@ runtime-limited capacity/length prefixes. Default Var lengths use u32. Image
 accessors read authoritative metadata and derive the element base; cached words
 do not replace the image. Access validates the represented extent against its
 physical region, including capacity and length consistency for limited arrays.
+The validated logical extent is mapped into linear memory even when a canceled
+producer committed only its prefix. Limited images map their capacity extent;
+mapping leaves the physical construction cursor unchanged.
 Grow/GrowShrink and element-run channels retain raw base/length semantics.
 
 Var values are `[unsigned length][elements]`. Runtime-limited values are
@@ -56,7 +59,10 @@ This slice covers currently admitted fixed-layout elements. Their own
 representations remain target-specific. Terminal array images inside existing
 single-tail records/enums do not make those enclosing values C.2 images.
 Varint lengths, variable elements, general image walkers, serialization,
-`bytes_of`, and image-valued nonlocal targets retain their separate gates.
+and `bytes_of` retain their separate gates. Standalone scalar and recursively packed
+integer aggregate array image nonlocal targets use the
+[effect landing contract](NONLOCAL_RETURNS.md#array-image-targets). Other aggregate
+element representations and enclosing record/enum image targets remain gated.
 
 Evidence includes cross-backend construction, named-return alias and no-element-
 run adaptation cases, plus direct V8/Wasmtime checks of exact prefix bytes,

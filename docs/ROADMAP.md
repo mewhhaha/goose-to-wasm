@@ -15,7 +15,7 @@ a value copy. See [static captures](STATIC_CAPTURES.md) and
 [owned function values](OWNED_FUNCTION_VALUES.md). Borrowed callback-local
 results remain conservatively gated. Fixed nonlocal effects are described below.
 
-## Implemented: fixed and growable/frame nonlocal result groups
+## Implemented: fixed, growable/frame and supported array image nonlocal results
 
 Activation mailboxes propagate fixed/scalar/mixed fixed returns through ordinary
 and dispatched calls, preserving the innermost concrete target across recursion.
@@ -39,7 +39,9 @@ values store capacity and length before their reserved slots. Physical modes
 separate those values from raw element-run channels, with authoritative views,
 full-capacity copies, normal return staging and control-only prefix adapters.
 The [array-image contract](ARRAY_IMAGES.md) records call ordering and receiving
-anchors. Actual image-valued nonlocal targets and general record/enum images
+anchors. Standalone scalar and recursively packed integer aggregate array nonlocal
+targets preserve that anchor, move full suffixes and decode retained prefixes at
+catch. Other aggregate representations and general enclosing record/enum images
 remain subsequent work.
 
 ## Implemented: runtime enum case dispatch

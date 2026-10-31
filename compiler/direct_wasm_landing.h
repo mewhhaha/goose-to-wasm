@@ -281,6 +281,7 @@ inline void Function::NonlocalOwnedReturn(Return *node) {
         LocationAddress(TailHeaderLocation({ type, AddressLocal { originals[k] } })); auto original_tail = Save(I32);
         Location stage { type, Slot { Slot::FRAME, FrameBytes(control.size, control.align), type } };
         LocationAddress(TailHeaderLocation(stage)); auto header = Save(I32);
+        Get(header); code.I32Const(0); code.I32Const(int32_t(owner_control_bytes)); code.Fill();
         Get(header); Get(starts[k]); code.Mem(0x36, 2);
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
         Get(header); Get(original_tail); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
@@ -320,6 +321,10 @@ inline void Function::LandOwnedEffect() {
         FrameAddress(metadata + 8); code.Mem(0x28, 2); auto base = Save(I32);
         FrameAddress(mailbox + mailbox_layout.fields[ordinal]); auto winning = Save(I32);
         LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto tail = Save(I32);
+        if (Compiler::ArrayImageEffectResult(type)) {
+            LandArrayImage(tail, start, base, type, spec->sf->line);
+            Get(original); Set(resultlocals[ordinal]); continue;
+        }
         LocationAddress(TailHeaderLocation({ type, AddressLocal { winning } })); auto winning_tail = Save(I32);
         Get(winning_tail); code.Mem(0x28, 2, 4); auto length = Save(I32);
         Get(winning_tail); code.Mem(0x28, 2); auto first = Save(I32);

@@ -114,8 +114,11 @@ shares argument snapshots, captured bindings and result destinations across its
 checked arms. [Nonlocal-return effects](NONLOCAL_RETURNS.md) now cross ordinary
 and dispatched calls for fixed target results, with recursive activation identity
 and cross-frame cleanup. Growable-array and fixed-prefix frame result groups now support independent
-staging and landing beside fixed results; variable/capacity-limited arrays and
-non-frame record/enum images remain the next extension.
+staging and landing beside fixed results. Standalone scalar Var/runtime-limited
+results and recursively packed integer aggregate array results land their
+authoritative byte images, preserving entry anchors and canceled prefixes.
+Other aggregate representations and non-frame record/enum image targets remain
+subsequent extensions.
 Tests include O0 programs that cannot depend on optimizer inlining.
 
 Before serialization, document the image ABI, pointer width/encoding and the

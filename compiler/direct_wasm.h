@@ -90,6 +90,7 @@ struct Function {
     vector<optional<uint32_t>> resultdestinations, resultpublications;
     unordered_map<VarDef *, Slot> vars;
     unordered_map<const VarDef *, ConstructionDestination> named_regions;
+    unordered_map<const VarDef *, uint32_t> named_image_prefixes;
     unordered_set<const VarDef *> inline_named_regions;
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
@@ -277,6 +278,9 @@ struct Function {
     ConstructionDestination ValueArrayReceiver(const ConstructionDestination &, TypeExpr *);
     void FinishValueArrayReceiver(const ConstructionDestination &, const ConstructionDestination &, Line);
     void FinishArrayImage(uint32_t, uint32_t, uint32_t, TypeExpr *, bool, Line);
+    void SetArrayImageAnchor(uint32_t, uint32_t, TypeExpr *);
+    void LandArrayImage(uint32_t, uint32_t, uint32_t, TypeExpr *, Line);
+    bool ImageTargetDestination(const ConstructionDestination &) const;
 
     void View(Node *);
     void ArrayBuiltin(Call *);
@@ -332,7 +336,7 @@ struct Function {
     void RecordRegionCall(FnSpec *, Line);
     void ConstructRegion(Node *, const Location &, optional<uint32_t> global_region = {});
     void AcquireRegion(const Location &, Line, optional<uint32_t> = {}, bool temporary = false);
-    void ShareRegion(const Location &, const ConstructionDestination &);
+    void ShareRegion(const Location &, const ConstructionDestination &, const VarDef * = nullptr);
     void ConstructRegionInto(Node *, const ConstructionDestination &);
     void ConstructRegionFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     Location TailHeaderLocation(const Location &);
@@ -439,8 +443,7 @@ struct Compiler {
         r.size = max<uint32_t>(1, r.size);
         return payload_layouts.emplace(key, std::move(r)).first->second;
     }
-    static bool PackedIntegerEnum(EnumInst *ei) {
-        if (!ei || !ei->allfixed) return false;
+    static bool PackedIntegerImage(TypeExpr *root) {
         unordered_set<TypeExpr *> visiting;
         function<bool(TypeExpr *)> packed = [&](TypeExpr *type) {
             if (!type) return false;
@@ -465,7 +468,11 @@ struct Compiler {
             }
             visiting.erase(type); return valid;
         };
-        for (auto &fields : ei->vftypes) for (auto field : fields) if (!packed(field)) return false;
+        return packed(root);
+    }
+    static bool PackedIntegerEnum(EnumInst *ei) {
+        if (!ei || !ei->allfixed) return false;
+        for (auto &fields : ei->vftypes) for (auto field : fields) if (!PackedIntegerImage(field)) return false;
         return true;
     }
     const Layout &EnumImageLayout(EnumInst *ei, Line line) {
@@ -749,6 +756,7 @@ struct Compiler {
     }
     void AnalyzeCaptures();
     void AnalyzeEffects();
+    static bool ArrayImageEffectResult(TypeExpr *);
     bool OwnedEffectResult(TypeExpr *);
     vector<size_t> OwnedEffectOrdinals(FnSpec *);
     bool SameEffectType(TypeExpr *, TypeExpr *);

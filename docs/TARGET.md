@@ -325,7 +325,7 @@ growables, varint variable-array lengths; resizable/multiple-owner enum payloads
 unproven packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;
 relative and pool references;
-out-of-line nonlocal returns with variable, capacity-limited, enum/non-frame-record owned target results;
+out-of-line nonlocal returns with unproven aggregate-element Var/runtime-limited arrays or enum/non-frame-record owned target results;
 threads/queues; binary framing/serialization; custom formatters and
 unsupported aggregate rendering; and explicit packed padding.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.
