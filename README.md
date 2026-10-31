@@ -30,6 +30,11 @@ Standalone variable-size variants share the single-tail record walker, including
 nested tails and supported payloads whose siblings require other storage forms.
 Fixed variant fields are packed; integer-only enum replacements preserve the
 native byte-overlap behavior through saved payload references.
+Nested functions receive hidden addresses for their captured bindings, including
+transitive and recursive captures, mutable reference/slice bindings and supported
+owned values. Static function-value calls support fixed parameters/results and
+fixed-result adaptation into owned receivers. See [static captures](docs/STATIC_CAPTURES.md)
+for qualification and the remaining ownership/nonlocal-return boundaries.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

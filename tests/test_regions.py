@@ -1171,6 +1171,79 @@ fn main() {{ values.resize(bench_input(), Flat.Data {{ 1, 42 }}); }}'''
                     self.assertEqual(observed["canary"], str(CANARY))
 
 
+    def test_static_captured_growable_borrows_one_region(self):
+        source = '''export fn tick(n: i64) -> i64 {
+    var total = 0; var values: i64[>..] = [n];
+    recursive fn add(k: i64) -> i64 { total += k; values.push(k); return values.len; }
+    for i in 100 { add(i); }
+    if total != 4950 || values.len != 101 || values[0] != n || values[100] != 99 { abort("bad static capture"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_static_captured_record_and_enum_owners_remain_independent(self):
+        source = '''struct Packet { id: i64, values: i64[>..] }
+enum Event { Data { id: i64, values: i64[] } }
+export fn tick(n: i64) -> i64 {
+    var packet = Packet { n, [n] }; let e: Event.. = Event.Data { n, [n] };
+    recursive fn change() -> i64, i64 {
+        packet.id += 1; packet.values.push(packet.id);
+        let value = match e { Data &p => { p.id += 2; p.values[0] += 10; p.id + p.values[0] } };
+        return packet.values[1], value;
+    }
+    let a, b = change();
+    if a != n + 1 || b != 2 * n + 12 || packet.id != n + 1 { abort("bad captured owners"); } return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_static_captured_owner_survives_nested_return_and_checks_extent(self):
+        source = f'''extern fn bench_input() -> i64;
+var neighbor: i64[>..] = [{CANARY}];
+fn main() {{
+    var values: i64[>..] = [1];
+    recursive fn replace() {{ values = [if bench_input() > 0 {{ return; }} else {{ 2 }}; 1000000]; }}
+    replace();
+}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, input_value=1, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_fixed_function_value_results_construct_owned_receivers_once(self):
+        source = '''fn grown<F>() -> i64[>..] { return F(); }
+export fn tick(n: i64) -> i64 {
+    let named = grown() { [n, n + 1] };
+    var calls = 0;
+    for i in 100 {
+        let value = grown() { calls++; [n + i] }[0];
+        if value != n + i { abort("wrong fixed callback result"); }
+    }
+    if calls != 100 || named[0] != n || named[1] != n + 1 { abort("bad callback lifetime"); } return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--goose", type=Path, default=GOOSE)

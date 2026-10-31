@@ -119,6 +119,12 @@ inline DirectWasmResult Compiler::Compile() {
     // global initializers still run only when the host calls _start.
     for (auto sf : ast.functions) if (sf->isexport)
         for (auto sp : sf->specs) if (!sp->failed && !sp->stale) Reach(sp);
+    AnalyzeCaptures();
+    for (auto sp : specs) {
+        if ((sp->sf == main || sp->sf->isexport) && !captures[sp].empty())
+            Fail(sp->sf->line, "public entrypoints cannot capture non-global storage");
+        function_type[sp] = Sig(FunctionSig(sp));
+    }
     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
     unordered_set<FnSpec *> return_targets;
     for (auto sp : specs) for (auto target : sp->needs) return_targets.insert(target);

@@ -197,6 +197,23 @@ def cases():
         answer = (f"1 {n + 10} {n + 11} {n + 12}\n7 1 {n + 110} {n + 20}\n"
                   f"4 {n + 11} {n + 12}\n{n + 12} {n + 112}\n")
         result.append(Case(f"image/packed-storage/{n}", "packed_variant_storage", f"{n}\n", answer, group="aggregate"))
+    capture_programs = (
+        ("upstream-inline", "upstream_inline_nested_calls", "1204\n11 15 1\n63\n36\n5 -1\n32\n"),
+        ("upstream-scope", "upstream_nested_fn_scope", "1 6 10\n1 6 11\n1 6 2\n1\n1 3\n10 2\n10 5\n10 3\n1120 5121\n1420 15\n1120 5121\n1420 16\ntrue true 9 2\n"),
+        ("upstream-fv-subset", "upstream_funval_captures_subset", "105\n8\n104\n20\n24\n916\n41\n43\n51\n43\n43\n233\n113423\n12\n5\n9\n12\n0\n10\n20\n304\n8\n5\n4 [1, 2, 3, 10]\n28\n24\n9\n51\n56\n105\n12 20 27\n"),
+        ("upstream-init-subset", "upstream_initializer_captures_subset", "6 550027 2006 1122\n"),
+    )
+    for name, fixture, answer in capture_programs:
+        for debug in (False, True):
+            result.append(Case(f"capture/{name}" + ("-debug" if debug else ""), fixture, stdout=answer, debug=debug, group="control"))
+    for n in (0, 3):
+        answer = f"{n} {n + 110} {n + 110} {n + 230} 3\n[{n + 1}, {n + 2}, {n + 3}] 1\n[4, 5, 6] 2\n"
+        for debug in (False, True):
+            result.append(Case(f"capture/bindings/{n}" + ("-debug" if debug else ""), "static_capture_bindings", f"{n}\n", answer, debug=debug, group="control"))
+    full_capture_answer = capture_programs[2][2].removesuffix("12 20 27\n") + "12 12 20 27\n"
+    for debug in (False, True):
+        result.append(Case("capture/upstream-fv-full-o2" + ("-debug" if debug else ""), "upstream_funval_captures_o2",
+                           stdout=full_capture_answer, debug=debug, group="control", levels=(2,)))
     for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"

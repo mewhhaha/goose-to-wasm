@@ -343,21 +343,20 @@ class CompilerSession(SessionHarness):
 
     def test_qualified_fixture_modules_match_fresh_compilers(self):
         from run_differential import cases
-        fixtures = sorted({(case.fixture, case.debug) for case in cases()})
-        for fixture, debug in fixtures:
-            for level in (0, 2):
-                with self.subTest(fixture=fixture, debug=debug, level=level):
-                    source = ROOT / "tests/fixtures" / (fixture + ".goose")
-                    extra = [f"-O{level}", "--no-cache", *(["--debug"] if debug else [])]
-                    self.request(source=source, extra=extra)
-                    fresh = self.work / "fresh.wasm"
-                    command = [str(GOOSE), str(source), "--target", "wasm-direct", "--offline",
-                               f"-O{level}", "-o", str(fresh), *(["-D", "GS_DEBUG=1"] if debug else [])]
-                    result = subprocess.run(command, capture_output=True, text=True, timeout=60)
-                    self.assertEqual(result.returncode, 0, result.stderr)
-                    self.assertEqual(self.output.read_bytes(), fresh.read_bytes())
-                    self.request(source=source, extra=extra)
-                    self.assertEqual(self.output.read_bytes(), fresh.read_bytes())
+        fixtures = sorted({(case.fixture, case.debug, level) for case in cases() for level in case.levels if level in (0, 2)})
+        for fixture, debug, level in fixtures:
+            with self.subTest(fixture=fixture, debug=debug, level=level):
+                source = ROOT / "tests/fixtures" / (fixture + ".goose")
+                extra = [f"-O{level}", "--no-cache", *(["--debug"] if debug else [])]
+                self.request(source=source, extra=extra)
+                fresh = self.work / "fresh.wasm"
+                command = [str(GOOSE), str(source), "--target", "wasm-direct", "--offline",
+                           f"-O{level}", "-o", str(fresh), *(["-D", "GS_DEBUG=1"] if debug else [])]
+                result = subprocess.run(command, capture_output=True, text=True, timeout=60)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(self.output.read_bytes(), fresh.read_bytes())
+                self.request(source=source, extra=extra)
+                self.assertEqual(self.output.read_bytes(), fresh.read_bytes())
 
     @unittest.skipUnless(Path("/proc/self/statm").exists(), "Linux RSS measurement")
     def test_repeated_frontends_release_owned_state(self):

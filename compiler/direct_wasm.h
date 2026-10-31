@@ -299,6 +299,9 @@ struct Compiler {
     vector<Signature> signatures;
     vector<Import> imports;
     vector<FnSpec *> specs;
+    unordered_set<FnSpec *> reachable;
+    unordered_map<FnSpec *, vector<VarDef *>> captures;
+    unordered_set<VarDef *> captured_storage;
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;
     unordered_map<FnSpec *, uint32_t> run_index;
@@ -633,12 +636,18 @@ struct Compiler {
         imports.push_back({ std::move(module), std::move(name), ty });
         return uint32_t(imports.size() - 1);
     }
+    void AnalyzeCaptures();
     Signature FunctionSig(FnSpec *sp) {
         Signature s;
         for (auto p : sp->params) {
             if (p->type->kind == TY_FN) continue;
             if (RegionOwner(p->type)) needs_regions = true;
             s.args.push_back(W(p->type));
+        }
+        for (auto capture : captures[sp]) {
+            W(capture->type);
+            if (RegionOwner(capture->type)) needs_regions = true;
+            s.args.push_back(I32);
         }
         for (auto t : sp->rets) {
             if (RegionOwner(t)) {
@@ -677,10 +686,10 @@ struct Compiler {
         return 0;
     }
     void Reach(FnSpec *sp) {
-        if (!sp || function_type.count(sp)) return;
+        if (!sp || !reachable.insert(sp).second) return;
         if (sp->sf->isthread) Fail(sp->sf->line, "threads are not supported by the direct host ABI");
-        auto signature = FunctionSig(sp);
         if (sp->sf->isextern) {
+            auto signature = FunctionSig(sp);
             if (!sp->sf->dylib.empty()) Fail(sp->sf->line, "dynamic-library externs are not supported");
             for (auto p : sp->params)
                 if (p->type->kind != TY_INT && p->type->kind != TY_FLT && p->type->kind != TY_BOOL)
@@ -698,7 +707,6 @@ struct Compiler {
             function_type[sp] = Sig(std::move(signature));
             return;
         }
-        function_type[sp] = Sig(std::move(signature));
         specs.push_back(sp);
         Scan(sp->body);
     }
@@ -726,6 +734,7 @@ struct Compiler {
 
 inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run)
     : c(compiler), spec(s), index(i), sig(ty), element_run(run) {
+    addressed.insert(c.captured_storage.begin(), c.captured_storage.end());
     if (spec) {
         results = spec->rets;
         ScanAddresses(spec->body);
@@ -736,6 +745,10 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
             vars[p] = { Compiler::RegionOwner(p->type) ? Slot::ADDRESS : Slot::LOCAL,
                         uint32_t(params.size()), p->type };
             params.push_back(W(p->type));
+        }
+        for (auto capture : c.captures[spec]) {
+            vars[capture] = { Slot::ADDRESS, uint32_t(params.size()), capture->type };
+            params.push_back(I32);
         }
         for (auto t : results) {
             if (c.Aggregate(t)) {
@@ -839,6 +852,7 @@ inline void Function::ScanAddresses(Node *n) {
 } // namespace goose
 
 #include "direct_wasm_numeric.h"
+#include "direct_wasm_captures.h"
 #include "direct_wasm_storage.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"

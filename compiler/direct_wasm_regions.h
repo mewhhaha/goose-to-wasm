@@ -77,7 +77,7 @@ inline Function::CapturedSequence Function::CaptureSequence(Node *node, bool ele
     } else if (auto call = Is<Call>(node); call && call->builtin == B_DEFAULT) {
         natural = call->rettypes.at(0); EmitCall(call, false);
     } else if (auto call = Is<Call>(node); call && call->builtin < 0) {
-        auto types = call->fvbody ? call->rettypes : call->spec ? call->spec->rets : vector<TypeExpr *> {};
+        auto types = NaturalResults(node);
         if (types.size() != 1) Fail(node->line, "array construction requires one source value");
         natural = types[0]; EmitCall(call, false, {}, elements);
     } else {

@@ -10,6 +10,10 @@ inline vector<TypeExpr *> Function::Values(Node *n) {
     return { n->exprtype };
 }
 inline vector<TypeExpr *> Function::NaturalResults(Node *node) {
+    if (auto call = Is<Call>(node); call && call->fvbody) {
+        auto type = call->fvbody->exprtype;
+        return type && type->kind != TY_VOID ? vector<TypeExpr *> { type } : vector<TypeExpr *> {};
+    }
     if (auto call = Is<Call>(node); call && call->builtin < 0 && !call->fvbody && call->spec)
         return call->spec->rets;
     if (auto call = Is<Call>(node); call && !call->rettypes.empty()) return call->rettypes;
@@ -396,17 +400,27 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
         if (args.size() != n->fvparams.size()) Fail(n->line, "function-value parameter mismatch");
         for (auto parameter : n->fvparams) if (c.Class(parameter->type) != SC_FIXED)
             Fail(n->line, "owned dynamic function-value parameters are not supported without receiving lifetimes");
-        for (auto result : n->rettypes) if (c.Class(result) != SC_FIXED)
+        auto natural = NaturalResults(n);
+        for (auto result : natural) if (c.Class(result) != SC_FIXED)
             Fail(n->line, "owned dynamic function-value results are not supported without result channels");
         for (size_t i = 0; i < args.size(); i++) { auto s = Bind(n->fvparams[i]); To(args[i], s.type); Write(s); }
         unordered_map<VarDef *, VarDef *> remap;
         for (auto [a, b] : n->fvremap) remap[a] = b;
         aliases.push_back(std::move(remap));
-        vector<uint32_t> vals; for (auto t : n->rettypes) vals.push_back(Local(t));
-        BlockInto(n->fvbody, n->rettypes, vals);
+        vector<uint32_t> vals; for (auto t : natural) vals.push_back(Local(t));
+        BlockInto(n->fvbody, natural, vals);
         aliases.pop_back();
         for (auto x : vals) Get(x);
-        if (adapt_result && n->rettypes.size() == 1) Convert(n->rettypes[0], n->exprtype, n->line);
+        if (adapt_result && natural.size() == 1) {
+            if (n->exprtype->kind == TY_VOID) code.Op(0x1a);
+            else if (Compiler::RegionOwner(n->exprtype)) {
+                auto source = Save(natural[0]);
+                auto receiver = TemporaryDestination(n->exprtype, n->line);
+                ConstructRegionFromCaptured(natural[0], source, receiver, n->line);
+                LocationAddress(receiver.location);
+            }
+            else Convert(natural[0], n->exprtype, n->line);
+        }
         return;
     }
     auto sp = n->spec;
@@ -438,6 +452,9 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
             auto captured = CopyCaptured(CaptureStack(t)); Get(captured.value_local);
         }
     }
+    // Environments share the binding slot itself, including mutable reference
+    // and slice bindings. Captured owners retain their caller-owned region.
+    for (auto capture : c.captures[sp]) SlotAddress(Lookup(n->FreeVarArg(capture), n->line));
     // Anonymous result storage is needed only after evaluating arguments.
     // Reserving it earlier would keep a region live across recursive arguments.
     bool run = false;

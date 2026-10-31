@@ -103,8 +103,11 @@ results, memory exhaustion and region-boundary canaries.
 
 ## Phases 5–8: remaining pinned-language behavior
 
-Capture environments must refer to the current activation and obey the frontend's
-escape rules. Carry nonlocal-return effects through ordinary calls and dispatch;
+Hidden captured binding locations now follow the current activation, including
+transitive/recursive requirements and function-value remapping. Fixed callback
+parameters/results and fixed-result construction into owned receivers are covered;
+see [static captures](STATIC_CAPTURES.md). Owned callback parameters/results remain
+the next receiving-lifetime slice. Carry nonlocal-return effects through ordinary calls and dispatch;
 restore all exited storage before transferring control. Tests must include O0
 programs that cannot depend on optimizer inlining.
 

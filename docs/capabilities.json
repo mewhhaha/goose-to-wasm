@@ -920,10 +920,20 @@
         ]
       },
       "captured_environment": {
-        "status": "pending",
-        "scope": "Out-of-line hidden captured locations and transitive requirements pending.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "Hidden captured binding addresses derived from final bodies, with transitive/recursive requirements, global initializer roots and function-value remapping. Scalars, mutable reference/slice bindings and supported owners share current-activation storage. Fixed callback results may construct owned receivers. Owned callback parameters/results and out-of-line nonlocal exits remain pending; original full funval capture fixture qualifies at O2 only.",
+        "fixtures": [
+          "tests/fixtures/upstream_inline_nested_calls.goose",
+          "tests/fixtures/upstream_nested_fn_scope.goose",
+          "tests/fixtures/upstream_funval_captures_subset.goose",
+          "tests/fixtures/upstream_initializer_captures_subset.goose",
+          "tests/fixtures/upstream_funval_captures_o2.goose",
+          "tests/fixtures/static_capture_bindings.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/test_static_capture_boundaries.py",
+          "tests/test_regions.py"
+        ]
       },
       "overload_dispatch": {
         "status": "pending",
