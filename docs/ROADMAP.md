@@ -41,14 +41,16 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
-## Implemented: packed fixed-variant fields
+## Implemented: packed fixed record fields
 
-Layout version 2 removes inter-field/trailing alignment from fixed variant
-payloads and updates their array strides and containing layouts. Integer-only
-enums reproduce native overwrite observations through saved named-payload
-references. Other representation-sensitive cases retain their explicit boundary.
-The [image layout plan](IMAGE_LAYOUT.md) separates this step from recursive fixed
-record packing, compact metadata and full variable images.
+Layout version 3 packs fixed struct and variant fields, including nested records,
+generic instantiations and their array strides. Enums whose payloads recursively
+contain fixed-width integers, nonempty fixed arrays and nonempty fixed records
+reproduce native overwrite observations through saved named-payload references.
+Owner controls retain their separate alignment. Empty embedded aggregates and
+other representation-sensitive cases retain explicit boundaries. The
+[image layout plan](IMAGE_LAYOUT.md) separates this step from compact metadata
+and authoritative variable images.
 
 ## Implemented: standalone variable-size variants
 
