@@ -123,8 +123,8 @@ def main():
     # Returning aggregates stays an internal Goose ABI, never an implicit
     # contract with an arbitrary host function or public Wasm export.
     refusals = {
-        "runtime-limited-capacity": ('fn main() { let n = 2; var a: i64[..] = [..n]; print(a.len); }\n',
-                                     "construction-time array capacity is not supported"),
+        "varint-array-length": ('fn main() { let a: i64[varint] = [1, 2]; print(a.len); }\n',
+                                "variable-array length storage other than default/u32 is not supported"),
         "variable-mode-enum": ('enum E { Empty, Data { x: i64 } }\nfn main() { let e: E.. = E.Data { 1 }; match e { Data p => print(p.x), _ => {} } }\n',
                                "only fixed-mode enums"),
         "enum-export": ('enum E { Empty, Data { x: i64 } }\nexport fn exported() -> E { E.Data { 1 } }\nfn main() {}\n',
