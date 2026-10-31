@@ -109,7 +109,7 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
                   type->kind == TY_VARIANT ? type->var->adt->enu->inst : nullptr;
         if (!Compiler::RegionEnum(target) || !ei || ei != target->enu->inst)
             Fail(line, "owned enum construction requires the same enum instantiation");
-        c.EnumImageLayout(ei, line); return;
+        c.ControlLayout(target); return;
     }
     if (Compiler::RegionRecord(type) || Compiler::RegionRecord(target)) {
         if (!Compiler::RegionRecord(type) || !Compiler::RegionRecord(target) || !Compiler::SameRecord(type, target))
@@ -183,6 +183,9 @@ inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, cons
             FinishRawArrayReceiver(*plan.producers[i], *plan.raw_receivers[i], line);
             LocationAddress(plan.raw_receivers[i]->location); Set(values[i]);
         } else if (plan.enum_payloads[i]) {
+            if (types[i]->kind == TY_REF && Compiler::RegionVariant(plan.enum_payloads[i]))
+                ConstructRecordFromCaptured(types[i], values[i], *plan.producers[i], line);
+            else if (!Compiler::RegionVariant(types[i])) AppendFixedEnumPayload(plan.enum_payloads[i], values[i], *plan.values[i], line);
             FinishEnumPayload(*plan.values[i], plan.enum_payloads[i], line);
             LocationAddress(plan.values[i]->location); Set(values[i]);
         } else if (plan.copies[i]) {
@@ -227,7 +230,7 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
                 }
                 RunChildren(node, validate);
             };
-            if (!Compiler::PackedIntegerEnum(types[i]->enu->inst)) validate(body);
+            if (!c.ProvenEnumImage(types[i]->enu->inst, body->line)) validate(body);
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }
         if (Compiler::RegionRecord(types[i]) || Compiler::RegionRecord(candidate->type)) {
@@ -378,6 +381,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 20);
     PublishCursor(header, base);
     if (Compiler::RegionRecord(place.storage_type) && !Compiler::FrameStruct(place.storage_type)) SetRecordImageAnchor(place, base, line);
+    if (Compiler::RegionEnum(place.storage_type)) SetEnumImageAnchor(place, base, line);
     if (!global_region) RegisterEffectOwner(place, true, temporary);
 }
 

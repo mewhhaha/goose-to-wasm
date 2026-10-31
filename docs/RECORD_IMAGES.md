@@ -31,10 +31,11 @@ Normal result landing moves the entire physical suffix when required and
 decodes the receiving image. It does not substitute successful producer counts.
 
 Sparse logical extents remain mapped without advancing physical construction
-cursors. Variable enum payloads place their complete record image after the
-existing tag/max-control union. Enum completion validates logical extent and
-keeps the physical cursor left by the payload producer. The whole enum has its
-existing target layout and is not declared a packed C.2 image.
+cursors. Variable enum payloads place their complete record image immediately after the
+compact enum tag. Persistent per-variant controls live in the owner envelope,
+separately from that image. Enum completion validates active logical extent and
+keeps the physical cursor left by the payload producer. Field representations
+still retain their target layout; general serialization remains separate.
 
 This checkpoint preserves normal owned parameters/results, named image aliases,
 prefix references, nested fields, callbacks, globals and active enum conversions.

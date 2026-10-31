@@ -953,20 +953,33 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
-    def test_variable_enum_image_limit_preserves_field_effects_and_neighbor(self):
-        source = f'''enum Event {{ Small {{ id: i64 }}, Big {{ values: i64[8192] }} }}
-var neighbor: i64[>..] = [{CANARY}];
-fn value() -> i64 {{ print(123); return 1; }}
-fn main() {{ let e: Event.. = Event.Small {{ value() }}; }}'''
-        for level in (0, 2):
-            path, runtime = self.compile(source, level)
-            self.assertEqual(runtime["region_count"], 2)
-            for engine, observed in self.engines(path, runtime, canary_index=0):
-                with self.subTest(level=level, engine=engine):
-                    self.assertIn("data region exhausted", observed["error"])
-                    self.assertEqual(observed["numbers"], ["123"])
-                    self.assertEqual(observed["canary"], str(CANARY))
+    def test_inactive_large_enum_alternative_does_not_reserve_data(self):
+        source = f'''enum Event {{ Small {{ id:i64 }}, Big {{ values:i64[8192] }} }}
+var neighbor:i64[>..] = [{CANARY}];
+fn value()->i64 {{ print(123); return 1; }}
+fn main() {{ let e:Event.. = Event.Small{{value()}}; }}'''
+        for level in (0,2):
+            path,runtime=self.compile(source,level)
+            self.assertEqual(runtime["region_count"],2)
+            for engine,observed in self.engines(path,runtime,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed["error"],"")
+                    self.assertEqual(observed["numbers"],["123"])
+                    self.assertEqual(observed["canary"],str(CANARY))
 
+    def test_variable_enum_active_image_overflow_preserves_neighbor(self):
+        source = f'''enum Event {{ Empty, Big {{ values:i64[u32] }} }}
+var neighbor:i64[>..] = [{CANARY}];
+fn value()->i64 {{ print(123); return 1; }}
+fn main() {{ let e:Event.. = Event.Big{{[value();1000000]}}; }}'''
+        for level in (0,2):
+            path,runtime=self.compile(source,level)
+            self.assertEqual(runtime["region_count"],2)
+            for engine,observed in self.engines(path,runtime,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn("data region exhausted",observed["error"])
+                    self.assertEqual(observed["numbers"],["123"])
+                    self.assertEqual(observed["canary"],str(CANARY))
 
     def test_variable_enum_payload_borrows_survive_later_argument_temporaries(self):
         source = '''enum Event { Data { id: i64 } }
@@ -1118,7 +1131,7 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
-    def test_variable_enum_control_prefix_is_checked_before_embedded_base(self):
+    def test_inactive_large_enum_alternative_does_not_reserve_variable_payload(self):
         source = f'''enum Event {{ Empty, Data {{ values: i64[] }}, Big {{ values: i64[8192] }} }}
 var neighbor: i64[>..] = [{CANARY}];
 fn main() {{ let e: Event.. = Event.Data {{ [1] }}; }}'''
@@ -1127,7 +1140,7 @@ fn main() {{ let e: Event.. = Event.Data {{ [1] }}; }}'''
             self.assertEqual(runtime["region_count"], 2)
             for engine, observed in self.engines(path, runtime, canary_index=0):
                 with self.subTest(level=level, engine=engine):
-                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["error"], "")
                     self.assertEqual(observed["canary"], str(CANARY))
 
 

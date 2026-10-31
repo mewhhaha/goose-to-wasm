@@ -52,6 +52,16 @@ def wrap(value, bits, signed=True):
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     for debug in (False, True):
+        for name, answer in {"fixed_enum_tuple":"3\nB 7\n", "borrowed_tuple":"3\nB 7\n", "borrowed_ordinary":"arg\nborrowed 7\nA 17\n", "views":"68 51 1\n13124 1 85\n", "fixed_tuple":"7\n300 17\n", "forwarding":"7 2 300 400\n8 1 500 17\n"}.items():
+            result.append(Case("enum-image/" + name + ("-debug" if debug else ""), "enum_image_" + name,
+                               stdout=answer, debug=debug, group="storage"))
+        for name, answer in {"borrowed":"9\nA 1\n", "copy_borrowed":"9\nB 68\n", "copy_borrowed_variable":"9\nB 68 1 85\n", "canceled_fixed":"9\nB 68\n", "canceled_variable":"9\nB 68 1 85\n", "conditional":"9\nA 1\n", "successful":"A\n"}.items():
+            result.append(Case("enum-image/" + name + ("-debug" if debug else ""), "enum_image_" + name,
+                               stdout=answer, debug=debug, group="control", levels=(2,)))
+        for name, answers in {"inline_fixed":("B 34\n","A 1\n"), "inline_variable":("B 34 1 51\n","A 1 34 1\n")}.items():
+            for level, answer in zip((0,2),answers):
+                result.append(Case(f"enum-image/{name}/O{level}" + ("-debug" if debug else ""), "enum_image_" + name,
+                                   stdout=answer, debug=debug, group="control", levels=(level,)))
         result.append(Case("compact-enum/tags" + ("-debug" if debug else ""), "compact_enum_tags",
                            stdout="17 307 34 51 5 68\n408 6\n1 2\n", debug=debug, group="storage"))
     record_nonlocal = {

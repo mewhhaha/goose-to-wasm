@@ -277,18 +277,17 @@ to fixed enums may be matched, but references into replaceable fixed-enum
 payloads are prohibited by the frontend. A fixed standalone variant can be used
 even when another variant of its enum requires unsupported dynamic storage.
 
-Nonresizable variable-mode enums with supported fixed or single-tail payloads own a stable
-image through the 24-byte region control. The image has the same internal tag and
-maximum control union, with terminal data following it. Inactive fields remain
-untouched. Copies walk active payloads into independent images; external reference/slice fields
-preserve their referents. Named variable results alias the whole image, while
-fixed receiving results snapshot it. Same-instance mode/variant conversions,
-owned parameters/results and copied or by-reference payload matches share the
-owner channels. This layout has a maximum-union per-owner resource cost and is
-not a C.2 serialized image. Observing old named payload storage after a nonempty
-replacement return is admitted for recursively packed fixed-width integer
-records, standalone variants and nonempty fixed arrays. Other representations
-remain outside that proof.
+Nonresizable variable-mode enums with supported fixed or single-tail payloads own
+one stable region containing the compact tag and active payload only. Separately
+aligned owner controls hold the common 24-byte header and a persistent control
+slot for each nonfixed variant. No inactive payload data is reserved. Copies move
+active image bytes; fixed receiving values use fixed snapshots. Borrowed payload
+views retain their own typed offsets through named replacement. Normal/tuple
+result staging, final-annotation-aware variant adapters and compact cleanup
+guards follow the [enum image contract](VARIABLE_ENUMS.md). Resource bounds cover
+active extents and the separate control envelope. Only proved integer payload
+images admit nonempty replacement observations through saved old typed views;
+other representation-sensitive shapes retain their gate.
 See [the enum contract](VARIABLE_ENUMS.md).
 
 ## Initial supported fragment

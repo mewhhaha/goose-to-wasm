@@ -284,6 +284,13 @@ struct Function {
     void FinishRecordImage(const Location &, uint32_t, bool, Line);
     void ReadEnumTag(uint32_t);
     void WriteEnumTag(uint32_t);
+    Location EnumPayloadLocation(const Location &, TypeExpr *, Line);
+    void SetEnumImageAnchor(const Location &, uint32_t, Line);
+    uint32_t EnumImageBytes(const Location &, Line);
+    void DecodeEnumImage(const Location &, Line);
+    void FinishEnumImage(const Location &, uint32_t, bool, Line);
+    bool ConstructNormalEnumImage(Node *, const ConstructionDestination &);
+    void AppendFixedEnumPayload(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     bool ImageTargetDestination(const ConstructionDestination &) const;
 
     void View(Node *);
@@ -333,6 +340,10 @@ struct Function {
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void ResultExpression(Node *, const ResultDestinations &);
     struct RegionResultPlan { ResultDestinations producers, copies, values, raw_receivers, value_receivers; vector<TypeExpr *> enum_payloads; };
+    struct PreparedEnumResults { ResultDestinations producers, receivers; vector<TypeExpr *> variants; vector<bool> opened; };
+    PreparedEnumResults PrepareEnumResults(const vector<TypeExpr *> &, const ResultDestinations &, Line, bool = true);
+    void ApplyPreparedEnumResults(RegionResultPlan &, const PreparedEnumResults &);
+    void ClosePreparedEnumResults(const PreparedEnumResults &);
     RegionResultPlan PlanRegionResults(const vector<TypeExpr *> &, const ResultDestinations &, Line, bool run = false, bool inlined = false);
     void PublishRegionResults(const vector<TypeExpr *> &, const RegionResultPlan &, Line);
     void ControlValue(Node *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
@@ -357,7 +368,7 @@ struct Function {
 
     void ConstructEnumInto(Node *, const ConstructionDestination &);
     void ConstructEnumFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
-    ConstructionDestination PrepareEnumPayload(const ConstructionDestination &, TypeExpr *, Line);
+    ConstructionDestination PrepareEnumPayload(const ConstructionDestination &, TypeExpr *, Line, bool = true);
     void FinishEnumPayload(const ConstructionDestination &, TypeExpr *, Line);
     void ConstructRegionView(uint32_t, const ConstructionDestination &, Line, optional<uint32_t> capacity = {});
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
@@ -489,26 +500,35 @@ struct Compiler {
         for (auto &fields : ei->vftypes) for (auto field : fields) if (!PackedIntegerImage(field)) return false;
         return true;
     }
+    bool ProvenEnumImage(EnumInst *ei, Line line) {
+        if (!ei) return false;
+        for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
+            auto variant = EnumVariantType(ei, int(vi), line);
+            if (RegionVariant(variant)) { if (!RecordImageEffectResult(variant)) return false; }
+            else for (auto field : RecordFields(variant)) if (!PackedIntegerImage(field)) return false;
+        }
+        return true;
+    }
     static uint32_t EnumTagBytes(EnumInst *ei) { return ei->en->variants.size() <= 256 ? 1u : 2u; }
+    static TypeExpr *VariantSource(TypeExpr *type) {
+        if (type && type->kind == TY_REF) type = type->ref->sub;
+        return type && type->kind == TY_VARIANT ? type : nullptr;
+    }
     const Layout &EnumImageLayout(EnumInst *ei, Line line) {
         if (!ei) Fail(line, "enum instantiation was not resolved");
-        if (!ei->allfixed && ei->varclass != SC_VARIABLE)
-            Fail(line, "resizable variable-mode enums are not supported");
+        if (!ei->allfixed) Fail(line, "fixed enum layout requires fixed-size payloads");
         if (auto found = enum_image_layouts.find(ei); found != enum_image_layouts.end()) return found->second;
         Layout r;
-        uint32_t bytes = 0, alignment = 1, data_alignment = 1;
+        uint32_t bytes = 0;
         for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
             auto vt = EnumVariantType(ei, int(vi), line);
-            if (Class(vt) != SC_FIXED && !RegionVariant(vt))
-                Fail(line, "variable enum payloads require one final nonresizable array tail");
-            auto sub = RegionVariant(vt) ? ControlLayout(vt) : FixedLayout(vt);
+            auto sub = FixedLayout(vt);
             // Empty alternatives take no bytes behind their enum's tag.
             if (RecordFields(vt).empty()) sub.size = 0;
-            if (RegionVariant(vt)) data_alignment = max(data_alignment, FixedLayout(TailType(vt)->arr->sub).align);
-            bytes = max(bytes, sub.size); alignment = max(alignment, sub.align);
+            bytes = max(bytes, sub.size);
         }
-        r.align = max({ r.align, alignment, data_alignment }); r.payload = Align(EnumTagBytes(ei), alignment);
-        auto size = (uint64_t(r.payload) + bytes + r.align - 1) & ~uint64_t(r.align - 1);
+        r.payload = EnumTagBytes(ei);
+        auto size = uint64_t(r.payload) + bytes;
         if (size > uint64_t(opts.maximum_pages) * 65536)
             Fail(line, "enum exceeds the configured linear-memory limit");
         r.size = uint32_t(size);
@@ -616,8 +636,23 @@ struct Compiler {
         Layout layout;
         if (RegionArray(t)) layout = HeaderLayout(t);
         else if (RegionEnum(t)) {
-            EnumImageLayout(t->enu->inst, t->line);
             layout.size = owner_control_bytes; layout.align = 4;
+            auto ei = t->enu->inst;
+            if (!ei || (!ei->allfixed && ei->varclass != SC_VARIABLE))
+                Fail(t->line, "resizable variable-mode enums are not supported");
+            for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
+                auto variant = EnumVariantType(ei, int(vi), t->line);
+                if (Class(variant) == SC_FIXED) { FixedLayout(variant); layout.fields.push_back(0); continue; }
+                if (!RegionVariant(variant))
+                    Fail(t->line, "variable enum payloads require one final nonresizable array tail");
+                auto sub = ControlLayout(variant);
+                layout.align = max(layout.align, sub.align); layout.size = Align(layout.size, sub.align);
+                layout.fields.push_back(layout.size);
+                if (uint64_t(layout.size) + sub.size > uint64_t(opts.maximum_pages) * 65536)
+                    Fail(t->line, "enum control storage exceeds linear memory");
+                layout.size += sub.size;
+            }
+            layout.size = Align(layout.size, layout.align);
         }
         else if (RegionRecord(t)) {
             auto &fields = RecordFields(t);

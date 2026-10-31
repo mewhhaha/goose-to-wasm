@@ -90,12 +90,15 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
         vector<bool> lands(types.size());
         auto cleanup_depth = cleanups.size(), private_depth = private_headers.size();
         for (size_t i = 0; c.region_cursors && i < types.size(); i++) {
-            if (!Compiler::RegionOwner(vt[i]) || destinations.size() != types.size() || !destinations[i]) continue;
+            if (destinations.size() != types.size() || !destinations[i]) continue;
             auto &destination = *destinations[i]; auto type = destination.location.storage_type;
+            auto enumeration = Compiler::RegionEnum(type);
+            auto source = vt[i]; if (source->kind == TY_REF) source = source->ref->sub;
+            if (!Compiler::RegionOwner(vt[i]) && !(enumeration && (source->kind == TY_VARIANT || source->kind == TY_ENUM))) continue;
             auto record = Compiler::RegionRecord(type) && !Compiler::FrameStruct(type);
             auto array = Compiler::RegionArray(type) &&
                 ((type->arr->akind == A_VAR && !destination.elements) || Compiler::RuntimeLimited(type));
-            if (!record && !array) continue;
+            if (!record && !array && !enumeration) continue;
             LocationAddress(TailHeaderLocation(destination.location)); auto original = Save(I32);
             starts[i] = RegionCursor(original);
             lands[i] = destination.construction->open > destination.open0;
@@ -106,7 +109,8 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
             Get(header); Get(original); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
             Get(header); Get(*starts[i]); code.Mem(0x36, 2);
             if (record) SetRecordImageAnchor(stage, *starts[i], l);
-            auto publication = record ? optional<uint32_t>{} : Publication(destination);
+            if (enumeration) SetEnumImageAnchor(stage, *starts[i], l);
+            auto publication = array ? Publication(destination) : optional<uint32_t>{};
             RegisterEffectOwner(stage, true, false, publication);
             private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
             if (array) cleanups.push_back({ CleanupAction::CheckAbandonedRegion, original, type->arr->sub, l, destination.enum_guard });
@@ -118,7 +122,10 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
         for (size_t i = types.size(); i-- > 0;) captured[i] = Save(vt[i]);
         for (size_t i = 0; i < types.size(); i++) if (starts[i]) {
             auto &destination = *destinations[i]; auto type = destination.location.storage_type;
-            if (Compiler::RegionRecord(type)) FinishRecordImage(destination.location, *starts[i], lands[i], l);
+            if (Compiler::RegionEnum(type) && !Compiler::RegionOwner(vt[i]))
+                ConstructRegionFromCaptured(vt[i], captured[i], *producers[i], l);
+            if (Compiler::RegionEnum(type)) FinishEnumImage(destination.location, *starts[i], lands[i], l);
+            else if (Compiler::RegionRecord(type)) FinishRecordImage(destination.location, *starts[i], lands[i], l);
             else {
                 LocationAddress(destination.location); auto original = Save(I32);
                 FinishArrayImage(original, *starts[i], *headers[i], type, lands[i], l);
@@ -127,7 +134,8 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
         CloseCleanups(cleanup_depth); private_headers.resize(private_depth);
         for (size_t i = 0; i < types.size(); i++) {
             if (Compiler::RegionOwner(types[i])) {
-                if (!Compiler::RegionOwner(vt[i])) ConstructRegionFromCaptured(vt[i], captured[i], *destinations[i], l);
+                auto delivered_enum = starts[i] && Compiler::RegionEnum(destinations[i]->location.storage_type);
+                if (!Compiler::RegionOwner(vt[i]) && !delivered_enum) ConstructRegionFromCaptured(vt[i], captured[i], *destinations[i], l);
                 LocationAddress(destinations[i]->location); Set(slots[i]);
             } else { Get(captured[i]); Convert(vt[i], types[i], l); CaptureResult(types[i], slots[i]); }
         }
@@ -455,6 +463,8 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
     auto receiving = destinations;
+    if (receiving.empty() && adapt_result && sp->rets.size() == 1 && Compiler::VariantSource(sp->rets[0]) && Compiler::RegionEnum(n->exprtype))
+        receiving = { TemporaryDestination(n->exprtype, n->line) };
     for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionOwner(sp->rets[i])) {
         if (!receiving.empty()) {
             if (receiving.size() != sp->rets.size()) Fail(n->line, "owned call result channel arity mismatch");
@@ -463,6 +473,8 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
+    auto prepared_enums = PrepareEnumResults(sp->rets, receiving, n->line, sp->rets.size() != 1 || Compiler::RegionEnum(n->exprtype));
+    receiving = prepared_enums.producers;
     auto owned_arguments = any_of(ps.begin(), ps.end(), [](VarDef *p) { return Compiler::RegionOwner(p->type); });
     auto group = BeginArgumentGroup(owned_arguments);
     for (size_t i = 0; i < args.size(); i++) {
@@ -495,6 +507,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
         }
     }
     auto plan = PlanRegionResults(sp->rets, receiving, n->line, run);
+    ApplyPreparedEnumResults(plan, prepared_enums);
     if (run) {
         plan.producers[0]->elements = true;
         if (destinations.empty() || !destinations[0]) plan.values[0]->elements = true;
@@ -519,6 +532,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     // These balanced cleanup instructions preserve the Wasm call results.
     EndArgumentGroup(group, anonymous_serial != group.serial);
     PublishRegionResults(sp->rets, plan, n->line);
+    ClosePreparedEnumResults(prepared_enums);
     if (adapt_result && sp->rets.size() == 1) {
         if (n->exprtype->kind == TY_VOID) code.Op(0x1a);
         else Convert(plan.enum_payloads[0] ? plan.values[0]->location.storage_type : sp->rets[0], n->exprtype, n->line);
@@ -692,6 +706,8 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
             Fail(node->line, "owned dynamic inline results are not supported without a receiving destination");
     }
     auto requested = destinations;
+    if (requested.empty() && adapt_result && own.size() == 1 && Compiler::VariantSource(own[0]) && Compiler::RegionEnum(node->exprtype))
+        requested = { TemporaryDestination(node->exprtype, node->line) };
     if (requested.empty() && own.size() == 1 && own[0]->kind == TY_ARRAY && own[0]->arr->akind == A_VAR &&
         node->exprtype && node->exprtype->kind == TY_ARRAY && node->exprtype->arr->akind == A_LIMITED &&
         !Compiler::RuntimeLimited(node->exprtype)) {
@@ -705,7 +721,9 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
         auto temporary = TemporaryDestination(own[0], node->line); temporary.elements = true;
         requested = { temporary };
     }
-    auto plan = PlanRegionResults(own, requested, node->line, own.size() == 1 && own[0]->kind == TY_ARRAY && own[0]->arr->akind == A_VAR, true);
+    auto prepared_enums = PrepareEnumResults(own, requested, node->line, own.size() != 1 || Compiler::RegionEnum(node->exprtype));
+    auto plan = PlanRegionResults(own, prepared_enums.producers, node->line, own.size() == 1 && own[0]->kind == TY_ARRAY && own[0]->arr->akind == A_VAR, true);
+    ApplyPreparedEnumResults(plan, prepared_enums);
     auto &receiving = plan.producers;
     for (auto &destination : receiving) if (destination) {
         destination->open0 = destination->construction->open;
@@ -750,6 +768,7 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     }
     for (auto value : values) Get(value);
     PublishRegionResults(own, plan, node->line);
+    ClosePreparedEnumResults(prepared_enums);
     if (adapt_result && own.size() == 1 && types.size() == 1)
         Convert(plan.enum_payloads[0] ? plan.values[0]->location.storage_type : own[0], types[0], node->line);
     else if (adapt_result && types.empty()) for (size_t index = 0; index < own.size(); index++) code.Op(0x1a);
@@ -774,9 +793,9 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
     auto t = m->scrutinee->exprtype;
     Expr(m->scrutinee);
     if (t->kind == TY_REF) { Load(t->ref->sub); t = t->ref->sub; }
-    optional<uint32_t> base;
+    optional<uint32_t> base, enum_owner;
     if (t->kind == TY_ENUM) {
-        W(t); if (Compiler::RegionEnum(t)) code.Mem(0x28, 2);
+        W(t); if (Compiler::RegionEnum(t)) { enum_owner = Save(I32); Get(*enum_owner); code.Mem(0x28, 2); }
         base = Save(I32); Get(*base); ReadEnumTag(c.EnumTagBytes(t->enu->inst));
     }
     else if (t->kind != TY_INT && t->kind != TY_BOOL)
@@ -807,8 +826,11 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
             if (!base || (arm.pat.byref && !Compiler::RegionEnum(t)))
                 Fail(n->line, "only variable-mode enum payloads bind by reference");
             auto slot = Bind(arm.binder);
-            auto layout = Compiler::RegionEnum(t) ? c.EnumImageLayout(t->enu->inst, n->line) : c.Size(t);
-            Get(*base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a);
+            if (enum_owner) {
+                auto variant = arm.binder->type;
+                if (variant->kind == TY_REF) variant = variant->ref->sub;
+                LocationAddress(EnumPayloadLocation({ t, AddressLocal { *enum_owner } }, variant, n->line));
+            } else { Get(*base); code.I32Const(int32_t(c.Size(t).payload)); code.Op(0x6a); }
             if (owned_payload) {
                 auto source = Save(I32); Location place { arm.binder->type, slot };
                 AcquireRegion(place, n->line);

@@ -13,7 +13,8 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
         Fail(node->line, "dispatch requires one checked arm per enum variant");
     auto ei = enum_type->enu->inst;
     auto variable = Compiler::RegionEnum(enum_type);
-    auto layout = variable ? c.EnumImageLayout(ei, node->line) : c.FixedLayout(enum_type);
+    auto payload_offset = c.EnumTagBytes(ei);
+    if (variable) c.ControlLayout(enum_type); else c.FixedLayout(enum_type);
     auto parameters = [](FnSpec *spec) {
         vector<VarDef *> out;
         for (auto p : spec->params) if (p->type->kind != TY_FN) out.push_back(p);
@@ -43,9 +44,13 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
             Fail(node->line, "fixed-mode dispatch payloads must pass by value");
         whole_copy |= params[size_t(position)]->type->kind != TY_REF && Compiler::RegionOwner(payload);
     }
+    auto requested = destinations;
+    if (requested.empty() && adapt_result && first->rets.size() == 1 && Compiler::VariantSource(first->rets[0]) && Compiler::RegionEnum(node->exprtype))
+        requested = { TemporaryDestination(node->exprtype, node->line) };
+    auto prepared_enums = PrepareEnumResults(first->rets, requested, node->line, first->rets.size() != 1 || Compiler::RegionEnum(node->exprtype));
     auto group = BeginArgumentGroup(owned_arguments || whole_copy);
     vector<uint32_t> shared(args.size()), payloads(node->dispatch.size());
-    uint32_t original = 0, copied = 0, tag = 0;
+    uint32_t original = 0, copied = 0, tag = 0, original_owner = 0, copied_owner = 0;
     for (size_t i = 0; i < args.size(); i++) {
         if (i != size_t(position)) {
             auto type = shared_types[i]->type;
@@ -68,13 +73,15 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
             Get(original); ReadEnumTag(c.EnumTagBytes(ei)); tag = Save(I32);
         } else {
             auto header = Save(I32);
+            original_owner = header;
             Get(header); code.Mem(0x28, 2); original = Save(I32);
             if (whole_copy) {
                 auto control = c.ControlLayout(enum_type);
                 Location place { enum_type, Slot { Slot::FRAME, FrameBytes(control.size, control.align), enum_type } };
                 AcquireRegion(place, node->line);
                 ConstructEnumFromCaptured(enum_type, header, { place, ConstructionDestination::Statement }, node->line);
-                LocationAddress(place); code.Mem(0x28, 2); copied = Save(I32);
+                LocationAddress(place); copied_owner = Save(I32);
+                Get(copied_owner); code.Mem(0x28, 2); copied = Save(I32);
             } else {
                 // Fixed payload snapshots need no data region, even when a
                 // sibling arm takes a reference and enters a recursive cycle.
@@ -85,7 +92,7 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
                     LocationAddress(receiver.location); code.I32Const(0);
                     code.I32Const(int32_t(c.FixedLayout(type).size)); code.Fill();
                     Get(original); ReadEnumTag(c.EnumTagBytes(ei)); code.I32Const(int32_t(vi)); code.Op(0x46); Begin(0x04);
-                    auto payload = OffsetLocation({ type, AddressLocal { original } }, layout.payload, type);
+                    auto payload = OffsetLocation({ type, AddressLocal { original } }, payload_offset, type);
                     LocationAddress(payload); StoreCopy(receiver.location, CaptureStack(type)); End();
                     LocationAddress(receiver.location); payloads[vi] = Save(I32);
                 }
@@ -93,7 +100,9 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
         }
     }
     if (variable) { Get(original); ReadEnumTag(c.EnumTagBytes(ei)); tag = Save(I32); }
-    auto plan = PlanRegionResults(first->rets, destinations, node->line, false);
+    auto plan = PlanRegionResults(first->rets, prepared_enums.producers, node->line, false);
+    ApplyPreparedEnumResults(plan, prepared_enums);
+    for (auto &producer : plan.producers) if (producer) RebaseEscapeStage(*producer);
     vector<uint32_t> results, fixed_destinations(first->rets.size());
     for (size_t i = 0; i < first->rets.size(); i++) {
         auto type = first->rets[i]; results.push_back(Local(type));
@@ -114,9 +123,13 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
                 LocationAddress(empty.location);
             }
             else if (variable && params[i]->type->kind != TY_REF && !whole_copy) Get(payloads[vi]);
-            else {
-                Get(params[i]->type->kind == TY_REF ? original : copied);
-                code.I32Const(int32_t(layout.payload)); code.Op(0x6a);
+            else if (variable) {
+                auto type = params[i]->type;
+                auto owner = type->kind == TY_REF ? original_owner : copied_owner;
+                if (type->kind == TY_REF) type = type->ref->sub;
+                LocationAddress(EnumPayloadLocation({ enum_type, AddressLocal { owner } }, type, node->line));
+            } else {
+                Get(copied); code.I32Const(int32_t(payload_offset)); code.Op(0x6a);
             }
         }
         for (auto capture : c.captures[arm]) SlotAddress(Lookup(node->FreeVarArg(capture), node->line));
@@ -136,6 +149,7 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
     EndArgumentGroup(group, anonymous_serial != group.serial);
     for (auto result : results) Get(result);
     PublishRegionResults(first->rets, plan, node->line);
+    ClosePreparedEnumResults(prepared_enums);
     if (adapt_result && first->rets.size() == 1) {
         if (node->exprtype->kind == TY_VOID) code.Op(0x1a);
         else Convert(plan.enum_payloads[0] ? plan.values[0]->location.storage_type : first->rets[0], node->exprtype, node->line);

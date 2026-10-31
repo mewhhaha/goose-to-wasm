@@ -51,12 +51,23 @@ terminal array images together. Typed field addresses preserve prefix references
 across calls and globals; physical constructors append fields after evaluating
 them. Whole-image copies preserve capacity, and normal landing decodes the
 receiving anchor. Embedded enum payloads use the same record image after the
-existing control union. The [record-image contract](RECORD_IMAGES.md) describes
+compact tag, with separate persistent typed controls. The [record-image contract](RECORD_IMAGES.md) describes
 layout 5. Integer-prefix records and standalone variants now support nonlocal
 image targets with qualified terminal array elements. Catch moves the full suffix
 and decodes the saved entry anchor. Tuple forwarding gives image producers
 private controls, preserving outer anchors through inner nonlocal targets. Frame
 objects and enclosing enum image NLR remain separate.
+
+## Implemented: active variable enum images
+
+`E..` stores its compact tag and active payload only. Aligned owner envelopes
+retain one persistent control allocation per nonfixed variant, preserving old
+typed views across replacement. Private payload producers, normal result/tuple
+staging, active-byte copies, fixed-mode snapshots, match/dispatch routing and
+dying-owner recognition share this representation without another data region.
+Single-call adaptation follows final checked annotations; inline and ordinary
+construction retain their different native opening rules. See [enum images](VARIABLE_ENUMS.md).
+Actual enum nonlocal targets and general variable-image shapes remain pending.
 
 ## Implemented: runtime enum case dispatch
 
@@ -73,8 +84,7 @@ All enum tag reads and writes use u8 through 256 variants and u16 above that,
 including matches, dispatch and cleanup guards. Fixed-mode enums pack their tag
 and maximum payload without trailing alignment. Empty alternatives add no
 payload bytes; standalone empty variants retain their placeholder. Internal
-layout 6 names compact tags separately from the variable enum's existing aligned
-control union. Exact byte tests cover strides, empty alternatives and both sides
+layout 7 also separates variable enum controls from active image bytes. Exact byte tests cover strides, empty alternatives and both sides
 of the 256-variant boundary on V8 and Wasmtime.
 
 ## Implemented: packed fixed record fields
@@ -103,8 +113,8 @@ inline and recursive calls, parameters, mixed results, named aliasing, fixed mod
 conversions and copied/borrowed payload matches share the ownership channels.
 Active payload copies, direct variant-result routing and tag-aware interrupted
 construction support single-tail variable payloads. The [enum contract](VARIABLE_ENUMS.md)
-records control-union resource costs and remaining resizable payload, containing
-owner and packed-overlap boundaries.
+records separate control-envelope costs, active-image resource checks and
+remaining resizable payload, containing-owner and packed-overlap boundaries.
 
 ## Implemented: growable frame structs and nested single-tail owners
 

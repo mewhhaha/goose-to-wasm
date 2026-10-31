@@ -63,5 +63,5 @@ Declared global defaults are checked initializer nodes; explicit
 
 Variable-element arrays still need further containing-value walkers. Variable
 variants embedded in enums now place their complete record image after the
-existing tag/control union; the whole enum retains its separate internal layout.
+compact enum tag, with persistent typed controls in the owner envelope.
 See [record images](RECORD_IMAGES.md) for the byte contract and remaining gates.
