@@ -80,12 +80,22 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: combined encoded array images
+
+Standalone `varint[varint]` values combine unsigned count decoding with signed
+sequential element walks. Known counts reserve a minimal prefix; successful
+unknown-count construction expands it around the complete physical suffix.
+Copies normalize counts while retaining encoded element bytes. Whole slices,
+loop references, Grow/Var conversions and normal channels retain their existing
+contracts. Containing shapes and actual image targets remain gated. See
+[combined images](COMBINED_VARINTS.md).
+
 ## Implemented: unsigned varint array lengths
 
 Standalone fixed-element Var arrays use minimal unsigned ULEB128 metadata.
 Known counts write their exact prefix before elements; ER/NRVO reserves one
 untouched byte and patches the entire physical suffix after success. Public
-views decode bytes rather than construction-width caches. Containing/combined
+views decode bytes rather than construction-width caches. Containing
 forms, actual targets and unproved named-Grow later observations remain gated.
 See [ULEB lengths](ULEB_LENGTHS.md).
 

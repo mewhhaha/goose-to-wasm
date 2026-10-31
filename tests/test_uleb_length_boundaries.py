@@ -13,9 +13,9 @@ class ULEBLengthBoundaries(unittest.TestCase):
     compile=boundaries.VarintBoundaries.compile
     check_gate=boundaries.VarintBoundaries.check_gate
 
-    def test_combined_variable_elements_require_another_checkpoint(self):
-        self.check_gate('fn main(){let a:varint[varint]=[64,-65];print(a);}',
-                        'combined varint elements and lengths are not supported')
+    def test_containing_combined_array_requires_record_walkers(self):
+        self.check_gate('struct R{tag:u8,values:varint[varint]} fn main(){let r=R{1,[64,-65]};print(r.values.len);}',
+                        'containing varint-length arrays require general record walkers')
 
     def test_containing_unsigned_varint_lengths_require_record_walkers(self):
         self.check_gate('struct R{tag:u8,values:u8[varint]} fn main(){let r=R{1,[7;128]};print(r.values.len);}',

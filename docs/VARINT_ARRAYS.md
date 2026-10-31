@@ -5,8 +5,9 @@ and whole `varint[:]` views. Metadata keeps the existing unsigned fixed width;
 elements are packed signed zigzag ULEB128 images with no fixed stride. The aligned
 24-byte owner controls, scalar ABI and physical cursor table are unchanged.
 FixedLayout(varint) remains invalid. [Grow varint elements](VARINT_GROW.md) now
-use the same sequential primitives. GrowShrink/Limited varint elements,
-containing record/enum tails and unsigned varint length prefixes remain separate.
+use the same sequential primitives. GrowShrink/Limited varint elements and
+containing record/enum tails remain separate. Layout 14 combines unsigned
+varint lengths with these elements; see [combined images](COMBINED_VARINTS.md).
 
 Literals publish their known count before evaluating elements. Each initializer
 finishes before its exact encoded width is reserved, written and committed.

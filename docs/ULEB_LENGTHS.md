@@ -1,6 +1,6 @@
 # Unsigned varint length images
 
-Layout 13 stores standalone fixed-element `T[varint]` arrays with an unsigned
+Layout 13 introduced standalone fixed-element `T[varint]` arrays with an unsigned
 ULEB128 count followed immediately by elements. The count has no zigzag step.
 Prefix width is minimal for values constructed by the backend; reads decode
 the actual count and prefix end from the image. Fixed-length metadata modes,
@@ -32,9 +32,9 @@ Named Grow producers bound to a ULEB Value destination conservatively refuse
 later owner observations and opaque calls. A later mutable alias can write over
 the expanded prefix through the old Grow base, producing an overlong encoding.
 Read-only later observations and repeated-return examples are also outside this
-first proof. Actual varint-length nonlocal targets, containing arrays, combined
-varint elements/lengths and static fills beyond UINT32_MAX remain explicit
-frontiers. This does not widen serialization, overlap or general image-effect
+first proof. Layout 14 also admits signed varint elements after the unsigned count; see
+[combined images](COMBINED_VARINTS.md). Actual varint-length nonlocal targets,
+containing arrays and static fills beyond UINT32_MAX remain explicit frontiers. This does not widen serialization, overlap or general image-effect
 proofs.
 
 Tests inspect counts 0/1/127/128/16383/16384, prefix bytes, packed strides, known

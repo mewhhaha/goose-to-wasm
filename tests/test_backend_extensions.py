@@ -123,8 +123,8 @@ def main():
     # Returning aggregates stays an internal Goose ABI, never an implicit
     # contract with an arbitrary host function or public Wasm export.
     refusals = {
-        "combined-varint-array": ('fn main() { let a: varint[varint] = [1, 2]; print(a.len); }\n',
-                                  "combined varint elements and lengths are not supported"),
+        "containing-encoded-array": ('struct R{tag:u8,values:varint[varint]} fn main(){let r=R{1,[64,-65]};print(r.values.len);}\n',
+                                     "containing varint-length arrays require general record walkers"),
         "resizable-payload-enum": ('enum E { Empty, Data { values: i64[>..] } }\nfn main() { let e: E.. = E.Data { [1] }; match e { Data => print(1), _ => {} } }\n',
                                "resizable variable-mode enums are not supported"),
         "enum-export": ('enum E { Empty, Data { x: i64 } }\nexport fn exported() -> E { E.Data { 1 } }\nfn main() {}\n',

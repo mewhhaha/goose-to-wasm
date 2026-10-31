@@ -322,7 +322,7 @@ See [the enum contract](VARIABLE_ENUMS.md).
 - Struct images with direct varint fields and otherwise fixed-size fields,
   sequential field offsets, bounded decoding, copies, references and normal results;
   see [varint records](VARINT_RECORDS.md).
-- Standalone immutable varint-element arrays with fixed unsigned length metadata,
+- Standalone immutable varint-element arrays with fixed unsigned or ULEB length metadata,
   whole slices, sequential loops, encoded copies and snapshots; see
   [varint arrays](VARINT_ARRAYS.md).
 - Standalone growable varint elements with push/append/clear, whole assignment,
@@ -337,7 +337,8 @@ The executable differential suite is the authority for qualified behavior.
 The current backend refuses callback results that may borrow callback-local
 storage, unsupported owned layouts and containing shapes (nonfinal owners, multiple variable fields and
 containing variable-mode enums), variable-element
-growables, varint variable-array lengths; resizable/multiple-owner enum payloads;
+growables beyond scalar varints, containing encoded-array images and unproved
+encoded nonlocal targets; resizable/multiple-owner enum payloads;
 unproven packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;
 relative and pool references;
