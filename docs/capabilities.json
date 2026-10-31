@@ -93,7 +93,7 @@
       },
       "B_COPY": {
         "status": "qualified_subset",
-        "scope": "Supported fixed owned values and fixed-element region-backed growable, unsigned-length variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Supported static callback parameters and single results share owned copying and receiving lifetimes. Variable elements remain pending. Fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame tail copy prefix values and independently own tail contents. Non-frame single-tail records store packed fixed prefixes and terminal array images together, with typed stable prefix addresses and whole-image copies including capacity. Record image nonlocal targets remain gated.",
+        "scope": "Supported fixed owned values and fixed-element region-backed growable, unsigned-length variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Supported static callback parameters and single results share owned copying and receiving lifetimes. Variable elements remain pending. Fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame tail copy prefix values and independently own tail contents. Non-frame single-tail records store packed fixed prefixes and terminal array images together, with typed stable prefix addresses and whole-image copies including capacity. Integer-prefix single-tail records and standalone variants support image nonlocal targets with qualified terminal elements.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
           "tests/fixtures/storage_locations.goose",
@@ -655,7 +655,7 @@
       },
       "NK_StructLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame array tail are supported; other containing shapes, environments/effects and structural operations retain separate pending gates. Non-frame single-tail records store packed fixed prefixes and terminal array images together, with typed stable prefix addresses and whole-image copies including capacity. Record image nonlocal targets remain gated.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame array tail are supported; other containing shapes, environments/effects and structural operations retain separate pending gates. Non-frame single-tail records store packed fixed prefixes and terminal array images together, with typed stable prefix addresses and whole-image copies including capacity. Integer-prefix single-tail records and standalone variants support image nonlocal targets with qualified terminal elements.",
         "fixtures": [
           "tests/fixtures/struct_values.goose",
           "tests/fixtures/variable_structs.goose",
@@ -991,7 +991,7 @@
       },
       "nonlocal_return": {
         "status": "qualified_subset",
-        "scope": "Supported fixed results may accompany multiple Grow/GrowShrink or nested fixed-prefix Frame results. Every owned cursor snapshots before any source expression; independent private stages and fixed snapshots commit only after the attempt succeeds. Per-ordinal metadata preserves target entry cursors, physical suffixes, Frame base offsets, recursive activation identity and cross-frame cleanup. Exact-type tuples forward through closed ordinary producers without extra staging regions. Alias independence, cancellation, nested replacement, heterogeneous/generic results and region/activation exhaustion are qualified. Standalone unsigned-length Var and runtime-limited arrays of scalar elements or recursively packed fixed-width integer records/variants/nonempty fixed arrays land full suffixes at saved entry anchors and decode byte-authoritative metadata, including canceled prefixes and private named images. Other aggregate element representations (including refs/slices, enums, static-limited headers, empty aggregates and bool/float aggregate fields) and enum/non-frame-record owned image kinds remain gated.",
+        "scope": "Supported fixed results may accompany multiple Grow/GrowShrink or nested fixed-prefix Frame results. Every owned cursor snapshots before any source expression; independent private stages and fixed snapshots commit only after the attempt succeeds. Per-ordinal metadata preserves target entry cursors, physical suffixes, Frame base offsets, recursive activation identity and cross-frame cleanup. Exact-type tuples forward through closed ordinary producers without extra staging regions. Alias independence, cancellation, nested replacement, heterogeneous/generic results and region/activation exhaustion are qualified. Standalone unsigned-length Var and runtime-limited arrays of scalar elements or recursively packed fixed-width integer records/variants/nonempty fixed arrays land full suffixes at saved entry anchors and decode byte-authoritative metadata, including canceled prefixes and private named images. Other aggregate element representations (including refs/slices, enums, static-limited headers, empty aggregates and bool/float aggregate fields) and enclosing enum/unproved-record owned image kinds remain gated. Qualified integer-prefix single-tail record and standalone variant targets preserve full physical suffixes and decode authoritative entry images. Normal tuple forwarding uses private image controls before argument evaluation to preserve outer anchors across inner actual targets.",
         "fixtures": [
           "tests/fixtures/nonlocal_fixed_paths.goose",
           "tests/fixtures/nonlocal_frame_canceled.goose",
@@ -1059,7 +1059,22 @@
           "tests/fixtures/nonlocal_packed_arguments.goose",
           "tests/fixtures/nonlocal_packed_canceled.goose",
           "tests/fixtures/nonlocal_packed_images.goose",
-          "tests/fixtures/nonlocal_packed_multiple.goose"
+          "tests/fixtures/nonlocal_packed_multiple.goose",
+          "tests/fixtures/nonlocal_image_forwarded.goose",
+          "tests/fixtures/nonlocal_record_canceled_field.goose",
+          "tests/fixtures/nonlocal_record_forwarded.goose",
+          "tests/fixtures/nonlocal_record_interleaved.goose",
+          "tests/fixtures/nonlocal_record_multiple.goose",
+          "tests/fixtures/nonlocal_record_nested.goose",
+          "tests/fixtures/nonlocal_record_sparse.goose",
+          "tests/fixtures/nonlocal_record_tails.goose",
+          "tests/fixtures/nonlocal_record_variant.goose",
+          "tests/fixtures/nonlocal_image_forwarding_limited.goose",
+          "tests/fixtures/nonlocal_record_forwarding_open.goose",
+          "tests/fixtures/nonlocal_record_forwarding_arguments.goose",
+          "tests/fixtures/nonlocal_record_forwarding_abandoned.goose",
+          "tests/fixtures/nonlocal_record_forwarding_pair.goose",
+          "tests/fixtures/nonlocal_record_forwarding_limited.goose"
         ],
         "boundary_fixtures": [
           "tests/test_regions.py",

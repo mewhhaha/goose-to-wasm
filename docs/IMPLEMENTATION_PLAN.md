@@ -117,10 +117,12 @@ and cross-frame cleanup. Growable-array and fixed-prefix frame result groups now
 staging and landing beside fixed results. Standalone scalar Var/runtime-limited
 results and recursively packed integer aggregate array results land their
 authoritative byte images, preserving entry anchors and canceled prefixes.
-Other aggregate representations and non-frame record/enum image targets remain
-subsequent extensions. The contiguous single-tail record image prerequisite now
-uses typed field addressing, private tail producers, full-image copies and normal
-suffix landing; its NLR admission is the next effect extension.
+Other aggregate representations and enclosing enum image targets remain
+subsequent extensions. Contiguous single-tail record images use typed field
+addressing, private tail producers, full-image copies and normal suffix landing.
+Nonlocal targets admit recursively packed integer prefixes and supported array
+tails; tuple forwarding preserves each outer logical anchor through private
+producer controls.
 Tests include O0 programs that cannot depend on optimizer inlining.
 
 Before serialization, document the image ABI, pointer width/encoding and the

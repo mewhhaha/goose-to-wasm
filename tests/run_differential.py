@@ -51,6 +51,26 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    record_nonlocal = {
+        "canceled_field":"9\n17 21811 68 1\n",
+        "nested":"9\n17 21811 68 1\n",
+        "variant":"9\n17 21811 68 1\n",
+        "tails":"9\n17 8755 3 68 102 85\n9\n17 8755 3 3 68 102 85\n",
+        "interleaved":"17 13226 34 1\n",
+        "multiple":"7 300 2 8 9\n10 400 2 2 11 12\n[13] 17\n12\n14\n",
+        "sparse":"9\n1 300000 2 0\n9\n1 300000 300000 2 0\n",
+        "forwarded":"9\n17 21811 68 1 7\n",
+        "forwarding_open":"51 17493 1 102 7\n",
+        "forwarding_arguments":"17 21811 68 1 7\n",
+        "forwarding_abandoned":"9\n17 21811 68 1 7\n",
+        "forwarding_pair":"9\n17 8755 1 68 3 2 7 7\n",
+        "forwarding_limited":"9\n17 8755 3 3 51 85 7\n",
+    }
+    for debug in (False,True):
+        suffix="-debug" if debug else ""
+        for name,answer in record_nonlocal.items():
+            result.append(Case(f"record-nonlocal/{name}{suffix}","nonlocal_record_"+name,
+                               stdout=answer,debug=debug,group="control"))
     record_images = {
         "aliases":"1 99 88 99 99\n",
         "callbacks":"1\n2\n3\n3\n1\n7\n1\n2\n3\n6\n1\n7\n",
@@ -77,6 +97,8 @@ def cases():
             result.append(Case(f"packed-image-nonlocal/arguments/O{level}{suffix}", "nonlocal_packed_arguments",
                                stdout=answer, debug=debug, group="control", levels=(level,)))
     image_nonlocal = {
+        "forwarded": "9\n3 2 7 7\n",
+        "forwarding_limited": "9\n3 3 2 0 7\n",
         "scalars": "2 true false\n2 1.5 -2.25\n2 2 3.5 -4.25\n-4.25\n5.5\n2 -7 8\n",
         "all_starts": "9 259 262\n",
         "arrays": "2 7 8\n" * 5 + "2 2 9 10\n10\n11\n",

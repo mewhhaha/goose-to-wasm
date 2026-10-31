@@ -42,6 +42,9 @@ inline void Function::RebaseEscapeStage(const ConstructionDestination &destinati
     if (!destination.escape_stage) return;
     LocationAddress(TailHeaderLocation(destination.location)); auto header = Save(I32);
     auto cursor = RegionCursor(header);
+    if (Compiler::RegionRecord(destination.location.storage_type) && !Compiler::FrameStruct(destination.location.storage_type)) {
+        SetRecordImageAnchor(destination.location, cursor, destination.location.storage_type->line); return;
+    }
     Get(header); Get(cursor); code.Mem(0x36, 2);
     PublishHeader(header, 0);
 }
@@ -286,6 +289,7 @@ inline void Function::NonlocalOwnedReturn(Return *node) {
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
         Get(header); Get(original_tail); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+        if (c.RecordImageEffectResult(type)) SetRecordImageAnchor(stage, starts[k], node->line);
         RegisterEffectOwner(stage);
         private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
         destinations[ordinal] = ConstructionDestination { stage, ConstructionDestination::Statement, false, {}, true, false, private_publication };
@@ -321,6 +325,10 @@ inline void Function::LandOwnedEffect() {
         FrameAddress(metadata + 8); code.Mem(0x28, 2); auto base = Save(I32);
         FrameAddress(mailbox + mailbox_layout.fields[ordinal]); auto winning = Save(I32);
         LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto tail = Save(I32);
+        if (c.RecordImageEffectResult(type)) {
+            LandRecordImage({ type, AddressLocal { original } }, start, base, spec->sf->line);
+            Get(original); Set(resultlocals[ordinal]); continue;
+        }
         if (Compiler::ArrayImageEffectResult(type)) {
             LandArrayImage(tail, start, base, type, spec->sf->line);
             Get(original); Set(resultlocals[ordinal]); continue;

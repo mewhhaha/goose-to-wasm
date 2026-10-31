@@ -22,7 +22,11 @@ record references still use controls.
 
 The frontend keeps whole nonresizable variants frozen; supported fixed fields
 and runtime-limited tails may mutate. Resizable standalone variants, nonfinal or
-multiple variable fields, variable elements, whole-image NLR, serialization and rendering remain
+multiple variable fields, variable elements, enclosing enum-image NLR, serialization and rendering remain
 separate slices. Supported nonresizable payloads may also be embedded in `E..` through active-
 variant image construction, direct result routing and tag-aware cleanup; see
 [the enum contract](VARIABLE_ENUMS.md).
+
+Standalone variant image nonlocal targets use the same qualified integer-prefix
+and terminal-array proof as structs; [record image effects](NONLOCAL_RETURNS.md#record-image-targets)
+retain nominal variant identity without requiring sibling variants to qualify.

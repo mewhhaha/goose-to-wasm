@@ -38,8 +38,9 @@ existing target layout and is not declared a packed C.2 image.
 
 This checkpoint preserves normal owned parameters/results, named image aliases,
 prefix references, nested fields, callbacks, globals and active enum conversions.
-Whole-record nonlocal image targets remain gated until the next checkpoint;
-nonfinal/multiple variable fields, variable elements, record rendering/comparison,
+Qualified fixed-width integer prefixes and supported terminal array elements now
+support whole-record nonlocal image targets; see [the effect contract](NONLOCAL_RETURNS.md#record-image-targets).
+Nonfinal/multiple variable fields, variable elements, record rendering/comparison,
 varints, relative references and serialization retain their existing boundaries.
 
 Tests inspect exact image bytes on both engines, retain global/nested prefix
