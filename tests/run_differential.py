@@ -38,6 +38,7 @@ class Case:
     diagnostic: str = ""
     debug: bool = False
     group: str = "scalar"
+    maximum_pages: int | None = None
 
 
 def wrap(value, bits, signed=True):
@@ -49,6 +50,12 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    result.append(Case("storage/locations-and-copies", "storage_locations",
+                       stdout="30 40 10\n35 41 2\n12 8\n21 22 13\n35 41\n", group="aggregate"))
+    result.append(Case("storage/cleanup-exits", "cleanup_exits", stdout="49995000\n",
+                       group="aggregate", maximum_pages=1))
+    result.append(Case("storage/cleanup-preserves-outer-print", "cleanup_nested_loop", stdout="abc 7 8\n",
+                       group="aggregate", maximum_pages=1))
     limited_answer = ("0 8 []\n[1, 2, 3, 4] [1, 2] 4 8\n[1, 2, 3, 4, 9, 9]\n9\n[1, 2, 3]\n0\n"
                       "[7, 9]\n[7, 9]\n[7, 9, 7, 9]\n[10, 11, 12] [30, 31, 32] [20, 21, 22]\n"
                       "[77, 11, 12] [10, 11, 12]\n[1, 2] 5 [99, 2, 3]\n"
@@ -193,8 +200,10 @@ def main():
     for level in args.levels:
         for backend in order:
             for case in selected:
-                key = (backend, case.fixture, case.debug, level)
+                key = (backend, case.fixture, case.debug, level, case.maximum_pages)
                 directory = output / f"O{level}" / ("debug" if case.debug else "release") / case.fixture / backend
+                if case.maximum_pages is not None:
+                    directory = directory / f"memory-{case.maximum_pages}"
                 if key not in compiled:
                     directory.mkdir(parents=True, exist_ok=True)
                     suffix = ".bin" if backend == "native" else ".wasm"
@@ -205,6 +214,8 @@ def main():
                         build += ["--c-source", ROOT / "bench" / "host_input.c", "--cc", args.cc, "--emcc", args.emcc]
                     if case.debug:
                         build.append("--debug")
+                    if backend == "direct" and case.maximum_pages is not None:
+                        build += ["--initial-pages", "1", "--maximum-pages", str(case.maximum_pages)]
                     result, seconds = execute(build, cwd=ROOT)
                     save_log(directory, "compile", build, result)
                     compiled[key] = (artifact, result, seconds)
@@ -212,7 +223,8 @@ def main():
                 engines = ["native"] if backend == "native" else args.engines
                 for engine in engines:
                     row = {"case": case.name, "fixture": case.fixture, "backend": backend, "engine": engine,
-                           "optimization": level, "debug": case.debug, "compile_seconds": compile_seconds}
+                           "optimization": level, "debug": case.debug, "compile_seconds": compile_seconds,
+                           "direct_maximum_pages": case.maximum_pages if backend == "direct" else None}
                     try:
                         if built.returncode:
                             raise AssertionError("compile failed: " + (built.stdout + built.stderr)[-2000:])

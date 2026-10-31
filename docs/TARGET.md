@@ -31,6 +31,15 @@ and are restored when their scope/function exits. Initial memory defaults to
 `--initial-pages` and `--maximum-pages` configure them; one page is 64 KiB. These
 limits are independent of the C oracle's 16 MiB per data stack profile.
 
+The backend keeps physical locations distinct from converted expression values.
+All ordinary aggregate copies require the checked fixed size class; a dynamic
+owner's control descriptor cannot be copied as an owned fixed value. Fresh
+construction destinations retain the current activation-frame policy, and
+assignment evaluates its complete RHS before publishing into its pinned target.
+Exit targets record cleanup depth so scratch restorations preserve enclosing
+operations that remain live. These boundaries prepare the stable-region runtime;
+they do not add dynamic ownership to the current supported fragment.
+
 The module defines fresh, zero-initialized memory. Static allocations retain
 their full logical size, but data segments contain only initialized nonzero
 spans, coalescing zero gaps of at most 16 bytes. At most 1,024 segments are

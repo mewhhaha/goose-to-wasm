@@ -33,8 +33,7 @@ inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
     // epilogue. The same rule applies to returns from an inlined body and
     // value blocks; each static result site has its own activation storage.
     if (c.Aggregate(type)) {
-        auto source = Save(I32), dest = Frame(type);
-        FrameAddress(dest); Get(source); Store(type); FrameAddress(dest);
+        auto captured = CopyCaptured(CaptureStack(type)); Get(captured.value_local);
     }
     Set(slot);
 }
@@ -103,7 +102,10 @@ inline void Function::Decl(VarDecl *n) {
         auto types = Values(n->inits[0]);
         if (types.size() != slots.size()) Fail(n->line, "multi-binding arity mismatch");
         Expr(n->inits[0]);
-        for (size_t i = slots.size(); i-- > 0;) { Convert(types[i], slots[i].type, n->line); Write(slots[i]); }
+        for (size_t i = slots.size(); i-- > 0;) {
+            Convert(types[i], slots[i].type, n->line);
+            StoreCopy({ slots[i].type, slots[i] }, CaptureStack(slots[i].type));
+        }
         return;
     }
     for (size_t i = 0; i < slots.size(); i++) {
@@ -111,60 +113,42 @@ inline void Function::Decl(VarDecl *n) {
         auto init = n->inits[i];
         if (n->byref && init->exprtype->kind != TY_REF) Address(init);
         else To(init, slots[i].type);
-        Write(slots[i]);
+        StoreCopy({ slots[i].type, slots[i] }, CaptureStack(slots[i].type));
     }
 }
 inline void Function::AssignNode(Assign *n) {
-    optional<Slot> scalar;
-    TypeExpr *t = n->lval->exprtype;
-    if (auto id = Is<Ident>(n->lval)) {
-        auto s = Lookup(id->vdef, n->line);
-        if (!n->pointee) { scalar = s; t = s.type; }
-    }
-    uint32_t addr = 0;
-    if (!scalar) {
-        if (n->pointee && n->lval->exprtype->kind == TY_REF) {
-            Expr(n->lval); t = n->lval->exprtype->ref->sub;
-        } else Address(n->lval);
-        addr = Save(I32);
-    }
+    auto place = PinPlace(n->lval, n->pointee);
+    auto t = place.storage_type;
     if (n->op != T_ASSIGN && n->op != T_DOTASSIGN) {
         if (c.Aggregate(t)) Fail(n->line, "elementwise aggregate assignment is not supported");
-        if (scalar) Read(*scalar); else { Get(addr); Load(t); }
+        ReadLocation(place, t);
         To(n->rhs, t); BinaryOp(n->op, t, n->line);
     } else To(n->rhs, t);
-    if (scalar) Write(*scalar);
-    else { auto val = Save(t); Get(addr); Get(val); Store(t); }
+    StoreCopy(place, CaptureStack(t));
 }
 inline void Function::IncNode(IncDec *n) {
-    optional<Slot> scalar;
-    auto t = n->lval->exprtype;
-    if (auto id = Is<Ident>(n->lval); id && id->vdef->type->kind != TY_REF)
-        scalar = Lookup(id->vdef, n->line);
-    uint32_t addr = 0;
-    if (scalar) Read(*scalar);
-    else {
-        if (t->kind == TY_REF) { Expr(n->lval); t = t->ref->sub; } else Address(n->lval);
-        addr = Save(I32); Get(addr); Load(t);
-    }
+    auto place = PinPlace(n->lval, true);
+    auto t = place.storage_type;
+    ReadLocation(place, t);
     if (t->kind == TY_FLT) { if (IsF32(t)) code.F32Const(1); else code.F64Const(1); }
     else Const(t, 1);
     BinaryOp(n->op == T_INC ? T_PLUS : T_MINUS, t, n->line);
-    if (scalar) Write(*scalar); else { auto x = Save(t); Get(addr); Get(x); Store(t); }
+    StoreCopy(place, CaptureStack(t));
 }
 
 inline void Function::AggregateLiteral(Node *n) {
     auto t = n->exprtype;
     if (!c.Aggregate(t)) Fail(n->line, "this array/struct literal requires unsupported variable-size storage");
-    auto off = Frame(t);
-    FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+    auto destination = FreshDestination(t, ConstructionDestination::Statement);
+    auto place = destination.location;
+    LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
     if (auto a = Is<ArrayLit>(n)) {
         auto elem = t->arr->sub;
         auto stride = c.Size(elem).size;
-        auto start = off + c.Size(t).payload;
+        auto start = c.Size(t).payload;
         auto count = a->fillval ? static_cast<IntLit *>(a->fillcount)->val : int64_t(a->elems.size());
         if (t->arr->akind == A_LIMITED) {
-            FrameAddress(off); code.I32Const(int32_t(count)); code.Mem(0x36, 2);
+            LocationAddress(place); code.I32Const(int32_t(count)); code.Mem(0x36, 2);
         }
         if (a->fillval) {
             // Goose evaluates a fill value once, then copies it into each slot.
@@ -172,12 +156,12 @@ inline void Function::AggregateLiteral(Node *n) {
             auto i = Local(I32); code.I32Const(0); Set(i);
             auto done = Begin(), loop = Begin(0x03);
             Get(i); code.I32Const(int32_t(count)); code.Op(0x4f); Br(done, true);
-            FrameAddress(start); Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
+            LocationAddress(OffsetLocation(place, start, elem)); Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
             Get(value); Store(elem);
             Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
         } else {
             for (size_t i = 0; i < a->elems.size(); i++) {
-                FrameAddress(start + uint32_t(i) * stride); To(a->elems[i], elem); Store(elem);
+                ConstructInto(a->elems[i], { OffsetLocation(place, start + uint32_t(i) * stride, elem), ConstructionDestination::Statement });
             }
         }
     } else if (auto s = Is<StructLit>(n)) {
@@ -187,7 +171,7 @@ inline void Function::AggregateLiteral(Node *n) {
             auto vi = s->einst->en->VariantIndex(s->variant);
             if (t->kind == TY_ENUM) {
                 payload = layout.payload;
-                FrameAddress(off); code.I32Const(vi); code.Mem(0x36, 2);
+                LocationAddress(place); code.I32Const(vi); code.Mem(0x36, 2);
             } else if (t->kind != TY_VARIANT) Fail(n->line, "unsupported variant construction");
             layout = c.Payload(s->einst, vi);
         } else if (!s->sinst) Fail(n->line, "struct type was not resolved");
@@ -196,10 +180,10 @@ inline void Function::AggregateLiteral(Node *n) {
             if (fi < 0 || size_t(fi) >= layout.fields.size()) Fail(n->line, "unsupported struct initializer");
             auto ft = s->einst ? s->einst->vftypes[size_t(s->einst->en->VariantIndex(s->variant))][size_t(fi)]
                                : s->sinst->ftypes[size_t(fi)];
-            FrameAddress(off + payload + layout.fields[size_t(fi)]); To(s->inits[i].val, ft); Store(ft);
+            ConstructInto(s->inits[i].val, { OffsetLocation(place, payload + layout.fields[size_t(fi)], ft), ConstructionDestination::Statement });
         }
     }
-    FrameAddress(off);
+    LocationAddress(place);
 }
 
 inline void Function::Slice(SliceExpr *n) {
@@ -271,7 +255,7 @@ inline void Function::For(ForLoop *n) {
         Write(binding);
     }
     if (indexbinding) { Get(ordinal); Convert(c.ast.inttypes[IS_I64], indexbinding->type, n->line); Write(*indexbinding); }
-    auto step = Begin(); exits.push_back({ done, nullptr, {}, {}, true, step });
+    auto step = Begin(); PushExit({ done, nullptr, {}, {}, true, step });
     BlockInto(n->body, {}, {}); exits.pop_back(); End();
     // The counter's type is the range's type, not a narrowed loop binding.
     Get(lo); Const(ct, 1); code.Op(W(ct) == I64 ? 0x7c : 0x6a); Normalize(ct); Set(lo);
@@ -306,11 +290,11 @@ inline void Function::EmitCall(Call *n) {
         // A later argument may mutate this value. Snapshot aggregates in
         // source order, before evaluating the next argument.
         if (c.Aggregate(t)) {
-            auto src = Save(I32), off = Frame(t);
-            FrameAddress(off); Get(src); Store(t); FrameAddress(off);
+            auto captured = CopyCaptured(CaptureStack(t)); Get(captured.value_local);
         }
     }
-    for (auto t : sp->rets) if (c.Aggregate(t)) FrameAddress(Frame(t));
+    for (auto t : sp->rets) if (c.Aggregate(t))
+        LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
         code.Op(intrinsic->second);
     else CallIndex(c.function_index.at(sp));
@@ -364,7 +348,8 @@ inline void Function::Builtin(Call *n) {
         case B_PRINT: {
             if (!n->fmtspecs.empty()) Fail(n->line, "custom formatters are not supported");
             code.OpU(0x23, 0); auto mark = Save(I32);
-            printmarks.emplace_back(exits.size(), mark);
+            auto cleanup_depth = cleanups.size();
+            cleanups.push_back({ CleanupAction::RestoreScratchTop, mark });
             vector<pair<TypeExpr *, uint32_t>> captured;
             // Evaluate all arguments before output. Deep-copy slices and
             // aggregates so a later argument's writes cannot change an
@@ -388,7 +373,7 @@ inline void Function::Builtin(Call *n) {
                         return false;
                     };
                     if (indirect(t)) Fail(arg->line, "printing aggregates containing references or slices is not supported");
-                    auto off = Frame(t); FrameAddress(off); Get(v); Store(t); FrameAddress(off); v = Save(t);
+                    v = CopyCaptured({ t, v, CapturedValue::BorrowedFixed }).value_local;
                 } else if (t->kind == TY_SLICE) {
                     auto elem = t->sub;
                     if (elem->kind == TY_SLICE || elem->kind == TY_REF || c.Aggregate(elem))
@@ -403,7 +388,7 @@ inline void Function::Builtin(Call *n) {
                 captured.emplace_back(t, v);
             }
             for (auto [t, v] : captured) Print(t, v, n->line);
-            CallIndex(Compiler::NEWLINE); Get(mark); code.OpU(0x24, 0); printmarks.pop_back(); return;
+            CallIndex(Compiler::NEWLINE); CloseCleanups(cleanup_depth); return;
         }
         case B_ASSERT: Truth(args[0]); code.Op(0x45); TrapIf(n->line, "assertion failed"); return;
         case B_ABORT: {
@@ -424,27 +409,27 @@ inline void Function::Builtin(Call *n) {
             if (n->exprtype->kind == TY_SLICE) Fail(n->line, "copying a slice requires owned dynamic storage");
             To(args[0], n->exprtype);
             if (c.Aggregate(n->exprtype)) {
-                auto value = Save(I32), off = Frame(n->exprtype);
-                FrameAddress(off); Get(value); Store(n->exprtype); FrameAddress(off);
+                auto captured = CopyCaptured(CaptureStack(n->exprtype)); Get(captured.value_local);
             }
             return;
         }
         case B_DEFAULT: {
             auto t = n->rettypes[0];
             if (!c.Aggregate(t)) { Zero(W(t)); return; }
-            auto off = Frame(t);
-            FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+            auto destination = FreshDestination(t, ConstructionDestination::Statement);
+            auto place = destination.location;
+            LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
             if (n->defaultinit) {
                 if (t->kind == TY_ARRAY && t->arr->akind == A_FIXED) {
                     auto i = Local(I32); code.I32Const(0); Set(i);
                     auto done = Begin(), loop = Begin(0x03);
                     Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
-                    FrameAddress(off); Get(i); code.I32Const(int32_t(c.Size(t->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
+                    LocationAddress(place); Get(i); code.I32Const(int32_t(c.Size(t->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
                     To(n->defaultinit, t->arr->sub); Store(t->arr->sub);
                     Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
-                } else if (t->kind != TY_ARRAY) { FrameAddress(off); To(n->defaultinit, t); Store(t); }
+                } else if (t->kind != TY_ARRAY) ConstructInto(n->defaultinit, destination);
             }
-            FrameAddress(off); Convert(t, n->exprtype, n->line); return;
+            LocationAddress(place); Convert(t, n->exprtype, n->line); return;
         }
         default: Fail(n->line, "builtin '" + string(BuiltinByKind(n->builtin).name) + "' is not supported by the direct backend");
     }
@@ -463,13 +448,14 @@ inline void Function::Expr(Node *n) {
             else if (n->exprtype->kind == TY_ARRAY) {
                 auto size = c.Size(n->exprtype).size;
                 if (x->val.size() > size) Fail(n->line, "string exceeds its fixed-array destination");
-                auto dest = Frame(n->exprtype);
-                FrameAddress(dest); code.I32Const(0); code.I32Const(int32_t(size)); code.Fill();
+                auto dest = FreshDestination(n->exprtype, ConstructionDestination::Statement).location;
+                LocationAddress(dest); code.I32Const(0); code.I32Const(int32_t(size)); code.Fill();
                 if (n->exprtype->arr->akind == A_LIMITED) {
-                    FrameAddress(dest); code.I32Const(int32_t(x->val.size())); code.Mem(0x36, 2);
+                    LocationAddress(dest); code.I32Const(int32_t(x->val.size())); code.Mem(0x36, 2);
                 }
-                FrameAddress(dest + c.Size(n->exprtype).payload); code.I32Const(int32_t(off)); code.I32Const(int32_t(x->val.size())); code.Copy();
-                FrameAddress(dest);
+                LocationAddress(OffsetLocation(dest, c.Size(n->exprtype).payload, n->exprtype->arr->sub));
+                code.I32Const(int32_t(off)); code.I32Const(int32_t(x->val.size())); code.Copy();
+                LocationAddress(dest);
             }
             else Fail(n->line, "unsupported string representation");
             return;
@@ -485,10 +471,7 @@ inline void Function::Expr(Node *n) {
         case NK_Unary: {
             auto u = static_cast<Unary *>(n);
             if (u->op == T_BITAND) {
-                // Rebinding synthesizes address nodes whose path was checked
-                // as an lvalue and has no expression type of its own.
-                if (n->exprtype->kind == TY_REF &&
-                    (!u->child->exprtype || u->child->exprtype->kind != TY_REF)) Address(u->child);
+                if (n->exprtype->kind == TY_REF) ReferenceValue(PinPlace(u->child));
                 else To(u->child, n->exprtype);
                 return;
             }
@@ -538,12 +521,12 @@ inline void Function::Expr(Node *n) {
             }
             if (d->variantconst) {
                 auto t = n->exprtype;
-                auto off = Frame(t);
-                FrameAddress(off); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+                auto place = FreshDestination(t, ConstructionDestination::Statement).location;
+                LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
                 if (t->kind == TY_ENUM) {
-                    FrameAddress(off); code.I32Const(d->einst->en->VariantIndex(d->variantconst)); code.Mem(0x36, 2);
+                    LocationAddress(place); code.I32Const(d->einst->en->VariantIndex(d->variantconst)); code.Mem(0x36, 2);
                 }
-                FrameAddress(off); return;
+                LocationAddress(place); return;
             }
             if (d->member >= 0) Fail(n->line, "this property is not supported");
             auto t = d->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
@@ -585,7 +568,7 @@ inline void Function::Expr(Node *n) {
             // Return statements use the specialization's own result type.
             auto own = i->spec ? i->spec->rets : ts;
             for (auto t : own) vs.push_back(Local(t));
-            auto label = Begin(); exits.push_back({ label, i->sf, own, vs, false, {} });
+            auto label = Begin(); PushExit({ label, i->sf, own, vs, false, {} });
             BlockInto(i->body, own, vs); exits.pop_back(); End();
             for (auto v : vs) Get(v);
             if (own.size() == 1 && ts.size() == 1) Convert(own[0], ts[0], n->line);
@@ -596,10 +579,10 @@ inline void Function::Expr(Node *n) {
             auto ts = Values(n); vector<uint32_t> vs; for (auto t : ts) vs.push_back(Local(t));
             auto done = Begin();
             if (auto l = Is<LoopExpr>(n)) {
-                auto again = Begin(0x03); exits.push_back({ done, nullptr, ts, vs, true, again });
+                auto again = Begin(0x03); PushExit({ done, nullptr, ts, vs, true, again });
                 BlockInto(l->body, {}, {}); exits.pop_back(); Br(again); End();
             } else {
-                exits.push_back({ done, nullptr, ts, vs, true, {} });
+                PushExit({ done, nullptr, ts, vs, true, {} });
                 BlockInto(static_cast<EarlyBlock *>(n)->body, ts, vs); exits.pop_back();
             }
             End(); for (auto v : vs) Get(v); return;
@@ -607,7 +590,7 @@ inline void Function::Expr(Node *n) {
         case NK_While: {
             auto w = static_cast<While *>(n); auto done = Begin(), again = Begin(0x03);
             Truth(w->cond); code.Op(0x45); Br(done, true);
-            exits.push_back({ done, nullptr, {}, {}, true, again }); BlockInto(w->body, {}, {}); exits.pop_back();
+            PushExit({ done, nullptr, {}, {}, true, again }); BlockInto(w->body, {}, {}); exits.pop_back();
             Br(again); End(); End(); return;
         }
         case NK_ForLoop: For(static_cast<ForLoop *>(n)); return;
@@ -616,7 +599,7 @@ inline void Function::Expr(Node *n) {
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j];
                 if (e.sf && e.sf == r->target) {
-                    SetResults(r->vals, e.types, e.values, n->line); UnwindPrints(j); Br(e.label); return;
+                    SetResults(r->vals, e.types, e.values, n->line); UnwindCleanups(j); Br(e.label); return;
                 }
             }
             Fail(n->line, "return from an out-of-line enclosing function is not supported");
@@ -626,13 +609,13 @@ inline void Function::Expr(Node *n) {
             for (size_t j = exits.size(); j-- > 0;) {
                 auto e = exits[j]; if (!e.breakable) continue;
                 if (b->val) SetResults({ b->val }, e.types, e.values, n->line);
-                UnwindPrints(j); Br(e.label); return;
+                UnwindCleanups(j); Br(e.label); return;
             }
             Fail(n->line, "break has no direct control target");
         }
         case NK_Continue:
             for (size_t j = exits.size(); j-- > 0;) if (exits[j].continue_label) {
-                UnwindPrints(j); Br(*exits[j].continue_label); return;
+                UnwindCleanups(j); Br(*exits[j].continue_label); return;
             }
             Fail(n->line, "continue has no direct loop target");
         case NK_MatchExpr: {

@@ -24,26 +24,28 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
         (from->kind == TY_SLICE || (from->kind == TY_ARRAY &&
          (from->arr->akind != A_LIMITED || from->arr->size != to->arr->size)))) {
         if (from->kind == TY_ARRAY) PackArrayView(from);
-        auto view = Save(I64), dest = Frame(to);
+        auto view = Save(I64);
+        auto dest = FreshDestination(to, ConstructionDestination::Statement).location;
         Get(view); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
         Get(count); code.I64Const(to->arr->size); code.Op(0x56); TrapIf(l, "array capacity exceeded");
-        FrameAddress(dest); code.I32Const(0); code.I32Const(int32_t(c.Size(to).size)); code.Fill();
-        FrameAddress(dest); Get(count); code.Op(0xa7); code.Mem(0x36, 2);
-        FrameAddress(dest + c.Size(to).payload); Get(view); code.Op(0xa7);
+        LocationAddress(dest); code.I32Const(0); code.I32Const(int32_t(c.Size(to).size)); code.Fill();
+        LocationAddress(dest); Get(count); code.Op(0xa7); code.Mem(0x36, 2);
+        LocationAddress(OffsetLocation(dest, c.Size(to).payload, to->arr->sub)); Get(view); code.Op(0xa7);
         Get(count); code.Op(0xa7); code.I32Const(int32_t(c.Size(to->arr->sub).size)); code.Op(0x6c); code.Copy();
-        FrameAddress(dest); return;
+        LocationAddress(dest); return;
     }
     if (c.Aggregate(from) && to->kind == TY_REF) { W(to); return; }
     if (from->kind == TY_VARIANT && to->kind == TY_ENUM) {
         if (from->var->adt->enu->inst != to->enu->inst)
             Fail(l, "variant belongs to a different enum");
-        auto source = Save(I32), destination = Frame(to);
+        auto source = CaptureStack(from);
+        auto destination = FreshDestination(to, ConstructionDestination::Statement).location;
         auto layout = c.Size(to);
-        FrameAddress(destination); code.I32Const(0); code.I32Const(int32_t(layout.size)); code.Fill();
-        FrameAddress(destination);
+        LocationAddress(destination); code.I32Const(0); code.I32Const(int32_t(layout.size)); code.Fill();
+        LocationAddress(destination);
         code.I32Const(to->enu->inst->en->VariantIndex(from->var->variant)); code.Mem(0x36, 2);
-        FrameAddress(destination + layout.payload); Get(source); Store(from);
-        FrameAddress(destination); return;
+        StoreCopy(OffsetLocation(destination, layout.payload, from), source);
+        LocationAddress(destination); return;
     }
     if (c.Aggregate(from) || c.Aggregate(to)) {
         if (from->kind != to->kind || c.Size(from).size != c.Size(to).size)

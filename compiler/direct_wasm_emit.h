@@ -24,7 +24,7 @@ inline string Function::Finish() {
     auto line = spec ? spec->sf->line : Line{};
     auto done = Begin();
     if (spec) {
-        exits.push_back({ done, spec->sf, results, resultlocals, false, {} });
+        PushExit({ done, spec->sf, results, resultlocals, false, {} });
         // Aggregate parameters have value semantics. Address-taken scalar
         // parameters are spilled once so reads and references share storage.
         for (auto p : spec->params) {
@@ -32,7 +32,9 @@ inline string Function::Finish() {
             auto old = vars.at(p);
             if (c.Aggregate(p->type) || addressed.count(p)) {
                 Slot slot { Slot::FRAME, Frame(p->type), p->type };
-                SlotAddress(slot); Get(old.index); Store(p->type); vars[p] = slot;
+                StoreCopy({ p->type, slot }, { p->type, old.index,
+                    c.Aggregate(p->type) ? CapturedValue::BorrowedFixed : CapturedValue::Immediate });
+                vars[p] = slot;
             }
         }
         BlockInto(spec->body, results, resultlocals);
@@ -48,7 +50,8 @@ inline string Function::Finish() {
     // activation. Returning a pointer into the released callee frame would
     // let the next sibling or recursive call overwrite the earlier value.
     for (size_t i = 0; i < resultdestinations.size(); i++) if (resultdestinations[i]) {
-        Get(*resultdestinations[i]); Get(resultlocals[i]); Store(results[i]);
+        StoreCopy({ results[i], AddressLocal { *resultdestinations[i] } },
+                  { results[i], resultlocals[i], CapturedValue::BorrowedFixed });
         Get(*resultdestinations[i]); Set(resultlocals[i]);
     }
     Get(framebase); code.OpU(0x24, 0);

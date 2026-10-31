@@ -3,6 +3,7 @@
 // Include this header after the upstream frontend headers.
 #pragma once
 #include "wasm_binary.h"
+#include <variant>
 
 namespace goose {
 
@@ -40,6 +41,20 @@ struct Slot {
     uint32_t index = 0;
     TypeExpr *type = nullptr;
 };
+struct AddressLocal { uint32_t index; };
+struct Location {
+    TypeExpr *storage_type;
+    variant<Slot, AddressLocal> storage;
+};
+struct CapturedValue {
+    TypeExpr *type;
+    uint32_t value_local;
+    enum Form { Immediate, BorrowedFixed, CopiedFixed } form;
+};
+struct ConstructionDestination {
+    Location location;
+    enum Lifetime { Statement, Block, Activation, Caller, Static } lifetime;
+};
 struct Compiler;
 
 struct Function {
@@ -67,16 +82,28 @@ struct Function {
         vector<uint32_t> values;
         bool breakable = false;
         optional<uint32_t> continue_label;
+        size_t cleanup_depth = 0;
     };
     vector<Exit> exits;
-    // A print may be abandoned by a return/break in an argument. Restore
-    // only print scopes that the branch leaves; a loop inside an argument
-    // must keep snapshots captured by its enclosing print alive.
-    vector<pair<size_t, uint32_t>> printmarks;
-    void UnwindPrints(size_t target) {
-        for (auto [depth, mark] : printmarks) if (target < depth) {
-            Get(mark); code.OpU(0x24, 0); return;
+    struct CleanupAction {
+        enum Kind { RestoreScratchTop } kind;
+        uint32_t saved_local;
+    };
+    vector<CleanupAction> cleanups;
+    void PushExit(Exit target) {
+        target.cleanup_depth = cleanups.size(); exits.push_back(std::move(target));
+    }
+    void EmitCleanups(size_t depth) {
+        for (auto i = cleanups.size(); i-- > depth;) {
+            auto &action = cleanups[i];
+            if (action.kind == CleanupAction::RestoreScratchTop) { Get(action.saved_local); code.OpU(0x24, 0); }
         }
+    }
+    void CloseCleanups(size_t depth) {
+        EmitCleanups(depth); cleanups.resize(depth);
+    }
+    void UnwindCleanups(size_t target) {
+        EmitCleanups(exits.at(target).cleanup_depth);
     }
     set<uint32_t> dependencies;
 
@@ -136,6 +163,17 @@ struct Function {
     void Write(const Slot &);
     void Load(TypeExpr *);
     void Store(TypeExpr *);
+    Location PinPlace(Node *, bool pointee = false);
+    void LocationAddress(const Location &);
+    Location OffsetLocation(const Location &, uint32_t, TypeExpr *);
+    void ReadLocation(const Location &, TypeExpr *);
+    void ReferenceValue(const Location &);
+    CapturedValue CaptureStack(TypeExpr *);
+    CapturedValue CaptureBorrowed(Node *, TypeExpr *);
+    CapturedValue CopyCaptured(CapturedValue);
+    void StoreCopy(const Location &, CapturedValue);
+    ConstructionDestination FreshDestination(TypeExpr *, ConstructionDestination::Lifetime);
+    void ConstructInto(Node *, const ConstructionDestination &);
     void Address(Node *);
     TypeExpr *Object(Node *);
     void PackArrayView(TypeExpr *);
@@ -242,6 +280,38 @@ struct Compiler {
         }
     }
     static uint32_t Align(uint32_t x, uint32_t n) { return (x + n - 1) & ~(n - 1); }
+    // The checker's physical size class is independent of a future runtime
+    // descriptor's byte size. Only SC_FIXED values may use ordinary copies.
+    SizeClass Class(TypeExpr *t) {
+        switch (t->kind) {
+            case TY_INT: return t->intstorage == IS_VARINT ? SC_VARIABLE : SC_FIXED;
+            case TY_REF: return t->ref->lenstorage == IS_VARINT ? SC_VARIABLE : SC_FIXED;
+            case TY_STRUCT:
+                if (!t->struc->inst) Fail(t->line, "struct storage class was not resolved");
+                return t->struc->inst->sclass;
+            case TY_ENUM:
+                if (!t->enu->inst) Fail(t->line, "enum storage class was not resolved");
+                return t->enu->varmode ? t->enu->inst->varclass : SC_FIXED;
+            case TY_ARRAY:
+                if (t->arr->akind == A_FIXED) return SC_FIXED;
+                if (t->arr->akind == A_VAR) return SC_VARIABLE;
+                if (t->arr->akind == A_LIMITED) return t->arr->size >= 0 ? SC_FIXED : SC_VARIABLE;
+                return SC_RESIZABLE;
+            case TY_VARIANT: {
+                auto ei = t->var->adt->enu->inst;
+                auto vi = ei->en->VariantIndex(t->var->variant);
+                auto result = SC_FIXED;
+                for (auto field : ei->vftypes.at(size_t(vi))) if (field) result = max(result, Class(field));
+                return result;
+            }
+            default: return SC_FIXED;
+        }
+    }
+    const Layout &FixedLayout(TypeExpr *t) {
+        auto &layout = Size(t); // preserve target refusals for unsupported types
+        if (Class(t) != SC_FIXED) Fail(t->line, "nonfixed owned construction is not supported by the fixed-value copy path");
+        return layout;
+    }
     const Layout &Size(TypeExpr *t) {
         auto it = layouts.find(t); if (it != layouts.end()) return it->second;
         Layout r;
@@ -454,7 +524,7 @@ inline uint32_t Function::FrameBytes(uint32_t n, uint32_t align) {
         Fail(spec ? spec->sf->line : Line{}, "activation frame exceeds the linear-memory limit");
     framebytes = off + n; return off;
 }
-inline uint32_t Function::Frame(TypeExpr *t) { auto l = c.Size(t); return FrameBytes(l.size, l.align); }
+inline uint32_t Function::Frame(TypeExpr *t) { auto l = c.FixedLayout(t); return FrameBytes(l.size, l.align); }
 inline Slot Function::Lookup(VarDef *v, Line l) {
     v = Resolve(v);
     if (auto it = vars.find(v); it != vars.end()) return it->second;
@@ -483,7 +553,7 @@ inline void Function::Load(TypeExpr *t) {
     code.Mem(bits == 8 ? (u ? 0x2d : 0x2c) : bits == 16 ? (u ? 0x2f : 0x2e) : bits == 32 ? 0x28 : 0x29);
 }
 inline void Function::Store(TypeExpr *t) {
-    if (c.Aggregate(t)) { code.I32Const(int32_t(c.Size(t).size)); code.Copy(); return; }
+    if (c.Aggregate(t)) { code.I32Const(int32_t(c.FixedLayout(t).size)); code.Copy(); return; }
     if (t->kind == TY_FLT) { code.Mem(IsF32(t) ? 0x38 : 0x39); return; }
     if (t->kind == TY_SLICE) { code.Mem(0x37); return; }
     if (t->kind == TY_REF) { W(t); code.Mem(0x36); return; }
@@ -532,6 +602,7 @@ inline void Function::ScanAddresses(Node *n) {
 } // namespace goose
 
 #include "direct_wasm_numeric.h"
+#include "direct_wasm_storage.h"
 #include "direct_wasm_arrays.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"

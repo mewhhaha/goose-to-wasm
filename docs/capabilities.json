@@ -81,7 +81,8 @@
         "status": "qualified_subset",
         "scope": "Supported fixed owned values; owned dynamic copies and slice-temporary copies remain pending.",
         "fixtures": [
-          "tests/fixtures/nullable_and_copy.goose"
+          "tests/fixtures/nullable_and_copy.goose",
+          "tests/fixtures/storage_locations.goose"
         ],
         "boundary_fixtures": []
       },
@@ -306,7 +307,8 @@
         "status": "qualified_subset",
         "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
         "fixtures": [
-          "tests/fixtures/nullable_and_copy.goose"
+          "tests/fixtures/nullable_and_copy.goose",
+          "tests/fixtures/storage_locations.goose"
         ],
         "boundary_fixtures": []
       },
@@ -338,7 +340,8 @@
         "status": "qualified_subset",
         "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
         "fixtures": [
-          "tests/fixtures/control_flow.goose"
+          "tests/fixtures/control_flow.goose",
+          "tests/fixtures/cleanup_nested_loop.goose"
         ],
         "boundary_fixtures": []
       },
@@ -360,7 +363,8 @@
         "status": "qualified_subset",
         "scope": "Supported scalar/fixed-value forms only; dynamic storage, environments, effects and structural operations retain separate pending gates.",
         "fixtures": [
-          "tests/fixtures/control_flow.goose"
+          "tests/fixtures/control_flow.goose",
+          "tests/fixtures/cleanup_exits.goose"
         ],
         "boundary_fixtures": []
       },

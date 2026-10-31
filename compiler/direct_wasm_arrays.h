@@ -146,8 +146,7 @@ inline void Function::ArrayBuiltin(Call *n) {
         // Pop produces an owned fixed value, even when consumed as an
         // iteration temporary before another expression refills this slot.
         if (c.Aggregate(n->exprtype)) {
-            auto source = Save(I32), destination = Frame(n->exprtype);
-            FrameAddress(destination); Get(source); Store(n->exprtype); FrameAddress(destination);
+            auto captured = CopyCaptured(CaptureStack(n->exprtype)); Get(captured.value_local);
         }
         return;
     }

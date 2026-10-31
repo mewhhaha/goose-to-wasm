@@ -5,6 +5,23 @@ runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Its first implementation slice is
 static-capacity resizable arrays.
 
+## Implemented: typed storage and cleanup boundary
+
+Locations describe the actual variable/field/element storage separately from
+the expression type. Fixed-value capture/copy/publication now share one checked
+path, including arguments, results, aggregate pop, supported print snapshots and
+parameter spills. Fresh destinations cover literals, adaptations and owned call
+results. Assignment pins its destination before evaluating the complete RHS.
+
+An explicit cleanup stack records each exit target's cleanup depth. Normal
+completion and return/break/continue restore the scratch scopes they leave;
+an inner loop keeps its enclosing print's captured arguments alive. Ordinary
+reference/slice copies still preserve aliases. Physical size-class checks stop
+nonfixed owner descriptors from entering fixed aggregate copies.
+
+This preserves the fixed-frame ABI. Stable data regions and dynamic construction
+remain the next runtime phase.
+
 ## Implemented: static-capacity limited arrays
 
 `T[..k]` now uses a runtime length and stable inline storage within the existing
