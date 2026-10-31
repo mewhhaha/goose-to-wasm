@@ -249,6 +249,72 @@ fn main() {}'''
                     self.assertEqual(observed["error"], "")
                     self.assertLessEqual(observed["pages"], 3)
 
+    def test_owned_arguments_release_on_call_and_interrupted_construction(self):
+        source = f'''var neighbor: i64[>..] = [{CANARY}];
+fn transform(values: i64[>..]) -> i64[>..] {{ values.push(9); return values; }}
+fn consume(values: i64[>..]) -> i64 {{ return values[0] + 1; }}
+export fn tick(n: i64) -> i64 {{
+    let result = transform([if n % 2 == 0 {{ return n + 1; }} else {{ n }}]);
+    return consume(copy(result));
+}}
+fn main() {{ print(consume([1]) + consume([2]) + consume([3])); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual((runtime["global_regions"], runtime["region_count"]), (1, 3))
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["numbers"], ["9"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+                    self.assertLessEqual(observed["pages"], 3)
+
+    def test_owned_argument_growth_cannot_overwrite_later_argument(self):
+        source = f'''extern fn bench_input() -> i64;
+fn grow(values: i64[>..], neighbor: i64[>..]) -> i64 {{
+    values.resize(bench_input(), 7); return neighbor[0];
+}}
+fn main() {{ print(grow([1], [{CANARY}])); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            count = runtime["region_bytes"] // 8 + 1
+            for engine, observed in self.engines(path, runtime, input_value=count, canary_index=1):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_later_argument_exits_release_already_constructed_arguments(self):
+        bodies = (
+            'return consume([n], [if n % 2 == 0 { return n + 1; } else { 0 }]);',
+            '''var answer = 0;
+    for i in 3 {
+        answer += consume([n], [if i == 0 { continue; } else { if i == 2 { break; } else { 0 } }]);
+    }
+    return answer;''',
+        )
+        for body in bodies:
+            source = '''fn consume(a: i64[>..], b: i64[>..]) -> i64 { return a[0] + b[0] + 1; }
+export fn tick(n: i64) -> i64 { ''' + body + ' }\nfn main() {}'
+            for level in (0, 2):
+                path, runtime = self.compile(source, level)
+                self.assertEqual(runtime["region_count"], 2)
+                for engine, observed in self.engines(path, runtime, repeats=10000):
+                    with self.subTest(body=body, level=level, engine=engine):
+                        self.assertEqual(observed["error"], "")
+
+    def test_nested_owned_calls_count_peak_regions(self):
+        source = '''fn transform(values: i64[>..]) -> i64[>..] { values.push(9); return values; }
+export fn tick(n: i64) -> i64 {
+    let result = transform(transform([n])); return result[0] + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

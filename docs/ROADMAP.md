@@ -4,6 +4,22 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: owned growable parameters
+
+Ordinary calls construct each by-value growable parameter into a private region
+in argument order. Those regions remain live through the call and are released
+after its results, including when argument construction exits early. Callees use
+the supplied header directly; inline parameter declarations use their enclosing
+inline scope. Named nonfixed arguments still require the language's explicit
+`copy` when passed by value.
+
+Qualification covers copy independence, later-argument mutation, literals,
+fixed/limited sources, owned-result arguments, grow/shrink operations, returned
+owners and fixed results, and valid surviving external references in elements.
+The frontend rejects escaping references/slices into the parameter's own storage.
+Static function-value owned parameters and anonymous reference/view temporaries
+remain explicit boundaries.
+
 ## Implemented: single owned growable results
 
 A function returning one fixed-element growable value receives the caller's
@@ -14,7 +30,7 @@ another result region. Inline bodies carry the same destination on their return
 target, so nested returns select the correct owner.
 
 Literals, local owners, fixed/limited results, slices and conditional results
-are qualified at O0/O2. Owned parameters, mixed/multiple dynamic results,
+are qualified at O0/O2. Mixed/multiple dynamic results,
 anonymous owner temporaries and general control-expression destinations remain
 explicit boundaries.
 
@@ -33,7 +49,7 @@ through the call graph and recursive components. Runtime acquisition/growth,
 activation frames and print scratch all check their own limits. Module metadata
 and compiler statistics publish the resulting partition budgets.
 
-Owned dynamic parameters, general result/temporary destinations, whole-owner
+General result/temporary destinations, whole-owner
 assignment, variable elements and dynamic containing structs remain explicit
 boundaries. Single owned results now use the receiving-region ABI above.
 

@@ -14,9 +14,9 @@ This is an explicitly bounded backend. It supports scalar functions, recursion,
 control flow, fixed arrays,
 static-capacity resizable arrays, struct fields, fixed-mode enums and payload matches, owned fixed aggregate returns,
 slices, references, and named growable arrays of supported fixed-layout elements.
-Growable owners use stable checked data regions, borrowed calls and single owned
-results constructed into named receivers. Owned dynamic parameters and general
-temporary/result channels remain subsequent work. Unsupported constructs produce compile
+Growable owners use stable checked data regions, borrowed calls, independent
+by-value parameters and single owned results constructed into named receivers.
+General temporary/result channels remain subsequent work. Unsupported constructs produce compile
 errors, with no fallback to the C backend. It is not yet full Goose parity; see
 [the target contract](docs/TARGET.md) and [next milestones](docs/ROADMAP.md).
 The [completion plan](docs/IMPLEMENTATION_PLAN.md) and checked

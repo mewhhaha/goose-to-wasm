@@ -54,6 +54,14 @@ acquires the region; the callee constructs into it before scoped cleanup.
 Forwarded returns reuse the destination, including through recursive cycles.
 The header/data ownership is never transferred by a shallow descriptor copy.
 
+An internal by-value growable parameter receives the address of a private
+header constructed by its caller. Each owned argument acquires a distinct region
+before the next argument is evaluated. The caller retains these regions through
+the call and then restores its argument watermark; interrupted construction
+unwinds it as well. Fixed results and caller-owned dynamic result destinations
+survive this cleanup. The frontend rejects escaping views into the parameter's
+storage; ordinary reference/slice fields pointing to caller data preserve aliases.
+
 The planner reserves dedicated global regions plus a call-graph/SCC bound on
 simultaneously live transient owners. Scoped cleanup restores transient region
 watermarks on normal exit, return, break and continue. Borrowed calls grow the
@@ -174,7 +182,7 @@ The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
 
-The current backend refuses owned dynamic parameters, mixed/multiple owned
+The current backend refuses owned dynamic function-value parameters, mixed/multiple owned
 dynamic results, general dynamic control-expression destinations, anonymous dynamic
 temporaries, whole-owner assignment, dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;

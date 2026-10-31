@@ -316,8 +316,21 @@ inline void Function::EmitCall(Call *n, bool adapt_result, optional<Construction
     if (owned_result) CheckRegionDestination(sp->rets[0], *destination, n->line);
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
+    auto cleanup_depth = cleanups.size();
+    auto live = region_live;
+    auto owned_arguments = any_of(ps.begin(), ps.end(), [](VarDef *p) { return Compiler::RegionArray(p->type); });
+    if (owned_arguments) {
+        code.OpU(0x23, G_REGION_NEXT);
+        cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
+    }
     for (size_t i = 0; i < args.size(); i++) {
         auto t = ps[i]->type;
+        if (Compiler::RegionArray(t)) {
+            Location place { t, Slot { Slot::FRAME, FrameBytes(c.HeaderLayout(t).size, 4), t } };
+            AcquireRegion(place, args[i]->line);
+            ConstructRegionInto(args[i], { place, ConstructionDestination::Statement });
+            LocationAddress(place); continue;
+        }
         To(args[i], t);
         // A later argument may mutate this value. Snapshot aggregates in
         // source order, before evaluating the next argument.
@@ -332,6 +345,10 @@ inline void Function::EmitCall(Call *n, bool adapt_result, optional<Construction
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
         code.Op(intrinsic->second);
     else { RecordRegionCall(sp, n->line); CallIndex(c.function_index.at(sp)); }
+    // The frontend forbids results referring into a by-value parameter's
+    // private owner. External references carried by its elements survive.
+    // These balanced cleanup instructions preserve the Wasm call results.
+    if (owned_arguments) { CloseCleanups(cleanup_depth); region_live = live; }
     if (adapt_result && sp->rets.size() == 1 && !owned_result) Convert(sp->rets[0], n->exprtype, n->line);
 }
 
@@ -479,7 +496,7 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, optional<
     auto types = Values(node);
     auto own = node->spec ? node->spec->rets : types;
     if (node->spec) for (auto parameter : node->spec->params)
-        if (c.Class(parameter->type) != SC_FIXED)
+        if (c.Class(parameter->type) != SC_FIXED && !Compiler::RegionArray(parameter->type))
             Fail(node->line, "owned dynamic inline parameters are not supported without receiving lifetimes");
     auto owned_result = own.size() == 1 && Compiler::RegionArray(own[0]);
     for (auto type : own) if (c.Class(type) != SC_FIXED && (!owned_result || !destination))

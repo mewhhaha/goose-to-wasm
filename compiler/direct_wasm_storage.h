@@ -38,7 +38,8 @@ inline void Function::LocationAddress(const Location &place) {
 }
 
 inline Location Function::OffsetLocation(const Location &place, uint32_t offset, TypeExpr *type) {
-    if (auto slot = get_if<Slot>(&place.storage); slot && slot->kind != Slot::LOCAL)
+    if (auto slot = get_if<Slot>(&place.storage);
+        slot && (slot->kind == Slot::FRAME || slot->kind == Slot::GLOBAL))
         return { type, Slot { slot->kind, slot->index + offset, type } };
     LocationAddress(place);
     if (offset) { code.I32Const(int32_t(offset)); code.Op(0x6a); }

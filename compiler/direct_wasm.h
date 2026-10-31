@@ -39,7 +39,7 @@ struct Import { string module, name; uint32_t type; };
 struct Layout { uint32_t size = 0, align = 1; vector<uint32_t> fields; uint32_t payload = 0; };
 enum RuntimeGlobal { G_SCRATCH_TOP, G_REGION_NEXT, G_REGION_BASE, G_REGION_BYTES, G_REGION_COUNT, G_ACTIVATION_LIMIT };
 struct Slot {
-    enum Kind { LOCAL, FRAME, GLOBAL } kind = LOCAL;
+    enum Kind { LOCAL, FRAME, GLOBAL, ADDRESS } kind = LOCAL;
     uint32_t index = 0;
     TypeExpr *type = nullptr;
 };
@@ -157,6 +157,7 @@ struct Function {
     void SlotAddress(const Slot &s) {
         if (s.kind == Slot::FRAME) FrameAddress(s.index);
         else if (s.kind == Slot::GLOBAL) code.I32Const(int32_t(s.index));
+        else if (s.kind == Slot::ADDRESS) Get(s.index);
         else Fail(s.type->line, "taking the address of this local is not supported");
     }
     VarDef *Resolve(VarDef *v) {
@@ -450,7 +451,7 @@ struct Compiler {
         Signature s;
         for (auto p : sp->params) {
             if (p->type->kind == TY_FN) continue;
-            if (RegionArray(p->type)) Fail(p->line, "owned dynamic parameters are not supported without a destination-region ABI");
+            if (RegionArray(p->type)) needs_regions = true;
             s.args.push_back(W(p->type));
         }
         for (auto t : sp->rets) {
@@ -540,7 +541,10 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
         ScanAddresses(spec->body);
         for (auto p : spec->params) {
             if (p->type->kind == TY_FN) continue;
-            vars[p] = { Slot::LOCAL, uint32_t(params.size()), p->type };
+            // An owned dynamic argument has a private caller-constructed
+            // header, rather than a descriptor copied into this frame.
+            vars[p] = { Compiler::RegionArray(p->type) ? Slot::ADDRESS : Slot::LOCAL,
+                        uint32_t(params.size()), p->type };
             params.push_back(W(p->type));
         }
         for (auto t : results) {
