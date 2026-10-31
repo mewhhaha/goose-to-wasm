@@ -93,7 +93,7 @@
       },
       "B_COPY": {
         "status": "qualified_subset",
-        "scope": "Supported fixed owned values and fixed-element region-backed growable, unsigned-length variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Variable elements and function-value ownership remain pending. Standalone fixed-prefix structs with one supported variable/runtime-limited tail copy prefix values and independently own tail contents.",
+        "scope": "Supported fixed owned values and fixed-element region-backed growable, unsigned-length variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Variable elements and function-value ownership remain pending. Standalone fixed-prefix structs with one supported variable/runtime-limited or growable frame tail copy prefix values and independently own tail contents.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
           "tests/fixtures/storage_locations.goose",
@@ -106,7 +106,9 @@
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_dynamic_boundaries.py"
@@ -344,7 +346,7 @@
       },
       "NK_ArrayLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -352,7 +354,7 @@
       },
       "NK_AsCast": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/float_to_integer.goose"
         ],
@@ -360,7 +362,7 @@
       },
       "NK_Assign": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
           "tests/fixtures/storage_locations.goose"
@@ -369,7 +371,7 @@
       },
       "NK_Binary": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -377,7 +379,7 @@
       },
       "NK_Block": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -385,7 +387,7 @@
       },
       "NK_BoolLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/short_circuit.goose"
         ],
@@ -393,7 +395,7 @@
       },
       "NK_Break": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/cleanup_nested_loop.goose",
@@ -403,13 +405,15 @@
       },
       "NK_Call": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/recursion.goose",
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -423,7 +427,7 @@
       },
       "NK_Continue": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/cleanup_exits.goose",
@@ -433,13 +437,15 @@
       },
       "NK_Dot": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose",
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -447,7 +453,7 @@
       },
       "NK_EarlyBlock": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/value_forms.goose"
         ],
@@ -461,7 +467,7 @@
       },
       "NK_FltLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/float_operations.goose"
         ],
@@ -475,7 +481,7 @@
       },
       "NK_ForLoop": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -491,7 +497,7 @@
       },
       "NK_Ident": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -499,7 +505,7 @@
       },
       "NK_IfExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -507,7 +513,7 @@
       },
       "NK_IncDec": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -515,7 +521,7 @@
       },
       "NK_Index": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/array_bounds.goose"
         ],
@@ -523,13 +529,15 @@
       },
       "NK_InlineBlock": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/inline_print_unwind.goose",
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -537,7 +545,7 @@
       },
       "NK_IntLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -545,7 +553,7 @@
       },
       "NK_LoopExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/aggregate_returns.goose"
         ],
@@ -553,7 +561,7 @@
       },
       "NK_MatchExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose"
         ],
@@ -561,7 +569,7 @@
       },
       "NK_NullLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose"
         ],
@@ -569,7 +577,7 @@
       },
       "NK_RangeExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose"
         ],
@@ -577,13 +585,15 @@
       },
       "NK_Return": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/aggregate_returns.goose",
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -597,7 +607,7 @@
       },
       "NK_SliceExpr": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/fixed_arrays.goose"
         ],
@@ -605,7 +615,7 @@
       },
       "NK_StrLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/value_forms.goose"
         ],
@@ -619,13 +629,15 @@
       },
       "NK_StructLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose",
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -633,7 +645,7 @@
       },
       "NK_Unary": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/scalar_arithmetic.goose"
         ],
@@ -641,13 +653,15 @@
       },
       "NK_VarDecl": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/struct_values.goose",
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"
@@ -655,7 +669,7 @@
       },
       "NK_While": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix single variable/runtime-limited or growable frame array-tail structs are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
         "fixtures": [
           "tests/fixtures/control_flow.goose",
           "tests/fixtures/while_condition_exits.goose"
@@ -841,7 +855,9 @@
           "tests/fixtures/variable_structs.goose",
           "tests/fixtures/variable_struct_paths.goose",
           "tests/fixtures/variable_struct_narrow.goose",
-          "tests/fixtures/limited_structs.goose"
+          "tests/fixtures/limited_structs.goose",
+          "tests/fixtures/frame_structs.goose",
+          "tests/fixtures/frame_struct_paths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_owned_struct_boundaries.py"

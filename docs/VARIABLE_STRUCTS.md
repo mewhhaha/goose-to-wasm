@@ -3,6 +3,8 @@
 This implements the first containing-value slice from the Astra xhigh plan:
 standalone `SC_VARIABLE` structs with supported fixed-layout fields followed by
 one final fixed-element `T[]`/unsigned-length or runtime-capacity `T[..]` field.
+Frame objects with a final `T[>..]`/`T[>..<]` field use the same control-layout
+walker with different named-return and assignment rules.
 
 `RegionOwner` governs allocation, parameters, receiving channels, temporaries and
 cleanup. `RegionArray` remains specific to sequence operations and element runs.
@@ -28,14 +30,23 @@ expressions can change both a previously returned prefix and its tail metadata.
 By-value parameters remain independent objects. Blocks, branches, loops, matches,
 ordinary/inline calls and mixed results use these same receiving channels.
 
+Growable-tail frame objects keep a private prefix and tail header while sharing
+their receiving tail's stable base/limit. Every named return copies prefix bytes
+and publishes the current length; later prefix/length changes do not change an
+earlier result, while mutations to shared elements remain visible. Whole-object
+assignment pins its receiver before evaluating the RHS and reconstructs it in
+place. Prefix writes occur in declaration order, so an early exit leaves fields
+whose initializers have not run intact. Omitted optional fields become null at
+their own position. Private embedded headers die with their logical scopes;
+surviving borrowed/global headers validate an abandoned advertised tail extent.
+
 Qualified boundaries remain explicit: nested owners, multiple variable fields,
-variable elements, growable-tail frame objects, whole-object assignment,
+variable elements, whole-variable-object assignment,
 variable-struct rendering/comparison and packed image operations are outside this
 slice. The frontend rejects views escaping private by-value parameter storage.
 Declared global defaults are checked initializer nodes; explicit
 `default<NonfixedStruct>()` remains frontend-invalid.
 
-Next, growable-tail frame objects need a private control object with a shared
-tail region and prefix/length snapshots at each return. They cannot reuse
-whole-object NRVO aliasing. Packed C.2 images and relative references require the
-later versioned image ABI transition.
+Nested owners and variable-mode enums need further containing-value walkers.
+Packed C.2 images and relative references require the later versioned image ABI
+transition.

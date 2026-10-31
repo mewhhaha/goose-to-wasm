@@ -219,7 +219,11 @@ inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
     if (Compiler::RegionOwner(t)) {
-        if (Compiler::RegionStruct(t)) Fail(n->line, "whole variable-struct assignment is not supported");
+        if (Compiler::RegionStruct(t)) {
+            if (!Compiler::FrameStruct(t)) Fail(n->line, "whole variable-struct assignment is not supported");
+            if (n->op != T_ASSIGN) Fail(n->line, "compound frame-object assignment is not supported");
+            ConstructStructInto(n->rhs, { place, ConstructionDestination::Existing }); return;
+        }
         if (Compiler::RuntimeLimited(t)) {
             if (n->op != T_ASSIGN) Fail(n->line, "compound runtime-limited assignment is not supported");
             auto temporary = TemporaryDestination(t, n->line);

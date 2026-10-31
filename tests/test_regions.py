@@ -781,6 +781,68 @@ fn main() {}'''
                     self.assertEqual(observed["error"], "")
 
 
+    def test_frame_struct_named_and_parameter_headers_die_on_early_return(self):
+        source = '''struct Packet { id: i64, values: i64[>..] }
+recursive fn named(n: i64) -> Packet {
+    var packet = Packet { 0, [1] };
+    packet = Packet { 2, [if n >= 0 { return Packet { 7, [8] }; } else { 1 }; 1000000] };
+    return packet;
+}
+recursive fn parameter(var packet: Packet, n: i64) -> Packet {
+    packet = Packet { 2, [if n >= 0 { return Packet { 7, [8] }; } else { 1 }; 1000000] };
+    return packet;
+}
+export fn tick(n: i64) -> i64 {
+    let a = named(n); let b = parameter(Packet { 0, [1] }, n);
+    if a.id != 7 || a.values.len != 1 || a.values[0] != 8 || b.id != 7 || b.values.len != 1 || b.values[0] != 8 { abort("bad early frame result"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_surviving_frame_tail_validates_abandoned_advertised_length(self):
+        source = f'''extern fn bench_input() -> i64;
+struct Packet {{ id: i64, values: i64[>..] }}
+var packet = Packet {{ 1, [2] }};
+var neighbor: i64[>..] = [{CANARY}];
+fn replace(target: Packet&) {{
+    target = Packet {{ 3, [if bench_input() > 0 {{ return; }} else {{ 4 }}; 1000000] }};
+}}
+fn main() {{ replace(packet); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, input_value=1, canary_index=1):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_frame_struct_assignment_pins_parent_and_releases_temporaries(self):
+        source = '''struct Packet { id: i64, values: i64[>..] }
+fn replace(var route: Packet&, other: Packet&) {
+    route = Packet { if true { route .= other; 42 } else { 43 }, [44, 45] };
+}
+recursive fn make(n: i64) -> Packet { return Packet { n, [n, n + 1] }; }
+export fn tick(n: i64) -> i64 {
+    var a = make(n); var b = make(n + 10); replace(a, b);
+    if a.id != 42 || a.values.len != 2 || a.values[0] != 44 || b.id != n + 10 || b.values[0] != n + 10 { abort("bad pinned frame"); }
+    for i in 100 { if make(i).values[1] != i + 1 { abort("bad frame temporary"); } }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--goose", type=Path, default=GOOSE)

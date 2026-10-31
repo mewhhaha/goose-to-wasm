@@ -20,6 +20,8 @@ Runtime-capacity arrays preserve logical capacity through copies and assignment,
 with checked mutation and conversions between supported array kinds.
 Standalone structs with fixed fields and one variable/runtime-capacity array tail
 support owned construction, independent copies, calls and named-result aliasing.
+Growable-tail frame structs also support whole-object reconstruction, with
+private prefix/length snapshots and shared tail elements for named returns.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

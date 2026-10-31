@@ -201,8 +201,8 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
 }
 
 inline void Function::ShareRegion(const Location &place, const ConstructionDestination &destination) {
-    LocationAddress(place); auto local = Save(I32);
-    LocationAddress(destination.location); auto result = Save(I32);
+    LocationAddress(TailHeaderLocation(place)); auto local = Save(I32);
+    LocationAddress(TailHeaderLocation(destination.location)); auto result = Save(I32);
     for (uint32_t offset : { 0u, 8u }) {
         Get(local); Get(result); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset);
     }

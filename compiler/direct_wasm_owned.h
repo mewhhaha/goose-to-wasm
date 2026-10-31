@@ -39,7 +39,20 @@ inline void Function::ConstructStructInto(Node *node, const ConstructionDestinat
         auto right = get_if<Slot>(&receiving);
         auto same = left && right ? left->kind == right->kind && left->index == right->index
                     : !left && !right && get<AddressLocal>(named).index == get<AddressLocal>(receiving).index;
-        if (same) return; // The complete named object already lives here.
+        if (same) {
+            if (Compiler::FrameStruct(type)) {
+                auto source = PinPlace(node);
+                if (layout.payload) {
+                    LocationAddress(destination.location); LocationAddress(source);
+                    code.I32Const(int32_t(layout.payload)); code.Copy();
+                }
+                // Frame-object prefixes and length are values at this return
+                // position. Only the tail's element storage is shared.
+                LocationAddress(TailHeaderLocation(destination.location));
+                LocationAddress(TailHeaderLocation(source)); code.Mem(0x28, 2, 4); code.Mem(0x36, 2, 4);
+            }
+            return;
+        }
     }
     if (auto block = Is<Block>(node)) {
         BlockInto(block, { type }, { Local(I32) }, { destination }); return;
@@ -71,15 +84,18 @@ inline void Function::ConstructStructInto(Node *node, const ConstructionDestinat
         auto literal = Is<StructLit>(node);
         if (literal && literal->sinst != type->struc->inst)
             Fail(line, "owned struct literal has a different instantiation");
-        if (layout.payload) {
-            LocationAddress(destination.location); code.I32Const(0); code.I32Const(int32_t(layout.payload)); code.Fill();
-        }
         auto inst = type->struc->inst;
         for (size_t i = 0; i < inst->ftypes.size(); i++) {
             auto field = OffsetLocation(destination.location, layout.fields[i], inst->ftypes[i]);
             auto init = literal ? literal->InitFor(int(i)) : nullptr;
             if (i + 1 == inst->ftypes.size()) ConstructRegionInto(init, { field, destination.lifetime });
             else if (init) ConstructInto(init, { field, destination.lifetime });
+            else {
+                // Omitted optional fields become null when their position is
+                // reached. An earlier initializer may exit before this write.
+                LocationAddress(field); code.I32Const(0);
+                code.I32Const(int32_t(c.FixedLayout(field.storage_type).size)); code.Fill();
+            }
         }
         return;
     }

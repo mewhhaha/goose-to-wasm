@@ -122,6 +122,21 @@ def cases():
         result.append(Case(f"owned-struct/capacity-error/{n}", "limited_struct_errors", f"{n}\n", "prefix\n",
                            exit_code=1, diagnostic="capacity", group="aggregate"))
     for n in (0, 3):
+        answer = (f"0 0 {n} [{n + 1}, {n + 2}] {n + 100} [{n + 1}, {n + 2}, 88]\n"
+                  f"{n} [{n + 21}, {n + 2}] {n + 10} {n + 10} [{n + 21}, {n + 2}, 99]\n"
+                  f"2 {n + 50} [{n + 50}, 62]\n"
+                  f"{n + 70} [{n + 71}, {n + 72}, 77] {n + 82} 7\n2 {n + 1} [3]\n")
+        result.append(Case(f"frame-struct/owned-values/{n}", "frame_structs", f"{n}\n", answer, group="aggregate"))
+    for n in (0, 1, 2):
+        first = 10 if n == 1 else 1
+        second = 20 if n in (1, 2) else 2
+        tail = 30 if n in (1, 2) else 3
+        marker = 7 if n == 1 else 8 if n == 2 else 0
+        answer = (f"{marker} {first} {second} [{tail}]\n"
+                  f"{n} {n + 1} [{n + 32}] {n + 10} {n + 10} {n + 21} [{n + 32}, 40]\n"
+                  f"{n} {n + 1} {n + 101} {n + 2}\ntrue [2]\n")
+        result.append(Case(f"frame-struct/paths/{n}", "frame_struct_paths", f"{n}\n", answer, group="aggregate"))
+    for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
                   f"[{n + 1}] {n + 5}\n[{n + 1}, 8]\n77 [{n + 1}, 8] [{n + 1}, 8]\n"

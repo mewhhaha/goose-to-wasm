@@ -35,9 +35,9 @@ class OwnedStructBoundaries(unittest.TestCase):
             "elements": ('struct Packet { values: i64[] } '
                          'fn main() { let xs: Packet[] = [Packet { [1] }]; print(xs.len); }',
                          "fixed-size structs"),
-            "growable": ('struct Packet { id: i64, values: i64[>..] } '
-                         'fn main() { let x = Packet { 1, [2] }; print(x.values.len); }',
-                         "fixed-size structs"),
+            "nested-frame": ('struct Inner { values: i64[>..] } struct Outer { id: i64, inner: Inner } '
+                             'fn main() { let x = Outer { 1, Inner { [2] } }; print(x.inner.values.len); }',
+                             "final variable-array field"),
         }
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
             work = Path(directory)

@@ -378,11 +378,16 @@ struct Compiler {
     static bool RegionArray(TypeExpr *t) {
         return GrowableArray(t) || RuntimeLimited(t) || (t && t->kind == TY_ARRAY && t->arr->akind == A_VAR);
     }
+    static bool FrameStruct(TypeExpr *t) {
+        return t && t->kind == TY_STRUCT && t->struc->inst &&
+               t->struc->inst->sclass == SC_RESIZABLE && t->struc->inst->frameobj;
+    }
     static bool RegionStruct(TypeExpr *t) {
-        return t && t->kind == TY_STRUCT && t->struc->inst && t->struc->inst->sclass == SC_VARIABLE;
+        return t && t->kind == TY_STRUCT && t->struc->inst &&
+               (t->struc->inst->sclass == SC_VARIABLE || FrameStruct(t));
     }
     static bool RegionOwner(TypeExpr *t) { return RegionArray(t) || RegionStruct(t); }
-    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || RegionStruct(t); }
+    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || (RegionStruct(t) && !FrameStruct(t)); }
     static IntStorage LengthStorage(TypeExpr *t) {
         return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
     }
@@ -400,8 +405,9 @@ struct Compiler {
         else if (RegionStruct(t)) {
             auto inst = t->struc->inst;
             auto tail = inst->ftypes.empty() ? nullptr : inst->ftypes.back();
-            if (!tail || tail->kind != TY_ARRAY || (tail->arr->akind != A_VAR && !RuntimeLimited(tail)))
-                Fail(t->line, "owned structs require one final variable-array field or runtime-limited array field");
+            if (!tail || tail->kind != TY_ARRAY ||
+                (FrameStruct(t) ? !GrowableArray(tail) : (tail->arr->akind != A_VAR && !RuntimeLimited(tail))))
+                Fail(t->line, "owned structs require one final variable-array field, runtime-limited array field or growable frame tail");
             for (size_t i = 0; i < inst->ftypes.size(); i++) {
                 if (inst->st->fields[i].ispad) Fail(t->line, "explicit struct padding is not supported");
                 auto field = i + 1 == inst->ftypes.size() ? HeaderLayout(inst->ftypes[i]) : FixedLayout(inst->ftypes[i]);
