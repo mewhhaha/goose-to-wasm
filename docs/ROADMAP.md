@@ -13,7 +13,16 @@ storage, natural result contracts, argument snapshots and scoped cleanup.
 Exact result forwarding preserves recursive region bounds; a callback tail is
 a value copy. See [static captures](STATIC_CAPTURES.md) and
 [owned function values](OWNED_FUNCTION_VALUES.md). Borrowed callback-local
-results, out-of-line nonlocal returns and overload dispatch remain gated.
+results and out-of-line nonlocal returns remain gated.
+
+## Implemented: runtime enum case dispatch
+
+Case calls evaluate shared arguments once, snapshot value payloads before later
+arguments, and retain original storage for reference payloads. Case-specific
+captured addresses and common result destinations feed ordinary emitted calls.
+Fixed payload snapshots consume no data region, preserving recursive reference
+visitors. Variable-array result arms keep their natural width checks even in
+append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
 ## Implemented: packed fixed-variant fields
 

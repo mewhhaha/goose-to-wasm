@@ -939,10 +939,22 @@
         ]
       },
       "overload_dispatch": {
-        "status": "pending",
-        "scope": "Runtime variant dispatch with arguments evaluated once pending.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "Checked enum case calls snapshot shared arguments once in source order. Fixed enum values and fixed variable-mode payloads copy in activation storage; nonfixed by-value variants receive one deep enum snapshot while reference cases retain original storage. Case-specific mapped captures and fixed/owned/multiple result destinations are shared. Ordinary arm calls preserve natural variable-array length checks. Existing unsupported layouts and out-of-line nonlocal effects remain gated.",
+        "fixtures": [
+          "tests/fixtures/upstream_dispatch_evaluation_order.goose",
+          "tests/fixtures/upstream_dispatch_copied_reference.goose",
+          "tests/fixtures/upstream_dispatch_resizable.goose",
+          "tests/fixtures/upstream_nested_overloads.goose",
+          "tests/fixtures/upstream_dispatch_result_no_reference.goose",
+          "tests/fixtures/dispatch_recursive_reference.goose",
+          "tests/fixtures/dispatch_narrow_results.goose",
+          "tests/fixtures/dispatch_captured_cases.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/test_regions.py",
+          "tests/test_static_capture_boundaries.py"
+        ]
       },
       "nonlocal_return": {
         "status": "pending",

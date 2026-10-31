@@ -18,11 +18,15 @@ inline void Compiler::AnalyzeCaptures() {
                     v->ownerspec != spec && seen.insert(v).second) captures[spec].push_back(v);
             }
             if (auto call = Is<Call>(node)) {
-                auto callee = call->spec;
-                if (!call->fvbody && call->builtin < 0 && callee && !callee->sf->isextern &&
-                    reachable.count(callee) && (callee != spec || !call->fvremap.empty())) {
+                auto edge = [&](FnSpec *callee) {
+                    if (!callee || callee->sf->isextern || !reachable.count(callee) ||
+                        (callee == spec && call->fvremap.empty())) return;
                     auto via = call->fvremap.empty() ? nullptr : call;
                     if (seen_calls.insert({ callee, via }).second) calls[spec].push_back({ callee, via });
+                };
+                if (!call->fvbody && call->builtin < 0) {
+                    if (call->dispatch.empty()) edge(call->spec);
+                    else for (auto arm : call->dispatch) edge(arm);
                 }
                 if (call->fvbody) walk(call->fvbody);
                 for (auto arg : call->ValueArgNodes()) walk(arg);

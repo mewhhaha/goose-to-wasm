@@ -51,6 +51,28 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    dispatch_upstream = {
+        "dispatch_evaluation_order": "first\nchoice\nlast\n3 A 7\nfirst\nchoice\nlast\n3 B 7\n1 A 9\n3 A 4\n3 A 4\n1\n2\ncopied\n",
+        "dispatch_copied_reference": "copied A\n0\n7\n7\nvalue arm\n",
+        "dispatch_resizable": "31199\n438\n110372\n15161712\n1051\n23\n42199\n581\n2204135\n25262721\n1052\n66\n",
+        "nested_overloads": "186 6\n[1, 4, 20, 7, 0]\n1 2\n3 2\n6 2.5\n42\n",
+        "dispatch_result_no_reference": "5\n6\n5\nno radius\n",
+    }
+    for debug in (False, True):
+        for fixture, expected in dispatch_upstream.items():
+            result.append(Case(f"dispatch/upstream/{fixture}" + ("-debug" if debug else ""),
+                               "upstream_" + fixture, stdout=expected, debug=debug, group="aggregate"))
+        suffix = "-debug" if debug else ""
+        result.append(Case(f"dispatch/recursive-reference{suffix}", "dispatch_recursive_reference", stdout="8 11\n", debug=debug, group="aggregate"))
+        for n, value in ((0, 303), (3, 1569)):
+            result.append(Case(f"dispatch/captured/{n}{suffix}", "dispatch_captured_cases", f"{n}\n",
+                               f"{value}\n[7, 8]\n", debug=debug, group="aggregate"))
+        for mode in (0, 1):
+            for n in (255, 256):
+                result.append(Case(f"dispatch/narrow/{mode}/{n}{suffix}", "dispatch_narrow_results", f"{mode} {n}\n",
+                                   ("one\n" if mode == 0 else "two\n") + ("255\n" if n == 255 else ""),
+                                   exit_code=0 if n == 255 else 1, diagnostic="" if n == 255 else "storage range",
+                                   debug=debug, group="aggregate"))
     for debug in (False, True):
         suffix = "-debug" if debug else ""
         for n in (0, 3):

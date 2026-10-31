@@ -108,7 +108,9 @@ transitive/recursive requirements and function-value remapping. Callback paramet
 and single results support the admitted fixed/owned layouts, independent copies,
 receiving destinations and scoped cleanup; see [static captures](STATIC_CAPTURES.md)
 and [owned callbacks](OWNED_FUNCTION_VALUES.md). Borrowed callback-local results
-remain conservatively gated. Carry nonlocal-return effects through ordinary calls and dispatch;
+remain conservatively gated. Runtime [case dispatch](FUNCTION_DISPATCH.md) now
+shares argument snapshots, captured bindings and result destinations across its
+checked arms. Carry nonlocal-return effects through ordinary calls and dispatch;
 restore all exited storage before transferring control. Tests must include O0
 programs that cannot depend on optimizer inlining.
 

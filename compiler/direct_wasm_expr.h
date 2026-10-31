@@ -14,6 +14,7 @@ inline vector<TypeExpr *> Function::NaturalResults(Node *node) {
         auto type = call->fvbody->exprtype;
         return type && type->kind != TY_VOID ? vector<TypeExpr *> { type } : vector<TypeExpr *> {};
     }
+    if (auto call = Is<Call>(node); call && !call->dispatch.empty()) return call->dispatch.front()->rets;
     if (auto call = Is<Call>(node); call && call->builtin < 0 && !call->fvbody && call->spec)
         return call->spec->rets;
     if (auto call = Is<Call>(node); call && !call->rettypes.empty()) return call->rettypes;
@@ -400,6 +401,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
         EmitFunctionValue(n, adapt_result, destinations, elements);
         return;
     }
+    if (!n->dispatch.empty()) { EmitDispatch(n, adapt_result, destinations); return; }
     auto sp = n->spec;
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");

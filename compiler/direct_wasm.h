@@ -246,6 +246,7 @@ struct Function {
     vector<TypeExpr *> NaturalResults(Node *);
     void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void EmitFunctionValue(Call *, bool, const ResultDestinations &, bool elements);
+    void EmitDispatch(Call *, bool, const ResultDestinations &);
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void ResultExpression(Node *, const ResultDestinations &);
     struct RegionResultPlan { ResultDestinations producers, copies, values; vector<TypeExpr *> enum_payloads; };
@@ -722,10 +723,11 @@ struct Compiler {
             for (auto variable : declaration->defs) if (RegionOwner(variable->type)) needs_regions = true;
         if (Is<FnDecl>(n) || Is<StructDecl>(n) || Is<EnumDecl>(n) || Is<AliasDecl>(n) || Is<FunVal>(n)) return;
         if (auto call = Is<Call>(n)) {
-            if (!call->dispatch.empty()) Fail(call->line, "runtime overload dispatch is not supported");
             if (call->fvbody) {
                 for (auto parameter : call->fvparams) if (RegionOwner(parameter->type)) needs_regions = true;
                 Scan(call->fvbody);
+            } else if (!call->dispatch.empty()) {
+                for (auto arm : call->dispatch) Reach(arm);
             } else if (call->builtin < 0) Reach(call->spec);
             for (auto a : call->ValueArgNodes()) Scan(a);
             if (call->defaultinit) Scan(call->defaultinit);
@@ -835,9 +837,10 @@ inline void Function::ScanAddresses(Node *n) {
     if (auto call = Is<Call>(n)) {
         if (call->fvbody) ScanAddresses(call->fvbody);
         auto args = call->ValueArgNodes();
-        if (call->spec) {
+        auto signature = call->spec ? call->spec : call->dispatch.empty() ? nullptr : call->dispatch.front();
+        if (signature) {
             size_t ai = 0;
-            for (auto p : call->spec->params) {
+            for (auto p : signature->params) {
                 if (p->type->kind == TY_FN) continue;
                 if (ai < args.size() && p->type->kind == TY_REF)
                     if (auto id = Is<Ident>(args[ai]); id && id->vdef && id->vdef->type->kind != TY_REF)
@@ -858,6 +861,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_numeric.h"
 #include "direct_wasm_captures.h"
 #include "direct_wasm_funvals.h"
+#include "direct_wasm_dispatch.h"
 #include "direct_wasm_storage.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"

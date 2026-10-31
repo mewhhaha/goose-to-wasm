@@ -44,8 +44,9 @@ frontend modes, V8 and Wasmtime. Resource tests separately exercise repeated
 captures of arrays, frame/enum owners, callbacks constructed exactly once and
 exhaustion checks on surviving caller-owned headers.
 
-Further work includes nonlocal effects across ordinary calls, overload dispatch
-and original-corpus qualification. Borrowed
+Case functions now receive the same mapped captured addresses through
+[runtime dispatch](FUNCTION_DISPATCH.md). Further work includes nonlocal effects
+across ordinary calls and original-corpus qualification. Borrowed
 callback results rooted in callback-owned storage also require care: the pinned
 native emitter can release that storage before a later argument executes. Such
 cases must not silently receive a different lifetime in the direct backend.

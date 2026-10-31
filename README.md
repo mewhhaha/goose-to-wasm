@@ -35,6 +35,10 @@ transitive and recursive captures, mutable reference/slice bindings and supporte
 owned values. Static function-value calls support fixed and supported owned
 parameters/results with independent copies and scoped cleanup. See [static captures](docs/STATIC_CAPTURES.md)
 for qualification and the remaining ownership/nonlocal-return boundaries.
+Runtime enum overload dispatch saves arguments in source order, snapshots value
+payloads and shares result destinations across case functions. Reference cases
+retain the original payload storage; [the dispatch contract](docs/FUNCTION_DISPATCH.md)
+describes the supported layouts and natural result checks.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

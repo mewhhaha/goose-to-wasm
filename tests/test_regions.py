@@ -20,7 +20,7 @@ CANARY = 987654321
 
 NODE_HOST = r'''
 const fs = require("node:fs");
-const [file, input, repeats, canaryIndex] = process.argv.slice(1);
+const [file, input, repeats, canaryIndex, corruptTag] = process.argv.slice(1);
 const module_ = new WebAssembly.Module(fs.readFileSync(file));
 const metadata = JSON.parse(new TextDecoder().decode(WebAssembly.Module.customSections(module_, "goose.regions")[0]));
 let instance;
@@ -35,6 +35,12 @@ instance = new WebAssembly.Instance(module_,imports);
 let error = "";
 try {
   instance.exports._start();
+  if(corruptTag === "true") {
+    const bytes=Buffer.from(instance.exports.memory.buffer);
+    const at=bytes.indexOf(Buffer.from("8877665544332211","hex"));
+    if(at<4) throw new Error("missing dispatch tag sentinel");
+    new DataView(instance.exports.memory.buffer).setUint32(at-4,99,true);
+  }
   for(let i=0;i<Number(repeats);i++) {
     if(instance.exports.tick(BigInt(i)) !== BigInt(i+1)) throw new Error("wrong repeated result");
   }
@@ -57,7 +63,7 @@ def metadata(data):
     raise AssertionError("missing runtime resource metadata")
 
 
-def wasmtime_run(path, runtime, input_value, repeats, canary_index):
+def wasmtime_run(path, runtime, input_value, repeats, canary_index, corrupt_tag=False):
     import wasmtime
     engine = wasmtime.Engine()
     module = wasmtime.Module.from_file(engine, str(path))
@@ -86,6 +92,11 @@ def wasmtime_run(path, runtime, input_value, repeats, canary_index):
     error = ""
     try:
         exports["_start"](store)
+        if corrupt_tag:
+            memory = exports["memory"]
+            at = bytes(memory.read(store)).find(bytes.fromhex("8877665544332211"))
+            assert at >= 4, "missing dispatch tag sentinel"
+            memory.write(store, struct.pack("<I", 99), at - 4)
         for value in range(repeats):
             assert exports["tick"](store, value) == value + 1
     except wasmtime.Trap as failure:
@@ -117,12 +128,12 @@ class StableRegions(unittest.TestCase):
         self.assertLessEqual(runtime["activation_limit"] + runtime["region_count"] * runtime["region_bytes"], 3 * 65536)
         return output, runtime
 
-    def engines(self, path, runtime, input_value=0, repeats=0, canary_index=-1):
-        result = subprocess.run([NODE, "-e", NODE_HOST, str(path), str(input_value), str(repeats), str(canary_index)],
+    def engines(self, path, runtime, input_value=0, repeats=0, canary_index=-1, corrupt_tag=False):
+        result = subprocess.run([NODE, "-e", NODE_HOST, str(path), str(input_value), str(repeats), str(canary_index), str(corrupt_tag).lower()],
                                 capture_output=True, text=True, timeout=60)
         self.assertEqual(result.returncode, 0, result.stderr)
         yield "v8", json.loads(result.stdout)
-        yield "wasmtime", wasmtime_run(path, runtime, input_value, repeats, canary_index)
+        yield "wasmtime", wasmtime_run(path, runtime, input_value, repeats, canary_index, corrupt_tag)
 
     def test_growth_cannot_overwrite_next_region(self):
         for operation in ("resize", "push", "append"):
@@ -1223,6 +1234,66 @@ fn main() {{
                 with self.subTest(level=level, engine=engine):
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_dispatch_invalid_tag_aborts_before_a_case_call(self):
+        source = f'''enum Choice {{ Empty, Data {{ value: i64 }} }}
+var choice: Choice = Choice.Data {{ 1234605616436508552 }};
+var neighbor: i64[>..] = [{CANARY}];
+fn value(c: Choice.Empty) -> i64 {{ 0 }}
+fn value(c: Choice.Data) -> i64 {{ c.value }}
+export fn tick(n: i64) -> i64 {{ value(choice) + n }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            for engine, observed in self.engines(path, runtime, repeats=1, canary_index=0, corrupt_tag=True):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("invalid enum tag in dispatch", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_dispatch_owned_results_cleanup_without_payload_regions(self):
+        source = '''enum Choice { One, Two }
+fn build(c: Choice.One, n: i64) -> i64[>..] { return [n, n + 1]; }
+fn build(c: Choice.Two, n: i64) -> i64[>..] { return [n, n + 2]; }
+export fn tick(n: i64) -> i64 {
+    let choice: Choice = if n % 2 == 0 { Choice.One } else { Choice.Two };
+    let kept = build(choice, n);
+    for i in 100 {
+        let other = build(choice, n + i);
+        if other.len != 2 || other[0] != n + i { abort("wrong dispatch result"); }
+    }
+    if kept[0] != n || kept.len != 2 { abort("dispatch result released"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_dispatch_variable_payload_snapshot_is_independent_and_released(self):
+        source = '''enum Event { Empty, Data { tag: i64, values: i64[] } }
+fn changed(e: Event.Empty, n: i64) -> i64[>..] { return [n]; }
+fn changed(e: Event.Data, n: i64) -> i64[>..] { e.values[0] += n; return copy(e.values); }
+export fn tick(n: i64) -> i64 {
+    let event: Event.. = Event.Data { n, [n, n + 1] };
+    let kept = changed(event, 10);
+    for i in 100 {
+        let other = changed(event, i);
+        if other[0] != n + i { abort("wrong copied dispatch payload"); }
+    }
+    match event { Data &e => { if e.values[0] != n { abort("dispatch mutated source"); } }, Empty => {} };
+    if kept[0] != n + 10 || kept[1] != n + 1 { abort("dispatch snapshot escaped"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
 
     def test_owned_function_value_parameter_and_result_cleanup(self):
         source = '''fn apply<F>(n: i64) -> i64[>..] { F([n, n + 1]) }
