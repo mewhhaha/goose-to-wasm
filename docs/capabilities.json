@@ -807,7 +807,7 @@
       },
       "A_VAR": {
         "status": "qualified_subset",
-        "scope": "Supported fixed-layout or scalar varint elements with default/u8/u16/u32/u64 or unsigned ULEB128 length storage. In-region unsigned length prefixes with authoritative views; raw element-run forms remain distinct. Frozen owned values, width-checked local and parameter construction, normal/element-run results and forwarding, mixed receiving-width checks, inline retargeting, scoped views/indexing/loops and primitive rendering. Eager emitted forms use a conservative region bound. Varint elements use sequential encoded walks, whole slices, checked loop-reference bindings, normal calls/results and raw copies. Fixed elements support unsigned ULEB128 counts, byte-authoritative prefix ends, exact known-count construction and one-byte unknown reservations with successful whole-suffix patch. Combined varint elements/lengths, other variable elements, containing values, actual varint targets and unproved named-Grow prefix aliases remain pending.",
+        "scope": "Supported fixed-layout or scalar varint elements with default/u8/u16/u32/u64 or unsigned ULEB128 length storage. In-region unsigned length prefixes with authoritative views; raw element-run forms remain distinct. Frozen owned values, width-checked local and parameter construction, normal/element-run results and forwarding, mixed receiving-width checks, inline retargeting, scoped views/indexing/loops and primitive rendering. Eager emitted forms use a conservative region bound. Varint elements use sequential encoded walks, whole slices, checked loop-reference bindings, normal calls/results and raw copies. Fixed elements support unsigned ULEB128 counts, byte-authoritative prefix ends, exact known-count construction and one-byte unknown reservations with successful whole-suffix patch. Other variable elements, containing values, actual varint targets and unproved named-Grow prefix aliases remain pending. Layout 14 combines scalar varint elements with unsigned ULEB128 counts; encoded iteration/references and normal channels retain existing alias and effect gates.",
         "fixtures": [
           "tests/fixtures/variable_arrays.goose",
           "tests/fixtures/narrow_variable_arrays.goose",
@@ -819,7 +819,10 @@
           "tests/fixtures/uleb_length_lengths.goose",
           "tests/fixtures/uleb_length_er_channels.goose",
           "tests/fixtures/uleb_length_nrvo.goose",
-          "tests/fixtures/uleb_length_packed_elements.goose"
+          "tests/fixtures/uleb_length_packed_elements.goose",
+          "tests/fixtures/combined_varint_channels.goose",
+          "tests/fixtures/combined_varint_lengths.goose",
+          "tests/fixtures/combined_varint_grow_roundtrip.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/unsupported_varint_array.goose",
@@ -829,7 +832,9 @@
           "tests/test_varint_arrays.py",
           "tests/test_varint_array_boundaries.py",
           "tests/test_uleb_lengths.py",
-          "tests/test_uleb_length_boundaries.py"
+          "tests/test_uleb_length_boundaries.py",
+          "tests/test_combined_varints.py",
+          "tests/test_combined_varint_boundaries.py"
         ]
       }
     },
@@ -1148,7 +1153,7 @@
     "images": {
       "layout": {
         "status": "qualified_subset",
-        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding/varint forms and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding. Layout 10 adds sequential varint record images with root controls. Layout 11 adds sequential immutable varint elements without widening the control ABI. Layout 12 adds raw Grow varint elements and direct private-count append. Layout 13 adds unsigned ULEB length images with immutable construction-reservation widths.",
+        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding/varint forms and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding. Layout 10 adds sequential varint record images with root controls. Layout 11 adds sequential immutable varint elements without widening the control ABI. Layout 12 adds raw Grow varint elements and direct private-count append. Layout 13 adds unsigned ULEB length images with immutable construction-reservation widths. Layout 14 combines encoded counts and scalar varint elements.",
         "fixtures": [
           "tests/fixtures/packed_record_storage.goose",
           "tests/fixtures/record_image_aliases.goose",
@@ -1179,7 +1184,7 @@
       },
       "varints": {
         "status": "qualified_subset",
-        "scope": "Direct varint fields in otherwise fixed-field structs use one root owner control and sequential image walks. Canonical signed zigzag ULEB128 construction, bounded i64 decoding, dynamic field offsets, encoded references, global defaults, copies and normal results. Physical FixedLayout and Store(varint), containing byte records, array elements/lengths, enum payloads, image effects, unproved replacement overlap and untrusted-image validation remain separate. Later calls after named replacement remain gated because captures may hide aliases. Standalone immutable Var arrays of varint elements use fixed unsigned metadata, O(1) views, byte-cursor loops, raw per-element copies and rendering snapshots. Whole slices and normal channels qualify; Containing forms, VarULEB lengths and actual owned targets remain gated, including inline stacks. Standalone Grow supports push/append/clear/assignment and normal channels through raw controls; natural FV carriers preserve ER forwarding. Transitive-needs Value-to-raw escape and named-Grow later-observation gates bound the admitted effects. Standalone fixed-element T[varint] arrays use unsigned ULEB128 counts and exact known/unknown reservation paths. Public views decode bytes; successful patch moves whole physical suffixes. Containing/combined forms, actual targets, oversized static fills and unproved named-Grow later aliases remain gated.",
+        "scope": "Direct varint fields in otherwise fixed-field structs use one root owner control, sequential image walks, canonical signed zigzag ULEB128 construction and bounded i64 decoding. Dynamic field offsets, encoded references, defaults, copies and normal results qualify. Standalone immutable Var arrays use fixed unsigned or ULEB128 counts, O(1) metadata views, sequential loops, whole slices, raw encoded element copies and rendering snapshots. Standalone Grow supports push/append/clear/assignment and normal channels through raw controls; natural FV carriers preserve ER forwarding. Unsigned ULEB counts use exact known-count reservations or one-byte unknown reservations with whole-suffix patching on success. Public views decode bytes independently of producer cursors. Layout 14 combines unsigned counts and signed elements. Actual encoded nonlocal targets, containing forms, oversized static fills, unproved named replacement/later Grow observations and transitive-needs Value-to-raw escapes remain gated. General variable elements, relative/pool references, serialization and untrusted-image validation are separate work.",
         "fixtures": [
           "tests/fixtures/varint_record_values.goose",
           "tests/fixtures/varint_record_boundaries.goose",
@@ -1195,7 +1200,9 @@
           "tests/fixtures/varint_grow_narrow_append.goose",
           "tests/fixtures/uleb_length_copies.goose",
           "tests/fixtures/uleb_length_strings.goose",
-          "tests/fixtures/uleb_length_callbacks.goose"
+          "tests/fixtures/uleb_length_callbacks.goose",
+          "tests/fixtures/combined_varint_channels.goose",
+          "tests/fixtures/combined_varint_lengths.goose"
         ],
         "boundary_fixtures": [
           "tests/test_varint_records.py",
@@ -1207,7 +1214,9 @@
           "tests/test_varint_grow.py",
           "tests/test_varint_grow_boundaries.py",
           "tests/test_uleb_lengths.py",
-          "tests/test_uleb_length_boundaries.py"
+          "tests/test_uleb_length_boundaries.py",
+          "tests/test_combined_varints.py",
+          "tests/test_combined_varint_boundaries.py"
         ]
       },
       "validation": {

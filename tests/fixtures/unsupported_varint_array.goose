@@ -1,2 +1,2 @@
-fn make() -> varint[varint] { return [1, 2]; }
-fn main() { let values = make(); print(values); }
+struct R{tag:u8,values:varint[varint]}
+fn main(){let r=R{1,[64,-65]};print(r.values.len);}

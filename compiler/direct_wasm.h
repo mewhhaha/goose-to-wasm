@@ -681,8 +681,6 @@ struct Compiler {
     }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
-        if (ULEBLength(t) && Varint(t->arr->sub))
-            Fail(t->line, "combined varint elements and lengths are not supported in this image checkpoint");
         if (Varint(t->arr->sub)) {
             if (t->arr->akind != A_VAR && t->arr->akind != A_GROW)
                 Fail(t->line, "varint elements support immutable variable or growable arrays only");
