@@ -24,7 +24,7 @@ Growable-tail frame structs also support whole-object reconstruction, with
 private prefix/length snapshots and shared tail elements for named returns.
 Supported structs may nest through their final field to a single array tail;
 each enclosing prefix remains fixed-layout.
-Variable-mode enums with fixed-size payloads use independent region images,
+Nonresizable variable-mode enums with fixed or single-tail payloads use independent region images,
 mode conversions, owned calls/results and copied or borrowed payload matches.
 Standalone variable-size variants share the single-tail record walker, including
 nested tails and supported payloads whose siblings require other storage forms.

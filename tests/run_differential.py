@@ -171,6 +171,23 @@ def cases():
         result.append(Case(f"variable-variant/narrow/{n}", "variable_variant_narrow", f"{n}\n",
                            "prefix\ntail\n" + ("42 255 7\n" if n == 255 else ""),
                            exit_code=0 if n == 255 else 1, diagnostic="" if n == 255 else "storage range", group="aggregate"))
+    for n in (0, 1, 2, 3):
+        exited = {0: 7, 1: 77, 2: 188, 3: 0}[n]
+        answer = (f"{2 * n + 3} {2 * n + 33}\n{2 * n + 33} {n + 10} {2 * n + 33}\n"
+                  f"{2 * n + 33} {n + 10} {2 * n + 33}\n{n} [{n + 1}, {n + 2}] {2 * n + 33}\n"
+                  f"{2 * n + 83} {2 * n + 103} {123 if n > 0 else 0} 143 {exited} 17\n"
+                  f"{n} [{n}, 99] 4\n{n} [{n}] 4\n{n + 6} 2 {n + 6}\n7 0\n")
+        result.append(Case(f"variable-enum-tail/values/{n}", "variable_enum_tails", f"{n}\n", answer, group="aggregate"))
+    for n in (255, 256):
+        result.append(Case(f"variable-enum-tail/nested-narrow/{n}", "variable_enum_nested_narrow", f"{n}\n",
+                           "prefix\ntail\n" + ("3 42 4 255 7\n" if n == 255 else ""),
+                           exit_code=0 if n == 255 else 1, diagnostic="" if n == 255 else "storage range", group="aggregate"))
+    for n in (-1, 4294967296):
+        result.append(Case(f"variable-enum-tail/capacity-error/{n}", "variable_enum_capacity_errors", f"{n}\n", "prefix\n",
+                           exit_code=1, diagnostic="capacity", group="aggregate"))
+    for n in (0, 1):
+        answer = "0 0 0 0\n" if n > 0 else "100 100 100 200\n"
+        result.append(Case(f"variable-enum-tail/replacement-aliases/{n}", "variable_enum_replacement_aliases", f"{n}\n", answer, group="aggregate"))
     for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"

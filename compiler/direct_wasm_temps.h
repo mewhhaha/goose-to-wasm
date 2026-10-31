@@ -31,8 +31,8 @@ inline bool Function::MayMaterialize(Node *node) {
     return found;
 }
 
-inline Function::TempScope Function::BeginTempScope(Node *node) {
-    TempScope scope { cleanups.size(), private_headers.size(), region_live, c.needs_regions && MayMaterialize(node) };
+inline Function::TempScope Function::BeginTempScope(Node *node, bool force) {
+    TempScope scope { cleanups.size(), private_headers.size(), region_live, c.needs_regions && (force || MayMaterialize(node)) };
     if (scope.restores_regions) {
         code.OpU(0x23, G_REGION_NEXT);
         cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });

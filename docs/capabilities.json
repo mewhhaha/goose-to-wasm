@@ -827,9 +827,13 @@
       },
       "variable": {
         "status": "qualified_subset",
-        "scope": "E.. with supported fixed-size payloads: stable maximum-union images, independent copies and parameters, named aliasing, ordinary/inline/recursive/control and mixed results, same-instance fixed/variable/variant adaptation, by-value payload snapshots and by-reference bindings. External refs/slices keep referents. Nonfixed payloads, containing E.. owners and serialized images remain pending.",
+        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results require packed layout and are conservatively refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending.",
         "fixtures": [
-          "tests/fixtures/variable_mode_enums.goose"
+          "tests/fixtures/variable_mode_enums.goose",
+          "tests/fixtures/variable_enum_tails.goose",
+          "tests/fixtures/variable_enum_nested_narrow.goose",
+          "tests/fixtures/variable_enum_capacity_errors.goose",
+          "tests/fixtures/variable_enum_replacement_aliases.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_enum_boundaries.py",

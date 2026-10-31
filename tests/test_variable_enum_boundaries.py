@@ -21,9 +21,9 @@ class VariableEnumBoundaries(unittest.TestCase):
         if target == "native": command.append("--standalone")
         return subprocess.run(command, capture_output=True, text=True, timeout=60), output
 
-    def test_nonfixed_payloads_remain_a_separate_slice(self):
+    def test_unsupported_payload_shapes_remain_a_separate_slice(self):
         cases = (
-            'enum E { Empty, Data { values: i64[] } } fn main() { let e: E.. = E.Data { [1] }; match e { Data p => print(p.values.len), _ => {} } }',
+            'enum E { Empty, Data { a: i64[], b: i64[] } } fn main() { let e: E.. = E.Data { [1], [2] }; match e { Data p => print(p.a.len), _ => {} } }',
             'enum E { Empty, Data { values: i64[>..] } } fn main() { let e: E.. = E.Data { [1] }; match e { Data => print(1), _ => {} } }',
         )
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
@@ -34,7 +34,8 @@ class VariableEnumBoundaries(unittest.TestCase):
                     direct, output = self.compile(Path(directory), source, "wasm-direct", level)
                     self.assertNotEqual(direct.returncode, 0)
                     self.assertFalse(output.exists())
-                    self.assertIn("variable-mode enums currently require fixed-size payloads", direct.stdout + direct.stderr)
+                    self.assertIn("wasm-direct:", direct.stdout + direct.stderr)
+                    self.assertIn("not supported", direct.stdout + direct.stderr)
 
     def test_rendering_requires_the_later_recursive_renderer(self):
         source = 'enum E { Empty, Data { x: i64 } } fn main() { let e: E.. = E.Data { 1 }; print(e); }'
@@ -85,6 +86,25 @@ class VariableEnumBoundaries(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertFalse(output.exists())
                     self.assertIn("dies with this function", result.stdout + result.stderr)
+
+    def test_observing_nonempty_named_replacement_requires_packed_images(self):
+        source = '''extern fn bench_input() -> i64;
+enum E { Old { lead: u8, value: u64 }, New { value: u64 }, Empty }
+var fallback: u64 = 0;
+recursive fn replace(n: i64) -> E.., u64 {
+    var e: E.. = E.Old { 1, 0 };
+    let kept: u64& = match e { Old &p => p.value, _ => fallback };
+    if n > 0 { return e, 0; } return E.New { 0x0102030405060708 }, kept;
+}
+fn main() { let e, value = replace(bench_input()); print(value); }'''
+        with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
+            for level in (0, 2):
+                native, _ = self.compile(Path(directory), source, "native", level)
+                self.assertEqual(native.returncode, 0, native.stdout + native.stderr)
+                direct, output = self.compile(Path(directory), source, "wasm-direct", level)
+                self.assertNotEqual(direct.returncode, 0)
+                self.assertFalse(output.exists())
+                self.assertIn("requires packed enum image layout", direct.stdout + direct.stderr)
 
 
 if __name__ == "__main__":

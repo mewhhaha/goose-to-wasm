@@ -1,6 +1,49 @@
 #pragma once
 namespace goose::direct_wasm {
 
+inline ConstructionDestination Function::PrepareEnumPayload(const ConstructionDestination &receiver,
+        TypeExpr *variant, Line line) {
+    auto type = receiver.location.storage_type;
+    CheckRegionDestination(variant, receiver, line);
+    auto ei = type->enu->inst;
+    auto layout = c.EnumImageLayout(ei, line);
+    auto vi = ei->en->VariantIndex(variant->var->variant);
+    LocationAddress(receiver.location); auto header = Save(I32);
+    // Commit the prefix before deriving a tail base. A base beyond the limit
+    // would otherwise make unsigned remaining-capacity arithmetic wrap.
+    code.I64Const(layout.size); ReserveRegion(header, Save(I64), c.ast.inttypes[IS_U8], line);
+    Get(header); code.Mem(0x28, 2); auto base = Save(I32);
+    Get(base); code.I32Const(vi); code.Mem(0x36, 2);
+    Get(header); code.I32Const(int32_t(layout.size)); code.Mem(0x36, 2, 4);
+    auto payload = OffsetLocation({ variant, AddressLocal { base } }, layout.payload, variant);
+    ConstructionDestination destination { payload, receiver.lifetime, false,
+        ConstructionDestination::EnumGuard { base, header, vi } };
+    if (Compiler::RegionVariant(variant)) {
+        LocationAddress(TailHeaderLocation(payload)); auto tail = Save(I32);
+        Get(tail); Get(base); code.I32Const(int32_t(layout.size)); code.Op(0x6a); code.Mem(0x36, 2);
+        Get(tail); code.I32Const(0); code.Mem(0x36, 2, 4);
+        Get(tail); Get(header); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
+        Get(tail); code.I32Const(0); code.Mem(0x36, 2, 12);
+    }
+    return destination;
+}
+
+inline void Function::FinishEnumPayload(const ConstructionDestination &receiver, TypeExpr *variant, Line line) {
+    LocationAddress(receiver.location); auto header = Save(I32);
+    auto layout = c.EnumImageLayout(receiver.location.storage_type->enu->inst, line);
+    code.I64Const(layout.size);
+    if (Compiler::RegionVariant(variant)) {
+        Get(header); code.Mem(0x28, 2); auto base = Save(I32);
+        auto payload = OffsetLocation({ variant, AddressLocal { base } }, layout.payload, variant);
+        auto array = c.TailType(variant);
+        LocationAddress(TailHeaderLocation(payload)); code.Mem(0x28, 2, Compiler::RuntimeLimited(array) ? 12 : 4);
+        code.Op(0xad); code.I64Const(c.FixedLayout(array->arr->sub).size); code.Op(0x7e); code.Op(0x7c);
+    }
+    auto bytes = Save(I64);
+    ReserveRegion(header, bytes, c.ast.inttypes[IS_U8], line);
+    Get(header); Get(bytes); code.Op(0xa7); code.Mem(0x36, 2, 4);
+}
+
 // Variable-mode enums retain their language storage class. Their private
 // control header owns an aligned tag/payload image in a stable data region.
 inline void Function::ConstructEnumFromCaptured(TypeExpr *source_type, uint32_t source,
@@ -11,21 +54,34 @@ inline void Function::ConstructEnumFromCaptured(TypeExpr *source_type, uint32_t 
     auto value = Save(I32);
     auto type = destination.location.storage_type;
     auto layout = c.EnumImageLayout(type->enu->inst, line);
-    LocationAddress(destination.location); auto header = Save(I32);
-    code.I64Const(layout.size); auto count = Save(I64);
-    ReserveRegion(header, count, c.ast.inttypes[IS_U8], line);
-    Get(header); code.Mem(0x28, 2); auto base = Save(I32);
-    if (source_type->kind == TY_VARIANT) {
-        Get(base); code.I32Const(0); code.I32Const(int32_t(layout.size)); code.Fill();
-        Get(base); code.I32Const(type->enu->inst->en->VariantIndex(source_type->var->variant)); code.Mem(0x36, 2);
-        Get(base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a); Get(value);
-        code.I32Const(int32_t(c.FixedLayout(source_type).size)); code.Copy();
-    } else {
-        Get(base); Get(value);
-        if (Compiler::RegionEnum(source_type)) code.Mem(0x28, 2);
-        code.I32Const(int32_t(layout.size)); code.Copy();
+    auto construct = [&](TypeExpr *variant, uint32_t source_payload) {
+        auto payload = PrepareEnumPayload(destination, variant, line);
+        if (Compiler::RegionVariant(variant)) ConstructRecordFromCaptured(variant, source_payload, payload, line);
+        else {
+            auto fields = c.RecordFields(variant);
+            auto payload_layout = c.FixedLayout(variant);
+            for (size_t i = 0; i < fields.size(); i++) {
+                auto field = OffsetLocation({ variant, AddressLocal { source_payload } }, payload_layout.fields[i], fields[i]);
+                ReadLocation(field, fields[i]);
+                StoreCopy(OffsetLocation(payload.location, payload_layout.fields[i], fields[i]), CaptureStack(fields[i]));
+            }
+        }
+        FinishEnumPayload(destination, variant, line);
+    };
+    if (source_type->kind == TY_VARIANT) { construct(source_type, value); return; }
+    Get(value);
+    if (Compiler::RegionEnum(source_type)) code.Mem(0x28, 2);
+    else c.FixedLayout(source_type);
+    auto base = Save(I32);
+    Get(base); code.Mem(0x28, 2); auto tag = Save(I32);
+    auto done = Begin();
+    for (size_t vi = 0; vi < type->enu->inst->vftypes.size(); vi++) {
+        Get(tag); code.I32Const(int32_t(vi)); code.Op(0x46); Begin(0x04);
+        Get(base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a); auto source_payload = Save(I32);
+        construct(c.EnumVariantType(type->enu->inst, int(vi), line), source_payload);
+        Br(done); End();
     }
-    Get(header); code.I32Const(int32_t(layout.size)); code.Mem(0x36, 2, 4);
+    Abort(line, "invalid enum tag"); End();
 }
 
 inline void Function::ConstructEnumInto(Node *node, const ConstructionDestination &destination) {
@@ -67,11 +123,11 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
         ConstructEnumInto(call->defaultinit, destination); return;
     }
     if (auto call = Is<Call>(node); call && call->builtin < 0 && call->spec &&
-        call->spec->rets.size() == 1 && Compiler::RegionEnum(call->spec->rets[0])) {
+        call->spec->rets.size() == 1 && (Compiler::RegionEnum(call->spec->rets[0]) || Compiler::RegionVariant(call->spec->rets[0]))) {
         EmitCall(call, false, { destination }); code.Op(0x1a); return;
     }
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec &&
-        inlined->spec->rets.size() == 1 && Compiler::RegionEnum(inlined->spec->rets[0])) {
+        inlined->spec->rets.size() == 1 && (Compiler::RegionEnum(inlined->spec->rets[0]) || Compiler::RegionVariant(inlined->spec->rets[0]))) {
         EmitInline(inlined, false, { destination }); code.Op(0x1a); return;
     }
     auto literal = Is<StructLit>(node);
@@ -81,6 +137,25 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
         auto actual = literal ? literal->einst : constant ? constant->einst : ei;
         if (actual != ei || !variant) Fail(line, "owned enum literal has a different instantiation");
         auto vi = ei->en->VariantIndex(variant);
+        if (!ei->allfixed) {
+            auto vt = c.EnumVariantType(ei, vi, line);
+            auto payload_destination = PrepareEnumPayload(destination, vt, line);
+            if (Compiler::RegionVariant(vt)) ConstructRecordInto(node, payload_destination);
+            else {
+                auto payload_layout = c.FixedLayout(vt);
+                for (size_t i = 0; i < ei->vftypes[size_t(vi)].size(); i++) {
+                    auto ft = ei->vftypes[size_t(vi)][i];
+                    auto init = literal ? literal->InitFor(int(i)) : nullptr;
+                    auto field = OffsetLocation(payload_destination.location, payload_layout.fields[i], ft);
+                    if (init) ConstructInto(init, { field, destination.lifetime });
+                    else {
+                        LocationAddress(field); code.I32Const(0);
+                        code.I32Const(int32_t(c.FixedLayout(ft).size)); code.Fill();
+                    }
+                }
+            }
+            FinishEnumPayload(destination, vt, line); return;
+        }
         auto payload = c.Payload(ei, vi);
         LocationAddress(destination.location); auto header = Save(I32);
         Get(header); code.Mem(0x28, 2); auto base = Save(I32);
@@ -93,7 +168,6 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
             code.I32Const(0); code.I32Const(int32_t(bytes)); code.Fill();
         };
         reserve(4); Get(base); code.I32Const(vi); code.Mem(0x36, 2);
-        uint32_t initialized = 4;
         for (size_t i = 0; i < ei->vftypes[size_t(vi)].size(); i++) {
             auto ft = ei->vftypes[size_t(vi)][i];
             auto init = literal ? literal->InitFor(int(i)) : nullptr;
@@ -101,17 +175,16 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
             if (init) value = CaptureBorrowed(init, ft);
             auto start = layout.payload + payload.fields[i];
             auto size = c.FixedLayout(ft).size;
-            reserve(start + size); clear(initialized, start - initialized);
+            reserve(start + size);
             if (value) {
                 Get(base); code.I32Const(int32_t(start)); code.Op(0x6a);
                 auto place = Save(I32);
                 StoreCopy({ ft, AddressLocal { place } }, *value);
             } else clear(start, size);
-            initialized = start + size;
         }
-        // Fully initialize the inactive union bytes so mode conversion and
-        // owned copies can use the same bounded image layout.
-        reserve(layout.size); clear(initialized, layout.size - initialized);
+        // Reserve the full fixed image without writing inactive fields: an
+        // earlier named payload reference may still be read by a later result.
+        reserve(layout.size);
         Get(header); code.I32Const(int32_t(layout.size)); code.Mem(0x36, 2, 4); return;
     }
     auto natural = node->exprtype;

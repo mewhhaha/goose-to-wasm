@@ -22,7 +22,7 @@ inline void Function::ConstructRecordFromCaptured(TypeExpr *source_type, uint32_
     auto source_tail = TailHeaderLocation({ source_type, AddressLocal { value } });
     LocationAddress(source_tail); auto tail = Save(I32);
     ConstructRegionFromCaptured(source_tail.storage_type, tail,
-        { TailHeaderLocation(destination.location), destination.lifetime }, line);
+        { TailHeaderLocation(destination.location), destination.lifetime, false, destination.enum_guard }, line);
 }
 
 inline void Function::ConstructRecordInto(Node *node, const ConstructionDestination &destination) {
@@ -89,7 +89,7 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
         for (size_t i = 0; i < fields.size(); i++) {
             auto field = OffsetLocation(destination.location, layout.fields[i], fields[i]);
             auto init = literal ? literal->InitFor(int(i)) : nullptr;
-            if (i + 1 == fields.size()) ConstructRegionInto(init, { field, destination.lifetime });
+            if (i + 1 == fields.size()) ConstructRegionInto(init, { field, destination.lifetime, false, destination.enum_guard });
             else if (init) ConstructInto(init, { field, destination.lifetime });
             else {
                 // Omitted optional fields become null when their position is

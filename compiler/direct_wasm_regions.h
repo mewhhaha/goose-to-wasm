@@ -123,7 +123,7 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
 
 inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeExpr *> &types,
         const ResultDestinations &receivers, Line line, bool run, bool inlined) {
-    RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()) };
+    RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()), vector<TypeExpr *>(types.size(), nullptr) };
     for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionOwner(types[i])) {
         if (!receivers.empty() && receivers.size() != types.size()) Fail(line, "owned result channel arity mismatch");
         // An empty ordinal can receive a fixed value after normal conversion.
@@ -132,6 +132,10 @@ inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeE
         }
         plan.values[i] = receivers[i];
         CheckRegionDestination(types[i], *receivers[i], line);
+        if (Compiler::RegionVariant(types[i]) && Compiler::RegionEnum(receivers[i]->location.storage_type)) {
+            plan.producers[i] = PrepareEnumPayload(*receivers[i], types[i], line);
+            plan.enum_payloads[i] = types[i]; continue;
+        }
         if (Compiler::RegionRecord(types[i]) || Compiler::RegionEnum(types[i])) { plan.producers[i] = receivers[i]; continue; }
         auto receiving = receivers[i]->location.storage_type;
         auto reprefix = types[i]->arr->akind == A_VAR && receiving->arr->akind == A_VAR &&
@@ -153,7 +157,8 @@ inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, cons
         LocationAddress(destination.location); code.Mem(0x28, 2, 4); code.Op(0xad);
         CheckArrayLength(type, Save(I64), line);
     };
-    if (none_of(plan.copies.begin(), plan.copies.end(), [](auto &destination) { return bool(destination); })) {
+    auto embedded = any_of(plan.enum_payloads.begin(), plan.enum_payloads.end(), [](auto type) { return type != nullptr; });
+    if (!embedded && none_of(plan.copies.begin(), plan.copies.end(), [](auto &destination) { return bool(destination); })) {
         for (size_t i = 0; i < types.size(); i++) check(i);
         return;
     }
@@ -161,7 +166,10 @@ inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, cons
     for (size_t i = types.size(); i-- > 0;) values[i] = Save(types[i]);
     // Capture every natural result before adapting any ordinal.
     for (size_t i = 0; i < types.size(); i++) {
-        if (plan.copies[i]) {
+        if (plan.enum_payloads[i]) {
+            FinishEnumPayload(*plan.values[i], plan.enum_payloads[i], line);
+            LocationAddress(plan.values[i]->location); Set(values[i]);
+        } else if (plan.copies[i]) {
             ConstructRegionFromCaptured(types[i], values[i], *plan.copies[i], line);
             LocationAddress(plan.copies[i]->location); Set(values[i]);
         } else check(i);
@@ -180,6 +188,30 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
             if (!Compiler::RegionEnum(types[i]) || !Compiler::RegionEnum(candidate->type) ||
                 candidate->type->enu->inst != types[i]->enu->inst || destinations[i]->elements) continue;
             CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
+            // Moving an alternative packed image over a named local can
+            // partially overwrite a saved reference into its old payload.
+            // Natural-alignment controls cannot reproduce those byte overlaps.
+            // Tag-only alternatives leave every old payload field intact.
+            auto tag_only = [&](Node *node) {
+                if (auto literal = Is<StructLit>(node); literal && literal->variant)
+                    return literal->variant->fields.empty();
+                if (auto constant = Is<Dot>(node); constant && constant->variantconst)
+                    return constant->variantconst->fields.empty();
+                auto natural = NaturalResults(node);
+                return natural.size() == 1 && natural[0]->kind == TY_VARIANT && c.RecordFieldDefs(natural[0]).empty();
+            };
+            function<void(Node *)> validate = [&](Node *node) {
+                if (!node) return;
+                if (auto ret = Is<Return>(node); ret && ret->target == target && ret->vals.size() == types.size()) {
+                    auto id = Is<Ident>(ret->vals[i]);
+                    if ((!id || id->vdef != candidate) && !tag_only(ret->vals[i]))
+                        for (size_t j = i + 1; j < ret->vals.size(); j++)
+                            if (goose::MayReachLocal(ret->vals[j], candidate))
+                                Fail(ret->line, "observing a named enum payload after a nonempty replacement requires packed enum image layout");
+                }
+                RunChildren(node, validate);
+            };
+            validate(body);
             named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
         }
         if (Compiler::RegionRecord(types[i]) || Compiler::RegionRecord(candidate->type)) {
@@ -397,7 +429,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         // that exit, while ordinary construction keeps its effect ordering.
         check_abandoned = destination.lifetime == ConstructionDestination::Existing ||
                           destination.lifetime == ConstructionDestination::Caller;
-        if (check_abandoned) cleanups.push_back({ CleanupAction::CheckAbandonedRegion, header, element, line });
+        if (check_abandoned) cleanups.push_back({ CleanupAction::CheckAbandonedRegion, header, element, line, destination.enum_guard });
         if (array->fillval) {
             auto value = CaptureBorrowed(array->fillval, element);
             ReserveRegion(header, count, element, node->line);

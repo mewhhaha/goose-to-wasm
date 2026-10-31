@@ -263,15 +263,17 @@ to fixed enums may be matched, but references into replaceable fixed-enum
 payloads are prohibited by the frontend. A fixed standalone variant can be used
 even when another variant of its enum requires unsupported dynamic storage.
 
-Variable-mode enums with supported fixed-size payloads instead own a stable
+Nonresizable variable-mode enums with supported fixed or single-tail payloads own a stable
 image through the 16-byte region header. The image has the same internal tag and
-maximum-union layout as its fixed-mode counterpart, with all inactive bytes
-initialized. Copies own independent images; external reference/slice fields
+maximum control union, with terminal data following it. Inactive fields remain
+untouched. Copies walk active payloads into independent images; external reference/slice fields
 preserve their referents. Named variable results alias the whole image, while
 fixed receiving results snapshot it. Same-instance mode/variant conversions,
 owned parameters/results and copied or by-reference payload matches share the
 owner channels. This layout has a maximum-union per-owner resource cost and is
-not a C.2 serialized image. See [the enum contract](VARIABLE_ENUMS.md).
+not a C.2 serialized image. Observing old named payload storage after a nonempty
+replacement return is conservatively refused until that packed layout exists.
+See [the enum contract](VARIABLE_ENUMS.md).
 
 ## Initial supported fragment
 
@@ -294,7 +296,7 @@ not a C.2 serialized image. See [the enum contract](VARIABLE_ENUMS.md).
 - Fixed-mode enums and fixed variant payloads, including generic/nested types,
   constructors/defaults, arrays, owned returns, and exhaustive/list/wildcard
   matches with by-value payload bindings.
-- Variable-mode enums with fixed payloads, independent copies, internal owned
+- Nonresizable variable-mode enums with fixed or single-tail payloads, independent copies, internal owned
   parameters/results, mode conversion and by-value/by-reference payload matches.
 - Scalar/string and supported fixed-array rendering, including argument
   evaluation and snapshot ordering.
@@ -306,7 +308,8 @@ The executable differential suite is the authority for qualified behavior.
 The current backend refuses owned dynamic function-value parameters/results,
 unsupported containing shapes (nonfinal owners, multiple variable fields and
 containing variable-mode enums), variable-element
-growables, varint variable-array lengths; nonfixed enum payloads;
+growables, varint variable-array lengths; resizable/multiple-owner enum payloads;
+packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;
 relative and pool references;
 non-inlined captured environments and dynamic nonlocal

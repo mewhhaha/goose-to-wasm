@@ -12,13 +12,15 @@ and mixed results, control construction and whole-record named aliasing. Each
 variant is validated independently of its siblings. See [the variant contract](VARIABLE_VARIANTS.md).
 Resizable variants and nonfixed payloads inside `E..` still need later lowering.
 
-## Implemented: variable-mode enums with fixed payloads
+## Implemented: nonresizable variable-mode enums
 
 `E..` owns a stable region image without entering the fixed-copy path. Ordinary,
 inline and recursive calls, parameters, mixed results, named aliasing, fixed mode
 conversions and copied/borrowed payload matches share the ownership channels.
-The [enum contract](VARIABLE_ENUMS.md) records maximum-union resource costs and
-the remaining nonfixed payload, containing owner and image ABI boundaries.
+Active payload copies, direct variant-result routing and tag-aware interrupted
+construction support single-tail variable payloads. The [enum contract](VARIABLE_ENUMS.md)
+records control-union resource costs and remaining resizable payload, containing
+owner and packed-overlap boundaries.
 
 ## Implemented: growable frame structs and nested single-tail owners
 

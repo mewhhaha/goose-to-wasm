@@ -1050,6 +1050,97 @@ fn main() {}'''
                     self.assertEqual(observed["error"], "")
 
 
+    def test_variable_enum_tail_copies_and_simple_owned_match_arms_release_regions(self):
+        source = '''enum Event { Empty, Data { id: i64, values: i64[] } }
+recursive fn make(n: i64) -> Event.. { var e: Event.. = Event.Data { n, [n, n + 1] }; return e; }
+fn changed(e: Event..) -> Event.. { match e { Data &p => { p.id += 10; p.values[0] += 20; }, _ => {} } return e; }
+export fn tick(n: i64) -> i64 {
+    let a = make(n); let b = copy(a); let c = changed(copy(a));
+    match b { Data &p => { p.values[0] += 100; }, _ => {} }
+    for i in 100 { let value = match a { Data p => p.id + p.values[0], _ => -1 }; if value != 2 * n { abort("bad owned match copy"); } }
+    let bv = match b { Data p => p.values[0], _ => -1 };
+    let cv = match c { Data p => p.id + p.values[0], _ => -1 };
+    if bv != n + 100 || cv != 2 * n + 30 { abort("bad enum tail copy"); } return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_enum_tail_alternate_returns_guard_inactive_header(self):
+        source = f'''enum Event {{ Empty, Data {{ tag: u8, id: i64, values: i64[] }}, Other {{ marker: u8, first: i64, second: i64, third: i64, fourth: i64 }} }}
+var neighbor: i64[>..] = [{CANARY}];
+recursive fn make(n: i64) -> Event.. {{
+    var e: Event.. = Event.Data {{ 1, 2, [if n == 1 {{ return Event.Other {{ 3, 4, 4294967296000000, 0, 0 }}; }} else if n == 2 {{ return Event.Data {{ 5, 6, [7] }}; }} else if n == 3 {{ return Event.Empty; }} else {{ 4 }}; 1000000] }};
+    return e;
+}}
+export fn tick(n: i64) -> i64 {{
+    let a = make(n % 3 + 1); let b = make(2);
+    let av = match a {{ Empty => 0, Data &p => p.values[0], Other &p => p.first }};
+    let bv = match b {{ Data &p => p.values[0], _ => -1 }};
+    let expected = if n % 3 == 0 {{ 4 }} else if n % 3 == 1 {{ 7 }} else {{ 0 }};
+    if av != expected || bv != 7 {{ abort("bad replaced enum tail"); }} return n + 1;
+}}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_variable_enum_private_interrupted_constructor_releases_regions(self):
+        source = '''enum Event { Empty, Data { id: i64, values: i64[] } }
+export fn tick(n: i64) -> i64 {
+    let e: Event.. = Event.Data { 1, [if n >= 0 { return n + 1; } else { 2 }; 1000000] };
+    return 0;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_enum_control_prefix_is_checked_before_embedded_base(self):
+        source = f'''enum Event {{ Empty, Data {{ values: i64[] }}, Big {{ values: i64[8192] }} }}
+var neighbor: i64[>..] = [{CANARY}];
+fn main() {{ let e: Event.. = Event.Data {{ [1] }}; }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+
+    def test_variable_enum_omitted_optional_is_zeroed_after_region_reuse(self):
+        source = '''enum Event { Values { values: i64[] }, Pointer { point: i64&? } }
+export fn tick(n: i64) -> i64 {
+    var number = n;
+    if n >= 0 {
+        let prior: Event.. = Event.Pointer { number };
+        match prior { Pointer p => { if p.point == null { abort("missing supplied pointer"); } }, _ => {} }
+    }
+    let empty: Event.. = Event.Pointer {};
+    match empty { Pointer p => { if p.point != null { abort("stale omitted pointer"); } }, _ => {} }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--goose", type=Path, default=GOOSE)

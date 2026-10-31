@@ -57,6 +57,8 @@ struct ConstructionDestination {
     Location location;
     enum Lifetime { Statement, Block, Activation, Caller, Static, Existing } lifetime;
     bool elements = false; // raw element run, without a value's length prefix contract
+    struct EnumGuard { uint32_t image_base, owner_header; int32_t tag; };
+    optional<EnumGuard> enum_guard;
 };
 using ResultDestinations = vector<optional<ConstructionDestination>>;
 struct Compiler;
@@ -109,7 +111,7 @@ struct Function {
         bool active;
     };
     bool MayMaterialize(Node *);
-    TempScope BeginTempScope(Node *);
+    TempScope BeginTempScope(Node *, bool force = false);
     void EndTempScope(const TempScope &);
     ArgumentGroup BeginArgumentGroup(bool);
     void EndArgumentGroup(const ArgumentGroup &, bool);
@@ -120,6 +122,7 @@ struct Function {
         uint32_t saved_local;
         TypeExpr *element = nullptr;
         Line line {};
+        optional<ConstructionDestination::EnumGuard> enum_guard;
     };
     vector<CleanupAction> cleanups;
     void PushExit(Exit target, const ResultDestinations &destinations = {}) {
@@ -133,10 +136,17 @@ struct Function {
             else if (action.kind == CleanupAction::RestoreRegionNext) { Get(action.saved_local); code.OpU(0x24, G_REGION_NEXT); }
             else if (action.kind == CleanupAction::CheckAbandonedRegion && abandoning) {
                 auto done = Begin();
+                if (action.enum_guard) {
+                    Get(action.enum_guard->image_base); code.Mem(0x28, 2);
+                    code.I32Const(action.enum_guard->tag); code.Op(0x47); Br(done, true);
+                }
                 // A private header declared inside the exited scope dies
                 // there, even if its data region belongs to a result.
                 for (auto &header : private_headers) if (header.cleanup_depth > depth) {
                     Get(action.saved_local); LocationAddress(header.location); code.Op(0x46); Br(done, true);
+                    if (action.enum_guard) {
+                        Get(action.enum_guard->owner_header); LocationAddress(header.location); code.Op(0x46); Br(done, true);
+                    }
                 }
                 Get(action.saved_local); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
                 ReserveRegion(action.saved_local, count, action.element, action.line);
@@ -237,7 +247,7 @@ struct Function {
     void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void ResultExpression(Node *, const ResultDestinations &);
-    struct RegionResultPlan { ResultDestinations producers, copies, values; };
+    struct RegionResultPlan { ResultDestinations producers, copies, values; vector<TypeExpr *> enum_payloads; };
     RegionResultPlan PlanRegionResults(const vector<TypeExpr *> &, const ResultDestinations &, Line, bool run = false, bool inlined = false);
     void PublishRegionResults(const vector<TypeExpr *> &, const RegionResultPlan &, Line);
     void ControlValue(Node *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
@@ -253,6 +263,8 @@ struct Function {
     void ConstructRecordFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     void ConstructEnumInto(Node *, const ConstructionDestination &);
     void ConstructEnumFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
+    ConstructionDestination PrepareEnumPayload(const ConstructionDestination &, TypeExpr *, Line);
+    void FinishEnumPayload(const ConstructionDestination &, TypeExpr *, Line);
     void ConstructRegionView(uint32_t, const ConstructionDestination &, Line, optional<uint32_t> capacity = {});
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
     void ConstructionView(Node *, bool elements = false);
@@ -304,6 +316,7 @@ struct Compiler {
     // depend on computing the whole parent enum's union first.
     map<pair<EnumInst *, int>, Layout> payload_layouts;
     unordered_map<EnumInst *, Layout> enum_image_layouts;
+    map<pair<EnumInst *, int>, TypeExpr *> enum_variant_types;
     map<string, uint32_t> strings;
     string data;
     static constexpr uint32_t data_base = 1024;
@@ -339,21 +352,34 @@ struct Compiler {
         return payload_layouts.emplace(key, std::move(r)).first->second;
     }
     const Layout &EnumImageLayout(EnumInst *ei, Line line) {
-        if (!ei || !ei->allfixed)
-            Fail(line, "variable-mode enums currently require fixed-size payloads");
+        if (!ei) Fail(line, "enum instantiation was not resolved");
+        if (!ei->allfixed && ei->varclass != SC_VARIABLE)
+            Fail(line, "resizable variable-mode enums are not supported");
         if (auto found = enum_image_layouts.find(ei); found != enum_image_layouts.end()) return found->second;
         Layout r; r.align = 4;
-        uint32_t bytes = 0, alignment = 1;
+        uint32_t bytes = 0, alignment = 1, data_alignment = 1;
         for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
-            auto sub = Payload(ei, int(vi));
+            auto vt = EnumVariantType(ei, int(vi), line);
+            if (Class(vt) != SC_FIXED && !RegionVariant(vt))
+                Fail(line, "variable enum payloads require one final nonresizable array tail");
+            auto sub = RegionVariant(vt) ? ControlLayout(vt) : FixedLayout(vt);
+            if (RegionVariant(vt)) data_alignment = max(data_alignment, FixedLayout(TailType(vt)->arr->sub).align);
             bytes = max(bytes, sub.size); alignment = max(alignment, sub.align);
         }
-        r.align = max(r.align, alignment); r.payload = Align(4, alignment);
+        r.align = max({ r.align, alignment, data_alignment }); r.payload = Align(4, alignment);
         auto size = (uint64_t(r.payload) + bytes + r.align - 1) & ~uint64_t(r.align - 1);
         if (size > uint64_t(opts.maximum_pages) * 65536)
             Fail(line, "enum exceeds the configured linear-memory limit");
         r.size = uint32_t(size);
         return enum_image_layouts.emplace(ei, std::move(r)).first->second;
+    }
+    TypeExpr *EnumVariantType(EnumInst *ei, int vi, Line line) {
+        auto key = make_pair(ei, vi);
+        if (auto found = enum_variant_types.find(key); found != enum_variant_types.end()) return found->second;
+        auto adt = ast.EnumOf(ei->en, ei->args, false, line); adt->enu->inst = ei;
+        auto &variant = ei->en->variants.at(size_t(vi));
+        auto type = ast.VariantOf(adt, variant.name, &variant, line);
+        enum_variant_types.emplace(key, type); return type;
     }
     TypeExpr *FieldType(TypeExpr *t, int field) {
         if (t->kind == TY_STRUCT) return t->struc->inst->ftypes.at(size_t(field));

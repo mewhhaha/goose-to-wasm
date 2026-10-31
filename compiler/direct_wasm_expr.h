@@ -166,7 +166,7 @@ inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
         Location place { slots[i].type, slots[i] };
         if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
             if (Compiler::WholeHeaderOwner(slots[i].type)) {
-                prepared.destinations[i] = ConstructionDestination { place, named->second.lifetime }; continue;
+                prepared.destinations[i] = ConstructionDestination { place, named->second.lifetime, false, named->second.enum_guard }; continue;
             }
             ShareRegion(place, named->second);
         }
@@ -469,7 +469,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     PublishRegionResults(sp->rets, plan, n->line);
     if (adapt_result && sp->rets.size() == 1) {
         if (n->exprtype->kind == TY_VOID) code.Op(0x1a);
-        else Convert(sp->rets[0], n->exprtype, n->line);
+        else Convert(plan.enum_payloads[0] ? plan.values[0]->location.storage_type : sp->rets[0], n->exprtype, n->line);
     }
 }
 
@@ -688,7 +688,8 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     for (auto variable : named) named_regions.erase(variable);
     for (auto value : values) Get(value);
     PublishRegionResults(own, plan, node->line);
-    if (adapt_result && own.size() == 1 && types.size() == 1) Convert(own[0], types[0], node->line);
+    if (adapt_result && own.size() == 1 && types.size() == 1)
+        Convert(plan.enum_payloads[0] ? plan.values[0]->location.storage_type : own[0], types[0], node->line);
     else if (adapt_result && types.empty()) for (size_t index = 0; index < own.size(); index++) code.Op(0x1a);
 }
 
@@ -737,13 +738,20 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
             if (first) Fail(n->line, "match pattern has no resolved alternatives");
             Begin(0x04);
         }
-        auto scope = BeginTempScope(arm.body);
+        auto owned_payload = arm.binder && Compiler::RegionVariant(arm.binder->type);
+        auto scope = BeginTempScope(arm.body, owned_payload);
         if (arm.binder) {
             if (!base || (arm.pat.byref && !Compiler::RegionEnum(t)))
                 Fail(n->line, "only variable-mode enum payloads bind by reference");
             auto slot = Bind(arm.binder);
             auto layout = Compiler::RegionEnum(t) ? c.EnumImageLayout(t->enu->inst, n->line) : c.Size(t);
-            Get(*base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a); Write(slot);
+            Get(*base); code.I32Const(int32_t(layout.payload)); code.Op(0x6a);
+            if (owned_payload) {
+                auto source = Save(I32); Location place { arm.binder->type, slot };
+                AcquireRegion(place, n->line);
+                private_headers.push_back({ TailHeaderLocation(place), cleanups.size() });
+                ConstructRecordFromCaptured(arm.binder->type, source, { place, ConstructionDestination::Block }, n->line);
+            } else Write(slot);
         }
         if (ts.empty() || Values(arm.body).empty()) Discard(arm.body);
         else SetResults({ arm.body }, ts, vs, arm.body->line, destinations);

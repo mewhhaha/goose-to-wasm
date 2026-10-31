@@ -22,6 +22,6 @@ Prefix references address stable control storage and obey frontend lifetimes.
 The frontend keeps whole nonresizable variants frozen; supported fixed fields
 and runtime-limited tails may mutate. Resizable standalone variants, nonfinal or
 multiple variable fields, variable elements, packed images and rendering remain
-separate slices. This support does not enable nonfixed payloads inside `E..` yet:
-those require active-variant image construction, result routing and tag-aware
-cleanup.
+separate slices. Supported nonresizable payloads may also be embedded in `E..` through active-
+variant image construction, direct result routing and tag-aware cleanup; see
+[the enum contract](VARIABLE_ENUMS.md).
