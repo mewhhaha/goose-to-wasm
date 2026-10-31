@@ -51,6 +51,9 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    for debug in (False, True):
+        result.append(Case("compact-enum/tags" + ("-debug" if debug else ""), "compact_enum_tags",
+                           stdout="17 307 34 51 5 68\n408 6\n1 2\n", debug=debug, group="storage"))
     record_nonlocal = {
         "canceled_field":"9\n17 21811 68 1\n",
         "nested":"9\n17 21811 68 1\n",

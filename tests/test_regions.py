@@ -38,8 +38,8 @@ try {
   if(corruptTag === "true") {
     const bytes=Buffer.from(instance.exports.memory.buffer);
     const at=bytes.indexOf(Buffer.from("8877665544332211","hex"));
-    if(at<4) throw new Error("missing dispatch tag sentinel");
-    new DataView(instance.exports.memory.buffer).setUint32(at-4,99,true);
+    if(at<1) throw new Error("missing dispatch tag sentinel");
+    new DataView(instance.exports.memory.buffer).setUint8(at-1,99);
   }
   for(let i=0;i<Number(repeats);i++) {
     if(instance.exports.tick(BigInt(i)) !== BigInt(i+1)) throw new Error("wrong repeated result");
@@ -95,8 +95,8 @@ def wasmtime_run(path, runtime, input_value, repeats, canary_index, corrupt_tag=
         if corrupt_tag:
             memory = exports["memory"]
             at = bytes(memory.read(store)).find(bytes.fromhex("8877665544332211"))
-            assert at >= 4, "missing dispatch tag sentinel"
-            memory.write(store, struct.pack("<I", 99), at - 4)
+            assert at >= 1, "missing dispatch tag sentinel"
+            memory.write(store, bytes([99]), at - 1)
         for value in range(repeats):
             assert exports["tick"](store, value) == value + 1
     except wasmtime.Trap as failure:

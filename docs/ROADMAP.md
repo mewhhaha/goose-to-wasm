@@ -67,6 +67,16 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: compact enum tags and fixed enum strides
+
+All enum tag reads and writes use u8 through 256 variants and u16 above that,
+including matches, dispatch and cleanup guards. Fixed-mode enums pack their tag
+and maximum payload without trailing alignment. Empty alternatives add no
+payload bytes; standalone empty variants retain their placeholder. Internal
+layout 6 names compact tags separately from the variable enum's existing aligned
+control union. Exact byte tests cover strides, empty alternatives and both sides
+of the 256-variant boundary on V8 and Wasmtime.
+
 ## Implemented: packed fixed record fields
 
 Layout version 3 packs fixed struct and variant fields, including nested records,

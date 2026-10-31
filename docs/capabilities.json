@@ -814,7 +814,7 @@
     "enums": {
       "fixed": {
         "status": "qualified_subset",
-        "scope": "Fixed enum tags/payloads, constructors, copies, parameters/results and by-value matches; rendering/comparison are pending. Internal layout v3 packs fixed struct and variant fields, including recursive records and array strides; each field retains its current representation.",
+        "scope": "Fixed enum tags/payloads, constructors, copies, parameters/results and by-value matches; rendering/comparison are pending. Internal layout v3 packs fixed struct and variant fields, including recursive records and array strides; each field retains its current representation. Compact u8/u16 tags and packed fixed-mode tag-plus-maximum-payload strides include zero encoded bytes for empty alternatives.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
           "tests/fixtures/enum_returns.goose",
@@ -824,15 +824,17 @@
           "tests/fixtures/packed_variant_storage.goose",
           "tests/fixtures/packed_record_overlap.goose",
           "tests/fixtures/packed_record_arrays.goose",
-          "tests/fixtures/packed_record_storage.goose"
+          "tests/fixtures/packed_record_storage.goose",
+          "tests/fixtures/compact_enum_tags.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_packed_layout_boundaries.py"
+          "tests/test_packed_layout_boundaries.py",
+          "tests/test_enum_tags.py"
         ]
       },
       "variant": {
         "status": "qualified_subset",
-        "scope": "Fixed standalone variant payloads and variant-to-enum conversion; standalone SC_VARIABLE variants with fixed prefixes and one terminal variable/runtime-limited array, including nested nonframe record tails. Independent owned copies/parameters/results and whole-record NRVO; per-variant eligibility independent of siblings. Resizable standalone variants and nonfixed E.. payloads remain pending. Variable payload record images follow the existing enum tag/control union; logical extent validation preserves the physical construction cursor.",
+        "scope": "Fixed standalone variant payloads and variant-to-enum conversion; standalone SC_VARIABLE variants with fixed prefixes and one terminal variable/runtime-limited array, including nested nonframe record tails. Independent owned copies/parameters/results and whole-record NRVO; per-variant eligibility independent of siblings. Resizable standalone variants and nonfixed E.. payloads remain pending. Compact u8/u16 tags share width-aware construction, conversion, match, dispatch and cleanup accessors. Fixed enum images have packed tag-plus-maximum-payload strides; empty alternatives contribute zero payload bytes. Variable payload record images follow the aligned enum tag/control union; logical extent validation preserves the physical construction cursor.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
           "tests/fixtures/variable_mode_enums.goose",
@@ -845,18 +847,20 @@
           "tests/fixtures/packed_record_storage.goose",
           "tests/fixtures/record_image_aliases.goose",
           "tests/fixtures/record_image_callbacks.goose",
-          "tests/fixtures/record_image_sparse.goose"
+          "tests/fixtures/record_image_sparse.goose",
+          "tests/fixtures/compact_enum_tags.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_variant_boundaries.py",
           "tests/test_regions.py",
           "tests/test_packed_layout_boundaries.py",
-          "tests/test_record_images.py"
+          "tests/test_record_images.py",
+          "tests/test_enum_tags.py"
         ]
       },
       "variable": {
         "status": "qualified_subset",
-        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results qualify for allfixed recursively packed fixed-width integer records, variants and nonempty fixed arrays; other such observations require further image layout and remain refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending. Variable payload record images follow the existing enum tag/control union; logical extent validation preserves the physical construction cursor.",
+        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results qualify for allfixed recursively packed fixed-width integer records, variants and nonempty fixed arrays; other such observations require further image layout and remain refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending. Compact u8/u16 tags share width-aware construction, conversion, match, dispatch and cleanup accessors. Fixed enum images have packed tag-plus-maximum-payload strides; empty alternatives contribute zero payload bytes. Variable payload record images follow the aligned enum tag/control union; logical extent validation preserves the physical construction cursor.",
         "fixtures": [
           "tests/fixtures/variable_mode_enums.goose",
           "tests/fixtures/variable_enum_tails.goose",
@@ -870,13 +874,15 @@
           "tests/fixtures/packed_record_storage.goose",
           "tests/fixtures/record_image_aliases.goose",
           "tests/fixtures/record_image_callbacks.goose",
-          "tests/fixtures/record_image_sparse.goose"
+          "tests/fixtures/record_image_sparse.goose",
+          "tests/fixtures/compact_enum_tags.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_enum_boundaries.py",
           "tests/test_regions.py",
           "tests/test_packed_layout_boundaries.py",
-          "tests/test_record_images.py"
+          "tests/test_record_images.py",
+          "tests/test_enum_tags.py"
         ]
       }
     },

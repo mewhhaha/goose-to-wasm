@@ -347,7 +347,7 @@ inline void Function::AggregateLiteral(Node *n) {
             auto vi = s->einst->en->VariantIndex(s->variant);
             if (t->kind == TY_ENUM) {
                 payload = layout.payload;
-                LocationAddress(place); code.I32Const(vi); code.Mem(0x36, 2);
+                LocationAddress(place); code.I32Const(vi); WriteEnumTag(c.EnumTagBytes(s->einst));
             } else if (t->kind != TY_VARIANT) Fail(n->line, "unsupported variant construction");
             layout = c.Payload(s->einst, vi);
         } else if (!s->sinst) Fail(n->line, "struct type was not resolved");
@@ -777,7 +777,7 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
     optional<uint32_t> base;
     if (t->kind == TY_ENUM) {
         W(t); if (Compiler::RegionEnum(t)) code.Mem(0x28, 2);
-        base = Save(I32); Get(*base); code.Mem(0x28, 2);
+        base = Save(I32); Get(*base); ReadEnumTag(c.EnumTagBytes(t->enu->inst));
     }
     else if (t->kind != TY_INT && t->kind != TY_BOOL)
         Fail(n->line, "only integer, bool and fixed enum match are supported");
@@ -814,6 +814,9 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
                 AcquireRegion(place, n->line);
                 private_headers.push_back({ TailHeaderLocation(place), cleanups.size() });
                 ConstructRecordFromCaptured(arm.binder->type, source, { place, ConstructionDestination::Block }, n->line);
+            } else if (arm.binder->type->kind == TY_VARIANT && c.RecordFields(arm.binder->type).empty()) {
+                code.Op(0x1a); // An empty alternative has no bytes to read behind the tag.
+                LocationAddress({ arm.binder->type, slot }); code.I32Const(0); code.I32Const(1); code.Fill();
             } else Write(slot);
         }
         if (ts.empty() || Values(arm.body).empty()) Discard(arm.body);
@@ -934,7 +937,7 @@ inline void Function::Expr(Node *n) {
                 auto place = FreshDestination(t, ConstructionDestination::Statement).location;
                 LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
                 if (t->kind == TY_ENUM) {
-                    LocationAddress(place); code.I32Const(d->einst->en->VariantIndex(d->variantconst)); code.Mem(0x36, 2);
+                    LocationAddress(place); code.I32Const(d->einst->en->VariantIndex(d->variantconst)); WriteEnumTag(c.EnumTagBytes(d->einst));
                 }
                 LocationAddress(place); return;
             }

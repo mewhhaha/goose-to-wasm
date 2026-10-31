@@ -60,7 +60,7 @@ struct ConstructionDestination {
     Location location;
     enum Lifetime { Statement, Block, Activation, Caller, Static, Existing } lifetime;
     bool elements = false; // raw element run, without a value's length prefix contract
-    struct EnumGuard { uint32_t image_base, owner_header; int32_t tag; };
+    struct EnumGuard { uint32_t image_base, owner_header; int32_t tag; uint32_t tag_bytes; };
     optional<EnumGuard> enum_guard;
     bool escape_stage = false;
     bool normal_result = false;
@@ -163,7 +163,7 @@ struct Function {
             else if (action.kind == CleanupAction::CheckAbandonedRegion && abandoning) {
                 auto done = Begin();
                 if (action.enum_guard) {
-                    Get(action.enum_guard->image_base); code.Mem(0x28, 2);
+                    Get(action.enum_guard->image_base); ReadEnumTag(action.enum_guard->tag_bytes);
                     code.I32Const(action.enum_guard->tag); code.Op(0x47); Br(done, true);
                 }
                 // A private header declared inside the exited scope dies
@@ -282,6 +282,8 @@ struct Function {
     void LandArrayImage(uint32_t, uint32_t, uint32_t, TypeExpr *, Line);
     void LandRecordImage(const Location &, uint32_t, uint32_t, Line);
     void FinishRecordImage(const Location &, uint32_t, bool, Line);
+    void ReadEnumTag(uint32_t);
+    void WriteEnumTag(uint32_t);
     bool ImageTargetDestination(const ConstructionDestination &) const;
 
     void View(Node *);
@@ -487,22 +489,25 @@ struct Compiler {
         for (auto &fields : ei->vftypes) for (auto field : fields) if (!PackedIntegerImage(field)) return false;
         return true;
     }
+    static uint32_t EnumTagBytes(EnumInst *ei) { return ei->en->variants.size() <= 256 ? 1u : 2u; }
     const Layout &EnumImageLayout(EnumInst *ei, Line line) {
         if (!ei) Fail(line, "enum instantiation was not resolved");
         if (!ei->allfixed && ei->varclass != SC_VARIABLE)
             Fail(line, "resizable variable-mode enums are not supported");
         if (auto found = enum_image_layouts.find(ei); found != enum_image_layouts.end()) return found->second;
-        Layout r; r.align = 4;
+        Layout r;
         uint32_t bytes = 0, alignment = 1, data_alignment = 1;
         for (size_t vi = 0; vi < ei->vftypes.size(); vi++) {
             auto vt = EnumVariantType(ei, int(vi), line);
             if (Class(vt) != SC_FIXED && !RegionVariant(vt))
                 Fail(line, "variable enum payloads require one final nonresizable array tail");
             auto sub = RegionVariant(vt) ? ControlLayout(vt) : FixedLayout(vt);
+            // Empty alternatives take no bytes behind their enum's tag.
+            if (RecordFields(vt).empty()) sub.size = 0;
             if (RegionVariant(vt)) data_alignment = max(data_alignment, FixedLayout(TailType(vt)->arr->sub).align);
             bytes = max(bytes, sub.size); alignment = max(alignment, sub.align);
         }
-        r.align = max({ r.align, alignment, data_alignment }); r.payload = Align(4, alignment);
+        r.align = max({ r.align, alignment, data_alignment }); r.payload = Align(EnumTagBytes(ei), alignment);
         auto size = (uint64_t(r.payload) + bytes + r.align - 1) & ~uint64_t(r.align - 1);
         if (size > uint64_t(opts.maximum_pages) * 65536)
             Fail(line, "enum exceeds the configured linear-memory limit");

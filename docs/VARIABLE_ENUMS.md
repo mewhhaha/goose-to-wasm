@@ -1,7 +1,7 @@
 # Nonresizable variable-mode enums
 
 `E..` retains `SC_VARIABLE`. Its 24-byte private control owns one stable region
-containing a u32 tag and an aligned maximum control union. Each variant has
+containing a compact u8/u16 tag and an aligned maximum control union. Each variant has
 supported fixed fields, or one final nonresizable variable/runtime-limited array
 through a supported record chain. A variable payload's complete contiguous record image follows that union;
 its embedded tail control names that image in the same region. This is an internal control ABI,
@@ -54,3 +54,10 @@ Payload completion validates and maps the decoded logical extent, but retains
 the physical cursor left by construction. Canceled prefixes can describe more
 bytes than were committed; extra committed suffixes can also exceed logical
 extent. Construction, copying and landing publish physical commits.
+
+
+Internal layout 6 centralizes compact tag access, including abandoned-payload
+guards. Fixed-mode enums and all-fixed payload images use packed tag/payload
+strides and empty alternatives contribute no payload slot. Nonfixed payload
+control unions retain their required alignment; moving those controls outside
+the region image remains the next migration.
