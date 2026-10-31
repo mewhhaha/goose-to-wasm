@@ -28,7 +28,7 @@ inline bool Compiler::OwnedEffectResult(TypeExpr *type) {
 }
 
 inline bool Compiler::RecordImageEffectResult(TypeExpr *type) {
-    if (!RegionRecord(type) || FrameStruct(type)) return false;
+    if (!RegionRecord(type) || FrameStruct(type) || ByteRecord(type)) return false;
     ControlLayout(type);
     auto &fields = RecordFields(type);
     for (size_t i = 0; i + 1 < fields.size(); i++) if (!PackedIntegerImage(fields[i])) return false;
@@ -104,8 +104,15 @@ inline void Compiler::AnalyzeEffects() {
                 local.push_back(inlined->sf); walk(inlined->body); local.pop_back(); return;
             }
             if (auto ret = Is<Return>(node); ret && ret->targetspec &&
-                (!ret->from.empty() || (!local.empty() && local.back() != ret->target)))
-                for (auto type : ret->targetspec->rets) if (RegionOwner(type)) region_cursors = true;
+                (!ret->from.empty() || (!local.empty() && local.back() != ret->target))) {
+                for (auto type : ret->targetspec->rets) {
+                    if (ByteRecord(type))
+                        Fail(ret->line, "byte-walked record nonlocal targets require dedicated image staging");
+                    if (RegionArray(type) && Varint(type->arr->sub))
+                        Fail(ret->line, "varint-element nonlocal targets require dedicated image staging");
+                    if (RegionOwner(type)) region_cursors = true;
+                }
+            }
             if (auto ret = Is<Return>(node); ret &&
                 find(local.begin(), local.end(), ret->target) == local.end()) {
                 auto target = ret->targetspec;

@@ -1,0 +1,67 @@
+{
+  "literal_fill": {
+    "stdout": "mark 64\nzero 0 1\nmark -65\n[-65, -65, -65] 2\nmark -1\nmark 8192\nmark -9223372036854775808\nmark 9223372036854775807\n[-1, 8192, -9223372036854775808, 9223372036854775807] 6\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "channels": {
+    "stdout": "[7, -7, 8192] [8, 64, -65]\n[9, -9, 8192]\n[10, -10, 8192] [10, -10, 8192]\nB\n[-11, -65]\nA\n[11, 64]\n[12, 64] 13 [-12, -65]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "views": {
+    "stdout": "[64, -65, 8192, -8193] [64, -65, 8192, -8193] -2 64 true\n0 64\n1 -65\n2 8192\n3 -8193\n0 64\n1 -65\n2 8192\n3 -8193\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "rebind": {
+    "stdout": "s 0 1\ns 1 2\ns 2 300\ns 3 8192\nr 0 1\nr 1 64\nr 2 -65\nr 3 8192\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "rebind_path": {
+    "stdout": "0 1\n1 2\n2 300\n3 4\ncalls 1\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "rebind_ref": {
+    "stdout": "plain 0 1\nplain 1 2\naddress 0 1\naddress 1 64\naddress 2 -65\naddress 3 8192\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "cancellation": {
+    "stdout": "77 8128\n88 0\n[1, 2] 3 [4]\n[-65] 9 [8192]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "narrow_ordinary": {
+    "stdout": "make\n256 -16640\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "narrow_dispatch": {
+    "stdout": "A\n",
+    "exit_code": 1,
+    "diagnostic": "array length exceeds storage range"
+  },
+  "slice_constructor": {
+    "stdout": "[64, -65, 8192]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "copied_binding": {
+    "stdout": "65 64\n-64 -65\n8193 8192\n64\n-65\n8192\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "fv_owned": {
+    "stdout": "[64, -65, 8192] [64, -65, 8192]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "named_replacement": {
+    "stdout": "[-9223372036854775808, 64] 23 [-9223372036854775808, 64] [-9223372036854775808, 64]\n[1, -65] 17 [1, -65] [1, -65]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  }
+}

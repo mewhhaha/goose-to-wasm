@@ -51,6 +51,20 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    array_oracles=json.loads((FIXTURES/'varint_array_oracles.json').read_text())
+    for debug in (False,True):
+        for name,oracle in array_oracles.items():
+            result.append(Case("varint-array/"+name+("-debug" if debug else ""),"varint_array_"+name,
+                               stdout=oracle['stdout'],exit_code=oracle['exit_code'],diagnostic=oracle['diagnostic'],debug=debug,group="storage"))
+    varint_answers={
+        "replacement":"65 7 17 23\n",
+        "values":"0 0 0 0 0\n3 -65 300 9223372036854775807 500\n7 -8193 -8193 -9223372036854775808 501 -7892\n",
+        "callbacks":"11\n99\n11\n-65\n-47\n17\n64\n23\n17 64 8 23\n",
+        "boundaries":"".join(f"{n} 8755\n" for n in (-9223372036854775808,-8193,-8192,-65,-64,-1,0,1,63,64,8191,8192,9223372036854775807)),
+    }
+    for debug in (False,True):
+        for name,answer in varint_answers.items():
+            result.append(Case("varint-record/"+name+("-debug" if debug else ""),"varint_record_"+name,stdout=answer,debug=debug,group="storage"))
     for debug in (False,True):
         for name,answer in {"fixed":"17 573785173 300 310 7\n17 true 300 1.5 17 2 5\n",
                             "callbacks":"1\n2\n3\n3\n1\n7\n1\n2\n3\n6\n1\n7\n",

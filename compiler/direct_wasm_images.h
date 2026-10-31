@@ -18,6 +18,15 @@ inline void Function::ReadArrayBase(uint32_t header) {
 }
 
 inline void Function::ValidateArrayImage(uint32_t header, uint32_t count, TypeExpr *element, Line line) {
+    if (Compiler::Varint(element)) {
+        // Metadata views stay O(1). Each encoded element needs at least one
+        // byte; consumers that need the actual extent walk it separately.
+        ReadArrayBase(header); auto base = Save(I32);
+        Get(base); code.Op(0xad); Get(count); code.Op(0xad); code.Op(0x7c); auto minimum = Save(I64);
+        Get(minimum); Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); code.Op(0x56);
+        TrapIf(line, "array image exceeds data region");
+        Get(minimum); code.Op(0xa7); EnsureMemory(Save(I32), line); return;
+    }
     Get(header); code.Mem(0x28, 2, 20); Begin(0x04);
     ReadArrayBase(header); auto base = Save(I32);
     Get(base); Get(header); code.Mem(0x28, 2, 8); code.Op(0x4b);

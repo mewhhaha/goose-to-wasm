@@ -2,7 +2,7 @@
 namespace goose::direct_wasm {
 
 inline Location Function::TailHeaderLocation(const Location &owner) {
-    if (!Compiler::RegionRecord(owner.storage_type)) return owner;
+    if (!Compiler::RegionRecord(owner.storage_type) || Compiler::ByteRecord(owner.storage_type)) return owner;
     auto layout = c.ControlLayout(owner.storage_type);
     return OffsetLocation(owner, layout.payload, c.TailType(owner.storage_type));
 }

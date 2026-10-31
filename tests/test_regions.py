@@ -1248,6 +1248,123 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_varint_arrays_reuse_regions_and_preserve_encoded_references(self):
+        source=f'''var neighbor:i64[>..]=[{CANARY}];
+recursive fn make(n:i64)->varint[u16]{{return[n-5000,-n,8192];}}
+recursive fn first(xs:const varint[:])->const varint&{{for x in xs{{return x;}}abort("empty");}}
+export fn tick(n:i64)->i64{{
+let rows=make(n);let kept:const varint& =first(rows);
+for i in 10{{if make(i).len!=3{{abort("bad varint temporary");}}}}
+var total=0;for x in rows{{total+=x;}}
+if kept!=n-5000 || total!=3192{{abort("bad encoded reference");}}
+return n+1;
+}}
+fn main(){{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],3)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_array_overflow_preserves_neighbor_after_once_only_fill(self):
+        def source(count,width):
+            return f'''var neighbor:i64[>..]=[{CANARY}];
+fn value()->i64{{print(77);return -9223372036854775808;}}
+fn main(){{let rows:varint[u{width}]=[value();{count}];print(rows.len);}}'''
+        for level in (0,2):
+            _,baseline=self.compile(source(1,32),level)
+            width=32 if (baseline['region_bytes']-4)%10 else 16
+            count=(baseline['region_bytes']-width//8)//10+1
+            path,info=self.compile(source(count,width),level)
+            self.assertEqual(info['region_count'],2)
+            self.assertEqual(info['region_bytes'],baseline['region_bytes'])
+            for engine,observed in self.engines(path,info,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn('data region exhausted',observed['error'])
+                    self.assertEqual(observed['numbers'],['77'])
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_array_fixed_target_cancellation_reuses_regions(self):
+        source=f'''var neighbor:i64[>..]=[{CANARY}];
+recursive fn make<F>()->varint[u16]{{return[1,F(),-65];}}
+fn target(n:i64)->i64{{let rows=make(){{if n>=0{{return n+1;}}else{{8192}}}};return rows.len;}}
+export fn tick(n:i64)->i64{{target(n)}}
+fn main(){{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],2)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_record_overflow_reserves_the_complete_encoding(self):
+        def source(padding):
+            return f'''struct R{{pad {padding},value:varint}}
+var neighbor:i64[>..]=[{CANARY}];
+fn value()->i64{{print(77);return 9223372036854775807;}}
+fn main(){{let r=R{{value()}};print(r.value);}}'''
+        for level in (0,2):
+            _,baseline=self.compile(source(0),level)
+            path,info=self.compile(source(baseline['region_bytes']-6),level)
+            self.assertEqual(info['region_count'],2)
+            self.assertEqual(info['region_bytes'],baseline['region_bytes'])
+            for engine,observed in self.engines(path,info,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn('data region exhausted',observed['error'])
+                    self.assertEqual(observed['numbers'],['77'])
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_records_preserve_references_and_regions(self):
+        source = f'''struct R {{value:varint,other:varint,end:u8}}
+var neighbor:i64[>..]=[{CANARY}];
+recursive fn make(n:i64)->R {{return R{{n-5000,-n,7}};}}
+export fn tick(n:i64)->i64 {{
+    let r=make(n);let kept:const varint& =r.value;
+    for i in 10 {{if make(i).other!=-i {{abort("bad varint temporary");}}}}
+    if kept!=n-5000 || r.other!=-n || r.end!=7 {{abort("bad varint reference");}}
+    return n+1;
+}}
+fn main() {{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],3)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_record_padding_reserves_after_the_encoded_field(self):
+        source = f'''struct R {{value:varint,pad 70000,after:u8}}
+var neighbor:i64[>..]=[{CANARY}];
+fn value(n:i64)->i64 {{print(n);return n;}}
+fn main() {{let r=R{{value(11),value(22) as u8}};}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],2)
+            for engine,observed in self.engines(path,info,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn('data region exhausted',observed['error'])
+                    self.assertEqual(observed['numbers'],['11'])
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_record_callback_exit_does_not_reserve_later_padding(self):
+        source = f'''struct R {{value:varint,pad 70000,after:u8}}
+var neighbor:i64[>..]=[{CANARY}];
+fn make<F>()->R {{return R{{F(),7}};}}
+fn target(n:i64)->i64 {{let r=make(){{if n>=0 {{return n+1;}}else{{0}}}};return r.value;}}
+export fn tick(n:i64)->i64 {{target(n)}}
+fn main() {{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],2)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
     def test_variable_prefix_padding_preserves_references_and_regions(self):
         source = f'''struct R {{tag:u8,pad 3,word:u16,pad,values:u8[u8]}}
 var neighbor:i64[>..]=[{CANARY}];

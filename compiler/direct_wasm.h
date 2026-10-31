@@ -252,6 +252,14 @@ struct Function {
     void Write(const Slot &);
     void Load(TypeExpr *);
     void Store(TypeExpr *);
+    pair<uint32_t, uint32_t> ReadVarint(uint32_t, uint32_t, Line);
+    void AppendVarint(uint32_t, uint32_t, Line);
+    uint32_t WalkByteRecord(const Location &, optional<size_t>, Line);
+    uint32_t EncodedReadLimit(uint32_t);
+    pair<uint32_t, uint32_t> ReadVarintElement(uint32_t, uint32_t, Line);
+    uint32_t WalkVarintElements(uint32_t, uint32_t, uint32_t, Line);
+    void CopyVarintElements(uint32_t, uint32_t, uint32_t, Line);
+    void CheckNamedVarintReturns(Block *, SFunction *, size_t, size_t, const VarDef *, string_view);
     Location PinPlace(Node *, bool pointee = false);
     void LocationAddress(const Location &);
     Location OffsetLocation(const Location &, uint32_t, TypeExpr *);
@@ -576,15 +584,15 @@ struct Compiler {
         switch (t->kind) {
             case TY_BOOL: return I32;
             case TY_INT:
-                if (t->intstorage == IS_VARINT) Fail(t->line, "varint storage is not supported");
                 return IntBits(t->intstorage) == 64 ? I64 : I32;
             case TY_FLT: return IsF32(t) ? F32 : F64;
             case TY_REF:
                 if (t->ref->lenstorage >= 0 || t->ref->pool)
                     Fail(t->line, "relative and pool references are not supported");
-                if (RegionOwner(t->ref->sub)) ControlLayout(t->ref->sub); else Size(t->ref->sub);
+                if (RegionOwner(t->ref->sub)) ControlLayout(t->ref->sub);
+                else if (!Varint(t->ref->sub)) Size(t->ref->sub);
                 return I32;
-            case TY_SLICE: Size(t->sub); return I64; // packed pointer + length
+            case TY_SLICE: if (!Varint(t->sub)) Size(t->sub); return I64; // packed pointer + length
             case TY_ARRAY:
                 if (RegionArray(t)) HeaderLayout(t); else Size(t);
                 return I32;
@@ -625,6 +633,12 @@ struct Compiler {
         return (RegionArray(tail) && !GrowableArray(tail)) || (RegionRecord(tail) && !FrameStruct(tail));
     }
     static bool RegionRecord(TypeExpr *t) { return RegionStruct(t) || RegionVariant(t); }
+    static bool Varint(TypeExpr *t) { return t && t->kind == TY_INT && t->intstorage == IS_VARINT; }
+    static bool ByteRecord(TypeExpr *t) {
+        if (!RegionStruct(t) || FrameStruct(t)) return false;
+        auto &fields = t->struc->inst->ftypes;
+        return any_of(fields.begin(), fields.end(), [](auto field) { return Varint(field); });
+    }
     static bool SameRecord(TypeExpr *left, TypeExpr *right) {
         if (!left || !right || left->kind != right->kind) return false;
         if (left->kind == TY_STRUCT) return left->struc->inst == right->struc->inst;
@@ -657,7 +671,10 @@ struct Compiler {
         if (!RegionArray(t)) return FixedLayout(t);
         if (t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT)
             Fail(t->line, "varint variable-array length storage is not supported");
-        FixedLayout(t->arr->sub);
+        if (Varint(t->arr->sub)) {
+            if (t->arr->akind != A_VAR)
+                Fail(t->line, "varint elements currently require immutable variable arrays");
+        } else FixedLayout(t->arr->sub);
         Layout header; header.size = owner_control_bytes; header.align = 4; return header;
     }
     const Layout &ControlLayout(TypeExpr *t) {
@@ -687,6 +704,17 @@ struct Compiler {
             }
             layout.size = Align(layout.size, layout.align);
         }
+        else if (ByteRecord(t)) {
+            layout.size = owner_control_bytes; layout.align = 4;
+            for (auto field : RecordFields(t)) {
+                layout.fields.push_back(0);
+                if (field && !Varint(field)) {
+                    if (Class(field) != SC_FIXED)
+                        Fail(t->line, "byte-walked records currently require varint or fixed-size fields");
+                    FixedLayout(field);
+                }
+            }
+        }
         else if (RegionRecord(t)) {
             auto &fields = RecordFields(t);
             auto &defs = RecordFieldDefs(t);
@@ -695,6 +723,9 @@ struct Compiler {
             if (FrameStruct(t) && any_of(defs.begin(), defs.end(), [](auto &field) { return field.ispad; }))
                 Fail(t->line, "padding in frame objects is not supported");
             auto tail = fields.empty() ? nullptr : fields.back();
+            if (RegionArray(tail) && Varint(tail->arr->sub))
+                Fail(t->line, "containing varint-element images require general record walkers");
+            if (ByteRecord(tail)) Fail(t->line, "containing byte-walked records require general image walkers");
             auto tail_array = tail && tail->kind == TY_ARRAY &&
                 (FrameStruct(t) ? GrowableArray(tail) : (tail->arr->akind == A_VAR || RuntimeLimited(tail)));
             auto tail_struct = RegionRecord(tail) && FrameStruct(t) == FrameStruct(tail);
@@ -715,9 +746,11 @@ struct Compiler {
         return control_layouts.emplace(t, std::move(layout)).first->second;
     }
     TypeExpr *TailType(TypeExpr *t) {
+        if (ByteRecord(t)) Fail(t->line, "byte-walked records have no array tail");
         ControlLayout(t); return RegionRecord(t) ? TailType(RecordFields(t).back()) : t;
     }
     const Layout &RecordImageLayout(TypeExpr *t) {
+        if (ByteRecord(t)) Fail(t->line, "byte-walked records require dynamic field offsets");
         if (!RegionRecord(t) || FrameStruct(t)) Fail(t->line, "internal: expected a non-frame record image");
         if (auto found = record_image_layouts.find(t); found != record_image_layouts.end()) return found->second;
         ControlLayout(t);
@@ -1038,7 +1071,12 @@ inline Slot Function::Bind(VarDef *v) {
     return vars.emplace(v, s).first->second;
 }
 inline void Function::Load(TypeExpr *t) {
-    if (c.region_cursors && !Compiler::RegionOwner(t)) CanonicalAddress(c.FixedLayout(t).size);
+    if (c.region_cursors && !Compiler::RegionOwner(t)) CanonicalAddress(Compiler::Varint(t) ? 1 : c.FixedLayout(t).size);
+    if (Compiler::Varint(t)) {
+        auto address = Save(I32);
+        code.Op(0x3f); code.Byte(0); code.Op(0xad); code.I64Const(65536); code.Op(0x7e);
+        auto decoded = ReadVarint(address, Save(I64), t->line); Get(decoded.first); return;
+    }
     if (c.Aggregate(t)) return; // aggregate values are addresses
     if (t->kind == TY_FLT) { code.Mem(IsF32(t) ? 0x2a : 0x2b); return; }
     if (t->kind == TY_SLICE) { code.Mem(0x29); return; }
@@ -1050,6 +1088,7 @@ inline void Function::Load(TypeExpr *t) {
     code.Mem(bits == 8 ? (u ? 0x2d : 0x2c) : bits == 16 ? (u ? 0x2f : 0x2e) : bits == 32 ? 0x28 : 0x29);
 }
 inline void Function::Store(TypeExpr *t) {
+    if (Compiler::Varint(t)) Fail(t->line, "varint fields are construction-only");
     if (c.region_cursors) {
         auto value = Save(t);
         CanonicalAddress(c.FixedLayout(t).size);
@@ -1113,6 +1152,8 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_landing.h"
 #include "direct_wasm_publication.h"
 #include "direct_wasm_storage.h"
+#include "direct_wasm_varints.h"
+#include "direct_wasm_varint_arrays.h"
 #include "direct_wasm_record_images.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"

@@ -99,6 +99,11 @@ jobs:
           python tests/test_static_limited_images.py
           python tests/test_record_padding.py
           python tests/test_padding_boundaries.py
+          python tests/test_varint_records.py
+          python tests/test_varint_boundaries.py
+          python tests/test_varint_capture_boundaries.py
+          python tests/test_varint_arrays.py
+          python tests/test_varint_array_boundaries.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py
       - name: LangArena official small cases and observable marker edits

@@ -19,6 +19,11 @@ inline void Function::PublishCursor(uint32_t header, uint32_t top) {
 
 inline void Function::PublishArrayCursor(uint32_t header, TypeExpr *type, uint32_t count) {
     if (!c.region_cursors) return;
+    if (Compiler::Varint(type->arr->sub)) {
+        ReadArrayBase(header); auto base = Save(I32);
+        Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); auto limit = Save(I64);
+        PublishCursor(header, WalkVarintElements(base, count, limit, type->line)); return;
+    }
     Get(header); code.Mem(0x28, 2); Get(count); code.Op(0xa7);
     code.I32Const(int32_t(c.FixedLayout(type->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
     PublishCursor(header, Save(I32));
@@ -150,9 +155,16 @@ inline void Function::LandArraySuffix(uint32_t original, uint32_t start, uint32_
     auto first = value_base.value_or(start);
     Get(first); Get(start); code.Op(0x49);
     Get(first); Get(finish); code.Op(0x4b); code.Op(0x72); TrapIf(line, "invalid nonlocal value span");
-    Get(length); code.Op(0xad); code.I64Const(c.FixedLayout(type->arr->sub).size); code.Op(0x7e);
-    Get(finish); code.Op(0xad); Get(first); code.Op(0xad); code.Op(0x7d);
-    code.Op(0x56); TrapIf(line, "invalid nonlocal landing length");
+    if (Compiler::Varint(type->arr->sub)) {
+        Get(length); code.Op(0xad); auto count = Save(I64);
+        Get(finish); code.Op(0xad); auto limit = Save(I64);
+        Get(WalkVarintElements(first, count, limit, line)); Get(finish); code.Op(0x4b);
+        TrapIf(line, "invalid nonlocal landing length");
+    } else {
+        Get(length); code.Op(0xad); code.I64Const(c.FixedLayout(type->arr->sub).size); code.Op(0x7e);
+        Get(finish); code.Op(0xad); Get(first); code.Op(0xad); code.Op(0x7d);
+        code.Op(0x56); TrapIf(line, "invalid nonlocal landing length");
+    }
     ReserveRegion(original, bytes, c.ast.inttypes[IS_U8], line);
     Get(original); code.Mem(0x28, 2); auto base = Save(I32);
     Get(base); Get(start); Get(bytes); code.Op(0xa7); code.Copy();
