@@ -42,7 +42,8 @@ describes the supported layouts and natural result checks.
 Nonlocal returns cross ordinary and dispatched calls for fixed target results,
 including mixed aggregates and recursive target activations, with cleanup of
 dying storage. [Owned nonlocal results](docs/NONLOCAL_RETURNS.md) support one growable-array
-target with staged construction and landing; other owned target contracts remain pending.
+or single-tail frame target with staged construction and landing; other owned
+target contracts remain pending.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

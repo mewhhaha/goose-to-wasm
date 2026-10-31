@@ -26,7 +26,7 @@ where required. Private parameter headers and body locals have their own logical
 cleanup depths, while the result survives both watermarks.
 
 Callbacks do not introduce a new return target: a nonlocal return still names the
-function selected by the frontend. [Fixed and admitted growable target contracts](NONLOCAL_RETURNS.md)
+function selected by the frontend. [Fixed and admitted growable/frame target contracts](NONLOCAL_RETURNS.md)
 can cross ordinary emitted calls. Other owned targets require further staging
 and landing support.
 

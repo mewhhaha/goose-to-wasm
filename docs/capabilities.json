@@ -921,7 +921,7 @@
       },
       "captured_environment": {
         "status": "qualified_subset",
-        "scope": "Hidden captured binding addresses derived from final bodies, with transitive/recursive requirements, global initializer roots and function-value remapping. Scalars, mutable reference/slice bindings and supported owners share current-activation storage. Fixed and supported owned callback parameters/single results use independent copies, natural result contracts and scoped cleanup. Borrowed callback-local results and owned targets beyond a single admitted growable result remain gated; fixed nonlocal effects qualify the original full funval capture fixture at O0/O2.",
+        "scope": "Hidden captured binding addresses derived from final bodies, with transitive/recursive requirements, global initializer roots and function-value remapping. Scalars, mutable reference/slice bindings and supported owners share current-activation storage. Fixed and supported owned callback parameters/single results use independent copies, natural result contracts and scoped cleanup. Borrowed callback-local results and owned targets beyond a single admitted growable/frame result remain gated; fixed nonlocal effects qualify the original full funval capture fixture at O0/O2.",
         "fixtures": [
           "tests/fixtures/upstream_inline_nested_calls.goose",
           "tests/fixtures/upstream_nested_fn_scope.goose",
@@ -958,9 +958,14 @@
       },
       "nonlocal_return": {
         "status": "qualified_subset",
-        "scope": "Fixed/scalar/reference/slice/aggregate and mixed fixed contracts propagate through ordinary and dispatched calls with innermost recursive target identity and cross-frame cleanup. A single Grow/GrowShrink owned target stages behind existing data and lands its complete physical suffix at the catch; cursor state preserves canceled partial data and receiving-channel publication through ordinary/inline/ER construction. Owned sources require supported reads or closed producers. Variable/capacity-limited, enum/record and mixed/multiple owned targets remain gated.",
+        "scope": "Fixed/scalar/reference/slice/aggregate and mixed fixed contracts propagate through ordinary and dispatched calls. A single Grow/GrowShrink array or nested fixed-prefix Frame target stages a private control and physical suffix, with innermost target identity, saved entry cursor, frame base-offset landing and cross-frame cleanup. Cancellation retains physical bytes; named frames restore prefix/base/length. Receiving-channel publication and inline/control scope ordering are preserved. Sources require supported reads or closed producers. Variable/capacity-limited, enum/non-frame-record and mixed/multiple owned targets remain gated.",
         "fixtures": [
           "tests/fixtures/nonlocal_fixed_paths.goose",
+          "tests/fixtures/nonlocal_frame_canceled.goose",
+          "tests/fixtures/nonlocal_frame_dispatch.goose",
+          "tests/fixtures/nonlocal_frame_nested.goose",
+          "tests/fixtures/nonlocal_frame_shrink.goose",
+          "tests/fixtures/nonlocal_frame_values.goose",
           "tests/fixtures/nonlocal_owned_canceled_copy.goose",
           "tests/fixtures/nonlocal_owned_canceled_forward.goose",
           "tests/fixtures/nonlocal_owned_canceled_named.goose",

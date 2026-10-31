@@ -297,7 +297,7 @@ struct Function {
     void LandOwnedEffect();
     bool ConstructNormalOwnedResult(Node *, const ConstructionDestination &);
     bool ConstructNormalRecordResult(Node *, const ConstructionDestination &);
-    void LandArraySuffix(uint32_t, uint32_t, uint32_t, TypeExpr *, Line, optional<uint32_t> base = {});
+    void LandArraySuffix(uint32_t, uint32_t, uint32_t, TypeExpr *, Line, optional<uint32_t> base = {}, optional<uint32_t> value_base = {});
     void SkipReplacedEffectOwner(uint32_t, uint32_t);
     uint32_t CursorSlot(uint32_t);
     uint32_t RegionCursor(uint32_t);
@@ -708,6 +708,7 @@ struct Compiler {
     }
     void AnalyzeCaptures();
     void AnalyzeEffects();
+    bool OwnedEffectResult(TypeExpr *);
     Layout MailboxLayout(FnSpec *);
     Signature FunctionSig(FnSpec *sp) {
         Signature s;

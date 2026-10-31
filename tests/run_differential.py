@@ -104,6 +104,23 @@ def cases():
             answer = f"[{n}, {n + 1}]\n[{n}, {n + 1}, {n + 2}] {n + 2}\n[{n + 10}, {n + 11}]\n"
             result.append(Case(f"owned-nonlocal/recursive/{n}{suffix}", "nonlocal_owned_paths", f"{n}\n",
                                answer, debug=debug, group="control"))
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
+        for mode in (0, 1, 2):
+            answer = "1 [1, 2]\n1 [1, 2, 10]\n" if mode == 0 else "7 [9]\n7 [9, 10]\n"
+            result.append(Case(f"frame-nonlocal/values/{mode}{suffix}", "nonlocal_frame_values", f"{mode}\n",
+                               answer, debug=debug, group="control"))
+        result.append(Case(f"frame-nonlocal/canceled{suffix}", "nonlocal_frame_canceled",
+                           stdout="9\n1 [1, 2]\n1 [1, 2, 11] 7\n", debug=debug, group="control"))
+        result.append(Case(f"frame-nonlocal/shrink{suffix}", "nonlocal_frame_shrink",
+                           stdout="7 [9, 10]\n10\n[9, 11, 11]\n[12]\n", debug=debug, group="control"))
+        for n in (0, 3):
+            answer = "4 [5]\n" if n == 0 else "3 [4]\n"
+            result.append(Case(f"frame-nonlocal/dispatch/{n}{suffix}", "nonlocal_frame_dispatch", f"{n}\n",
+                               answer, debug=debug, group="control"))
+        for depth in (0, 3):
+            result.append(Case(f"frame-nonlocal/nested/{depth}{suffix}", "nonlocal_frame_nested", f"{depth}\n",
+                               "7 1 [2, 3] 3\n[2, 3, 4]\n", debug=debug, group="control"))
     dispatch_upstream = {
         "dispatch_evaluation_order": "first\nchoice\nlast\n3 A 7\nfirst\nchoice\nlast\n3 B 7\n1 A 9\n3 A 4\n3 A 4\n1\n2\ncopied\n",
         "dispatch_copied_reference": "copied A\n0\n7\n7\nvalue arm\n",

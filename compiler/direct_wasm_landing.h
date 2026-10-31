@@ -133,7 +133,7 @@ inline bool Function::SafeEscapeRead(Node *node, bool pushes) {
     return safe(node, pushes);
 }
 
-inline void Function::LandArraySuffix(uint32_t original, uint32_t start, uint32_t length, TypeExpr *type, Line line, optional<uint32_t> landing_base) {
+inline void Function::LandArraySuffix(uint32_t original, uint32_t start, uint32_t length, TypeExpr *type, Line line, optional<uint32_t> landing_base, optional<uint32_t> value_base) {
     if (landing_base) { Get(original); Get(*landing_base); code.Mem(0x36, 2); }
     auto finish = RegionCursor(original);
     Get(start); Get(original); code.Mem(0x28, 2); code.Op(0x49);
@@ -141,8 +141,12 @@ inline void Function::LandArraySuffix(uint32_t original, uint32_t start, uint32_
     TrapIf(line, "invalid nonlocal landing span");
     Get(start); Get(finish); code.Op(0x4b); TrapIf(line, "invalid nonlocal landing span");
     Get(finish); code.Op(0xad); Get(start); code.Op(0xad); code.Op(0x7d); auto bytes = Save(I64);
+    auto first = value_base.value_or(start);
+    Get(first); Get(start); code.Op(0x49);
+    Get(first); Get(finish); code.Op(0x4b); code.Op(0x72); TrapIf(line, "invalid nonlocal value span");
     Get(length); code.Op(0xad); code.I64Const(c.FixedLayout(type->arr->sub).size); code.Op(0x7e);
-    Get(bytes); code.Op(0x56); TrapIf(line, "invalid nonlocal landing length");
+    Get(finish); code.Op(0xad); Get(first); code.Op(0xad); code.Op(0x7d);
+    code.Op(0x56); TrapIf(line, "invalid nonlocal landing length");
     ReserveRegion(original, bytes, c.ast.inttypes[IS_U8], line);
     Get(original); code.Mem(0x28, 2); auto base = Save(I32);
     Get(base); Get(start); Get(bytes); code.Op(0xa7); code.Copy();
@@ -237,45 +241,65 @@ inline void Function::NonlocalOwnedReturn(Return *node) {
     auto value = node->vals[0]; auto target = node->targetspec;
     auto call = Is<Call>(value);
     bool forwarding = call && call->builtin < 0 && !call->fvbody && call->dispatch.empty() && call->spec &&
-        call->spec->rets.size() == 1 && Compiler::RegionArray(call->spec->rets[0]) && !Compiler::RuntimeLimited(call->spec->rets[0]);
+        call->spec->rets.size() == 1 && c.OwnedEffectResult(call->spec->rets[0]);
     if (!SafeEscapeRead(value, forwarding))
         Fail(node->line, "owned nonlocal source requires a pure read or a closed producer with qualified arguments");
     code.OpU(0x23, c.effect_globals.at(target)); auto destination = Save(I32);
     Get(destination); code.Op(0x45); TrapIf(node->line, "nonlocal return target is not active");
     Get(destination); code.Mem(0x28, 2, 4); auto original = Save(I32);
-    auto start = RegionCursor(original);
     auto type = target->rets[0]; auto control = c.ControlLayout(type);
+    LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto original_tail = Save(I32);
+    auto start = RegionCursor(original_tail);
     Location stage { type, Slot { Slot::FRAME, FrameBytes(control.size, control.align), type } };
-    LocationAddress(stage); auto header = Save(I32);
+    LocationAddress(TailHeaderLocation(stage)); auto header = Save(I32);
     Get(header); Get(start); code.Mem(0x36, 2);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
-    Get(header); Get(original); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
+    Get(header); Get(original_tail); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
     RegisterEffectOwner(stage);
-    private_headers.push_back({ stage, cleanups.size() });
+    private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
     code.I32Const(0); auto private_publication = Save(I32);
     ConstructRegionInto(value, { stage, ConstructionDestination::Statement, false, {}, true, false, private_publication });
     auto box = OffsetLocation({ type, AddressLocal { destination } }, c.MailboxLayout(target).fields[0], type);
-    LocationAddress(box); Get(header); code.I32Const(16); code.Copy();
+    LocationAddress(box); LocationAddress(stage); code.I32Const(int32_t(control.size)); code.Copy();
     Get(destination); Get(start); code.Mem(0x36, 2, 8);
     Get(destination); code.OpU(0x24, c.pending_effect); CheckPendingEffect(node->line);
 }
 
 inline void Function::LandOwnedEffect() {
+    auto type = results[0]; auto layout = c.ControlLayout(type);
     FrameAddress(mailbox + 4); code.Mem(0x28, 2); auto original = Save(I32);
     FrameAddress(mailbox + 8); code.Mem(0x28, 2); auto start = Save(I32);
-    FrameAddress(mailbox + c.MailboxLayout(spec).fields[0] + 4); code.Mem(0x28, 2); auto length = Save(I32);
-    LandArraySuffix(original, start, length, results[0], spec->sf->line);
+    FrameAddress(mailbox + 12); code.Mem(0x28, 2); auto base = Save(I32);
+    FrameAddress(mailbox + c.MailboxLayout(spec).fields[0]); auto winning = Save(I32);
+    LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto tail = Save(I32);
+    LocationAddress(TailHeaderLocation({ type, AddressLocal { winning } })); auto winning_tail = Save(I32);
+    Get(winning_tail); code.Mem(0x28, 2, 4); auto length = Save(I32);
+    Get(winning_tail); code.Mem(0x28, 2); auto first = Save(I32);
+    auto element_owner = Compiler::RegionRecord(type) ? c.TailType(type) : type;
+    LandArraySuffix(tail, start, length, element_owner, spec->sf->line, base, first);
+    if (Compiler::FrameStruct(type)) {
+        if (layout.payload) {
+            Get(original); CanonicalAddress(layout.payload);
+            Get(winning); code.I32Const(int32_t(layout.payload)); code.Copy();
+        }
+        Get(tail); Get(base); Get(first); Get(start); code.Op(0x6b); code.Op(0x6a); code.Mem(0x36, 2);
+        PublishHeader(tail, 0);
+    }
     Get(original); Set(resultlocals[0]);
 }
 
 inline void Function::SkipReplacedEffectOwner(uint32_t header, uint32_t done) {
     if (!c.owned_effects) return;
-    for (auto target : c.effect_targets) if (target->rets.size() == 1 && Compiler::GrowableArray(target->rets[0])) {
+    for (auto target : c.effect_targets) if (target->rets.size() == 1 && c.OwnedEffectResult(target->rets[0])) {
         auto next = Begin();
         code.OpU(0x23, c.effect_globals.at(target)); code.Op(0x45); Br(next, true);
         code.OpU(0x23, c.pending_effect); code.OpU(0x23, c.effect_globals.at(target)); code.Op(0x47); Br(next, true);
-        code.OpU(0x23, c.pending_effect); code.Mem(0x28, 2, 4); Get(header); code.Op(0x46); Br(done, true); End();
+        code.OpU(0x23, c.pending_effect); code.Mem(0x28, 2, 4);
+        if (Compiler::RegionRecord(target->rets[0])) {
+            code.I32Const(int32_t(c.ControlLayout(target->rets[0]).payload)); code.Op(0x6a);
+        }
+        Get(header); code.Op(0x46); Br(done, true); End();
     }
 }
 

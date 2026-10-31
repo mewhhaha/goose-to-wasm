@@ -1235,6 +1235,40 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_frame_nonlocal_return_reuses_receiving_region(self):
+        source = f'''struct Inner {{ id: i64, values: i64[>..] }}
+struct Frame {{ tag: u8, child: Inner }}
+var neighbor: i64[>..] = [{CANARY}];
+recursive fn leave(depth: i64, value: i64) {{
+    if depth > 0 {{ leave(depth - 1, value); return; }}
+    return Frame {{ 7, Inner {{ value + 1, [value + 2] }} }} from target;
+}}
+fn target(value: i64) -> Frame {{ leave(3, value); return Frame {{ 0, Inner {{ 0, [] }} }}; }}
+export fn tick(n: i64) -> i64 {{ var result = target(n); result.child.id }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_frame_nonlocal_return_replaces_abandoned_oversized_tail(self):
+        source = f'''struct Frame {{ id: i64, values: i64[>..] }}
+var neighbor: i64[>..] = [{CANARY}];
+fn fill(value: i64) -> i64 {{ return Frame {{ value + 1, [value + 2] }} from target; }}
+fn target(value: i64) -> Frame {{ return Frame {{ 9, [fill(value); 4294967296] }}; }}
+export fn tick(n: i64) -> i64 {{ var result = target(n); result.id }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
     def test_owned_nonlocal_return_reuses_receiving_region(self):
         source = f'''var neighbor: i64[>..] = [{CANARY}];
 recursive fn leave(depth: i64, value: i64) {{
