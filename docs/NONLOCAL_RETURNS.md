@@ -3,8 +3,8 @@
 Out-of-line `return ... from` and captured callback returns support targets whose
 result types have fixed size, including scalars, references/slices, fixed
 aggregates and mixed/multiple fixed results. Existing frontend lifetime checks
-still apply. A single growable or grow/shrink array target also supports the
-owned staging and landing contract below. Other owned target contracts remain
+still apply. A single growable/grow-shrink array or fixed-prefix frame target also supports
+the owned staging and landing contract below. Other owned target contracts remain
 explicitly gated.
 
 Final checked bodies identify actual escaping returns. Discovery skips raw
@@ -51,7 +51,7 @@ scopes, print scratch and retained anonymous arguments. Resource tests repeat
 interrupted constructions, including a dying local, a surviving global and an
 embedded enum tail, on V8 and Wasmtime.
 
-## Single growable owned target
+## Single owned target with a growable tail
 
 An owned escape snapshots the target region's physical cursor before evaluating
 its source. A private control record constructs the value behind existing data
@@ -93,11 +93,29 @@ The initial owned-source admission accepts supported location/copy reads and
 closed ordinary producers with fixed, reference-free parameters/captures.
 Qualified growable forwarding can evaluate push arguments. Callback-result and
 unproved borrowed/owned producer environments receive a diagnostic. Variable,
-capacity-limited, enum/record and mixed/multiple owned nonlocal targets require
-further work; this is not a general owned-effect parity claim.
+capacity-limited, enum/non-frame-record and mixed/multiple owned nonlocal targets
+require further work; this is not a general owned-effect parity claim.
 
 Differential fixtures cover recursive target identity, local source slices,
 argument ordering, canceled partial values followed by literal/copy/forwarded
 returns, nested frame publication, inline named alternatives and coexistence
 with earlier array/record/enum behavior. Resource tests repeat successful and
 interrupted returns under small memory limits with neighboring canaries.
+
+## Frame-valued target landing
+
+A frame target may have fixed prefixes nested to one fixed-element Grow or
+GrowShrink tail. Its mailbox stores the original whole-control address, the
+physical entry cursor, the escape start and an aligned private control snapshot.
+Construction of that snapshot keeps prefix/base/length publication private until
+it completes. The target catch moves the complete physical suffix to its saved
+entry cursor and publishes the winning prefix and logical length. Its final tail
+base is `entry + (winning_base - escape_start)`; the original resource limit is
+preserved. Bounds validate the winning length relative to its base within the
+suffix. No additional data region is acquired for the snapshot.
+
+Canceled frame attempts retain physical tail bytes and discard their private
+prefix. A later named-frame return snapshots its prefix, tail base and length;
+restoring only length could retain the canceled attempt's suffix base. Literal,
+closed ordinary forwarding, recursive sources, nested prefixes and selected-case
+propagation share the same catch. Existing conservative producer gates apply.

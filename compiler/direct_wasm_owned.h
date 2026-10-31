@@ -48,9 +48,12 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
                 }
                 // Frame-object prefixes and length are values at this return
                 // position. Only the tail's element storage is shared.
-                LocationAddress(TailHeaderLocation(destination.location));
-                LocationAddress(TailHeaderLocation(source)); code.Mem(0x28, 2, 4); code.Mem(0x36, 2, 4);
-                LocationAddress(TailHeaderLocation(destination.location)); PublishHeader(Save(I32), 4);
+                LocationAddress(TailHeaderLocation(destination.location)); auto receiving_tail = Save(I32);
+                LocationAddress(TailHeaderLocation(source)); auto source_tail = Save(I32);
+                for (uint32_t offset : { 0u, 4u }) {
+                    Get(receiving_tail); Get(source_tail); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset);
+                    PublishHeader(receiving_tail, offset);
+                }
             }
             return;
         }

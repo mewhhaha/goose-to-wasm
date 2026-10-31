@@ -23,11 +23,13 @@ Live-owner records distinguish dying headers from surviving storage during
 interrupted reconstruction, including embedded enum tails and private parameters.
 Logical temporary lifetimes survive early inline returns and retained arguments.
 The original function-value capture program now qualifies at O0 as well as O2.
-A [single growable owned target](NONLOCAL_RETURNS.md) now stages behind existing
+A [single growable-array or frame target](NONLOCAL_RETURNS.md) now stages behind existing
 data and lands at its catch without acquiring another data region. Physical
 cursors preserve canceled partial data, while receiving controls publish lengths
 and frame fields during interrupted construction. Other owned contracts remain
-pending.
+pending. Frame catch snapshots preserve nested fixed prefixes and adjust the
+winning tail base relative to the copied suffix; canceled attempts retain tail
+bytes while discarding their private prefix.
 
 ## Implemented: runtime enum case dispatch
 
