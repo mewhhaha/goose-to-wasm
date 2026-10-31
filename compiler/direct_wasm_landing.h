@@ -164,8 +164,7 @@ inline bool Function::ConstructNormalOwnedResult(Node *value, const Construction
     auto forwarding = call && call->builtin < 0 && !call->fvbody && call->dispatch.empty() && call->spec &&
         call->spec->rets.size() == 1 && Compiler::RegionArray(call->spec->rets[0]) && !Compiler::RuntimeLimited(call->spec->rets[0]);
     if (spec && c.effect_globals.count(spec) && destination.lifetime == ConstructionDestination::Caller) {
-        auto owned = c.OwnedEffectOrdinal(spec);
-        if (owned && Compiler::GrowableArray(results[*owned]) && !SafeEscapeRead(value, forwarding))
+        if (Compiler::GrowableArray(type) && !SafeEscapeRead(value, forwarding))
             Fail(value ? value->line : spec->sf->line, "owned escape target result construction needs a qualified producer");
     }
     LocationAddress(destination.location); auto original = Save(I32);
@@ -239,7 +238,7 @@ inline bool Function::ConstructNormalRecordResult(Node *value, const Constructio
 }
 
 inline void Function::NonlocalOwnedReturn(Return *node) {
-    auto target = node->targetspec; auto owned = *c.OwnedEffectOrdinal(target);
+    auto target = node->targetspec; auto owned = c.OwnedEffectOrdinals(target);
     bool tuple_forward = node->vals.size() == 1 && target->rets.size() > 1;
     if (tuple_forward) {
         auto call = Is<Call>(node->vals[0]);
@@ -251,86 +250,105 @@ inline void Function::NonlocalOwnedReturn(Return *node) {
             Fail(node->line, "mixed owned escape forwarding requires an exact closed ordinary producer");
     } else {
         if (node->vals.size() != target->rets.size()) Fail(node->line, "owned nonlocal return result arity mismatch");
-        auto value = node->vals[owned]; auto call = Is<Call>(value);
+        for (auto ordinal : owned) {
+        auto value = node->vals[ordinal]; auto call = Is<Call>(value);
         bool forwarding = call && call->builtin < 0 && !call->fvbody && call->dispatch.empty() && call->spec &&
             call->spec->rets.size() == 1 && (c.OwnedEffectResult(call->spec->rets[0]) ||
                 (Compiler::RegionArray(call->spec->rets[0]) && !Compiler::RuntimeLimited(call->spec->rets[0])));
         if (!SafeEscapeRead(value, forwarding))
             Fail(node->line, "owned nonlocal source requires a pure read or a closed producer with qualified arguments");
+        }
     }
     code.OpU(0x23, c.effect_globals.at(target)); auto destination = Save(I32);
     Get(destination); code.Op(0x45); TrapIf(node->line, "nonlocal return target is not active");
-    Get(destination); code.Mem(0x28, 2, 4); auto original = Save(I32);
-    auto type = target->rets[owned]; auto control = c.ControlLayout(type);
-    LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto original_tail = Save(I32);
-    // Every target-owned start precedes every source ordinal, including fixed
-    // expressions whose effects append to the same receiving region.
-    auto start = RegionCursor(original_tail);
-    Location stage { type, Slot { Slot::FRAME, FrameBytes(control.size, control.align), type } };
-    LocationAddress(TailHeaderLocation(stage)); auto header = Save(I32);
-    Get(header); Get(start); code.Mem(0x36, 2);
-    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
-    Get(header); Get(original_tail); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
-    Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
-    RegisterEffectOwner(stage);
-    private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
+    vector<uint32_t> originals, starts;
+    // Snapshot every receiving stack before any source ordinal executes.
+    for (size_t k = 0; k < owned.size(); k++) {
+        Get(destination); code.Mem(0x28, 2, 4 + uint32_t(k) * 12); auto original = Save(I32);
+        originals.push_back(original);
+        LocationAddress(TailHeaderLocation({ target->rets[owned[k]], AddressLocal { original } }));
+        starts.push_back(RegionCursor(Save(I32)));
+    }
     code.I32Const(0); auto private_publication = Save(I32);
     ResultDestinations destinations(target->rets.size());
-    destinations[owned] = ConstructionDestination { stage, ConstructionDestination::Statement, false, {}, true, false, private_publication };
+    for (size_t k = 0; k < owned.size(); k++) {
+        auto ordinal = owned[k]; auto type = target->rets[ordinal]; auto control = c.ControlLayout(type);
+        LocationAddress(TailHeaderLocation({ type, AddressLocal { originals[k] } })); auto original_tail = Save(I32);
+        Location stage { type, Slot { Slot::FRAME, FrameBytes(control.size, control.align), type } };
+        LocationAddress(TailHeaderLocation(stage)); auto header = Save(I32);
+        Get(header); Get(starts[k]); code.Mem(0x36, 2);
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+        Get(header); Get(original_tail); code.Mem(0x28, 2, 8); code.Mem(0x36, 2, 8);
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+        RegisterEffectOwner(stage);
+        private_headers.push_back({ TailHeaderLocation(stage), cleanups.size() });
+        destinations[ordinal] = ConstructionDestination { stage, ConstructionDestination::Statement, false, {}, true, false, private_publication };
+    }
     vector<uint32_t> values; for (auto result : target->rets) values.push_back(Local(result));
     SetResults(node->vals, target->rets, values, node->line, destinations);
     auto layout = c.MailboxLayout(target);
     for (size_t i = 0; i < target->rets.size(); i++) {
         auto result = target->rets[i];
         auto box = OffsetLocation({ result, AddressLocal { destination } }, layout.fields[i], result);
-        if (i == owned) {
-            LocationAddress(box); LocationAddress(stage); code.I32Const(int32_t(control.size)); code.Copy();
+        if (destinations[i]) {
+            LocationAddress(box); LocationAddress(destinations[i]->location);
+            code.I32Const(int32_t(c.ControlLayout(result).size)); code.Copy();
         } else StoreCopy(box, { result, values[i], c.Aggregate(result) ? CapturedValue::CopiedFixed : CapturedValue::Immediate });
     }
-    Get(destination); Get(start); code.Mem(0x36, 2, 8);
+    for (size_t k = 0; k < owned.size(); k++) {
+        Get(destination); Get(starts[k]); code.Mem(0x36, 2, 8 + uint32_t(k) * 12);
+    }
     Get(destination); code.OpU(0x24, c.pending_effect); CheckPendingEffect(node->line);
 }
 
 inline void Function::LandOwnedEffect() {
-    auto owned = *c.OwnedEffectOrdinal(spec);
-    auto mailbox_layout = c.MailboxLayout(spec);
-    for (size_t i = 0; i < results.size(); i++) if (i != owned) {
-        FrameAddress(mailbox + mailbox_layout.fields[i]); Load(results[i]); Set(resultlocals[i]);
-    }
-    auto type = results[owned]; auto layout = c.ControlLayout(type);
-    FrameAddress(mailbox + 4); code.Mem(0x28, 2); auto original = Save(I32);
-    FrameAddress(mailbox + 8); code.Mem(0x28, 2); auto start = Save(I32);
-    FrameAddress(mailbox + 12); code.Mem(0x28, 2); auto base = Save(I32);
-    FrameAddress(mailbox + mailbox_layout.fields[owned]); auto winning = Save(I32);
-    LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto tail = Save(I32);
-    LocationAddress(TailHeaderLocation({ type, AddressLocal { winning } })); auto winning_tail = Save(I32);
-    Get(winning_tail); code.Mem(0x28, 2, 4); auto length = Save(I32);
-    Get(winning_tail); code.Mem(0x28, 2); auto first = Save(I32);
-    auto element_owner = Compiler::RegionRecord(type) ? c.TailType(type) : type;
-    LandArraySuffix(tail, start, length, element_owner, spec->sf->line, base, first);
-    if (Compiler::FrameStruct(type)) {
-        if (layout.payload) {
-            Get(original); CanonicalAddress(layout.payload);
-            Get(winning); code.I32Const(int32_t(layout.payload)); code.Copy();
+    auto owned = c.OwnedEffectOrdinals(spec); auto mailbox_layout = c.MailboxLayout(spec);
+    size_t next_owned = 0;
+    for (size_t ordinal = 0; ordinal < results.size(); ordinal++) {
+        if (next_owned >= owned.size() || ordinal != owned[next_owned]) {
+            FrameAddress(mailbox + mailbox_layout.fields[ordinal]); Load(results[ordinal]); Set(resultlocals[ordinal]); continue;
         }
-        Get(tail); Get(base); Get(first); Get(start); code.Op(0x6b); code.Op(0x6a); code.Mem(0x36, 2);
-        PublishHeader(tail, 0);
+        auto metadata = mailbox + 4 + uint32_t(next_owned++) * 12;
+        auto type = results[ordinal]; auto layout = c.ControlLayout(type);
+        FrameAddress(metadata); code.Mem(0x28, 2); auto original = Save(I32);
+        FrameAddress(metadata + 4); code.Mem(0x28, 2); auto start = Save(I32);
+        FrameAddress(metadata + 8); code.Mem(0x28, 2); auto base = Save(I32);
+        FrameAddress(mailbox + mailbox_layout.fields[ordinal]); auto winning = Save(I32);
+        LocationAddress(TailHeaderLocation({ type, AddressLocal { original } })); auto tail = Save(I32);
+        LocationAddress(TailHeaderLocation({ type, AddressLocal { winning } })); auto winning_tail = Save(I32);
+        Get(winning_tail); code.Mem(0x28, 2, 4); auto length = Save(I32);
+        Get(winning_tail); code.Mem(0x28, 2); auto first = Save(I32);
+        auto element_owner = Compiler::RegionRecord(type) ? c.TailType(type) : type;
+        LandArraySuffix(tail, start, length, element_owner, spec->sf->line, base, first);
+        if (Compiler::FrameStruct(type)) {
+            if (layout.payload) {
+                Get(original); CanonicalAddress(layout.payload);
+                Get(winning); code.I32Const(int32_t(layout.payload)); code.Copy();
+            }
+            Get(tail); Get(base); Get(first); Get(start); code.Op(0x6b); code.Op(0x6a); code.Mem(0x36, 2);
+            PublishHeader(tail, 0);
+        }
+        Get(original); Set(resultlocals[ordinal]);
     }
-    Get(original); Set(resultlocals[owned]);
 }
 
 inline void Function::SkipReplacedEffectOwner(uint32_t header, uint32_t done) {
     if (!c.owned_effects) return;
-    for (auto target : c.effect_targets) if (auto owned = c.OwnedEffectOrdinal(target)) {
-        auto type = target->rets[*owned];
+    for (auto target : c.effect_targets) {
+        auto owned = c.OwnedEffectOrdinals(target);
+        if (owned.empty()) continue;
         auto next = Begin();
         code.OpU(0x23, c.effect_globals.at(target)); code.Op(0x45); Br(next, true);
         code.OpU(0x23, c.pending_effect); code.OpU(0x23, c.effect_globals.at(target)); code.Op(0x47); Br(next, true);
-        code.OpU(0x23, c.pending_effect); code.Mem(0x28, 2, 4);
-        if (Compiler::RegionRecord(type)) {
-            code.I32Const(int32_t(c.ControlLayout(type).payload)); code.Op(0x6a);
+        for (size_t k = 0; k < owned.size(); k++) {
+            auto type = target->rets[owned[k]];
+            code.OpU(0x23, c.pending_effect); code.Mem(0x28, 2, 4 + uint32_t(k) * 12);
+            if (Compiler::RegionRecord(type)) {
+                code.I32Const(int32_t(c.ControlLayout(type).payload)); code.Op(0x6a);
+            }
+            Get(header); code.Op(0x46); Br(done, true);
         }
-        Get(header); code.Op(0x46); Br(done, true); End();
+        End();
     }
 }
 

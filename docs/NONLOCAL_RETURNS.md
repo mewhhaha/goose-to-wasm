@@ -3,9 +3,9 @@
 Out-of-line `return ... from` and captured callback returns support targets whose
 result types have fixed size, including scalars, references/slices, fixed
 aggregates and mixed/multiple fixed results. Existing frontend lifetime checks
-still apply. A growable/grow-shrink array or fixed-prefix frame result may accompany any
-supported fixed results under the staging and landing contract below. Multiple
-owned results and other owned kinds remain explicitly gated.
+still apply. Growable/grow-shrink arrays and fixed-prefix frames may accompany supported
+fixed results under the staging and landing contract below. Variable/capacity-
+limited arrays and enum/non-frame-record owned kinds remain explicitly gated.
 
 Final checked bodies identify actual escaping returns. Discovery skips raw
 declarations/function-value templates, walks checked callback/default bodies and
@@ -93,7 +93,7 @@ The initial owned-source admission accepts supported location/copy reads and
 closed ordinary producers with fixed, reference-free parameters/captures.
 Qualified growable forwarding can evaluate push arguments. Callback-result and
 unproved borrowed/owned producer environments receive a diagnostic. Variable,
-capacity-limited, enum/non-frame-record and multiple owned nonlocal results
+capacity-limited and enum/non-frame-record owned nonlocal results
 require further work; this is not a general owned-effect parity claim.
 
 Differential fixtures cover recursive target identity, local source slices,
@@ -142,5 +142,26 @@ match exactly, it has the same one owned ordinal, and the producer/arguments pas
 the closed-source proof. Arguments execute once and producer rebasing follows
 them. Element-run variable-array producers retain qualified push-argument
 support when constructing a separate owned ordinal. Function-value/dispatch tuple
-forwarding, cross-kind whole-tuple adaptation and multiple owned targets remain
-separate extensions.
+forwarding and cross-kind whole-tuple adaptation remain separate extensions.
+
+## Multiple owned results
+
+Each owned ordinal has a 12-byte metadata record after the mailbox activation
+word: original control, successful attempt start and target-entry cursor. Result
+snapshots follow these records at their own alignments. Fixed-only and one-owner
+mailboxes preserve their earlier layouts.
+
+Every owned cursor is captured in a separate pass before evaluating any source
+ordinal. Each destination then receives an independent private stage and
+construction state, with publication disabled. Results evaluate left to right;
+all snapshots and starts commit only after the attempt succeeds. Catch processes
+each result in ordinal order, preserving pending throughout every owned landing
+and abandoning cleanup. Replaced-owner recognition covers every terminal header.
+
+Named receivers and anonymous result allocation provide distinct regions per
+owned ordinal; exact forwarding preserves those channels. Repeated source owners
+still construct independent destination copies. Staging adds activation bytes,
+without adding a data-region lease or a recursive back-edge reservation.
+Qualification covers scalar effects on both cursors, Grow/Frame combinations,
+three heterogeneous owners, aliases, cancellation, nested replacement, generic
+by-value copies, recursive forwarding and neighboring-region protection.

@@ -1235,6 +1235,59 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_multiple_owned_returns_reuse_independent_regions(self):
+        source = f'''struct Frame {{ id: i64, values: i64[>..] }}
+var neighbor: i64[>..] = [{CANARY}];
+recursive fn leave(depth: i64, value: i64) {{
+    if depth > 0 {{ leave(depth - 1, value); return; }}
+    return value + 1, [value + 2], Frame {{ 7, [value + 3] }} from target;
+}}
+recursive fn target(depth: i64, value: i64) -> i64, i64[>..], Frame {{
+    if depth > 0 {{ return target(depth - 1, value); }}
+    leave(3, value); return 0, [], Frame {{ 0, [] }};
+}}
+export fn tick(n: i64) -> i64 {{ let a, left, right = target(12, n); a }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_multiple_owned_reservation_preserves_other_live_region(self):
+        source = f'''fn target() -> i64[>..], i64[>..] {{
+    var right: i64[>..] = [{CANARY}];
+    recursive fn leave() {{ return [1; 15000], copy(right) from target; }}
+    leave(); return [], right;
+}}
+fn main() {{ let left, right = target(); print(left.len, right.len); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, canary_index=2):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_multiple_owned_recursive_activation_exhaustion_preserves_canary(self):
+        source = f'''extern fn bench_input() -> i64;
+var neighbor: i64[>..] = [{CANARY}];
+recursive fn target(depth: i64) -> i64[>..], i64[>..], i64 {{
+    if depth > 0 {{ return target(depth - 1); }}
+    recursive fn leave() {{ return [7], [8], 9 from target; }}
+    leave(); return [], [], 0;
+}}
+fn main() {{ let left, right, n = target(bench_input()); print(n); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, input_value=1000000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("activation", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
     def test_mixed_nonlocal_return_reuses_receiving_region(self):
         for frame in (False, True):
             declaration = "struct Frame { id: i64, values: i64[>..] }" if frame else ""
