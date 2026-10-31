@@ -120,7 +120,7 @@ inline void Function::ArrayBuiltin(Call *n) {
         Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
     }
     auto region = Compiler::RegionArray(t);
-    if (t->kind != TY_ARRAY || (t->arr->akind != A_LIMITED && !region))
+    if (t->kind != TY_ARRAY || (t->arr->akind != A_LIMITED && !Compiler::GrowableArray(t)))
         Fail(n->line, "this array mutation is not supported without dynamic storage");
     auto layout = region ? c.HeaderLayout(t) : c.Size(t);
     auto base = Save(I32);

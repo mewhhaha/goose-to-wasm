@@ -48,6 +48,14 @@ The header is never copied through the fixed-value ownership path. Initializers
 construct into an acquired region, including implicit empty globals, literals,
 fills, copies, slices and natural fixed-array function results.
 
+Fixed-element variable arrays `T[]` and `T[u32]` use the same region control
+header and owned construction channels. Their size class remains variable;
+their descriptor never enters the fixed-copy path. The frontend freezes their
+length at construction while permitting element writes. Other length encodings,
+variable elements and containing structs remain refused. Named-result binding
+also shares a growable local's data with its variable-array result, matching
+the pinned native emitter's element-run construction.
+
 Each growable result of an internal function receives an additional i32
 destination-header parameter and returns that same header address. Its caller
 acquires each region; the callee constructs into it before scoped cleanup.
@@ -228,7 +236,7 @@ The executable differential suite is the authority for qualified behavior.
 
 The current backend refuses owned dynamic function-value parameters/results,
 dynamic containing structs, variable-element
-growables, variable arrays and construction-time limited capacity; variable-mode enums;
+growables, non-u32 variable-array lengths and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;
 non-inlined captured environments and dynamic nonlocal

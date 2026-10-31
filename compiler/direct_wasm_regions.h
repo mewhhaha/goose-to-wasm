@@ -102,9 +102,11 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
         auto candidate = goose::NamedResultOf(body, target, types.size(), i);
         if (!candidate || named_regions.count(candidate) || !Compiler::RegionArray(candidate->type)) continue;
         // The frontend requires identical array element types for this
-        // construction. Match the natural array mode as DetectNrvo does;
-        // mode adaptation must retain its ordinary copy.
-        if (candidate->type->arr->akind != types[i]->arr->akind) continue;
+        // construction. DetectNrvo also binds a growable local's elements
+        // directly to a variable-array result; later results observe aliases.
+        auto same_mode = candidate->type->arr->akind == types[i]->arr->akind;
+        auto grow_to_variable = Compiler::GrowableArray(candidate->type) && types[i]->arr->akind == A_VAR;
+        if (!same_mode && !grow_to_variable) continue;
         CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
         named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate);
     }

@@ -205,6 +205,7 @@ inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
     if (Compiler::RegionArray(t)) {
+        if (!Compiler::GrowableArray(t)) Fail(n->line, "whole variable-array assignment is not supported");
         if (n->op != T_ASSIGN && n->op != T_DOTASSIGN)
             Fail(n->line, "compound owned array assignment is not supported");
         // The frontend forbids RHS use of the owner under reconstruction.

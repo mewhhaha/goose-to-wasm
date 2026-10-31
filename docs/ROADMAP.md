@@ -4,6 +4,17 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: fixed-element variable arrays with default/u32 lengths
+
+`T[]` and `T[u32]` now use stable regions for construction, independent by-value
+parameters, owned results and scoped temporaries. Views, element writes, loops
+and primitive rendering use their frozen length. Growable locals selected by the
+native named-result analysis share data with variable-array results, including
+mutations by later result expressions. Other length encodings, variable elements
+and containing values remain pending. The reviewed
+[variable-array plan](VARIABLE_ARRAYS.md) separates these from runtime capacity
+and its distinct copy/assignment behavior.
+
 ## Implemented: single owned growable temporaries
 
 Single-result growable calls, inline results, supported copies/literals and owned

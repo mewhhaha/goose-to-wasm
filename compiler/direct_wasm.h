@@ -354,11 +354,16 @@ struct Compiler {
         }
     }
     static uint32_t Align(uint32_t x, uint32_t n) { return (x + n - 1) & ~(n - 1); }
-    static bool RegionArray(TypeExpr *t) {
+    static bool GrowableArray(TypeExpr *t) {
         return t && t->kind == TY_ARRAY && (t->arr->akind == A_GROW || t->arr->akind == A_GROWSHRINK);
+    }
+    static bool RegionArray(TypeExpr *t) {
+        return GrowableArray(t) || (t && t->kind == TY_ARRAY && t->arr->akind == A_VAR);
     }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
+        if (t->arr->akind == A_VAR && t->arr->lenstorage >= 0 && t->arr->lenstorage != IS_U32)
+            Fail(t->line, "variable-array length storage other than default/u32 is not supported");
         FixedLayout(t->arr->sub);
         Layout header; header.size = 12; header.align = 4; return header;
     }

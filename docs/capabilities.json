@@ -673,10 +673,16 @@
         ]
       },
       "A_VAR": {
-        "status": "pending",
-        "scope": "Pending owned dynamic storage and construction.",
-        "fixtures": [],
-        "boundary_fixtures": []
+        "status": "qualified_subset",
+        "scope": "Fixed-layout elements with default/u32 length storage. Stable owned construction, by-value parameters, single/mixed results, growable-local named-result aliasing, scoped temporaries, views/indexing/loops and primitive rendering. Other length encodings, variable elements and containing values remain pending. Length is frozen at construction.",
+        "fixtures": [
+          "tests/fixtures/variable_arrays.goose"
+        ],
+        "boundary_fixtures": [
+          "tests/fixtures/unsupported_variable_array.goose",
+          "tests/test_dynamic_boundaries.py",
+          "tests/test_regions.py"
+        ]
       }
     },
     "enums": {
