@@ -1235,6 +1235,49 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_mixed_nonlocal_return_reuses_receiving_region(self):
+        for frame in (False, True):
+            declaration = "struct Frame { id: i64, values: i64[>..] }" if frame else ""
+            owner = "Frame" if frame else "i64[>..]"
+            value = "Frame { 7, [value + 2] }" if frame else "[value + 2]"
+            empty = "Frame { 0, [] }" if frame else "[]"
+            source = f'''{declaration}
+var neighbor: i64[>..] = [{CANARY}];
+recursive fn leave(depth: i64, value: i64) {{
+    if depth > 0 {{ leave(depth - 1, value); return; }}
+    return value + 1, {value}, value + 3 from target;
+}}
+fn target(value: i64) -> i64, {owner}, i64 {{ leave(3, value); return 0, {empty}, 0; }}
+export fn tick(n: i64) -> i64 {{ let a, value, b = target(n); a }}
+fn main() {{}}'''
+            for level in (0, 2):
+                path, runtime = self.compile(source, level)
+                self.assertEqual(runtime["region_count"], 2)
+                for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                    with self.subTest(frame=frame, level=level, engine=engine):
+                        self.assertEqual(observed["error"], "")
+                        self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_mixed_nonlocal_return_replaces_abandoned_extent(self):
+        for frame in (False, True):
+            declaration = "struct Frame { id: i64, values: i64[>..] }" if frame else ""
+            owner = "Frame" if frame else "i64[>..]"
+            value = "Frame { 7, [value + 2] }" if frame else "[value + 2]"
+            interrupted = "Frame { 9, [fill(value); 4294967296] }" if frame else "[fill(value); 4294967296]"
+            source = f'''{declaration}
+var neighbor: i64[>..] = [{CANARY}];
+fn fill(value: i64) -> i64 {{ return value + 1, {value}, value + 3 from target; }}
+fn target(value: i64) -> i64, {owner}, i64 {{ return 1, {interrupted}, 2; }}
+export fn tick(n: i64) -> i64 {{ let a, value, b = target(n); a }}
+fn main() {{}}'''
+            for level in (0, 2):
+                path, runtime = self.compile(source, level)
+                self.assertEqual(runtime["region_count"], 2)
+                for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                    with self.subTest(frame=frame, level=level, engine=engine):
+                        self.assertEqual(observed["error"], "")
+                        self.assertEqual(observed["canary"], str(CANARY))
+
     def test_frame_nonlocal_return_reuses_receiving_region(self):
         source = f'''struct Inner {{ id: i64, values: i64[>..] }}
 struct Frame {{ tag: u8, child: Inner }}

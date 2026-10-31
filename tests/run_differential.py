@@ -121,6 +121,24 @@ def cases():
         for depth in (0, 3):
             result.append(Case(f"frame-nonlocal/nested/{depth}{suffix}", "nonlocal_frame_nested", f"{depth}\n",
                                "7 1 [2, 3] 3\n[2, 3, 4]\n", debug=debug, group="control"))
+    mixed_answers = {
+        "order_grow": "3 [3] 4\n[3, 7] 8\n",
+        "order_frame": "3 7 [9] 4\n[9, 8] 8\n",
+        "forward": "3 [3] 4\n[3, 7] 8\n",
+        "snapshot": "[1, 2] [7] 3\n",
+        "replace": "[7] 2 3\n[7, 8] 8\n",
+        "borrows": "8 [7] [8, 9] 8\n8 [10, 9] 10\n",
+        "positions": "[1, 2] 3 4 4\n1 [2, 3] 4 4\n1 2 [3, 4] 4\n",
+        "var_producer": "[3]\n[3, 7] 8\n",
+    }
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
+        for fixture, answer in mixed_answers.items():
+            result.append(Case(f"mixed-nonlocal/{fixture}{suffix}", "nonlocal_mixed_" + fixture,
+                               stdout=answer, debug=debug, group="control"))
+        for level, answer in ((0, "9\n5 [1, 2] 6\n[1, 2, 11] 7\n"), (2, "9\n5 [11, 2] 6\n[11, 7, 11] 7\n")):
+            result.append(Case(f"mixed-nonlocal/canceled/O{level}{suffix}", "nonlocal_mixed_canceled",
+                               stdout=answer, debug=debug, group="control", levels=(level,)))
     dispatch_upstream = {
         "dispatch_evaluation_order": "first\nchoice\nlast\n3 A 7\nfirst\nchoice\nlast\n3 B 7\n1 A 9\n3 A 4\n3 A 4\n1\n2\ncopied\n",
         "dispatch_copied_reference": "copied A\n0\n7\n7\nvalue arm\n",

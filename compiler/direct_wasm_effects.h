@@ -7,21 +7,45 @@ inline bool Compiler::OwnedEffectResult(TypeExpr *type) {
     ControlLayout(type); return GrowableArray(TailType(type));
 }
 
+inline optional<size_t> Compiler::OwnedEffectOrdinal(FnSpec *target) {
+    optional<size_t> owned;
+    for (size_t i = 0; i < target->rets.size(); i++) if (Class(target->rets[i]) != SC_FIXED) {
+        if (!OwnedEffectResult(target->rets[i]))
+            Fail(target->sf->line, "this owned nonlocal target requires additional staging and landing support");
+        if (owned) Fail(target->sf->line, "multiple owned nonlocal results require independent start snapshots");
+        owned = i;
+    }
+    return owned;
+}
+
+inline bool Compiler::SameEffectType(TypeExpr *a, TypeExpr *b) {
+    if (a == b) return true;
+    if (!a || !b || a->kind != b->kind) return false;
+    switch (a->kind) {
+        case TY_INT: return a->intstorage == b->intstorage;
+        case TY_FLT: return a->fltstorage == b->fltstorage;
+        case TY_BOOL: case TY_VOID: return true;
+        case TY_STRUCT: return SameRecord(a, b);
+        case TY_VARIANT: return a->var->variant == b->var->variant && SameEffectType(a->var->adt, b->var->adt);
+        case TY_ENUM: return a->enu->inst == b->enu->inst && a->enu->varmode == b->enu->varmode;
+        case TY_REF: return a->ref->optional == b->ref->optional && a->ref->lenstorage == b->ref->lenstorage &&
+                            SameEffectType(a->ref->sub, b->ref->sub);
+        case TY_SLICE: return SameEffectType(a->sub, b->sub);
+        case TY_ARRAY:
+            if (a->arr->akind != b->arr->akind || !SameEffectType(a->arr->sub, b->arr->sub)) return false;
+            if (a->arr->akind == A_FIXED || a->arr->akind == A_LIMITED) return a->arr->size == b->arr->size;
+            return a->arr->akind != A_VAR || LengthStorage(a) == LengthStorage(b);
+        default: return false;
+    }
+}
+
 inline Layout Compiler::MailboxLayout(FnSpec *target) {
     if (auto found = mailboxes.find(target); found != mailboxes.end()) return found->second;
-    Layout layout { 4, 4 };
-    if (target->rets.size() == 1 && OwnedEffectResult(target->rets[0])) {
-        owned_effects = true;
-        auto control = ControlLayout(target->rets[0]);
-        auto offset = Align(16, control.align);
-        if (uint64_t(offset) + control.size > UINT32_MAX) Fail(target->sf->line, "nonlocal mailbox is too large");
-        layout = { Align(offset + control.size, max(8u, control.align)), max(8u, control.align), { offset } };
-        mailboxes[target] = layout; return layout;
-    }
-    for (auto type : target->rets) {
-        if (Class(type) != SC_FIXED)
-            Fail(target->sf->line, "this owned nonlocal target requires additional staging and landing support");
-        auto field = FixedLayout(type);
+    auto owned = OwnedEffectOrdinal(target);
+    Layout layout { owned ? 16u : 4u, owned ? 8u : 4u };
+    if (owned) owned_effects = true;
+    for (size_t i = 0; i < target->rets.size(); i++) {
+        auto field = owned && i == *owned ? ControlLayout(target->rets[i]) : FixedLayout(target->rets[i]);
         layout.size = Align(layout.size, field.align); layout.fields.push_back(layout.size);
         if (uint64_t(layout.size) + field.size > UINT32_MAX) Fail(target->sf->line, "nonlocal mailbox is too large");
         layout.size += field.size; layout.align = max(layout.align, field.align);
@@ -113,9 +137,9 @@ inline void Function::EnterEffectFrame() {
         auto global = c.effect_globals.at(spec);
         code.OpU(0x23, global); Set(previous_mailbox);
         FrameAddress(mailbox); Get(framebase); code.Mem(0x36, 2);
-        if (spec->rets.size() == 1 && c.OwnedEffectResult(spec->rets[0])) {
-            FrameAddress(mailbox + 4); Get(*resultdestinations[0]); code.Mem(0x36, 2);
-            LocationAddress(TailHeaderLocation({ spec->rets[0], AddressLocal { *resultdestinations[0] } }));
+        if (auto owned = c.OwnedEffectOrdinal(spec)) {
+            FrameAddress(mailbox + 4); Get(*resultdestinations[*owned]); code.Mem(0x36, 2);
+            LocationAddress(TailHeaderLocation({ spec->rets[*owned], AddressLocal { *resultdestinations[*owned] } }));
             auto header = Save(I32); auto base = RegionCursor(header);
             FrameAddress(mailbox + 12); Get(base); code.Mem(0x36, 2);
         }
@@ -171,7 +195,7 @@ inline void Function::CheckPendingEffect(Line line) {
     if (c.effect_globals.count(spec)) {
         code.OpU(0x23, c.pending_effect); FrameAddress(mailbox); code.Op(0x46); Begin(0x04);
         auto layout = c.MailboxLayout(spec);
-        if (results.size() == 1 && c.OwnedEffectResult(results[0])) LandOwnedEffect();
+        if (c.OwnedEffectOrdinal(spec)) LandOwnedEffect();
         else for (size_t i = 0; i < results.size(); i++) {
                 FrameAddress(mailbox + layout.fields[i]); Load(results[i]); Set(resultlocals[i]);
             }
@@ -184,7 +208,7 @@ inline void Function::CheckPendingEffect(Line line) {
 inline void Function::NonlocalReturn(Return *node) {
     auto target = node->targetspec;
     if (!target || !c.effect_globals.count(target)) Fail(node->line, "nonlocal return has no active mailbox contract");
-    if (target->rets.size() == 1 && c.OwnedEffectResult(target->rets[0])) { NonlocalOwnedReturn(node); return; }
+    if (c.OwnedEffectOrdinal(target)) { NonlocalOwnedReturn(node); return; }
     code.OpU(0x23, c.effect_globals.at(target)); auto destination = Save(I32);
     Get(destination); code.Op(0x45); TrapIf(node->line, "nonlocal return target is not active");
     vector<uint32_t> values; for (auto type : target->rets) values.push_back(Local(type));

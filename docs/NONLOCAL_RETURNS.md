@@ -3,9 +3,9 @@
 Out-of-line `return ... from` and captured callback returns support targets whose
 result types have fixed size, including scalars, references/slices, fixed
 aggregates and mixed/multiple fixed results. Existing frontend lifetime checks
-still apply. A single growable/grow-shrink array or fixed-prefix frame target also supports
-the owned staging and landing contract below. Other owned target contracts remain
-explicitly gated.
+still apply. A growable/grow-shrink array or fixed-prefix frame result may accompany any
+supported fixed results under the staging and landing contract below. Multiple
+owned results and other owned kinds remain explicitly gated.
 
 Final checked bodies identify actual escaping returns. Discovery skips raw
 declarations/function-value templates, walks checked callback/default bodies and
@@ -93,7 +93,7 @@ The initial owned-source admission accepts supported location/copy reads and
 closed ordinary producers with fixed, reference-free parameters/captures.
 Qualified growable forwarding can evaluate push arguments. Callback-result and
 unproved borrowed/owned producer environments receive a diagnostic. Variable,
-capacity-limited, enum/non-frame-record and mixed/multiple owned nonlocal targets
+capacity-limited, enum/non-frame-record and multiple owned nonlocal results
 require further work; this is not a general owned-effect parity claim.
 
 Differential fixtures cover recursive target identity, local source slices,
@@ -119,3 +119,28 @@ prefix. A later named-frame return snapshots its prefix, tail base and length;
 restoring only length could retain the canceled attempt's suffix base. Literal,
 closed ordinary forwarding, recursive sources, nested prefixes and selected-case
 propagation share the same catch. Existing conservative producer gates apply.
+
+## Fixed results beside one owned result
+
+A target can place one admitted owned result at any ordinal beside supported
+fixed/scalar/reference/slice results. The mailbox retains the original owned
+control, target-entry cursor and attempt start, then stores every result snapshot
+at its type's alignment. The owned start is captured before evaluating any
+source expression, including earlier fixed expressions that append to the same
+receiving region. Explicit expressions evaluate left to right; each fixed
+aggregate is copied immediately. All successful snapshots enter the mailbox
+before pending publication.
+
+At catch, fixed snapshots and the owned suffix share the existing cleanup and
+function epilogue. Canceled attempts keep physical suffix data and publish no
+mailbox result. Optimized local returns keep ordinary per-ordinal construction:
+their owned ordinal can land before a later ordinal cancels the return. The
+qualification matrix records this native O0/O2 distinction.
+
+A single ordinary call can forward the entire tuple when natural result types
+match exactly, it has the same one owned ordinal, and the producer/arguments pass
+the closed-source proof. Arguments execute once and producer rebasing follows
+them. Element-run variable-array producers retain qualified push-argument
+support when constructing a separate owned ordinal. Function-value/dispatch tuple
+forwarding, cross-kind whole-tuple adaptation and multiple owned targets remain
+separate extensions.

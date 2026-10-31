@@ -709,6 +709,8 @@ struct Compiler {
     void AnalyzeCaptures();
     void AnalyzeEffects();
     bool OwnedEffectResult(TypeExpr *);
+    optional<size_t> OwnedEffectOrdinal(FnSpec *);
+    bool SameEffectType(TypeExpr *, TypeExpr *);
     Layout MailboxLayout(FnSpec *);
     Signature FunctionSig(FnSpec *sp) {
         Signature s;

@@ -112,9 +112,9 @@ remain conservatively gated. Runtime [case dispatch](FUNCTION_DISPATCH.md) now
 shares argument snapshots, captured bindings and result destinations across its
 checked arms. [Nonlocal-return effects](NONLOCAL_RETURNS.md) now cross ordinary
 and dispatched calls for fixed target results, with recursive activation identity
-and cross-frame cleanup. A single growable-array or fixed-prefix frame target now supports staged
-construction and landing; variable, non-frame-record/enum and mixed owned
-targets remain the next extension.
+and cross-frame cleanup. A growable-array or fixed-prefix frame result now supports staged construction
+and landing beside fixed results; multiple owned results and variable/non-frame
+record/enum targets remain the next extension.
 Tests include O0 programs that cannot depend on optimizer inlining.
 
 Before serialization, document the image ABI, pointer width/encoding and the
