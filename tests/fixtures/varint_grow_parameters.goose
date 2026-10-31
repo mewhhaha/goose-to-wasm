@@ -1,0 +1,1 @@
+recursive fn reset(a:varint[>..]&)->i64{a.clear();a.push(0);return a.len;}recursive fn make(a:varint[>..])->varint[>..],i64{return a,reset(a);}fn main(){var original:varint[>..]=[64,-65];let a,n=make(copy(original));print(original," ",a," ",n);}

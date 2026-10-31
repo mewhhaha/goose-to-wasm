@@ -533,6 +533,8 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
                 (target->arr->akind == A_VAR && Compiler::LengthStorage(target) != Compiler::LengthStorage(sp->rets[0]));
         }
     }
+    if (!run && !sp->needs.empty() && VarintValueToRaw(sp->rets, receiving))
+        Fail(n->line, "cancelable varint value results require qualified raw landing");
     auto plan = PlanRegionResults(sp->rets, receiving, n->line, run);
     ApplyPreparedEnumResults(plan, prepared_enums);
     if (run) {

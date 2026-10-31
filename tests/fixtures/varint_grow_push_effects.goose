@@ -1,0 +1,1 @@
+var a:varint[>..]=[64];recursive fn read()->i64{print("before ",a.len);return a.len+8191;}recursive fn apply<F>()->i64{a.push(F());return 0;}fn target(flag:bool)->i64{return apply(){if flag{return 7;}else{8}};}fn main(){let p:const varint& =a.push(read());print(p," ",a);print(target(true)," ",a);}

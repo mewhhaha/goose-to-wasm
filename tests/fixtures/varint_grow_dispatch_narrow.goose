@@ -1,0 +1,1 @@
+enum Choice{A,B}recursive fn values(c:Choice.A,xs:const varint[:])->varint[u8]{print("A");return xs;}recursive fn values(c:Choice.B,xs:const varint[:])->varint[u8]{print("B");return xs;}fn main(){let x:varint[u16]=[-65;256];let c:Choice=Choice.A;var a:varint[>..]=[];a.append(values(c,x));print(a.len);}

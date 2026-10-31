@@ -48,6 +48,9 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
     if (requested.empty() && adapt_result && first->rets.size() == 1 && Compiler::VariantSource(first->rets[0]) && Compiler::RegionEnum(node->exprtype))
         requested = { TemporaryDestination(node->exprtype, node->line) };
     auto prepared_enums = PrepareEnumResults(first->rets, requested, node->line, first->rets.size() != 1 || Compiler::RegionEnum(node->exprtype));
+    if (VarintValueToRaw(first->rets, prepared_enums.producers))
+        for (auto arm : node->dispatch) if (!arm->needs.empty())
+            Fail(node->line, "cancelable varint value results require qualified raw landing");
     auto group = BeginArgumentGroup(owned_arguments || whole_copy);
     vector<uint32_t> shared(args.size()), payloads(node->dispatch.size());
     uint32_t original = 0, copied = 0, tag = 0, original_owner = 0, copied_owner = 0;

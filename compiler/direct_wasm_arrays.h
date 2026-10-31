@@ -120,6 +120,7 @@ inline function<void()> Function::SequenceValue(Node *n, bool address) {
 inline void Function::ArrayBuiltin(Call *n) {
     auto args = n->ArgNodes();
     auto t = Object(args[0]);
+    if (t->kind == TY_ARRAY && Compiler::Varint(t->arr->sub)) { VarintArrayBuiltin(n, t); return; }
     auto kind = BuiltinKind(n->builtin);
     if (kind == B_INDEX_OF) {
         if (Compiler::RegionArray(t)) ReadArrayBase(Save(I32));

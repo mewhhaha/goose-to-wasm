@@ -325,6 +325,8 @@ See [the enum contract](VARIABLE_ENUMS.md).
 - Standalone immutable varint-element arrays with fixed unsigned length metadata,
   whole slices, sequential loops, encoded copies and snapshots; see
   [varint arrays](VARINT_ARRAYS.md).
+- Standalone growable varint elements with push/append/clear, whole assignment,
+  stable references and private-count append forwarding; see [varint Grow](VARINT_GROW.md).
 
 The executable differential suite is the authority for qualified behavior.
 

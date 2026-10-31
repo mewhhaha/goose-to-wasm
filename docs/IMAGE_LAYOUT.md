@@ -1,7 +1,7 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=11;varint-elements=sequential-var;varint-records=sequential`, with
+internal `layout=12;varint-elements=sequential-grow;varint-records=sequential`, with
 `record-padding=fixed-alignment-variable-explicit` and
 `static-limited=compact-lengths;enum-tags=compact` and
 `variable-enums=active-payloads`, alongside
@@ -49,7 +49,8 @@ outer variable enum now stores the compact tag and active payload only. Aligned
 owner envelopes retain separate persistent controls for each nonfixed variant,
 so saved typed views survive replacement. Inactive payloads consume no data bytes.
 [Varint array elements](VARINT_ARRAYS.md) use sequential cursors and raw encoded
-copies with existing fixed unsigned metadata. Growable/containing forms and
+copies with existing fixed unsigned metadata. [Grow elements](VARINT_GROW.md)
+use raw images and direct private-count append. Containing forms and
 varint lengths remain separate. [Varint record images](VARINT_RECORDS.md) use sequential field/extent walks
 and a root control. Containing byte records and image
 effects require further walkers and overlap proofs.

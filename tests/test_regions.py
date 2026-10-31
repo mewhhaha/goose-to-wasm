@@ -1248,6 +1248,54 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_varint_grow_recursive_append_uses_no_extra_data_lease(self):
+        source=f'''var neighbor:i64[>..]=[{CANARY}];
+recursive fn values(n:i64)->varint[>..]{{if n==0{{return[64,-65];}}return values(n-1);}}
+export fn tick(n:i64)->i64{{var a:varint[>..]=[n];a.append(values(20));var total=0;for x in a{{total+=x;}}return total+2;}}
+fn main(){{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],2)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_grow_canceled_append_keeps_physical_suffix(self):
+        for via_callback in (False,True):
+            operation='apply(){values(){if n>=0{return n+1;}else{-65}}};' if via_callback else 'a.append(values(){if n>=0{return n+1;}else{-65}});'
+            source=f'''var neighbor:i64[>..]=[{CANARY}];var a:varint[>..]=[];
+recursive fn values<F>()->varint[u8]{{return[1,F(),8192];}}
+fn apply<F>(){{a.append(F());}}
+fn target(n:i64)->i64{{{operation}return 0;}}
+export fn tick(n:i64)->i64{{a.clear();a.push(64);let r=target(n);
+let kept:const varint& =a.push(9);var total=0;for x in a{{total+=x;}}
+if r!=n+1 || a.len!=2 || total!=65 || kept!=9{{abort("bad canceled append");}}return r;}}
+fn main(){{}}'''
+            for level in (0,2):
+                path,info=self.compile(source,level)
+                self.assertEqual(info['region_count'],2)
+                for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                    with self.subTest(level=level,engine=engine,via_callback=via_callback):
+                        self.assertEqual(observed['error'],'')
+                        self.assertEqual(observed['canary'],str(CANARY))
+
+    def test_varint_grow_push_checks_full_width_before_store(self):
+        def source(count):
+            return f'''var neighbor:i64[>..]=[{CANARY}];
+fn value()->i64{{print(77);return -9223372036854775808;}}
+fn main(){{var a:varint[>..]=[];a.append([9223372036854775807;{count}]);a.push(value());}}'''
+        for level in (0,2):
+            _,baseline=self.compile(source(1),level)
+            path,info=self.compile(source(baseline['region_bytes']//10),level)
+            self.assertEqual(info['region_count'],2)
+            self.assertEqual(info['region_bytes'],baseline['region_bytes'])
+            for engine,observed in self.engines(path,info,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertIn('data region exhausted',observed['error'])
+                    self.assertEqual(observed['numbers'],['77'])
+                    self.assertEqual(observed['canary'],str(CANARY))
+
     def test_varint_arrays_reuse_regions_and_preserve_encoded_references(self):
         source=f'''var neighbor:i64[>..]=[{CANARY}];
 recursive fn make(n:i64)->varint[u16]{{return[n-5000,-n,8192];}}
