@@ -332,7 +332,7 @@ inline void Function::AggregateLiteral(Node *n) {
         auto start = c.Size(t).payload;
         auto count = a->fillval ? static_cast<IntLit *>(a->fillcount)->val : int64_t(a->elems.size());
         if (t->arr->akind == A_LIMITED) {
-            LocationAddress(place); code.I32Const(int32_t(count)); code.Mem(0x36, 2);
+            LocationAddress(place); code.I32Const(int32_t(count)); WriteStaticArrayLength(t);
         }
         if (a->fillval) {
             // Goose evaluates a fill value once, then copies it into each slot.
@@ -872,11 +872,11 @@ inline void Function::Expr(Node *n) {
             if (n->exprtype->kind == TY_SLICE) code.I64Const(int64_t((uint64_t(x->val.size()) << 32) | off));
             else if (n->exprtype->kind == TY_ARRAY) {
                 auto size = c.Size(n->exprtype).size;
-                if (x->val.size() > size) Fail(n->line, "string exceeds its fixed-array destination");
+                if (x->val.size() > uint64_t(n->exprtype->arr->size)) Fail(n->line, "string exceeds its fixed-array destination");
                 auto dest = FreshDestination(n->exprtype, ConstructionDestination::Statement).location;
                 LocationAddress(dest); code.I32Const(0); code.I32Const(int32_t(size)); code.Fill();
                 if (n->exprtype->arr->akind == A_LIMITED) {
-                    LocationAddress(dest); code.I32Const(int32_t(x->val.size())); code.Mem(0x36, 2);
+                    LocationAddress(dest); code.I32Const(int32_t(x->val.size())); WriteStaticArrayLength(n->exprtype);
                 }
                 LocationAddress(OffsetLocation(dest, c.Size(n->exprtype).payload, n->exprtype->arr->sub));
                 code.I32Const(int32_t(off)); code.I32Const(int32_t(x->val.size())); code.Copy();

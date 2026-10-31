@@ -266,6 +266,8 @@ struct Function {
     void Address(Node *);
     TypeExpr *Object(Node *);
     void PackArrayView(TypeExpr *);
+    void ReadStaticArrayLength(TypeExpr *);
+    void WriteStaticArrayLength(TypeExpr *);
     void ReadArrayLength(uint32_t);
     void ReadArrayBase(uint32_t);
     void ValidateArrayImage(uint32_t, uint32_t, TypeExpr *, Line);
@@ -625,6 +627,13 @@ struct Compiler {
     static IntStorage LengthStorage(TypeExpr *t) {
         return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
     }
+    static IntStorage StaticLimitedLengthStorage(TypeExpr *t) {
+        auto cap = uint64_t(t->arr->size);
+        return cap <= UINT8_MAX ? IS_U8 : cap <= UINT16_MAX ? IS_U16 : cap <= UINT32_MAX ? IS_U32 : IS_U64;
+    }
+    static uint32_t StaticLimitedLengthBytes(TypeExpr *t) {
+        return uint32_t(IntBits(StaticLimitedLengthStorage(t)) / 8);
+    }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
         if (t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT)
@@ -754,11 +763,13 @@ struct Compiler {
                     Fail(t->line, "construction-time array capacity is not supported without dynamic storage");
                 auto sub = Size(t->arr->sub);
                 if (t->arr->akind == A_LIMITED) {
-                    r.payload = Align(4, sub.align);
-                    r.align = max<uint32_t>(4, sub.align);
+                    r.payload = StaticLimitedLengthBytes(t); r.align = 1;
                 } else r.align = sub.align;
                 auto limit = uint64_t(opts.maximum_pages) * 65536;
                 auto count = uint64_t(t->arr->size);
+                // A standalone capacity-zero C value still allocates one
+                // element slot. This is storage, not a proved image extent.
+                if (t->arr->akind == A_LIMITED) count = max<uint64_t>(count, 1);
                 if (r.payload > limit || (sub.size && count > (limit - r.payload) / sub.size))
                     Fail(t->line, "fixed array exceeds the configured linear-memory limit");
                 auto bytes = uint64_t(r.payload) + uint64_t(sub.size) * count;

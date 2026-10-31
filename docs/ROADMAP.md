@@ -80,6 +80,15 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: compact static-capacity metadata
+
+`T[..k]` uses the smallest unsigned length and packed inline capacity slots.
+Typed views, mutation, conversion, literals and strings share width-aware access.
+Standalone zero-capacity values retain their C allocation placeholder while
+zero-capacity fields/elements remain invalid. Internal layout 8 records this
+transition, without widening spare-slot overlap or serialization proofs. See
+[the storage contract](STATIC_LIMITED_IMAGES.md).
+
 ## Implemented: compact enum tags and fixed enum strides
 
 All enum tag reads and writes use u8 through 256 variants and u16 above that,

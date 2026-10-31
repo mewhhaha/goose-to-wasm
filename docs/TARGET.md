@@ -244,15 +244,18 @@ expressions in order and copies owned results before releasing its frame. The
 ordinary i32 result is the caller-owned address. Aggregate extern/public exports
 remain refused until an explicit host ABI is provided.
 
-Static-capacity limited arrays `T[..k]` are fixed owned values with a u32 live
-length, padding to the element alignment and inline storage for `k` elements.
+Static-capacity limited arrays `T[..k]` are packed fixed owned values with the
+smallest unsigned live-length field followed by inline capacity slots. Their
+alignment is one, without inter-field or trailing padding.
 Capacity is part of the type. Their views contain the element address and live
 length; copying/assignment/parameters/results retain the existing fixed-value
 ownership rules. Mutations evaluate the receiver once before their arguments,
 then read its current length. Capacity/count/fill checks precede writes, and
 `append` supports overlapping views. `push` returns a stable element reference.
-Limited arrays can nest in other supported fixed values. This is a direct-target
-layout, not the packed C image layout.
+Positive-capacity limited arrays can nest in supported fixed values. Standalone
+capacity-zero values allocate one unused C element slot; zero-capacity fields and
+elements remain frontend-invalid. Allocation storage is distinct from their
+encoded image extent. See [compact static arrays](STATIC_LIMITED_IMAGES.md).
 
 Sequence loops retain their location recipe: index expressions and calls on
 the path run once, while reference/slice links and live lengths are reread as
