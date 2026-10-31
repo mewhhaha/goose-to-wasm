@@ -262,12 +262,13 @@ before side effects, following the pinned emitter's ordering. Indexing an outer
 slice pins its element base as the native emitter does; the indexed row's live
 length still changes when that slot is replaced.
 
-Fixed-mode enums use a u32 tag at offset zero and a payload at offset four.
-The total size accommodates the largest packed variant payload and is rounded
-to four bytes. Standalone variant values hold
-only their payload. Variant-to-enum conversion initializes fresh tagged storage
-and copies the payload; it does not reinterpret a payload pointer as an enum.
-These layouts are specific to this target, rather than the C backend's ABI.
+Enum tags use one byte for up to 256 variants and two bytes above that.
+Fixed-mode enums concatenate that tag with the largest packed payload, without
+trailing padding. Empty alternatives take no payload bytes behind the tag;
+standalone empty variants retain a one-byte value placeholder. Variant-to-enum
+conversion initializes fresh tagged storage and copies only encoded payload
+bytes. Field representations such as wasm32 references and static-limited
+headers still retain their own target-specific layouts.
 
 Fixed enums and variants have the same owned parameter/result and snapshot
 rules as other aggregates. Matches evaluate the scrutinee once and copy a

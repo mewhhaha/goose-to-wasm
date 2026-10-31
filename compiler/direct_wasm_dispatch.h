@@ -65,7 +65,7 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
         if (!variable) {
             auto value = CopyCaptured(CaptureStack(enum_type));
             original = copied = value.value_local;
-            Get(original); code.Mem(0x28, 2); tag = Save(I32);
+            Get(original); ReadEnumTag(c.EnumTagBytes(ei)); tag = Save(I32);
         } else {
             auto header = Save(I32);
             Get(header); code.Mem(0x28, 2); original = Save(I32);
@@ -84,7 +84,7 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
                     auto receiver = FreshDestination(type, ConstructionDestination::Activation);
                     LocationAddress(receiver.location); code.I32Const(0);
                     code.I32Const(int32_t(c.FixedLayout(type).size)); code.Fill();
-                    Get(original); code.Mem(0x28, 2); code.I32Const(int32_t(vi)); code.Op(0x46); Begin(0x04);
+                    Get(original); ReadEnumTag(c.EnumTagBytes(ei)); code.I32Const(int32_t(vi)); code.Op(0x46); Begin(0x04);
                     auto payload = OffsetLocation({ type, AddressLocal { original } }, layout.payload, type);
                     LocationAddress(payload); StoreCopy(receiver.location, CaptureStack(type)); End();
                     LocationAddress(receiver.location); payloads[vi] = Save(I32);
@@ -92,7 +92,7 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
             }
         }
     }
-    if (variable) { Get(original); code.Mem(0x28, 2); tag = Save(I32); }
+    if (variable) { Get(original); ReadEnumTag(c.EnumTagBytes(ei)); tag = Save(I32); }
     auto plan = PlanRegionResults(first->rets, destinations, node->line, false);
     vector<uint32_t> results, fixed_destinations(first->rets.size());
     for (size_t i = 0; i < first->rets.size(); i++) {

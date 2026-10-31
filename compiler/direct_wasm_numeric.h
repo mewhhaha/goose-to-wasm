@@ -73,8 +73,8 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
         auto layout = c.Size(to);
         LocationAddress(destination); code.I32Const(0); code.I32Const(int32_t(layout.size)); code.Fill();
         LocationAddress(destination);
-        code.I32Const(to->enu->inst->en->VariantIndex(from->var->variant)); code.Mem(0x36, 2);
-        StoreCopy(OffsetLocation(destination, layout.payload, from), source);
+        code.I32Const(to->enu->inst->en->VariantIndex(from->var->variant)); WriteEnumTag(c.EnumTagBytes(to->enu->inst));
+        if (!c.RecordFields(from).empty()) StoreCopy(OffsetLocation(destination, layout.payload, from), source);
         LocationAddress(destination); return;
     }
     if (c.Aggregate(from) || c.Aggregate(to)) {

@@ -1,6 +1,9 @@
 #pragma once
 namespace goose::direct_wasm {
 
+inline void Function::ReadEnumTag(uint32_t bytes) { code.Mem(bytes == 1 ? 0x2d : 0x2f, 0); }
+inline void Function::WriteEnumTag(uint32_t bytes) { code.Mem(bytes == 1 ? 0x3a : 0x3b, 0); }
+
 inline ConstructionDestination Function::PrepareEnumPayload(const ConstructionDestination &receiver,
         TypeExpr *variant, Line line) {
     auto type = receiver.location.storage_type;
@@ -13,12 +16,12 @@ inline ConstructionDestination Function::PrepareEnumPayload(const ConstructionDe
     // would otherwise make unsigned remaining-capacity arithmetic wrap.
     code.I64Const(layout.size); ReserveRegion(header, Save(I64), c.ast.inttypes[IS_U8], line);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
-    Get(base); code.I32Const(vi); code.Mem(0x36, 2);
+    Get(base); code.I32Const(vi); WriteEnumTag(c.EnumTagBytes(ei));
     Get(header); code.I32Const(int32_t(layout.size)); code.Mem(0x36, 2, 4);
     Get(base); code.I32Const(int32_t(layout.size)); code.Op(0x6a); PublishCursor(header, Save(I32));
     auto payload = OffsetLocation({ variant, AddressLocal { base } }, layout.payload, variant);
     ConstructionDestination destination { payload, receiver.lifetime, false,
-        ConstructionDestination::EnumGuard { base, header, vi }, false, receiver.normal_result };
+        ConstructionDestination::EnumGuard { base, header, vi, c.EnumTagBytes(ei) }, false, receiver.normal_result };
     if (Compiler::RegionVariant(variant)) {
         LocationAddress(TailHeaderLocation(payload)); auto tail = Save(I32);
         Get(tail); Get(base); code.I32Const(int32_t(layout.size)); code.Op(0x6a); code.Mem(0x36, 2);
@@ -80,7 +83,7 @@ inline void Function::ConstructEnumFromCaptured(TypeExpr *source_type, uint32_t 
     if (Compiler::RegionEnum(source_type)) code.Mem(0x28, 2);
     else c.FixedLayout(source_type);
     auto base = Save(I32);
-    Get(base); code.Mem(0x28, 2); auto tag = Save(I32);
+    Get(base); ReadEnumTag(c.EnumTagBytes(type->enu->inst)); auto tag = Save(I32);
     auto done = Begin();
     for (size_t vi = 0; vi < type->enu->inst->vftypes.size(); vi++) {
         Get(tag); code.I32Const(int32_t(vi)); code.Op(0x46); Begin(0x04);
@@ -174,7 +177,7 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
             Get(base); code.I32Const(int32_t(offset)); code.Op(0x6a);
             code.I32Const(0); code.I32Const(int32_t(bytes)); code.Fill();
         };
-        reserve(4); Get(base); code.I32Const(vi); code.Mem(0x36, 2);
+        reserve(c.EnumTagBytes(ei)); Get(base); code.I32Const(vi); WriteEnumTag(c.EnumTagBytes(ei));
         for (size_t i = 0; i < ei->vftypes[size_t(vi)].size(); i++) {
             auto ft = ei->vftypes[size_t(vi)][i];
             auto init = literal ? literal->InitFor(int(i)) : nullptr;
