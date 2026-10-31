@@ -199,7 +199,7 @@ inline bool Function::ConstructNormalOwnedResult(Node *value, const Construction
 
 inline bool Function::ConstructNormalRecordResult(Node *value, const ConstructionDestination &destination) {
     auto type = destination.location.storage_type;
-    if (!c.region_cursors || destination.escape_stage || !Compiler::RegionRecord(type) ||
+    if (!c.region_cursors || destination.escape_stage || !Compiler::FrameStruct(type) ||
         !destination.normal_result) return false;
     auto layout = c.ControlLayout(type);
     auto tail_type = c.TailType(type);

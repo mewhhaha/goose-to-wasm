@@ -3,8 +3,8 @@
 `E..` retains `SC_VARIABLE`. Its 24-byte private control owns one stable region
 containing a u32 tag and an aligned maximum control union. Each variant has
 supported fixed fields, or one final nonresizable variable/runtime-limited array
-through a supported record chain. The terminal array's data follows that union;
-its embedded header points into the same region. This is an internal control ABI,
+through a supported record chain. A variable payload's complete contiguous record image follows that union;
+its embedded tail control names that image in the same region. This is an internal control ABI,
 not the pinned C.2 serialized image layout.
 
 Preparing a payload checks the entire control prefix before deriving its tail
@@ -15,8 +15,8 @@ initializers. Images with variable payloads reserve their control union before
 construction. Data limits account for the union plus terminal length/capacity.
 
 Copies dispatch on the active tag. Fixed payload fields copy as values; variable
-records copy prefixes and independently construct tails without copying owner
-headers. External plain references and slices keep their referents. Runtime
+records copy complete logical images, including capacity, without copying owner
+controls. External plain references and slices keep their referents. Runtime
 capacity remains logical and independent of the region's physical limit.
 
 Ordinary/inline/recursive calls, owned parameters, mixed results and control
@@ -49,3 +49,8 @@ Resizable enums, multiple/nonfinal variable fields, variable elements, containin
 `E..` owners, serialization, recursive rendering and comparison remain gated.
 Explicit `default<E..>()` remains frontend-invalid; checked globals use the first
 variant's declared defaults.
+
+Payload completion validates and maps the decoded logical extent, but retains
+the physical cursor left by construction. Canceled prefixes can describe more
+bytes than were committed; extra committed suffixes can also exceed logical
+extent. Construction, copying and landing publish physical commits.

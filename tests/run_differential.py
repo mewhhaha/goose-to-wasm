@@ -51,6 +51,16 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    record_images = {
+        "aliases":"1 99 88 99 99\n",
+        "callbacks":"1\n2\n3\n3\n1\n7\n1\n2\n3\n6\n1\n7\n",
+        "sparse":"9\n1 300000 0\n9\n7 300000 0\n",
+    }
+    for debug in (False,True):
+        suffix="-debug" if debug else ""
+        for name,answer in record_images.items():
+            result.append(Case(f"record-image/{name}{suffix}","record_image_"+name,
+                               stdout=answer,debug=debug,group="storage"))
     packed_nonlocal = {
         "sparse-extent": "9\n300000 0\n9\n300000 300000 0\n9\n100000 0 0\n",
         "images": "2 7 300 8 400\n1 1 2 300 3 400 500\n2 1 2 3 4\n1 9 13124\n",

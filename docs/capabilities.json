@@ -93,7 +93,7 @@
       },
       "B_COPY": {
         "status": "qualified_subset",
-        "scope": "Supported fixed owned values and fixed-element region-backed growable, unsigned-length variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Supported static callback parameters and single results share owned copying and receiving lifetimes. Variable elements remain pending. Fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame tail copy prefix values and independently own tail contents.",
+        "scope": "Supported fixed owned values and fixed-element region-backed growable, unsigned-length variable and runtime-limited arrays. Owned regions preserve independent data and limited-array capacity. Fixed reference/slice fields retain shallow aliases. Supported static callback parameters and single results share owned copying and receiving lifetimes. Variable elements remain pending. Fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame tail copy prefix values and independently own tail contents. Non-frame single-tail records store packed fixed prefixes and terminal array images together, with typed stable prefix addresses and whole-image copies including capacity. Record image nonlocal targets remain gated.",
         "fixtures": [
           "tests/fixtures/nullable_and_copy.goose",
           "tests/fixtures/storage_locations.goose",
@@ -112,10 +112,14 @@
           "tests/fixtures/nested_owned_structs.goose",
           "tests/fixtures/nested_struct_narrow.goose",
           "tests/fixtures/variable_variants.goose",
-          "tests/fixtures/variable_variant_narrow.goose"
+          "tests/fixtures/variable_variant_narrow.goose",
+          "tests/fixtures/record_image_aliases.goose",
+          "tests/fixtures/record_image_callbacks.goose",
+          "tests/fixtures/record_image_sparse.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_dynamic_boundaries.py"
+          "tests/test_dynamic_boundaries.py",
+          "tests/test_record_images.py"
         ]
       },
       "B_DEFAULT": {
@@ -651,7 +655,7 @@
       },
       "NK_StructLit": {
         "status": "qualified_subset",
-        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame array tail are supported; other containing shapes, environments/effects and structural operations retain separate pending gates.",
+        "scope": "Supported scalar/fixed forms and fixed-element region-backed array forms; fixed-prefix struct chains with one terminal variable/runtime-limited or growable frame array tail are supported; other containing shapes, environments/effects and structural operations retain separate pending gates. Non-frame single-tail records store packed fixed prefixes and terminal array images together, with typed stable prefix addresses and whole-image copies including capacity. Record image nonlocal targets remain gated.",
         "fixtures": [
           "tests/fixtures/struct_values.goose",
           "tests/fixtures/variable_structs.goose",
@@ -663,10 +667,14 @@
           "tests/fixtures/nested_owned_structs.goose",
           "tests/fixtures/nested_struct_narrow.goose",
           "tests/fixtures/variable_variants.goose",
-          "tests/fixtures/variable_variant_narrow.goose"
+          "tests/fixtures/variable_variant_narrow.goose",
+          "tests/fixtures/record_image_aliases.goose",
+          "tests/fixtures/record_image_callbacks.goose",
+          "tests/fixtures/record_image_sparse.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py"
+          "tests/test_owned_struct_boundaries.py",
+          "tests/test_record_images.py"
         ]
       },
       "NK_Unary": {
@@ -824,7 +832,7 @@
       },
       "variant": {
         "status": "qualified_subset",
-        "scope": "Fixed standalone variant payloads and variant-to-enum conversion; standalone SC_VARIABLE variants with fixed prefixes and one terminal variable/runtime-limited array, including nested nonframe record tails. Independent owned copies/parameters/results and whole-record NRVO; per-variant eligibility independent of siblings. Resizable standalone variants and nonfixed E.. payloads remain pending.",
+        "scope": "Fixed standalone variant payloads and variant-to-enum conversion; standalone SC_VARIABLE variants with fixed prefixes and one terminal variable/runtime-limited array, including nested nonframe record tails. Independent owned copies/parameters/results and whole-record NRVO; per-variant eligibility independent of siblings. Resizable standalone variants and nonfixed E.. payloads remain pending. Variable payload record images follow the existing enum tag/control union; logical extent validation preserves the physical construction cursor.",
         "fixtures": [
           "tests/fixtures/fixed_enums.goose",
           "tests/fixtures/variable_mode_enums.goose",
@@ -834,17 +842,21 @@
           "tests/fixtures/packed_variant_storage.goose",
           "tests/fixtures/packed_record_overlap.goose",
           "tests/fixtures/packed_record_arrays.goose",
-          "tests/fixtures/packed_record_storage.goose"
+          "tests/fixtures/packed_record_storage.goose",
+          "tests/fixtures/record_image_aliases.goose",
+          "tests/fixtures/record_image_callbacks.goose",
+          "tests/fixtures/record_image_sparse.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_variant_boundaries.py",
           "tests/test_regions.py",
-          "tests/test_packed_layout_boundaries.py"
+          "tests/test_packed_layout_boundaries.py",
+          "tests/test_record_images.py"
         ]
       },
       "variable": {
         "status": "qualified_subset",
-        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results qualify for allfixed recursively packed fixed-width integer records, variants and nonempty fixed arrays; other such observations require further image layout and remain refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending.",
+        "scope": "Nonresizable E.. with fixed payloads or one terminal variable/runtime-limited array through supported record chains. Independent region images, active-payload copies, owned ordinary/inline/recursive/control/mixed results, natural variant destination retargeting and pointer rebinding, copied/borrowed payload matches, tag-guarded cleanup and capacity/length checks. Tag-only named replacement preserves old payload references; nonempty alternatives observed by later results qualify for allfixed recursively packed fixed-width integer records, variants and nonempty fixed arrays; other such observations require further image layout and remain refused. Resizable/multiple-owner payloads, containing E.. owners and serialized images remain pending. Variable payload record images follow the existing enum tag/control union; logical extent validation preserves the physical construction cursor.",
         "fixtures": [
           "tests/fixtures/variable_mode_enums.goose",
           "tests/fixtures/variable_enum_tails.goose",
@@ -855,12 +867,16 @@
           "tests/fixtures/packed_variant_storage.goose",
           "tests/fixtures/packed_record_overlap.goose",
           "tests/fixtures/packed_record_arrays.goose",
-          "tests/fixtures/packed_record_storage.goose"
+          "tests/fixtures/packed_record_storage.goose",
+          "tests/fixtures/record_image_aliases.goose",
+          "tests/fixtures/record_image_callbacks.goose",
+          "tests/fixtures/record_image_sparse.goose"
         ],
         "boundary_fixtures": [
           "tests/test_variable_enum_boundaries.py",
           "tests/test_regions.py",
-          "tests/test_packed_layout_boundaries.py"
+          "tests/test_packed_layout_boundaries.py",
+          "tests/test_record_images.py"
         ]
       }
     },

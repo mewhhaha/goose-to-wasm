@@ -27,6 +27,8 @@ inline ConstructionDestination Function::PrepareEnumPayload(const ConstructionDe
         Get(tail); code.I32Const(0); code.Mem(0x36, 2, 12);
         Get(tail); code.I32Const(0); code.Mem(0x36, 2, 16);
         Get(tail); code.I32Const(0); code.Mem(0x36, 2, 20);
+        Get(base); code.I32Const(int32_t(layout.size)); code.Op(0x6a);
+        SetRecordImageAnchor(payload, Save(I32), line);
     }
     return destination;
 }
@@ -47,7 +49,6 @@ inline void Function::FinishEnumPayload(const ConstructionDestination &receiver,
     auto bytes = Save(I64);
     ReserveRegion(header, bytes, c.ast.inttypes[IS_U8], line);
     Get(header); Get(bytes); code.Op(0xa7); code.Mem(0x36, 2, 4);
-    Get(header); code.Mem(0x28, 2); Get(bytes); code.Op(0xa7); code.Op(0x6a); PublishCursor(header, Save(I32));
 }
 
 // Variable-mode enums retain their language storage class. Their private

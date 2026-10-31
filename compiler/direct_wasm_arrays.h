@@ -43,11 +43,10 @@ inline function<void()> Function::SequenceValue(Node *n, bool address) {
         auto parent = SequenceValue(dot->obj);
         auto t = dot->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
         auto field = c.FieldType(t, dot->fieldidx);
-        auto off = c.FieldOffset(t, size_t(dot->fieldidx));
-        return [this, n, dot, parent, field, off, address]() {
+        return [this, n, dot, parent, field, t, address]() {
             parent();
             if (dot->obj->exprtype->kind == TY_REF) Load(dot->obj->exprtype->ref->sub);
-            if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
+            RecordFieldAddress(t, size_t(dot->fieldidx), n->line);
             if (!address && (n->exprtype->kind != TY_REF || field->kind == TY_REF)) {
                 Load(field); Convert(field, n->exprtype, n->line);
             }

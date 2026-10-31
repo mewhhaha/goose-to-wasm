@@ -375,6 +375,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 16);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 20);
     PublishCursor(header, base);
+    if (Compiler::RegionRecord(place.storage_type) && !Compiler::FrameStruct(place.storage_type)) SetRecordImageAnchor(place, base, line);
     if (!global_region) RegisterEffectOwner(place, true, temporary);
 }
 

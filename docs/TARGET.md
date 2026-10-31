@@ -168,11 +168,13 @@ caller's region; growth does not relocate existing elements or slices.
 
 Supported standalone variable structs have fixed-layout prefix fields and one
 final fixed-element variable or runtime-capacity array. Their control layout
-contains naturally aligned fixed fields and an embedded 24-byte tail control.
-Each owner acquires one data region; cleanup tracks its embedded header.
-Construction visits checked fields in declaration order. Copies transfer fixed
-prefix values and independently construct tail contents, preserving runtime
-capacity. Whole-object named-result aliasing makes prefix, length and element
+retains aligned reference/control storage and an embedded 24-byte tail control.
+A separate packed image layout places prefix fields, array metadata and elements
+in the owner's one data region. Typed field addresses derive from its immutable
+logical tail anchor; prefix references point into region bytes. Construction
+appends captured fixed fields in declaration order and uses private physical
+producers for final owned fields. Copies transfer the full logical image,
+including runtime capacity; normal landing moves the full physical suffix. Whole-object named-result aliasing makes prefix, length and element
 mutations by later result expressions visible in an earlier result. Ordinary
 and inline calls, by-value parameters and control results use owned destinations.
 These objects retain `SC_VARIABLE` and never enter the fixed-copy path.
