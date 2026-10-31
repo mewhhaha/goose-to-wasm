@@ -51,6 +51,22 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    image_nonlocal = {
+        "scalars": "2 true false\n2 1.5 -2.25\n2 2 3.5 -4.25\n-4.25\n5.5\n2 -7 8\n",
+        "all_starts": "9 259 262\n",
+        "arrays": "2 7 8\n" * 5 + "2 2 9 10\n10\n11\n",
+        "canceled": "9\n2 11 1\n" * 2 + "9\n2 2 11 1\n",
+        "named_anchors": "9\n3\n" * 2 + "9\n3 3\n9\n3\n",
+        "multiple": "2 7 8\n2 2 9 10\n[11] 17\n10\n12\n",
+    }
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
+        for name, answer in image_nonlocal.items():
+            result.append(Case(f"image-nonlocal/{name}{suffix}", "nonlocal_image_" + name,
+                               stdout=answer, debug=debug, group="control"))
+        for level, answer in [(0,"3\n2\n7\n8\n"),(2,"2\n7\n8\n")]:
+            result.append(Case(f"image-nonlocal/argument-order/O{level}{suffix}", "nonlocal_image_argument_order",
+                               stdout=answer, debug=debug, group="control", levels=(level,)))
     for debug in (False, True):
         suffix = "-debug" if debug else ""
         for named in (0, 1):

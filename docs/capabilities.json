@@ -975,7 +975,7 @@
       },
       "nonlocal_return": {
         "status": "qualified_subset",
-        "scope": "Supported fixed results may accompany multiple Grow/GrowShrink or nested fixed-prefix Frame results. Every owned cursor snapshots before any source expression; independent private stages and fixed snapshots commit only after the attempt succeeds. Per-ordinal metadata preserves target entry cursors, physical suffixes, Frame base offsets, recursive activation identity and cross-frame cleanup. Exact-type tuples forward through closed ordinary producers without extra staging regions. Alias independence, cancellation, nested replacement, heterogeneous/generic results and region/activation exhaustion are qualified. Variable/capacity-limited and enum/non-frame-record owned image kinds remain gated.",
+        "scope": "Supported fixed results may accompany multiple Grow/GrowShrink or nested fixed-prefix Frame results. Every owned cursor snapshots before any source expression; independent private stages and fixed snapshots commit only after the attempt succeeds. Per-ordinal metadata preserves target entry cursors, physical suffixes, Frame base offsets, recursive activation identity and cross-frame cleanup. Exact-type tuples forward through closed ordinary producers without extra staging regions. Alias independence, cancellation, nested replacement, heterogeneous/generic results and region/activation exhaustion are qualified. Standalone unsigned-length Var and runtime-limited arrays of scalar elements land full suffixes at saved entry anchors and decode byte-authoritative metadata, including canceled prefixes and private named images. Aggregate-element array images and enum/non-frame-record owned image kinds remain gated.",
         "fixtures": [
           "tests/fixtures/nonlocal_fixed_paths.goose",
           "tests/fixtures/nonlocal_frame_canceled.goose",
@@ -1032,7 +1032,14 @@
           "tests/fixtures/upstream_generic_return_from_fixed_subset.goose",
           "tests/fixtures/upstream_return_from_block_target.goose",
           "tests/fixtures/upstream_return_from_cached_call.goose",
-          "tests/fixtures/upstream_return_from_cycle.goose"
+          "tests/fixtures/upstream_return_from_cycle.goose",
+          "tests/fixtures/nonlocal_image_all_starts.goose",
+          "tests/fixtures/nonlocal_image_argument_order.goose",
+          "tests/fixtures/nonlocal_image_arrays.goose",
+          "tests/fixtures/nonlocal_image_canceled.goose",
+          "tests/fixtures/nonlocal_image_multiple.goose",
+          "tests/fixtures/nonlocal_image_named_anchors.goose",
+          "tests/fixtures/nonlocal_image_scalars.goose"
         ],
         "boundary_fixtures": [
           "tests/test_regions.py",

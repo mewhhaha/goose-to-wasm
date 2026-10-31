@@ -1,7 +1,25 @@
 #pragma once
 namespace goose::direct_wasm {
 
+inline bool Function::ImageTargetDestination(const ConstructionDestination &destination) const {
+    if (!spec || !c.effect_globals.count(spec) || !Compiler::ScalarArrayImage(destination.location.storage_type)) return false;
+    optional<uint32_t> address;
+    if (auto local = get_if<AddressLocal>(&destination.location.storage)) address = local->index;
+    else if (auto slot = get_if<Slot>(&destination.location.storage); slot && slot->kind == Slot::ADDRESS) address = slot->index;
+    if (!address) return false;
+    return any_of(resultdestinations.begin(), resultdestinations.end(), [&](auto result) { return result && *result == *address; });
+}
+
+inline bool Compiler::ScalarArrayImage(TypeExpr *type) {
+    if (!type || type->kind != TY_ARRAY ||
+        (!(type->arr->akind == A_VAR && LengthStorage(type) != IS_VARINT) && !RuntimeLimited(type))) return false;
+    auto element = type->arr->sub;
+    return element->kind == TY_BOOL || element->kind == TY_FLT ||
+           (element->kind == TY_INT && element->intstorage != IS_VARINT);
+}
+
 inline bool Compiler::OwnedEffectResult(TypeExpr *type) {
+    if (ScalarArrayImage(type)) return true;
     if (GrowableArray(type)) return true;
     if (!FrameStruct(type)) return false;
     ControlLayout(type); return GrowableArray(TailType(type));
@@ -150,6 +168,8 @@ inline void Function::EnterEffectFrame() {
             LocationAddress(TailHeaderLocation({ spec->rets[ordinal], AddressLocal { *resultdestinations[ordinal] } }));
             auto header = Save(I32); auto base = RegionCursor(header);
             FrameAddress(metadata + 8); Get(base); code.Mem(0x36, 2);
+            if (Compiler::ScalarArrayImage(spec->rets[ordinal]))
+                SetArrayImageAnchor(header, base, spec->rets[ordinal]);
         }
         FrameAddress(mailbox); code.OpU(0x24, global);
     }

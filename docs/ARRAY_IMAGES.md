@@ -56,7 +56,9 @@ This slice covers currently admitted fixed-layout elements. Their own
 representations remain target-specific. Terminal array images inside existing
 single-tail records/enums do not make those enclosing values C.2 images.
 Varint lengths, variable elements, general image walkers, serialization,
-`bytes_of`, and image-valued nonlocal targets retain their separate gates.
+and `bytes_of` retain their separate gates. Standalone scalar array image
+nonlocal targets now use the [effect landing contract](NONLOCAL_RETURNS.md#scalar-array-image-targets);
+aggregate-element and enclosing record/enum image targets remain gated.
 
 Evidence includes cross-backend construction, named-return alias and no-element-
 run adaptation cases, plus direct V8/Wasmtime checks of exact prefix bytes,

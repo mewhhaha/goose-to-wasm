@@ -159,7 +159,8 @@ inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
         // header itself lives at the receiving destination. Later result
         // expressions can mutate that same header, as in the native target.
         auto named = named_regions.find(v);
-        if (!n->isglobal && Compiler::WholeHeaderOwner(v->type) && named != named_regions.end()) {
+        if (!n->isglobal && Compiler::WholeHeaderOwner(v->type) && named != named_regions.end() &&
+            !ImageTargetDestination(named->second)) {
             LocationAddress(named->second.location);
             Slot slot { Slot::ADDRESS, Save(I32), v->type };
             vars[v] = slot; slots.push_back(slot); continue;
@@ -173,10 +174,10 @@ inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
         Location place { slots[i].type, slots[i] };
         if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
             if (!inline_named_regions.count(n->defs[i])) named->second.construction->open++;
-            if (Compiler::WholeHeaderOwner(slots[i].type)) {
+            if (Compiler::WholeHeaderOwner(slots[i].type) && !ImageTargetDestination(named->second)) {
                 prepared.destinations[i] = ConstructionDestination { place, named->second.lifetime, false, named->second.enum_guard, named->second.escape_stage, named->second.normal_result, named->second.publication, named->second.construction, named->second.open0 }; continue;
             }
-            ShareRegion(place, named->second);
+            ShareRegion(place, named->second, n->defs[i]);
         }
         else AcquireRegion(place, n->line, n->isglobal ? optional<uint32_t>(c.global_regions.at(n->defs[i])) : nullopt);
         prepared.destinations[i] = ConstructionDestination { place, n->isglobal ? ConstructionDestination::Static : ConstructionDestination::Block };

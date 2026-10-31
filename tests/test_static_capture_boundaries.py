@@ -20,10 +20,11 @@ class StaticCaptureBoundaries(unittest.TestCase):
         if target == "native": command.append("--standalone")
         return subprocess.run(command, capture_output=True, text=True, timeout=60), output
 
-    def test_variable_nonlocal_targets_require_additional_landing_support(self):
-        source = '''fn target() -> i64[] {
-    recursive fn leave() { return [7, 8] from target; }
-    leave(); return [];
+    def test_record_image_nonlocal_targets_require_additional_landing_support(self):
+        source = '''struct Box { values: i64[] }
+fn target() -> Box {
+    recursive fn leave() { return Box { [7, 8] } from target; }
+    leave(); return Box { [] };
 }
 fn main() { print(target()); }'''
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
@@ -36,11 +37,12 @@ fn main() { print(target()); }'''
                 self.assertIn("this owned nonlocal target requires additional staging and landing support", direct.stdout + direct.stderr)
 
     def test_multiple_owned_nonlocal_image_targets_require_additional_support(self):
-        source = '''fn target() -> i64[>..], i64[] {
-    recursive fn leave() { return [7], [8] from target; }
-    leave(); return [], [];
+        source = '''struct Box { values: i64[] }
+fn target() -> i64[>..], Box {
+    recursive fn leave() { return [7], Box { [8] } from target; }
+    leave(); return [], Box { [] };
 }
-fn main() { let a, b = target(); print(a.len, b.len); }'''
+fn main() { let a, b = target(); print(a.len, b.values.len); }'''
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
             for level in (0, 2):
                 native, _ = self.compile(Path(directory), source, "native", level)

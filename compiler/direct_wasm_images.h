@@ -217,4 +217,43 @@ inline void Function::FinishArrayImage(uint32_t original, uint32_t start, uint32
     ValidateArrayImage(original, count, type->arr->sub, line);
 }
 
+inline void Function::SetArrayImageAnchor(uint32_t header, uint32_t anchor, TypeExpr *type) {
+    auto prefix = Compiler::RuntimeLimited(type) ? 8u : uint32_t(IntBits(Compiler::LengthStorage(type)) / 8);
+    auto mode = Compiler::RuntimeLimited(type) ? ArrayStorageMode::RuntimeLimited :
+                prefix == 1 ? ArrayStorageMode::VarU8 : prefix == 2 ? ArrayStorageMode::VarU16 :
+                prefix == 4 ? ArrayStorageMode::VarU32 : ArrayStorageMode::VarU64;
+    Get(header); Get(anchor); code.Mem(0x36, 2, 16);
+    Get(header); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
+    Get(header); Get(anchor); code.I32Const(int32_t(prefix)); code.Op(0x6a); code.Mem(0x36, 2);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+}
+
+inline void Function::LandArrayImage(uint32_t original, uint32_t start, uint32_t entry, TypeExpr *type, Line line) {
+    auto finish = RegionCursor(original);
+    Get(original); code.Mem(0x28, 2, 8); auto limit = Save(I32);
+    Get(limit); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6b); auto region_base = Save(I32);
+    Get(start); Get(region_base); code.Op(0x49);
+    Get(entry); Get(region_base); code.Op(0x49); code.Op(0x72);
+    Get(start); Get(finish); code.Op(0x4b); code.Op(0x72);
+    Get(finish); Get(limit); code.Op(0x4b); code.Op(0x72);
+    TrapIf(line, "invalid nonlocal array image span");
+    Get(finish); code.Op(0xad); Get(start); code.Op(0xad); code.Op(0x7d); auto bytes = Save(I64);
+    Get(entry); code.Op(0xad); Get(bytes); code.Op(0x7c); auto end = Save(I64);
+    Get(end); Get(limit); code.Op(0xad); code.Op(0x56); TrapIf(line, "data region exhausted");
+    Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
+    Get(entry); Get(start); Get(bytes); code.Op(0xa7); code.Copy();
+    SetArrayImageAnchor(original, entry, type);
+    ReadArrayLength(original); auto count = Save(I32);
+    Get(original); Get(count); code.Mem(0x36, 2, 4);
+    if (Compiler::RuntimeLimited(type)) {
+        ReadArrayCapacity(original); auto capacity = Save(I32);
+        Get(original); Get(capacity); code.Mem(0x36, 2, 12);
+    }
+    // A canceled prefix may describe more than the committed suffix. Native
+    // views retain that prefix; validate against the region, not suffix size.
+    ValidateArrayImage(original, count, type->arr->sub, line);
+    Get(end); code.Op(0xa7); PublishCursor(original, Save(I32));
+}
+
 } // namespace goose::direct_wasm

@@ -261,12 +261,23 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
     return added;
 }
 
-inline void Function::ShareRegion(const Location &place, const ConstructionDestination &destination) {
+inline void Function::ShareRegion(const Location &place, const ConstructionDestination &destination, const VarDef *named) {
     LocationAddress(TailHeaderLocation(place)); auto local = Save(I32);
     LocationAddress(TailHeaderLocation(destination.location)); auto result = Save(I32);
     if (Compiler::GrowableArray(place.storage_type) && destination.location.storage_type->kind == TY_ARRAY &&
-        destination.location.storage_type->arr->akind == A_VAR && !destination.elements)
-        InitializeArrayImage(result, destination, place.storage_type->line);
+        destination.location.storage_type->arr->akind == A_VAR && !destination.elements) {
+        if (ImageTargetDestination(destination)) {
+            auto type = destination.location.storage_type;
+            Location prefix { type, Slot { Slot::FRAME, FrameBytes(owner_control_bytes, 4), type } };
+            LocationAddress(prefix); auto control = Save(I32);
+            Get(control); code.I32Const(0); code.I32Const(int32_t(owner_control_bytes)); code.Fill();
+            for (auto offset : { 0u, 8u }) { Get(control); Get(result); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset); }
+            InitializeArrayImage(control, { prefix, destination.lifetime }, place.storage_type->line);
+            Get(control); code.Mem(0x28, 2, 16);
+            if (!named) Fail(place.storage_type->line, "internal: missing named prefix binding");
+            named_image_prefixes[named] = Save(I32);
+        } else InitializeArrayImage(result, destination, place.storage_type->line);
+    }
     for (uint32_t offset : { 0u, 8u }) {
         Get(local); Get(result); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset);
     }
@@ -407,6 +418,17 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         auto same = left && right ? left->kind == right->kind && left->index == right->index
                     : !left && !right && get<AddressLocal>(named).index == get<AddressLocal>(receiving).index;
         if (same) {
+            if (ImageTargetDestination(destination)) {
+                auto source_type = id->vdef->type;
+                if (source_type->arr->akind == A_VAR || Compiler::RuntimeLimited(source_type)) return;
+                if (auto prefix = named_image_prefixes.find(id->vdef); prefix != named_image_prefixes.end()) {
+                    LocationAddress(PinPlace(node)); ReadArrayLength(Save(I32)); code.Op(0xad); auto count = Save(I64);
+                    CheckArrayLength(type, count, line, destination.elements);
+                    Get(prefix->second); Get(count);
+                    if (IntBits(Compiler::LengthStorage(type)) < 64) code.Op(0xa7);
+                    Store(c.ast.inttypes[Compiler::LengthStorage(type)]); return;
+                }
+            }
             // Data already lives at this result. Its private header keeps
             // later growth from changing the length published here.
             LocationAddress(PinPlace(node)); ReadArrayLength(Save(I32)); code.Op(0xad); auto count = Save(I64);
