@@ -679,6 +679,11 @@ struct Compiler {
     static uint32_t StaticLimitedLengthBytes(TypeExpr *t) {
         return uint32_t(IntBits(StaticLimitedLengthStorage(t)) / 8);
     }
+    bool EncodedRecordTail(TypeExpr *t) {
+        if (!RegionRecord(t) || FrameStruct(t) || ByteRecord(t)) return false;
+        auto tail = TailType(t);
+        return ULEBLength(tail) || Varint(tail->arr->sub);
+    }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
         if (Varint(t->arr->sub)) {
@@ -705,6 +710,8 @@ struct Compiler {
                 }
                 if (!RegionVariant(variant))
                     Fail(t->line, "variable enum payloads require one final nonresizable array tail");
+                if (EncodedRecordTail(variant))
+                    Fail(t->line, "encoded record tails in variable enums require separate image staging");
                 auto sub = ControlLayout(variant);
                 layout.align = max(layout.align, sub.align); layout.size = Align(layout.size, sub.align);
                 layout.fields.push_back(layout.size);
@@ -733,8 +740,7 @@ struct Compiler {
             if (FrameStruct(t) && any_of(defs.begin(), defs.end(), [](auto &field) { return field.ispad; }))
                 Fail(t->line, "padding in frame objects is not supported");
             auto tail = fields.empty() ? nullptr : fields.back();
-            if (ULEBLength(tail)) Fail(t->line, "containing varint-length arrays require general record walkers");
-            if (RegionArray(tail) && Varint(tail->arr->sub))
+            if (FrameStruct(t) && RegionArray(tail) && Varint(tail->arr->sub))
                 Fail(t->line, "containing varint-element images require general record walkers");
             if (ByteRecord(tail)) Fail(t->line, "containing byte-walked records require general image walkers");
             auto tail_array = tail && tail->kind == TY_ARRAY &&

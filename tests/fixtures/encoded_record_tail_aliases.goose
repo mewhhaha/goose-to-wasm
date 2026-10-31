@@ -1,0 +1,2 @@
+struct R{tag:u8,word:u16,values:varint[varint]} recursive fn sum(xs:const varint[:])->i64{var s=0;for x in xs{s+=x;}return s;}
+recursive fn bump(r:R&)->u16{r.word=99;return r.word;}recursive fn make()->R,u16,R{var r=R{1,7,[64;128]};return r,bump(r),r;}fn main(){let a,n,b=make();print(a.word as i64," ",n as i64," ",b.word as i64," ",sum(a.values)," ",sum(b.values));}

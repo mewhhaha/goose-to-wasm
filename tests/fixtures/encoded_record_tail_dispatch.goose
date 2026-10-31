@@ -1,0 +1,2 @@
+struct R{tag:u8,word:u16,values:varint[varint]} recursive fn sum(xs:const varint[:])->i64{var s=0;for x in xs{s+=x;}return s;}
+enum C{A,B}recursive fn values(c:C.A)->R{return R{1,7,[64;128]};}recursive fn values(c:C.B)->R{return R{2,11,[-65;127]};}fn main(){for flag in[false,true]{let c:C=if flag{C.A}else{C.B};let r=values(c);print(r.word as i64," ",r.values.len," ",sum(r.values));}}

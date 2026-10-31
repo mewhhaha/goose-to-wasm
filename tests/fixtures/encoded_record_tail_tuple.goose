@@ -1,0 +1,2 @@
+struct R{tag:u8,word:u16,values:varint[varint]} recursive fn sum(xs:const varint[:])->i64{var s=0;for x in xs{s+=x;}return s;}
+recursive fn pair()->R,i64,R{return R{1,7,[64;128]},9,R{2,11,[-65;127]};}recursive fn relay()->R,i64,R{return pair();}fn main(){let a,n,b=relay();print(a.values.len," ",n," ",b.values.len," ",sum(a.values)," ",sum(b.values));}

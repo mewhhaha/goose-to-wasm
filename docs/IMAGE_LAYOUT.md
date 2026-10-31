@@ -1,7 +1,7 @@
 # Internal layout migration
 
 The `goose.direct` producer marker distinguishes external scalar `abi=1` from
-internal `layout=14;encoded-arrays=combined;array-lengths=unsigned-uleb;varint-elements=sequential-grow;varint-records=sequential`, with
+internal `layout=15;encoded-record-tails=terminal;encoded-arrays=combined;array-lengths=unsigned-uleb;varint-elements=sequential-grow;varint-records=sequential`, with
 `record-padding=fixed-alignment-variable-explicit` and
 `static-limited=compact-lengths;enum-tags=compact` and
 `variable-enums=active-payloads`, alongside

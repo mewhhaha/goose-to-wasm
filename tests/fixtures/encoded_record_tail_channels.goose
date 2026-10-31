@@ -1,0 +1,3 @@
+struct R{tag:u8,word:u16,values:varint[varint]} recursive fn sum(xs:const varint[:])->i64{var s=0;for x in xs{s+=x;}return s;}
+recursive fn make(n:i64)->R{return R{1,7,[n,64,-65]};}recursive fn copied(r:R)->R{return copy(r);}inline fn imake(n:i64)->R{return R{2,9,[n;128]};}
+fn invoke<F>(n:i64)->R{return F(n);}fn main(){let a=make(9);let b=copied(copy(a));let c=imake(64);let d=invoke(-65){n=>R{3,11,[n;128]}};print(a.tag as i64," ",b.word as i64," ",sum(b.values)," ",c.values.len," ",sum(d.values));}

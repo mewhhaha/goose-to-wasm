@@ -52,11 +52,13 @@ inline void Function::DecodeRecordImage(const Location &owner, Line line) {
         return;
     }
     auto type = c.TailType(owner.storage_type);
-    auto prefix = Compiler::RuntimeLimited(type) ? 8u : uint32_t(IntBits(Compiler::LengthStorage(type)) / 8);
-    Get(header); code.Mem(0x28, 2, 16); code.Op(0xad); code.I64Const(prefix); code.Op(0x7c); auto end = Save(I64);
-    Get(end); Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); code.Op(0x56);
-    TrapIf(line, "record image prefix exceeds data region");
-    Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
+    if (!Compiler::ULEBLength(type)) {
+        auto prefix = Compiler::RuntimeLimited(type) ? 8u : uint32_t(IntBits(Compiler::LengthStorage(type)) / 8);
+        Get(header); code.Mem(0x28, 2, 16); code.Op(0xad); code.I64Const(prefix); code.Op(0x7c); auto end = Save(I64);
+        Get(end); Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); code.Op(0x56);
+        TrapIf(line, "record image prefix exceeds data region");
+        Get(end); code.Op(0xa7); EnsureMemory(Save(I32), line);
+    }
     ReadArrayBase(header); auto elements = Save(I32);
     Get(header); Get(elements); code.Mem(0x36, 2);
     ReadArrayLength(header); auto count = Save(I32);
@@ -76,9 +78,16 @@ inline uint32_t Function::RecordImageBytes(const Location &owner, Line line) {
     auto base = RecordImageBase(owner, line);
     LocationAddress(TailHeaderLocation(owner)); auto header = Save(I32);
     auto tail = c.TailType(owner.storage_type);
-    ReadArrayBase(header); code.Op(0xad);
-    if (Compiler::RuntimeLimited(tail)) ReadArrayCapacity(header); else ReadArrayLength(header);
-    code.Op(0xad); code.I64Const(c.FixedLayout(tail->arr->sub).size); code.Op(0x7e); code.Op(0x7c);
+    ReadArrayBase(header); auto elements = Save(I32);
+    if (Compiler::Varint(tail->arr->sub)) {
+        ReadArrayLength(header); code.Op(0xad); auto count = Save(I64);
+        Get(header); code.Mem(0x28, 2, 8); code.Op(0xad); auto limit = Save(I64);
+        Get(WalkVarintElements(elements, count, limit, line)); code.Op(0xad);
+    } else {
+        Get(elements); code.Op(0xad);
+        if (Compiler::RuntimeLimited(tail)) ReadArrayCapacity(header); else ReadArrayLength(header);
+        code.Op(0xad); code.I64Const(c.FixedLayout(tail->arr->sub).size); code.Op(0x7e); code.Op(0x7c);
+    }
     Get(base); code.Op(0xad); code.Op(0x7d); return Save(I64);
 }
 

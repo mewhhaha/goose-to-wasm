@@ -1,0 +1,1 @@
+enum E{Empty,Data{tag:u8,values:varint[varint]}}recursive fn make()->E.Data{return E.Data{1,[-65;128]};}fn main(){let a=make();let b=copy(a);var s=0;for x in b.values{s+=x;}print(a.tag as i64," ",b.values.len," ",s);}

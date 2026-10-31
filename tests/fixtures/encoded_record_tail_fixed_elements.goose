@@ -1,0 +1,1 @@
+struct R{tag:u8,values:u16[varint]}recursive fn make()->R{return R{1,[0x2233;128]};}var empty:R;fn main(){let a=make();let b=copy(a);print(empty.values.len," ",a.values.len," ",b.values[127] as i64);}

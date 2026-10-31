@@ -34,7 +34,8 @@ the expanded prefix through the old Grow base, producing an overlong encoding.
 Read-only later observations and repeated-return examples are also outside this
 first proof. Layout 14 also admits signed varint elements after the unsigned count; see
 [combined images](COMBINED_VARINTS.md). Actual varint-length nonlocal targets,
-containing arrays and static fills beyond UINT32_MAX remain explicit frontiers. This does not widen serialization, overlap or general image-effect
+general containing forms and static fills beyond UINT32_MAX remain explicit frontiers.
+Layout 15 admits [fixed-prefix terminal record tails](ENCODED_RECORD_TAILS.md). This does not widen serialization, overlap or general image-effect
 proofs.
 
 Tests inspect counts 0/1/127/128/16383/16384, prefix bytes, packed strides, known

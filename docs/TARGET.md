@@ -330,6 +330,10 @@ See [the enum contract](VARIABLE_ENUMS.md).
 - Standalone fixed-element arrays with unsigned varint lengths, byte-authoritative
   views and successful-return prefix expansion; see [ULEB lengths](ULEB_LENGTHS.md).
 
+- Fixed-prefix non-frame records and standalone variants with terminal encoded
+  arrays, including nested single-tail records; see
+  [encoded record tails](ENCODED_RECORD_TAILS.md).
+
 The executable differential suite is the authority for qualified behavior.
 
 ## Explicit refusals and remaining work
@@ -337,7 +341,7 @@ The executable differential suite is the authority for qualified behavior.
 The current backend refuses callback results that may borrow callback-local
 storage, unsupported owned layouts and containing shapes (nonfinal owners, multiple variable fields and
 containing variable-mode enums), variable-element
-growables beyond scalar varints, containing encoded-array images and unproved
+growables beyond scalar varints, encoded arrays after variable prefixes or inside variable enums, and unproved
 encoded nonlocal targets; resizable/multiple-owner enum payloads;
 unproven packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;

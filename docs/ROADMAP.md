@@ -80,6 +80,15 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: terminal encoded arrays in record images
+
+Fixed-prefix non-frame records and standalone variants can end in varint-element,
+ULEB-count or combined encoded arrays. Record byte extents walk encoded elements;
+normal construction/copy/results retain the existing contiguous prefix and full
+physical-suffix rules. Nested fixed prefixes share that terminal walker. Actual
+record targets, variable-prefix records and containing variable enums retain
+explicit gates. See [encoded record tails](ENCODED_RECORD_TAILS.md).
+
 ## Implemented: combined encoded array images
 
 Standalone `varint[varint]` values combine unsigned count decoding with signed
