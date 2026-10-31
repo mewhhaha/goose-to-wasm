@@ -1,0 +1,67 @@
+{
+  "array_snapshot": {
+    "stdout": "mutate\n[P { 1, 2 }] 7 [P { 99, 2 }, P { 3, 4 }]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "arrays": {
+    "stdout": "[P { 1, 8755 }, P { 4, 21862 }] [P { 7, 34969 }, P { 10, 48076 }] [P { 13, 61183 }]\n[P { 7, 34969 }, P { 10, 48076 }]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "enum_arrays": {
+    "stdout": "[E.Empty, A { 7 }, B { -0.0 }]\n[A { 9 }, B { 1.25 }]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "enum_snapshot": {
+    "stdout": "mutate\nA { 7 } 3 B { 99, -65 }\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "nested": {
+    "stdout": "Outer { 9, Inner { Data { 8755, \"abc\" }, [-3, 4] } }\n[Outer { 9, Inner { Data { 8755, \"abc\" }, [-3, 4] } }, Outer { 9, Inner { Data { 8755, \"abc\" }, [-3, 4] } }]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "padding": {
+    "stdout": "P { 1, 8755 }\n[P { 2, 9 }, P { 3, 11 }]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "parameters": {
+    "stdout": "P { 7, -0.0 }\nP { 7, -0.0 }\nP { 7, -0.0 }\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "quoted_bytes": {
+    "stdout": "Text { \"\u00e9\\n\\r\\t\\\"\\\\\u0000\" }\n[\"A\\nB\", \"\\\"\\\\\\t\"]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "records": {
+    "stdout": "Empty {  }\nPoint { 7, -3 }\nBox<Point> { Point { 9, 4 }, true }\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "snapshots": {
+    "stdout": "mutate\nP { 1, 2 } 7 P { 99, 2 }\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "static_limited": {
+    "stdout": "Box { [1, 2], \"hi\" }\nBox { [], \"\" }\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "variants": {
+    "stdout": "Shape.Dot\nLine { -3, 7 }\nDisk { 1.5 }\nLine { -4, 9 }\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "wide_enum": {
+    "stdout": "Huge.V256 Huge.V0\n[Huge.V0, Huge.V256]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  }
+}

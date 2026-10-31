@@ -1,0 +1,1 @@
+struct Text{bytes:u8[8]}fn main(){print(Text{[195,169,10,13,9,34,92,0]});let rows:u8[3][2]=[[65,10,66],[34,92,9]];print(rows);}

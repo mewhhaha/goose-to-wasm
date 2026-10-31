@@ -242,14 +242,25 @@
       },
       "B_PRINT": {
         "status": "qualified_subset",
-        "scope": "Scalars, top-level byte sequences and supported scalar-element fixed/limited/named-growable arrays; no custom formatters or general nested images.",
+        "scope": "Scalars, top-level byte sequences and supported arrays; recursively closed fixed structs/variants/enums and arrays/slices of those values use independent snapshots. Positional native type/variant names, pad omission, fixed enum tag routing and quoted/escaped nested byte sequences preserve byte output and argument ordering. References/slices inside fixed aggregates, variable-image rendering, optional-reference rendering and custom formatters remain explicit frontiers.",
         "fixtures": [
           "tests/fixtures/value_forms.goose",
           "tests/fixtures/float_render.goose",
           "tests/fixtures/fixed_arrays.goose",
-          "tests/fixtures/growable_arrays.goose"
+          "tests/fixtures/growable_arrays.goose",
+          "tests/fixtures/aggregate_print_records.goose",
+          "tests/fixtures/aggregate_print_variants.goose",
+          "tests/fixtures/aggregate_print_snapshots.goose",
+          "tests/fixtures/aggregate_print_quoted_bytes.goose",
+          "tests/fixtures/aggregate_print_wide_enum.goose"
         ],
-        "boundary_fixtures": []
+        "boundary_fixtures": [
+          "tests/test_aggregate_print.py",
+          "tests/test_aggregate_print_boundaries.py",
+          "tests/test_owned_struct_boundaries.py",
+          "tests/test_variable_enum_boundaries.py",
+          "tests/test_regions.py"
+        ]
       },
       "B_PUSH": {
         "status": "qualified_subset",

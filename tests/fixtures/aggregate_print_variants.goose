@@ -1,0 +1,1 @@
+enum Shape{Dot,Line{x:i16,y:u8},Disk{radius:f64}}fn main(){print(Shape.Dot);print(Shape.Line{-3,7});for flag in[false,true]{let s:Shape=if flag{Shape.Line{-4,9}}else{Shape.Disk{1.5}};print(s);}}

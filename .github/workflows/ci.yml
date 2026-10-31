@@ -111,6 +111,8 @@ jobs:
           python tests/test_combined_varint_boundaries.py
           python tests/test_encoded_record_tails.py
           python tests/test_encoded_record_tail_boundaries.py
+          python tests/test_aggregate_print.py
+          python tests/test_aggregate_print_boundaries.py
           python tests/test_uleb_length_boundaries.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py

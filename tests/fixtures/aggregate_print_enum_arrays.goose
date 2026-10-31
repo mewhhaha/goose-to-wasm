@@ -1,0 +1,1 @@
+enum E{Empty,A{x:u8},B{x:f64}}fn main(){let rows:E[3]=[E.Empty,E.A{7},E.B{-0.0}];print(rows);let ys:E[u8]=[E.A{9},E.B{1.25}];print(ys);}

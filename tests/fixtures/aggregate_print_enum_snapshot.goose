@@ -1,0 +1,1 @@
+enum E{A{x:i64},B{word:u16,tail:i64}}var e:E=E.A{7};recursive fn mutate()->i64{e=E.B{99,-65};print("mutate");return 3;}fn main(){print(e," ",mutate()," ",e);}

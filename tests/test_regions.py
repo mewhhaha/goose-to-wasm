@@ -1248,6 +1248,22 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_fixed_record_rendering_releases_statement_snapshots(self):
+        source=f'''var neighbor:i64[>..]=[{CANARY}];
+struct Text{{value:i64,bytes:u8[2048]}}
+export fn tick(n:i64)->i64{{print(Text{{n,[65;2048]}});return n+1;}}
+fn main(){{}}'''
+        for level in (0,2):
+            path,info=self.compile(source,level)
+            self.assertEqual(info['region_count'],1)
+            for engine,observed in self.engines(path,info,repeats=10000,canary_index=0):
+                with self.subTest(level=level,engine=engine):
+                    self.assertEqual(observed['error'],'')
+                    self.assertEqual(observed['canary'],str(CANARY))
+                    self.assertEqual(len(observed['numbers']),10000)
+                    self.assertEqual(observed['numbers'][0],'0')
+                    self.assertEqual(observed['numbers'][-1],'9999')
+
     def test_encoded_record_tail_recursive_results_reuse_region(self):
         source=f'''var neighbor:i64[>..]=[{CANARY}];
 struct R{{tag:u8,word:u16,values:varint[varint]}}

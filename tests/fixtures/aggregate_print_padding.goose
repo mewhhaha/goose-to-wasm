@@ -1,0 +1,1 @@
+struct P{tag:u8,pad 4,word:u16}fn main(){print(P{1,8755});print([P{2,9},P{3,11}]);}

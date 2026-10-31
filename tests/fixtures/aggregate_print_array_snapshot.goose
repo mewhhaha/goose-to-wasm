@@ -1,0 +1,1 @@
+struct P{x:i64,y:i64}var rows:P[>..]=[P{1,2}];recursive fn mutate()->i64{rows[0].x=99;rows.push(P{3,4});print("mutate");return 7;}fn main(){print(rows," ",mutate()," ",rows);}

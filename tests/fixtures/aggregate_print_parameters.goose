@@ -1,0 +1,1 @@
+struct P{x:i64,y:f32}recursive fn show(p:P)->P{print(p);return p;}fn invoke<F>(p:P)->P{return F(p);}fn main(){let a=show(P{7,-0.0});print(invoke(a){x=>let b=copy(x);print(b);b});}
