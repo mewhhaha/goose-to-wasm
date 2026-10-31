@@ -13,7 +13,17 @@ storage, natural result contracts, argument snapshots and scoped cleanup.
 Exact result forwarding preserves recursive region bounds; a callback tail is
 a value copy. See [static captures](STATIC_CAPTURES.md) and
 [owned function values](OWNED_FUNCTION_VALUES.md). Borrowed callback-local
-results and out-of-line nonlocal returns remain gated.
+results remain conservatively gated. Fixed nonlocal effects are described below.
+
+## Implemented: fixed nonlocal-return targets
+
+Activation mailboxes propagate fixed/scalar/mixed fixed returns through ordinary
+and dispatched calls, preserving the innermost concrete target across recursion.
+Live-owner records distinguish dying headers from surviving storage during
+interrupted reconstruction, including embedded enum tails and private parameters.
+Logical temporary lifetimes survive early inline returns and retained arguments.
+The original function-value capture program now qualifies at O0 as well as O2.
+[Owned target results](NONLOCAL_RETURNS.md) require later staging and landing.
 
 ## Implemented: runtime enum case dispatch
 

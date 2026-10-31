@@ -253,6 +253,7 @@ inline void Function::ShareRegion(const Location &place, const ConstructionDesti
     }
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 12);
+    RegisterEffectOwner(place);
 }
 
 inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_t source,
@@ -308,7 +309,7 @@ inline void Function::ConstructRegion(Node *node, const Location &place, optiona
     ConstructRegionInto(node, { place, global_region ? ConstructionDestination::Static : ConstructionDestination::Block });
 }
 
-inline void Function::AcquireRegion(const Location &place, Line line, optional<uint32_t> global_region) {
+inline void Function::AcquireRegion(const Location &place, Line line, optional<uint32_t> global_region, bool temporary) {
     c.ControlLayout(place.storage_type);
     LocationAddress(TailHeaderLocation(place)); auto header = Save(I32);
     if (global_region) code.I32Const(int32_t(*global_region));
@@ -327,6 +328,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); Get(base); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6a); code.Mem(0x36, 2, 8);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+    if (!global_region) RegisterEffectOwner(place, true, temporary);
 }
 
 inline void Function::ConstructRegionInto(Node *node, const ConstructionDestination &destination) {
@@ -454,7 +456,15 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         ConstructRegionView(source.view, destination, line, source.capacity); return;
     }
     Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
-    if (check_abandoned) CloseCleanups(cleanup_depth);
+    if (check_abandoned) {
+        if (cleanups.size() <= cleanup_depth || cleanups[cleanup_depth].kind != CleanupAction::CheckAbandonedRegion)
+            Fail(line, "internal: missing construction cleanup");
+        // Retained anonymous arguments can add owner clear actions whose
+        // lifetime extends through the enclosing statement.
+        for (size_t i = cleanup_depth + 1; i < cleanups.size(); i++)
+            if (cleanups[i].kind != CleanupAction::ClearOwner) Fail(line, "internal: unbalanced construction cleanup");
+        cleanups.erase(cleanups.begin() + cleanup_depth);
+    }
 }
 
 // Validate the final length before multiplying or adding a pointer. All

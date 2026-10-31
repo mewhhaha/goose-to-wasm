@@ -46,5 +46,6 @@ natural narrow results, captured case functions after parent inlining, shared
 reference argument spilling and wider receivers outside recursive cycles.
 Resource checks exercise repeated owned results and deep payload copies; malformed
 tag tests mutate exported memory and verify both engines abort without changing
-the neighboring owner. Out-of-line nonlocal effects and unsupported layouts keep
-their existing diagnostics.
+the neighboring owner. [Fixed nonlocal target effects](NONLOCAL_RETURNS.md) also
+propagate through selected cases. Owned nonlocal targets and unsupported layouts
+keep their existing diagnostics.

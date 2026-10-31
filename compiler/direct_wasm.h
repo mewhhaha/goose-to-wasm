@@ -80,6 +80,10 @@ struct Function {
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
     uint32_t framebase = 0, framebytes = 0;
+    struct OwnerEntry { uint32_t offset; bool temporary; };
+    vector<OwnerEntry> owner_entries;
+    uint32_t effect_frame = 0, previous_effect_frame = 0, mailbox = 0, previous_mailbox = 0;
+    uint32_t function_done = 0;
     uint32_t region_live = 0, region_peak = 0;
     Bytes code;
     vector<uint32_t> labels;
@@ -118,11 +122,12 @@ struct Function {
     ConstructionDestination TemporaryDestination(TypeExpr *, Line);
     void Materialize(Node *, TypeExpr *, bool adapt_result = true);
     struct CleanupAction {
-        enum Kind { RestoreScratchTop, RestoreRegionNext, CheckAbandonedRegion } kind;
+        enum Kind { RestoreScratchTop, RestoreRegionNext, CheckAbandonedRegion, ClearOwner } kind;
         uint32_t saved_local;
         TypeExpr *element = nullptr;
         Line line {};
         optional<ConstructionDestination::EnumGuard> enum_guard;
+        size_t owner_depth = 0;
     };
     vector<CleanupAction> cleanups;
     void PushExit(Exit target, const ResultDestinations &destinations = {}) {
@@ -134,6 +139,7 @@ struct Function {
             auto &action = cleanups[i];
             if (action.kind == CleanupAction::RestoreScratchTop) { Get(action.saved_local); code.OpU(0x24, 0); }
             else if (action.kind == CleanupAction::RestoreRegionNext) { Get(action.saved_local); code.OpU(0x24, G_REGION_NEXT); }
+            else if (action.kind == CleanupAction::ClearOwner && action.owner_depth > depth) ClearEffectOwner(action.saved_local);
             else if (action.kind == CleanupAction::CheckAbandonedRegion && abandoning) {
                 auto done = Begin();
                 if (action.enum_guard) {
@@ -148,6 +154,7 @@ struct Function {
                         Get(action.enum_guard->owner_header); LocationAddress(header.location); code.Op(0x46); Br(done, true);
                     }
                 }
+                SkipDyingEffectOwner(action.saved_local, action.enum_guard, done);
                 Get(action.saved_local); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
                 ReserveRegion(action.saved_local, count, action.element, action.line);
                 End();
@@ -155,7 +162,12 @@ struct Function {
         }
     }
     void CloseCleanups(size_t depth) {
+        vector<CleanupAction> retained;
+        for (size_t i = depth; i < cleanups.size(); i++)
+            if (cleanups[i].kind == CleanupAction::ClearOwner && cleanups[i].owner_depth <= depth)
+                retained.push_back(cleanups[i]);
         EmitCleanups(depth); cleanups.resize(depth);
+        cleanups.insert(cleanups.end(), retained.begin(), retained.end());
     }
     void UnwindCleanups(size_t target) {
         EmitCleanups(exits.at(target).cleanup_depth, true);
@@ -247,6 +259,14 @@ struct Function {
     void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void EmitFunctionValue(Call *, bool, const ResultDestinations &, bool elements);
     void EmitDispatch(Call *, bool, const ResultDestinations &);
+    void EnterEffectFrame();
+    void LeaveEffectFrame();
+    void RegisterEffectOwner(const Location &, bool lexical = true, bool temporary = false);
+    void ClearEffectOwner(uint32_t);
+    void SkipDyingEffectOwner(uint32_t, const optional<ConstructionDestination::EnumGuard> &, uint32_t);
+    void CheckPendingEffect(Line);
+    void PropagateEffect(Line);
+    void NonlocalReturn(Return *);
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void ResultExpression(Node *, const ResultDestinations &);
     struct RegionResultPlan { ResultDestinations producers, copies, values; vector<TypeExpr *> enum_payloads; };
@@ -256,7 +276,7 @@ struct Function {
     vector<const VarDef *> BindNamedResults(Block *, SFunction *, const vector<TypeExpr *> &, const ResultDestinations &, bool inlined = false);
     void RecordRegionCall(FnSpec *, Line);
     void ConstructRegion(Node *, const Location &, optional<uint32_t> global_region = {});
-    void AcquireRegion(const Location &, Line, optional<uint32_t> = {});
+    void AcquireRegion(const Location &, Line, optional<uint32_t> = {}, bool temporary = false);
     void ShareRegion(const Location &, const ConstructionDestination &);
     void ConstructRegionInto(Node *, const ConstructionDestination &);
     void ConstructRegionFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
@@ -304,6 +324,11 @@ struct Compiler {
     unordered_set<FnSpec *> reachable;
     unordered_map<FnSpec *, vector<VarDef *>> captures;
     unordered_set<VarDef *> captured_storage;
+    vector<FnSpec *> effect_targets;
+    unordered_map<FnSpec *, uint32_t> effect_globals;
+    unordered_map<FnSpec *, Layout> mailboxes;
+    uint32_t pending_effect = 0, effect_frames = 0;
+    bool Effects() const { return !effect_targets.empty(); }
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;
     unordered_map<FnSpec *, uint32_t> run_index;
@@ -639,6 +664,8 @@ struct Compiler {
         return uint32_t(imports.size() - 1);
     }
     void AnalyzeCaptures();
+    void AnalyzeEffects();
+    Layout MailboxLayout(FnSpec *);
     Signature FunctionSig(FnSpec *sp) {
         Signature s;
         for (auto p : sp->params) {
@@ -765,6 +792,13 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
     } else for (auto g : c.ast.globals) for (auto n : g->inits) ScanAddresses(n);
     framebase = Local(I32);
     for (auto t : results) resultlocals.push_back(Local(t));
+    if (c.Effects()) {
+        effect_frame = FrameBytes(12, 4); previous_effect_frame = Local(I32);
+        if (c.effect_globals.count(spec)) {
+            auto layout = c.MailboxLayout(spec);
+            mailbox = FrameBytes(layout.size, layout.align); previous_mailbox = Local(I32);
+        }
+    }
 }
 inline void Function::Fail(Line l, const string &s) { c.Fail(l, s); }
 inline uint8_t Function::W(TypeExpr *t) { return c.W(t); }
@@ -862,6 +896,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_captures.h"
 #include "direct_wasm_funvals.h"
 #include "direct_wasm_dispatch.h"
+#include "direct_wasm_effects.h"
 #include "direct_wasm_storage.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"

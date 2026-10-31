@@ -1235,6 +1235,69 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_nonlocal_return_releases_dying_borrowed_owner(self):
+        source = f'''var neighbor: i64[>..] = [{CANARY}];
+fn mutate<F>(xs: i64[>..]&) {{ xs = [F(); 4294967296]; }}
+fn target(n: i64) -> i64 {{
+    var xs: i64[>..] = [9]; mutate(xs) {{ if n >= 0 {{ return n + 1; }} 4 }}; return 0;
+}}
+export fn tick(n: i64) -> i64 {{ target(n) }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_nonlocal_return_still_checks_surviving_global_owner(self):
+        source = f'''extern fn bench_input() -> i64;
+var values: i64[>..] = [9]; var neighbor: i64[>..] = [{CANARY}];
+fn mutate<F>(xs: i64[>..]&) {{ xs = [F(); 4294967296]; }}
+fn target() -> i64 {{ mutate(values) {{ if bench_input() >= 0 {{ return 7; }} 4 }}; return 0; }}
+fn main() {{ print(target()); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, canary_index=1):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_nonlocal_return_recognizes_dying_embedded_enum_header(self):
+        source = f'''enum Event {{ Empty, Data {{ tag: i64, values: i64[] }} }}
+var neighbor: i64[>..] = [{CANARY}];
+fn variant<F>() -> Event.Data {{ return Event.Data {{ 1, [F(); 1000000] }}; }}
+fn target(n: i64) -> i64 {{
+    let event: Event.. = variant() {{ if n >= 0 {{ return n + 1; }} 4 }}; return 0;
+}}
+export fn tick(n: i64) -> i64 {{ target(n) }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_nonlocal_return_after_retained_inline_arguments(self):
+        source = '''recursive fn make(n: i64) -> i64[>..] { return [n, n + 1]; }
+inline fn hold(owned: i64[>..], xs: const i64[:]) -> const i64[:] { if xs.len > 0 { return xs; } xs }
+fn use(xs: const i64[:], n: i64) -> i64 { xs.len + n }
+fn leave(n: i64) -> i64 { if n > 0 { return n from target; } 0 }
+fn target(n: i64) -> i64 { use(hold([9], make(n)), leave(n)) }
+export fn tick(n: i64) -> i64 { target(n + 1) }
+fn main() { print(target(0)); }'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["numbers"], ["2"])
+
     def test_dispatch_invalid_tag_aborts_before_a_case_call(self):
         source = f'''enum Choice {{ Empty, Data {{ value: i64 }} }}
 var choice: Choice = Choice.Data {{ 1234605616436508552 }};

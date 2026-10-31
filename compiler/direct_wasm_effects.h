@@ -1,0 +1,160 @@
+#pragma once
+namespace goose::direct_wasm {
+
+inline Layout Compiler::MailboxLayout(FnSpec *target) {
+    if (auto found = mailboxes.find(target); found != mailboxes.end()) return found->second;
+    Layout layout { 4, 4 };
+    for (auto type : target->rets) {
+        if (Class(type) != SC_FIXED)
+            Fail(target->sf->line, "owned nonlocal return targets require staging and landing support");
+        auto field = FixedLayout(type);
+        layout.size = Align(layout.size, field.align); layout.fields.push_back(layout.size);
+        if (uint64_t(layout.size) + field.size > UINT32_MAX) Fail(target->sf->line, "nonlocal mailbox is too large");
+        layout.size += field.size; layout.align = max(layout.align, field.align);
+    }
+    layout.size = Align(layout.size, layout.align); mailboxes[target] = layout; return layout;
+}
+
+inline void Compiler::AnalyzeEffects() {
+    unordered_set<FnSpec *> seen;
+    for (auto spec : specs) {
+        vector<SFunction *> local { spec->sf };
+        function<void(Node *)> walk = [&](Node *node) {
+            if (!node || Is<FnDecl>(node) || Is<FunVal>(node) || Is<StructDecl>(node) ||
+                Is<EnumDecl>(node) || Is<AliasDecl>(node)) return;
+            if (auto inlined = Is<InlineBlock>(node)) {
+                local.push_back(inlined->sf); walk(inlined->body); local.pop_back(); return;
+            }
+            if (auto ret = Is<Return>(node); ret &&
+                find(local.begin(), local.end(), ret->target) == local.end()) {
+                auto target = ret->targetspec;
+                if (!target || !reachable.count(target)) Fail(ret->line, "nonlocal return has no emitted target activation");
+                if (seen.insert(target).second) { MailboxLayout(target); effect_targets.push_back(target); }
+            }
+            RunChildren(node, [&](Node *child) { walk(child); });
+        };
+        walk(spec->body);
+    }
+    if (!Effects()) return;
+    pending_effect = needs_regions ? 6 : 1; effect_frames = pending_effect + 1;
+    for (size_t i = 0; i < effect_targets.size(); i++) effect_globals[effect_targets[i]] = effect_frames + 1 + uint32_t(i);
+}
+
+inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, bool temporary) {
+    if (!c.Effects()) return;
+    auto offset = FrameBytes(16, 4);
+    owner_entries.push_back({ offset, temporary });
+    FrameAddress(offset + 4); LocationAddress(TailHeaderLocation(owner)); code.Mem(0x36, 2);
+    FrameAddress(offset + 8); code.I32Const(1); code.Mem(0x36, 2);
+    auto interior = Compiler::RegionEnum(owner.storage_type) ? c.EnumImageLayout(owner.storage_type->enu->inst, owner.storage_type->line).size : 0;
+    FrameAddress(offset + 12); code.I32Const(int32_t(interior)); code.Mem(0x36, 2);
+    if (lexical) {
+        auto depth = temporary ? temp_scopes.back().cleanup_depth + 1 : cleanups.size() + 1;
+        cleanups.push_back({ CleanupAction::ClearOwner, offset, nullptr, {}, nullopt, depth });
+    }
+}
+
+inline void Function::ClearEffectOwner(uint32_t offset) {
+    // Keep all dying-owner evidence until every abandoning check has run.
+    code.OpU(0x23, c.pending_effect); code.Op(0x45); Begin(0x04);
+    FrameAddress(offset + 8); code.I32Const(0); code.Mem(0x36, 2); End();
+}
+
+inline void Function::EnterEffectFrame() {
+    if (!c.Effects()) return;
+    code.OpU(0x23, c.effect_frames); Set(previous_effect_frame);
+    FrameAddress(effect_frame); Get(previous_effect_frame); code.Mem(0x36, 2);
+    FrameAddress(effect_frame + 4); Get(framebase); code.Mem(0x36, 2);
+    FrameAddress(effect_frame + 8);
+    if (owner_entries.empty()) code.I32Const(0); else FrameAddress(owner_entries.front().offset);
+    code.Mem(0x36, 2);
+    for (size_t i = 0; i < owner_entries.size(); i++) {
+        auto offset = owner_entries[i].offset;
+        FrameAddress(offset);
+        if (i + 1 < owner_entries.size()) FrameAddress(owner_entries[i + 1].offset); else code.I32Const(0);
+        code.Mem(0x36, 2);
+        FrameAddress(offset + 8); code.I32Const(0); code.Mem(0x36, 2);
+    }
+    FrameAddress(effect_frame); code.OpU(0x24, c.effect_frames);
+    if (c.effect_globals.count(spec)) {
+        auto global = c.effect_globals.at(spec);
+        code.OpU(0x23, global); Set(previous_mailbox);
+        FrameAddress(mailbox); Get(framebase); code.Mem(0x36, 2);
+        FrameAddress(mailbox); code.OpU(0x24, global);
+    }
+}
+
+inline void Function::LeaveEffectFrame() {
+    if (!c.Effects()) return;
+    if (c.effect_globals.count(spec)) { Get(previous_mailbox); code.OpU(0x24, c.effect_globals.at(spec)); }
+    Get(previous_effect_frame); code.OpU(0x24, c.effect_frames);
+}
+
+inline void Function::SkipDyingEffectOwner(uint32_t header,
+        const optional<ConstructionDestination::EnumGuard> &guard, uint32_t done) {
+    if (!c.Effects()) return;
+    auto finished = Begin();
+    code.OpU(0x23, c.pending_effect); code.Op(0x45); Br(finished, true);
+    code.OpU(0x23, c.pending_effect); code.Mem(0x28, 2); auto target_frame = Save(I32);
+    code.OpU(0x23, c.effect_frames); auto frame = Save(I32);
+    auto frames = Begin(0x03);
+    Get(frame); code.Op(0x45); Br(finished, true);
+    Get(frame); code.Mem(0x28, 2, 4); Get(target_frame); code.Op(0x49); Br(finished, true);
+    Get(frame); code.Mem(0x28, 2, 8); auto entry = Save(I32);
+    auto entries_done = Begin(); auto entries = Begin(0x03);
+    Get(entry); code.Op(0x45); Br(entries_done, true);
+    Get(entry); code.Mem(0x28, 2, 8); Begin(0x04);
+    Get(entry); code.Mem(0x28, 2, 4); auto registered = Save(I32);
+    Get(header); Get(registered); code.Op(0x46); Br(done, true);
+    if (guard) { Get(guard->owner_header); Get(registered); code.Op(0x46); Br(done, true); }
+    Get(entry); code.Mem(0x28, 2, 12); auto interior = Save(I32);
+    Get(interior); Begin(0x04);
+    Get(registered); code.Mem(0x28, 2); auto base = Save(I32);
+    Get(header); code.Op(0xad); Get(base); code.Op(0xad); code.Op(0x5a);
+    Get(header); code.Op(0xad); code.I64Const(16); code.Op(0x7c);
+    Get(base); code.Op(0xad); Get(interior); code.Op(0xad); code.Op(0x7c); code.Op(0x58); code.Op(0x71);
+    Br(done, true); End(); End();
+    Get(entry); code.Mem(0x28, 2); Set(entry); Br(entries); End(); End();
+    Get(frame); code.Mem(0x28, 2); Set(frame); Br(frames); End(); End();
+}
+
+inline void Function::PropagateEffect(Line line) {
+    if (!spec) { Abort(line, "uncaught nonlocal return"); return; }
+    EmitCleanups(0, true);
+    LeaveEffectFrame(); Get(framebase); code.OpU(0x24, G_SCRATCH_TOP);
+    for (auto type : results) Zero(W(type));
+    code.Op(0x0f);
+}
+
+inline void Function::CheckPendingEffect(Line line) {
+    if (!c.Effects()) return;
+    code.OpU(0x23, c.pending_effect); Begin(0x04);
+    if (c.effect_globals.count(spec)) {
+        code.OpU(0x23, c.pending_effect); FrameAddress(mailbox); code.Op(0x46); Begin(0x04);
+        auto layout = c.MailboxLayout(spec);
+        for (size_t i = 0; i < results.size(); i++) {
+            FrameAddress(mailbox + layout.fields[i]); Load(results[i]); Set(resultlocals[i]);
+        }
+        EmitCleanups(0, true);
+        code.I32Const(0); code.OpU(0x24, c.pending_effect); Br(function_done); End();
+    }
+    PropagateEffect(line); End();
+}
+
+inline void Function::NonlocalReturn(Return *node) {
+    auto target = node->targetspec;
+    if (!target || !c.effect_globals.count(target)) Fail(node->line, "nonlocal return has no active mailbox contract");
+    code.OpU(0x23, c.effect_globals.at(target)); auto destination = Save(I32);
+    Get(destination); code.Op(0x45); TrapIf(node->line, "nonlocal return target is not active");
+    vector<uint32_t> values; for (auto type : target->rets) values.push_back(Local(type));
+    SetResults(node->vals, target->rets, values, node->line);
+    auto layout = c.MailboxLayout(target);
+    for (size_t i = 0; i < values.size(); i++) {
+        auto field = OffsetLocation({ target->rets[i], AddressLocal { destination } }, layout.fields[i], target->rets[i]);
+        StoreCopy(field, { target->rets[i], values[i], c.Aggregate(target->rets[i]) ? CapturedValue::CopiedFixed : CapturedValue::Immediate });
+    }
+    Get(destination); code.OpU(0x24, c.pending_effect);
+    CheckPendingEffect(node->line);
+}
+
+} // namespace goose::direct_wasm

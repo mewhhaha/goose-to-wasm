@@ -61,14 +61,24 @@ inline Function::ArgumentGroup Function::BeginArgumentGroup(bool active) {
 
 inline void Function::EndArgumentGroup(const ArgumentGroup &group, bool retain) {
     if (!group.active) return;
-    if (cleanups.size() != group.cleanup_depth + 1 || cleanups.back().kind != CleanupAction::RestoreRegionNext)
+    if (cleanups.size() <= group.cleanup_depth || cleanups[group.cleanup_depth].kind != CleanupAction::RestoreRegionNext)
         Fail({}, "internal: unbalanced argument cleanup scope");
+    for (size_t i = group.cleanup_depth + 1; i < cleanups.size(); i++)
+        if (cleanups[i].kind != CleanupAction::ClearOwner) Fail({}, "internal: unbalanced argument owner scope");
     if (retain) {
         if (temp_scopes.empty() || !temp_scopes.back().restores_regions)
             Fail({}, "anonymous arguments require a restoring temporary scope");
         // Their borrowed results can still be used by the enclosing statement.
         // Dropping only this action transfers release to that statement.
+        vector<CleanupAction> retained;
+        for (size_t i = group.cleanup_depth + 1; i < cleanups.size(); i++) {
+            auto action = cleanups[i];
+            auto entry = find_if(owner_entries.begin(), owner_entries.end(), [&](auto &owner) { return owner.offset == action.saved_local; });
+            if (entry != owner_entries.end() && entry->temporary) retained.push_back(action);
+            else ClearEffectOwner(action.saved_local);
+        }
         cleanups.resize(group.cleanup_depth);
+        cleanups.insert(cleanups.end(), retained.begin(), retained.end());
     } else {
         CloseCleanups(group.cleanup_depth); region_live = group.region_live;
     }
@@ -78,7 +88,7 @@ inline ConstructionDestination Function::TemporaryDestination(TypeExpr *type, Li
     if (!Compiler::RegionOwner(type) || temp_scopes.empty() || !temp_scopes.back().restores_regions)
         Fail(line, "anonymous owned construction requires a supported temporary scope");
     Location place { type, Slot { Slot::FRAME, FrameBytes(c.ControlLayout(type).size, c.ControlLayout(type).align), type } };
-    AcquireRegion(place, line);
+    AcquireRegion(place, line, {}, true);
     private_headers.push_back({ TailHeaderLocation(place), temp_scopes.back().cleanup_depth + 1, true });
     if (anonymous_serial == UINT64_MAX) Fail(line, "too many anonymous construction sites");
     anonymous_serial++;

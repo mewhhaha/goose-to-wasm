@@ -126,6 +126,7 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
         }
         RecordRegionCall(arm, node->line); CallIndex(c.function_index.at(arm));
         for (size_t i = results.size(); i-- > 0;) Set(results[i]);
+        CheckPendingEffect(node->line);
         Br(done); End();
     }
     Abort(node->line, "invalid enum tag in dispatch"); End();

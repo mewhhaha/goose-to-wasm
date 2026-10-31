@@ -457,7 +457,10 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
         code.Op(intrinsic->second);
-    else { RecordRegionCall(sp, n->line); CallIndex(run ? c.run_index.at(sp) : c.function_index.at(sp)); }
+    else {
+        RecordRegionCall(sp, n->line); CallIndex(run ? c.run_index.at(sp) : c.function_index.at(sp));
+        if (!sp->sf->isextern) CheckPendingEffect(n->line);
+    }
     // The frontend forbids results referring into a by-value parameter's
     // private owner. External references carried by its elements survive.
     // These balanced cleanup instructions preserve the Wasm call results.
@@ -931,7 +934,7 @@ inline void Function::Expr(Node *n) {
                     SetResults(r->vals, e.types, e.values, n->line, e.destinations); UnwindCleanups(j); Br(e.label); return;
                 }
             }
-            Fail(n->line, "return from an out-of-line enclosing function is not supported");
+            NonlocalReturn(r); return;
         }
         case NK_Break: {
             auto b = static_cast<Break *>(n);

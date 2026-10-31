@@ -22,9 +22,8 @@ Function-value bodies execute at their call site. Their checked body type define
 the natural result, including when contextual adaptation requests an owned array.
 A fixed result is evaluated once before constructing that receiver. Supported
 owned parameters/results now use [receiving lifetimes](OWNED_FUNCTION_VALUES.md).
-Out-of-line nonlocal returns still produce explicit diagnostics.
-Optimizer inlining can eliminate a nonlocal boundary, so
-the original full function-value capture program qualifies at O2 only.
+Out-of-line nonlocal returns now support [fixed target results](NONLOCAL_RETURNS.md).
+The original full function-value capture program qualifies at O0 and O2.
 
 The fixture provenance is pinned revision
 `2e2bedef5b980bf013cac5aaa0095bfea64e5569`:
@@ -32,7 +31,8 @@ The fixture provenance is pinned revision
 - `upstream_inline_nested_calls.goose` is the unchanged optimizer test.
 - `upstream_nested_fn_scope.goose` is the unchanged nested-function scope test.
 - `upstream_funval_captures_o2.goose` is the unchanged
-  `test/codegen/funval_body_captures.goose`, qualified only at O2.
+  `test/codegen/funval_body_captures.goose`. Its historical filename records the
+  initial O2-only slice; fixed nonlocal effects now also qualify O0.
 - `upstream_funval_captures_subset.goose` removes only the final `find()` invocation
   from that program; its unused definition remains. This subset qualifies at O0/O2.
 - `upstream_initializer_captures_subset.goose` retains G1/G3/G7/G8 unchanged from
@@ -44,9 +44,9 @@ frontend modes, V8 and Wasmtime. Resource tests separately exercise repeated
 captures of arrays, frame/enum owners, callbacks constructed exactly once and
 exhaustion checks on surviving caller-owned headers.
 
-Case functions now receive the same mapped captured addresses through
-[runtime dispatch](FUNCTION_DISPATCH.md). Further work includes nonlocal effects
-across ordinary calls and original-corpus qualification. Borrowed
+Case functions receive mapped captured addresses through
+[runtime dispatch](FUNCTION_DISPATCH.md). Further work includes owned nonlocal
+result landing and original-corpus qualification. Borrowed
 callback results rooted in callback-owned storage also require care: the pinned
 native emitter can release that storage before a later argument executes. Such
 cases must not silently receive a different lifetime in the direct backend.

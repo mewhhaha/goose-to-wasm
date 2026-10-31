@@ -24,6 +24,7 @@ inline void Function::Dynamic(uint32_t bytes, Line line) {
 inline string Function::Finish() {
     auto line = spec ? spec->sf->line : Line{};
     auto done = Begin();
+    function_done = done;
     ResultDestinations destinations(results.size());
     for (size_t i = 0; i < results.size(); i++) if (Compiler::RegionOwner(results[i]))
         destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller, element_run };
@@ -35,7 +36,8 @@ inline string Function::Finish() {
         for (auto p : spec->params) {
             if (p->type->kind == TY_FN) continue;
             if (Compiler::RegionOwner(p->type)) {
-                private_headers.push_back({ TailHeaderLocation({ p->type, vars.at(p) }), cleanups.size() + 1 }); continue;
+                private_headers.push_back({ TailHeaderLocation({ p->type, vars.at(p) }), cleanups.size() + 1 });
+                RegisterEffectOwner({ p->type, vars.at(p) }, false); continue;
             }
             auto old = vars.at(p);
             if (c.Aggregate(p->type) || addressed.count(p)) {
@@ -53,9 +55,11 @@ inline string Function::Finish() {
         if (!main || main->specs.empty()) Fail({}, "program needs a concrete main function");
         RecordRegionCall(main->specs[0], main->line);
         CallIndex(c.function_index.at(main->specs[0]));
+        CheckPendingEffect(main->line);
     }
     End();
     c.region_own[spec] = max(c.region_own[spec], region_peak);
+    LeaveEffectFrame();
     // Copy owned results while their source storage still belongs to this
     // activation. Returning a pointer into the released callee frame would
     // let the next sibling or recursive call overwrite the earlier value.
@@ -78,7 +82,7 @@ inline string Function::Finish() {
         ActivationLimit(top, line);
         EnsureMemory(top, line); Get(top); code.OpU(0x24, 0);
     }
-    code.Raw(body); code.Op(0x0b);
+    EnterEffectFrame(); code.Raw(body); code.Op(0x0b);
     Bytes out;
     vector<pair<uint32_t, uint8_t>> groups;
     for (auto t : locals) {
@@ -125,6 +129,7 @@ inline DirectWasmResult Compiler::Compile() {
             Fail(sp->sf->line, "public entrypoints cannot capture non-global storage");
         function_type[sp] = Sig(FunctionSig(sp));
     }
+    AnalyzeEffects();
     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
     unordered_set<FnSpec *> return_targets;
     for (auto sp : specs) for (auto target : sp->needs) return_targets.insert(target);
@@ -185,7 +190,7 @@ inline DirectWasmResult Compiler::Compile() {
     module.Section(2, imp);
     Bytes funcs; funcs.U(ftypes.size()); for (auto t : ftypes) funcs.U(t); module.Section(3, funcs);
     Bytes memory; memory.U(1); memory.Byte(1); memory.U(initial); memory.U(opts.maximum_pages); module.Section(5, memory);
-    Bytes gl; gl.U(needs_regions ? 6 : 1);
+    Bytes gl; gl.U((needs_regions ? 6 : 1) + (Effects() ? 2 + effect_targets.size() : 0));
     auto global = [&](uint32_t value, bool mutable_) {
         gl.Byte(I32); gl.Byte(mutable_); gl.I32Const(int32_t(value)); gl.Op(0x0b);
     };
@@ -194,6 +199,7 @@ inline DirectWasmResult Compiler::Compile() {
         global(uint32_t(global_regions.size()), true); global(activation_limit, false);
         global(result.region_bytes, false); global(result.region_count, false); global(activation_limit, false);
     }
+    if (Effects()) for (size_t i = 0; i < effect_targets.size() + 2; i++) global(0, true);
     module.Section(6, gl);
     vector<pair<string, uint32_t>> exported;
     set<string> names { "memory", "_start" };

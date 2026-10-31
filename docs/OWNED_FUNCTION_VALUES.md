@@ -26,8 +26,9 @@ where required. Private parameter headers and body locals have their own logical
 cleanup depths, while the result survives both watermarks.
 
 Callbacks do not introduce a new return target: a nonlocal return still names the
-function selected by the frontend. Crossing an ordinary emitted call remains an
-explicit unsupported effect boundary.
+function selected by the frontend. [Fixed target contracts](NONLOCAL_RETURNS.md)
+can cross ordinary emitted calls; owned nonlocal target results still require
+staging and landing.
 
 Borrowed/holder results require an additional conservative check. The pinned
 checker does not apply ordinary return-root checks to a callback's tail. Its

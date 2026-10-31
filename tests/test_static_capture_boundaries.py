@@ -20,10 +20,12 @@ class StaticCaptureBoundaries(unittest.TestCase):
         if target == "native": command.append("--standalone")
         return subprocess.run(command, capture_output=True, text=True, timeout=60), output
 
-    def test_out_of_line_nonlocal_return_is_explicitly_refused(self):
-        source = '''recursive fn each<F>(n: i64) { if n > 0 { each(n - 1, F); } F(n); }
-fn find() -> i64 { each(3) { if it == 2 { return 42; } }; -1 }
-fn main() { print(find()); }'''
+    def test_owned_nonlocal_targets_require_staging_and_landing(self):
+        source = '''fn target() -> i64[>..] {
+    recursive fn leave() { return [7, 8] from target; }
+    leave(); return [];
+}
+fn main() { print(target()); }'''
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
             for level in (0, 2):
                 native, _ = self.compile(Path(directory), source, "native", level)
@@ -31,7 +33,7 @@ fn main() { print(find()); }'''
                 direct, output = self.compile(Path(directory), source, "wasm-direct", level)
                 self.assertNotEqual(direct.returncode, 0)
                 self.assertFalse(output.exists())
-                self.assertIn("return from an out-of-line enclosing function is not supported", direct.stdout + direct.stderr)
+                self.assertIn("owned nonlocal return targets require staging and landing support", direct.stdout + direct.stderr)
 
     def test_callback_local_borrowed_results_require_a_root_proof(self):
         cases = (

@@ -51,6 +51,19 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
+        for fixture, answer in (
+            ("upstream_return_from_cycle", "42\n42\n"),
+            ("upstream_return_from_cached_call", "42\ng normal exit\n1\n-1\n0\n"),
+            ("upstream_return_from_block_target", "10\n"),
+            ("upstream_generic_return_from_fixed_subset", "11\n2.5\n11\n2.5\n1111\n2.52.5\n11\n2.5\n11\n2.5\n77\n"),
+            ("nonlocal_retained_arguments", "2\n7\n"),
+        ):
+            result.append(Case(f"nonlocal/{fixture}{suffix}", fixture, stdout=answer, debug=debug, group="control"))
+        for n in (0, 3):
+            answer = "".join(f"{i + 10}\n" for i in range(n + 1)) + f"[{n}, {n + 1}] 9\n{40 if n == 0 else -1}\n{n + 60}\n{n + 70}\n"
+            result.append(Case(f"nonlocal/paths/{n}{suffix}", "nonlocal_fixed_paths", f"{n}\n", answer, debug=debug, group="control"))
     dispatch_upstream = {
         "dispatch_evaluation_order": "first\nchoice\nlast\n3 A 7\nfirst\nchoice\nlast\n3 B 7\n1 A 9\n3 A 4\n3 A 4\n1\n2\ncopied\n",
         "dispatch_copied_reference": "copied A\n0\n7\n7\nvalue arm\n",
@@ -250,8 +263,8 @@ def cases():
             result.append(Case(f"capture/bindings/{n}" + ("-debug" if debug else ""), "static_capture_bindings", f"{n}\n", answer, debug=debug, group="control"))
     full_capture_answer = capture_programs[2][2].removesuffix("12 20 27\n") + "12 12 20 27\n"
     for debug in (False, True):
-        result.append(Case("capture/upstream-fv-full-o2" + ("-debug" if debug else ""), "upstream_funval_captures_o2",
-                           stdout=full_capture_answer, debug=debug, group="control", levels=(2,)))
+        result.append(Case("capture/upstream-fv-full" + ("-debug" if debug else ""), "upstream_funval_captures_o2",
+                           stdout=full_capture_answer, debug=debug, group="control"))
     for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
