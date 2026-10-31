@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Check sparse data reconstruction, module structure, and memory limits."""
+import argparse
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -160,4 +162,8 @@ new WebAssembly.Instance(m, {goose}).exports._start();
 
 
 if __name__ == "__main__":
-    unittest.main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--goose", type=Path, default=GOOSE)
+    args, remaining = parser.parse_known_args()
+    GOOSE = args.goose.resolve()
+    unittest.main(argv=[sys.argv[0], *remaining])
