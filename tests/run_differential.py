@@ -137,6 +137,19 @@ def cases():
                   f"{n} {n + 1} {n + 101} {n + 2}\ntrue [2]\n")
         result.append(Case(f"frame-struct/paths/{n}", "frame_struct_paths", f"{n}\n", answer, group="aggregate"))
     for n in (0, 3):
+        chosen = 40 if n > 0 else 50
+        interrupted = "77 3 10 11 12" if n > 0 else "0 3 4 5 6"
+        answer = (f"{n} {n + 1} {n + 100} {n + 201}\n"
+                  f"1 {n} 2 1 {n + 21} {n + 10} 2 {n + 10} 4 2\n"
+                  f"{chosen} 60 7 {n}\n{interrupted}\n"
+                  f"2 {n + 10} [{n + 21}] {n + 10} 2 {n + 10} [{n + 21}]\n"
+                  f"[{n}, 99] 4 [{n}] 4\n")
+        result.append(Case(f"nested-owner/values/{n}", "nested_owned_structs", f"{n}\n", answer, group="aggregate"))
+    for n in (255, 256):
+        result.append(Case(f"nested-owner/narrow/{n}", "nested_struct_narrow", f"{n}\n",
+                           "prefix\ntail\n" + ("3 42 255 7\n" if n == 255 else ""),
+                           exit_code=0 if n == 255 else 1, diagnostic="" if n == 255 else "storage range", group="aggregate"))
+    for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
                   f"[{n + 1}] {n + 5}\n[{n + 1}, 8]\n77 [{n + 1}, 8] [{n + 1}, 8]\n"

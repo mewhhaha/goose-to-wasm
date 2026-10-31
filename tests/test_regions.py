@@ -843,6 +843,62 @@ fn main() {}'''
                     self.assertEqual(observed["error"], "")
 
 
+    def test_nested_owner_prefix_references_copies_and_one_tail_region(self):
+        source = '''struct Inner { tag: u8, values: i64[>..] }
+struct Middle { id: i64, inner: Inner }
+struct Outer { tag: u16, middle: Middle }
+recursive fn make(n: i64) -> Outer { var p = Outer { 1, Middle { n, Inner { 2, [n, n + 1] } } }; return p; }
+recursive fn changed(p: Outer) -> Outer { p.middle.id += 10; p.middle.inner.values[0] += 20; return p; }
+export fn tick(n: i64) -> i64 {
+    let a = make(n); let b = copy(a); let c = changed(copy(a));
+    let kept: const i64& = a.middle.id; b.middle.inner.values[0] += 100;
+    if kept != n || a.middle.inner.values[0] != n || b.middle.inner.values[0] != n + 100 || c.middle.id != n + 10 || c.middle.inner.values[0] != n + 20 { abort("bad nested copy"); }
+    for i in 100 { if make(i).middle.inner.values[1] != i + 1 { abort("bad nested temporary"); } }
+    if kept != n || a.middle.inner.values[0] != n { abort("overwritten nested owner"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_nested_tail_header_cleanup_uses_ultimate_offset(self):
+        prefix = '''extern fn bench_input() -> i64;
+struct Inner { id: i64, values: i64[>..] }
+struct Outer { tag: u8, inner: Inner }
+'''
+        private = prefix + '''recursive fn make(n: i64) -> Outer {
+    var p = Outer { 1, Inner { 2, [3] } };
+    p = Outer { 4, Inner { 5, [if n >= 0 { return Outer { 6, Inner { 7, [8] } }; } else { 9 }; 1000000] } };
+    return p;
+}
+export fn tick(n: i64) -> i64 {
+    let p = make(n); if p.tag != 6 || p.inner.id != 7 || p.inner.values.len != 1 || p.inner.values[0] != 8 { abort("bad nested early exit"); } return n + 1;
+}
+fn main() {}'''
+        surviving = prefix + f'''var p = Outer {{ 1, Inner {{ 2, [3] }} }};
+var neighbor: i64[>..] = [{CANARY}];
+fn replace(target: Outer&) {{
+    target = Outer {{ 4, Inner {{ 5, [if bench_input() > 0 {{ return; }} else {{ 6 }}; 1000000] }} }};
+}}
+fn main() {{ replace(p); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(private, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(kind="private", level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+            path, runtime = self.compile(surviving, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, input_value=1, canary_index=1):
+                with self.subTest(kind="surviving", level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--goose", type=Path, default=GOOSE)

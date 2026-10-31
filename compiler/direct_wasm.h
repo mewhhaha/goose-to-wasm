@@ -405,24 +405,27 @@ struct Compiler {
         else if (RegionStruct(t)) {
             auto inst = t->struc->inst;
             auto tail = inst->ftypes.empty() ? nullptr : inst->ftypes.back();
-            if (!tail || tail->kind != TY_ARRAY ||
-                (FrameStruct(t) ? !GrowableArray(tail) : (tail->arr->akind != A_VAR && !RuntimeLimited(tail))))
-                Fail(t->line, "owned structs require one final variable-array field, runtime-limited array field or growable frame tail");
+            auto tail_array = tail && tail->kind == TY_ARRAY &&
+                (FrameStruct(t) ? GrowableArray(tail) : (tail->arr->akind == A_VAR || RuntimeLimited(tail)));
+            auto tail_struct = RegionStruct(tail) && FrameStruct(t) == FrameStruct(tail);
+            if (!tail_array && !tail_struct)
+                Fail(t->line, "owned structs require one final variable-array field, runtime-limited array field or nested single-tail owner");
             for (size_t i = 0; i < inst->ftypes.size(); i++) {
                 if (inst->st->fields[i].ispad) Fail(t->line, "explicit struct padding is not supported");
-                auto field = i + 1 == inst->ftypes.size() ? HeaderLayout(inst->ftypes[i]) : FixedLayout(inst->ftypes[i]);
+                auto field = i + 1 == inst->ftypes.size() ? ControlLayout(inst->ftypes[i]) : FixedLayout(inst->ftypes[i]);
                 layout.align = max(layout.align, field.align);
                 layout.size = Align(layout.size, field.align); layout.fields.push_back(layout.size);
                 if (uint64_t(layout.size) + field.size > uint64_t(opts.maximum_pages) * 65536)
                     Fail(t->line, "owned struct control storage exceeds linear memory");
                 layout.size += field.size;
             }
-            layout.payload = layout.fields.back(); layout.size = Align(layout.size, layout.align);
+            layout.payload = layout.fields.back() + (tail_struct ? ControlLayout(tail).payload : 0);
+            layout.size = Align(layout.size, layout.align);
         } else return FixedLayout(t);
         return control_layouts.emplace(t, std::move(layout)).first->second;
     }
     TypeExpr *TailType(TypeExpr *t) {
-        ControlLayout(t); return RegionStruct(t) ? t->struc->inst->ftypes.back() : t;
+        ControlLayout(t); return RegionStruct(t) ? TailType(t->struc->inst->ftypes.back()) : t;
     }
     uint32_t FieldOffset(TypeExpr *t, size_t field) {
         return (RegionStruct(t) ? ControlLayout(t) : Size(t)).fields.at(field);

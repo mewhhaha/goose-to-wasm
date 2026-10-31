@@ -22,6 +22,8 @@ Standalone structs with fixed fields and one variable/runtime-capacity array tai
 support owned construction, independent copies, calls and named-result aliasing.
 Growable-tail frame structs also support whole-object reconstruction, with
 private prefix/length snapshots and shared tail elements for named returns.
+Supported structs may nest through their final field to a single array tail;
+each enclosing prefix remains fixed-layout.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

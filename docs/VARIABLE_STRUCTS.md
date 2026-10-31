@@ -5,6 +5,8 @@ standalone `SC_VARIABLE` structs with supported fixed-layout fields followed by
 one final fixed-element `T[]`/unsigned-length or runtime-capacity `T[..]` field.
 Frame objects with a final `T[>..]`/`T[>..<]` field use the same control-layout
 walker with different named-return and assignment rules.
+The final field may also be another supported owner, recursively, while every
+earlier field remains fixed-layout. Each chain still ends in exactly one array.
 
 `RegionOwner` governs allocation, parameters, receiving channels, temporaries and
 cleanup. `RegionArray` remains specific to sequence operations and element runs.
@@ -16,6 +18,10 @@ Each live owner acquires one data region through `TailHeaderLocation`. Private
 header records likewise name the embedded header at the enclosing owner's
 logical cleanup depth. References to the object/prefix address its control
 storage; references to tail elements address its stable data region.
+Nested control layouts accumulate their final field offset and child's prefix
+size. `TailType` resolves the terminal array. Copying and frame-return snapshots
+include all prefix levels before its header, and region acquisition/cleanup uses
+the ultimate header rather than an intermediate owner's start.
 
 Construction visits checked fields in declaration order with `InitFor`, storing
 fixed fields through the existing fixed-value path and constructing the tail as
@@ -40,13 +46,13 @@ whose initializers have not run intact. Omitted optional fields become null at
 their own position. Private embedded headers die with their logical scopes;
 surviving borrowed/global headers validate an abandoned advertised tail extent.
 
-Qualified boundaries remain explicit: nested owners, multiple variable fields,
+Qualified boundaries remain explicit: nonfinal owners, multiple variable fields,
 variable elements, whole-variable-object assignment,
 variable-struct rendering/comparison and packed image operations are outside this
 slice. The frontend rejects views escaping private by-value parameter storage.
 Declared global defaults are checked initializer nodes; explicit
 `default<NonfixedStruct>()` remains frontend-invalid.
 
-Nested owners and variable-mode enums need further containing-value walkers.
+Variable-mode enums and variable-element arrays need further containing-value walkers.
 Packed C.2 images and relative references require the later versioned image ABI
 transition.

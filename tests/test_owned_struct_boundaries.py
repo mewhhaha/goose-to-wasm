@@ -23,8 +23,8 @@ class OwnedStructBoundaries(unittest.TestCase):
 
     def test_other_owned_shapes_remain_explicitly_refused(self):
         cases = {
-            "nested": ('struct Inner { values: i64[] } struct Outer { inner: Inner } '
-                       'fn main() { let x = Outer { Inner { [1] } }; print(x.inner.values.len); }',
+            "nonfinal-nested": ('struct Inner { values: i64[] } struct Outer { inner: Inner, id: i64 } '
+                       'fn main() { let x = Outer { Inner { [1] }, 2 }; print(x.inner.values.len); }',
                        "final variable-array field"),
             "nonfinal": ('struct Packet { values: i64[], id: i64 } '
                          'fn main() { let x = Packet { [1], 2 }; print(x.id); }',
@@ -35,9 +35,9 @@ class OwnedStructBoundaries(unittest.TestCase):
             "elements": ('struct Packet { values: i64[] } '
                          'fn main() { let xs: Packet[] = [Packet { [1] }]; print(xs.len); }',
                          "fixed-size structs"),
-            "nested-frame": ('struct Inner { values: i64[>..] } struct Outer { id: i64, inner: Inner } '
-                             'fn main() { let x = Outer { 1, Inner { [2] } }; print(x.inner.values.len); }',
-                             "final variable-array field"),
+            "variable-prefix-frame": ('struct Inner { values: i64[] } struct Outer { inner: Inner, values: i64[>..] } '
+                             'fn main() { let x = Outer { Inner { [2] }, [3] }; print(x.inner.values.len); }',
+                             "fixed-size structs"),
         }
         with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
             work = Path(directory)
