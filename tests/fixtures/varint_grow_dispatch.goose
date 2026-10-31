@@ -1,0 +1,1 @@
+enum Choice{A,B}recursive fn values(c:Choice.A,n:i64)->varint[>..]{return[n,64];}recursive fn values(c:Choice.B,n:i64)->varint[>..]{return[-n,-65];}fn main(){for flag in[false,true]{let c:Choice=if flag{Choice.A}else{Choice.B};var a:varint[>..]=[8192];a.append(values(c,3));print(a);}}

@@ -1,0 +1,1 @@
+fn main(){var a:varint[>..]=[1,64];for x,i in a{print(i," ",x);if i==0{a.push(-65);continue;}if i==1{a.push(8192);continue;}}print(a);var b:varint[>..]=[-8193,2];var link:varint[>..]& =a;for x,i in link{print("r ",i," ",x);if i==0{link .= b;continue;}}}

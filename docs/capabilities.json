@@ -729,7 +729,7 @@
       },
       "A_GROW": {
         "status": "qualified_subset",
-        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, whole-owner assignment, named-result construction and adapted fixed/slice or mixed/multiple owned results into named receivers, forwarded returns and supported control expressions. Single-result anonymous calls/copies/literals/control values support scoped views, indexing, rendering, append and argument use. Discarded mixed/multiple-result calls materialize owned outputs after their arguments. Function-value ownership remains pending.",
+        "scope": "Named local/global owners of supported fixed-layout elements, stable views, borrowed calls, independent by-value parameters, initialization, mutation, whole-owner assignment, named-result construction and adapted fixed/slice or mixed/multiple owned results into named receivers, forwarded returns and supported control expressions. Single-result anonymous calls/copies/literals/control values support scoped views, indexing, rendering, append and argument use. Discarded mixed/multiple-result calls materialize owned outputs after their arguments. Function-value ownership remains pending. Scalar varint Grow elements use raw sequential images, exact push reservation, raw per-element copy, private natural-type append controls and stable references. Fresh append shares the receiver region and retains canceled suffix bytes. Clear/whole assignment preserve cursor and publication order. Named Grow later observations, cancelable Value-to-raw producers and actual varint nonlocal targets remain gated.",
         "fixtures": [
           "tests/fixtures/growable_arrays.goose",
           "tests/fixtures/growable_minimal.goose",
@@ -744,12 +744,20 @@
           "tests/fixtures/dynamic_result_adaptation.goose",
           "tests/fixtures/dynamic_adapted_channels.goose",
           "tests/fixtures/anonymous_values.goose",
-          "tests/fixtures/anonymous_multiple.goose"
+          "tests/fixtures/anonymous_multiple.goose",
+          "tests/fixtures/varint_grow_basics.goose",
+          "tests/fixtures/varint_grow_selfappend.goose",
+          "tests/fixtures/varint_grow_append_call_cancel.goose",
+          "tests/fixtures/varint_grow_assignment_cancel.goose",
+          "tests/fixtures/varint_grow_fv_append_cancel.goose",
+          "tests/fixtures/varint_grow_recursive_append.goose"
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
           "tests/test_regions.py",
-          "tests/test_dynamic_boundaries.py"
+          "tests/test_dynamic_boundaries.py",
+          "tests/test_varint_grow.py",
+          "tests/test_varint_grow_boundaries.py"
         ]
       },
       "A_GROWSHRINK": {
@@ -1134,7 +1142,7 @@
     "images": {
       "layout": {
         "status": "qualified_subset",
-        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding/varint forms and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding. Layout 10 adds sequential varint record images with root controls. Layout 11 adds sequential immutable varint elements without widening the control ABI.",
+        "scope": "Versioned packed fixed record fields, compact enum tags/fixed strides, unsigned array value images, single-tail record images, active enum payloads and compact static-capacity length/slot allocations. Controls remain separate and aligned. Target pointer widths, spare slots, unproved overlaps, unqualified padding/varint forms and general variable walkers/serialization remain separate boundaries. Layout 9 adds fixed alignment and explicit variable-prefix padding. Layout 10 adds sequential varint record images with root controls. Layout 11 adds sequential immutable varint elements without widening the control ABI. Layout 12 adds raw Grow varint elements and direct private-count append.",
         "fixtures": [
           "tests/fixtures/packed_record_storage.goose",
           "tests/fixtures/record_image_aliases.goose",
@@ -1165,7 +1173,7 @@
       },
       "varints": {
         "status": "qualified_subset",
-        "scope": "Direct varint fields in otherwise fixed-field structs use one root owner control and sequential image walks. Canonical signed zigzag ULEB128 construction, bounded i64 decoding, dynamic field offsets, encoded references, global defaults, copies and normal results. Physical FixedLayout and Store(varint), containing byte records, array elements/lengths, enum payloads, image effects, unproved replacement overlap and untrusted-image validation remain separate. Later calls after named replacement remain gated because captures may hide aliases. Standalone immutable Var arrays of varint elements use fixed unsigned metadata, O(1) views, byte-cursor loops, raw per-element copies and rendering snapshots. Whole slices and normal channels qualify; Grow/containing forms, VarULEB lengths and actual owned targets remain gated, including inline stacks.",
+        "scope": "Direct varint fields in otherwise fixed-field structs use one root owner control and sequential image walks. Canonical signed zigzag ULEB128 construction, bounded i64 decoding, dynamic field offsets, encoded references, global defaults, copies and normal results. Physical FixedLayout and Store(varint), containing byte records, array elements/lengths, enum payloads, image effects, unproved replacement overlap and untrusted-image validation remain separate. Later calls after named replacement remain gated because captures may hide aliases. Standalone immutable Var arrays of varint elements use fixed unsigned metadata, O(1) views, byte-cursor loops, raw per-element copies and rendering snapshots. Whole slices and normal channels qualify; Containing forms, VarULEB lengths and actual owned targets remain gated, including inline stacks. Standalone Grow supports push/append/clear/assignment and normal channels through raw controls; natural FV carriers preserve ER forwarding. Transitive-needs Value-to-raw escape and named-Grow later-observation gates bound the admitted effects.",
         "fixtures": [
           "tests/fixtures/varint_record_values.goose",
           "tests/fixtures/varint_record_boundaries.goose",
@@ -1175,7 +1183,10 @@
           "tests/fixtures/varint_array_channels.goose",
           "tests/fixtures/varint_array_rebind.goose",
           "tests/fixtures/varint_array_narrow_ordinary.goose",
-          "tests/fixtures/varint_array_named_replacement.goose"
+          "tests/fixtures/varint_array_named_replacement.goose",
+          "tests/fixtures/varint_grow_clear_assign.goose",
+          "tests/fixtures/varint_grow_channels.goose",
+          "tests/fixtures/varint_grow_narrow_append.goose"
         ],
         "boundary_fixtures": [
           "tests/test_varint_records.py",
@@ -1183,7 +1194,9 @@
           "tests/test_regions.py",
           "tests/test_varint_capture_boundaries.py",
           "tests/test_varint_arrays.py",
-          "tests/test_varint_array_boundaries.py"
+          "tests/test_varint_array_boundaries.py",
+          "tests/test_varint_grow.py",
+          "tests/test_varint_grow_boundaries.py"
         ]
       },
       "validation": {

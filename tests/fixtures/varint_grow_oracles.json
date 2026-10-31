@@ -1,0 +1,92 @@
+{
+  "basics": {
+    "stdout": "[64, -65, 8192, 1, -1] 64 -65 [64, -65]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "selfappend": {
+    "stdout": "[64, -65, 64, -65]\n[64, -65, 64, -65, 64, -65, 64, -65]\n[64, -65, 64, -65, 64, -65, 64, -65, 64, -65, 64, -65, 64, -65, 64, -65]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "clear_assign": {
+    "stdout": "[8192]\nvalue -8193\nvalue 1\n[-8193, 1] 2\n[64, -65]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "channels": {
+    "stdout": "[1, 64] [1, 64, 8192] [2, -65]\n[3, 64] [4, 64]\n[5, -65]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "loops": {
+    "stdout": "0 1\n1 64\n2 -65\n3 8192\n[1, 64, -65, 8192]\nr 0 1\nr 1 2\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "append_cancel": {
+    "stdout": "7\n1 [64]\n2 [64, 1]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "append_call_cancel": {
+    "stdout": "7\n1 [64]\n2 [64, 1]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "assignment_cancel": {
+    "stdout": "7\n3 [1, -1, -65]\n4 [1, 9, -65, 0]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "narrow_append": {
+    "stdout": "value\n257\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "push_effects": {
+    "stdout": "before 1\n8192 [64, 8192]\n7 [64, 8192]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "append_fill_once": {
+    "stdout": "fill 1\nfill 2\n[64, -65, -65, -65] 2\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "parameters": {
+    "stdout": "[64, -65] [64, -65] 1\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "dispatch": {
+    "stdout": "[8192, -3, -65]\n[8192, 3, 64]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "cleanup": {
+    "stdout": "500500 [64, -65]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "recursive_append": {
+    "stdout": "4\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  },
+  "dispatch_narrow": {
+    "stdout": "A\n",
+    "exit_code": 1,
+    "diagnostic": "array length exceeds storage range"
+  },
+  "narrow_grow": {
+    "stdout": "",
+    "exit_code": 1,
+    "diagnostic": "array length exceeds storage range"
+  },
+  "fv_append_cancel": {
+    "stdout": "7\n[64, 1]\n0\n[64, 1, -65, 8192]\n",
+    "exit_code": 0,
+    "diagnostic": ""
+  }
+}

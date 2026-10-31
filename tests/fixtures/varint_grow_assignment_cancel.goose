@@ -1,0 +1,1 @@
+var a:varint[>..]=[64,-65];recursive fn apply<F>()->i64{a=[1,F(),8192];return 0;}fn target(flag:bool)->i64{return apply(){if flag{return 7;}else{-65}};}fn main(){print(target(true));print(a.len," ",a);a.push(9);print(a.len," ",a);}

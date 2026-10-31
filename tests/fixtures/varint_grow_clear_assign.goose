@@ -1,0 +1,1 @@
+var calls=0;recursive fn value(n:i64)->i64{calls++;print("value ",n);return n;}fn main(){var a:varint[>..]=[64,-65];a.clear();a.push(8192);print(a);a=[value(-8193),value(1)];print(a," ",calls);let b:varint[u8]=[64,-65];a=b[..];print(a);}

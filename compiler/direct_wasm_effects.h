@@ -22,7 +22,7 @@ inline bool Compiler::ArrayImageEffectResult(TypeExpr *type) {
 
 inline bool Compiler::OwnedEffectResult(TypeExpr *type) {
     if (ArrayImageEffectResult(type) || RecordImageEffectResult(type) || EnumImageEffectResult(type)) return true;
-    if (GrowableArray(type)) return true;
+    if (GrowableArray(type)) return !Varint(type->arr->sub);
     if (!FrameStruct(type)) return false;
     ControlLayout(type); return GrowableArray(TailType(type));
 }

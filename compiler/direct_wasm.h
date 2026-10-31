@@ -306,6 +306,8 @@ struct Function {
 
     void View(Node *);
     void ArrayBuiltin(Call *);
+    void VarintArrayBuiltin(Call *, TypeExpr *);
+    bool VarintValueToRaw(const vector<TypeExpr *> &, const ResultDestinations &) const;
     function<void()> SequenceValue(Node *, bool address = false);
     void Expr(Node *);
     void To(Node *, TypeExpr *);
@@ -672,8 +674,8 @@ struct Compiler {
         if (t->arr->akind == A_VAR && LengthStorage(t) == IS_VARINT)
             Fail(t->line, "varint variable-array length storage is not supported");
         if (Varint(t->arr->sub)) {
-            if (t->arr->akind != A_VAR)
-                Fail(t->line, "varint elements currently require immutable variable arrays");
+            if (t->arr->akind != A_VAR && t->arr->akind != A_GROW)
+                Fail(t->line, "varint elements support immutable variable or growable arrays only");
         } else FixedLayout(t->arr->sub);
         Layout header; header.size = owner_control_bytes; header.align = 4; return header;
     }

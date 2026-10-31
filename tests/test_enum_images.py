@@ -27,10 +27,10 @@ process.stdout.write(JSON.stringify({image:Array.from(new Uint8Array(view.buffer
 
 
 class EnumImages(unittest.TestCase):
-    def check_bytes(self,source,expected):
+    def check_bytes(self,source,expected,main_body=''):
         expected=bytes.fromhex(expected)
         with tempfile.TemporaryDirectory(dir=ROOT/'build') as name:
-            path=Path(name)/'main.goose'; path.write_text(source+'\nfn main() {}')
+            path=Path(name)/'main.goose'; path.write_text(source+'\nfn main() {'+main_body+'}')
             for level in (0,2):
                 with self.subTest(level=level):
                     output=path.with_suffix('.wasm')

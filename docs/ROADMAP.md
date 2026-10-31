@@ -80,6 +80,15 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: growable varint elements
+
+Standalone Grow uses raw sequential images, exact push reservation and private
+count/control append in the receiver's region. Canceled append retains committed
+bytes; clear and whole assignment preserve native cursor/publication order.
+Natural FV carriers retain exact element-run forwarding without extra regions.
+Cancelable Value-to-raw producers, actual varint targets and unproved named
+Grow later observations remain gated. See [varint Grow](VARINT_GROW.md).
+
 ## Implemented: immutable varint array elements
 
 Standalone Var arrays retain fixed unsigned metadata and walk encoded elements
