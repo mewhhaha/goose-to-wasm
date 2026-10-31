@@ -921,7 +921,7 @@
       },
       "captured_environment": {
         "status": "qualified_subset",
-        "scope": "Hidden captured binding addresses derived from final bodies, with transitive/recursive requirements, global initializer roots and function-value remapping. Scalars, mutable reference/slice bindings and supported owners share current-activation storage. Fixed and supported owned callback parameters/single results use independent copies, natural result contracts and scoped cleanup. Borrowed callback-local results and owned targets beyond a single admitted growable/frame result remain gated; fixed nonlocal effects qualify the original full funval capture fixture at O0/O2.",
+        "scope": "Hidden captured binding addresses derived from final bodies, with transitive/recursive requirements, global initializer roots and function-value remapping. Scalars, mutable reference/slice bindings and supported owners share current-activation storage. Fixed and supported owned callback parameters/single results use independent copies, natural result contracts and scoped cleanup. Borrowed callback-local results and unsupported owned image targets remain gated; fixed nonlocal effects qualify the original full funval capture fixture at O0/O2.",
         "fixtures": [
           "tests/fixtures/upstream_inline_nested_calls.goose",
           "tests/fixtures/upstream_nested_fn_scope.goose",
@@ -958,7 +958,7 @@
       },
       "nonlocal_return": {
         "status": "qualified_subset",
-        "scope": "Supported fixed results may accompany one Grow/GrowShrink or nested fixed-prefix Frame result at any ordinal. An attempt captures the owned start before every source expression, snapshots fixed aggregates in order, and commits all mailbox fields only after success. Recursive target identity, entry-cursor/suffix landing, frame base adjustment and cross-frame cleanup are preserved. Exact-type whole tuples forward through closed ordinary producers; qualified variable-array element-run producers retain argument effects. Native optimized-local cancellation ordering is separately qualified. Multiple owned results and variable/capacity-limited/enum/non-frame-record owned kinds remain gated.",
+        "scope": "Supported fixed results may accompany multiple Grow/GrowShrink or nested fixed-prefix Frame results. Every owned cursor snapshots before any source expression; independent private stages and fixed snapshots commit only after the attempt succeeds. Per-ordinal metadata preserves target entry cursors, physical suffixes, Frame base offsets, recursive activation identity and cross-frame cleanup. Exact-type tuples forward through closed ordinary producers without extra staging regions. Alias independence, cancellation, nested replacement, heterogeneous/generic results and region/activation exhaustion are qualified. Variable/capacity-limited and enum/non-frame-record owned image kinds remain gated.",
         "fixtures": [
           "tests/fixtures/nonlocal_fixed_paths.goose",
           "tests/fixtures/nonlocal_frame_canceled.goose",
@@ -975,6 +975,15 @@
           "tests/fixtures/nonlocal_mixed_replace.goose",
           "tests/fixtures/nonlocal_mixed_snapshot.goose",
           "tests/fixtures/nonlocal_mixed_var_producer.goose",
+          "tests/fixtures/nonlocal_multiple_canceled.goose",
+          "tests/fixtures/nonlocal_multiple_copies.goose",
+          "tests/fixtures/nonlocal_multiple_forward.goose",
+          "tests/fixtures/nonlocal_multiple_frame.goose",
+          "tests/fixtures/nonlocal_multiple_generic.goose",
+          "tests/fixtures/nonlocal_multiple_heterogeneous.goose",
+          "tests/fixtures/nonlocal_multiple_order.goose",
+          "tests/fixtures/nonlocal_multiple_recursive.goose",
+          "tests/fixtures/nonlocal_multiple_replace.goose",
           "tests/fixtures/nonlocal_owned_canceled_copy.goose",
           "tests/fixtures/nonlocal_owned_canceled_forward.goose",
           "tests/fixtures/nonlocal_owned_canceled_named.goose",

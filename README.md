@@ -41,9 +41,9 @@ retain the original payload storage; [the dispatch contract](docs/FUNCTION_DISPA
 describes the supported layouts and natural result checks.
 Nonlocal returns cross ordinary and dispatched calls for fixed target results,
 including mixed aggregates and recursive target activations, with cleanup of
-dying storage. [Owned nonlocal results](docs/NONLOCAL_RETURNS.md) support one growable-array
-or single-tail frame result alongside fixed results, with staged construction
-and landing; multiple owned results remain pending.
+dying storage. [Owned nonlocal results](docs/NONLOCAL_RETURNS.md) support growable-array and
+single-tail frame result groups alongside fixed results, with staged construction
+and independent landing. Other owned image kinds remain pending.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

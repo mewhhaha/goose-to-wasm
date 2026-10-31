@@ -139,6 +139,21 @@ def cases():
         for level, answer in ((0, "9\n5 [1, 2] 6\n[1, 2, 11] 7\n"), (2, "9\n5 [11, 2] 6\n[11, 7, 11] 7\n")):
             result.append(Case(f"mixed-nonlocal/canceled/O{level}{suffix}", "nonlocal_mixed_canceled",
                                stdout=answer, debug=debug, group="control", levels=(level,)))
+    multiple_answers = {
+        "generic": "7 7\n[1, 2] [9, 2] [1, 2]\n3 [4, 5] 9 [8, 5] 3 [4, 5]\n",
+        "order": "33 [3] [30]\n[3, 7] 8 [30, 40] 50\n",
+        "forward": "33 [3] [30]\n[3, 7] 8 [30, 40] 50\n",
+        "frame": "33 [3] 9 [40]\n[3, 7] 8 [40, 50] 50\n",
+        "copies": "[1, 2] 3 [9, 2]\n[77, 2] [9, 2]\n",
+        "canceled": "9\n[1, 2] [10, 20] 5\n[1, 2, 11] 7 [10, 20, 22] 70\n",
+        "replace": "[7] [8] 9\n[7, 70] [8, 80]\n",
+        "recursive": "[0] [1] 0\n[0, 7] [1, 8]\n",
+        "heterogeneous": "A 4 [5] [6.5]\nAB [5, 6] [6.5, 7.5]\n",
+    }
+    for debug in (False, True):
+        for fixture, answer in multiple_answers.items():
+            result.append(Case("multiple-nonlocal/" + fixture + ("-debug" if debug else ""),
+                               "nonlocal_multiple_" + fixture, stdout=answer, debug=debug, group="control"))
     dispatch_upstream = {
         "dispatch_evaluation_order": "first\nchoice\nlast\n3 A 7\nfirst\nchoice\nlast\n3 B 7\n1 A 9\n3 A 4\n3 A 4\n1\n2\ncopied\n",
         "dispatch_copied_reference": "copied A\n0\n7\n7\nvalue arm\n",
