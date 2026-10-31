@@ -1,5 +1,10 @@
 # Next development milestones
 
+The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
+runtime, language, incremental-compilation and qualification work, including
+ownership contracts and acceptance gates. Its first implementation slice is
+static-capacity resizable arrays.
+
 ## Implemented: fixed-mode enums and payload matches
 
 The fixed-value backend now supports fixed `TY_ENUM` and `TY_VARIANT`
