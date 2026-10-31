@@ -4,6 +4,26 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: single owned growable temporaries
+
+Single-result growable calls, inline results, supported copies/literals and owned
+control expressions now materialize into their current temporary scope. This
+supports immediate len/indexing/rendering, append sources, sliced construct
+results, temporary loop sequences and default expressions. Each evaluation gets
+its own destination; repeated use of one AST does not reuse an earlier value.
+
+Arguments retain anonymous owners through their enclosing scope when a borrowed
+result can still refer to them. Inline argument declarations run before body
+cleanup, with parameter headers distinguished from retained temporary headers.
+Ordinary owned-only argument groups keep their shorter safe release when no
+anonymous owner was materialized.
+
+Qualification covers nested inline/mixed arguments followed by allocations,
+iteration/condition/default cleanup, constructor receiver preservation,
+interrupted arguments and recursion after a completed temporary statement.
+Multiple-result anonymous calls and function-value ownership remain explicit
+boundaries. The frontend rejects views escaping their temporary scope.
+
 ## Implemented: temporary scope foundation and condition exits
 
 Named declaration receivers are prepared before their initializer watermark.
@@ -16,9 +36,8 @@ While exits are installed before their condition is emitted. Break/continue in a
 ordinary condition block therefore select that while loop, including inside an
 outer loop. The new C-oracle regression also exercises condition-local owners.
 
-Anonymous value producers remain refused. The reviewed
-[materialization plan](ANONYMOUS_TEMPORARIES.md) covers their allocation sites,
-inline argument preludes, borrowed argument lifetimes and remaining acceptance.
+The reviewed [materialization design](ANONYMOUS_TEMPORARIES.md) records their
+allocation sites, inline argument preludes and borrowed argument lifetimes.
 
 ## Implemented: fixed and slice results into owned receivers
 
@@ -78,7 +97,7 @@ position. Later result expressions may change the shared elements or grow the
 local; they do not change the earlier result's published length. Other returned
 positions copy as required. Tests cover these effects and rejected candidates.
 
-Anonymous owners remain explicit boundaries.
+Anonymous multiple-result calls remain an explicit boundary.
 
 ## Implemented: owned growable parameters
 

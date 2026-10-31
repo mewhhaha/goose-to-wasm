@@ -469,6 +469,111 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
+    def test_borrowed_arguments_survive_nested_inline_calls_and_later_allocations(self):
+        source = '''extern fn bench_input() -> i64;
+recursive fn make(n: i64) -> i64[>..] { return [n, n + 1]; }
+fn keep(owned: i64[>..], view: const i64[:]) -> const i64[:] { owned.push(99); return view; }
+inline fn relay(owned: i64[>..], view: const i64[:]) -> const i64[:] {
+    let body_temporary = make(200).len; if body_temporary != 2 { abort("bad body temp"); } return view;
+}
+fn churn(a: i64[>..], b: i64[>..], c: i64[>..]) -> i64 {
+    return a[bench_input() % 2] + b[bench_input() % 2] + c[bench_input() % 2];
+}
+fn observe(view: const i64[:], marker: i64) -> i64 { return view[0] + view[1] + marker; }
+export fn tick(n: i64) -> i64 {
+    let got = observe(relay([90], keep([80], make(n))), churn([900, 901], [910, 911], [920, 921]));
+    return got - n - 2730;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 6)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_owned_control_temporary_survives_body_cleanup(self):
+        expressions = (
+            'block { var local: i64[>..] = [n, n + 1]; break copy(local); }',
+            'if n % 2 == 0 { make(n) } else { make(n) }',
+            'loop { break make(n); }',
+            'match n % 2 { 0 => make(n), _ => make(n) }',
+        )
+        for expression in expressions:
+            source = '''extern fn bench_input() -> i64;
+recursive fn make(n: i64) -> i64[>..] { return [n, n + 1]; }
+fn churn(a: i64[>..], b: i64[>..], c: i64[>..]) -> i64 {
+    return a[bench_input() % 2] + b[bench_input() % 2] + c[bench_input() % 2];
+}
+fn observe(view: const i64[:], marker: i64) -> i64 { return view[0] + view[1] + marker; }
+export fn tick(n: i64) -> i64 {
+    let got = observe((''' + expression + ''')[..], churn([900, 901], [910, 911], [920, 921]));
+    return got - n - 2730;
+}
+fn main() {}'''
+            for level in (0, 2):
+                path, runtime = self.compile(source, level)
+                self.assertEqual(runtime["region_count"], 4)
+                for engine, observed in self.engines(path, runtime, repeats=10000):
+                    with self.subTest(expression=expression, level=level, engine=engine):
+                        self.assertEqual(observed["error"], "")
+
+    def test_condition_sequence_and_default_temporaries_release_between_evaluations(self):
+        source = '''extern fn bench_input() -> i64;
+recursive fn make(n: i64) -> i64[>..] { return [n, n + 1]; }
+struct Defaulted { value: i64 = make(1).len }
+fn churn(a: i64[>..], b: i64[>..], c: i64[>..]) -> i64 {
+    return a[bench_input() % 2] + b[bench_input() % 2] + c[bench_input() % 2];
+}
+export fn tick(n: i64) -> i64 {
+    var remaining = 20;
+    while make(remaining).len == 2 && remaining > 0 { remaining--; }
+    var total = 0;
+    for value in make(n) { make(200); churn([900, 901], [910, 911], [920, 921]); total += value; }
+    let defaults = default<Defaulted[300]>();
+    return total + defaults[299].value - n - 2;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_completed_temporary_statement_releases_region_before_recursion(self):
+        source = '''recursive fn make(n: i64) -> i64[>..] { return [n, n + 1]; }
+recursive fn total(n: i64) -> i64 {
+    if n <= 0 { return 0; } let value = make(n).len; return total(n - 1) + value;
+}
+export fn tick(n: i64) -> i64 { if total(50) != 100 { abort("bad recursion"); } return n + 1; }
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 1)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_later_argument_exit_releases_earlier_anonymous_value(self):
+        source = '''extern fn bench_input() -> i64;
+recursive fn make(n: i64) -> i64[>..] { return [n, n + 1]; }
+fn churn(a: i64[>..], b: i64[>..], c: i64[>..]) -> i64 {
+    return a[bench_input() % 2] + b[bench_input() % 2] + c[bench_input() % 2];
+}
+fn observe(view: const i64[:], marker: i64) -> i64 { return view[0] + view[1] + marker; }
+export fn tick(n: i64) -> i64 {
+    let got = observe(make(n)[..], churn([if n % 2 == 0 { return n + 1; } else { 900 }, 901], [910, 911], [920, 921]));
+    return got - n - 2730;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

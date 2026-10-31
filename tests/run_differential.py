@@ -51,6 +51,13 @@ def wrap(value, bits, signed=True):
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
     result.append(Case("scope/while-condition-exits", "while_condition_exits", stdout="3 15 81 100\n", group="aggregate"))
+    for n in (0, 3):
+        answer = (f"2 {n + 1} 2\n[{n}, {n + 1}] [{n + 10}, {n + 11}] 4\n[1, 2] [1, 2]\n"
+                  f"[{n}, {n + 1}]\n[2, {2 * n + 1}]\n"
+                  f"{n + 20}\n{2 * n + 65}\n{2 * n + 85}\n"
+                  f"{2 * n + (101 if n > 0 else 121)} {2 * n + 145}\n{2 * n + 165}\n"
+                  f"{2 * n + (181 if n == 0 else 201)}\n{2 * n + 221} 15\n-1\n100\n3 3\n{n} ok [2, {2 * n + 1}]\n")
+        result.append(Case(f"temporary/owned-values/{n}", "anonymous_values", f"{n}\n", answer, group="aggregate"))
     result.append(Case("growable/minimal", "growable_minimal", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/forwarding", "dynamic_forwarding", stdout="1\n", group="aggregate"))
     result.append(Case("dynamic/mixed-minimal", "dynamic_result_minimal", stdout="1\n", group="aggregate"))

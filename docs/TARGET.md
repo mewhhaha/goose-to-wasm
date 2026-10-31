@@ -92,6 +92,16 @@ Scopes restore both runtime watermarks and compile-time live-region counts.
 While exits exist during condition evaluation, so condition break/continue
 unwind to the current while loop.
 
+Single owned growable expressions allocate temporary headers and regions at their
+actual evaluation point. Their scope retains them through immediate views,
+indexing, rendering and borrowed argument use. An owned control expression's
+receiving temporary is allocated before its body. Inline argument declarations
+execute outside body cleanup; borrowed argument temporaries survive that cleanup.
+An argument group that materializes such an owner retains its regions until the
+enclosing temporary scope ends. Fully owned argument copies keep short call
+cleanup when no anonymous owner was created. No materialized value is cached by
+AST identity.
+
 The planner reserves dedicated global regions plus a call-graph/SCC bound on
 simultaneously live transient owners. Scoped cleanup restores transient region
 watermarks on normal exit, return, break and continue. Borrowed calls grow the
@@ -213,8 +223,7 @@ The executable differential suite is the authority for qualified behavior.
 ## Explicit refusals and remaining work
 
 The current backend refuses owned dynamic function-value parameters/results,
-anonymous dynamic
-temporaries, dynamic containing structs, variable-element
+anonymous multiple-result owned calls, dynamic containing structs, variable-element
 growables, variable arrays and construction-time limited capacity; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;

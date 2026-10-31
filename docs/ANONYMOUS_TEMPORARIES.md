@@ -3,8 +3,9 @@
 This follows the Astra xhigh review of the pinned frontend and native allocation
 scopes. The scope foundation prepares named receivers before initializer
 watermarks and scopes statements, tails, match arms, short-circuit right operands,
-while conditions and fixed-array default iterations. Anonymous construction is
-the next step; it remains refused until its producers and argument lifetimes land.
+while conditions and fixed-array default iterations. The single-result
+materializers and argument lifetimes below are now implemented. Anonymous
+multiple-result calls and function-value ownership remain gated.
 
 `CheckBranchRoot` rejects references/slices into temporaries created inside a
 departing block. An owned construct's result instead needs a receiving temporary

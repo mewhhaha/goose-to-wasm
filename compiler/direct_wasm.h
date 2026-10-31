@@ -91,7 +91,7 @@ struct Function {
         ResultDestinations destinations;
     };
     vector<Exit> exits;
-    struct PrivateHeader { Location location; size_t cleanup_depth; };
+    struct PrivateHeader { Location location; size_t cleanup_depth; bool temporary = false; };
     vector<PrivateHeader> private_headers;
     struct TempScope {
         size_t cleanup_depth, private_depth;
@@ -99,9 +99,20 @@ struct Function {
         bool restores_regions;
     };
     vector<TempScope> temp_scopes;
+    uint64_t anonymous_serial = 0;
+    struct ArgumentGroup {
+        size_t cleanup_depth;
+        uint32_t region_live;
+        uint64_t serial;
+        bool active;
+    };
     bool MayMaterialize(Node *);
     TempScope BeginTempScope(Node *);
     void EndTempScope(const TempScope &);
+    ArgumentGroup BeginArgumentGroup(bool);
+    void EndArgumentGroup(const ArgumentGroup &, bool);
+    ConstructionDestination TemporaryDestination(TypeExpr *, Line);
+    void Materialize(Node *, TypeExpr *, bool adapt_result = true);
     struct CleanupAction {
         enum Kind { RestoreScratchTop, RestoreRegionNext, CheckAbandonedRegion } kind;
         uint32_t saved_local;
@@ -216,7 +227,7 @@ struct Function {
     void Expr(Node *);
     void To(Node *, TypeExpr *);
     void Discard(Node *);
-    void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {});
+    void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {}, size_t first_statement = 0);
     void CaptureResult(TypeExpr *, uint32_t);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);

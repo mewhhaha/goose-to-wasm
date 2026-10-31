@@ -12,6 +12,28 @@ GOOSE = ROOT / "build/bin/goose"
 
 
 class DynamicBoundaries(unittest.TestCase):
+    def test_temporary_views_cannot_escape_their_scope(self):
+        make = 'fn make() -> i64[>..] { return [1, 2]; } '
+        cases = (
+            make + 'fn main() { let view: const i64[:] = make(); print(view.len); }',
+            make + 'fn size(view: const i64[:]) -> i64 { return view.len; } fn main() { print(size(if true { make() } else { make() })); }',
+            make + 'fn first(view: const i64[:]) -> const i64& { return view[0]; } fn bad() -> const i64& { return first(make()); } fn main() { bad(); }',
+        )
+        with tempfile.TemporaryDirectory(dir=ROOT / "build") as directory:
+            work = Path(directory)
+            for index, source in enumerate(cases):
+                path = work / f"escape-{index}.goose"; path.write_text(source)
+                for level in (0, 2):
+                    for target in ("native", "wasm-direct"):
+                        with self.subTest(index=index, level=level, target=target):
+                            output = work / f"{target}{level}"; output.unlink(missing_ok=True)
+                            command = [str(GOOSE), str(path), "--offline", f"-O{level}", "--target", target, "-o", str(output)]
+                            if target == "native": command.append("--standalone")
+                            rejected = subprocess.run(command, capture_output=True, text=True, timeout=60)
+                            self.assertNotEqual(rejected.returncode, 0)
+                            self.assertFalse(output.exists())
+                            self.assertIn("temporary", rejected.stdout + rejected.stderr)
+
     def test_assignment_cannot_read_the_owner_under_reconstruction(self):
         cases = (
             'fn main() { var xs: i64[>..] = [1]; xs = copy(xs); }',
@@ -58,11 +80,8 @@ class DynamicBoundaries(unittest.TestCase):
 
     def test_valid_language_requires_unimplemented_receiving_lifetimes(self):
         cases = {
-            "copy-temporary": 'fn main() { var values: i64[>..] = [1]; copy(values); }',
-            "anonymous-result": '''fn make() -> i64[>..] {
-    var values: i64[>..] = [1]; values.push(2); return values;
-}
-fn main() { print(make().len); }''',
+            "anonymous-multiple-results": '''fn many() -> i64[>..], i64[>..] { return [1], [2]; }
+fn main() { many(); }''',
             "variable-array-result": '''fn make() -> i64[] { return [1, 2]; }
 fn main() { let values = make(); print(values); }''',
             "inlined-construction-time-capacity": '''extern fn bench_input() -> i64;

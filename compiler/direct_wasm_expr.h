@@ -12,6 +12,7 @@ inline vector<TypeExpr *> Function::Values(Node *n) {
 inline vector<TypeExpr *> Function::NaturalResults(Node *node) {
     if (auto call = Is<Call>(node); call && call->builtin < 0 && !call->fvbody && call->spec)
         return call->spec->rets;
+    if (auto call = Is<Call>(node); call && !call->rettypes.empty()) return call->rettypes;
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec) return inlined->spec->rets;
     return Values(node);
 }
@@ -26,7 +27,7 @@ inline void Function::Discard(Node *n) {
     Expr(n); for (size_t i = 0; i < Values(n).size(); i++) code.Op(0x1a);
 }
 inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const vector<uint32_t> &slots,
-                                const ResultDestinations &destinations) {
+                                const ResultDestinations &destinations, size_t first_statement) {
     auto cleanup_depth = cleanups.size();
     auto private_depth = private_headers.size();
     auto live = region_live;
@@ -34,7 +35,8 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
         code.OpU(0x23, G_REGION_NEXT);
         cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
     }
-    for (auto s : b->stmts) {
+    for (size_t i = first_statement; i < b->stmts.size(); i++) {
+        auto s = b->stmts[i];
         if (auto declaration = Is<VarDecl>(s)) Decl(declaration);
         else { auto scope = BeginTempScope(s); Discard(s); EndTempScope(scope); }
     }
@@ -381,6 +383,9 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     auto sp = n->spec;
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
+    if (destinations.empty() && sp->rets.size() == 1 && Compiler::RegionArray(sp->rets[0])) {
+        Materialize(n, sp->rets[0], adapt_result); return;
+    }
     for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionArray(sp->rets[i])) {
         if (destinations.size() != sp->rets.size() || !destinations[i])
             Fail(n->line, "anonymous owned dynamic calls are not supported without a receiving destination");
@@ -388,13 +393,8 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
-    auto cleanup_depth = cleanups.size();
-    auto live = region_live;
     auto owned_arguments = any_of(ps.begin(), ps.end(), [](VarDef *p) { return Compiler::RegionArray(p->type); });
-    if (owned_arguments) {
-        code.OpU(0x23, G_REGION_NEXT);
-        cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
-    }
+    auto group = BeginArgumentGroup(owned_arguments);
     for (size_t i = 0; i < args.size(); i++) {
         auto t = ps[i]->type;
         if (Compiler::RegionArray(t)) {
@@ -420,7 +420,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     // The frontend forbids results referring into a by-value parameter's
     // private owner. External references carried by its elements survive.
     // These balanced cleanup instructions preserve the Wasm call results.
-    if (owned_arguments) { CloseCleanups(cleanup_depth); region_live = live; }
+    EndArgumentGroup(group, anonymous_serial != group.serial);
     if (adapt_result && sp->rets.size() == 1 && !Compiler::RegionArray(sp->rets[0])) Convert(sp->rets[0], n->exprtype, n->line);
 }
 
@@ -533,6 +533,10 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
         case B_INDEX_OF: case B_PUSH: case B_APPEND: case B_POP: case B_POP_N: case B_CLEAR: case B_RESIZE:
             ArrayBuiltin(n); return;
         case B_COPY: {
+            auto own = NaturalResults(n);
+            if (own.size() == 1 && Compiler::RegionArray(own[0])) {
+                Materialize(n, own[0], adapt_result); return;
+            }
             if (n->exprtype->kind == TY_SLICE) Fail(n->line, "copying a slice requires owned dynamic storage");
             To(args[0], n->exprtype);
             if (c.Aggregate(n->exprtype)) {
@@ -569,6 +573,9 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
 inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const ResultDestinations &destinations) {
     auto types = Values(node);
     auto own = node->spec ? node->spec->rets : types;
+    if (destinations.empty() && own.size() == 1 && Compiler::RegionArray(own[0])) {
+        Materialize(node, own[0], adapt_result); return;
+    }
     if (node->spec) for (auto parameter : node->spec->params)
         if (c.Class(parameter->type) != SC_FIXED && !Compiler::RegionArray(parameter->type))
             Fail(node->line, "owned dynamic inline parameters are not supported without receiving lifetimes");
@@ -580,8 +587,33 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     vector<uint32_t> values;
     for (auto type : own) values.push_back(Local(type));
     auto named = BindNamedResults(node->body, node->sf, own, destinations);
+    size_t prefix = 0;
+    bool group_needed = false;
+    for (auto statement : node->body->stmts) {
+        auto declaration = Is<VarDecl>(statement);
+        if (!declaration || !declaration->inline_arg) break;
+        prefix++;
+        for (auto variable : declaration->defs) if (Compiler::RegionArray(variable->type)) group_needed = true;
+        for (auto init : declaration->inits) if (MayMaterialize(init)) group_needed = true;
+    }
+    auto private_depth = private_headers.size();
+    auto group = BeginArgumentGroup(group_needed);
     auto label = Begin(); PushExit({ label, node->sf, own, values, false, {} }, destinations);
-    BlockInto(node->body, own, values, destinations); exits.pop_back(); End();
+    auto parameter_depth = cleanups.size() + 1;
+    for (size_t i = 0; i < prefix; i++) {
+        auto declaration = static_cast<VarDecl *>(node->body->stmts[i]);
+        auto before = private_headers.size();
+        auto prepared = PrepareDecl(declaration);
+        for (size_t j = before; j < private_headers.size(); j++) private_headers[j].cleanup_depth = parameter_depth;
+        InitializeDecl(declaration, prepared);
+    }
+    auto retain_arguments = anonymous_serial != group.serial;
+    BlockInto(node->body, own, values, destinations, prefix); exits.pop_back(); End();
+    EndArgumentGroup(group, retain_arguments);
+    auto retained = private_depth;
+    for (size_t i = private_depth; i < private_headers.size(); i++)
+        if (private_headers[i].temporary) private_headers[retained++] = private_headers[i];
+    private_headers.resize(retained);
     for (auto variable : named) named_regions.erase(variable);
     for (auto value : values) Get(value);
     if (adapt_result && own.size() == 1 && types.size() == 1 && !Compiler::RegionArray(own[0])) Convert(own[0], types[0], node->line);
@@ -647,6 +679,10 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
 
 inline void Function::Expr(Node *n) {
     if (!n) return;
+    if (Compiler::RegionArray(n->exprtype) && (Is<ArrayLit>(n) || Is<StrLit>(n) || Is<Block>(n) ||
+        Is<IfExpr>(n) || Is<EarlyBlock>(n) || Is<LoopExpr>(n) || Is<MatchExpr>(n))) {
+        Materialize(n, n->exprtype); return;
+    }
     switch (n->nkind) {
         case NK_IntLit: { auto x = static_cast<IntLit *>(n); Const(n->exprtype, x->val); Normalize(n->exprtype); return; }
         case NK_FltLit: { auto x = static_cast<FltLit *>(n); if (IsF32(n->exprtype)) code.F32Const(float(x->val)); else code.F64Const(x->val); return; }

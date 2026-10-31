@@ -79,9 +79,8 @@ inline void Function::ConstructionView(Node *node) {
         if (types.size() != 1) Fail(node->line, "array construction requires one source value");
         natural = types[0]; EmitCall(call, false);
     } else {
-        if (Compiler::RegionArray(natural))
-            Fail(node->line, "anonymous dynamic construction is not supported without a receiving region");
-        Expr(node);
+        if (Compiler::RegionArray(natural)) Materialize(node, natural, false);
+        else Expr(node);
     }
     if (natural->kind == TY_REF) { natural = natural->ref->sub; Load(natural); }
     if (natural->kind == TY_ARRAY) PackArrayView(natural);
@@ -177,6 +176,9 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     c.HeaderLayout(type);
     auto element = type->arr->sub;
     auto line = node ? node->line : type->line;
+    if (auto copy = Is<Call>(node); copy && copy->builtin == B_COPY) {
+        ConstructRegionInto(copy->FirstArg(), destination); return;
+    }
     if (auto id = Is<Ident>(node); id && named_regions.count(id->vdef)) {
         auto &named = named_regions.at(id->vdef).location.storage;
         auto &receiving = place.storage;
