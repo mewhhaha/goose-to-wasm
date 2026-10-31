@@ -17,12 +17,12 @@ inline void Function::ConstructRecordFromCaptured(TypeExpr *source_type, uint32_
     // Prefix fields have fixed value semantics; never copy the embedded
     // owner descriptor, whose region belongs to the receiving object.
     if (layout.payload) {
-        LocationAddress(destination.location); Get(value); code.I32Const(int32_t(layout.payload)); code.Copy();
+        LocationAddress(destination.location); CanonicalAddress(layout.payload); Get(value); CanonicalAddress(layout.payload); code.I32Const(int32_t(layout.payload)); code.Copy();
     }
     auto source_tail = TailHeaderLocation({ source_type, AddressLocal { value } });
     LocationAddress(source_tail); auto tail = Save(I32);
     ConstructRegionFromCaptured(source_tail.storage_type, tail,
-        { TailHeaderLocation(destination.location), destination.lifetime, false, destination.enum_guard }, line);
+        { TailHeaderLocation(destination.location), destination.lifetime, false, destination.enum_guard, destination.escape_stage, destination.normal_result, TailPublication(destination) }, line);
 }
 
 inline void Function::ConstructRecordInto(Node *node, const ConstructionDestination &destination) {
@@ -43,17 +43,19 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
             if (Compiler::FrameStruct(type)) {
                 auto source = PinPlace(node);
                 if (layout.payload) {
-                    LocationAddress(destination.location); LocationAddress(source);
+                    LocationAddress(destination.location); CanonicalAddress(layout.payload); LocationAddress(source); CanonicalAddress(layout.payload);
                     code.I32Const(int32_t(layout.payload)); code.Copy();
                 }
                 // Frame-object prefixes and length are values at this return
                 // position. Only the tail's element storage is shared.
                 LocationAddress(TailHeaderLocation(destination.location));
                 LocationAddress(TailHeaderLocation(source)); code.Mem(0x28, 2, 4); code.Mem(0x36, 2, 4);
+                LocationAddress(TailHeaderLocation(destination.location)); PublishHeader(Save(I32), 4);
             }
             return;
         }
     }
+    if (ConstructNormalRecordResult(node, destination)) return;
     if (auto block = Is<Block>(node)) {
         BlockInto(block, { type }, { Local(I32) }, { destination }); return;
     }
@@ -74,12 +76,14 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
     }
     if (auto call = Is<Call>(node); call && call->builtin < 0 &&
         NaturalResults(call).size() == 1 && Compiler::RegionOwner(NaturalResults(call)[0])) {
+        OpenConstruction open(destination);
         EmitCall(call, false, { destination }); code.Op(0x1a); return;
     }
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec &&
         inlined->spec->rets.size() == 1 && Compiler::RegionOwner(inlined->spec->rets[0])) {
         EmitInline(inlined, false, { destination }); code.Op(0x1a); return;
     }
+    OpenConstruction open(destination);
     if (!node || Is<StructLit>(node)) {
         auto literal = Is<StructLit>(node);
         if (literal && (type->kind == TY_STRUCT ? literal->sinst != type->struc->inst :
@@ -89,12 +93,23 @@ inline void Function::ConstructRecordInto(Node *node, const ConstructionDestinat
         for (size_t i = 0; i < fields.size(); i++) {
             auto field = OffsetLocation(destination.location, layout.fields[i], fields[i]);
             auto init = literal ? literal->InitFor(int(i)) : nullptr;
-            if (i + 1 == fields.size()) ConstructRegionInto(init, { field, destination.lifetime, false, destination.enum_guard });
+            if (i + 1 == fields.size()) {
+                if (Compiler::FrameStruct(type) && Compiler::RegionArray(fields[i])) {
+                    LocationAddress(field); auto header = Save(I32);
+                    if (c.owned_effects) {
+                        auto base = RegionCursor(header);
+                        Get(header); Get(base); code.Mem(0x36, 2);
+                    }
+                    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+                    PublishHeader(header, 0); PublishHeader(header, 4);
+                }
+                ConstructRegionInto(init, { field, destination.lifetime, false, destination.enum_guard, false, false, OffsetPublication(destination, layout.fields[i]), destination.construction, destination.open0 });
+            }
             else if (init) ConstructInto(init, { field, destination.lifetime });
             else {
                 // Omitted optional fields become null when their position is
                 // reached. An earlier initializer may exit before this write.
-                LocationAddress(field); code.I32Const(0);
+                LocationAddress(field); CanonicalAddress(c.FixedLayout(field.storage_type).size); code.I32Const(0);
                 code.I32Const(int32_t(c.FixedLayout(field.storage_type).size)); code.Fill();
             }
         }

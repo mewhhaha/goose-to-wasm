@@ -27,7 +27,7 @@ inline string Function::Finish() {
     function_done = done;
     ResultDestinations destinations(results.size());
     for (size_t i = 0; i < results.size(); i++) if (Compiler::RegionOwner(results[i]))
-        destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller, element_run };
+        destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller, element_run, {}, false, false, resultpublications[i] };
     if (spec) {
         if (!element_run) BindNamedResults(spec->body, spec->sf, results, destinations);
         PushExit({ done, spec->sf, results, resultlocals, false, {} }, destinations);
@@ -83,6 +83,10 @@ inline string Function::Finish() {
         EnsureMemory(top, line); Get(top); code.OpU(0x24, 0);
     }
     EnterEffectFrame(); code.Raw(body); code.Op(0x0b);
+    return EncodeBody();
+}
+
+inline string Function::EncodeBody() {
     Bytes out;
     vector<pair<uint32_t, uint8_t>> groups;
     for (auto t : locals) {
@@ -127,9 +131,10 @@ inline DirectWasmResult Compiler::Compile() {
     for (auto sp : specs) {
         if ((sp->sf == main || sp->sf->isexport) && !captures[sp].empty())
             Fail(sp->sf->line, "public entrypoints cannot capture non-global storage");
-        function_type[sp] = Sig(FunctionSig(sp));
+        FunctionSig(sp); // establish region requirements before assigning globals
     }
     AnalyzeEffects();
+    for (auto sp : specs) function_type[sp] = Sig(FunctionSig(sp));
     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
     unordered_set<FnSpec *> return_targets;
     for (auto sp : specs) for (auto target : sp->needs) return_targets.insert(target);
@@ -139,6 +144,9 @@ inline DirectWasmResult Compiler::Compile() {
         run_index[sp] = uint32_t(imports.size() + specs.size() + runs.size()); runs.push_back(sp);
     }
     auto startindex = uint32_t(imports.size() + specs.size() + runs.size());
+    if (owned_effects) {
+        prefix_helper = startindex++; header_helper = startindex++;
+    }
     auto startsig = Sig({ {}, {} });
     DirectWasmResult result;
     vector<string> bodies;
@@ -159,6 +167,13 @@ inline DirectWasmResult Compiler::Compile() {
                                         vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
     }
+    if (owned_effects) for (bool header : { false, true }) {
+        auto signature = Sig({ { I32, I32 }, header ? vector<uint8_t>{} : vector<uint8_t>{ I32 } });
+        Function f(*this, nullptr, header ? header_helper : prefix_helper, signature, false, true);
+        auto body = f.PublicationHelper(header);
+        result.function_info.push_back({ header ? "publish_header" : "resolve_prefix", f.index, body.size(), BodyHash(body), {} });
+        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(signature);
+    }
     {
         Function f(*this, nullptr, startindex, startsig); auto body = f.Finish();
         result.function_info.push_back({ "_start", f.index, body.size(), BodyHash(body),
@@ -166,10 +181,14 @@ inline DirectWasmResult Compiler::Compile() {
         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(startsig);
     }
     result.functions = bodies.size();
+    result.region_count = needs_regions ? BoundRegions() : 0;
+    if (owned_effects) {
+        if (uint64_t(result.region_count) * 4 > UINT32_MAX) Fail({}, "region cursor table is too large");
+        cursor_table = Data(result.region_count * 4, 4);
+    }
     auto stackbase = Align(data_base + uint32_t(data.size()), 16);
     auto maximum_bytes = uint64_t(opts.maximum_pages) * 65536;
     if (stackbase > maximum_bytes) Fail({}, "static data exceeds linear memory");
-    result.region_count = needs_regions ? BoundRegions() : 0;
     if (result.region_count) {
         result.region_bytes = uint32_t(((maximum_bytes - stackbase) / (uint64_t(result.region_count) + 1)) & ~UINT64_C(7));
         if (result.region_bytes < 8) Fail({}, "linear memory has no space for stable data regions");
@@ -190,7 +209,7 @@ inline DirectWasmResult Compiler::Compile() {
     module.Section(2, imp);
     Bytes funcs; funcs.U(ftypes.size()); for (auto t : ftypes) funcs.U(t); module.Section(3, funcs);
     Bytes memory; memory.U(1); memory.Byte(1); memory.U(initial); memory.U(opts.maximum_pages); module.Section(5, memory);
-    Bytes gl; gl.U((needs_regions ? 6 : 1) + (Effects() ? 2 + effect_targets.size() : 0));
+    Bytes gl; gl.U((needs_regions ? 6 : 1) + (Effects() ? 2 + effect_targets.size() + uint32_t(owned_effects) : 0));
     auto global = [&](uint32_t value, bool mutable_) {
         gl.Byte(I32); gl.Byte(mutable_); gl.I32Const(int32_t(value)); gl.Op(0x0b);
     };
@@ -199,7 +218,11 @@ inline DirectWasmResult Compiler::Compile() {
         global(uint32_t(global_regions.size()), true); global(activation_limit, false);
         global(result.region_bytes, false); global(result.region_count, false); global(activation_limit, false);
     }
-    if (Effects()) for (size_t i = 0; i < effect_targets.size() + 2; i++) global(0, true);
+    if (Effects()) {
+        global(0, true); global(0, true);
+        if (owned_effects) global(cursor_table, false);
+        for (size_t i = 0; i < effect_targets.size(); i++) global(0, true);
+    }
     module.Section(6, gl);
     vector<pair<string, uint32_t>> exported;
     set<string> names { "memory", "_start" };
@@ -235,9 +258,10 @@ inline DirectWasmResult Compiler::Compile() {
     module.Section(0, producer);
     if (needs_regions) {
         Bytes regions; regions.Name("goose.regions");
-        regions.Raw(cat("{\"schema\":1,\"region_count\":", result.region_count,
+        regions.Raw(cat("{\"schema\":", owned_effects ? 2 : 1, ",\"region_count\":", result.region_count,
                         ",\"global_regions\":", global_regions.size(), ",\"region_bytes\":", result.region_bytes,
-                        ",\"activation_base\":", stackbase, ",\"activation_limit\":", activation_limit, "}"));
+                        ",\"activation_base\":", stackbase, ",\"activation_limit\":", activation_limit,
+                        owned_effects ? cat(",\"cursor_base\":", cursor_table, ",\"cursor_stride\":4") : string(), "}"));
         module.Section(0, regions);
     }
     result.module = std::move(module.data); return result;

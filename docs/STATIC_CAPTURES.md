@@ -22,7 +22,7 @@ Function-value bodies execute at their call site. Their checked body type define
 the natural result, including when contextual adaptation requests an owned array.
 A fixed result is evaluated once before constructing that receiver. Supported
 owned parameters/results now use [receiving lifetimes](OWNED_FUNCTION_VALUES.md).
-Out-of-line nonlocal returns now support [fixed target results](NONLOCAL_RETURNS.md).
+Out-of-line nonlocal returns now support [fixed and admitted growable target results](NONLOCAL_RETURNS.md).
 The original full function-value capture program qualifies at O0 and O2.
 
 The fixture provenance is pinned revision
@@ -45,8 +45,8 @@ captures of arrays, frame/enum owners, callbacks constructed exactly once and
 exhaustion checks on surviving caller-owned headers.
 
 Case functions receive mapped captured addresses through
-[runtime dispatch](FUNCTION_DISPATCH.md). Further work includes owned nonlocal
-result landing and original-corpus qualification. Borrowed
+[runtime dispatch](FUNCTION_DISPATCH.md). Further work includes the remaining owned nonlocal
+contracts and original-corpus qualification. Borrowed
 callback results rooted in callback-owned storage also require care: the pinned
 native emitter can release that storage before a later argument executes. Such
 cases must not silently receive a different lifetime in the direct backend.

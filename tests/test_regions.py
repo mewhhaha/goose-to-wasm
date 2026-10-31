@@ -1235,6 +1235,54 @@ fn main() {{
                     self.assertIn("data region exhausted", observed["error"])
                     self.assertEqual(observed["canary"], str(CANARY))
 
+    def test_owned_nonlocal_return_reuses_receiving_region(self):
+        source = f'''var neighbor: i64[>..] = [{CANARY}];
+recursive fn leave(depth: i64, value: i64) {{
+    if depth > 0 {{ leave(depth - 1, value); return; }}
+    return [value + 1] from target;
+}}
+fn target(value: i64) -> i64[>..] {{ leave(3, value); return []; }}
+export fn tick(n: i64) -> i64 {{ var result = target(n); result[0] }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["schema"], 2)
+            self.assertEqual(runtime["region_count"], 2)
+            self.assertEqual(runtime["cursor_stride"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_owned_nonlocal_return_replaces_abandoned_oversized_result(self):
+        source = f'''var neighbor: i64[>..] = [{CANARY}];
+fn fill(value: i64) -> i64 {{ return [value + 1] from target; }}
+fn target(value: i64) -> i64[>..] {{ return [fill(value); 4294967296]; }}
+export fn tick(n: i64) -> i64 {{ var result = target(n); result[0] }}
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_owned_cursor_module_checks_published_surviving_extent(self):
+        source = f'''extern fn bench_input() -> i64;
+var values: i64[>..] = [9]; var neighbor: i64[>..] = [{CANARY}];
+recursive fn enable_leave() {{ return [1] from enable; }}
+fn enable() -> i64[>..] {{ enable_leave(); return []; }}
+fn make<F>() -> i64[] {{ return [F(); 1000000]; }}
+fn target() -> i64 {{ values = make() {{ if bench_input() >= 0 {{ return 7; }} 4 }}; return 0; }}
+fn main() {{ print(enable().len); print(target()); }}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            for engine, observed in self.engines(path, runtime, canary_index=1):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
     def test_nonlocal_return_releases_dying_borrowed_owner(self):
         source = f'''var neighbor: i64[>..] = [{CANARY}];
 fn mutate<F>(xs: i64[>..]&) {{ xs = [F(); 4294967296]; }}

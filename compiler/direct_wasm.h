@@ -53,12 +53,23 @@ struct CapturedValue {
     uint32_t value_local;
     enum Form { Immediate, BorrowedFixed, CopiedFixed } form;
 };
+struct ConstructionState { uint32_t open = 0; };
 struct ConstructionDestination {
     Location location;
     enum Lifetime { Statement, Block, Activation, Caller, Static, Existing } lifetime;
     bool elements = false; // raw element run, without a value's length prefix contract
     struct EnumGuard { uint32_t image_base, owner_header; int32_t tag; };
     optional<EnumGuard> enum_guard;
+    bool escape_stage = false;
+    bool normal_result = false;
+    optional<uint32_t> publication; // receiving split-control address; zero keeps an image private
+    shared_ptr<ConstructionState> construction = make_shared<ConstructionState>();
+    uint32_t open0 = 0;
+};
+struct OpenConstruction {
+    shared_ptr<ConstructionState> state;
+    explicit OpenConstruction(const ConstructionDestination &destination) : state(destination.construction) { state->open++; }
+    ~OpenConstruction() { state->open--; }
 };
 using ResultDestinations = vector<optional<ConstructionDestination>>;
 struct Compiler;
@@ -74,9 +85,10 @@ struct Function {
     // Each owned result receives storage in the caller's activation. The
     // ordinary Wasm result remains its address, so expression lowering uses
     // the same representation as an aggregate local or literal.
-    vector<optional<uint32_t>> resultdestinations;
+    vector<optional<uint32_t>> resultdestinations, resultpublications;
     unordered_map<VarDef *, Slot> vars;
     unordered_map<const VarDef *, ConstructionDestination> named_regions;
+    unordered_set<const VarDef *> inline_named_regions;
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
     uint32_t framebase = 0, framebytes = 0;
@@ -132,7 +144,12 @@ struct Function {
     vector<CleanupAction> cleanups;
     void PushExit(Exit target, const ResultDestinations &destinations = {}) {
         target.destinations = destinations;
-        target.cleanup_depth = cleanups.size(); exits.push_back(std::move(target));
+        target.cleanup_depth = cleanups.size();
+        if (!target.sf) for (auto &destination : target.destinations) if (destination) {
+            destination->open0 = destination->construction->open;
+            destination->escape_stage = false;
+        }
+        exits.push_back(std::move(target));
     }
     void EmitCleanups(size_t depth, bool abandoning = false) {
         for (auto i = cleanups.size(); i-- > depth;) {
@@ -154,6 +171,7 @@ struct Function {
                         Get(action.enum_guard->owner_header); LocationAddress(header.location); code.Op(0x46); Br(done, true);
                     }
                 }
+                SkipReplacedEffectOwner(action.saved_local, done);
                 SkipDyingEffectOwner(action.saved_local, action.enum_guard, done);
                 Get(action.saved_local); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
                 ReserveRegion(action.saved_local, count, action.element, action.line);
@@ -174,7 +192,7 @@ struct Function {
     }
     set<uint32_t> dependencies;
 
-    Function(Compiler &, FnSpec *, uint32_t, uint32_t, bool element_run = false);
+    Function(Compiler &, FnSpec *, uint32_t, uint32_t, bool element_run = false, bool auxiliary = false);
     [[noreturn]] void Fail(Line, const string &);
     uint8_t W(TypeExpr *);
     uint32_t Local(uint8_t t) { auto i = uint32_t(params.size() + locals.size()); locals.push_back(t); return i; }
@@ -261,12 +279,34 @@ struct Function {
     void EmitDispatch(Call *, bool, const ResultDestinations &);
     void EnterEffectFrame();
     void LeaveEffectFrame();
-    void RegisterEffectOwner(const Location &, bool lexical = true, bool temporary = false);
+    void RegisterEffectOwner(const Location &, bool lexical = true, bool temporary = false,
+                             optional<uint32_t> publication = {}, uint32_t prefix = 0, bool frame = false);
+    uint32_t Publication(const ConstructionDestination &);
+    optional<uint32_t> TailPublication(const ConstructionDestination &);
+    optional<uint32_t> OffsetPublication(const ConstructionDestination &, uint32_t);
+    void CanonicalAddress(uint32_t);
+    void PublishHeader(uint32_t, uint32_t);
+    string PublicationHelper(bool);
+    string EncodeBody();
     void ClearEffectOwner(uint32_t);
     void SkipDyingEffectOwner(uint32_t, const optional<ConstructionDestination::EnumGuard> &, uint32_t);
     void CheckPendingEffect(Line);
     void PropagateEffect(Line);
     void NonlocalReturn(Return *);
+    void NonlocalOwnedReturn(Return *);
+    void LandOwnedEffect();
+    bool ConstructNormalOwnedResult(Node *, const ConstructionDestination &);
+    bool ConstructNormalRecordResult(Node *, const ConstructionDestination &);
+    void LandArraySuffix(uint32_t, uint32_t, uint32_t, TypeExpr *, Line, optional<uint32_t> base = {});
+    void SkipReplacedEffectOwner(uint32_t, uint32_t);
+    uint32_t CursorSlot(uint32_t);
+    uint32_t RegionCursor(uint32_t);
+    void PublishCursor(uint32_t, uint32_t);
+    void PublishArrayCursor(uint32_t, TypeExpr *, uint32_t);
+    uint32_t ReserveCursor(uint32_t, uint32_t, TypeExpr *, Line);
+    void RebaseEscapeStage(const ConstructionDestination &);
+    bool ClosedEscapeProducer(FnSpec *);
+    bool SafeEscapeRead(Node *, bool pushes = false);
     void EmitInline(InlineBlock *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
     void ResultExpression(Node *, const ResultDestinations &);
     struct RegionResultPlan { ResultDestinations producers, copies, values; vector<TypeExpr *> enum_payloads; };
@@ -328,7 +368,10 @@ struct Compiler {
     unordered_map<FnSpec *, uint32_t> effect_globals;
     unordered_map<FnSpec *, Layout> mailboxes;
     uint32_t pending_effect = 0, effect_frames = 0;
-    bool Effects() const { return !effect_targets.empty(); }
+    bool owned_effects = false;
+    uint32_t cursor_global = 0, cursor_table = 0;
+    uint32_t prefix_helper = 0, header_helper = 0;
+    bool Effects() const { return !effect_targets.empty() || owned_effects; }
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;
     unordered_map<FnSpec *, uint32_t> run_index;
@@ -682,7 +725,10 @@ struct Compiler {
             if (RegionOwner(t)) {
                 needs_regions = true;
             }
-            if (Aggregate(t) && !sp->sf->isextern) s.args.push_back(I32);
+            if (Aggregate(t) && !sp->sf->isextern) {
+                s.args.push_back(I32);
+                if (owned_effects && RegionOwner(t)) s.args.push_back(I32);
+            }
             s.results.push_back(W(t));
         }
         return s;
@@ -765,8 +811,9 @@ struct Compiler {
     DirectWasmResult Compile();
 };
 
-inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run)
+inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run, bool auxiliary)
     : c(compiler), spec(s), index(i), sig(ty), element_run(run) {
+    if (auxiliary) { params = c.signatures[ty].args; return; }
     addressed.insert(c.captured_storage.begin(), c.captured_storage.end());
     if (spec) {
         results = spec->rets;
@@ -784,9 +831,13 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
             params.push_back(I32);
         }
         for (auto t : results) {
+            resultpublications.push_back(nullopt);
             if (c.Aggregate(t)) {
                 resultdestinations.push_back(uint32_t(params.size()));
                 params.push_back(I32);
+                if (c.owned_effects && Compiler::RegionOwner(t)) {
+                    resultpublications.back() = uint32_t(params.size()); params.push_back(I32);
+                }
             } else resultdestinations.push_back(nullopt);
         }
     } else for (auto g : c.ast.globals) for (auto n : g->inits) ScanAddresses(n);
@@ -832,6 +883,7 @@ inline Slot Function::Bind(VarDef *v) {
     return vars.emplace(v, s).first->second;
 }
 inline void Function::Load(TypeExpr *t) {
+    if (c.owned_effects && !Compiler::RegionOwner(t)) CanonicalAddress(c.FixedLayout(t).size);
     if (c.Aggregate(t)) return; // aggregate values are addresses
     if (t->kind == TY_FLT) { code.Mem(IsF32(t) ? 0x2a : 0x2b); return; }
     if (t->kind == TY_SLICE) { code.Mem(0x29); return; }
@@ -843,6 +895,12 @@ inline void Function::Load(TypeExpr *t) {
     code.Mem(bits == 8 ? (u ? 0x2d : 0x2c) : bits == 16 ? (u ? 0x2f : 0x2e) : bits == 32 ? 0x28 : 0x29);
 }
 inline void Function::Store(TypeExpr *t) {
+    if (c.owned_effects) {
+        auto value = Save(t);
+        CanonicalAddress(c.FixedLayout(t).size);
+        Get(value);
+        if (c.Aggregate(t)) CanonicalAddress(c.FixedLayout(t).size);
+    }
     if (c.Aggregate(t)) { code.I32Const(int32_t(c.FixedLayout(t).size)); code.Copy(); return; }
     if (t->kind == TY_FLT) { code.Mem(IsF32(t) ? 0x38 : 0x39); return; }
     if (t->kind == TY_SLICE) { code.Mem(0x37); return; }
@@ -897,6 +955,8 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_funvals.h"
 #include "direct_wasm_dispatch.h"
 #include "direct_wasm_effects.h"
+#include "direct_wasm_landing.h"
+#include "direct_wasm_publication.h"
 #include "direct_wasm_storage.h"
 #include "direct_wasm_owned.h"
 #include "direct_wasm_enums.h"

@@ -251,6 +251,9 @@ inline void Function::ShareRegion(const Location &place, const ConstructionDesti
     for (uint32_t offset : { 0u, 8u }) {
         Get(local); Get(result); code.Mem(0x28, 2, offset); code.Mem(0x36, 2, offset);
     }
+    if (c.owned_effects && !Compiler::RuntimeLimited(TailHeaderLocation(place).storage_type)) {
+        Get(local); Get(RegionCursor(result)); code.Mem(0x36, 2);
+    }
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(local); code.I32Const(0); code.Mem(0x36, 2, 12);
     RegisterEffectOwner(place);
@@ -297,11 +300,16 @@ inline void Function::ConstructRegionView(uint32_t source, const ConstructionDes
             Get(header); Get(cap); code.Op(0xa7); code.Mem(0x36, 2, 12);
         }
     }
-    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+    Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
     ReserveRegion(header, count, element, line);
     Get(base); Get(source); code.Op(0xa7); Get(count); code.Op(0xa7);
     code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Copy();
-    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
+    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+    if (c.owned_effects) {
+        if (Compiler::RuntimeLimited(destination.location.storage_type)) {
+            Get(header); code.Mem(0x28, 2, 12); code.Op(0xad); PublishArrayCursor(header, destination.location.storage_type, Save(I64));
+        } else PublishArrayCursor(header, destination.location.storage_type, count);
+    }
 }
 
 inline void Function::ConstructRegion(Node *node, const Location &place, optional<uint32_t> global_region) {
@@ -328,6 +336,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); Get(base); code.OpU(0x23, G_REGION_BYTES); code.Op(0x6a); code.Mem(0x36, 2, 8);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+    PublishCursor(header, base);
     if (!global_region) RegisterEffectOwner(place, true, temporary);
 }
 
@@ -340,6 +349,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     auto element = type->arr->sub;
     auto line = node ? node->line : type->line;
     if (auto literal = Is<ArrayLit>(node); literal && literal->capexpr) {
+        OpenConstruction open(destination);
         if (!Compiler::RuntimeLimited(type)) {
             // A capacity literal keeps its natural range check, reservation
             // and effects even after an optimizer exposes it in another kind.
@@ -356,7 +366,8 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         LocationAddress(place); auto header = Save(I32);
         ReserveRegion(header, capacity, element, line);
         Get(header); Get(capacity); code.Op(0xa7); code.Mem(0x36, 2, 12);
-        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); return;
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+        PublishArrayCursor(header, type, capacity); return;
     }
     if (auto copy = Is<Call>(node); copy && copy->builtin == B_COPY) {
         ConstructRegionInto(copy->FirstArg(), destination); return;
@@ -372,7 +383,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
             // later growth from changing the length published here.
             LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 4); code.Op(0xad); auto count = Save(I64);
             CheckArrayLength(type, count, line, destination.elements);
-            LocationAddress(place); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
+            LocationAddress(place); auto header = Save(I32); Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
             if (Compiler::RuntimeLimited(type)) {
                 LocationAddress(place);
                 LocationAddress(PinPlace(node)); code.Mem(0x28, 2, 12); code.Mem(0x36, 2, 12);
@@ -380,6 +391,7 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
             return;
         }
     }
+    if (ConstructNormalOwnedResult(node, destination)) return;
     if (auto block = Is<Block>(node)) {
         BlockInto(block, { type }, { Local(I32) }, { destination }); return;
     }
@@ -400,29 +412,34 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
     }
     if (auto call = Is<Call>(node); call && call->builtin < 0 &&
         NaturalResults(call).size() == 1 && Compiler::RegionArray(NaturalResults(call)[0])) {
+        OpenConstruction open(destination);
         EmitCall(call, false, { destination }); code.Op(0x1a); return;
     }
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec &&
         inlined->spec->rets.size() == 1 && Compiler::RegionArray(inlined->spec->rets[0])) {
         EmitInline(inlined, false, { destination }); code.Op(0x1a); return;
     }
+    OpenConstruction open(destination);
     LocationAddress(place); auto header = Save(I32);
+    PublishHeader(header, 0);
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
 
     if (!node) {
-        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+        Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
-        code.I64Const(0); auto count = Save(I64); ReserveRegion(header, count, element, line); return;
+        code.I64Const(0); auto count = Save(I64); ReserveRegion(header, count, element, line);
+        PublishCursor(header, base); return;
     }
 
     uint32_t count;
+    auto physical = c.owned_effects && !Compiler::RuntimeLimited(type);
     auto cleanup_depth = cleanups.size();
     bool check_abandoned = false;
     if (auto array = Is<ArrayLit>(node)) {
         auto size = array->fillval ? static_cast<IntLit *>(array->fillcount)->val : int64_t(array->elems.size());
         code.I64Const(size); count = Save(I64);
         CheckArrayLength(type, count, line, destination.elements);
-        Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 4);
+        Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
         if (Compiler::RuntimeLimited(type)) {
             Get(header); code.I32Const(size > UINT32_MAX ? -1 : int32_t(size)); code.Mem(0x36, 2, 12);
         }
@@ -434,28 +451,41 @@ inline void Function::ConstructRegionInto(Node *node, const ConstructionDestinat
         if (check_abandoned) cleanups.push_back({ CleanupAction::CheckAbandonedRegion, header, element, line, destination.enum_guard });
         if (array->fillval) {
             auto value = CaptureBorrowed(array->fillval, element);
-            ReserveRegion(header, count, element, node->line);
+            optional<uint32_t> cursor, top;
+            if (physical) { cursor = RegionCursor(header); top = ReserveCursor(header, count, element, node->line); }
+            else ReserveRegion(header, count, element, node->line);
             auto index = Local(I32); code.I32Const(0); Set(index);
             auto done = Begin(), loop = Begin(0x03);
             Get(index); Get(count); code.Op(0xa7); code.Op(0x4f); Br(done, true);
-            Get(base); Get(index); code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Op(0x6a);
+            Get(physical ? *cursor : base); Get(index); code.I32Const(int32_t(c.Size(element).size)); code.Op(0x6c); code.Op(0x6a);
             Get(value.value_local); Store(element);
             Get(index); code.I32Const(1); code.Op(0x6a); Set(index); Br(loop); End(); End();
+            if (physical) PublishCursor(header, *top);
         } else {
             if (array->elems.empty()) ReserveRegion(header, count, element, node->line);
             for (size_t index = 0; index < array->elems.size(); index++) {
                 auto value = CaptureBorrowed(array->elems[index], element);
                 code.I64Const(int64_t(index + 1)); auto prefix = Save(I64);
-                ReserveRegion(header, prefix, element, node->line);
-                Get(base); code.I32Const(int32_t(index * c.Size(element).size)); code.Op(0x6a);
+                optional<uint32_t> top;
+                if (physical) {
+                    auto cursor = RegionCursor(header);
+                    code.I64Const(1); top = ReserveCursor(header, Save(I64), element, node->line); Get(cursor);
+                } else {
+                    ReserveRegion(header, prefix, element, node->line);
+                    Get(base); code.I32Const(int32_t(index * c.Size(element).size)); code.Op(0x6a);
+                }
                 Get(value.value_local); Store(element);
+                if (physical) PublishCursor(header, *top);
+                else PublishArrayCursor(header, type, prefix);
             }
         }
     } else {
         auto source = CaptureSequence(node);
+        RebaseEscapeStage(destination);
         ConstructRegionView(source.view, destination, line, source.capacity); return;
     }
-    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4);
+    Get(header); Get(count); code.Op(0xa7); code.Mem(0x36, 2, 4); PublishHeader(header, 4);
+    if (!physical) PublishArrayCursor(header, type, count);
     if (check_abandoned) {
         if (cleanups.size() <= cleanup_depth || cleanups[cleanup_depth].kind != CleanupAction::CheckAbandonedRegion)
             Fail(line, "internal: missing construction cleanup");

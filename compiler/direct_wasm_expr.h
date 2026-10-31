@@ -75,7 +75,8 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
     if (nodes.size() == types.size()) {
         for (size_t i = 0; i < nodes.size(); i++) {
             if (Compiler::RegionOwner(types[i])) {
-                ConstructRegionInto(nodes[i], *destinations[i]);
+                auto destination = *destinations[i]; destination.normal_result = true;
+                ConstructRegionInto(nodes[i], destination);
                 LocationAddress(destinations[i]->location); Set(slots[i]);
             } else { To(nodes[i], types[i]); CaptureResult(types[i], slots[i]); }
         }
@@ -137,9 +138,10 @@ inline void Function::Address(Node *n) {
     }
     if (auto dot = Is<Dot>(n); dot && dot->IsField()) {
         auto t = Object(dot->obj);
-        c.FieldType(t, dot->fieldidx);
+        auto field_type = c.FieldType(t, dot->fieldidx);
         auto off = c.FieldOffset(t, size_t(dot->fieldidx));
         if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
+        if (c.owned_effects && !Compiler::RegionOwner(field_type)) CanonicalAddress(c.FixedLayout(field_type).size);
         return;
     }
     if (auto u = Is<Unary>(n); u && u->op == T_BITAND) { Address(u->child); return; }
@@ -170,13 +172,16 @@ inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
     for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionOwner(slots[i].type)) {
         Location place { slots[i].type, slots[i] };
         if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
+            if (!inline_named_regions.count(n->defs[i])) named->second.construction->open++;
             if (Compiler::WholeHeaderOwner(slots[i].type)) {
-                prepared.destinations[i] = ConstructionDestination { place, named->second.lifetime, false, named->second.enum_guard }; continue;
+                prepared.destinations[i] = ConstructionDestination { place, named->second.lifetime, false, named->second.enum_guard, named->second.escape_stage, named->second.normal_result, named->second.publication, named->second.construction, named->second.open0 }; continue;
             }
             ShareRegion(place, named->second);
         }
         else AcquireRegion(place, n->line, n->isglobal ? optional<uint32_t>(c.global_regions.at(n->defs[i])) : nullopt);
         prepared.destinations[i] = ConstructionDestination { place, n->isglobal ? ConstructionDestination::Static : ConstructionDestination::Block };
+        if (auto named = named_regions.find(n->defs[i]); named != named_regions.end())
+            prepared.destinations[i]->construction = named->second.construction;
     }
     return prepared;
 }
@@ -224,6 +229,10 @@ inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
     if (Compiler::RegionOwner(t)) {
+        if (c.owned_effects && (Compiler::GrowableArray(t) || Compiler::FrameStruct(t))) {
+            LocationAddress(TailHeaderLocation(place)); auto header = Save(I32);
+            Get(header); code.Mem(0x28, 2); PublishCursor(header, Save(I32));
+        }
         if (Compiler::RegionEnum(t)) Fail(n->line, "whole variable-mode enum assignment is not supported");
         if (Compiler::RegionRecord(t)) {
             if (!Compiler::FrameStruct(t)) Fail(n->line, "whole variable-struct assignment is not supported");
@@ -451,8 +460,12 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
         if (destinations.empty() || !destinations[0]) plan.values[0]->elements = true;
     }
     receiving = plan.producers;
+    for (auto &destination : receiving) if (destination) RebaseEscapeStage(*destination);
     for (size_t i = 0; i < sp->rets.size(); i++) if (auto t = sp->rets[i]; c.Aggregate(t)) {
-        if (Compiler::RegionOwner(t)) LocationAddress(receiving[i]->location);
+        if (Compiler::RegionOwner(t)) {
+            LocationAddress(receiving[i]->location);
+            if (c.owned_effects) Get(Publication(*receiving[i]));
+        }
         else LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
     }
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
@@ -654,9 +667,16 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     }
     auto plan = PlanRegionResults(own, requested, node->line, own.size() == 1 && own[0]->kind == TY_ARRAY && own[0]->arr->akind == A_VAR, true);
     auto &receiving = plan.producers;
+    for (auto &destination : receiving) if (destination) {
+        destination->open0 = destination->construction->open;
+        destination->escape_stage = false;
+    }
     vector<uint32_t> values;
     for (auto type : own) values.push_back(Local(type));
     auto named = BindNamedResults(node->body, node->sf, own, receiving, true);
+    for (auto variable : named) {
+        inline_named_regions.insert(variable); named_regions.at(variable).construction->open++;
+    }
     size_t prefix = 0;
     bool group_needed = false;
     for (auto statement : node->body->stmts) {
@@ -684,7 +704,10 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     for (size_t i = private_depth; i < private_headers.size(); i++)
         if (private_headers[i].temporary) private_headers[retained++] = private_headers[i];
     private_headers.resize(retained);
-    for (auto variable : named) named_regions.erase(variable);
+    for (auto variable : named) {
+        named_regions.at(variable).construction->open--;
+        inline_named_regions.erase(variable); named_regions.erase(variable);
+    }
     for (auto value : values) Get(value);
     PublishRegionResults(own, plan, node->line);
     if (adapt_result && own.size() == 1 && types.size() == 1)
@@ -701,7 +724,8 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
             BlockInto(loop->body, {}, {}); exits.pop_back(); Br(again); End();
         } else {
             PushExit({ done, nullptr, ts, vs, true, {} }, destinations);
-            BlockInto(static_cast<EarlyBlock *>(n)->body, ts, vs, destinations); exits.pop_back();
+            auto receiving = exits.back().destinations;
+            BlockInto(static_cast<EarlyBlock *>(n)->body, ts, vs, receiving); exits.pop_back();
         }
         End(); return;
     }

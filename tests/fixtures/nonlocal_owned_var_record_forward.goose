@@ -1,0 +1,2 @@
+recursive fn enable_leave(n:i64){if n>0{enable_leave(n-1);return;}return[99] from enable;} fn enable()->i64[>..]{enable_leave(1);return[];}
+struct V{id:i64,values:i64[]}fn make()->V{var y=V{4,[4]};return y;}fn choose(b:bool)->V{var x=V{1,[1,2]};if b{return make();}return x;}export fn tick(n:i64)->i64{var x=choose(n>0);x.id*10+x.values[0]}fn main(){print(enable());print(tick(1));}

@@ -15,9 +15,10 @@ inline ConstructionDestination Function::PrepareEnumPayload(const ConstructionDe
     Get(header); code.Mem(0x28, 2); auto base = Save(I32);
     Get(base); code.I32Const(vi); code.Mem(0x36, 2);
     Get(header); code.I32Const(int32_t(layout.size)); code.Mem(0x36, 2, 4);
+    Get(base); code.I32Const(int32_t(layout.size)); code.Op(0x6a); PublishCursor(header, Save(I32));
     auto payload = OffsetLocation({ variant, AddressLocal { base } }, layout.payload, variant);
     ConstructionDestination destination { payload, receiver.lifetime, false,
-        ConstructionDestination::EnumGuard { base, header, vi } };
+        ConstructionDestination::EnumGuard { base, header, vi }, false, receiver.normal_result };
     if (Compiler::RegionVariant(variant)) {
         LocationAddress(TailHeaderLocation(payload)); auto tail = Save(I32);
         Get(tail); Get(base); code.I32Const(int32_t(layout.size)); code.Op(0x6a); code.Mem(0x36, 2);
@@ -42,6 +43,7 @@ inline void Function::FinishEnumPayload(const ConstructionDestination &receiver,
     auto bytes = Save(I64);
     ReserveRegion(header, bytes, c.ast.inttypes[IS_U8], line);
     Get(header); Get(bytes); code.Op(0xa7); code.Mem(0x36, 2, 4);
+    Get(header); code.Mem(0x28, 2); Get(bytes); code.Op(0xa7); code.Op(0x6a); PublishCursor(header, Save(I32));
 }
 
 // Variable-mode enums retain their language storage class. Their private
@@ -185,7 +187,8 @@ inline void Function::ConstructEnumInto(Node *node, const ConstructionDestinatio
         // Reserve the full fixed image without writing inactive fields: an
         // earlier named payload reference may still be read by a later result.
         reserve(layout.size);
-        Get(header); code.I32Const(int32_t(layout.size)); code.Mem(0x36, 2, 4); return;
+        Get(header); code.I32Const(int32_t(layout.size)); code.Mem(0x36, 2, 4);
+        Get(base); code.I32Const(int32_t(layout.size)); code.Op(0x6a); PublishCursor(header, Save(I32)); return;
     }
     auto natural = node->exprtype;
     if (Is<Ident>(node) || Is<Index>(node) || (Is<Dot>(node) && Is<Dot>(node)->IsField())) {

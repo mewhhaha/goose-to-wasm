@@ -121,7 +121,10 @@ inline void Function::EmitDispatch(Call *node, bool adapt_result, const ResultDe
         }
         for (auto capture : c.captures[arm]) SlotAddress(Lookup(node->FreeVarArg(capture), node->line));
         for (size_t i = 0; i < first->rets.size(); i++) if (c.Aggregate(first->rets[i])) {
-            if (Compiler::RegionOwner(first->rets[i])) LocationAddress(plan.producers[i]->location);
+            if (Compiler::RegionOwner(first->rets[i])) {
+                LocationAddress(plan.producers[i]->location);
+                if (c.owned_effects) Get(Publication(*plan.producers[i]));
+            }
             else Get(fixed_destinations[i]);
         }
         RecordRegionCall(arm, node->line); CallIndex(c.function_index.at(arm));

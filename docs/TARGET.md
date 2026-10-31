@@ -193,7 +193,9 @@ Acquisition, growth, frames and scratch check their limits before writes;
 successful `memory.grow` does not permit crossing a partition boundary. Released
 regions are reused, while linear-memory pages remain allocated. The
 `goose.regions` custom section publishes region/global counts, region bytes and
-activation addresses. Compiler statistics publish `region_count`, `region_bytes`
+activation addresses. Modules with owned return cursors use schema 2 and add
+`cursor_base` and `cursor_stride: 4` for the physical cursor table; other modules
+retain schema 1. Compiler statistics publish `region_count`, `region_bytes`
 and `activation_bytes`.
 
 The module defines fresh, zero-initialized memory. Static allocations retain
@@ -317,7 +319,8 @@ growables, varint variable-array lengths; resizable/multiple-owner enum payloads
 unproven packed-overlap observations after nonempty named enum replacement;
 enum rendering and comparison;
 relative and pool references;
-out-of-line nonlocal returns with owned target results;
+out-of-line nonlocal returns with variable, capacity-limited, record/enum or
+mixed/multiple owned target results;
 threads/queues; binary framing/serialization; custom formatters and
 unsupported aggregate rendering; and explicit packed padding.
 Unsupported nodes fail with a source diagnostic. There is no C fallback.

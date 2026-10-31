@@ -120,6 +120,7 @@ inline void Function::ArrayBuiltin(Call *n) {
         Convert(c.ast.inttypes[IS_I64], n->exprtype, n->line); return;
     }
     auto region = Compiler::RegionArray(t);
+    auto physical = c.owned_effects && Compiler::GrowableArray(t);
     if (t->kind != TY_ARRAY || (t->arr->akind != A_LIMITED && !Compiler::GrowableArray(t)))
         Fail(n->line, "this array mutation is not supported without dynamic storage");
     auto layout = region ? c.HeaderLayout(t) : c.Size(t);
@@ -127,7 +128,10 @@ inline void Function::ArrayBuiltin(Call *n) {
     auto elem = t->arr->sub;
     auto stride = c.Size(elem).size;
     auto length = [&]() { Get(base); code.Mem(0x28, 2, region ? 4 : 0); };
-    auto write_length = [&](uint32_t len) { Get(base); Get(len); code.Mem(0x36, 2, region ? 4 : 0); };
+    auto write_length = [&](uint32_t len) { Get(base); Get(len); code.Mem(0x36, 2, region ? 4 : 0); if (region) PublishHeader(base, 4); };
+    auto logical_limit = [&](uint32_t count) {
+        Get(count); code.I64Const(UINT32_MAX); code.Op(0x56); TrapIf(n->line, "data region exhausted");
+    };
     auto address = [&](uint32_t i) {
         Get(base);
         if (region) code.Mem(0x28, 2);
@@ -135,21 +139,30 @@ inline void Function::ArrayBuiltin(Call *n) {
         Get(i); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
     };
     if (kind == B_CLEAR) {
-        Get(base); code.I32Const(0); code.Mem(0x36, 2, region ? 4 : 0); return;
+        Get(base); code.I32Const(0); code.Mem(0x36, 2, region ? 4 : 0);
+        if (region) PublishHeader(base, 4);
+        if (physical) { Get(base); code.Mem(0x28, 2); PublishCursor(base, Save(I32)); } return;
     }
     if (kind == B_PUSH) {
         To(args[1], elem); auto value = Save(elem);
         // The value expression may have mutated the receiver. Load len only
         // after it finishes, retaining the receiver address evaluated first.
         length(); auto len = Save(I32);
+        optional<uint32_t> cursor, top;
         if (region) {
             Get(len); code.Op(0xad); code.I64Const(1); code.Op(0x7c);
-            auto next = Save(I64); ReserveArray(base, next, t, n->line);
+            auto next = Save(I64);
+            if (physical) {
+                logical_limit(next); cursor = RegionCursor(base);
+                code.I64Const(1); top = ReserveCursor(base, Save(I64), elem, n->line);
+            } else ReserveArray(base, next, t, n->line);
         } else {
             Get(len); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); TrapIf(n->line, "array capacity exceeded");
         }
-        address(len); auto dest = Save(I32);
+        if (physical) Get(*cursor); else address(len);
+        auto dest = Save(I32);
         Get(dest); Get(value); Store(elem);
+        if (physical) PublishCursor(base, *top);
         Get(len); code.I32Const(1); code.Op(0x6a); auto next = Save(I32); write_length(next);
         Get(dest);
         if (elem->kind == TY_REF) Load(elem); // Goose has no references to references.
@@ -158,8 +171,16 @@ inline void Function::ArrayBuiltin(Call *n) {
     if (kind == B_POP) {
         length(); auto len = Save(I32);
         Get(len); code.Op(0x45); TrapIf(n->line, "pop from empty array");
+        optional<uint32_t> cursor;
+        if (physical) {
+            auto current = RegionCursor(base);
+            Get(current); code.Op(0xad); Get(base); code.Mem(0x28, 2); code.Op(0xad); code.I64Const(stride); code.Op(0x7c); code.Op(0x54);
+            TrapIf(n->line, "data region exhausted");
+            Get(current); code.I32Const(int32_t(stride)); code.Op(0x6b); cursor = Save(I32); PublishCursor(base, *cursor);
+        }
         Get(len); code.I32Const(1); code.Op(0x6b); auto next = Save(I32); write_length(next);
-        address(next); Load(elem); Convert(elem, n->exprtype, n->line);
+        if (physical) Get(*cursor); else address(next);
+        Load(elem); Convert(elem, n->exprtype, n->line);
         // Pop produces an owned fixed value, even when consumed as an
         // iteration temporary before another expression refills this slot.
         if (c.Aggregate(n->exprtype)) {
@@ -171,16 +192,23 @@ inline void Function::ArrayBuiltin(Call *n) {
         ConstructionView(args[1], Compiler::GrowableArray(t)); auto view = Save(I64);
         Get(view); code.I64Const(32); code.Op(0x88); code.Op(0xa7); auto count = Save(I32);
         length(); auto len = Save(I32);
+        optional<uint32_t> cursor, top;
         // count <= cap-len avoids wrapping the sum. The source view is
         // captured before reloading len; memory.copy also handles overlap.
         if (region) {
             Get(count); code.Op(0xad); Get(len); code.Op(0xad); code.Op(0x7c);
-            auto next = Save(I64); ReserveArray(base, next, t, n->line);
+            auto next = Save(I64);
+            if (physical) {
+                logical_limit(next); cursor = RegionCursor(base);
+                Get(count); code.Op(0xad); top = ReserveCursor(base, Save(I64), elem, n->line);
+            } else ReserveArray(base, next, t, n->line);
         } else {
             Get(count); code.I32Const(int32_t(t->arr->size)); Get(len); code.Op(0x6b); code.Op(0x4b);
             TrapIf(n->line, "array capacity exceeded");
         }
-        address(len); Get(view); code.Op(0xa7); Get(count); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Copy();
+        if (physical) Get(*cursor); else address(len);
+        Get(view); code.Op(0xa7); Get(count); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Copy();
+        if (physical) PublishCursor(base, *top);
         Get(len); Get(count); code.Op(0x6a); auto next = Save(I32); write_length(next); return;
     }
     To(args[1], c.ast.inttypes[IS_U64]); auto count = Save(I64);
@@ -190,21 +218,40 @@ inline void Function::ArrayBuiltin(Call *n) {
     if (kind == B_POP_N) {
         Get(count); Get(old); code.Op(0xad); code.Op(0x56);
         TrapIf(n->line, "pop count out of bounds");
+        if (physical) {
+            auto current = RegionCursor(base);
+            Get(count); code.I64Const(stride); code.Op(0x7e); auto bytes = Save(I64);
+            Get(current); code.Op(0xad); Get(base); code.Mem(0x28, 2); code.Op(0xad); Get(bytes); code.Op(0x7c); code.Op(0x54);
+            TrapIf(n->line, "data region exhausted");
+            Get(current); Get(bytes); code.Op(0xa7); code.Op(0x6b); PublishCursor(base, Save(I32));
+        }
         Get(old); Get(count); code.Op(0xa7); code.Op(0x6b); auto next = Save(I32); write_length(next); return;
     }
     Get(count); code.I64Const(0); code.Op(0x53); TrapIf(n->line, "negative array resize");
     Get(count); Get(old); code.Op(0xad); code.Op(0x56); Begin(0x04);
     if (!fill) Abort(n->line, "array resize growth requires a fill value");
     else {
-        if (region) ReserveArray(base, count, t, n->line);
+        optional<uint32_t> cursor, top;
+        if (physical) {
+            logical_limit(count); cursor = RegionCursor(base);
+            Get(count); Get(old); code.Op(0xad); code.Op(0x7d); top = ReserveCursor(base, Save(I64), elem, n->line);
+        } else if (region) ReserveArray(base, count, t, n->line);
         else { Get(count); code.I64Const(t->arr->size); code.Op(0x56); TrapIf(n->line, "array capacity exceeded"); }
         auto i = Local(I32); Get(old); Set(i);
         auto done = Begin(), loop = Begin(0x03);
         Get(i); Get(count); code.Op(0xa7); code.Op(0x4f); Br(done, true);
-        address(i); Get(*fill); Store(elem);
+        if (physical) {
+            Get(*cursor); Get(i); Get(old); code.Op(0x6b); code.I32Const(int32_t(stride)); code.Op(0x6c); code.Op(0x6a);
+        } else address(i);
+        Get(*fill); Store(elem);
         Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
+        if (physical) PublishCursor(base, *top);
     }
     End();
+    if (physical) {
+        Get(count); Get(old); code.Op(0xad); code.Op(0x54); Begin(0x04);
+        PublishArrayCursor(base, t, count); End();
+    }
     Get(count); code.Op(0xa7); auto next = Save(I32); write_length(next);
 }
 

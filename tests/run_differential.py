@@ -10,7 +10,7 @@ hand-derived answers; floating output is compared byte-for-byte with Goose.
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import hashlib
 import json
 import math
@@ -64,6 +64,46 @@ def cases():
         for n in (0, 3):
             answer = "".join(f"{i + 10}\n" for i in range(n + 1)) + f"[{n}, {n + 1}] 9\n{40 if n == 0 else -1}\n{n + 60}\n{n + 70}\n"
             result.append(Case(f"nonlocal/paths/{n}{suffix}", "nonlocal_fixed_paths", f"{n}\n", answer, debug=debug, group="control"))
+    owned_nonlocal = {
+        "frame_array_channel": "9\n7 7 16 11\n",
+        "nested_break": "[99]\n7\n1\n",
+        "inline_outer": "[99]\n7\n",
+        "publish_nested": "[99]\n7 2 1 16 7\n",
+        "canceled_copy": "9\n[11]\n[11, 7]\n",
+        "canceled_forward": "9\n[11]\n[11, 7]\n",
+        "canceled_named": "9\n[1, 2]\n[1, 2, 11] 7\n",
+        "canceled_normal": "9\n[11]\n[11, 7]\n" * 3,
+        "publish_grow": "[99]\n7 16 9\n",
+        "publish_er": "[99]\n7 16 9\n",
+        "publish_er_u8": "[99]\n7 16 9\n",
+        "publish_prefix": "[99]\n7 1 8 6 1 7\n",
+        "publish_frame_tail": "[99]\n7 1 2 16 7\n",
+        "publish_frame_base": "[99]\n7 1 2 16 9\n",
+        "frame_forward": "[99]\n45\n",
+        "var_record_forward": "[99]\n44\n",
+        "ordinary": "[9]\n[7]\n[7, 8]\n",
+        "inline": "[9]\n7\n",
+        "enum": "[9]\n[4, 5]\n",
+    }
+    for debug in (False, True):
+        suffix = "-debug" if debug else ""
+        for fixture, answer in owned_nonlocal.items():
+            result.append(Case(f"owned-nonlocal/{fixture}{suffix}", "nonlocal_owned_" + fixture,
+                               stdout=answer, debug=debug, group="control"))
+        for level, first, second in ((0, 3, 7), (2, 7, 8)):
+            result.append(Case(f"owned-nonlocal/forward-order/O{level}{suffix}", "nonlocal_owned_forward_order",
+                               stdout=f"[{first}]\n[{first}, {second}] 8\n",
+                               debug=debug, group="control", levels=(level,)))
+        for mode, answer in ((0, "7 7 16\n9\n"), (1, "7 7 0\n1 10\n")):
+            result.append(Case(f"owned-nonlocal/frame-tail-call/{mode}{suffix}", "nonlocal_owned_frame_tail_initialization",
+                               f"{mode}\n", answer, debug=debug, group="control"))
+        for mode in (0, 1):
+            result.append(Case(f"owned-nonlocal/early-block/{mode}{suffix}", "nonlocal_owned_early_block", f"{mode}\n",
+                               "9\n[11]\n[11, 7]\n", debug=debug, group="control"))
+        for n in (0, 3):
+            answer = f"[{n}, {n + 1}]\n[{n}, {n + 1}, {n + 2}] {n + 2}\n[{n + 10}, {n + 11}]\n"
+            result.append(Case(f"owned-nonlocal/recursive/{n}{suffix}", "nonlocal_owned_paths", f"{n}\n",
+                               answer, debug=debug, group="control"))
     dispatch_upstream = {
         "dispatch_evaluation_order": "first\nchoice\nlast\n3 A 7\nfirst\nchoice\nlast\n3 B 7\n1 A 9\n3 A 4\n3 A 4\n1\n2\ncopied\n",
         "dispatch_copied_reference": "copied A\n0\n7\n7\nvalue arm\n",
@@ -443,6 +483,10 @@ def cases():
             pairs.extend([(math.nextafter(2 * value, 0.0), value), (math.nextafter(2 * value, float("inf")), value)])
     data = str(len(pairs)) + "\n" + "".join(f"{a!r} {b!r}\n" for a, b in pairs)
     result.append(Case("float/remainder-corpus", "float_remainder", data))
+    for original in list(result):
+        if original.fixture in ("frame_structs", "nested_owned_structs", "variable_enum_tails"):
+            result.append(replace(original, name="owned-nonlocal/coexist/" + original.name,
+                                  fixture="nonlocal_owned_coexist_" + original.fixture))
     return result
 
 
