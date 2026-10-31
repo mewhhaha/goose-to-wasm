@@ -96,6 +96,32 @@ def cases():
                            "second\nlater\n" + (f"42 {n}\n" if success else ""),
                            exit_code=0 if success else 1, diagnostic="" if success else "storage range", group="aggregate"))
     for n in (0, 3):
+        selected = 30 if n > 0 else 40
+        answer = (f"0 0 0\n{n} [{n + 1}, {n + 2}] {n + 100} [{n + 201}, {n + 2}]\n"
+                  f"{n + 10} [{n + 21}, {n + 2}] {n + 10} {n + 10} [{n + 21}, {n + 2}]\n"
+                  f"{selected} [{selected + 1}, {selected + 2}] 50 [51, 52]\n8\n")
+        result.append(Case(f"owned-struct/variable-tail/{n}", "variable_structs", f"{n}\n", answer, group="aggregate"))
+    for n in (0, 3):
+        chosen = 6 if n > 0 else 5
+        ending = "99 [100, 101] 88 [89, 90]" if n > 0 else "2 [3, 4] 2 [3, 4]"
+        answer = (f"7 9 0\n{n} {n + 1} {n + 11} {n + 2}\n{n} {2 * n + 32} {n + 21}\n"
+                  f"{2 * n + 3}\n{4 * n + 66} {n}\n1\n2\n3\n1 2 3\n{ending}\n"
+                  f"{chosen} [{chosen + 1}, {chosen + 2}]\n{n + 1000}\n")
+        result.append(Case(f"owned-struct/paths/{n}", "variable_struct_paths", f"{n}\n", answer, group="aggregate"))
+    for n in (255, 256):
+        result.append(Case(f"owned-struct/narrow-tail/{n}", "variable_struct_narrow", f"{n}\n",
+                           "prefix\ntail\n" + ("42 255 7\n" if n == 255 else ""),
+                           exit_code=0 if n == 255 else 1, diagnostic="" if n == 255 else "storage range", group="aggregate"))
+    for n in (0, 3):
+        answer = (f"{n} [{n}] {n + 4} [{n}, 7] {n + 4}\n"
+                  f"[{n}, 8, 8] {n + 4}\n[{n}, 8, 8] {n + 4}\n"
+                  f"{n + 10} [{n}, 99] {n + 4} 2 {n + 10} 0 {n + 4}\n"
+                  f"{n} 3 {n + 100} [{n}, 8, 8, 88] {n + 4}\n")
+        result.append(Case(f"owned-struct/limited-tail/{n}", "limited_structs", f"{n}\n", answer, group="aggregate"))
+    for n in (-1, 4294967296):
+        result.append(Case(f"owned-struct/capacity-error/{n}", "limited_struct_errors", f"{n}\n", "prefix\n",
+                           exit_code=1, diagnostic="capacity", group="aggregate"))
+    for n in (0, 3):
         answer = (f"[{n}, {n + 1}] 2 {n + 5} {n + 5} 2\n"
                   f"[{n}, {n + 1}, 7] [{n}, {n + 1}] [{n}, {n + 1}, 77]\n"
                   f"[{n + 1}] {n + 5}\n[{n + 1}, 8]\n77 [{n + 1}, 8] [{n + 1}, 8]\n"

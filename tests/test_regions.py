@@ -702,6 +702,84 @@ fn main() {}'''
                 with self.subTest(level=level, engine=engine):
                     self.assertEqual(observed["error"], "")
 
+    def test_variable_struct_copies_parameters_and_prefix_references(self):
+        source = '''struct Packet { tag: u8, id: i64, values: i64[] }
+recursive fn make(n: i64) -> Packet { var packet = Packet { 1, n, [n, n + 1] }; return packet; }
+recursive fn changed(packet: Packet) -> Packet { packet.id += 10; packet.values[0] += 20; return packet; }
+export fn tick(n: i64) -> i64 {
+    let a = make(n); let b = copy(a); let c = changed(copy(a));
+    let kept: const i64& = a.id; b.values[0] += 100;
+    if kept != n || a.values[0] != n || b.values[0] != n + 100 || c.id != n + 10 || c.values[0] != n + 20 { abort("bad struct copy"); }
+    for i in 100 { if make(i).id != i { abort("bad struct temporary"); } }
+    if kept != n || a.values[0] != n { abort("overwritten struct"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 4)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_struct_interrupted_prefix_and_tail_release_regions(self):
+        source = '''struct Packet { tag: u8, id: i64, values: i64[] }
+recursive fn prefix(n: i64) -> Packet {
+    return Packet { 1, if n > 0 { return Packet { 1, 7, [8, 9] }; } else { 2 }, [3, 4] };
+}
+recursive fn tail(n: i64) -> Packet {
+    return Packet { 1, 2, [3, if n > 0 { return Packet { 1, 7, [8, 9] }; } else { 4 }] };
+}
+export fn tick(n: i64) -> i64 {
+    let a = prefix(n % 2); let b = tail(n % 2);
+    let expected = if n % 2 > 0 { 7 } else { 2 };
+    if a.id != expected || b.id != expected || a.values[0] != expected + 1 || b.values[1] != expected + 2 { abort("bad interrupted struct"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
+    def test_variable_struct_tail_exhaustion_preserves_neighbor_and_field_effects(self):
+        source = f'''struct Packet {{ id: i64, values: i64[] }}
+var neighbor: i64[>..] = [{CANARY}];
+fn value() -> i64 {{ print(123); return 1; }}
+var packet = Packet {{ 2, [value(); 1000000] }};
+fn main() {{}}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 2)
+            for engine, observed in self.engines(path, runtime, canary_index=0):
+                with self.subTest(level=level, engine=engine):
+                    self.assertIn("data region exhausted", observed["error"])
+                    self.assertEqual(observed["numbers"], ["123"])
+                    self.assertEqual(observed["canary"], str(CANARY))
+
+    def test_limited_struct_field_assignment_pins_parent_and_preserves_capacity(self):
+        source = '''struct Packet { id: i64, values: i64[..] }
+recursive fn make(n: i64) -> Packet { return Packet { n, [n] }; }
+fn replace(var route: Packet&, other: Packet&) {
+    route.values = [if route.id >= 0 { route .= other; 42 } else { 43 }, 44];
+}
+export fn tick(n: i64) -> i64 {
+    let a = Packet { n, [..4] }; a.values.push(1);
+    let b = Packet { n + 10, [..5] }; b.values.push(9);
+    replace(a, b); a.values = a.values[1..]; a.values.append([7, 8, 9]);
+    if a.id != n || a.values.cap != 4 || a.values.len != 4 || a.values[0] != 44 || a.values[3] != 9 || b.values[0] != 9 { abort("bad limited field"); }
+    return n + 1;
+}
+fn main() {}'''
+        for level in (0, 2):
+            path, runtime = self.compile(source, level)
+            self.assertEqual(runtime["region_count"], 3)
+            for engine, observed in self.engines(path, runtime, repeats=10000):
+                with self.subTest(level=level, engine=engine):
+                    self.assertEqual(observed["error"], "")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

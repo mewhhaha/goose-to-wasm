@@ -25,7 +25,7 @@ inline string Function::Finish() {
     auto line = spec ? spec->sf->line : Line{};
     auto done = Begin();
     ResultDestinations destinations(results.size());
-    for (size_t i = 0; i < results.size(); i++) if (Compiler::RegionArray(results[i]))
+    for (size_t i = 0; i < results.size(); i++) if (Compiler::RegionOwner(results[i]))
         destinations[i] = ConstructionDestination { { results[i], AddressLocal { *resultdestinations[i] } }, ConstructionDestination::Caller, element_run };
     if (spec) {
         if (!element_run) BindNamedResults(spec->body, spec->sf, results, destinations);
@@ -34,8 +34,8 @@ inline string Function::Finish() {
         // parameters are spilled once so reads and references share storage.
         for (auto p : spec->params) {
             if (p->type->kind == TY_FN) continue;
-            if (Compiler::RegionArray(p->type)) {
-                private_headers.push_back({ { p->type, vars.at(p) }, cleanups.size() + 1 }); continue;
+            if (Compiler::RegionOwner(p->type)) {
+                private_headers.push_back({ TailHeaderLocation({ p->type, vars.at(p) }), cleanups.size() + 1 }); continue;
             }
             auto old = vars.at(p);
             if (c.Aggregate(p->type) || addressed.count(p)) {
@@ -60,7 +60,7 @@ inline string Function::Finish() {
     // activation. Returning a pointer into the released callee frame would
     // let the next sibling or recursive call overwrite the earlier value.
     for (size_t i = 0; i < resultdestinations.size(); i++) if (resultdestinations[i]) {
-        if (Compiler::RegionArray(results[i])) continue;
+        if (Compiler::RegionOwner(results[i])) continue;
         StoreCopy({ results[i], AddressLocal { *resultdestinations[i] } },
                   { results[i], resultlocals[i], CapturedValue::BorrowedFixed });
         Get(*resultdestinations[i]); Set(resultlocals[i]);
@@ -103,8 +103,8 @@ inline DirectWasmResult Compiler::Compile() {
     AddImport("goose", "exit", {{ I32 }, {}});
     for (auto g : ast.globals) {
         for (auto v : g->defs) {
-            W(v->type); auto layout = RegionArray(v->type) ? HeaderLayout(v->type) : Size(v->type);
-            if (RegionArray(v->type)) {
+            W(v->type); auto layout = RegionOwner(v->type) ? ControlLayout(v->type) : Size(v->type);
+            if (RegionOwner(v->type)) {
                 needs_regions = true;
                 global_regions[v] = uint32_t(global_regions.size());
             }

@@ -20,6 +20,13 @@ inline void Function::Convert(TypeExpr *from, TypeExpr *to, Line l) {
     if (from->kind == TY_ARRAY && to->kind == TY_SLICE) {
         PackArrayView(from); return;
     }
+    if (Compiler::RegionStruct(from) || Compiler::RegionStruct(to)) {
+        if (Compiler::RegionStruct(from) && Compiler::RegionStruct(to) && from->struc->inst == to->struc->inst) {
+            W(from); W(to); return; // borrowed object address; fixed-copy gates still reject it
+        }
+        if (c.Aggregate(from) && to->kind == TY_REF) { W(to); return; }
+        Fail(l, "owned variable-struct adaptation is not supported outside construction");
+    }
     if (Compiler::RegionArray(from) && Compiler::RegionArray(to)) {
         if (from->arr->akind != to->arr->akind)
             Fail(l, "dynamic owner type adaptation is not supported outside construction");

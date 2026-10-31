@@ -4,6 +4,18 @@ The ordered [completion plan](IMPLEMENTATION_PLAN.md) covers the remaining
 runtime, language, incremental-compilation and qualification work, including
 ownership contracts and acceptance gates. Completed slices are recorded below.
 
+## Implemented: fixed-prefix structs with one variable/capacity-limited tail
+
+Standalone variable structs use a fixed control layout with one embedded array
+header and a separately owned tail region. Constructors walk checked fields in
+declaration order; copies preserve fixed prefix values and independently construct
+tail data. Named results alias the whole receiving object, including prefix and
+tail-header mutations by later result expressions. Generic types, checked global
+defaults, borrowed prefix/element references, by-value calls, control results,
+interrupted construction and limited field assignment share this path.
+Nested owners, multiple variable fields and growable-tail frame objects remain
+pending. The reviewed [struct design](VARIABLE_STRUCTS.md) records the boundary.
+
 ## Implemented: unsigned variable-array lengths and element-run calls
 
 `T[u8]`, `T[u16]` and `T[u64]` join default/u32 variable arrays. Natural value

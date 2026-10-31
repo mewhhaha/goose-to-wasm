@@ -104,6 +104,11 @@ inline void Function::ConstructionView(Node *node, bool elements) {
 
 inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionDestination &destination, Line line) {
     auto target = destination.location.storage_type;
+    if (Compiler::RegionStruct(type) || Compiler::RegionStruct(target)) {
+        if (!Compiler::RegionStruct(type) || !Compiler::RegionStruct(target) || type->struc->inst != target->struc->inst)
+            Fail(line, "owned struct construction requires the same struct instantiation");
+        c.ControlLayout(type); c.ControlLayout(target); return;
+    }
     if (!Compiler::RegionArray(target) ||
         c.FixedLayout(type->arr->sub).size != c.FixedLayout(target->arr->sub).size)
         Fail(line, "owned dynamic element adaptation is not supported at this destination");
@@ -112,7 +117,7 @@ inline void Function::CheckRegionDestination(TypeExpr *type, const ConstructionD
 inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeExpr *> &types,
         const ResultDestinations &receivers, Line line, bool run, bool inlined) {
     RegionResultPlan plan { ResultDestinations(types.size()), ResultDestinations(types.size()), ResultDestinations(types.size()) };
-    for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionArray(types[i])) {
+    for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionOwner(types[i])) {
         if (!receivers.empty() && receivers.size() != types.size()) Fail(line, "owned result channel arity mismatch");
         // An empty ordinal can receive a fixed value after normal conversion.
         if (receivers.empty() || !receivers[i]) {
@@ -120,6 +125,7 @@ inline Function::RegionResultPlan Function::PlanRegionResults(const vector<TypeE
         }
         plan.values[i] = receivers[i];
         CheckRegionDestination(types[i], *receivers[i], line);
+        if (Compiler::RegionStruct(types[i])) { plan.producers[i] = receivers[i]; continue; }
         auto receiving = receivers[i]->location.storage_type;
         auto reprefix = types[i]->arr->akind == A_VAR && receiving->arr->akind == A_VAR &&
                         Compiler::LengthStorage(types[i]) != Compiler::LengthStorage(receiving);
@@ -136,7 +142,7 @@ inline void Function::PublishRegionResults(const vector<TypeExpr *> &types, cons
     auto check = [&](size_t i) {
         if (!plan.values[i] || plan.values[i]->elements) return;
         auto &destination = *plan.values[i]; auto type = destination.location.storage_type;
-        if (type->arr->akind != A_VAR) return;
+        if (type->kind != TY_ARRAY || type->arr->akind != A_VAR) return;
         LocationAddress(destination.location); code.Mem(0x28, 2, 4); code.Op(0xad);
         CheckArrayLength(type, Save(I64), line);
     };
@@ -160,9 +166,15 @@ inline vector<const VarDef *> Function::BindNamedResults(Block *body, SFunction 
         const vector<TypeExpr *> &types, const ResultDestinations &destinations, bool inlined) {
     vector<const VarDef *> added;
     for (size_t i = 0; i < types.size(); i++) {
-        if (!Compiler::RegionArray(types[i]) || destinations.size() != types.size() || !destinations[i]) continue;
+        if (!Compiler::RegionOwner(types[i]) || destinations.size() != types.size() || !destinations[i]) continue;
         auto candidate = goose::NamedResultOf(body, target, types.size(), i);
-        if (!candidate || named_regions.count(candidate) || !Compiler::RegionArray(candidate->type)) continue;
+        if (!candidate || named_regions.count(candidate) || !Compiler::RegionOwner(candidate->type)) continue;
+        if (Compiler::RegionStruct(types[i]) || Compiler::RegionStruct(candidate->type)) {
+            if (!Compiler::RegionStruct(types[i]) || !Compiler::RegionStruct(candidate->type) ||
+                candidate->type->struc->inst != types[i]->struc->inst || destinations[i]->elements) continue;
+            CheckRegionDestination(candidate->type, *destinations[i], candidate->line);
+            named_regions.emplace(candidate, *destinations[i]); added.push_back(candidate); continue;
+        }
         // The frontend requires identical array element types for this
         // construction. DetectNrvo also binds a growable local's elements
         // directly to a variable-array result; later results observe aliases.
@@ -200,6 +212,9 @@ inline void Function::ShareRegion(const Location &place, const ConstructionDesti
 
 inline void Function::ConstructRegionFromCaptured(TypeExpr *source_type, uint32_t source,
         const ConstructionDestination &destination, Line line) {
+    if (Compiler::RegionStruct(destination.location.storage_type)) {
+        ConstructStructFromCaptured(source_type, source, destination, line); return;
+    }
     Get(source);
     if (source_type->kind == TY_REF) { source_type = source_type->ref->sub; Load(source_type); }
     TypeExpr *element;
@@ -246,8 +261,8 @@ inline void Function::ConstructRegion(Node *node, const Location &place, optiona
 }
 
 inline void Function::AcquireRegion(const Location &place, Line line, optional<uint32_t> global_region) {
-    c.HeaderLayout(place.storage_type);
-    LocationAddress(place); auto header = Save(I32);
+    c.ControlLayout(place.storage_type);
+    LocationAddress(TailHeaderLocation(place)); auto header = Save(I32);
     if (global_region) code.I32Const(int32_t(*global_region));
     else code.OpU(0x23, G_REGION_NEXT);
     auto region = Save(I32);
@@ -267,6 +282,7 @@ inline void Function::AcquireRegion(const Location &place, Line line, optional<u
 }
 
 inline void Function::ConstructRegionInto(Node *node, const ConstructionDestination &destination) {
+    if (Compiler::RegionStruct(destination.location.storage_type)) { ConstructStructInto(node, destination); return; }
     auto place = destination.location;
     auto type = place.storage_type;
     c.HeaderLayout(type);

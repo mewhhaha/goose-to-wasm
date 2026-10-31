@@ -248,6 +248,9 @@ struct Function {
     void ShareRegion(const Location &, const ConstructionDestination &);
     void ConstructRegionInto(Node *, const ConstructionDestination &);
     void ConstructRegionFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
+    Location TailHeaderLocation(const Location &);
+    void ConstructStructInto(Node *, const ConstructionDestination &);
+    void ConstructStructFromCaptured(TypeExpr *, uint32_t, const ConstructionDestination &, Line);
     void ConstructRegionView(uint32_t, const ConstructionDestination &, Line, optional<uint32_t> capacity = {});
     void CheckRegionDestination(TypeExpr *, const ConstructionDestination &, Line);
     void ConstructionView(Node *, bool elements = false);
@@ -288,6 +291,7 @@ struct Compiler {
     unordered_map<FnSpec *, uint8_t> intrinsic_opcode;
     unordered_map<VarDef *, Slot> globals;
     unordered_map<TypeExpr *, Layout> layouts;
+    unordered_map<TypeExpr *, Layout> control_layouts;
     bool needs_regions = false;
     unordered_map<VarDef *, uint32_t> global_regions;
     struct RegionCall { FnSpec *callee; uint32_t live; Line line; };
@@ -350,13 +354,14 @@ struct Compiler {
             case TY_REF:
                 if (t->ref->lenstorage >= 0 || t->ref->pool)
                     Fail(t->line, "relative and pool references are not supported");
-                if (RegionArray(t->ref->sub)) HeaderLayout(t->ref->sub); else Size(t->ref->sub);
+                if (RegionOwner(t->ref->sub)) ControlLayout(t->ref->sub); else Size(t->ref->sub);
                 return I32;
             case TY_SLICE: Size(t->sub); return I64; // packed pointer + length
             case TY_ARRAY:
                 if (RegionArray(t)) HeaderLayout(t); else Size(t);
                 return I32;
-            case TY_STRUCT: case TY_ENUM: case TY_VARIANT: Size(t); return I32;
+            case TY_STRUCT: if (RegionStruct(t)) ControlLayout(t); else Size(t); return I32;
+            case TY_ENUM: case TY_VARIANT: Size(t); return I32;
             default: {
                 string s; t->Dump(s);
                 Fail(t->line, "unsupported runtime type " + s);
@@ -373,6 +378,11 @@ struct Compiler {
     static bool RegionArray(TypeExpr *t) {
         return GrowableArray(t) || RuntimeLimited(t) || (t && t->kind == TY_ARRAY && t->arr->akind == A_VAR);
     }
+    static bool RegionStruct(TypeExpr *t) {
+        return t && t->kind == TY_STRUCT && t->struc->inst && t->struc->inst->sclass == SC_VARIABLE;
+    }
+    static bool RegionOwner(TypeExpr *t) { return RegionArray(t) || RegionStruct(t); }
+    static bool WholeHeaderOwner(TypeExpr *t) { return RuntimeLimited(t) || RegionStruct(t); }
     static IntStorage LengthStorage(TypeExpr *t) {
         return t->arr->lenstorage < 0 ? IS_U32 : IntStorage(t->arr->lenstorage);
     }
@@ -382,6 +392,34 @@ struct Compiler {
             Fail(t->line, "varint variable-array length storage is not supported");
         FixedLayout(t->arr->sub);
         Layout header; header.size = 16; header.align = 4; return header;
+    }
+    const Layout &ControlLayout(TypeExpr *t) {
+        if (auto found = control_layouts.find(t); found != control_layouts.end()) return found->second;
+        Layout layout;
+        if (RegionArray(t)) layout = HeaderLayout(t);
+        else if (RegionStruct(t)) {
+            auto inst = t->struc->inst;
+            auto tail = inst->ftypes.empty() ? nullptr : inst->ftypes.back();
+            if (!tail || tail->kind != TY_ARRAY || (tail->arr->akind != A_VAR && !RuntimeLimited(tail)))
+                Fail(t->line, "owned structs require one final variable-array field or runtime-limited array field");
+            for (size_t i = 0; i < inst->ftypes.size(); i++) {
+                if (inst->st->fields[i].ispad) Fail(t->line, "explicit struct padding is not supported");
+                auto field = i + 1 == inst->ftypes.size() ? HeaderLayout(inst->ftypes[i]) : FixedLayout(inst->ftypes[i]);
+                layout.align = max(layout.align, field.align);
+                layout.size = Align(layout.size, field.align); layout.fields.push_back(layout.size);
+                if (uint64_t(layout.size) + field.size > uint64_t(opts.maximum_pages) * 65536)
+                    Fail(t->line, "owned struct control storage exceeds linear memory");
+                layout.size += field.size;
+            }
+            layout.payload = layout.fields.back(); layout.size = Align(layout.size, layout.align);
+        } else return FixedLayout(t);
+        return control_layouts.emplace(t, std::move(layout)).first->second;
+    }
+    TypeExpr *TailType(TypeExpr *t) {
+        ControlLayout(t); return RegionStruct(t) ? t->struc->inst->ftypes.back() : t;
+    }
+    uint32_t FieldOffset(TypeExpr *t, size_t field) {
+        return (RegionStruct(t) ? ControlLayout(t) : Size(t)).fields.at(field);
     }
     // The checker's physical size class is independent of a future runtime
     // descriptor's byte size. Only SC_FIXED values may use ordinary copies.
@@ -518,11 +556,11 @@ struct Compiler {
         Signature s;
         for (auto p : sp->params) {
             if (p->type->kind == TY_FN) continue;
-            if (RegionArray(p->type)) needs_regions = true;
+            if (RegionOwner(p->type)) needs_regions = true;
             s.args.push_back(W(p->type));
         }
         for (auto t : sp->rets) {
-            if (RegionArray(t)) {
+            if (RegionOwner(t)) {
                 needs_regions = true;
             }
             if (Aggregate(t) && !sp->sf->isextern) s.args.push_back(I32);
@@ -587,11 +625,11 @@ struct Compiler {
         if (!n) return;
         if (auto literal = Is<ArrayLit>(n); literal && literal->capexpr) needs_regions = true;
         auto type = n->exprtype;
-        if (RegionArray(type) || (type && type->kind == TY_REF && RegionArray(type->ref->sub))) needs_regions = true;
+        if (RegionOwner(type) || (type && type->kind == TY_REF && RegionOwner(type->ref->sub))) needs_regions = true;
         if (auto inlined = Is<InlineBlock>(n); inlined && inlined->spec)
-            for (auto result : inlined->spec->rets) if (RegionArray(result)) needs_regions = true;
+            for (auto result : inlined->spec->rets) if (RegionOwner(result)) needs_regions = true;
         if (auto declaration = Is<VarDecl>(n))
-            for (auto variable : declaration->defs) if (RegionArray(variable->type)) needs_regions = true;
+            for (auto variable : declaration->defs) if (RegionOwner(variable->type)) needs_regions = true;
         if (Is<FnDecl>(n) || Is<StructDecl>(n) || Is<EnumDecl>(n) || Is<AliasDecl>(n) || Is<FunVal>(n)) return;
         if (auto call = Is<Call>(n)) {
             if (!call->dispatch.empty()) Fail(call->line, "runtime overload dispatch is not supported");
@@ -614,7 +652,7 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
             if (p->type->kind == TY_FN) continue;
             // An owned dynamic argument has a private caller-constructed
             // header, rather than a descriptor copied into this frame.
-            vars[p] = { Compiler::RegionArray(p->type) ? Slot::ADDRESS : Slot::LOCAL,
+            vars[p] = { Compiler::RegionOwner(p->type) ? Slot::ADDRESS : Slot::LOCAL,
                         uint32_t(params.size()), p->type };
             params.push_back(W(p->type));
         }
@@ -654,7 +692,7 @@ inline Slot Function::Bind(VarDef *v) {
     if (v->reusable) Fail(v->line, "reusable storage is not supported");
     Slot s;
     s.type = v->type;
-    if (Compiler::RegionArray(v->type)) { s.kind = Slot::FRAME; s.index = FrameBytes(c.HeaderLayout(v->type).size, 4); }
+    if (Compiler::RegionOwner(v->type)) { auto layout = c.ControlLayout(v->type); s.kind = Slot::FRAME; s.index = FrameBytes(layout.size, layout.align); }
     else if (c.Aggregate(v->type) || addressed.count(v)) { s.kind = Slot::FRAME; s.index = Frame(v->type); }
     else { s.kind = Slot::LOCAL; s.index = Local(v->type); }
     return vars.emplace(v, s).first->second;
@@ -721,6 +759,7 @@ inline void Function::ScanAddresses(Node *n) {
 
 #include "direct_wasm_numeric.h"
 #include "direct_wasm_storage.h"
+#include "direct_wasm_owned.h"
 #include "direct_wasm_regions.h"
 #include "direct_wasm_temps.h"
 #include "direct_wasm_arrays.h"

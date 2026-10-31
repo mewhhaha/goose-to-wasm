@@ -18,6 +18,8 @@ Variable arrays with default/u8/u16/u32/u64 length storage use these regions for
 construction, calls and returns, while keeping their length frozen.
 Runtime-capacity arrays preserve logical capacity through copies and assignment,
 with checked mutation and conversions between supported array kinds.
+Standalone structs with fixed fields and one variable/runtime-capacity array tail
+support owned construction, independent copies, calls and named-result aliasing.
 Growable owners use stable checked data regions, borrowed calls, independent
 by-value parameters, mixed/multiple owned results and named-result construction.
 Owned results also construct through conditional, block, loop and match expressions.

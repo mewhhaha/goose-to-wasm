@@ -157,6 +157,17 @@ simultaneously live transient owners. Scoped cleanup restores transient region
 watermarks on normal exit, return, break and continue. Borrowed calls grow the
 caller's region; growth does not relocate existing elements or slices.
 
+Supported standalone variable structs have fixed-layout prefix fields and one
+final fixed-element variable or runtime-capacity array. Their control layout
+contains naturally aligned fixed fields and an embedded 16-byte tail header.
+Each owner acquires one data region; cleanup tracks its embedded header.
+Construction visits checked fields in declaration order. Copies transfer fixed
+prefix values and independently construct tail contents, preserving runtime
+capacity. Whole-object named-result aliasing makes prefix, length and element
+mutations by later result expressions visible in an earlier result. Ordinary
+and inline calls, by-value parameters and control results use owned destinations.
+These objects retain `SC_VARIABLE` and never enter the fixed-copy path.
+
 Regions partition the memory budget remaining after final static allocation.
 For maximum bytes `M`, aligned static end `S` and region count `R > 0`, each data
 region receives `B = align_down((M-S)/(R+1), 8)` bytes. Activation frames and
@@ -273,7 +284,8 @@ The executable differential suite is the authority for qualified behavior.
 ## Explicit refusals and remaining work
 
 The current backend refuses owned dynamic function-value parameters/results,
-dynamic containing structs, variable-element
+unsupported containing shapes (nested owners, multiple variable fields and
+growable-tail frame objects), variable-element
 growables, varint variable-array lengths; variable-mode enums;
 enum rendering and comparison;
 relative and pool references;

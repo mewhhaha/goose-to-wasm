@@ -13,17 +13,17 @@ inline bool Function::MayMaterialize(Node *node) {
         if (Compiler::RuntimeLimited(target)) return true;
     }
     auto type = node->exprtype;
-    auto owned = Compiler::RegionArray(type) ||
-        (type && type->kind == TY_REF && Compiler::RegionArray(type->ref->sub));
+    auto owned = Compiler::RegionOwner(type) ||
+        (type && type->kind == TY_REF && Compiler::RegionOwner(type->ref->sub));
     if (auto call = Is<Call>(node)) {
-        for (auto result : NaturalResults(node)) if (Compiler::RegionArray(result)) return true;
+        for (auto result : NaturalResults(node)) if (Compiler::RegionOwner(result)) return true;
         if (owned) return true;
         for (auto arg : call->ValueArgNodes()) if (MayMaterialize(arg)) return true;
         return MayMaterialize(call->defaultinit) || MayMaterialize(call->fvbody);
     }
     if (auto inlined = Is<InlineBlock>(node); inlined && inlined->spec)
-        for (auto result : inlined->spec->rets) if (Compiler::RegionArray(result)) return true;
-    if (owned && (Is<ArrayLit>(node) || Is<StrLit>(node) || Is<Block>(node) ||
+        for (auto result : inlined->spec->rets) if (Compiler::RegionOwner(result)) return true;
+    if (owned && (Is<ArrayLit>(node) || Is<StrLit>(node) || Is<StructLit>(node) || Is<Block>(node) ||
         Is<IfExpr>(node) || Is<MatchExpr>(node) || Is<EarlyBlock>(node) || Is<LoopExpr>(node))) return true;
     bool found = false;
     node->Children([&](Node *child) { if (!found) found = MayMaterialize(child); });
@@ -74,11 +74,11 @@ inline void Function::EndArgumentGroup(const ArgumentGroup &group, bool retain) 
 }
 
 inline ConstructionDestination Function::TemporaryDestination(TypeExpr *type, Line line) {
-    if (!Compiler::RegionArray(type) || temp_scopes.empty() || !temp_scopes.back().restores_regions)
+    if (!Compiler::RegionOwner(type) || temp_scopes.empty() || !temp_scopes.back().restores_regions)
         Fail(line, "anonymous owned construction requires a supported temporary scope");
-    Location place { type, Slot { Slot::FRAME, FrameBytes(c.HeaderLayout(type).size, 4), type } };
+    Location place { type, Slot { Slot::FRAME, FrameBytes(c.ControlLayout(type).size, c.ControlLayout(type).align), type } };
     AcquireRegion(place, line);
-    private_headers.push_back({ place, temp_scopes.back().cleanup_depth + 1, true });
+    private_headers.push_back({ TailHeaderLocation(place), temp_scopes.back().cleanup_depth + 1, true });
     if (anonymous_serial == UINT64_MAX) Fail(line, "too many anonymous construction sites");
     anonymous_serial++;
     return { place, ConstructionDestination::Statement };

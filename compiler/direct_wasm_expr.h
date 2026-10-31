@@ -64,12 +64,12 @@ inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
 }
 inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeExpr *> &types,
                                  const vector<uint32_t> &slots, Line l, const ResultDestinations &destinations) {
-    for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionArray(types[i]) &&
+    for (size_t i = 0; i < types.size(); i++) if (Compiler::RegionOwner(types[i]) &&
         (destinations.size() != types.size() || !destinations[i]))
         Fail(l, "owned dynamic result is not supported without a receiving destination");
     if (nodes.size() == types.size()) {
         for (size_t i = 0; i < nodes.size(); i++) {
-            if (Compiler::RegionArray(types[i])) {
+            if (Compiler::RegionOwner(types[i])) {
                 ConstructRegionInto(nodes[i], *destinations[i]);
                 LocationAddress(destinations[i]->location); Set(slots[i]);
             } else { To(nodes[i], types[i]); CaptureResult(types[i], slots[i]); }
@@ -80,8 +80,8 @@ inline void Function::SetResults(const vector<Node *> &nodes, const vector<TypeE
         vector<uint32_t> captured(types.size());
         for (size_t i = types.size(); i-- > 0;) captured[i] = Save(vt[i]);
         for (size_t i = 0; i < types.size(); i++) {
-            if (Compiler::RegionArray(types[i])) {
-                if (!Compiler::RegionArray(vt[i])) ConstructRegionFromCaptured(vt[i], captured[i], *destinations[i], l);
+            if (Compiler::RegionOwner(types[i])) {
+                if (!Compiler::RegionOwner(vt[i])) ConstructRegionFromCaptured(vt[i], captured[i], *destinations[i], l);
                 LocationAddress(destinations[i]->location); Set(slots[i]);
             } else { Get(captured[i]); Convert(vt[i], types[i], l); CaptureResult(types[i], slots[i]); }
         }
@@ -133,7 +133,7 @@ inline void Function::Address(Node *n) {
     if (auto dot = Is<Dot>(n); dot && dot->IsField()) {
         auto t = Object(dot->obj);
         c.FieldType(t, dot->fieldidx);
-        auto off = c.Size(t).fields.at(size_t(dot->fieldidx));
+        auto off = c.FieldOffset(t, size_t(dot->fieldidx));
         if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); }
         return;
     }
@@ -152,20 +152,20 @@ inline Function::PreparedDecl Function::PrepareDecl(VarDecl *n) {
         // header itself lives at the receiving destination. Later result
         // expressions can mutate that same header, as in the native target.
         auto named = named_regions.find(v);
-        if (!n->isglobal && Compiler::RuntimeLimited(v->type) && named != named_regions.end()) {
+        if (!n->isglobal && Compiler::WholeHeaderOwner(v->type) && named != named_regions.end()) {
             LocationAddress(named->second.location);
             Slot slot { Slot::ADDRESS, Save(I32), v->type };
             vars[v] = slot; slots.push_back(slot); continue;
         }
         slots.push_back(n->isglobal ? Lookup(v, n->line) : Bind(v));
-        if (!n->isglobal && Compiler::RegionArray(v->type))
-            private_headers.push_back({ { v->type, slots.back() }, cleanups.size() });
+        if (!n->isglobal && Compiler::RegionOwner(v->type))
+            private_headers.push_back({ TailHeaderLocation({ v->type, slots.back() }), cleanups.size() });
     }
     prepared.destinations.resize(slots.size());
-    for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionArray(slots[i].type)) {
+    for (size_t i = 0; i < slots.size(); i++) if (Compiler::RegionOwner(slots[i].type)) {
         Location place { slots[i].type, slots[i] };
         if (auto named = named_regions.find(n->defs[i]); named != named_regions.end()) {
-            if (Compiler::RuntimeLimited(slots[i].type)) {
+            if (Compiler::WholeHeaderOwner(slots[i].type)) {
                 prepared.destinations[i] = ConstructionDestination { place, named->second.lifetime }; continue;
             }
             ShareRegion(place, named->second);
@@ -193,8 +193,8 @@ inline void Function::InitializeDecl(VarDecl *n, const PreparedDecl &prepared) {
         vector<uint32_t> captured(types.size());
         for (size_t i = types.size(); i-- > 0;) captured[i] = Save(types[i]);
         for (size_t i = 0; i < slots.size(); i++) {
-            if (Compiler::RegionArray(slots[i].type)) {
-                if (!Compiler::RegionArray(types[i])) ConstructRegionFromCaptured(types[i], captured[i], *destinations[i], n->line);
+            if (Compiler::RegionOwner(slots[i].type)) {
+                if (!Compiler::RegionOwner(types[i])) ConstructRegionFromCaptured(types[i], captured[i], *destinations[i], n->line);
                 continue;
             }
             Get(captured[i]);
@@ -205,7 +205,7 @@ inline void Function::InitializeDecl(VarDecl *n, const PreparedDecl &prepared) {
     }
     for (size_t i = 0; i < slots.size(); i++) {
         auto init = i < n->inits.size() ? n->inits[i] : nullptr;
-        if (Compiler::RegionArray(slots[i].type)) {
+        if (Compiler::RegionOwner(slots[i].type)) {
             ConstructRegionInto(init, *destinations[i]);
             continue;
         }
@@ -218,7 +218,8 @@ inline void Function::InitializeDecl(VarDecl *n, const PreparedDecl &prepared) {
 inline void Function::AssignNode(Assign *n) {
     auto place = PinPlace(n->lval, n->pointee);
     auto t = place.storage_type;
-    if (Compiler::RegionArray(t)) {
+    if (Compiler::RegionOwner(t)) {
+        if (Compiler::RegionStruct(t)) Fail(n->line, "whole variable-struct assignment is not supported");
         if (Compiler::RuntimeLimited(t)) {
             if (n->op != T_ASSIGN) Fail(n->line, "compound runtime-limited assignment is not supported");
             auto temporary = TemporaryDestination(t, n->line);
@@ -407,7 +408,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
     auto receiving = destinations;
-    for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionArray(sp->rets[i])) {
+    for (size_t i = 0; i < sp->rets.size(); i++) if (Compiler::RegionOwner(sp->rets[i])) {
         if (!receiving.empty()) {
             if (receiving.size() != sp->rets.size()) Fail(n->line, "owned call result channel arity mismatch");
             if (receiving[i]) CheckRegionDestination(sp->rets[i], *receiving[i], n->line);
@@ -415,12 +416,12 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     vector<VarDef *> ps; for (auto p : sp->params) if (p->type->kind != TY_FN) ps.push_back(p);
     if (args.size() != ps.size()) Fail(n->line, "function-value arguments must be eliminated by the Goose optimizer");
-    auto owned_arguments = any_of(ps.begin(), ps.end(), [](VarDef *p) { return Compiler::RegionArray(p->type); });
+    auto owned_arguments = any_of(ps.begin(), ps.end(), [](VarDef *p) { return Compiler::RegionOwner(p->type); });
     auto group = BeginArgumentGroup(owned_arguments);
     for (size_t i = 0; i < args.size(); i++) {
         auto t = ps[i]->type;
-        if (Compiler::RegionArray(t)) {
-            Location place { t, Slot { Slot::FRAME, FrameBytes(c.HeaderLayout(t).size, 4), t } };
+        if (Compiler::RegionOwner(t)) {
+            Location place { t, Slot { Slot::FRAME, FrameBytes(c.ControlLayout(t).size, c.ControlLayout(t).align), t } };
             AcquireRegion(place, args[i]->line);
             ConstructRegionInto(args[i], { place, ConstructionDestination::Statement });
             LocationAddress(place); continue;
@@ -450,7 +451,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     }
     receiving = plan.producers;
     for (size_t i = 0; i < sp->rets.size(); i++) if (auto t = sp->rets[i]; c.Aggregate(t)) {
-        if (Compiler::RegionArray(t)) LocationAddress(receiving[i]->location);
+        if (Compiler::RegionOwner(t)) LocationAddress(receiving[i]->location);
         else LocationAddress(FreshDestination(t, ConstructionDestination::Activation).location);
     }
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
@@ -527,6 +528,7 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
                     Load(t->ref->sub); t = t->ref->sub;
                 }
                 auto v = Save(t);
+                if (Compiler::RegionStruct(t)) Fail(arg->line, "variable-struct rendering is not supported");
                 if (Compiler::RegionArray(t)) {
                     Get(v); PackArrayView(t); v = Save(I64);
                     t = c.ast.SliceOf(t->arr->sub, arg->line);
@@ -582,7 +584,7 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
             ArrayBuiltin(n); return;
         case B_COPY: {
             auto own = NaturalResults(n);
-            if (own.size() == 1 && Compiler::RegionArray(own[0])) {
+            if (own.size() == 1 && Compiler::RegionOwner(own[0])) {
                 Materialize(n, own[0], adapt_result); return;
             }
             if (n->exprtype->kind == TY_SLICE) Fail(n->line, "copying a slice requires owned dynamic storage");
@@ -622,10 +624,10 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
     auto types = Values(node);
     auto own = node->spec ? node->spec->rets : types;
     if (node->spec) for (auto parameter : node->spec->params)
-        if (c.Class(parameter->type) != SC_FIXED && !Compiler::RegionArray(parameter->type))
+        if (c.Class(parameter->type) != SC_FIXED && !Compiler::RegionOwner(parameter->type))
             Fail(node->line, "owned dynamic inline parameters are not supported without receiving lifetimes");
     for (size_t i = 0; i < own.size(); i++) if (c.Class(own[i]) != SC_FIXED) {
-        if (!Compiler::RegionArray(own[i]))
+        if (!Compiler::RegionOwner(own[i]))
             Fail(node->line, "owned dynamic inline results are not supported without a receiving destination");
     }
     auto requested = destinations;
@@ -653,7 +655,7 @@ inline void Function::EmitInline(InlineBlock *node, bool adapt_result, const Res
         auto declaration = Is<VarDecl>(statement);
         if (!declaration || !declaration->inline_arg) break;
         prefix++;
-        for (auto variable : declaration->defs) if (Compiler::RegionArray(variable->type)) group_needed = true;
+        for (auto variable : declaration->defs) if (Compiler::RegionOwner(variable->type)) group_needed = true;
         for (auto init : declaration->inits) if (MayMaterialize(init)) group_needed = true;
     }
     auto private_depth = private_headers.size();
@@ -746,7 +748,7 @@ inline void Function::Expr(Node *n) {
         if (!element) Fail(n->line, "capacity literal has no array element type");
         Materialize(n, c.ast.ArrayOf(element, A_LIMITED, n->line)); return;
     }
-    if (Compiler::RegionArray(n->exprtype) && (Is<ArrayLit>(n) || Is<StrLit>(n) || Is<Block>(n) ||
+    if (Compiler::RegionOwner(n->exprtype) && (Is<ArrayLit>(n) || Is<StrLit>(n) || Is<StructLit>(n) || Is<Block>(n) ||
         Is<IfExpr>(n) || Is<EarlyBlock>(n) || Is<LoopExpr>(n) || Is<MatchExpr>(n))) {
         Materialize(n, n->exprtype); return;
     }

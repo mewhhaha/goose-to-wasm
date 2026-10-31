@@ -41,7 +41,7 @@ inline function<void()> Function::SequenceValue(Node *n, bool address) {
         auto parent = SequenceValue(dot->obj);
         auto t = dot->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
         auto field = c.FieldType(t, dot->fieldidx);
-        auto off = c.Size(t).fields.at(size_t(dot->fieldidx));
+        auto off = c.FieldOffset(t, size_t(dot->fieldidx));
         return [this, n, dot, parent, field, off, address]() {
             parent();
             if (dot->obj->exprtype->kind == TY_REF) Load(dot->obj->exprtype->ref->sub);
