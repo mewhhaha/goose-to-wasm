@@ -1,6 +1,50 @@
 # Runtime performance work
 
-## Latest hill: V8 sieve tiering
+## Latest hill: CRC32 and custom hash
+
+Starting from `dda008c`, keep repeated loop kernels callable, fold short
+unsigned bit recurrences into independent XOR terms, and emit small sequence
+loops in groups with constant lane indices. These are direct-backend changes;
+benchmark sources, algorithms, inputs, warmups and engine flags stay fixed.
+Astra reviewed the implementation at xhigh effort.
+
+Five interleaved baseline/candidate pairs per engine:
+
+| Workload | V8 seconds before → after | Speedup | Wasmtime seconds before → after | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| CRC32 | 4.1732 → 0.7087 | 5.888× | 0.9726 → 0.7028 | 1.384× |
+| Custom hash | 6.2198 → 1.1535 | 5.392× | 1.5233 → 1.1157 | 1.365× |
+
+The call policy also changes both sort modules; their paired measurements are
+retained alongside the hashes. The other three modules remain byte-identical.
+CRC32 shrinks from 4,466 to 3,691 bytes. Custom hash grows from 6,313 to 7,710
+bytes, a 22% size cost for the blocked loop.
+
+The bit fold accepts only an exact recurrence on a local unsigned 32/64-bit
+state, a literal polynomial and 1–8 rounds. It replaces serial rounds with a
+balanced XOR tree and adds no lookup table to exported writable memory.
+The sequence path reuses frontend lane analysis for 2–8 lanes, with a bounded
+straight-line body, stable length and scalar binders. Each lane retains its
+original load, updates and possible traps before the next lane starts. Calls,
+exits, captures, references and region modules keep the ordinary path.
+
+The call policy alone improved V8 but made custom hash about 4% slower on
+Wasmtime; it was not accepted alone. A first bit-fold matcher missed the AST
+shape and produced an identical CRC32 module, with no gain. Correcting the
+matcher improved CRC32 about 40% on both engines over the callable version;
+blocking improved custom hash about 43%/42%. Those are separate experimental
+cohorts, not factors to multiply into the final baseline comparison above.
+
+The [dated evidence](../bench/results/2026-11-01/hashes/README.md) records raw
+pairs, compiler/source identities, rejected experiments, compilation costs,
+correctness qualification and a fresh three-backend README cohort. CRC32 still
+has arithmetic work to remove relative to LLVM's table-based C-Wasm output.
+Custom hash still reloads/stores lane state; scalar replacement remains a hill.
+Qualification also has an iteration-time hill: its 9,450 runtime subprocesses
+recompile engine modules per case. Reusing a compiled module with fresh
+instances and Wasmtime stores could retain isolation while reducing that work.
+
+## Previous hill: V8 sieve tiering
 
 Starting from `3065a72`, combine a narrower direct-only inlining policy with
 guarded byte fills. Substantial leaf kernels with nested loops stay callable at
@@ -31,7 +75,7 @@ The final full O0/O2 matrix passes 9,090 runtime observations and three expected
 compile refusals. Byte-fill boundary, extension, static-data, region,
 dynamic-boundary, compiler-session, incremental and inventory checks also pass.
 
-## Previous hill: small count loops
+## Earlier hill: small count loops
 
 The next batch starts from `ce282be`. Unroll literal count loops of 1–8
 iterations when their body fits a 32-node budget and uses only scalar locals.

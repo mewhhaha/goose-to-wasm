@@ -103,6 +103,8 @@ struct Function {
     Bytes code;
     vector<uint32_t> labels;
     uint32_t labelserial = 0;
+    const vector<Binary *> *lane_mods = nullptr;
+    int lane_value = 0;
     struct Exit {
         uint32_t label;
         SFunction *sf = nullptr;
@@ -324,8 +326,10 @@ struct Function {
     void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {}, size_t first_statement = 0);
     void CaptureResult(TypeExpr *, uint32_t);
     bool SelectAssignment(IfExpr *);
+    bool FoldBitLoop(ForLoop *);
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
     bool FillLoop(ForLoop *);
+    bool StripSequence(ForLoop *, const Slot &, const Slot &, uint32_t, uint32_t, uint32_t, TypeExpr *);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
     vector<TypeExpr *> NaturalResults(Node *);

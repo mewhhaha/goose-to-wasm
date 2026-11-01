@@ -341,7 +341,7 @@ class CompilerSession(SessionHarness):
         self.assertEqual(target.read_text(), 'fn value() -> i64 { 41 }\n')
         self.assertEqual(other.read_text(), 'fn value() -> i64 { 43 }\n')
 
-    def test_nested_kernel_call_boundaries(self):
+    def test_loop_kernel_call_boundaries(self):
         source = ROOT / "tests/fixtures/codegen_kernel_calls.goose"
         result = self.request(source=source, extra=["-O2", "--no-cache"])
         names = {item["name"].split("#")[0] for item in result["backend_stats"]["function_info"]}
@@ -352,6 +352,15 @@ class CompilerSession(SessionHarness):
         result = self.request(extra=["-O2", "--no-cache"])
         names = {item["name"].split("#")[0] for item in result["backend_stats"]["function_info"]}
         self.assertNotIn("kernel", names)
+
+        for fixture in ("hash_crc32", "hash_sha256"):
+            with self.subTest(fixture=fixture):
+                source = ROOT / "bench/langarena/ports" / (fixture + ".goose")
+                result = self.request(source=source, extra=["-O2", "--no-cache"])
+                names = {item["name"].split("#")[0] for item in result["backend_stats"]["function_info"]}
+                self.assertIn("run", names)
+                if fixture == "hash_sha256":
+                    self.assertIn("binary::read_u32le", names)
 
     def test_qualified_fixture_modules_match_fresh_compilers(self):
         from run_differential import cases

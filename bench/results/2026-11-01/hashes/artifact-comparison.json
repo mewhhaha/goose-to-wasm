@@ -1,0 +1,72 @@
+[
+  {
+    "task": "Hash::CRC32",
+    "byte_identical": false,
+    "baseline_sha256": "5556f22ed0785b5ccf4fb87680299b0fe21e377f81188fbe524dde0c9242cc04",
+    "candidate_sha256": "ef6a7a20f907b4d938793b27b33414e05c2d064004e6a5937d5fbd58b4f6e3b9",
+    "baseline_module_bytes": 4466,
+    "candidate_module_bytes": 3691,
+    "baseline_code_bytes": 3238,
+    "candidate_code_bytes": 2448
+  },
+  {
+    "task": "CLBG::Fannkuchredux",
+    "byte_identical": true,
+    "baseline_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+    "candidate_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+    "baseline_module_bytes": 4598,
+    "candidate_module_bytes": 4598,
+    "baseline_code_bytes": 3364,
+    "candidate_code_bytes": 3364
+  },
+  {
+    "task": "Etc::Sieve",
+    "byte_identical": true,
+    "baseline_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+    "candidate_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+    "baseline_module_bytes": 3655,
+    "candidate_module_bytes": 3655,
+    "baseline_code_bytes": 2423,
+    "candidate_code_bytes": 2423
+  },
+  {
+    "task": "CLBG::Mandelbrot",
+    "byte_identical": true,
+    "baseline_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+    "candidate_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+    "baseline_module_bytes": 5194,
+    "candidate_module_bytes": 5194,
+    "baseline_code_bytes": 3900,
+    "candidate_code_bytes": 3900
+  },
+  {
+    "task": "Hash::SHA256",
+    "byte_identical": false,
+    "baseline_sha256": "215c5a7fef3f1456c1abf7b39518a0c20085d8bbac4e4c578f1118365b2e30e5",
+    "candidate_sha256": "b9971eec3ae8f7959b0f33fc4ced6daa83fd9bced13b116766c06468cd123fb6",
+    "baseline_module_bytes": 6313,
+    "candidate_module_bytes": 7710,
+    "baseline_code_bytes": 5053,
+    "candidate_code_bytes": 6435
+  },
+  {
+    "task": "Sort::Quick",
+    "byte_identical": false,
+    "baseline_sha256": "b16951d968d8df340377a188b872526cb6cd51174a4a5c4da983afd8e1d104f2",
+    "candidate_sha256": "0e2e9eb39fa6262e32e327378918928bbb12a88a0cc06401d5c5a863170c7056",
+    "baseline_module_bytes": 6337,
+    "candidate_module_bytes": 4984,
+    "baseline_code_bytes": 5070,
+    "candidate_code_bytes": 3702
+  },
+  {
+    "task": "Sort::Merge",
+    "byte_identical": false,
+    "baseline_sha256": "a427511bca67a5b9c0775d1b74948e5d4800ad60fecbe27807eddeaf09427029",
+    "candidate_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+    "baseline_module_bytes": 7516,
+    "candidate_module_bytes": 5798,
+    "baseline_code_bytes": 6211,
+    "candidate_code_bytes": 4478
+  }
+]

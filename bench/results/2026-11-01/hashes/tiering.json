@@ -1,0 +1,69 @@
+{
+  "compiler_sha256": "85a684a05f3e142a0a0c45e17945d564a3778ebdced819e204fa5baab6a7a841",
+  "observations": [
+    {
+      "task": "Hash::CRC32",
+      "mode": "default",
+      "artifact_sha256": "5556f22ed0785b5ccf4fb87680299b0fe21e377f81188fbe524dde0c9242cc04",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-cohort/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm"
+      ],
+      "stdin": "1000000 150 30\n",
+      "stdout": "2318723244\n3972285050\n",
+      "stderr": "",
+      "wall_seconds": 4.833740180009045,
+      "timed_seconds": 3.97228505
+    },
+    {
+      "task": "Hash::CRC32",
+      "mode": "optimizing",
+      "artifact_sha256": "5556f22ed0785b5ccf4fb87680299b0fe21e377f81188fbe524dde0c9242cc04",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "--no-liftoff",
+        "--no-wasm-tier-up",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-cohort/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm"
+      ],
+      "stdin": "1000000 150 30\n",
+      "stdout": "2318723244\n959040625\n",
+      "stderr": "",
+      "wall_seconds": 1.2107526680047158,
+      "timed_seconds": 0.959040625
+    },
+    {
+      "task": "Hash::SHA256",
+      "mode": "default",
+      "artifact_sha256": "215c5a7fef3f1456c1abf7b39518a0c20085d8bbac4e4c578f1118365b2e30e5",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-cohort/logs/compile/adapted/Hash_SHA256/direct/cold/2/program.wasm"
+      ],
+      "stdin": "1000000 1200 240\n",
+      "stdout": "2844672256\n6186486911\n",
+      "stderr": "",
+      "wall_seconds": 7.467139443004271,
+      "timed_seconds": 6.186486911
+    },
+    {
+      "task": "Hash::SHA256",
+      "mode": "optimizing",
+      "artifact_sha256": "215c5a7fef3f1456c1abf7b39518a0c20085d8bbac4e4c578f1118365b2e30e5",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "--no-liftoff",
+        "--no-wasm-tier-up",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-cohort/logs/compile/adapted/Hash_SHA256/direct/cold/2/program.wasm"
+      ],
+      "stdin": "1000000 1200 240\n",
+      "stdout": "2844672256\n1615732869\n",
+      "stderr": "",
+      "wall_seconds": 1.9940087930008303,
+      "timed_seconds": 1.615732869
+    }
+  ]
+}

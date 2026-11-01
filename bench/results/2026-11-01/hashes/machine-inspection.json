@@ -1,0 +1,10 @@
+{
+  "crc_cwasm_wat": {
+    "artifact_sha256": "b840a8580038256c87cd8d328b98a301df7f7e80df94efe823f93eec59e19b90",
+    "source_report": "bench/results/2026-11-01/sieve/cohort.json",
+    "source_report_sha256": "0fd8dcd20de20ad9833b3161b1d4dc7f185c3e84144fc1d12a7d4e27d5dd87be",
+    "tool": "build/emsdk/upstream/bin/wasm-dis",
+    "wat_sha256": "34a9211731d5ea64398537898ab6ada65a4c79f932db49eb7c772110a54929fd",
+    "finding": "i32.load offset=2416 indexed by (crc XOR byte) AND 255, with crc shifted right by 8"
+  }
+}

@@ -49,8 +49,74 @@ def wrap(value, bits, signed=True):
     return value
 
 
+def bit_fold(value, bits, count, polynomial, *, shift=1, mask=1, binder=False, signed=False):
+    """Scalar recurrence oracle; every step follows the source width and shift."""
+    value = wrap(value, bits, signed)
+    for index in range(count):
+        low = value & mask
+        value >>= shift
+        if low:
+            value ^= polynomial
+            if binder:
+                value ^= index
+        value = wrap(value, bits, signed)
+    return value
+
+
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    strip_inputs = [(count, -1) for count in (0,1,2,3,4,5,7,8,9,15,17)] + [(17,0x12345678)]
+    for count, seed in strip_inputs:
+        values = [wrap(seed+37*i,32,False) for i in range(count)]
+        lines = []
+        for width in (3,8):
+            lanes = [wrap(seed,32,False)] * width
+            total = wrap(seed,32,False)
+            for index, value in enumerate(values):
+                mixed = wrap(value+index,32,False)
+                lanes[index%width] ^= mixed
+                total = wrap(total+lanes[index%width],32,False)
+            lines.append(f"{lanes} {total}")
+        called = wrap(sum(value+index%3 for index,value in enumerate(values)),32,False)
+        exited = wrap(sum(value+index%3 for index,value in enumerate(values) if index!=1 and index<5),32,False)
+        lines.append(f"{called} {count} {exited} {called} {called}")
+        lines.append("20")  # Rebinding the source shrinks the next iteration's view.
+        for debug in (False,True):
+            result.append(Case(f"codegen/strip/{count}/{seed}/{debug}", "codegen_strip",
+                               f"{count} {seed}\n", "\n".join(lines)+"\n", debug=debug, group="control"))
+    for seed, polynomial in ((0, 0), (-1, -1), (1 << 31, 1), (-(1 << 63), 0x80000000),
+                             (0x123456789ABCDEF, 0xEDB88320), (-0x123456789ABCDEF, 0x13579BDF)):
+        crc32 = 0xEDB88320
+        crc64 = 0xC96C5795D7870F42
+        rows = []
+        for bits, crc in ((32, crc32), (64, crc64)):
+            combinations = ((1, 0), (3, 1), (8, 1 << (bits - 1)),
+                            (8, (1 << bits) - 1), (8, crc), (0, crc), (9, crc))
+            if bits == 32:
+                combinations += ((8, crc),)  # ==0 with the two branches swapped.
+            else:
+                combinations += ((8, crc), (5, 0xA24BAED4963EE407))
+            rows.append([bit_fold(seed, bits, count, poly) for count, poly in combinations])
+        first32 = bit_fold(seed, 32, 8, crc32)
+        first64 = bit_fold(seed, 64, 8, crc64)
+        rows.append([bit_fold(first32, 32, 8, crc32), bit_fold(first64, 64, 8, crc64),
+                     bit_fold(seed, 32, 8, 1 << 31), bit_fold(seed, 64, 3, 1)])
+        rows.append([bit_fold(seed, 64, 8, 0x123456789, signed=True), first32, first32, first32,
+                     bit_fold(seed, 32, 8, crc32, binder=True)])
+        x = wrap(seed, 32, False)
+        y = x ^ 0xA5A5A5A5
+        for _ in range(8):
+            if x & 1:
+                x = (x >> 1) ^ crc32
+            else:
+                y >>= 1
+        rows.append([bit_fold(seed, 32, 8, wrap(polynomial, 32, False)),
+                     bit_fold(seed, 32, 8, crc32, shift=2), bit_fold(seed, 32, 8, crc32, mask=2),
+                     first32, 8, x ^ y])
+        answer = "".join(" ".join(map(str, row)) + "\n" for row in rows)
+        for debug in (False, True):
+            result.append(Case(f"codegen/bit-fold/{seed}/{polynomial}/{debug}", "codegen_bit_fold",
+                               f"{seed} {polynomial}\n", answer, debug=debug, group="control"))
     for count, seed in ((0, -1), (1, 255), (6, -1), (6, 128), (3, 17)):
         uniform = [125] + [wrap(seed, 8, False)] * count + [125] * (7 - count)
         negative = [-7] + [wrap(seed, 8)] * count + [-7] * (7 - count)

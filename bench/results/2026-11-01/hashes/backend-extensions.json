@@ -1,0 +1,1186 @@
+{
+  "schema": "goose-backend-extensions-v1",
+  "compiler_sha256": "003623ca7ea7660aa01242065f3fb3488cedc89218fd86fc56dbc02c4eaa33fb",
+  "observations": 100,
+  "failures": 0,
+  "results": [
+    {
+      "name": "O0/float_remainder/native/signs-and-order",
+      "status": "pass",
+      "stdin": "4\n5.5 2\n-5.5 2\n4 -2\n-0.0 3\n",
+      "stdout": "1.5 1.5 1.5 1.5 12\n-1.5 -1.5 -1.5 -1.5 12\n0.0 0.0 0.0 0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n",
+      "stderr": "",
+      "sha256": "b0cc6f5cb30c7ad98c45f451c8d20495de9db8c43d2758c53e3c72234903a588",
+      "compile_seconds": 0.540584826,
+      "run_seconds": 0.000895983
+    },
+    {
+      "name": "O0/float_remainder/no-host-math",
+      "status": "pass",
+      "imports": [
+        {
+          "module": "goose",
+          "name": "write",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_i64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_u64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f32",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_bool",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "newline",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "abort",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "exit",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input_f64",
+          "kind": "function"
+        }
+      ],
+      "sha256": "86258c46cdb810dda79858016a33fce9e5ee2a32b8d5e1b70d0749c8c52bf709"
+    },
+    {
+      "name": "O0/float_remainder/v8/signs-and-order",
+      "status": "pass",
+      "stdin": "4\n5.5 2\n-5.5 2\n4 -2\n-0.0 3\n",
+      "stdout": "1.5 1.5 1.5 1.5 12\n-1.5 -1.5 -1.5 -1.5 12\n0.0 0.0 0.0 0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n",
+      "stderr": "",
+      "sha256": "86258c46cdb810dda79858016a33fce9e5ee2a32b8d5e1b70d0749c8c52bf709",
+      "compile_seconds": 0.06616862,
+      "run_seconds": 0.0270786
+    },
+    {
+      "name": "O0/float_remainder/wasmtime/signs-and-order",
+      "status": "pass",
+      "stdin": "4\n5.5 2\n-5.5 2\n4 -2\n-0.0 3\n",
+      "stdout": "1.5 1.5 1.5 1.5 12\n-1.5 -1.5 -1.5 -1.5 12\n0.0 0.0 0.0 0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n",
+      "stderr": "",
+      "sha256": "86258c46cdb810dda79858016a33fce9e5ee2a32b8d5e1b70d0749c8c52bf709",
+      "compile_seconds": 0.06616862,
+      "run_seconds": 0.091280462
+    },
+    {
+      "name": "O0/aggregate_returns/native/0",
+      "status": "pass",
+      "stdin": "0\n",
+      "stdout": "0 0 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n1 2 2 4 3\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n0 0 0\n",
+      "stderr": "",
+      "sha256": "a5e6029cdbc6a25ab82f3d1d6e021c84bd558145d6d95f8f59804dc467ace178",
+      "compile_seconds": 0.55939542,
+      "run_seconds": 0.000899189
+    },
+    {
+      "name": "O0/aggregate_returns/native/1",
+      "status": "pass",
+      "stdin": "1\n",
+      "stdout": "1 101 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n2 4 4 8 6\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n1 2 3\n",
+      "stderr": "",
+      "sha256": "a5e6029cdbc6a25ab82f3d1d6e021c84bd558145d6d95f8f59804dc467ace178",
+      "compile_seconds": 0.55939542,
+      "run_seconds": 0.000700301
+    },
+    {
+      "name": "O0/aggregate_returns/native/4",
+      "status": "pass",
+      "stdin": "4\n",
+      "stdout": "4 410 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n5 10 10 20 15\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n4 8 12\n",
+      "stderr": "",
+      "sha256": "a5e6029cdbc6a25ab82f3d1d6e021c84bd558145d6d95f8f59804dc467ace178",
+      "compile_seconds": 0.55939542,
+      "run_seconds": 0.00093109
+    },
+    {
+      "name": "O0/aggregate_returns/native/7",
+      "status": "pass",
+      "stdin": "7\n",
+      "stdout": "7 728 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n8 16 16 32 24\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n7 14 21\n",
+      "stderr": "",
+      "sha256": "a5e6029cdbc6a25ab82f3d1d6e021c84bd558145d6d95f8f59804dc467ace178",
+      "compile_seconds": 0.55939542,
+      "run_seconds": 0.001065575
+    },
+    {
+      "name": "O0/aggregate_returns/v8/0",
+      "status": "pass",
+      "stdin": "0\n",
+      "stdout": "0 0 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n1 2 2 4 3\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n0 0 0\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.051652398
+    },
+    {
+      "name": "O0/aggregate_returns/v8/1",
+      "status": "pass",
+      "stdin": "1\n",
+      "stdout": "1 101 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n2 4 4 8 6\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n1 2 3\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.026131759
+    },
+    {
+      "name": "O0/aggregate_returns/v8/4",
+      "status": "pass",
+      "stdin": "4\n",
+      "stdout": "4 410 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n5 10 10 20 15\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n4 8 12\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.026838603
+    },
+    {
+      "name": "O0/aggregate_returns/v8/7",
+      "status": "pass",
+      "stdin": "7\n",
+      "stdout": "7 728 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n8 16 16 32 24\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n7 14 21\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.029096145
+    },
+    {
+      "name": "O0/aggregate_returns/wasmtime/0",
+      "status": "pass",
+      "stdin": "0\n",
+      "stdout": "0 0 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n1 2 2 4 3\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n0 0 0\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.095453603
+    },
+    {
+      "name": "O0/aggregate_returns/wasmtime/1",
+      "status": "pass",
+      "stdin": "1\n",
+      "stdout": "1 101 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n2 4 4 8 6\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n1 2 3\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.120808727
+    },
+    {
+      "name": "O0/aggregate_returns/wasmtime/4",
+      "status": "pass",
+      "stdin": "4\n",
+      "stdout": "4 410 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n5 10 10 20 15\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n4 8 12\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.093002043
+    },
+    {
+      "name": "O0/aggregate_returns/wasmtime/7",
+      "status": "pass",
+      "stdin": "7\n",
+      "stdout": "7 728 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n8 16 16 32 24\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n7 14 21\n",
+      "stderr": "",
+      "sha256": "221b7afb3faa4fbe13d47cff4120d5f8c3a13bee4b7556d0580ac235979606fa",
+      "compile_seconds": 0.064471884,
+      "run_seconds": 0.092278328
+    },
+    {
+      "name": "O0/math_intrinsics/native/0",
+      "status": "pass",
+      "stdin": "2.5 0\n",
+      "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.001370224
+    },
+    {
+      "name": "O0/math_intrinsics/native/1",
+      "status": "pass",
+      "stdin": "-2.5 1\n",
+      "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.001182147
+    },
+    {
+      "name": "O0/math_intrinsics/native/2",
+      "status": "pass",
+      "stdin": "0 -1\n",
+      "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.0010994
+    },
+    {
+      "name": "O0/math_intrinsics/native/3",
+      "status": "pass",
+      "stdin": "-0.0 -9223372036854775808\n",
+      "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.001096203
+    },
+    {
+      "name": "O0/math_intrinsics/native/4",
+      "status": "pass",
+      "stdin": "nan 256\n",
+      "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.001092176
+    },
+    {
+      "name": "O0/math_intrinsics/native/5",
+      "status": "pass",
+      "stdin": "inf 65536\n",
+      "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.000790784
+    },
+    {
+      "name": "O0/math_intrinsics/native/6",
+      "status": "pass",
+      "stdin": "-inf 2147483647\n",
+      "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.000722373
+    },
+    {
+      "name": "O0/math_intrinsics/native/7",
+      "status": "pass",
+      "stdin": "1.401298464324817e-45 3\n",
+      "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.001198939
+    },
+    {
+      "name": "O0/math_intrinsics/native/8",
+      "status": "pass",
+      "stdin": "5e-324 127\n",
+      "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.001198358
+    },
+    {
+      "name": "O0/math_intrinsics/native/9",
+      "status": "pass",
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+      "stderr": "",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0",
+      "compile_seconds": 0.587932782,
+      "run_seconds": 0.001195142
+    },
+    {
+      "name": "O0/math_intrinsics/no-host-math",
+      "status": "pass",
+      "imports": [
+        {
+          "module": "goose",
+          "name": "write",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_i64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_u64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f32",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_bool",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "newline",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "abort",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "exit",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input_f64",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input",
+          "kind": "function"
+        }
+      ],
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67"
+    },
+    {
+      "name": "O0/math_intrinsics/v8/0",
+      "status": "pass",
+      "stdin": "2.5 0\n",
+      "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.027343193
+    },
+    {
+      "name": "O0/math_intrinsics/v8/1",
+      "status": "pass",
+      "stdin": "-2.5 1\n",
+      "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.02628483
+    },
+    {
+      "name": "O0/math_intrinsics/v8/2",
+      "status": "pass",
+      "stdin": "0 -1\n",
+      "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.02802603
+    },
+    {
+      "name": "O0/math_intrinsics/v8/3",
+      "status": "pass",
+      "stdin": "-0.0 -9223372036854775808\n",
+      "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.038626158
+    },
+    {
+      "name": "O0/math_intrinsics/v8/4",
+      "status": "pass",
+      "stdin": "nan 256\n",
+      "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.026679892
+    },
+    {
+      "name": "O0/math_intrinsics/v8/5",
+      "status": "pass",
+      "stdin": "inf 65536\n",
+      "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.029063893
+    },
+    {
+      "name": "O0/math_intrinsics/v8/6",
+      "status": "pass",
+      "stdin": "-inf 2147483647\n",
+      "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.048591601
+    },
+    {
+      "name": "O0/math_intrinsics/v8/7",
+      "status": "pass",
+      "stdin": "1.401298464324817e-45 3\n",
+      "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.02635795
+    },
+    {
+      "name": "O0/math_intrinsics/v8/8",
+      "status": "pass",
+      "stdin": "5e-324 127\n",
+      "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.045337836
+    },
+    {
+      "name": "O0/math_intrinsics/v8/9",
+      "status": "pass",
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.027969122
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/0",
+      "status": "pass",
+      "stdin": "2.5 0\n",
+      "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.102036526
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/1",
+      "status": "pass",
+      "stdin": "-2.5 1\n",
+      "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.089972285
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/2",
+      "status": "pass",
+      "stdin": "0 -1\n",
+      "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.090231157
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/3",
+      "status": "pass",
+      "stdin": "-0.0 -9223372036854775808\n",
+      "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.088987663
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/4",
+      "status": "pass",
+      "stdin": "nan 256\n",
+      "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.094617965
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/5",
+      "status": "pass",
+      "stdin": "inf 65536\n",
+      "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.096737685
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/6",
+      "status": "pass",
+      "stdin": "-inf 2147483647\n",
+      "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.093896183
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/7",
+      "status": "pass",
+      "stdin": "1.401298464324817e-45 3\n",
+      "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.093067598
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/8",
+      "status": "pass",
+      "stdin": "5e-324 127\n",
+      "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.092255084
+    },
+    {
+      "name": "O0/math_intrinsics/wasmtime/9",
+      "status": "pass",
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+      "stderr": "",
+      "sha256": "ca0e18d60748c6137447d1f49a572ec15efed54b82b3a81c616317f130ffab67",
+      "compile_seconds": 0.083622615,
+      "run_seconds": 0.091489498
+    },
+    {
+      "name": "O2/float_remainder/native/signs-and-order",
+      "status": "pass",
+      "stdin": "4\n5.5 2\n-5.5 2\n4 -2\n-0.0 3\n",
+      "stdout": "1.5 1.5 1.5 1.5 12\n-1.5 -1.5 -1.5 -1.5 12\n0.0 0.0 0.0 0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n",
+      "stderr": "",
+      "sha256": "23bdca59bd312db7de14db1fa7fcfdd8c205bffaa265f910ee8b6d1fdcdd9875",
+      "compile_seconds": 0.356530345,
+      "run_seconds": 0.000800772
+    },
+    {
+      "name": "O2/float_remainder/no-host-math",
+      "status": "pass",
+      "imports": [
+        {
+          "module": "goose",
+          "name": "write",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_i64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_u64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f32",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_bool",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "newline",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "abort",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "exit",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input_f64",
+          "kind": "function"
+        }
+      ],
+      "sha256": "011b91e095096d2851b2ef931b0bfbc563288adf4925988eb09e40a4971cc7e8"
+    },
+    {
+      "name": "O2/float_remainder/v8/signs-and-order",
+      "status": "pass",
+      "stdin": "4\n5.5 2\n-5.5 2\n4 -2\n-0.0 3\n",
+      "stdout": "1.5 1.5 1.5 1.5 12\n-1.5 -1.5 -1.5 -1.5 12\n0.0 0.0 0.0 0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n",
+      "stderr": "",
+      "sha256": "011b91e095096d2851b2ef931b0bfbc563288adf4925988eb09e40a4971cc7e8",
+      "compile_seconds": 0.062994386,
+      "run_seconds": 0.025046086
+    },
+    {
+      "name": "O2/float_remainder/wasmtime/signs-and-order",
+      "status": "pass",
+      "stdin": "4\n5.5 2\n-5.5 2\n4 -2\n-0.0 3\n",
+      "stdout": "1.5 1.5 1.5 1.5 12\n-1.5 -1.5 -1.5 -1.5 12\n0.0 0.0 0.0 0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n",
+      "stderr": "",
+      "sha256": "011b91e095096d2851b2ef931b0bfbc563288adf4925988eb09e40a4971cc7e8",
+      "compile_seconds": 0.062994386,
+      "run_seconds": 0.088683205
+    },
+    {
+      "name": "O2/aggregate_returns/native/0",
+      "status": "pass",
+      "stdin": "0\n",
+      "stdout": "0 0 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n1 2 2 4 3\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n0 0 0\n",
+      "stderr": "",
+      "sha256": "a3d8ea625cf17aec813ce7a56a9c990d2b1840300daa452b9898eba2df540923",
+      "compile_seconds": 0.301888565,
+      "run_seconds": 0.000802426
+    },
+    {
+      "name": "O2/aggregate_returns/native/1",
+      "status": "pass",
+      "stdin": "1\n",
+      "stdout": "1 101 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n2 4 4 8 6\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n1 2 3\n",
+      "stderr": "",
+      "sha256": "a3d8ea625cf17aec813ce7a56a9c990d2b1840300daa452b9898eba2df540923",
+      "compile_seconds": 0.301888565,
+      "run_seconds": 0.000696274
+    },
+    {
+      "name": "O2/aggregate_returns/native/4",
+      "status": "pass",
+      "stdin": "4\n",
+      "stdout": "4 410 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n5 10 10 20 15\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n4 8 12\n",
+      "stderr": "",
+      "sha256": "a3d8ea625cf17aec813ce7a56a9c990d2b1840300daa452b9898eba2df540923",
+      "compile_seconds": 0.301888565,
+      "run_seconds": 0.000685893
+    },
+    {
+      "name": "O2/aggregate_returns/native/7",
+      "status": "pass",
+      "stdin": "7\n",
+      "stdout": "7 728 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n8 16 16 32 24\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n7 14 21\n",
+      "stderr": "",
+      "sha256": "a3d8ea625cf17aec813ce7a56a9c990d2b1840300daa452b9898eba2df540923",
+      "compile_seconds": 0.301888565,
+      "run_seconds": 0.000668911
+    },
+    {
+      "name": "O2/aggregate_returns/v8/0",
+      "status": "pass",
+      "stdin": "0\n",
+      "stdout": "0 0 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n1 2 2 4 3\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n0 0 0\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.040439646
+    },
+    {
+      "name": "O2/aggregate_returns/v8/1",
+      "status": "pass",
+      "stdin": "1\n",
+      "stdout": "1 101 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n2 4 4 8 6\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n1 2 3\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.050654482
+    },
+    {
+      "name": "O2/aggregate_returns/v8/4",
+      "status": "pass",
+      "stdin": "4\n",
+      "stdout": "4 410 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n5 10 10 20 15\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n4 8 12\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.052268619
+    },
+    {
+      "name": "O2/aggregate_returns/v8/7",
+      "status": "pass",
+      "stdin": "7\n",
+      "stdout": "7 728 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n8 16 16 32 24\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n7 14 21\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.03201384
+    },
+    {
+      "name": "O2/aggregate_returns/wasmtime/0",
+      "status": "pass",
+      "stdin": "0\n",
+      "stdout": "0 0 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n1 2 2 4 3\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n0 0 0\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.123780726
+    },
+    {
+      "name": "O2/aggregate_returns/wasmtime/1",
+      "status": "pass",
+      "stdin": "1\n",
+      "stdout": "1 101 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n2 4 4 8 6\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n1 2 3\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.094146238
+    },
+    {
+      "name": "O2/aggregate_returns/wasmtime/4",
+      "status": "pass",
+      "stdin": "4\n",
+      "stdout": "4 410 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n5 10 10 20 15\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n4 8 12\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.094155637
+    },
+    {
+      "name": "O2/aggregate_returns/wasmtime/7",
+      "status": "pass",
+      "stdin": "7\n",
+      "stdout": "7 728 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n8 16 16 32 24\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n7 14 21\n",
+      "stderr": "",
+      "sha256": "3ea553f02bf84cd082d23286789e84f4c2a57f8632a4c86d3189463734a19b82",
+      "compile_seconds": 0.065679851,
+      "run_seconds": 0.121654444
+    },
+    {
+      "name": "O2/math_intrinsics/native/0",
+      "status": "pass",
+      "stdin": "2.5 0\n",
+      "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000940768
+    },
+    {
+      "name": "O2/math_intrinsics/native/1",
+      "status": "pass",
+      "stdin": "-2.5 1\n",
+      "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000759042
+    },
+    {
+      "name": "O2/math_intrinsics/native/2",
+      "status": "pass",
+      "stdin": "0 -1\n",
+      "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000732091
+    },
+    {
+      "name": "O2/math_intrinsics/native/3",
+      "status": "pass",
+      "stdin": "-0.0 -9223372036854775808\n",
+      "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000674923
+    },
+    {
+      "name": "O2/math_intrinsics/native/4",
+      "status": "pass",
+      "stdin": "nan 256\n",
+      "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000990973
+    },
+    {
+      "name": "O2/math_intrinsics/native/5",
+      "status": "pass",
+      "stdin": "inf 65536\n",
+      "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.001176717
+    },
+    {
+      "name": "O2/math_intrinsics/native/6",
+      "status": "pass",
+      "stdin": "-inf 2147483647\n",
+      "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.001093679
+    },
+    {
+      "name": "O2/math_intrinsics/native/7",
+      "status": "pass",
+      "stdin": "1.401298464324817e-45 3\n",
+      "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000756998
+    },
+    {
+      "name": "O2/math_intrinsics/native/8",
+      "status": "pass",
+      "stdin": "5e-324 127\n",
+      "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000710661
+    },
+    {
+      "name": "O2/math_intrinsics/native/9",
+      "status": "pass",
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+      "stderr": "",
+      "sha256": "20fd8d6776482183c2bc73482aa0deaa40f494d5aaa6ef00d914d48857aca4f1",
+      "compile_seconds": 0.395350151,
+      "run_seconds": 0.000729627
+    },
+    {
+      "name": "O2/math_intrinsics/no-host-math",
+      "status": "pass",
+      "imports": [
+        {
+          "module": "goose",
+          "name": "write",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_i64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_u64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f64",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_f32",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "print_bool",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "newline",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "abort",
+          "kind": "function"
+        },
+        {
+          "module": "goose",
+          "name": "exit",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input_f64",
+          "kind": "function"
+        },
+        {
+          "module": "env",
+          "name": "bench_input",
+          "kind": "function"
+        }
+      ],
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728"
+    },
+    {
+      "name": "O2/math_intrinsics/v8/0",
+      "status": "pass",
+      "stdin": "2.5 0\n",
+      "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.032325482
+    },
+    {
+      "name": "O2/math_intrinsics/v8/1",
+      "status": "pass",
+      "stdin": "-2.5 1\n",
+      "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.048320686
+    },
+    {
+      "name": "O2/math_intrinsics/v8/2",
+      "status": "pass",
+      "stdin": "0 -1\n",
+      "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.027061007
+    },
+    {
+      "name": "O2/math_intrinsics/v8/3",
+      "status": "pass",
+      "stdin": "-0.0 -9223372036854775808\n",
+      "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.048708122
+    },
+    {
+      "name": "O2/math_intrinsics/v8/4",
+      "status": "pass",
+      "stdin": "nan 256\n",
+      "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.049215697
+    },
+    {
+      "name": "O2/math_intrinsics/v8/5",
+      "status": "pass",
+      "stdin": "inf 65536\n",
+      "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.047624001
+    },
+    {
+      "name": "O2/math_intrinsics/v8/6",
+      "status": "pass",
+      "stdin": "-inf 2147483647\n",
+      "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.027705732
+    },
+    {
+      "name": "O2/math_intrinsics/v8/7",
+      "status": "pass",
+      "stdin": "1.401298464324817e-45 3\n",
+      "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.03137749
+    },
+    {
+      "name": "O2/math_intrinsics/v8/8",
+      "status": "pass",
+      "stdin": "5e-324 127\n",
+      "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.03162414
+    },
+    {
+      "name": "O2/math_intrinsics/v8/9",
+      "status": "pass",
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.028932222
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/0",
+      "status": "pass",
+      "stdin": "2.5 0\n",
+      "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.098583883
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/1",
+      "status": "pass",
+      "stdin": "-2.5 1\n",
+      "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.113653587
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/2",
+      "status": "pass",
+      "stdin": "0 -1\n",
+      "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.09295272
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/3",
+      "status": "pass",
+      "stdin": "-0.0 -9223372036854775808\n",
+      "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.096448003
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/4",
+      "status": "pass",
+      "stdin": "nan 256\n",
+      "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.115809334
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/5",
+      "status": "pass",
+      "stdin": "inf 65536\n",
+      "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.091609026
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/6",
+      "status": "pass",
+      "stdin": "-inf 2147483647\n",
+      "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.092914507
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/7",
+      "status": "pass",
+      "stdin": "1.401298464324817e-45 3\n",
+      "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.114907049
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/8",
+      "status": "pass",
+      "stdin": "5e-324 127\n",
+      "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.097841082
+    },
+    {
+      "name": "O2/math_intrinsics/wasmtime/9",
+      "status": "pass",
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+      "stderr": "",
+      "sha256": "a89db4685787fcb9b310836a669cedad284a04fd6627667f83bb35ecada22728",
+      "compile_seconds": 0.068872238,
+      "run_seconds": 0.094747892
+    },
+    {
+      "name": "variable-prefix-encoded-array",
+      "status": "pass",
+      "diagnostic": "parsed ok: 2 top-level declarations, 1 file(s)\ntypechecked ok: 1 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 1 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/0 index and 0/0 slice checks\n/home/jacobt/src/goose-to-wasm/build/performance/hash-extensions/refusals/variable-prefix-encoded-array/main.goose:1: error: wasm-direct: byte-walked records currently require varint or fixed-size fields\nstruct R{tag:varint,values:varint[varint]} fn main(){let r=R{1,[64,-65]};print(r.values.len);}\n"
+    },
+    {
+      "name": "resizable-payload-enum",
+      "status": "pass",
+      "diagnostic": "parsed ok: 2 top-level declarations, 1 file(s)\ntypechecked ok: 1 specialization(s), 0 struct/1 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/0 index and 0/0 slice checks\n/home/jacobt/src/goose-to-wasm/build/performance/hash-extensions/refusals/resizable-payload-enum/main.goose:2: error: wasm-direct: resizable variable-mode enums are not supported\nfn main() { let e: E.. = E.Data { [1] }; match e { Data => print(1), _ => {} } }\n"
+    },
+    {
+      "name": "enum-export",
+      "status": "pass",
+      "diagnostic": "parsed ok: 3 top-level declarations, 1 file(s)\ntypechecked ok: 2 specialization(s), 0 struct/1 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/0 index and 0/0 slice checks\n/home/jacobt/src/goose-to-wasm/build/performance/hash-extensions/refusals/enum-export/main.goose:2: error: wasm-direct: public exports currently return numeric and bool values only\nexport fn exported() -> E { E.Data { 1 } }\n"
+    },
+    {
+      "name": "enum-extern",
+      "status": "pass",
+      "diagnostic": "parsed ok: 3 top-level declarations, 1 file(s)\ntypechecked ok: 2 specialization(s), 0 struct/1 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/0 index and 0/0 slice checks\n/home/jacobt/src/goose-to-wasm/build/performance/hash-extensions/refusals/enum-extern/main.goose:2: error: wasm-direct: externs currently return numeric and bool values only\nextern fn foreign() -> E;\n"
+    },
+    {
+      "name": "aggregate-extern",
+      "status": "pass",
+      "diagnostic": "parsed ok: 3 top-level declarations, 1 file(s)\ntypechecked ok: 2 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/0 index and 0/0 slice checks\n/home/jacobt/src/goose-to-wasm/build/performance/hash-extensions/refusals/aggregate-extern/main.goose:2: error: wasm-direct: externs currently return numeric and bool values only\nextern fn foreign() -> Pair;\n"
+    },
+    {
+      "name": "aggregate-export",
+      "status": "pass",
+      "diagnostic": "parsed ok: 3 top-level declarations, 1 file(s)\ntypechecked ok: 2 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 0 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/0 index and 0/0 slice checks\n/home/jacobt/src/goose-to-wasm/build/performance/hash-extensions/refusals/aggregate-export/main.goose:2: error: wasm-direct: public exports currently return numeric and bool values only\nexport fn exported() -> Pair { Pair { 1, 2 } }\n"
+    }
+  ]
+}

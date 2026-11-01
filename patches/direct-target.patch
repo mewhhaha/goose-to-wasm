@@ -345,7 +345,7 @@ diff --git a/src/optimize.h b/src/optimize.h
              if (Is<Block>(n)) info.nest = max(info.nest, ++d);   // Its children sit inside it.
              if (auto c = Is<Call>(n)) {
 +                info.bodycalls |= c->fvbody || !c->dispatch.empty() ||
-+                    (c->builtin < 0 && (!c->spec || !c->spec->sf->isextern));
++                    (loops > 0 && c->builtin < 0 && (!c->spec || !c->spec->sf->isextern));
                  auto callee = [&](FnSpec *k) {
                      if (!k) return;
                      // A separate body referencing our locals that a copy
@@ -371,14 +371,15 @@ diff --git a/src/optimize.h b/src/optimize.h
          switch (level) {
              case 0:  nc = 0;  ncu = 0;  break;
              case 1:  nc = 8;  ncu = 48; break;
-@@ -789,6 +799,19 @@
+@@ -789,6 +799,20 @@
      // Never into a recursive cycle: the inlined body's locals would become
      // the cycle function's own, upsetting the §7.8 stack-assignment rule.
      if (curspec && (curspec->incycle || curspec->sf->isrec)) return nullptr;
-+    // Repeated nested-loop kernels need real call boundaries to enter V8's
++    // Repeated loop kernels need real call boundaries to enter V8's
 +    // optimized tier. Keep this direct-target policy separate from ordinary
 +    // size rules and explicit inline requests; complex lifetimes stay there.
-+    if (retain_loop_calls && loopdepth > 0 && info.loopnest >= 2 && info.nodecount >= 64 &&
++    if (retain_loop_calls && loopdepth > 0 && info.loopnest >= 1 &&
++        (info.nodecount >= 64 || (info.loopnest >= 2 && info.nodecount >= 32)) &&
 +        !info.bodycalls && !K->sf->isinline && !info.nestedcalls && K->fnvals.empty() &&
 +        !K->lexparent && K->needs.empty()) {
 +        auto simple = [](VarDef *p) {

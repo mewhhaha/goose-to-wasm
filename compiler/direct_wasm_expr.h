@@ -474,6 +474,93 @@ inline void Function::SliceView(SliceExpr *n) {
     Get(hi); Get(lo); code.Op(0x7d); code.I64Const(32); code.Op(0x86); code.Op(0x84);
 }
 
+inline bool Function::FoldBitLoop(ForLoop *node) {
+    auto count = Is<IntLit>(node->iter);
+    if (node->iterkind != IK_COUNT || !count || count->val < 1 || count->val > 8 ||
+        node->idxdef || node->byref || node->vdef->isvar || !IsIntT(node->vdef->type)) return false;
+    Node *body = node->body->tail;
+    if (!body && node->body->stmts.size() == 1) body = node->body->stmts[0];
+    else if (!node->body->stmts.empty()) return false;
+    auto branch = Is<IfExpr>(body);
+    if (!branch || branch->flat || !branch->elseb || !Values(branch).empty()) return false;
+    auto assignment = [](Node *arm) -> Assign * {
+        if (auto block = Is<Block>(arm)) {
+            if (block->tail || block->stmts.size() != 1) return nullptr;
+            arm = block->stmts[0];
+        }
+        return Is<Assign>(arm);
+    };
+    auto yes = assignment(branch->thenb), no = assignment(branch->elseb);
+    if (!yes || !no || yes->pointee || no->pointee) return false;
+    auto id = Is<Ident>(yes->lval);
+    if (!id || !id->vdef || Resolve(id->vdef) == Resolve(node->vdef)) return false;
+    auto state = Lookup(id->vdef, id->line);
+    if (state.kind != Slot::LOCAL || !IsIntT(state.type) || !IsUnsigned(state.type->intstorage)) return false;
+    auto bits = IntBits(state.type->intstorage);
+    if (bits != 32 && bits != 64) return false;
+    auto same = [&](Node *value) {
+        auto other = Is<Ident>(value);
+        if (!other || !other->vdef || !IsIntT(value->exprtype) ||
+            value->exprtype->intstorage != state.type->intstorage) return false;
+        auto slot = Lookup(other->vdef, other->line);
+        return slot.kind == Slot::LOCAL && slot.index == state.index && slot.type == state.type;
+    };
+    auto literal = [](Node *value, int64_t expected) {
+        auto number = Is<IntLit>(value);
+        return number && IsIntT(value->exprtype) && number->val == expected;
+    };
+    if (!same(no->lval)) return false;
+    auto test = Is<Binary>(branch->cond);
+    if (!test || (test->op != T_NEQ && test->op != T_EQ) || !literal(test->right, 0)) return false;
+    auto mask = Is<Binary>(test->left);
+    if (!mask || mask->op != T_BITAND || !same(mask->left) || !literal(mask->right, 1)) return false;
+    if (test->op == T_EQ) swap(yes, no);
+    if (yes->op != T_ASSIGN) return false;
+    auto mix = Is<Binary>(yes->rhs);
+    if (!mix || mix->op != T_XOR) return false;
+    auto polynomial = Is<IntLit>(mix->right);
+    if (!polynomial || !IsIntT(polynomial->exprtype) ||
+        polynomial->exprtype->intstorage != state.type->intstorage) return false;
+    auto shift = [&](Node *value) {
+        auto binary = Is<Binary>(value);
+        return binary && binary->op == T_SHR && same(binary->left) && literal(binary->right, 1);
+    };
+    if (!shift(mix->left) || !((no->op == T_SHREQ && literal(no->rhs, 1)) ||
+        (no->op == T_ASSIGN && shift(no->rhs)))) return false;
+    uint64_t width_mask = UINT64_MAX;
+    if (bits == 32) width_mask = UINT32_MAX;
+    auto poly = uint64_t(polynomial->val) & width_mask;
+    vector<pair<int, uint64_t>> terms { { -1, 0 } };
+    for (int bit = 0; bit < count->val; bit++) {
+        uint64_t column = uint64_t(1) << bit;
+        for (int iteration = 0; iteration < count->val; iteration++) {
+            if (column & 1) column = (column >> 1) ^ poly;
+            else column >>= 1;
+        }
+        column &= width_mask;
+        if (column) terms.emplace_back(bit, column);
+    }
+    // The recurrence is linear in its low bits. Independent basis columns
+    // replace the serial rounds; a balanced XOR tree combines them exactly.
+    Read(state); auto original = Save(state.type);
+    uint8_t xor_op = 0x73, shift_op = 0x76, and_op = 0x71, sub_op = 0x6b;
+    if (bits == 64) { xor_op = 0x85; shift_op = 0x88; and_op = 0x83; sub_op = 0x7d; }
+    function<void(size_t, size_t)> emit = [&](size_t begin, size_t end) {
+        if (end - begin > 1) {
+            auto middle = begin + (end - begin) / 2;
+            emit(begin, middle); emit(middle, end); code.Op(xor_op); return;
+        }
+        auto [bit, column] = terms[begin];
+        if (bit < 0) { Get(original); Const(state.type, count->val); code.Op(shift_op); return; }
+        Const(state.type, 0); Get(original);
+        if (bit) { Const(state.type, bit); code.Op(shift_op); }
+        Const(state.type, 1); code.Op(and_op); code.Op(sub_op);
+        Const(state.type, bit_cast<int64_t>(column)); code.Op(and_op);
+    };
+    emit(0, terms.size()); Write(state);
+    return true;
+}
+
 inline bool Function::UnrollCount(ForLoop *node, const Slot &binding, TypeExpr *counter_type) {
     auto count = Is<IntLit>(node->iter);
     if (node->iterkind != IK_COUNT || !count || count->val < 1 || count->val > 8 || node->idxdef ||
@@ -575,7 +662,101 @@ inline bool Function::FillLoop(ForLoop *node) {
     return true;
 }
 
+inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Slot &index,
+                                    uint32_t view, uint32_t position, uint32_t limit, TypeExpr *elem) {
+    auto width = node->stripk;
+    if (c.needs_regions || c.region_cursors || width < 2 || width > 8 || node->lanemods.empty() ||
+        !node->fixedlen || node->byref || binding.kind != Slot::LOCAL || index.kind != Slot::LOCAL ||
+        node->vdef->isvar || node->idxdef->isvar || !IsIntT(index.type) || index.type->intstorage != IS_I64 ||
+        !IsIntT(elem) || !IsIntT(binding.type) || elem->intstorage != binding.type->intstorage ||
+        node->body->tail) return false;
+    auto source = Is<Ident>(node->iter);
+    if (!source || !source->vdef || source->exprtype->kind == TY_REF) return false;
+    auto source_type = Lookup(source->vdef, source->line).type;
+    if (source_type->kind != TY_SLICE &&
+        !(source_type->kind == TY_ARRAY && source_type->arr->akind == A_FIXED)) return false;
+    for (auto mod : node->lanemods) {
+        auto counter = Is<Ident>(mod->left);
+        auto divisor = Is<IntLit>(mod->right);
+        if (mod->op != T_MOD || !counter || !counter->vdef ||
+            Resolve(counter->vdef) != Resolve(node->idxdef) || !divisor || divisor->val != width ||
+            divisor->uns || !IsIntT(mod->exprtype) || mod->exprtype->intstorage != IS_I64 ||
+            !IsIntT(counter->exprtype) || counter->exprtype->intstorage != IS_I64 ||
+            !IsIntT(divisor->exprtype) || divisor->exprtype->intstorage != IS_I64) return false;
+    }
+    auto scalar = [](TypeExpr *type) { return type && (IsIntT(type) || type->kind == TY_BOOL); };
+    int budget = 128;
+    function<bool(Node *)> simple = [&](Node *value) {
+        if (!value) return true;
+        if (budget-- == 0) return false;
+        switch (value->nkind) {
+            case NK_Block: break;
+            case NK_VarDecl: {
+                auto decl = static_cast<VarDecl *>(value);
+                if (decl->byref || decl->isglobal || decl->defs.size() != 1) return false;
+                auto local = decl->defs[0];
+                if (!scalar(local->type) || local->captured || local->reusable || addressed.count(local)) return false;
+                break;
+            }
+            case NK_Assign: {
+                auto assign = static_cast<Assign *>(value);
+                if (assign->pointee || assign->op == T_DOTASSIGN || !scalar(assign->lval->exprtype)) return false;
+                break;
+            }
+            case NK_IncDec:
+                if (!scalar(static_cast<IncDec *>(value)->lval->exprtype)) return false;
+                break;
+            case NK_Ident: {
+                auto id = static_cast<Ident *>(value);
+                if (!id->vdef) return false;
+                auto type = Resolve(id->vdef)->type;
+                if (!scalar(type) && type->kind != TY_SLICE &&
+                    !(type->kind == TY_ARRAY && type->arr->akind == A_FIXED)) return false;
+                break;
+            }
+            case NK_Unary:
+                if (static_cast<Unary *>(value)->op == T_BITAND || !scalar(value->exprtype)) return false;
+                break;
+            case NK_IntLit: case NK_BoolLit: case NK_Binary: case NK_AsCast: case NK_Index:
+                if (!scalar(value->exprtype)) return false;
+                break;
+            default: return false;
+        }
+        bool valid = true;
+        value->Children([&](Node *child) { if (valid) valid = simple(child); });
+        return valid;
+    };
+    if (!simple(node->body)) return false;
+    auto previous_mods = lane_mods;
+    auto previous_lane = lane_value;
+    lane_mods = &node->lanemods;
+    auto emit_lane = [&](int lane) {
+        lane_value = lane;
+        // Preserve each iteration's load, stores and possible traps in order.
+        Get(view); code.Op(0xa7); Get(position); code.Op(0xa7);
+        code.I32Const(int32_t(c.Size(elem).size)); code.Op(0x6c); code.Op(0x6a);
+        Load(elem); Convert(elem, binding.type, node->line); Write(binding);
+        Get(position); Write(index);
+        BlockInto(node->body, {}, {});
+        Get(position); code.I64Const(1); code.Op(0x7c); Set(position);
+    };
+    auto done = Begin(), again = Begin(0x03);
+    Get(limit); Get(position); code.Op(0x7d); code.I64Const(width); code.Op(0x54); Br(done, true);
+    for (int lane = 0; lane < width; lane++) emit_lane(lane);
+    Br(again); End(); End();
+    done = Begin();
+    for (int lane = 0; lane < width; lane++) {
+        Get(position); Get(limit); code.Op(0x5a); Br(done, true);
+        emit_lane(lane);
+    }
+    End();
+    lane_mods = previous_mods;
+    lane_value = previous_lane;
+    return true;
+}
+
 inline void Function::For(ForLoop *n) {
+    if (FoldBitLoop(n)) return;
     auto fill = FillLoop(n);
     auto binding = Bind(n->vdef);
     optional<Slot> indexbinding;
@@ -608,6 +789,7 @@ inline void Function::For(ForLoop *n) {
         Get(view); code.Op(0xa7); encoded_cursor = Save(I32);
         Get(*encoded_cursor); encoded_base = Save(I32);
     }
+    if (!numeric && indexbinding && StripSequence(n, binding, *indexbinding, view, lo, hi, elem)) return;
     uint32_t ordinal = Local(I64); code.I64Const(0); Set(ordinal);
     auto done = Begin(), again = Begin(0x03);
     if (!numeric && !n->fixedlen) {
@@ -1100,6 +1282,10 @@ inline void Function::ControlValue(Node *n, const vector<TypeExpr *> &ts, const 
 }
 
 inline void Function::Expr(Node *n) {
+    if (lane_mods && n && n->nkind == NK_Binary &&
+        find(lane_mods->begin(), lane_mods->end(), static_cast<Binary *>(n)) != lane_mods->end()) {
+        Const(n->exprtype, lane_value); return;
+    }
     if (!n) return;
     if (auto literal = Is<ArrayLit>(n); literal && literal->capexpr) {
         auto type = n->exprtype;
