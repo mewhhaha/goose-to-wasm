@@ -1,0 +1,48 @@
+{
+  "method": "Additional listed identities, retained separately from the self-hashed matrix wrapper. Oracle JSON files match repository baseline efb1788; this is not an exhaustive system dependency closure.",
+  "oracle_sha256": {
+    "tests/fixtures/aggregate_print_oracles.json": "ace4b151b829cce2421c6548d42875a9591c22e2e2701f41008d34332650cc69",
+    "tests/fixtures/combined_varint_oracles.json": "040339652adff08d42bb0bd77cf1ca6a9160544a4cb267eaebb60d223795b168",
+    "tests/fixtures/encoded_record_tail_oracles.json": "8a7e64641b5bbc0b86125e307cac68e6d400add268fb396eaae91b85b5147fbb",
+    "tests/fixtures/uleb_length_oracles.json": "d1147c50923b57a9dce56f95ad467bb31926b66e01b57f4c31cc77dd4c453c4f",
+    "tests/fixtures/varint_array_oracles.json": "56cd14a0028d88c41a89f7d4f9678c98e54cf8ff476c53b1b70ffe9327979997",
+    "tests/fixtures/varint_grow_oracles.json": "2e0759589332fa9e9f8c551ae8b91b177659535078e990ec220086fc756b8a16"
+  },
+  "binaries": {
+    "node": {
+      "path": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+      "sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+      "version": "v24.22.1"
+    },
+    "gcc": {
+      "path": "/usr/bin/gcc",
+      "sha256": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+      "version": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "emcc": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc",
+      "sha256": "33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343",
+      "version": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "wasmtime": {
+      "path": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so",
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "version": "50.0.1"
+    }
+  },
+  "compiler_stdlib_sha256": {
+    "stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e"
+  },
+  "binary_hashes_still_match": true
+}

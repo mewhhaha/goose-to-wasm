@@ -77,6 +77,21 @@ def cases():
                 lanes[index%width] ^= mixed
                 total = wrap(total+lanes[index%width],32,False)
             lines.append(f"{lanes} {total}")
+        signed_lanes = [-11,7,31]
+        signed_total = 0
+        wide_lanes = [0xFFFFFFFFFFFFFFF0] * 8
+        for index, value in enumerate(values):
+            lane = index%3
+            before = signed_lanes[lane]
+            updated = wrap(before+(value&31),32)
+            updated = wrap(updated^before,32)
+            signed_lanes[lane] = wrap(updated+1-index,32)
+            signed_total += signed_lanes[lane]
+            lane = index%8
+            before = wide_lanes[lane]
+            updated = wrap(before+value,64,False)^before
+            wide_lanes[lane] = wrap(updated+1+index,64,False)
+        lines.extend([f"{signed_lanes} {signed_total}",str(wide_lanes)])
         called = wrap(sum(value+index%3 for index,value in enumerate(values)),32,False)
         exited = wrap(sum(value+index%3 for index,value in enumerate(values) if index!=1 and index<5),32,False)
         lines.append(f"{called} {count} {exited} {called} {called}")

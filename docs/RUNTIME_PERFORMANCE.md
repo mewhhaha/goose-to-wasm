@@ -1,6 +1,53 @@
 # Runtime performance work
 
-## Latest hill: CRC32 and custom hash
+## Latest hill: basis selects and cached lanes
+
+Starting from `efb1788`, replace each CRC basis mask with a select of its
+constant column or zero, preserving the balanced XOR tree. Cache small fixed
+array lanes in Wasm locals across eligible blocked loops, retaining every
+memory store immediately. Known cached targets then use their constant frame
+offsets instead of rebuilding a slice view and index. Astra reviewed the plan
+and implementation at xhigh effort. Benchmark sources, inputs, warmups and
+engine flags stay unchanged.
+
+Five interleaved baseline/final pairs per engine:
+
+| Workload | V8 seconds before → after | Speedup | Wasmtime seconds before → after | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| CRC32 | 0.6781 → 0.5406 | 1.254× | 0.6892 → 0.4605 | 1.497× |
+| Custom hash | 1.1310 → 1.0405 | 1.087× | 1.1026 → 0.9979 | 1.105× |
+
+CRC32 shrinks from 3,691 to 3,664 bytes; custom hash from 7,710 to 6,635
+bytes (14%). The other five modules remain byte-identical. In the hash's
+emitted `run` function, 32-bit loads fall from 18 to 10, stores remain at 25,
+and Wasm locals fall from 208 to 136. These are Wasm instruction/declaration
+counts, not native machine-code counts.
+
+The cache holds at most eight 32/64-bit integer elements in checked fixed
+frame storage. Its exact lane indices are pure and in bounds. Any unrecognized
+memory write disables caching. Addressed or captured arrays, calls and region
+modules keep the existing path. Immediate stores preserve input aliases and
+partial writes before later traps. Wider signed reads and compound/increment updates
+keep their existing conversions and checks.
+
+The cache alone improves Wasmtime 10% with flat V8, and shrinks the module
+5.7%. The address shortcut adds 6.8% on V8 with effectively flat Wasmtime.
+Those experiments are separate cohorts, not factors to multiply into the final
+ratios above. Scratch-local pooling and packed two-bit CRC terms remain
+unmeasured follow-ups; neither is part of the delivered compiler.
+
+CRC's emitter cost rises in a warm-worker diagnostic, 0.510 → 0.744 ms;
+paired complete cold builds show no meaningful regression. That roughly
+0.23 ms cost remains an emitter hill, alongside the runtime gains.
+
+The [dated evidence](../bench/results/2026-11-01/lanes/README.md) retains all
+pairs, compilation costs, source snapshots, correctness results and the fresh
+three-backend README cohort. The full matrix runs its existing backend jobs
+concurrently, then checks the exact expected row set and replays all 7,560
+native-output comparisons. This preserves coverage while shortening the serial
+qualification path; its timings are separate from benchmark measurements.
+
+## Previous hill: CRC32 and custom hash
 
 Starting from `dda008c`, keep repeated loop kernels callable, fold short
 unsigned bit recurrences into independent XOR terms, and emit small sequence
@@ -44,7 +91,7 @@ Qualification also has an iteration-time hill: its 9,450 runtime subprocesses
 recompile engine modules per case. Reusing a compiled module with fresh
 instances and Wasmtime stores could retain isolation while reducing that work.
 
-## Previous hill: V8 sieve tiering
+## Earlier hill: V8 sieve tiering
 
 Starting from `3065a72`, combine a narrower direct-only inlining policy with
 guarded byte fills. Substantial leaf kernels with nested loops stay callable at

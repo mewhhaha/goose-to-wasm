@@ -20,6 +20,31 @@ recursive fn eight(xs:u32[:],seed:u32) {
     }
     print(lanes," ",total);
 }
+recursive fn signed_lanes(xs:u32[:]) {
+    var lanes:i32[3]=[-11,7,31];
+    var total:i64=0;
+    for value,i in xs {
+        let lane=i%3;
+        let before=lanes[lane];
+        lanes[lane]+=((value&31) as! i32);
+        lanes[lane]^=before;
+        lanes[lane]++;
+        lanes[lane]=lanes[lane]-(i as! i32);
+        total+=lanes[lane];
+    }
+    print(lanes," ",total);
+}
+recursive fn wide_lanes(xs:u32[:]) {
+    var lanes:u64[8]=[0xFFFFFFFFFFFFFFF0;8];
+    for value,i in xs {
+        let before=lanes[i%8];
+        lanes[i%8]+=(value as u64);
+        lanes[i%8]^=before;
+        lanes[i%8]++;
+        lanes[i%8]=lanes[i%8]+(i as u64);
+    }
+    print(lanes);
+}
 var calls=0;
 recursive fn observe(value:u32)->u32 { calls++; return value; }
 recursive fn fallbacks(xs:u32[:]) {
@@ -57,5 +82,5 @@ fn main() {
     var data:u32[17]=[0;17];
     for i in 17 { data[i]=seed+(i as! u32)*37; }
     let xs=data[..count];
-    three(xs,seed); eight(xs,seed); fallbacks(xs);
+    three(xs,seed); eight(xs,seed); signed_lanes(xs); wide_lanes(xs); fallbacks(xs);
 }

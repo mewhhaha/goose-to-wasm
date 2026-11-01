@@ -105,6 +105,7 @@ struct Function {
     uint32_t labelserial = 0;
     const vector<Binary *> *lane_mods = nullptr;
     int lane_value = 0;
+    unordered_map<Index *, vector<Slot>> cached_lanes;
     struct Exit {
         uint32_t label;
         SFunction *sf = nullptr;
@@ -329,6 +330,8 @@ struct Function {
     bool FoldBitLoop(ForLoop *);
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
     bool FillLoop(ForLoop *);
+    optional<Slot> CachedLane(Node *);
+    void CacheLanes(ForLoop *);
     bool StripSequence(ForLoop *, const Slot &, const Slot &, uint32_t, uint32_t, uint32_t, TypeExpr *);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);

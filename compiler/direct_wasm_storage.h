@@ -2,6 +2,12 @@
 namespace goose::direct_wasm {
 
 inline Location Function::PinPlace(Node *node, bool pointee) {
+    if (auto cached = CachedLane(node)) {
+        auto object = static_cast<Ident *>(static_cast<Index *>(node)->obj);
+        auto array = Lookup(object->vdef, object->line);
+        return { cached->type, Slot { Slot::FRAME,
+            array.index + uint32_t(lane_value) * c.Size(cached->type).size, cached->type } };
+    }
     optional<Location> place;
     if (auto id = Is<Ident>(node)) {
         auto slot = Lookup(id->vdef, node->line);

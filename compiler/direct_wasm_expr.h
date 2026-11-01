@@ -305,21 +305,27 @@ inline void Function::AssignNode(Assign *n) {
     }
     if (n->op != T_ASSIGN && n->op != T_DOTASSIGN) {
         if (c.Aggregate(t)) Fail(n->line, "elementwise aggregate assignment is not supported");
-        ReadLocation(place, t);
+        if (auto cached = CachedLane(n->lval)) Read(*cached);
+        else ReadLocation(place, t);
         if (n->op != T_MODEQ || !PowerOfTwoRemainder(n->rhs, t)) {
             To(n->rhs, t); BinaryOp(n->op, t, n->line);
         }
     } else To(n->rhs, t);
     if (c.Aggregate(t)) StoreCopy(place, CaptureStack(t));
-    else WriteLocation(place);
+    else {
+        if (auto cached = CachedLane(n->lval)) Tee(cached->index);
+        WriteLocation(place);
+    }
 }
 inline void Function::IncNode(IncDec *n) {
     auto place = PinPlace(n->lval, true);
     auto t = place.storage_type;
-    ReadLocation(place, t);
+    if (auto cached = CachedLane(n->lval)) Read(*cached);
+    else ReadLocation(place, t);
     if (t->kind == TY_FLT) { if (IsF32(t)) code.F32Const(1); else code.F64Const(1); }
     else Const(t, 1);
     BinaryOp(n->op == T_INC ? T_PLUS : T_MINUS, t, n->line);
+    if (auto cached = CachedLane(n->lval)) Tee(cached->index);
     WriteLocation(place);
 }
 
@@ -543,8 +549,8 @@ inline bool Function::FoldBitLoop(ForLoop *node) {
     // The recurrence is linear in its low bits. Independent basis columns
     // replace the serial rounds; a balanced XOR tree combines them exactly.
     Read(state); auto original = Save(state.type);
-    uint8_t xor_op = 0x73, shift_op = 0x76, and_op = 0x71, sub_op = 0x6b;
-    if (bits == 64) { xor_op = 0x85; shift_op = 0x88; and_op = 0x83; sub_op = 0x7d; }
+    uint8_t xor_op = 0x73, shift_op = 0x76;
+    if (bits == 64) { xor_op = 0x85; shift_op = 0x88; }
     function<void(size_t, size_t)> emit = [&](size_t begin, size_t end) {
         if (end - begin > 1) {
             auto middle = begin + (end - begin) / 2;
@@ -552,10 +558,9 @@ inline bool Function::FoldBitLoop(ForLoop *node) {
         }
         auto [bit, column] = terms[begin];
         if (bit < 0) { Get(original); Const(state.type, count->val); code.Op(shift_op); return; }
-        Const(state.type, 0); Get(original);
-        if (bit) { Const(state.type, bit); code.Op(shift_op); }
-        Const(state.type, 1); code.Op(and_op); code.Op(sub_op);
-        Const(state.type, bit_cast<int64_t>(column)); code.Op(and_op);
+        Const(state.type, bit_cast<int64_t>(column)); Const(state.type, 0); Get(original);
+        if (bits == 64) code.Op(0xa7);
+        code.I32Const(1 << bit); code.Op(0x71); code.Op(0x1b);
     };
     emit(0, terms.size()); Write(state);
     return true;
@@ -662,6 +667,93 @@ inline bool Function::FillLoop(ForLoop *node) {
     return true;
 }
 
+inline optional<Slot> Function::CachedLane(Node *node) {
+    if (cached_lanes.empty()) return {};
+    auto index = Is<Index>(node);
+    if (!index) return {};
+    auto found = cached_lanes.find(index);
+    if (found == cached_lanes.end()) return {};
+    return found->second[lane_value];
+}
+
+inline void Function::CacheLanes(ForLoop *node) {
+    struct Array { Slot slot; vector<Index *> uses; bool valid = true; };
+    vector<Array> arrays;
+    unordered_set<VarDef *> declarations, lane_ids;
+    auto is_lane = [&](Node *value) {
+        auto mod = Is<Binary>(value);
+        return mod && find(node->lanemods.begin(), node->lanemods.end(), mod) != node->lanemods.end();
+    };
+    function<void(Node *)> scan = [&](Node *value) {
+        if (!value) return;
+        if (auto decl = Is<VarDecl>(value)) {
+            auto local = decl->defs[0];
+            declarations.insert(Resolve(local));
+            if (!local->isvar && local->type->kind == TY_INT && local->type->intstorage == IS_I64 &&
+                decl->inits.size() == 1 && is_lane(decl->inits[0])) lane_ids.insert(Resolve(local));
+        }
+        if (auto index = Is<Index>(value)) {
+            auto object = Is<Ident>(index->obj);
+            if (object && object->vdef && IsIntT(index->exprtype)) {
+                auto variable = Resolve(object->vdef);
+                auto slot = Lookup(variable, object->line);
+                auto type = slot.type;
+                if (slot.kind == Slot::FRAME && type->kind == TY_ARRAY && type->arr->akind == A_FIXED &&
+                    type->arr->size == node->stripk && IsIntT(type->arr->sub) &&
+                    IntBits(type->arr->sub->intstorage) >= 32 && !variable->captured &&
+                    !variable->reusable && !addressed.count(variable) && !addressed.count(object->vdef)) {
+                    auto found = find_if(arrays.begin(), arrays.end(), [&](auto &array) {
+                        return array.slot.index == slot.index && array.slot.type == type;
+                    });
+                    if (found == arrays.end()) { arrays.push_back({ slot, {} }); found = prev(arrays.end()); }
+                    auto id = Is<Ident>(index->idx);
+                    found->valid &= is_lane(index->idx) || (id && id->vdef &&
+                        IsIntT(id->exprtype) && id->exprtype->intstorage == IS_I64 && lane_ids.count(Resolve(id->vdef)));
+                    found->uses.push_back(index);
+                }
+            }
+        }
+        value->Children(scan);
+    };
+    scan(node->body);
+    unordered_set<Index *> uses;
+    int count = 0;
+    for (auto &array : arrays) if (array.valid) {
+        count += node->stripk;
+        uses.insert(array.uses.begin(), array.uses.end());
+    }
+    if (!count || count > 8) return;
+    // Cache reads only while every write is either a scalar local or one of
+    // these array lanes. Write-through stores preserve aliases and traps.
+    bool valid = true;
+    function<void(Node *)> writes = [&](Node *value) {
+        if (!value || !valid) return;
+        Node *target = nullptr;
+        if (auto assign = Is<Assign>(value)) target = assign->lval;
+        if (auto inc = Is<IncDec>(value)) target = inc->lval;
+        if (target) {
+            if (auto id = Is<Ident>(target)) {
+                if (!declarations.count(Resolve(id->vdef))) {
+                    auto slot = Lookup(id->vdef, id->line);
+                    valid = slot.kind == Slot::LOCAL && (IsIntT(slot.type) || slot.type->kind == TY_BOOL);
+                }
+            } else valid = uses.count(Is<Index>(target));
+        }
+        value->Children(writes);
+    };
+    writes(node->body);
+    if (!valid) return;
+    for (auto &array : arrays) if (array.valid) {
+        auto elem = array.slot.type->arr->sub;
+        vector<Slot> values;
+        for (int lane = 0; lane < node->stripk; lane++) {
+            auto place = OffsetLocation({ array.slot.type, array.slot }, lane * c.Size(elem).size, elem);
+            ReadLocation(place, elem); values.push_back({ Slot::LOCAL, Save(elem), elem });
+        }
+        for (auto use : array.uses) cached_lanes.emplace(use, values);
+    }
+}
+
 inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Slot &index,
                                     uint32_t view, uint32_t position, uint32_t limit, TypeExpr *elem) {
     auto width = node->stripk;
@@ -729,6 +821,9 @@ inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Sl
     if (!simple(node->body)) return false;
     auto previous_mods = lane_mods;
     auto previous_lane = lane_value;
+    decltype(cached_lanes) previous_cache;
+    previous_cache.swap(cached_lanes);
+    CacheLanes(node);
     lane_mods = &node->lanemods;
     auto emit_lane = [&](int lane) {
         lane_value = lane;
@@ -752,6 +847,7 @@ inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Sl
     End();
     lane_mods = previous_mods;
     lane_value = previous_lane;
+    cached_lanes.swap(previous_cache);
     return true;
 }
 
@@ -1411,6 +1507,7 @@ inline void Function::Expr(Node *n) {
             auto x = static_cast<Index *>(n); auto t = x->obj->exprtype; if (t->kind == TY_REF) t = t->ref->sub;
             auto elem = t->kind == TY_ARRAY ? t->arr->sub : t->kind == TY_SLICE ? t->sub : nullptr;
             if (!elem) Fail(n->line, "unsupported indexed type");
+            if (auto cached = CachedLane(n)) { Read(*cached); Convert(cached->type, n->exprtype, n->line); return; }
             Address(n);
             if (n->exprtype->kind != TY_REF || elem->kind == TY_REF) { Load(elem); Convert(elem, n->exprtype, n->line); }
             return;

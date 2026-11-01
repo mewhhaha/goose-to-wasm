@@ -1,0 +1,2285 @@
+{
+  "status": "passed",
+  "method": "Two warmups per persistent compiler worker, then 12 shuffled pairs. Lexical cache enabled; artifact cache and typed-frontend reuse disabled. Every module matches its qualified artifact. Times are milliseconds.",
+  "source": "/home/jacobt/src/goose-to-wasm/build/performance/next-baseline/source/ports/hash_crc32.goose",
+  "source_sha256": "22891f3c000d0eac66742cfe4bb234ab7ddf3dce0b803aaae15908c0d9a2c4a2",
+  "harness_sha256": "b17c3737271ea4ddff3da0b4842483a5cd77c0c30e2397fca4995814973ebae5",
+  "compiler_sha256": {
+    "baseline": "003623ca7ea7660aa01242065f3fb3488cedc89218fd86fc56dbc02c4eaa33fb",
+    "candidate": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79"
+  },
+  "observations": [
+    {
+      "variant": "baseline",
+      "sample": 0,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 501554,
+        "bce_ns": 194269,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3517966,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 60345,
+        "overlay_files": 0,
+        "parse_ns": 1737583,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 182296,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1343473
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 0,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 752821,
+        "bce_ns": 173049,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3714370,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 59763,
+        "overlay_files": 0,
+        "parse_ns": 1822174,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 177167,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1482217
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 1,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 486295,
+        "bce_ns": 173399,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3622365,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 68030,
+        "overlay_files": 0,
+        "parse_ns": 1847282,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 189079,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1344575
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 1,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 774351,
+        "bce_ns": 173009,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3645921,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 61417,
+        "overlay_files": 0,
+        "parse_ns": 1805433,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 183128,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1422934
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 2,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 713887,
+        "bce_ns": 179030,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3229879,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 60906,
+        "overlay_files": 0,
+        "parse_ns": 1518045,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 172609,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1299289
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 2,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 487226,
+        "bce_ns": 178539,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3768463,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 61447,
+        "overlay_files": 0,
+        "parse_ns": 2013397,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 180113,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1334967
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 3,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 434095,
+        "bce_ns": 173150,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3165207,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 59433,
+        "overlay_files": 0,
+        "parse_ns": 1489240,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 173400,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1269984
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 3,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 727623,
+        "bce_ns": 167548,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3598510,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 69492,
+        "overlay_files": 0,
+        "parse_ns": 1850437,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 176405,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1334628
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 4,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 482547,
+        "bce_ns": 189130,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3623047,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 59523,
+        "overlay_files": 0,
+        "parse_ns": 1829858,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 184551,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1359985
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 4,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 743163,
+        "bce_ns": 170113,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3651610,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 60375,
+        "overlay_files": 0,
+        "parse_ns": 1830348,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 179031,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1411743
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 5,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 525690,
+        "bce_ns": 169402,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3591606,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 68219,
+        "overlay_files": 0,
+        "parse_ns": 1825600,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 179761,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1348624
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 5,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 746659,
+        "bce_ns": 171756,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3537514,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 59854,
+        "overlay_files": 0,
+        "parse_ns": 1786265,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 182718,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1336921
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 6,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 743353,
+        "bce_ns": 180353,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3337594,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 62639,
+        "overlay_files": 0,
+        "parse_ns": 1578530,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 181395,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1334677
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 6,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 519177,
+        "bce_ns": 185993,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3708158,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 62930,
+        "overlay_files": 0,
+        "parse_ns": 1868471,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 189009,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1401755
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 7,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 928194,
+        "bce_ns": 179842,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 4110874,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 59803,
+        "overlay_files": 0,
+        "parse_ns": 2282178,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 261627,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1327424
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 7,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 724627,
+        "bce_ns": 165865,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3504592,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 59844,
+        "overlay_files": 0,
+        "parse_ns": 1773672,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 181545,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1323666
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 8,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 499069,
+        "bce_ns": 168009,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 4121724,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 60705,
+        "overlay_files": 0,
+        "parse_ns": 2307175,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 176997,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1408838
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 8,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 750316,
+        "bce_ns": 165043,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3592088,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 60385,
+        "overlay_files": 0,
+        "parse_ns": 1797517,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 177177,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1391966
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 9,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 593428,
+        "bce_ns": 174632,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 4509341,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 59964,
+        "overlay_files": 0,
+        "parse_ns": 2601815,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 327683,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1345247
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 9,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 743794,
+        "bce_ns": 163671,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3505112,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 60715,
+        "overlay_files": 0,
+        "parse_ns": 1774643,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 183479,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1322604
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 10,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 664533,
+        "bce_ns": 253702,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 4665218,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 86384,
+        "overlay_files": 0,
+        "parse_ns": 2060006,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 330288,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1934838
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 10,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 782337,
+        "bce_ns": 167578,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 4164846,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 60075,
+        "overlay_files": 0,
+        "parse_ns": 2381356,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 176185,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1379652
+      }
+    },
+    {
+      "variant": "candidate",
+      "sample": 11,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 707014,
+        "bce_ns": 179481,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2421,
+        "frontend_ns": 3401695,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "16732544977584769854",
+            "code_bytes": 369,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914281,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3664,
+        "optimize_ns": 179111,
+        "overlay_files": 0,
+        "parse_ns": 1564553,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 175314,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1303236
+      }
+    },
+    {
+      "variant": "baseline",
+      "sample": 11,
+      "stats": {
+        "activation_bytes": 15775824,
+        "backend": "direct",
+        "backend_ns": 544315,
+        "bce_ns": 166316,
+        "checked_leaf_cache_enabled": false,
+        "checked_leaf_reused": false,
+        "checked_scalar_cache_enabled": false,
+        "checked_scalar_reused": false,
+        "code_bytes": 2448,
+        "frontend_ns": 3570116,
+        "frontend_reused": false,
+        "function_info": [
+          {
+            "body_hash": "17199484235287401017",
+            "code_bytes": 1128,
+            "dependencies": [
+              1,
+              2,
+              6,
+              7,
+              9,
+              10,
+              11,
+              12,
+              14
+            ],
+            "index": 13,
+            "name": "main#0"
+          },
+          {
+            "body_hash": "3480564434974372589",
+            "code_bytes": 396,
+            "dependencies": [
+              7
+            ],
+            "index": 14,
+            "name": "run#6"
+          },
+          {
+            "body_hash": "14510790542498921144",
+            "code_bytes": 924,
+            "dependencies": [
+              7,
+              13
+            ],
+            "index": 15,
+            "name": "_start"
+          }
+        ],
+        "functions": 3,
+        "lexical_cache_bypassed_files": 0,
+        "lexical_cache_enabled": true,
+        "lexical_cache_estimated_bytes": 1914283,
+        "lexical_cache_evictions": 0,
+        "lexical_cache_files": 3,
+        "lexical_lookahead_hits": 0,
+        "lexical_reused_files": 3,
+        "lexical_reused_tokens": 10808,
+        "lexical_scanned_tokens": 0,
+        "module_bytes": 3691,
+        "optimize_ns": 60755,
+        "overlay_files": 0,
+        "parse_ns": 1804530,
+        "parsed_cache_hits": 0,
+        "parsed_files": 3,
+        "parsed_syntax_reused": false,
+        "region_bytes": 0,
+        "region_count": 0,
+        "resolve_ns": 189070,
+        "scanned_source_files": 0,
+        "semantic_reused": false,
+        "source_files": 3,
+        "specializations": 69,
+        "syntax_cache_enabled": false,
+        "typecheck_ns": 1349445
+      }
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "backend_milliseconds": {
+        "n": 12,
+        "median": 0.5103655,
+        "mad": 0.025944500000000037,
+        "min": 0.434095,
+        "max": 0.928194,
+        "p25": 0.48699325,
+        "p75": 0.5565932499999999,
+        "samples": [
+          0.501554,
+          0.486295,
+          0.487226,
+          0.434095,
+          0.482547,
+          0.52569,
+          0.519177,
+          0.928194,
+          0.499069,
+          0.593428,
+          0.664533,
+          0.544315
+        ]
+      },
+      "frontend_milliseconds": {
+        "n": 12,
+        "median": 3.6656025000000003,
+        "mad": 0.1252485000000001,
+        "min": 3.165207,
+        "max": 4.665218,
+        "p25": 3.5862335,
+        "p75": 4.1135865,
+        "samples": [
+          3.517966,
+          3.622365,
+          3.768463,
+          3.165207,
+          3.623047,
+          3.591606,
+          3.708158,
+          4.110874,
+          4.121724,
+          4.509341,
+          4.665218,
+          3.570116
+        ]
+      },
+      "parse_milliseconds": {
+        "n": 12,
+        "median": 1.8578765000000002,
+        "mad": 0.1379069999999999,
+        "min": 1.48924,
+        "max": 2.601815,
+        "p25": 1.8203325,
+        "p75": 2.115549,
+        "samples": [
+          1.737583,
+          1.847282,
+          2.013397,
+          1.48924,
+          1.829858,
+          1.8256,
+          1.868471,
+          2.282178,
+          2.307175,
+          2.601815,
+          2.060006,
+          1.80453
+        ]
+      },
+      "resolve_milliseconds": {
+        "n": 12,
+        "median": 0.18678,
+        "mad": 0.006843000000000002,
+        "min": 0.1734,
+        "max": 0.330288,
+        "p25": 0.180025,
+        "p75": 0.207216,
+        "samples": [
+          0.182296,
+          0.189079,
+          0.180113,
+          0.1734,
+          0.184551,
+          0.179761,
+          0.189009,
+          0.261627,
+          0.176997,
+          0.327683,
+          0.330288,
+          0.18907
+        ]
+      },
+      "typecheck_milliseconds": {
+        "n": 12,
+        "median": 1.3469355,
+        "mad": 0.012508999999999992,
+        "min": 1.269984,
+        "max": 1.934838,
+        "p25": 1.3413465,
+        "p75": 1.3704275,
+        "samples": [
+          1.343473,
+          1.344575,
+          1.334967,
+          1.269984,
+          1.359985,
+          1.348624,
+          1.401755,
+          1.327424,
+          1.408838,
+          1.345247,
+          1.934838,
+          1.349445
+        ]
+      },
+      "optimize_milliseconds": {
+        "n": 12,
+        "median": 0.060730000000000006,
+        "mad": 0.0010670000000000054,
+        "min": 0.059433,
+        "max": 0.086384,
+        "p25": 0.059923750000000005,
+        "p75": 0.064205,
+        "samples": [
+          0.060345,
+          0.06803,
+          0.061447,
+          0.059433,
+          0.059523,
+          0.068219,
+          0.06293,
+          0.059803,
+          0.060705,
+          0.059964,
+          0.086384,
+          0.060755
+        ]
+      },
+      "bce_milliseconds": {
+        "n": 12,
+        "median": 0.1765855,
+        "mad": 0.007880000000000012,
+        "min": 0.166316,
+        "max": 0.253702,
+        "p25": 0.172213,
+        "p75": 0.18677725,
+        "samples": [
+          0.194269,
+          0.173399,
+          0.178539,
+          0.17315,
+          0.18913,
+          0.169402,
+          0.185993,
+          0.179842,
+          0.168009,
+          0.174632,
+          0.253702,
+          0.166316
+        ]
+      }
+    },
+    "candidate": {
+      "backend_milliseconds": {
+        "n": 12,
+        "median": 0.7435735,
+        "mad": 0.012598999999999971,
+        "min": 0.707014,
+        "max": 0.782337,
+        "p25": 0.726874,
+        "p75": 0.75094225,
+        "samples": [
+          0.752821,
+          0.774351,
+          0.713887,
+          0.727623,
+          0.743163,
+          0.746659,
+          0.743353,
+          0.724627,
+          0.750316,
+          0.743794,
+          0.782337,
+          0.707014
+        ]
+      },
+      "frontend_milliseconds": {
+        "n": 12,
+        "median": 3.564801,
+        "mad": 0.08396449999999978,
+        "min": 3.229879,
+        "max": 4.164846,
+        "p25": 3.47886775,
+        "p75": 3.64734325,
+        "samples": [
+          3.71437,
+          3.645921,
+          3.229879,
+          3.59851,
+          3.65161,
+          3.537514,
+          3.337594,
+          3.504592,
+          3.592088,
+          3.505112,
+          4.164846,
+          3.401695
+        ]
+      },
+      "parse_milliseconds": {
+        "n": 12,
+        "median": 1.7918910000000001,
+        "mad": 0.0343699999999999,
+        "min": 1.518045,
+        "max": 2.381356,
+        "p25": 1.7248865,
+        "p75": 1.8242175,
+        "samples": [
+          1.822174,
+          1.805433,
+          1.518045,
+          1.850437,
+          1.830348,
+          1.786265,
+          1.57853,
+          1.773672,
+          1.797517,
+          1.774643,
+          2.381356,
+          1.564553
+        ]
+      },
+      "resolve_milliseconds": {
+        "n": 12,
+        "median": 0.17810399999999998,
+        "mad": 0.0030405000000000015,
+        "min": 0.172609,
+        "max": 0.183479,
+        "p25": 0.17635,
+        "p75": 0.18183825,
+        "samples": [
+          0.177167,
+          0.183128,
+          0.172609,
+          0.176405,
+          0.179031,
+          0.182718,
+          0.181395,
+          0.181545,
+          0.177177,
+          0.183479,
+          0.176185,
+          0.175314
+        ]
+      },
+      "typecheck_milliseconds": {
+        "n": 12,
+        "median": 1.335799,
+        "mad": 0.03453649999999997,
+        "min": 1.299289,
+        "max": 1.482217,
+        "p25": 1.3234005,
+        "p75": 1.39691025,
+        "samples": [
+          1.482217,
+          1.422934,
+          1.299289,
+          1.334628,
+          1.411743,
+          1.336921,
+          1.334677,
+          1.323666,
+          1.391966,
+          1.322604,
+          1.379652,
+          1.303236
+        ]
+      },
+      "optimize_milliseconds": {
+        "n": 12,
+        "median": 0.06055,
+        "mad": 0.0007010000000000002,
+        "min": 0.059763,
+        "max": 0.179111,
+        "p25": 0.060019750000000004,
+        "p75": 0.0617225,
+        "samples": [
+          0.059763,
+          0.061417,
+          0.060906,
+          0.069492,
+          0.060375,
+          0.059854,
+          0.062639,
+          0.059844,
+          0.060385,
+          0.060715,
+          0.060075,
+          0.179111
+        ]
+      },
+      "bce_milliseconds": {
+        "n": 12,
+        "median": 0.1709345,
+        "mad": 0.004227999999999982,
+        "min": 0.163671,
+        "max": 0.180353,
+        "p25": 0.16712725,
+        "p75": 0.17454425,
+        "samples": [
+          0.173049,
+          0.173009,
+          0.17903,
+          0.167548,
+          0.170113,
+          0.171756,
+          0.180353,
+          0.165865,
+          0.165043,
+          0.163671,
+          0.167578,
+          0.179481
+        ]
+      }
+    }
+  }
+}

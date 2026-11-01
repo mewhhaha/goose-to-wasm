@@ -1,0 +1,78 @@
+[
+  {
+    "variant": "baseline",
+    "task": "Hash::CRC32",
+    "artifact_sha256": "ef6a7a20f907b4d938793b27b33414e05c2d064004e6a5937d5fbd58b4f6e3b9",
+    "wat_sha256": "fcbdf06b235ab067c75ab0804cadcc91784ae6a98e9f2d2df0fc93fa35361b6f",
+    "wat_archive_path": "baseline-Hash_CRC32.wat",
+    "run_wat_counts": {
+      "i32.load": 1,
+      "i32.store": 1,
+      "i32.load8_u": 1,
+      "i32.and": 17,
+      "i32.shr_u": 8,
+      "select": 0
+    },
+    "run_wasm_local_counts": {
+      "i32": 10,
+      "i64": 10
+    }
+  },
+  {
+    "variant": "baseline",
+    "task": "Hash::SHA256",
+    "artifact_sha256": "b9971eec3ae8f7959b0f33fc4ced6daa83fd9bced13b116766c06468cd123fb6",
+    "wat_sha256": "9b3b272833e0d7bfc0bd4b50e914f08e1963de27ee9b94d125853fb0a078ec51",
+    "wat_archive_path": "baseline-Hash_SHA256.wat",
+    "run_wat_counts": {
+      "i32.load": 18,
+      "i32.store": 25,
+      "i32.load8_u": 16,
+      "i32.and": 82,
+      "i32.shr_u": 20,
+      "select": 0
+    },
+    "run_wasm_local_counts": {
+      "i32": 103,
+      "i64": 105
+    }
+  },
+  {
+    "variant": "candidate",
+    "task": "Hash::CRC32",
+    "artifact_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+    "wat_sha256": "343b19cc0c0840e88904f4bbae18e1ffcb0a895adc91e127925c07f86203eb14",
+    "wat_archive_path": "candidate-Hash_CRC32.wat",
+    "run_wat_counts": {
+      "i32.load": 1,
+      "i32.store": 1,
+      "i32.load8_u": 1,
+      "i32.and": 9,
+      "i32.shr_u": 1,
+      "select": 8
+    },
+    "run_wasm_local_counts": {
+      "i32": 10,
+      "i64": 10
+    }
+  },
+  {
+    "variant": "candidate",
+    "task": "Hash::SHA256",
+    "artifact_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+    "wat_sha256": "3594f318999aeb0afa6e1c6bf6c3a84a1323a54383ecb43656c0331372345bb3",
+    "wat_archive_path": "candidate-Hash_SHA256.wat",
+    "run_wat_counts": {
+      "i32.load": 10,
+      "i32.store": 25,
+      "i32.load8_u": 16,
+      "i32.and": 82,
+      "i32.shr_u": 20,
+      "select": 0
+    },
+    "run_wasm_local_counts": {
+      "i32": 95,
+      "i64": 41
+    }
+  }
+]
