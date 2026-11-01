@@ -1,0 +1,954 @@
+{
+  "schema": "goose-paired-runtime-v1",
+  "status": "passed",
+  "started_utc": "2026-11-01T15:45:26.088125+00:00",
+  "environment": {
+    "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]",
+    "cpu": "AMD Ryzen 7 3800X 8-Core Processor",
+    "logical_cpu_count": 16,
+    "supplied_machine_label": "AMD Ryzen 7 3800X, shared desktop host",
+    "node": {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "-p",
+        "JSON.stringify(process.versions)"
+      ],
+      "exit_code": 0,
+      "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"
+    },
+    "native_cc": {
+      "command": [
+        "/usr/bin/gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "emcc": {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "wasmtime": "50.0.1",
+    "compiler_sha256": "919ca12753c25eaa5079dc9e22210376dccf33d0d6bc83d17343c0658105dd33",
+    "installed_stdlib_sha256": {
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-round2-baseline/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e"
+    },
+    "input_sha256": {
+      "bench/langarena.py": "2469c5d008cd3d1f3fa211f92bf4fc1ab20bd7e583e055cdc5f2f6970bc94865",
+      "bench/langarena/manifest.json": "95383d34c7f2214e5b7cfd346b0d0742c23df81f9d568ef4c6dad7c8a6302646",
+      "bench/langarena/test.json": "424371dd25f3fa3f779789c823a05dbe90d2eddbc2a3ca3c5e4319252c572797",
+      "bench/langarena/run.json": "8fe7baed41e8eb0a233057c4406446029f7e5d792cf3a3ac6fc7e714964a155f",
+      "scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33",
+      "oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+      "scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+      "scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+      "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+      "bench/langarena/ports/common.goose": "c25a158f5d17037c46243c970a573e846080c4c8adfd32164ad1b6212d91a65c",
+      "bench/langarena/ports/fannkuch.goose": "13fe4b2630a22e717ba583e9c9b255cc3ccc6c605351a652bb73e07d636ee004",
+      "bench/langarena/ports/hash_crc32.goose": "22891f3c000d0eac66742cfe4bb234ab7ddf3dce0b803aaae15908c0d9a2c4a2",
+      "bench/langarena/ports/hash_sha256.goose": "e530813993a835ec10b4e8978d3d5d82d585a1a55b0291045e2afe046c8ebf1e",
+      "bench/langarena/ports/mandelbrot.goose": "017d40be3efc3d0aa3d629fabfa843cf676193a7507c6e653cdb6981c19adf8d",
+      "bench/langarena/ports/sieve.goose": "849b68f2113209776b638f22d5c1500b38138ee211ed269c6e8be351a6b17b70",
+      "bench/langarena/ports/sort_merge.goose": "54358db410344035b3f86c24563d961fa6c5029ca5d73ee633adee2a654391dc",
+      "bench/langarena/ports/sort_quick.goose": "5c838972c053214766fb5dd8cd577f4db569d92e3940938ee20830a4aeca9f79"
+    },
+    "upstream_revision": "aab9b14998231ba905523b5ba3990ee03c46f64d",
+    "toolchain": {
+      "schema": "goose-to-wasm-toolchain-v1",
+      "repository": "https://github.com/aardappel/goose.git",
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "emscripten": "6.0.13",
+      "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+      "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "wasmtime_python": "50.0.1",
+      "patches": [
+        "oracle/patches/0001-webassembly-target.patch",
+        "patches/direct-target.patch"
+      ],
+      "minimum_cmake": "3.27",
+      "minimum_python": "3.10"
+    },
+    "environment_overrides": {
+      "EM_NODE_JS": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+      "EM_CONFIG": null,
+      "EM_CACHE": "/home/jacobt/src/goose-to-wasm/build/em-cache",
+      "EMCC_CORES": "2",
+      "TMPDIR": "/home/jacobt/src/goose-to-wasm/build/tmp",
+      "GOOSE_STDLIB": null
+    },
+    "target_profiles": {
+      "direct": "memory32; explicit bounds; no LLVM",
+      "c-wasm": "LP64 memory64; WASI64; standard Wasm EH",
+      "native": "native C; -O2 -fno-strict-aliasing -ffp-contract=off"
+    }
+  },
+  "inputs": {
+    "baseline": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/report.json",
+      "sha256": "6d5e23597d02fc8da0327c2db4eca0b7e5553e566a4b9ff52b1ee98807fa6bdd",
+      "compiler_sha256": "919ca12753c25eaa5079dc9e22210376dccf33d0d6bc83d17343c0658105dd33"
+    },
+    "candidate": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/report.json",
+      "sha256": "0b95a9c95f8903b6431467c9b0d0db23776cfeb864ed28278cb7096a8bb16b32",
+      "compiler_sha256": "7c909dd0fc6931763a839feeea24ac18c3b718ba95f9a3206e8f491db0868432"
+    }
+  },
+  "observations": [
+    {
+      "sample": 4,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/4/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1000184038\n",
+      "stderr": "",
+      "wall_seconds": 1.296859415,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.000184038,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4181569,
+        "start_function_ns": 1209170312,
+        "engine_total_ns": 1213351881
+      }
+    },
+    {
+      "sample": 4,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/4/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1042581503\n",
+      "stderr": "",
+      "wall_seconds": 1.338422364,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.042581503,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4436163,
+        "start_function_ns": 1248946384,
+        "engine_total_ns": 1253382547
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/1/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1052763911\n",
+      "stderr": "",
+      "wall_seconds": 1.351812509,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.052763911,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4363194,
+        "start_function_ns": 1263974382,
+        "engine_total_ns": 1268337576
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/1/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1010005759\n",
+      "stderr": "",
+      "wall_seconds": 1.311825023,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.010005759,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4315023,
+        "start_function_ns": 1221365484,
+        "engine_total_ns": 1225680507
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/0/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1049539791\n",
+      "stderr": "",
+      "wall_seconds": 1.351928248,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.049539791,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5004974,
+        "start_function_ns": 1257628749,
+        "engine_total_ns": 1262633723
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/0/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n997205637\n",
+      "stderr": "",
+      "wall_seconds": 1.29717255,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 0.997205637,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5768787,
+        "start_function_ns": 1207091801,
+        "engine_total_ns": 1212860588
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/3/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1058993352\n",
+      "stderr": "",
+      "wall_seconds": 1.354893015,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.058993352,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4767463,
+        "start_function_ns": 1267793212,
+        "engine_total_ns": 1272560675
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/3/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1023202525\n",
+      "stderr": "",
+      "wall_seconds": 1.326870255,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.023202525,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4403511,
+        "start_function_ns": 1237610134,
+        "engine_total_ns": 1242013645
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/2/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4246349962\n",
+      "stderr": "",
+      "wall_seconds": 5.139367792,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.246349962,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 248914,
+        "start_function_ns": 5110964258,
+        "engine_total_ns": 5111213172
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/2/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4179635071\n",
+      "stderr": "",
+      "wall_seconds": 5.044729229,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.179635071,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 267729,
+        "start_function_ns": 5013931093,
+        "engine_total_ns": 5014198822
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/0/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4168907398\n",
+      "stderr": "",
+      "wall_seconds": 5.108333268,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.168907398,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 373630,
+        "start_function_ns": 5064340029,
+        "engine_total_ns": 5064713659
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/0/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4210736284\n",
+      "stderr": "",
+      "wall_seconds": 5.107424161,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.210736284,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 300582,
+        "start_function_ns": 5077211197,
+        "engine_total_ns": 5077511779
+      }
+    },
+    {
+      "sample": 4,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/4/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4206958614\n",
+      "stderr": "",
+      "wall_seconds": 5.092033655,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.206958614,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 308046,
+        "start_function_ns": 5064190966,
+        "engine_total_ns": 5064499012
+      }
+    },
+    {
+      "sample": 4,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/4/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4295696821\n",
+      "stderr": "",
+      "wall_seconds": 5.1904125,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.295696821,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 393277,
+        "start_function_ns": 5161961085,
+        "engine_total_ns": 5162354362
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/3/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4171072367\n",
+      "stderr": "",
+      "wall_seconds": 5.060947171,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.171072367,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 277878,
+        "start_function_ns": 5031867162,
+        "engine_total_ns": 5032145040
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/3/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4194307756\n",
+      "stderr": "",
+      "wall_seconds": 5.083174456,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.194307756,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 257580,
+        "start_function_ns": 5052597080,
+        "engine_total_ns": 5052854660
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/1/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4199449261\n",
+      "stderr": "",
+      "wall_seconds": 5.088964864,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.199449261,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 239936,
+        "start_function_ns": 5059307847,
+        "engine_total_ns": 5059547783
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/v8/1/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n4193080565\n",
+      "stderr": "",
+      "wall_seconds": 5.092412939,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 4.193080565,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 259914,
+        "start_function_ns": 5059530572,
+        "engine_total_ns": 5059790486
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "dd911183ebc6834514a021aa565e8eb0ad24d9a9026123135fa2f4282c7b2e58",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-baseline/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/2/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n1044128716\n",
+      "stderr": "",
+      "wall_seconds": 1.339059116,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 1.044128716,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4692480,
+        "start_function_ns": 1250952229,
+        "engine_total_ns": 1255644709
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "3027ac6c0dae15fa26360eedb6d33db3f1db71d6063dac902db789cf9de1af22",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal/logs/compile/adapted/Hash_CRC32/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/ordinal-paired/logs/Hash_CRC32/wasmtime/2/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "1000000 150 30\n",
+      "returncode": 0,
+      "stdout": "2318723244\n984410895\n",
+      "stderr": "",
+      "wall_seconds": 1.278724994,
+      "error": "",
+      "checksum": 2318723244,
+      "expected_checksum": 2318723244,
+      "timed_region_seconds": 0.984410895,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4598711,
+        "start_function_ns": 1189522695,
+        "engine_total_ns": 1194121406
+      }
+    }
+  ],
+  "summary": [
+    {
+      "task": "Hash::CRC32",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 4.210736284,
+        "mad": 0.016428528000000497,
+        "min": 4.194307756,
+        "max": 4.295696821,
+        "p25": 4.199449261,
+        "p75": 4.246349962,
+        "samples": [
+          4.246349962,
+          4.210736284,
+          4.295696821,
+          4.194307756,
+          4.199449261
+        ]
+      },
+      "baseline_startup": {
+        "n": 5,
+        "median": 0.00025758,
+        "mad": 1.7643999999999982e-05,
+        "min": 0.000239936,
+        "max": 0.000393277,
+        "p25": 0.000248914,
+        "p75": 0.000300582,
+        "samples": [
+          0.000248914,
+          0.000300582,
+          0.000393277,
+          0.00025758,
+          0.000239936
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 4.179635071,
+        "mad": 0.010727672999999882,
+        "min": 4.168907398,
+        "max": 4.206958614,
+        "p25": 4.171072367,
+        "p75": 4.193080565,
+        "samples": [
+          4.179635071,
+          4.168907398,
+          4.206958614,
+          4.171072367,
+          4.193080565
+        ]
+      },
+      "candidate_startup": {
+        "n": 5,
+        "median": 0.000277878,
+        "mad": 1.7964000000000033e-05,
+        "min": 0.000259914,
+        "max": 0.00037363,
+        "p25": 0.000267729,
+        "p75": 0.000308046,
+        "samples": [
+          0.000267729,
+          0.00037363,
+          0.000308046,
+          0.000277878,
+          0.000259914
+        ]
+      },
+      "speedup": 1.0074411312164053,
+      "paired_speedups": {
+        "n": 5,
+        "median": 1.0100335368495035,
+        "mad": 0.005928356920336553,
+        "min": 1.0015188584863264,
+        "max": 1.0210931970437491,
+        "p25": 1.0055706031820089,
+        "p75": 1.01596189376984,
+        "samples": [
+          1.01596189376984,
+          1.0100335368495035,
+          1.0210931970437491,
+          1.0055706031820089,
+          1.0015188584863264
+        ]
+      }
+    },
+    {
+      "task": "Hash::CRC32",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 1.049539791,
+        "mad": 0.005411075000000043,
+        "min": 1.042581503,
+        "max": 1.058993352,
+        "p25": 1.044128716,
+        "p75": 1.052763911,
+        "samples": [
+          1.042581503,
+          1.052763911,
+          1.049539791,
+          1.058993352,
+          1.044128716
+        ]
+      },
+      "baseline_startup": {
+        "n": 5,
+        "median": 0.00469248,
+        "mad": 0.00025631699999999983,
+        "min": 0.004363194,
+        "max": 0.005004974,
+        "p25": 0.004436163,
+        "p75": 0.004767463,
+        "samples": [
+          0.004436163,
+          0.004363194,
+          0.005004974,
+          0.004767463,
+          0.00469248
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 1.000184038,
+        "mad": 0.009821721000000005,
+        "min": 0.984410895,
+        "max": 1.023202525,
+        "p25": 0.997205637,
+        "p75": 1.010005759,
+        "samples": [
+          1.000184038,
+          1.010005759,
+          0.997205637,
+          1.023202525,
+          0.984410895
+        ]
+      },
+      "candidate_startup": {
+        "n": 5,
+        "median": 0.004403511,
+        "mad": 0.0001952000000000004,
+        "min": 0.004181569,
+        "max": 0.005768787,
+        "p25": 0.004315023,
+        "p75": 0.004598711,
+        "samples": [
+          0.004181569,
+          0.004315023,
+          0.005768787,
+          0.004403511,
+          0.004598711
+        ]
+      },
+      "speedup": 1.0493466713373003,
+      "paired_speedups": {
+        "n": 5,
+        "median": 1.0423896636910737,
+        "mad": 0.007410442935143591,
+        "min": 1.03497922075593,
+        "max": 1.0606635108401556,
+        "p25": 1.0423345625695586,
+        "p75": 1.052480804418076,
+        "samples": [
+          1.0423896636910737,
+          1.0423345625695586,
+          1.052480804418076,
+          1.03497922075593,
+          1.0606635108401556
+        ]
+      }
+    }
+  ],
+  "compile_observations": [],
+  "compile_summary": [],
+  "harness_sha256": "db53ae26ec187d1d252ef31fec389a3cfa2e49768463802082d479be7b274192",
+  "method": "Shuffled task/engine pairs; baseline/candidate order shuffled within every pair. Official production inputs and warmups. No concurrent work launched by this harness. Shared desktop host.",
+  "finished_utc": "2026-11-01T15:46:30.367755+00:00"
+}

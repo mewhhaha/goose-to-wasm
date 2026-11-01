@@ -101,6 +101,9 @@ def main():
     report_bytes = REPORT.read_bytes()
     report = json.loads(report_bytes)
     assert report["status"] == "passed"
+    for source, expected in report["sources"].items():
+        if hashlib.sha256((REPORT.parent / source).read_bytes()).hexdigest() != expected:
+            raise ValueError(f"Measurement source changed: {source}")
     chart = report["chart"]
     footer = f"{chart['date']} · {chart['host']} · {chart['samples']} samples · whiskers: ±MAD"
     builds = {
@@ -117,7 +120,7 @@ def main():
     fig.legend(handles, [b[1] for b in BACKENDS], loc="upper left", bbox_to_anchor=(0.067, 0.87),
                ncols=3, frameon=False, fontsize=11)
     fig.text(0.075, 0.055, footer, fontsize=10, color="#475569")
-    fig.text(0.075, 0.025, "C references collected separately; same sources and host.", fontsize=10, color="#475569")
+    fig.text(0.075, 0.025, chart.get("compilation_note", "C references collected separately; same sources and host."), fontsize=10, color="#475569")
     save(fig, "compilation.svg", "Goose compilation time by backend", report_bytes, chart)
 
     fig = figure(8, "Runtime", "Configured measured iterations · seconds · lower is better")
@@ -137,7 +140,7 @@ def main():
     fig.legend(handles, [b[1] for b in BACKENDS], loc="upper left", bbox_to_anchor=(0.067, 0.87),
                ncols=3, frameon=False, fontsize=11)
     fig.text(0.075, 0.055, footer, fontsize=10, color="#475569")
-    fig.text(0.075, 0.025, "Preparation, warmups and startup excluded. C references measured separately.", fontsize=10, color="#475569")
+    fig.text(0.075, 0.025, chart.get("runtime_note", "Preparation, warmups and startup excluded. C references measured separately."), fontsize=10, color="#475569")
     save(fig, "runtime.svg", "Goose runtime by backend and Wasm engine", report_bytes, chart)
     print(f"Rendered {OUTPUT.relative_to(ROOT)} from {REPORT.relative_to(ROOT)}")
 

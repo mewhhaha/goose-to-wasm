@@ -51,6 +51,33 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    for seed, mode in [(x, 0) for x in (0, 1, 0x12345678, -1, 0xFFFFFFFF, -(1 << 63))] + [(0, 1), ((1 << 63) - 3, 1)]:
+        crc = 0xFFFFFFFF ^ wrap(seed, 32, False)
+        for _ in range(8):
+            if crc & 1:
+                crc = (crc >> 1) ^ 0xEDB88320
+            else:
+                crc >>= 1
+        answer = f"{crc ^ 0xFFFFFFFF}\n{wrap(seed + 248, 8, False)}\n55\n0 36\n21 7\n{seed}\n"
+        for debug in (False, True):
+            stdout = answer
+            exit_code = 0
+            diagnostic = ""
+            if mode:
+                if debug and seed > (1 << 63) - 9:
+                    exit_code = 1
+                    diagnostic = "overflow"
+                else:
+                    stdout += f"{wrap(seed + 8, 64)}\n"
+            result.append(Case(f"codegen/unroll/{seed}/{mode}/{debug}", "codegen_unroll",
+                               f"{seed} {mode}\n", stdout, exit_code=exit_code, diagnostic=diagnostic, debug=debug))
+    for count in (0, 1, 5, 17):
+        exits = sum(i for i in range(2, min(count + 2, 7)) if i != 4)
+        total = count * (count - 1) // 2
+        answer = f"8 145 {3 * total}\n32640 256\n{total} {exits}\n"
+        for debug in (False, True):
+            result.append(Case(f"codegen/loop-indices/{count}/{debug}", "codegen_loop_indices",
+                               f"{count}\n", answer, debug=debug, group="control"))
     for debug in (False, True):
         result.append(Case(f"codegen/aliases/{debug}", "codegen_aliases",
                            stdout="8 1\n8 100 100 1\n[8, 100] 1 1\n", debug=debug, group="storage"))

@@ -474,6 +474,61 @@ inline void Function::SliceView(SliceExpr *n) {
     Get(hi); Get(lo); code.Op(0x7d); code.I64Const(32); code.Op(0x86); code.Op(0x84);
 }
 
+inline bool Function::UnrollCount(ForLoop *node, const Slot &binding, TypeExpr *counter_type) {
+    auto count = Is<IntLit>(node->iter);
+    if (node->iterkind != IK_COUNT || !count || count->val < 1 || count->val > 8 || node->idxdef ||
+        binding.kind != Slot::LOCAL || node->vdef->isvar || !IsIntT(counter_type) ||
+        !IsIntT(binding.type) || counter_type->intstorage != binding.type->intstorage) return false;
+    auto scalar = [](TypeExpr *type) { return type && (IsIntT(type) || type->kind == TY_BOOL); };
+    auto target = [&](Node *value) {
+        auto id = Is<Ident>(value);
+        if (!id || !id->vdef) return false;
+        auto slot = Lookup(id->vdef, id->line);
+        return slot.kind == Slot::LOCAL && scalar(slot.type);
+    };
+    // No declarations, calls, addresses or exits: all binder uses are
+    // explicit, and each copy can use the normal balanced block cleanup.
+    int budget = 32;
+    bool uses_counter = false;
+    function<bool(Node *)> simple = [&](Node *value) {
+        if (!value) return true;
+        if (budget-- == 0) return false;
+        switch (value->nkind) {
+            case NK_Block: case NK_IfExpr: break;
+            case NK_Assign: {
+                auto assign = static_cast<Assign *>(value);
+                if (assign->pointee || assign->op == T_DOTASSIGN || !target(assign->lval)) return false;
+                break;
+            }
+            case NK_IncDec:
+                if (!target(static_cast<IncDec *>(value)->lval)) return false;
+                break;
+            case NK_Ident: {
+                if (!scalar(value->exprtype) || !target(value)) return false;
+                auto slot = Lookup(static_cast<Ident *>(value)->vdef, value->line);
+                uses_counter |= slot.index == binding.index;
+                break;
+            }
+            case NK_Unary:
+                if (static_cast<Unary *>(value)->op == T_BITAND || !scalar(value->exprtype)) return false;
+                break;
+            case NK_IntLit: case NK_BoolLit: case NK_Binary:
+                if (!scalar(value->exprtype)) return false;
+                break;
+            default: return false;
+        }
+        bool valid = true;
+        value->Children([&](Node *child) { if (valid) valid = simple(child); });
+        return valid;
+    };
+    if (!simple(node->body)) return false;
+    for (int64_t iteration = 0; iteration < count->val; iteration++) {
+        if (uses_counter) { Const(binding.type, iteration); Write(binding); }
+        BlockInto(node->body, {}, {});
+    }
+    return true;
+}
+
 inline void Function::For(ForLoop *n) {
     auto binding = Bind(n->vdef);
     optional<Slot> indexbinding;
@@ -481,6 +536,7 @@ inline void Function::For(ForLoop *n) {
     auto range = Is<RangeExpr>(n->iter);
     bool numeric = n->iterkind == IK_RANGE || n->iterkind == IK_COUNT;
     auto ct = numeric ? (range ? range->exprtype : n->iter->exprtype) : c.ast.inttypes[IS_I64];
+    if (numeric && UnrollCount(n, binding, ct)) return;
     uint32_t lo, hi, view = 0;
     TypeExpr *elem = nullptr;
     function<void()> sequence;

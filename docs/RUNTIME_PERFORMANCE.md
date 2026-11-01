@@ -1,6 +1,32 @@
 # Runtime performance work
 
-## Measured gains
+## Latest hill: small count loops
+
+The next batch starts from `ce282be`. Unroll literal count loops of 1–8
+iterations when their body fits a 32-node budget and uses only scalar locals.
+Validate the entire body before emitting; keep calls, declarations, references,
+addresses, exits and nested loops on the existing path. Each copy retains normal
+arithmetic checks, short-circuit evaluation and block cleanup. Astra reviewed
+this gate at xhigh effort.
+
+Five interleaved CRC32 pairs measure 1.084× on V8 and 1.085× on Wasmtime.
+Every paired speedup is at least 1.060× on V8 and 1.075× on Wasmtime. The CRC32
+module grows from 3,956 to 4,466 bytes (+510, 12.9%); the other six workload modules
+are byte-identical. Complete cold build medians are 85.0 → 90.8 ms with
+3.6/4.5 ms MAD, so this is a runtime/size tradeoff, not a compilation-speed win.
+The [raw pairs and experiment records](../bench/results/2026-11-01/loops/README.md)
+retain timings, startup and artifact identities.
+
+Two smaller loop-counter experiments were rejected: omitting unused ordinals
+gave CRC32 1.007×/1.049× (V8/Wasmtime); reusing compatible counters gave custom
+hash 1.026×/1.039×. Neither met the 5% threshold on both engines. Their source
+patches and measurements are retained; neither change is in the final compiler.
+
+The full O0/O2 differential gate passes 8,870 runtime observations and three
+expected compile refusals. Extension, static-data, region, dynamic-boundary,
+compiler-session, incremental and capability-inventory checks also pass.
+
+## Previous batch
 
 Five interleaved baseline/candidate pairs on the same Ryzen 7 3800X host:
 
@@ -15,7 +41,7 @@ complete build timings remain mixed, with no established compilation-speed win.
 The [full measurements and raw evidence](../bench/results/2026-11-01/runtime/README.md)
 include medians, dispersion, startup, code size and the rejected experiments.
 
-## Plan
+## First-batch plan
 
 Astra reviewed the emitter at xhigh effort. The first two hills are small
 lowering changes, measured independently before keeping their combination:
@@ -43,9 +69,11 @@ increase in direct compilation time. Record rejected experiments too.
 
 ## Measurement
 
-The starting compiler is the README revision `d9a9f90`. Preserve its installed
-compiler and standard library before rebuilding. The October 26 results locate
-the slow workloads; they are not a baseline for this machine or compiler.
+Freeze the starting compiler and standard library before each experiment. The
+first batch starts at `d9a9f90`; the small-loop batch starts at `ce282be`.
+Do not combine ratios or absolute timings across these separate cohorts.
+The October 26 results locate slow workloads; they are not a baseline for this
+machine or compiler.
 
 Use the same toolchain, sources, inputs and host for baseline and candidate.
 Qualify both official LangArena profiles on both engines, retain cold build and
