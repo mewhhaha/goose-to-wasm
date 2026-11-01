@@ -594,8 +594,22 @@ inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested)
             Get(view); code.I64Const(32); code.Op(0x88); code.Op(0xa7); len = Save(I32);
         }
         if (IsU8(elem)) {
-            if (nested) Fail(line, "quoted nested byte-array rendering is not supported");
-            Get(ptr); Get(len); CallIndex(Compiler::WRITE); return;
+            if (!nested) { Get(ptr); Get(len); CallIndex(Compiler::WRITE); return; }
+            PrintText("\"");
+            auto start = Local(I32), index = Local(I32);
+            code.I32Const(0); Set(start); code.I32Const(0); Set(index);
+            auto done = Begin(), loop = Begin(0x03);
+            Get(index); Get(len); code.Op(0x4f); Br(done, true);
+            Get(ptr); Get(index); code.Op(0x6a); code.Mem(0x2d); auto byte = Save(I32);
+            for (auto [character, escape] : vector<pair<int32_t, string_view>> {
+                { '"', "\\\"" }, { '\\', "\\\\" }, { '\n', "\\n" }, { '\r', "\\r" }, { '\t', "\\t" } }) {
+                Get(byte); code.I32Const(character); code.Op(0x46); Begin(0x04);
+                Get(ptr); Get(start); code.Op(0x6a); Get(index); Get(start); code.Op(0x6b); CallIndex(Compiler::WRITE);
+                PrintText(escape); Get(index); code.I32Const(1); code.Op(0x6a); Set(start); End();
+            }
+            Get(index); code.I32Const(1); code.Op(0x6a); Set(index); Br(loop); End(); End();
+            Get(ptr); Get(start); code.Op(0x6a); Get(len); Get(start); code.Op(0x6b); CallIndex(Compiler::WRITE);
+            PrintText("\""); return;
         }
         PrintText("[");
         auto i = Local(I32); code.I32Const(0); Set(i);
@@ -612,6 +626,34 @@ inline void Function::Print(TypeExpr *t, uint32_t value, Line line, bool nested)
         }
         Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
         PrintText("]"); return;
+    }
+    if ((t->kind == TY_STRUCT || t->kind == TY_VARIANT) && c.ClosedPrintable(t)) {
+        auto fields = c.RecordFields(t); auto &definitions = c.RecordFieldDefs(t);
+        if (t->kind == TY_VARIANT && definitions.empty()) {
+            PrintText(string(t->var->adt->enu->inst->en->name) + "." + string(t->var->variant->name)); return;
+        }
+        string name;
+        if (t->kind == TY_STRUCT) t->Dump(name); else name = t->var->variant->name;
+        PrintText(name + " { "); bool first = true;
+        for (size_t i = 0; i < fields.size(); i++) {
+            if (definitions[i].ispad) continue;
+            if (!first) PrintText(", ");
+            first = false;
+            Get(value); RecordFieldAddress(t, i, line); Load(fields[i]);
+            Print(fields[i], Save(fields[i]), line, true);
+        }
+        PrintText(" }"); return;
+    }
+    if (t->kind == TY_ENUM && c.ClosedPrintable(t)) {
+        auto ei = t->enu->inst;
+        Get(value); ReadEnumTag(c.EnumTagBytes(ei)); auto tag = Save(I32); auto done = Begin();
+        for (size_t i = 0; i < ei->vftypes.size(); i++) {
+            Get(tag); code.I32Const(int32_t(i)); code.Op(0x46); Begin(0x04);
+            auto variant = c.EnumVariantType(ei, int(i), line);
+            Get(value); code.I32Const(int32_t(c.FixedLayout(t).payload)); code.Op(0x6a);
+            Print(variant, Save(I32), line, nested); Br(done); End();
+        }
+        Abort(line, "invalid enum tag"); End(); return;
     }
     Fail(line, "this value cannot yet be rendered by the direct backend");
 }
@@ -646,18 +688,12 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
                     // A shallow byte copy would leave pointers into storage
                     // that later arguments can mutate. Refuse this rendering
                     // until recursive snapshots have an explicit contract.
-                    function<bool(TypeExpr *)> indirect = [&](TypeExpr *x) {
-                        if (x->kind == TY_REF || x->kind == TY_SLICE) return true;
-                        if (x->kind == TY_ARRAY) return indirect(x->arr->sub);
-                        if (x->kind == TY_STRUCT)
-                            for (auto ft : x->struc->inst->ftypes) if (ft && indirect(ft)) return true;
-                        return false;
-                    };
-                    if (indirect(t)) Fail(arg->line, "printing aggregates containing references or slices is not supported");
+                    if (!c.ClosedPrintable(t))
+                        Fail(arg->line, "printing aggregates containing references or slices is not supported");
                     v = CopyCaptured({ t, v, CapturedValue::BorrowedFixed }).value_local;
                 } else if (t->kind == TY_SLICE) {
                     auto elem = t->sub;
-                    if (elem->kind == TY_SLICE || elem->kind == TY_REF || c.Aggregate(elem))
+                    if (!Compiler::Varint(elem) && !c.ClosedPrintable(elem))
                         Fail(arg->line, "printing slices with indirect aggregate elements is not supported");
                     Get(v); code.I64Const(32); code.Op(0x88); code.Op(0xa7);
                     auto len = Save(I32);

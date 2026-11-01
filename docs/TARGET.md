@@ -317,8 +317,9 @@ See [the enum contract](VARIABLE_ENUMS.md).
   matches with by-value payload bindings.
 - Nonresizable variable-mode enums with fixed or single-tail payloads, independent copies, internal owned
   parameters/results, mode conversion and by-value/by-reference payload matches.
-- Scalar/string and supported fixed-array rendering, including argument
-  evaluation and snapshot ordering.
+- Scalar/string, closed fixed-record/variant/enum and nested fixed/limited-array
+  rendering, including escaped nested byte sequences and argument snapshots;
+  see [fixed aggregate rendering](FIXED_AGGREGATE_RENDERING.md).
 - Struct images with direct varint fields and otherwise fixed-size fields,
   sequential field offsets, bounded decoding, copies, references and normal results;
   see [varint records](VARINT_RECORDS.md).
@@ -344,7 +345,7 @@ containing variable-mode enums), variable-element
 growables beyond scalar varints, encoded arrays after variable prefixes or inside variable enums, and unproved
 encoded nonlocal targets; resizable/multiple-owner enum payloads;
 unproven packed-overlap observations after nonempty named enum replacement;
-enum rendering and comparison;
+variable enum rendering, indirect aggregate snapshots and structural comparison;
 relative and pool references;
 out-of-line nonlocal returns with unproven aggregate-element Var/runtime-limited arrays or unproved enum/record owned target results;
 threads/queues; binary framing/serialization; custom formatters and

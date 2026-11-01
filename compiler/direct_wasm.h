@@ -468,6 +468,21 @@ struct Compiler {
         d.text = ast.DiagnosticText(d, true);
         throw CompileError { d.text, { d } };
     }
+    bool ClosedPrintable(TypeExpr *t) {
+        if (!t || Class(t) != SC_FIXED) return false;
+        if (t->kind == TY_REF || t->kind == TY_SLICE) return false;
+        if (t->kind == TY_ARRAY) return ClosedPrintable(t->arr->sub);
+        if (t->kind == TY_STRUCT || t->kind == TY_VARIANT) {
+            auto fields = RecordFields(t);
+            return all_of(fields.begin(), fields.end(), [&](auto field) { return !field || ClosedPrintable(field); });
+        }
+        if (t->kind == TY_ENUM) {
+            for (auto &fields : t->enu->inst->vftypes)
+                for (auto field : fields) if (field && !ClosedPrintable(field)) return false;
+            return true;
+        }
+        return t->kind == TY_INT || t->kind == TY_FLT || t->kind == TY_BOOL;
+    }
     bool Aggregate(TypeExpr *t) const {
         return t && (t->kind == TY_ARRAY || t->kind == TY_STRUCT || t->kind == TY_ENUM || t->kind == TY_VARIANT);
     }

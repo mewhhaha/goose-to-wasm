@@ -1,0 +1,1 @@
+struct P{x:i64,y:i64}var p=P{1,2};recursive fn mutate()->i64{p.x=99;print("mutate");return 7;}fn main(){print(p," ",mutate()," ",p);}

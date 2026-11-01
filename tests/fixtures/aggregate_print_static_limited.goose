@@ -1,0 +1,1 @@
+struct Box{values:i64[..4],name:u8[..8]}fn main(){print(Box{[1,2],"hi"});let b:Box=Box{[],[]};print(b);}

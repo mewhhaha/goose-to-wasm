@@ -1,0 +1,1 @@
+struct P{a:u8,b:u16}fn main(){let fixed:P[2]=[P{1,8755},P{4,21862}];let variable:P[u8]=[P{7,34969},P{10,48076}];var grown:P[>..]=[P{13,61183}];print(fixed," ",variable," ",grown);let view:const P[:]=variable[..];print(view);}

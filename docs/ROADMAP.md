@@ -80,6 +80,15 @@ Fixed payload snapshots consume no data region, preserving recursive reference
 visitors. Variable-array result arms keep their natural width checks even in
 append. See [the dispatch contract](FUNCTION_DISPATCH.md).
 
+## Implemented: closed fixed aggregate rendering
+
+Fixed structs, variants and enums, plus arrays/slices of recursively fixed
+values, render with native names, positional fields and compact tag routing.
+Nested byte sequences quote and escape native control characters without UTF-8
+conversion. Closed snapshots preserve earlier arguments through later mutation.
+Indirect fields, variable images and user formatters remain separate. See
+[fixed aggregate rendering](FIXED_AGGREGATE_RENDERING.md).
+
 ## Implemented: terminal encoded arrays in record images
 
 Fixed-prefix non-frame records and standalone variants can end in varint-element,

@@ -1,0 +1,1 @@
+enum E{Empty,Data{x:u16,name:u8[3]}}struct Inner{e:E,values:i16[2]}struct Outer{tag:u8,inner:Inner}recursive fn make()->Outer{return Outer{9,Inner{E.Data{8755,"abc"},[-3,4]}};}fn main(){let a=make();print(a);print([a,copy(a)]);}

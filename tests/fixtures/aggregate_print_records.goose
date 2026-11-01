@@ -1,0 +1,1 @@
+struct Empty{} struct Point{x:i64,y:i16}struct Box<T>{value:T,ok:bool}fn main(){print(Empty{});print(Point{7,-3});print(Box<Point>{Point{9,4},true});}
