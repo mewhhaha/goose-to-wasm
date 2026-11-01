@@ -1,0 +1,2062 @@
+{
+  "schema": "goose-example-benchmarks-v1",
+  "status": "passed-smoke",
+  "started_utc": "2026-11-01T22:55:27.793732+00:00",
+  "environment": {
+    "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+    "machine": "x86_64",
+    "cpu": "AMD Ryzen 7 3800X 8-Core Processor",
+    "supplied_machine_label": "",
+    "logical_cpu_count": 16,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]",
+    "node": {
+      "command": [
+        "node",
+        "-p",
+        "JSON.stringify(process.versions)"
+      ],
+      "exit_code": 0,
+      "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"
+    },
+    "native_cc": {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "emcc": {
+      "command": [
+        "emcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "wasmtime": "50.0.1",
+    "toolchain_pin": {
+      "schema": "goose-to-wasm-toolchain-v1",
+      "repository": "https://github.com/aardappel/goose.git",
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "emscripten": "6.0.13",
+      "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+      "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "wasmtime_python": "50.0.1",
+      "patches": [
+        "oracle/patches/0001-webassembly-target.patch",
+        "patches/direct-target.patch"
+      ],
+      "minimum_cmake": "3.27",
+      "minimum_python": "3.10"
+    },
+    "wasmtime_config": {
+      "cranelift_opt_level": "speed",
+      "wasm_memory64": true,
+      "wasm_tail_call": true,
+      "wasm_exceptions": true,
+      "wasm_simd": true,
+      "wasm_bulk_memory": true,
+      "wasm_multi_value": true,
+      "wasm_threads": false,
+      "wasm_relaxed_simd": false
+    },
+    "v8_runner_flags": [],
+    "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+    "input_sha256": {
+      "/home/jacobt/src/goose-to-wasm/examples/manifest.json": "0eb77c0163b5e76585677a9178fdd13322c8e1ac86771efa74e2db210f8b157d",
+      "/home/jacobt/src/goose-to-wasm/bench/examples.py": "dac1eb6b9166d9ac1b8c07837b318612df60e5f81e3d0bb30d15eb2c0f6bfdc3",
+      "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f",
+      "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5",
+      "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33",
+      "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+      "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+      "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+      "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+      "/home/jacobt/src/goose-to-wasm/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "/home/jacobt/src/goose-to-wasm/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+      "/home/jacobt/src/goose-to-wasm/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+      "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+      "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+      "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc": "33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343",
+      "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb"
+    },
+    "tool_paths": {
+      "python": "/usr/bin/python3.14",
+      "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so",
+      "cc": "/usr/bin/gcc",
+      "emcc": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc",
+      "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node"
+    },
+    "env_overrides": {
+      "NODE_OPTIONS": null,
+      "CC": null,
+      "CFLAGS": null,
+      "EMCC_CFLAGS": null,
+      "EMCC_CORES": "2",
+      "EM_CACHE": "/home/jacobt/src/goose-to-wasm/build/em-cache",
+      "GOOSE_STDLIB": null
+    },
+    "compiler_source_identity": {
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "patches": {
+        "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+        "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+      },
+      "headers": {
+        "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+        "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+        "direct_wasm.h": "92a611e372ff361091b642a195b6f2fc1f1e0ab81a7529962af1f707cf8d4a44",
+        "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+        "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+        "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+        "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+        "direct_wasm_effects.h": "ae8ca77bf9fcb638cf8c3d9816941335e557b3d92d7be452e810dcb790c2c74c",
+        "direct_wasm_emit.h": "1c5795cda554d59425ba6b0b92cd6538cf3d6161b78c7deaafbfbbb9e0e02503",
+        "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+        "direct_wasm_expr.h": "720df9ecbd0a05c382381a8370e2819d8fcd7d86fd418701acaed426c60bbdfc",
+        "direct_wasm_funvals.h": "b2862546b542c3185e89d7dd7a63fcc5f0720d0afd81f5a533ca92ac87a2abaf",
+        "direct_wasm_images.h": "1c90f3a0f2469cf08f0292a65c32a62e13c00192018805864c3c0bf7c9a8c363",
+        "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+        "direct_wasm_numeric.h": "761882b094a7ecc683a38f827c801687f4794541c55feefc0f4fb56e396c97d0",
+        "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+        "direct_wasm_publication.h": "9ff56e29406aaf8a50da2fffc93355b7b1b0b74b97a34bfa0cadf8a2e37f1575",
+        "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+        "direct_wasm_regions.h": "c085ba8470a98a7cd0dcd019675c2e14643f15400bfb0cf8c15c836d1bfb3ede",
+        "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+        "direct_wasm_storage.h": "04e51f7170a31cc440f791cabe428223468b62f7f8f13c17c7321e0e97d34356",
+        "direct_wasm_temps.h": "ff6d9811083061c8eda7eca86d94df7d2d261da61b155f83385ff32270019e5c",
+        "direct_wasm_uleb_arrays.h": "16b49bcadc4cb7b288af5214e8e5730f4a704255af0335553d079c69c754adbb",
+        "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+        "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+        "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+        "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+        "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+        "wasm_binary.h": "6c92d4a20b351f42417d79321dce56d5c64e4f3811ea1771de6ffd8d56f48def"
+      },
+      "direct_enabled": true,
+      "source_diff_sha256": "a37667e5dcc2af2ed260c6437f0055edc89cc0c8b8c4a0f1c927c8ac8d4e968c"
+    }
+  },
+  "configuration": {
+    "examples": [
+      "squares",
+      "tour"
+    ],
+    "goose": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+    "cc": "gcc",
+    "emcc": "emcc",
+    "node": "node",
+    "machine_label": "",
+    "compile_samples": 1,
+    "samples": 2,
+    "warmups": 0,
+    "seed": 761204,
+    "smoke": true,
+    "backends": [
+      "direct",
+      "c-wasm",
+      "native"
+    ],
+    "output_dir": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke"
+  },
+  "examples": [
+    {
+      "name": "squares",
+      "file": "squares.goose",
+      "expected": "expected/squares.out",
+      "focus": "Functions and loops",
+      "adaptation": "Original local example."
+    },
+    {
+      "name": "tour",
+      "file": "tour.goose",
+      "expected": "expected/tour.out",
+      "focus": "Language tour",
+      "adaptation": "Replaces builder formatting and aggregate Point arithmetic with explicit byte appends and field updates; preserves output.",
+      "upstream": {
+        "path": "samples/01_tour.goose",
+        "sha256": "47be41339ce1f8a92dea855783b1a6ccbeb39ea1c560dafda93e544be7640002",
+        "expected_path": "samples/expected/tour.out",
+        "expected_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+        "unchanged": false
+      }
+    }
+  ],
+  "upstream": {
+    "repository": "https://github.com/aardappel/goose",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "license": "Apache-2.0",
+    "license_file": "../LICENSE"
+  },
+  "observations": [
+    {
+      "kind": "build",
+      "name": "tour",
+      "backend": "native",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/native/0/program.bin",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/native/0/driver-stats.json",
+        "--cc",
+        "gcc",
+        "--emcc",
+        "emcc"
+      ],
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/native/0/program.bin",
+      "status": "passed",
+      "wall_seconds": 0.413053827,
+      "artifact_sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+      "module_bytes": 26952,
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "native",
+        "source": "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/native/0/program.bin",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "frontend_ms": 6.051431,
+        "cc_ms": 353.717113,
+        "output_bytes": 26952,
+        "output_sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+        "cc": "/usr/bin/gcc",
+        "total_ms": 360.947298
+      }
+    },
+    {
+      "kind": "build",
+      "name": "squares",
+      "backend": "direct",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/driver-stats.json"
+      ],
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm",
+      "status": "passed",
+      "wall_seconds": 0.085908551,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "module_bytes": 1367,
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "frontend_ms": 2.194649,
+        "cc_ms": 0.0,
+        "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+        "cache_stored": false,
+        "module_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+        "output_bytes": 1367,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 2,
+          "code_bytes": 365,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 16776128,
+          "module_bytes": 1367,
+          "backend_ns": 67800,
+          "parse_ns": 185673,
+          "resolve_ns": 11582,
+          "typecheck_ns": 173471,
+          "optimize_ns": 17914,
+          "bce_ns": 28013,
+          "frontend_ns": 416893,
+          "source_files": 1,
+          "specializations": 2,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 9,
+              "code_bytes": 348,
+              "body_hash": "12141007981470204699",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 10,
+              "code_bytes": 17,
+              "body_hash": "3250867854454395021",
+              "dependencies": [
+                9
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 9.595779
+      }
+    },
+    {
+      "kind": "build",
+      "name": "tour",
+      "backend": "c-wasm",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+        "--backend",
+        "c-wasm",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/driver-stats.json",
+        "--cc",
+        "gcc",
+        "--emcc",
+        "emcc"
+      ],
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm",
+      "status": "passed",
+      "wall_seconds": 0.934561877,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "module_bytes": 40709,
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "c-wasm",
+        "source": "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "frontend_ms": 0.0,
+        "cc_ms": 0.0,
+        "oracle_ms": 880.956994,
+        "output_bytes": 40709,
+        "module_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+        "host": "wasi_snapshot_preview1",
+        "c_pointer_bits": 64,
+        "memory_address_bits": 64,
+        "target_profile": "memory64-lp64-wasi64-standard-eh",
+        "total_ms": 881.332479
+      }
+    },
+    {
+      "kind": "build",
+      "name": "tour",
+      "backend": "direct",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/driver-stats.json"
+      ],
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm",
+      "status": "passed",
+      "wall_seconds": 0.095143953,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "module_bytes": 62088,
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "frontend_ms": 6.831827,
+        "cc_ms": 0.0,
+        "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+        "cache_stored": false,
+        "module_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+        "output_bytes": 62088,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 60170,
+          "region_count": 4,
+          "region_bytes": 3355096,
+          "activation_bytes": 3355104,
+          "module_bytes": 62088,
+          "backend_ns": 1200215,
+          "parse_ns": 690495,
+          "resolve_ns": 59112,
+          "typecheck_ns": 1105585,
+          "optimize_ns": 162319,
+          "bce_ns": 848866,
+          "frontend_ns": 2866648,
+          "source_files": 1,
+          "specializations": 8,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 9,
+              "code_bytes": 59509,
+              "body_hash": "16991907924956248863",
+              "dependencies": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                10,
+                11,
+                12
+              ]
+            },
+            {
+              "name": "divide#4",
+              "index": 10,
+              "code_bytes": 233,
+              "body_hash": "7871079707096448891",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 11,
+              "code_bytes": 121,
+              "body_hash": "11993358390603553677",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 12,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 13,
+              "code_bytes": 165,
+              "body_hash": "8411273932503095746",
+              "dependencies": [
+                7,
+                9
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 14.778315
+      }
+    },
+    {
+      "kind": "build",
+      "name": "squares",
+      "backend": "c-wasm",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "--backend",
+        "c-wasm",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/driver-stats.json",
+        "--cc",
+        "gcc",
+        "--emcc",
+        "emcc"
+      ],
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm",
+      "status": "passed",
+      "wall_seconds": 0.538554583,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "module_bytes": 16556,
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "c-wasm",
+        "source": "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "frontend_ms": 0.0,
+        "cc_ms": 0.0,
+        "oracle_ms": 486.754907,
+        "output_bytes": 16556,
+        "module_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+        "host": "wasi_snapshot_preview1",
+        "c_pointer_bits": 64,
+        "memory_address_bits": 64,
+        "target_profile": "memory64-lp64-wasi64-standard-eh",
+        "total_ms": 487.057192
+      }
+    },
+    {
+      "kind": "build",
+      "name": "squares",
+      "backend": "native",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/native/0/program.bin",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/native/0/driver-stats.json",
+        "--cc",
+        "gcc",
+        "--emcc",
+        "emcc"
+      ],
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/native/0/program.bin",
+      "status": "passed",
+      "wall_seconds": 0.223758317,
+      "artifact_sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+      "module_bytes": 18064,
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "native",
+        "source": "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/native/0/program.bin",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "frontend_ms": 2.358861,
+        "cc_ms": 140.224236,
+        "output_bytes": 18064,
+        "output_sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+        "cc": "/usr/bin/gcc",
+        "total_ms": 144.216257
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "tour",
+      "backend": "native",
+      "engine": "native",
+      "sample": 0,
+      "artifact_sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/native/0/program.bin"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.001100966,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.028335535,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.081317941,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 2,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.029526352,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 2,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.121478238,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 3,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.076384028,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 3,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.142137478,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 4,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.037621974,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 4,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.092674072,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "squares",
+      "backend": "native",
+      "engine": "native",
+      "sample": 5,
+      "artifact_sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/native/0/program.bin"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.000726543,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.145262458,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.112802782,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.121002112,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.028177694,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.138322415,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.025940445,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.074097375,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.080846063,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.050929338,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.101777743,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "native",
+      "engine": "native",
+      "sample": 0,
+      "artifact_sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/native/0/program.bin"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.001257023,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.032986819,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "native",
+      "engine": "native",
+      "sample": 0,
+      "artifact_sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/native/0/program.bin"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.00075653,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.097541047,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.182950286,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "native",
+      "engine": "native",
+      "sample": 1,
+      "artifact_sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/native/0/program.bin"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.000952324,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.029734298,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.105205127,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "native",
+      "engine": "native",
+      "sample": 1,
+      "artifact_sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/native/0/program.bin"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.001318831,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.031246326,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf"
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/c-wasm/v8/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.049331616,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 696296,
+        "start_function_ns": 1671542,
+        "engine_total_ns": 2367838
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/c-wasm/wasmtime/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.115568757,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31063357,
+        "start_function_ns": 1712821,
+        "engine_total_ns": 32776178
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/direct/v8/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.075962877,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 468492,
+        "start_function_ns": 37941282,
+        "engine_total_ns": 38409774
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/direct/wasmtime/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.087501874,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 3254186,
+        "start_function_ns": 143092,
+        "engine_total_ns": 3397278
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/direct/wasmtime/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.146893772,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 61555778,
+        "start_function_ns": 1906390,
+        "engine_total_ns": 63462168
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/c-wasm/v8/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.044341046,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 665697,
+        "start_function_ns": 4455292,
+        "engine_total_ns": 5120989
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/direct/v8/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.049419423,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 362670,
+        "start_function_ns": 361127,
+        "engine_total_ns": 723797
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/direct/wasmtime/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.113008522,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 2727272,
+        "start_function_ns": 135568,
+        "engine_total_ns": 2862840
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/c-wasm/wasmtime/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.094501861,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 10273458,
+        "start_function_ns": 621964,
+        "engine_total_ns": 10895422
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/direct/wasmtime/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.174147237,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 90803219,
+        "start_function_ns": 1734332,
+        "engine_total_ns": 92537551
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/c-wasm/v8/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.027030861,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 474363,
+        "start_function_ns": 980547,
+        "engine_total_ns": 1454910
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/c-wasm/v8/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.031030224,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 529387,
+        "start_function_ns": 2991365,
+        "engine_total_ns": 3520752
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/direct/v8/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.042911513,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 377028,
+        "start_function_ns": 274022,
+        "engine_total_ns": 651050
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 0,
+      "artifact_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/c-wasm/wasmtime/0/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.141176258,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 35233647,
+        "start_function_ns": 1705226,
+        "engine_total_ns": 36938873
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "sample": 1,
+      "artifact_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/squares/c-wasm/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/squares/c-wasm/wasmtime/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.09655037,
+      "stdout_sha256": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "wasm_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 11871110,
+        "start_function_ns": 617866,
+        "engine_total_ns": 12488976
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "measure-engine",
+      "name": "tour",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 1,
+      "artifact_sha256": "fba8c0bf232dc1ce8221d2e8cf7a13eee0dae4262ce3d54771e2aa5200d350cd",
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/compile/tour/direct/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-smoke/runtime/measure-engine/tour/direct/v8/1/timing.json"
+      ],
+      "status": "passed",
+      "process_wall_seconds": 0.090703258,
+      "stdout_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+      "wasm_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 523326,
+        "start_function_ns": 43641805,
+        "engine_total_ns": 44165131
+      }
+    }
+  ],
+  "compile_summary": [
+    {
+      "name": "squares",
+      "backend": "direct",
+      "wall_seconds": {
+        "n": 1,
+        "median": 0.085908551,
+        "min": 0.085908551,
+        "max": 0.085908551,
+        "mad": 0.0,
+        "p25": 0.085908551,
+        "p75": 0.085908551,
+        "samples": [
+          0.085908551
+        ]
+      },
+      "module_bytes": 1367,
+      "unique_artifacts": 1
+    },
+    {
+      "name": "squares",
+      "backend": "c-wasm",
+      "wall_seconds": {
+        "n": 1,
+        "median": 0.538554583,
+        "min": 0.538554583,
+        "max": 0.538554583,
+        "mad": 0.0,
+        "p25": 0.538554583,
+        "p75": 0.538554583,
+        "samples": [
+          0.538554583
+        ]
+      },
+      "module_bytes": 16556,
+      "unique_artifacts": 1
+    },
+    {
+      "name": "squares",
+      "backend": "native",
+      "wall_seconds": {
+        "n": 1,
+        "median": 0.223758317,
+        "min": 0.223758317,
+        "max": 0.223758317,
+        "mad": 0.0,
+        "p25": 0.223758317,
+        "p75": 0.223758317,
+        "samples": [
+          0.223758317
+        ]
+      },
+      "module_bytes": 18064,
+      "unique_artifacts": 1
+    },
+    {
+      "name": "tour",
+      "backend": "direct",
+      "wall_seconds": {
+        "n": 1,
+        "median": 0.095143953,
+        "min": 0.095143953,
+        "max": 0.095143953,
+        "mad": 0.0,
+        "p25": 0.095143953,
+        "p75": 0.095143953,
+        "samples": [
+          0.095143953
+        ]
+      },
+      "module_bytes": 62088,
+      "unique_artifacts": 1
+    },
+    {
+      "name": "tour",
+      "backend": "c-wasm",
+      "wall_seconds": {
+        "n": 1,
+        "median": 0.934561877,
+        "min": 0.934561877,
+        "max": 0.934561877,
+        "mad": 0.0,
+        "p25": 0.934561877,
+        "p75": 0.934561877,
+        "samples": [
+          0.934561877
+        ]
+      },
+      "module_bytes": 40709,
+      "unique_artifacts": 1
+    },
+    {
+      "name": "tour",
+      "backend": "native",
+      "wall_seconds": {
+        "n": 1,
+        "median": 0.413053827,
+        "min": 0.413053827,
+        "max": 0.413053827,
+        "mad": 0.0,
+        "p25": 0.413053827,
+        "p75": 0.413053827,
+        "samples": [
+          0.413053827
+        ]
+      },
+      "module_bytes": 26952,
+      "unique_artifacts": 1
+    }
+  ],
+  "runtime_summary": [
+    {
+      "name": "squares",
+      "backend": "direct",
+      "engine": "v8",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.0384348915,
+        "min": 0.025940445,
+        "max": 0.050929338,
+        "mad": 0.012494446499999999,
+        "p25": 0.032187668249999996,
+        "p75": 0.04468211475,
+        "samples": [
+          0.025940445,
+          0.050929338
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.0003175745,
+        "min": 0.000274022,
+        "max": 0.000361127,
+        "mad": 4.355249999999999e-05,
+        "p25": 0.00029579825,
+        "p75": 0.00033935075,
+        "samples": [
+          0.000361127,
+          0.000274022
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.000369849,
+        "min": 0.00036267,
+        "max": 0.000377028,
+        "mad": 7.179000000000007e-06,
+        "p25": 0.0003662595,
+        "p75": 0.0003734385,
+        "samples": [
+          0.00036267,
+          0.000377028
+        ]
+      }
+    },
+    {
+      "name": "squares",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.09302559499999999,
+        "min": 0.080846063,
+        "max": 0.105205127,
+        "mad": 0.012179532,
+        "p25": 0.08693582899999999,
+        "p75": 0.099115361,
+        "samples": [
+          0.080846063,
+          0.105205127
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.00013933,
+        "min": 0.000135568,
+        "max": 0.000143092,
+        "mad": 3.7619999999999955e-06,
+        "p25": 0.000137449,
+        "p75": 0.000141211,
+        "samples": [
+          0.000143092,
+          0.000135568
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.002990729,
+        "min": 0.002727272,
+        "max": 0.003254186,
+        "mad": 0.00026345699999999993,
+        "p25": 0.0028590005,
+        "p75": 0.0031224575,
+        "samples": [
+          0.003254186,
+          0.002727272
+        ]
+      }
+    },
+    {
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.028955995999999998,
+        "min": 0.028177694,
+        "max": 0.029734298,
+        "mad": 0.0007783019999999998,
+        "p25": 0.028566845,
+        "p75": 0.029345147,
+        "samples": [
+          0.028177694,
+          0.029734298
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.0013260445,
+        "min": 0.000980547,
+        "max": 0.001671542,
+        "mad": 0.0003454975,
+        "p25": 0.00115329575,
+        "p75": 0.00149879325,
+        "samples": [
+          0.001671542,
+          0.000980547
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.0005853295000000001,
+        "min": 0.000474363,
+        "max": 0.000696296,
+        "mad": 0.0001109665,
+        "p25": 0.00052984625,
+        "p75": 0.00064081275,
+        "samples": [
+          0.000696296,
+          0.000474363
+        ]
+      }
+    },
+    {
+      "name": "squares",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.1092715795,
+        "min": 0.097541047,
+        "max": 0.121002112,
+        "mad": 0.011730532499999995,
+        "p25": 0.10340631325,
+        "p75": 0.11513684575,
+        "samples": [
+          0.121002112,
+          0.097541047
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.000619915,
+        "min": 0.000617866,
+        "max": 0.000621964,
+        "mad": 2.049000000000007e-06,
+        "p25": 0.0006188905,
+        "p75": 0.0006209395,
+        "samples": [
+          0.000621964,
+          0.000617866
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.011072284,
+        "min": 0.010273458,
+        "max": 0.01187111,
+        "mad": 0.0007988260000000007,
+        "p25": 0.010672871,
+        "p75": 0.011471697,
+        "samples": [
+          0.010273458,
+          0.01187111
+        ]
+      }
+    },
+    {
+      "name": "squares",
+      "backend": "native",
+      "engine": "native",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.000854427,
+        "min": 0.00075653,
+        "max": 0.000952324,
+        "mad": 9.7897e-05,
+        "p25": 0.0008054785,
+        "p75": 0.0009033755,
+        "samples": [
+          0.00075653,
+          0.000952324
+        ]
+      }
+    },
+    {
+      "name": "tour",
+      "backend": "direct",
+      "engine": "v8",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.087937559,
+        "min": 0.074097375,
+        "max": 0.101777743,
+        "mad": 0.013840184000000005,
+        "p25": 0.081017467,
+        "p75": 0.094857651,
+        "samples": [
+          0.074097375,
+          0.101777743
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.0407915435,
+        "min": 0.037941282,
+        "max": 0.043641805,
+        "mad": 0.0028502614999999995,
+        "p25": 0.039366412749999996,
+        "p75": 0.04221667425,
+        "samples": [
+          0.037941282,
+          0.043641805
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.000495909,
+        "min": 0.000468492,
+        "max": 0.000523326,
+        "mad": 2.7416999999999985e-05,
+        "p25": 0.00048220049999999997,
+        "p75": 0.0005096174999999999,
+        "samples": [
+          0.000468492,
+          0.000523326
+        ]
+      }
+    },
+    {
+      "name": "tour",
+      "backend": "direct",
+      "engine": "wasmtime",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.164106372,
+        "min": 0.145262458,
+        "max": 0.182950286,
+        "mad": 0.01884391399999999,
+        "p25": 0.15468441500000002,
+        "p75": 0.17352832899999998,
+        "samples": [
+          0.145262458,
+          0.182950286
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.001820361,
+        "min": 0.001734332,
+        "max": 0.00190639,
+        "mad": 8.602899999999994e-05,
+        "p25": 0.0017773465000000001,
+        "p75": 0.0018633755,
+        "samples": [
+          0.00190639,
+          0.001734332
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.0761794985,
+        "min": 0.061555778,
+        "max": 0.090803219,
+        "mad": 0.014623720500000003,
+        "p25": 0.06886763825,
+        "p75": 0.08349135875,
+        "samples": [
+          0.061555778,
+          0.090803219
+        ]
+      }
+    },
+    {
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "v8",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.0321165725,
+        "min": 0.031246326,
+        "max": 0.032986819,
+        "mad": 0.0008702464999999996,
+        "p25": 0.03168144925,
+        "p75": 0.03255169575,
+        "samples": [
+          0.032986819,
+          0.031246326
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.0037233285,
+        "min": 0.002991365,
+        "max": 0.004455292,
+        "mad": 0.0007319634999999997,
+        "p25": 0.0033573467500000002,
+        "p75": 0.0040893102499999995,
+        "samples": [
+          0.004455292,
+          0.002991365
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.000597542,
+        "min": 0.000529387,
+        "max": 0.000665697,
+        "mad": 6.815500000000003e-05,
+        "p25": 0.0005634645,
+        "p75": 0.0006316195,
+        "samples": [
+          0.000665697,
+          0.000529387
+        ]
+      }
+    },
+    {
+      "name": "tour",
+      "backend": "c-wasm",
+      "engine": "wasmtime",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.1255625985,
+        "min": 0.112802782,
+        "max": 0.138322415,
+        "mad": 0.0127598165,
+        "p25": 0.11918269025,
+        "p75": 0.13194250675,
+        "samples": [
+          0.112802782,
+          0.138322415
+        ]
+      },
+      "entry_function_seconds": {
+        "n": 2,
+        "median": 0.0017090235,
+        "min": 0.001705226,
+        "max": 0.001712821,
+        "mad": 3.797499999999999e-06,
+        "p25": 0.00170712475,
+        "p75": 0.00171092225,
+        "samples": [
+          0.001712821,
+          0.001705226
+        ]
+      },
+      "engine_compile_instantiate_seconds": {
+        "n": 2,
+        "median": 0.033148501999999996,
+        "min": 0.031063357,
+        "max": 0.035233647,
+        "mad": 0.002085145,
+        "p25": 0.0321059295,
+        "p75": 0.0341910745,
+        "samples": [
+          0.031063357,
+          0.035233647
+        ]
+      }
+    },
+    {
+      "name": "tour",
+      "backend": "native",
+      "engine": "native",
+      "process_wall_seconds": {
+        "n": 2,
+        "median": 0.001287927,
+        "min": 0.001257023,
+        "max": 0.001318831,
+        "mad": 3.0904e-05,
+        "p25": 0.001272475,
+        "p75": 0.001303379,
+        "samples": [
+          0.001257023,
+          0.001318831
+        ]
+      }
+    }
+  ],
+  "failures": [],
+  "source_hashes_still_match": true,
+  "input_paths_still_match": true,
+  "compiler_hash_still_matches": true,
+  "artifact_hashes_still_match": true,
+  "finished_utc": "2026-11-01T22:55:33.587338+00:00"
+}

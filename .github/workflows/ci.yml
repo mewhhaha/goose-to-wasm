@@ -157,6 +157,10 @@ jobs:
         run: >-
           python bench/benchmark.py --smoke --samples 2 --compile-samples 1
           --warmups 1 --output-dir build/benchmark-smoke
+      - name: Example benchmark correctness smoke
+        run: >-
+          python bench/examples.py squares tour --smoke --samples 2 --compile-samples 1
+          --warmups 0 --output-dir build/example-benchmark-smoke
       - name: Package compiler and corresponding sources
         run: |
           tar --exclude=source/.git -C build -czf build/compiler-linux-x64.tar.gz bin source toolchain.json source.json
@@ -180,4 +184,5 @@ jobs:
             build/langarena-smoke/
             build/isolated-sieve-smoke/
             build/benchmark-smoke/
+            build/example-benchmark-smoke/
             build/incremental-benchmark.json

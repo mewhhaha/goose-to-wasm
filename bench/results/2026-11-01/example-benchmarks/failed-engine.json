@@ -1,0 +1,316 @@
+{
+  "schema": "goose-example-benchmarks-v1",
+  "status": "failed",
+  "started_utc": "2026-11-01T22:55:51.018212+00:00",
+  "environment": {
+    "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+    "machine": "x86_64",
+    "cpu": "AMD Ryzen 7 3800X 8-Core Processor",
+    "supplied_machine_label": "",
+    "logical_cpu_count": 16,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]",
+    "node": {
+      "command": [
+        "/bin/false",
+        "-p",
+        "JSON.stringify(process.versions)"
+      ],
+      "exit_code": 1,
+      "output": ""
+    },
+    "native_cc": {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "emcc": {
+      "command": [
+        "emcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "wasmtime": "50.0.1",
+    "toolchain_pin": {
+      "schema": "goose-to-wasm-toolchain-v1",
+      "repository": "https://github.com/aardappel/goose.git",
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "emscripten": "6.0.13",
+      "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+      "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "wasmtime_python": "50.0.1",
+      "patches": [
+        "oracle/patches/0001-webassembly-target.patch",
+        "patches/direct-target.patch"
+      ],
+      "minimum_cmake": "3.27",
+      "minimum_python": "3.10"
+    },
+    "wasmtime_config": {
+      "cranelift_opt_level": "speed",
+      "wasm_memory64": true,
+      "wasm_tail_call": true,
+      "wasm_exceptions": true,
+      "wasm_simd": true,
+      "wasm_bulk_memory": true,
+      "wasm_multi_value": true,
+      "wasm_threads": false,
+      "wasm_relaxed_simd": false
+    },
+    "v8_runner_flags": [],
+    "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+    "input_sha256": {
+      "/home/jacobt/src/goose-to-wasm/examples/manifest.json": "0eb77c0163b5e76585677a9178fdd13322c8e1ac86771efa74e2db210f8b157d",
+      "/home/jacobt/src/goose-to-wasm/bench/examples.py": "dac1eb6b9166d9ac1b8c07837b318612df60e5f81e3d0bb30d15eb2c0f6bfdc3",
+      "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f",
+      "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5",
+      "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33",
+      "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+      "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+      "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+      "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+      "/home/jacobt/src/goose-to-wasm/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+      "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+      "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+      "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "/usr/bin/false": "34732a2a37cb0ae8f7fe76c50d9ff18675fadcc8869f4cf4f1a7a62a9530930d"
+    },
+    "tool_paths": {
+      "python": "/usr/bin/python3.14",
+      "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so",
+      "node": "/usr/bin/false"
+    },
+    "env_overrides": {
+      "NODE_OPTIONS": null,
+      "CC": null,
+      "CFLAGS": null,
+      "EMCC_CFLAGS": null,
+      "EMCC_CORES": "2",
+      "EM_CACHE": "/home/jacobt/src/goose-to-wasm/build/em-cache",
+      "GOOSE_STDLIB": null
+    },
+    "compiler_source_identity": {
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "patches": {
+        "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+        "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+      },
+      "headers": {
+        "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+        "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+        "direct_wasm.h": "92a611e372ff361091b642a195b6f2fc1f1e0ab81a7529962af1f707cf8d4a44",
+        "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+        "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+        "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+        "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+        "direct_wasm_effects.h": "ae8ca77bf9fcb638cf8c3d9816941335e557b3d92d7be452e810dcb790c2c74c",
+        "direct_wasm_emit.h": "1c5795cda554d59425ba6b0b92cd6538cf3d6161b78c7deaafbfbbb9e0e02503",
+        "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+        "direct_wasm_expr.h": "720df9ecbd0a05c382381a8370e2819d8fcd7d86fd418701acaed426c60bbdfc",
+        "direct_wasm_funvals.h": "b2862546b542c3185e89d7dd7a63fcc5f0720d0afd81f5a533ca92ac87a2abaf",
+        "direct_wasm_images.h": "1c90f3a0f2469cf08f0292a65c32a62e13c00192018805864c3c0bf7c9a8c363",
+        "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+        "direct_wasm_numeric.h": "761882b094a7ecc683a38f827c801687f4794541c55feefc0f4fb56e396c97d0",
+        "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+        "direct_wasm_publication.h": "9ff56e29406aaf8a50da2fffc93355b7b1b0b74b97a34bfa0cadf8a2e37f1575",
+        "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+        "direct_wasm_regions.h": "c085ba8470a98a7cd0dcd019675c2e14643f15400bfb0cf8c15c836d1bfb3ede",
+        "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+        "direct_wasm_storage.h": "04e51f7170a31cc440f791cabe428223468b62f7f8f13c17c7321e0e97d34356",
+        "direct_wasm_temps.h": "ff6d9811083061c8eda7eca86d94df7d2d261da61b155f83385ff32270019e5c",
+        "direct_wasm_uleb_arrays.h": "16b49bcadc4cb7b288af5214e8e5730f4a704255af0335553d079c69c754adbb",
+        "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+        "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+        "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+        "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+        "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+        "wasm_binary.h": "6c92d4a20b351f42417d79321dce56d5c64e4f3811ea1771de6ffd8d56f48def"
+      },
+      "direct_enabled": true,
+      "source_diff_sha256": "a37667e5dcc2af2ed260c6437f0055edc89cc0c8b8c4a0f1c927c8ac8d4e968c"
+    }
+  },
+  "configuration": {
+    "examples": [
+      "squares"
+    ],
+    "goose": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+    "cc": "gcc",
+    "emcc": "emcc",
+    "node": "/bin/false",
+    "machine_label": "",
+    "compile_samples": 1,
+    "samples": 1,
+    "warmups": 0,
+    "seed": 761204,
+    "smoke": true,
+    "backends": [
+      "direct"
+    ],
+    "output_dir": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-failure"
+  },
+  "examples": [
+    {
+      "name": "squares",
+      "file": "squares.goose",
+      "expected": "expected/squares.out",
+      "focus": "Functions and loops",
+      "adaptation": "Original local example."
+    }
+  ],
+  "upstream": {
+    "repository": "https://github.com/aardappel/goose",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "license": "Apache-2.0",
+    "license_file": "../LICENSE"
+  },
+  "observations": [
+    {
+      "kind": "build",
+      "name": "squares",
+      "backend": "direct",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-failure/compile/squares/direct/0/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-failure/compile/squares/direct/0/driver-stats.json"
+      ],
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-failure/compile/squares/direct/0/program.wasm",
+      "status": "passed",
+      "wall_seconds": 0.063062444,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "module_bytes": 1367,
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/example-benchmark-failure/compile/squares/direct/0/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "frontend_ms": 2.956248,
+        "cc_ms": 0.0,
+        "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+        "cache_stored": false,
+        "module_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+        "output_bytes": 1367,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 2,
+          "code_bytes": 365,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 16776128,
+          "module_bytes": 1367,
+          "backend_ns": 68621,
+          "parse_ns": 212244,
+          "resolve_ns": 11642,
+          "typecheck_ns": 180173,
+          "optimize_ns": 18516,
+          "bce_ns": 29305,
+          "frontend_ns": 452111,
+          "source_files": 1,
+          "specializations": 2,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 9,
+              "code_bytes": 348,
+              "body_hash": "12141007981470204699",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 10,
+              "code_bytes": 17,
+              "body_hash": "3250867854454395021",
+              "dependencies": [
+                9
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.317231
+      }
+    },
+    {
+      "kind": "execution",
+      "phase": "qualification",
+      "name": "squares",
+      "backend": "direct",
+      "engine": "v8",
+      "sample": 0,
+      "artifact_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "command": [
+        "/bin/false",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/example-benchmark-failure/compile/squares/direct/0/program.wasm"
+      ],
+      "status": "failed",
+      "error": "run exited 1: "
+    }
+  ],
+  "compile_summary": [],
+  "runtime_summary": [],
+  "failures": [
+    "run exited 1: "
+  ],
+  "source_hashes_still_match": true,
+  "input_paths_still_match": true,
+  "compiler_hash_still_matches": true,
+  "artifact_hashes_still_match": true,
+  "finished_utc": "2026-11-01T22:55:51.110002+00:00"
+}

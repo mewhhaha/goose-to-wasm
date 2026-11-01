@@ -95,6 +95,10 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
+## Example programs
+
+The [example benchmark guide](examples.md) covers fresh-process builds and execution of the ten example programs.
+
 ## LangArena workloads
 
 The [LangArena guide](langarena/README.md) describes a second harness with the

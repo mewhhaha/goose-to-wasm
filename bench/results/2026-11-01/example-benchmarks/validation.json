@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "finished_utc": "2026-11-01T22:55:51.125809+00:00",
+  "checks": [
+    "52-observation all-backend two-example smoke",
+    "ordinary headline process samples exclude timing-file instrumentation",
+    "separate Wasm-only timing probes",
+    "source/compiler/tool/artifact identity checks",
+    "negative, boolean, inconsistent and out-of-process timing rejection",
+    "minimum performance evidence sample count",
+    "failed engine cannot publish runtime evidence",
+    "stale successful summary removed on failed rerun",
+    "Archived 150 built artifacts and 1,450 execution outputs match report hashes; archived source and chart snapshots match measured inputs and current renderer"
+  ],
+  "failure_command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "bench/examples.py",
+    "squares",
+    "--backends",
+    "direct",
+    "--node",
+    "/bin/false",
+    "--smoke",
+    "--samples",
+    "1",
+    "--compile-samples",
+    "1",
+    "--warmups",
+    "0",
+    "--output-dir",
+    "build/example-benchmark-failure"
+  ],
+  "failure_exit_status": 1,
+  "failure_message": [
+    "run exited 1: "
+  ],
+  "smoke_report": "smoke.json",
+  "failed_engine_report": "failed-engine.json"
+}

@@ -16,7 +16,7 @@ Complete uncached builds include Python driver startup. Direct builds took 73–
 
 Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine: direct Wasm trails C-to-Wasm on CRC32 and is close on custom hash.
 
-[Full results and raw samples](bench/results/2026-11-01/lanes/README.md) · [Benchmark method](bench/langarena/README.md)
+[Full results and raw samples](bench/results/2026-11-01/lanes/README.md) · [Benchmark method](bench/langarena/README.md) · [Example benchmarks](bench/examples.md)
 
 ## How it was built
 

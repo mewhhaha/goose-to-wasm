@@ -1,6 +1,6 @@
 # Examples
 
-Ten programs exercise the supported Goose subset. Nine come from [Goose samples at revision `2e2bedef`](https://github.com/aardappel/goose/tree/2e2bedef5b980bf013cac5aaa0095bfea64e5569/samples); squares is local. They are examples, not performance benchmarks.
+Ten programs exercise the supported Goose subset. Nine come from [Goose samples at revision `2e2bedef`](https://github.com/aardappel/goose/tree/2e2bedef5b980bf013cac5aaa0095bfea64e5569/samples); squares is local. A separate [benchmark suite](../bench/examples.md) measures these programs.
 
 | Example | Focus | Adaptation |
 | --- | --- | --- |

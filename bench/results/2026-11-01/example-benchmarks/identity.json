@@ -1,0 +1,20 @@
+{
+  "schema": "goose-example-benchmark-identity-v1",
+  "implementation_commit": "30943f73a77e945ce4e1db56510dfd4c7c3b6ab5",
+  "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+  "report_sha256": "61614efb50e522df7ae96cf7df176259a181afd335e7b09ebdb27776473ef486",
+  "observation_counts": {
+    "build": 150,
+    "qualification": 50,
+    "warmup": 50,
+    "measure": 750,
+    "measure-engine": 600
+  },
+  "passed": true,
+  "notes": [
+    "Implementation commit identifies the unchanged compiler and examples; the new benchmark harness is fingerprinted in report.json and retained in inputs.tar.gz.",
+    "samples.tar.gz retains all built artifacts, commands, stdout, stderr, driver statistics and engine timing files.",
+    "Tool fingerprints identify the named executables and Wasmtime library, not all compiler subprocesses or system libraries.",
+    "inputs.tar.gz retains benchmark, driver, runner, workload, golden and standard-library sources; tool binaries are identified by hashes and versions rather than archived."
+  ]
+}

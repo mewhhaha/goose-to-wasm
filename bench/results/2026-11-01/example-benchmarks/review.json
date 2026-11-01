@@ -1,0 +1,23 @@
+{
+  "reviewer": "Astra xhigh",
+  "status": "passed",
+  "observation_counts_verified": true,
+  "summary_arithmetic_verified": true,
+  "current_input_hashes_verified": true,
+  "workload_note": "The sorting insertion-sort pass uses 20,000 values; its source header and frozen catalog description incorrectly say 2,000. The published benchmark guide and dated results correct the interpretation without changing the measured source.",
+  "investigation_priorities": [
+    {
+      "priority": 1,
+      "hill": "Region address resolution in sorting and Sudoku",
+      "evidence": "Wasmtime entry medians: sorting 4,202.204 ms direct versus 132.259 ms C-Wasm; Sudoku 236.285 ms versus 8.433 ms. The gap persists outside V8.",
+      "hypothesis": "Profile resolve_prefix effect-frame and owner-entry walks, especially recursive Sudoku. Investigate proven identity or empty-mapping cases while preserving publication, alias and unwind semantics."
+    },
+    {
+      "priority": 2,
+      "hill": "Generated code size and V8 first-call work",
+      "evidence": "Maze direct entry: 41.651 ms on V8 versus 1.017 ms on Wasmtime; functions and VM show similar engine differences.",
+      "hypothesis": "Use an eager-optimization diagnostic to separate tiering from emitted-code costs before investigating shared lowering helpers. Keep published engine flags unchanged."
+    }
+  ],
+  "limitations": "Investigation priorities are hypotheses, not established causes or promised gains."
+}
