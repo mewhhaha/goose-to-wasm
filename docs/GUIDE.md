@@ -146,6 +146,7 @@ python tests/run_differential.py --engines v8 wasmtime \
   --backends direct c-wasm native
 python tests/test_backend_extensions.py
 python tests/test_static_data.py
+python tests/test_fill_loops.py
 python tests/test_regions.py
 python tests/test_dynamic_boundaries.py
 python tests/test_incremental.py

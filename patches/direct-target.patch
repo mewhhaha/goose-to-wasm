@@ -108,7 +108,8 @@ diff --git a/src/main.cpp b/src/main.cpp
 +        auto check_finished = chrono::steady_clock::now();
          // The checker reported the errors it went on past, root by root.
 @@ -1356,2 +1394,3 @@
-         Optimizer opt(ast, optlevel);
+-        Optimizer opt(ast, optlevel);
++        Optimizer opt(ast, optlevel, wasm_direct);
 +        auto optimize_finished = chrono::steady_clock::now();
          if (specs) {
 @@ -1380,2 +1419,3 @@
@@ -305,3 +306,88 @@ diff --git a/src/typecheck_calls.h b/src/typecheck_calls.h
 +    if (leaf) active_checked_leaf_cache->Store(*spec, *leaf,
 +        warned.size() != leaf_warnings || castverdicts.size() != leaf_casts);
  }
+diff --git a/src/optimize.h b/src/optimize.h
+--- a/src/optimize.h
++++ b/src/optimize.h
+@@ -60,6 +60,7 @@
+ 
+ struct Optimizer {
+     Ast &ast;
++    bool retain_loop_calls;
+     int nc = 0, ncu = 0;         // Inline thresholds; 0 = inlining off.
+     bool caninline = false;
+     FnSpec *curspec = nullptr;   // Specialization being optimized (null: globals).
+@@ -91,6 +92,8 @@
+         // (FnSpec::cinline).
+         bool c_inlinable = false;
+         bool nestedcalls = false;
++        int loopnest = 0;
++        bool bodycalls = false;
+     };
+     unordered_map<FnSpec *, InlineInfo> inlineinfo;
+ 
+@@ -500,15 +503,21 @@
+         info.nodecount = 0;
+         info.nest = 0;
+         info.nestedcalls = false;
++        info.loopnest = 0;
++        info.bodycalls = false;
+         // A simd body inlined into a caller would lose its versions (§7.12).
+         auto noin = sp->sf->isrec || sp->incycle || sp->sf->isthread || sp->sf->isexport ||
+                     sp->sf->issimd || sp->relnamedresult;
+         auto multiret = sp->rets.size() > 1;
+-        function<void(Node *, int)> rec = [&](Node *n, int d) {
++        function<void(Node *, int, int)> rec = [&](Node *n, int d, int loops) {
+             if (!n) return;
+             info.nodecount++;
++            if (Is<ForLoop>(n) || Is<While>(n) || Is<LoopExpr>(n))
++                info.loopnest = max(info.loopnest, ++loops);
+             if (Is<Block>(n)) info.nest = max(info.nest, ++d);   // Its children sit inside it.
+             if (auto c = Is<Call>(n)) {
++                info.bodycalls |= c->fvbody || !c->dispatch.empty() ||
++                    (c->builtin < 0 && (!c->spec || !c->spec->sf->isextern));
+                 auto callee = [&](FnSpec *k) {
+                     if (!k) return;
+                     // A separate body referencing our locals that a copy
+@@ -522,9 +531,9 @@
+                 if (c->builtin < 0) callee(c->spec);
+                 for (auto k : c->dispatch) callee(k);
+             }
+-            RunChildren(n, [&](Node *ch) { rec(ch, d + Around(n, ch)); });
++            RunChildren(n, [&](Node *ch) { rec(ch, d + Around(n, ch), loops); });
+         };
+-        rec(sp->body, 0);
++        rec(sp->body, 0, 0);
+         info.noinline = noin || multiret;
+         info.c_inlinable = multiret && !noin;
+     }
+@@ -592,7 +601,8 @@
+     // ------------------------------------------------------------------
+     // Driver: constructing the Optimizer runs the whole pass.
+ 
+-    Optimizer(Ast &_ast, int level) : ast(_ast) {
++    Optimizer(Ast &_ast, int level, bool _retain_loop_calls = false)
++        : ast(_ast), retain_loop_calls(_retain_loop_calls) {
+         switch (level) {
+             case 0:  nc = 0;  ncu = 0;  break;
+             case 1:  nc = 8;  ncu = 48; break;
+@@ -789,6 +799,19 @@
+     // Never into a recursive cycle: the inlined body's locals would become
+     // the cycle function's own, upsetting the §7.8 stack-assignment rule.
+     if (curspec && (curspec->incycle || curspec->sf->isrec)) return nullptr;
++    // Repeated nested-loop kernels need real call boundaries to enter V8's
++    // optimized tier. Keep this direct-target policy separate from ordinary
++    // size rules and explicit inline requests; complex lifetimes stay there.
++    if (retain_loop_calls && loopdepth > 0 && info.loopnest >= 2 && info.nodecount >= 64 &&
++        !info.bodycalls && !K->sf->isinline && !info.nestedcalls && K->fnvals.empty() &&
++        !K->lexparent && K->needs.empty()) {
++        auto simple = [](VarDef *p) {
++            return !p->unsized && (ScalarType(p->type) || p->type->kind == TY_SLICE ||
++                (IsPlainRef(p->type) && !p->type->ref->pool));
++        };
++        if (all_of(K->params.begin(), K->params.end(), simple) &&
++            all_of(K->rets.begin(), K->rets.end(), ScalarType)) return nullptr;
++    }
+     if (!small && K->uses == 1 && colddepth > 0) {
+         K->outofline = true;
+         return nullptr;

@@ -75,7 +75,7 @@ inline DirectCompileOutput CompileDirectRequest(const DirectCompileRequest &requ
     auto resolved = chrono::steady_clock::now(); check();
     TypeCheckProgram(ast, false, false);
     auto checked = chrono::steady_clock::now(); check();
-    Optimizer optimizer(ast, request.optimization);
+    Optimizer optimizer(ast, request.optimization, true);
     auto optimized = chrono::steady_clock::now();
     BCE bce(ast); bce.RunAll();
     if (!bce.checkfreefails.empty()) throw bce.CheckfreeError();

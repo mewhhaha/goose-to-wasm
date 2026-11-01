@@ -1,0 +1,34 @@
+{
+  "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90",
+  "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+  "observations": [
+    {
+      "mode": "default",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-cohort/logs/compile/adapted/Etc_Sieve/direct/cold/1/program.wasm"
+      ],
+      "stdin": "3000000 270 54\n",
+      "stdout": "1042248060\n13713970097\n",
+      "stderr": "",
+      "process_seconds": 16.45541646500351,
+      "timed_seconds": 13.713970097
+    },
+    {
+      "mode": "optimizing",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "--no-liftoff",
+        "--no-wasm-tier-up",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/round2-cohort/logs/compile/adapted/Etc_Sieve/direct/cold/1/program.wasm"
+      ],
+      "stdin": "3000000 270 54\n",
+      "stdout": "1042248060\n1773824239\n",
+      "stderr": "",
+      "process_seconds": 2.1752124140039086,
+      "timed_seconds": 1.773824239
+    }
+  ]
+}

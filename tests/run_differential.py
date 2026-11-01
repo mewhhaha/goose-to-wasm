@@ -51,6 +51,25 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    for count, seed in ((0, -1), (1, 255), (6, -1), (6, 128), (3, 17)):
+        uniform = [125] + [wrap(seed, 8, False)] * count + [125] * (7 - count)
+        negative = [-7] + [wrap(seed, 8)] * count + [-7] * (7 - count)
+        effect = [125] + [85] * count + [125] * (7 - count)
+        different = [125] + [wrap(seed + i, 8, False) for i in range(count)] + [125] * (7 - count)
+        first = [91] * 8
+        second = [92] * 8
+        if count:
+            first[1] = 17
+            second[2:count + 1] = [17] * (count - 1)
+        unsigned_image = int.from_bytes(bytes(uniform), "little")
+        effect_image = int.from_bytes(bytes(effect), "little")
+        varying_image = int.from_bytes(bytes(different), "little")
+        first_image = int.from_bytes(bytes(first), "little")
+        second_image = int.from_bytes(bytes(second), "little")
+        answer = f"{unsigned_image}\n{negative}\n{effect_image} {count}\n{unsigned_image}\n{varying_image}\n{first_image} {second_image}\n"
+        for debug in (False, True):
+            result.append(Case(f"codegen/fill/{count}/{seed}/{debug}", "codegen_fill", f"{count} {seed}\n",
+                               answer, debug=debug, group="control"))
     for seed, mode in [(x, 0) for x in (0, 1, 0x12345678, -1, 0xFFFFFFFF, -(1 << 63))] + [(0, 1), ((1 << 63) - 3, 1)]:
         crc = 0xFFFFFFFF ^ wrap(seed, 32, False)
         for _ in range(8):
@@ -94,6 +113,32 @@ def cases():
             diagnostic = "bounds"
         for debug in (False, True):
             result.append(Case(f"codegen/loops/{count}/{index}/{debug}", "codegen_loops", f"{count} {index}\n",
+                               answer, exit_code=exit_code, diagnostic=diagnostic, debug=debug, group="control"))
+    for count, index in ((0, -1), (1, -1), (5, -1), (3, 0), (2, 3), (1, 4)):
+        values = [(10 + 3 * count) * (i + 1) for i in range(4)]
+        total = 246 * count + 30 * count * (count - 1) + 6 * (count // 2)
+        state = 0
+        for call in range(count):
+            for offset, repetition in ((1, 0), (3, 1)):
+                for i in range(4):
+                    state += (10 + 3 * call + offset) * (i + 1) + i
+                    state ^= i + repetition
+            state += 246 + 60 * call + 6 * (call & 1)
+        answer = f"{values} {state} {count}\n{total + 795}\n"
+        exit_code = 0
+        diagnostic = ""
+        if 0 <= index < 4:
+            seen = 2 * values[index] + 4 * (index + 1)
+            if (values[index] + index + 1) & 1:
+                seen -= 1
+            else:
+                seen += 2 * index
+            answer += f"{seen} {count + 1}\n"
+        elif index >= 4:
+            exit_code = 1
+            diagnostic = "bounds"
+        for debug in (False, True):
+            result.append(Case(f"codegen/kernel-calls/{count}/{index}/{debug}", "codegen_kernel_calls", f"{count} {index}\n",
                                answer, exit_code=exit_code, diagnostic=diagnostic, debug=debug, group="control"))
     for choice in (False, True):
         for x in (-1, 0, 127, 4294967295):

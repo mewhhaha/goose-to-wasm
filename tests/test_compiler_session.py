@@ -341,6 +341,18 @@ class CompilerSession(SessionHarness):
         self.assertEqual(target.read_text(), 'fn value() -> i64 { 41 }\n')
         self.assertEqual(other.read_text(), 'fn value() -> i64 { 43 }\n')
 
+    def test_nested_kernel_call_boundaries(self):
+        source = ROOT / "tests/fixtures/codegen_kernel_calls.goose"
+        result = self.request(source=source, extra=["-O2", "--no-cache"])
+        names = {item["name"].split("#")[0] for item in result["backend_stats"]["function_info"]}
+        self.assertIn("kernel", names)
+        self.assertNotIn("explicit", names)
+        self.assertNotIn("tiny", names)
+        self.source.write_text(source.read_text().replace("fn kernel(", "inline fn kernel(", 1))
+        result = self.request(extra=["-O2", "--no-cache"])
+        names = {item["name"].split("#")[0] for item in result["backend_stats"]["function_info"]}
+        self.assertNotIn("kernel", names)
+
     def test_qualified_fixture_modules_match_fresh_compilers(self):
         from run_differential import cases
         fixtures = sorted({(case.fixture, case.debug, level) for case in cases() for level in case.levels if level in (0, 2)})

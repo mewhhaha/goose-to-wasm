@@ -81,6 +81,8 @@ jobs:
         run: python tests/test_backend_extensions.py
       - name: Sparse static data and memory limits
         run: python tests/test_static_data.py
+      - name: Byte fill lowering and partial-write boundaries
+        run: python tests/test_fill_loops.py
       - name: Stable regions, memory isolation and scoped owner cleanup
         run: |
           python tests/test_regions.py

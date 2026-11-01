@@ -1,0 +1,2001 @@
+{
+  "schema": "goose-paired-runtime-v1",
+  "status": "passed",
+  "started_utc": "2026-11-01T18:09:30.904588+00:00",
+  "environment": {
+    "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]",
+    "cpu": "AMD Ryzen 7 3800X 8-Core Processor",
+    "logical_cpu_count": 16,
+    "supplied_machine_label": "AMD Ryzen 7 3800X, shared desktop host",
+    "node": {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "-p",
+        "JSON.stringify(process.versions)"
+      ],
+      "exit_code": 0,
+      "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"
+    },
+    "native_cc": {
+      "command": [
+        "/usr/bin/gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "emcc": {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "wasmtime": "50.0.1",
+    "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90",
+    "installed_stdlib_sha256": {
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+      "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e"
+    },
+    "input_sha256": {
+      "bench/langarena.py": "2469c5d008cd3d1f3fa211f92bf4fc1ab20bd7e583e055cdc5f2f6970bc94865",
+      "bench/langarena/manifest.json": "95383d34c7f2214e5b7cfd346b0d0742c23df81f9d568ef4c6dad7c8a6302646",
+      "bench/langarena/test.json": "424371dd25f3fa3f779789c823a05dbe90d2eddbc2a3ca3c5e4319252c572797",
+      "bench/langarena/run.json": "8fe7baed41e8eb0a233057c4406446029f7e5d792cf3a3ac6fc7e714964a155f",
+      "scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33",
+      "oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+      "scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+      "scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+      "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+      "bench/langarena/ports/common.goose": "c25a158f5d17037c46243c970a573e846080c4c8adfd32164ad1b6212d91a65c",
+      "bench/langarena/ports/fannkuch.goose": "13fe4b2630a22e717ba583e9c9b255cc3ccc6c605351a652bb73e07d636ee004",
+      "bench/langarena/ports/hash_crc32.goose": "22891f3c000d0eac66742cfe4bb234ab7ddf3dce0b803aaae15908c0d9a2c4a2",
+      "bench/langarena/ports/hash_sha256.goose": "e530813993a835ec10b4e8978d3d5d82d585a1a55b0291045e2afe046c8ebf1e",
+      "bench/langarena/ports/mandelbrot.goose": "017d40be3efc3d0aa3d629fabfa843cf676193a7507c6e653cdb6981c19adf8d",
+      "bench/langarena/ports/sieve.goose": "849b68f2113209776b638f22d5c1500b38138ee211ed269c6e8be351a6b17b70",
+      "bench/langarena/ports/sort_merge.goose": "54358db410344035b3f86c24563d961fa6c5029ca5d73ee633adee2a654391dc",
+      "bench/langarena/ports/sort_quick.goose": "5c838972c053214766fb5dd8cd577f4db569d92e3940938ee20830a4aeca9f79"
+    },
+    "upstream_revision": "aab9b14998231ba905523b5ba3990ee03c46f64d",
+    "toolchain": {
+      "schema": "goose-to-wasm-toolchain-v1",
+      "repository": "https://github.com/aardappel/goose.git",
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "emscripten": "6.0.13",
+      "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+      "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "wasmtime_python": "50.0.1",
+      "patches": [
+        "oracle/patches/0001-webassembly-target.patch",
+        "patches/direct-target.patch"
+      ],
+      "minimum_cmake": "3.27",
+      "minimum_python": "3.10"
+    },
+    "environment_overrides": {
+      "EM_NODE_JS": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+      "EM_CONFIG": null,
+      "EM_CACHE": "/home/jacobt/src/goose-to-wasm/build/em-cache",
+      "EMCC_CORES": "2",
+      "TMPDIR": "/home/jacobt/src/goose-to-wasm/build/tmp",
+      "GOOSE_STDLIB": null
+    },
+    "target_profiles": {
+      "direct": "memory32; explicit bounds; no LLVM",
+      "c-wasm": "LP64 memory64; WASI64; standard Wasm EH",
+      "native": "native C; -O2 -fno-strict-aliasing -ffp-contract=off"
+    }
+  },
+  "inputs": {
+    "baseline": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/report.json",
+      "sha256": "f4507de0e6029599b9d7be897e7bec10d337de52eea72d38cf4a7f6bc1e52ae4",
+      "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90"
+    },
+    "candidate": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/report.json",
+      "sha256": "e83068ac355564a13ec79ec73d0b3917e729263abb4cd824a6956b65c67571cf",
+      "compiler_sha256": "85a684a05f3e142a0a0c45e17945d564a3778ebdced819e204fa5baab6a7a841"
+    }
+  },
+  "observations": [
+    {
+      "sample": 4,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/4/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n13534901516\n",
+      "stderr": "",
+      "wall_seconds": 16.298313252,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 13.534901516,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 292336,
+        "start_function_ns": 16268608290,
+        "engine_total_ns": 16268900626
+      }
+    },
+    {
+      "sample": 4,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/4/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1426132962\n",
+      "stderr": "",
+      "wall_seconds": 1.785322149,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.426132962,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 236309,
+        "start_function_ns": 1756772954,
+        "engine_total_ns": 1757009263
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/3/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n13593799156\n",
+      "stderr": "",
+      "wall_seconds": 16.33885573,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 13.593799156,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 247751,
+        "start_function_ns": 16309758963,
+        "engine_total_ns": 16310006714
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/3/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1451919906\n",
+      "stderr": "",
+      "wall_seconds": 1.815321299,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.451919906,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 289711,
+        "start_function_ns": 1784805275,
+        "engine_total_ns": 1785094986
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/1/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1681674067\n",
+      "stderr": "",
+      "wall_seconds": 2.118392227,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.681674067,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4612317,
+        "start_function_ns": 2031188332,
+        "engine_total_ns": 2035800649
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/1/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1544112674\n",
+      "stderr": "",
+      "wall_seconds": 1.941082733,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.544112674,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 3466530,
+        "start_function_ns": 1855257147,
+        "engine_total_ns": 1858723677
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/0/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1588348876\n",
+      "stderr": "",
+      "wall_seconds": 1.994624412,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.588348876,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 3350077,
+        "start_function_ns": 1903737598,
+        "engine_total_ns": 1907087675
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/0/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1717628317\n",
+      "stderr": "",
+      "wall_seconds": 2.164771573,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.717628317,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4848837,
+        "start_function_ns": 2073785249,
+        "engine_total_ns": 2078634086
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/2/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1693562353\n",
+      "stderr": "",
+      "wall_seconds": 2.129230377,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.693562353,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5284906,
+        "start_function_ns": 2039122082,
+        "engine_total_ns": 2044406988
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/2/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1572348252\n",
+      "stderr": "",
+      "wall_seconds": 1.976957802,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.572348252,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 3416554,
+        "start_function_ns": 1888280938,
+        "engine_total_ns": 1891697492
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/0/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1446586278\n",
+      "stderr": "",
+      "wall_seconds": 1.812710846,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.446586278,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 256628,
+        "start_function_ns": 1780860757,
+        "engine_total_ns": 1781117385
+      }
+    },
+    {
+      "sample": 0,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/0/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n13640472962\n",
+      "stderr": "",
+      "wall_seconds": 16.371272023,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 13.640472962,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 262229,
+        "start_function_ns": 16342396877,
+        "engine_total_ns": 16342659106
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/1/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n13595718615\n",
+      "stderr": "",
+      "wall_seconds": 16.371585818,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 13.595718615,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 244986,
+        "start_function_ns": 16341947102,
+        "engine_total_ns": 16342192088
+      }
+    },
+    {
+      "sample": 1,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/1/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1422534218\n",
+      "stderr": "",
+      "wall_seconds": 1.780610257,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.422534218,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 261326,
+        "start_function_ns": 1751858147,
+        "engine_total_ns": 1752119473
+      }
+    },
+    {
+      "sample": 4,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/4/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1560021910\n",
+      "stderr": "",
+      "wall_seconds": 1.960341275,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.56002191,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4607417,
+        "start_function_ns": 1872177646,
+        "engine_total_ns": 1876785063
+      }
+    },
+    {
+      "sample": 4,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/4/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1677438702\n",
+      "stderr": "",
+      "wall_seconds": 2.107087495,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.677438702,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 4467472,
+        "start_function_ns": 2020434918,
+        "engine_total_ns": 2024902390
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/3/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1561778709\n",
+      "stderr": "",
+      "wall_seconds": 1.965465775,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.561778709,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 3549517,
+        "start_function_ns": 1875296484,
+        "engine_total_ns": 1878846001
+      }
+    },
+    {
+      "sample": 3,
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/wasmtime/3/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1707459133\n",
+      "stderr": "",
+      "wall_seconds": 2.14404924,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.707459133,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 5154297,
+        "start_function_ns": 2055782566,
+        "engine_total_ns": 2060936863
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "candidate",
+      "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/2/candidate/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1449881208\n",
+      "stderr": "",
+      "wall_seconds": 1.808466114,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.449881208,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 351027,
+        "start_function_ns": 1777130142,
+        "engine_total_ns": 1777481169
+      }
+    },
+    {
+      "sample": 2,
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "variant": "baseline",
+      "artifact_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+        "--timing-json",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/Etc_Sieve/v8/2/baseline/engine-timing.json"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n13931539278\n",
+      "stderr": "",
+      "wall_seconds": 16.715841299,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 13.931539278,
+      "revision_exit": 0,
+      "engine_timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 262358,
+        "start_function_ns": 16686535356,
+        "engine_total_ns": 16686797714
+      }
+    }
+  ],
+  "summary": [
+    {
+      "task": "Etc::Sieve",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 13.595718615,
+        "mad": 0.04475434700000136,
+        "min": 13.534901516,
+        "max": 13.931539278,
+        "p25": 13.593799156,
+        "p75": 13.640472962,
+        "samples": [
+          13.534901516,
+          13.593799156,
+          13.640472962,
+          13.595718615,
+          13.931539278
+        ]
+      },
+      "baseline_startup": {
+        "n": 5,
+        "median": 0.000262229,
+        "mad": 1.4478000000000006e-05,
+        "min": 0.000244986,
+        "max": 0.000292336,
+        "p25": 0.000247751,
+        "p75": 0.000262358,
+        "samples": [
+          0.000292336,
+          0.000247751,
+          0.000262229,
+          0.000244986,
+          0.000262358
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 1.446586278,
+        "mad": 0.005333628000000035,
+        "min": 1.422534218,
+        "max": 1.451919906,
+        "p25": 1.426132962,
+        "p75": 1.449881208,
+        "samples": [
+          1.426132962,
+          1.451919906,
+          1.446586278,
+          1.422534218,
+          1.449881208
+        ]
+      },
+      "candidate_startup": {
+        "n": 5,
+        "median": 0.000261326,
+        "mad": 2.501699999999998e-05,
+        "min": 0.000236309,
+        "max": 0.000351027,
+        "p25": 0.000256628,
+        "p75": 0.000289711,
+        "samples": [
+          0.000236309,
+          0.000289711,
+          0.000256628,
+          0.000261326,
+          0.000351027
+        ]
+      },
+      "speedup": 9.398484433155945,
+      "paired_speedups": {
+        "n": 5,
+        "median": 9.490630871485319,
+        "mad": 0.0667621549648878,
+        "min": 9.36263708474839,
+        "max": 9.608745324189346,
+        "p25": 9.429422336881865,
+        "p75": 9.557393026450207,
+        "samples": [
+          9.490630871485319,
+          9.36263708474839,
+          9.429422336881865,
+          9.557393026450207,
+          9.608745324189346
+        ]
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 1.693562353,
+        "mad": 0.013896780000000053,
+        "min": 1.677438702,
+        "max": 1.717628317,
+        "p25": 1.681674067,
+        "p75": 1.707459133,
+        "samples": [
+          1.681674067,
+          1.717628317,
+          1.693562353,
+          1.677438702,
+          1.707459133
+        ]
+      },
+      "baseline_startup": {
+        "n": 5,
+        "median": 0.004848837,
+        "mad": 0.00030546000000000045,
+        "min": 0.004467472,
+        "max": 0.005284906,
+        "p25": 0.004612317,
+        "p75": 0.005154297,
+        "samples": [
+          0.004612317,
+          0.004848837,
+          0.005284906,
+          0.004467472,
+          0.005154297
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 1.561778709,
+        "mad": 0.010569543000000126,
+        "min": 1.544112674,
+        "max": 1.588348876,
+        "p25": 1.56002191,
+        "p75": 1.572348252,
+        "samples": [
+          1.544112674,
+          1.588348876,
+          1.572348252,
+          1.56002191,
+          1.561778709
+        ]
+      },
+      "candidate_startup": {
+        "n": 5,
+        "median": 0.00346653,
+        "mad": 8.298700000000008e-05,
+        "min": 0.003350077,
+        "max": 0.004607417,
+        "p25": 0.003416554,
+        "p75": 0.003549517,
+        "samples": [
+          0.00346653,
+          0.003350077,
+          0.003416554,
+          0.004607417,
+          0.003549517
+        ]
+      },
+      "speedup": 1.0843804844057456,
+      "paired_speedups": {
+        "n": 5,
+        "median": 1.081392345821133,
+        "mad": 0.006126228565126013,
+        "min": 1.075266117256007,
+        "max": 1.0932785311776203,
+        "p25": 1.0770911284098912,
+        "p75": 1.0890876652437866,
+        "samples": [
+          1.0890876652437866,
+          1.081392345821133,
+          1.0770911284098912,
+          1.075266117256007,
+          1.0932785311776203
+        ]
+      }
+    }
+  ],
+  "compile_observations": [
+    {
+      "task": "Etc::Sieve",
+      "sample": 0,
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/candidate/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/candidate/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/candidate/program.wasm (3655 bytes; 18.963 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.072236114,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "frontend_ms": 10.486051,
+        "cc_ms": 0.0,
+        "compiler_sha256": "85a684a05f3e142a0a0c45e17945d564a3778ebdced819e204fa5baab6a7a841",
+        "cache_stored": false,
+        "module_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+        "output_bytes": 3655,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 3,
+          "code_bytes": 2423,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 3655,
+          "backend_ns": 2450047,
+          "parse_ns": 2378762,
+          "resolve_ns": 162799,
+          "typecheck_ns": 2225691,
+          "optimize_ns": 46408,
+          "bce_ns": 217503,
+          "frontend_ns": 5031644,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 544,
+              "body_hash": "3526625687805947140",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12,
+                14
+              ]
+            },
+            {
+              "name": "run#3",
+              "index": 14,
+              "code_bytes": 901,
+              "body_hash": "16263905737165008226",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 15,
+              "code_bytes": 978,
+              "body_hash": "12233767003488527898",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 18.962864
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 0,
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/baseline/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/baseline/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/baseline/program.wasm (4528 bytes; 20.904 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.074303575,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/0/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "frontend_ms": 13.072809,
+        "cc_ms": 0.0,
+        "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90",
+        "cache_stored": false,
+        "module_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+        "output_bytes": 4528,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 2,
+          "code_bytes": 3311,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 4528,
+          "backend_ns": 3340840,
+          "parse_ns": 3275025,
+          "resolve_ns": 162759,
+          "typecheck_ns": 2341481,
+          "optimize_ns": 104088,
+          "bce_ns": 605331,
+          "frontend_ns": 6488924,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 2333,
+              "body_hash": "16443090959215118067",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 14,
+              "code_bytes": 978,
+              "body_hash": "5291706451820659417",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 20.903934
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 4,
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/baseline/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/baseline/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/baseline/program.wasm (4528 bytes; 28.806 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.083425193,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "frontend_ms": 21.029452,
+        "cc_ms": 0.0,
+        "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90",
+        "cache_stored": false,
+        "module_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+        "output_bytes": 4528,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 2,
+          "code_bytes": 3311,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 4528,
+          "backend_ns": 6343638,
+          "parse_ns": 4643426,
+          "resolve_ns": 313526,
+          "typecheck_ns": 4327846,
+          "optimize_ns": 193167,
+          "bce_ns": 1201094,
+          "frontend_ns": 10679469,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 2333,
+              "body_hash": "16443090959215118067",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 14,
+              "code_bytes": 978,
+              "body_hash": "5291706451820659417",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 28.805913
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 4,
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/candidate/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/candidate/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/candidate/program.wasm (3655 bytes; 19.245 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.07160754,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/4/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "frontend_ms": 11.228803,
+        "cc_ms": 0.0,
+        "compiler_sha256": "85a684a05f3e142a0a0c45e17945d564a3778ebdced819e204fa5baab6a7a841",
+        "cache_stored": false,
+        "module_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+        "output_bytes": 3655,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 3,
+          "code_bytes": 2423,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 3655,
+          "backend_ns": 2697778,
+          "parse_ns": 2354365,
+          "resolve_ns": 157560,
+          "typecheck_ns": 2291916,
+          "optimize_ns": 51428,
+          "bce_ns": 225418,
+          "frontend_ns": 5080968,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 544,
+              "body_hash": "3526625687805947140",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12,
+                14
+              ]
+            },
+            {
+              "name": "run#3",
+              "index": 14,
+              "code_bytes": 901,
+              "body_hash": "16263905737165008226",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 15,
+              "code_bytes": 978,
+              "body_hash": "12233767003488527898",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 19.245321
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 3,
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/baseline/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/baseline/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/baseline/program.wasm (4528 bytes; 20.309 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.073313633,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "frontend_ms": 12.264642,
+        "cc_ms": 0.0,
+        "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90",
+        "cache_stored": false,
+        "module_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+        "output_bytes": 4528,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 2,
+          "code_bytes": 3311,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 4528,
+          "backend_ns": 3400894,
+          "parse_ns": 2403879,
+          "resolve_ns": 162459,
+          "typecheck_ns": 2337403,
+          "optimize_ns": 100170,
+          "bce_ns": 641480,
+          "frontend_ns": 5649759,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 2333,
+              "body_hash": "16443090959215118067",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 14,
+              "code_bytes": 978,
+              "body_hash": "5291706451820659417",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 20.309253
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 3,
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/candidate/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/candidate/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/candidate/program.wasm (3655 bytes; 18.126 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.070074976,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/3/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "frontend_ms": 10.352507,
+        "cc_ms": 0.0,
+        "compiler_sha256": "85a684a05f3e142a0a0c45e17945d564a3778ebdced819e204fa5baab6a7a841",
+        "cache_stored": false,
+        "module_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+        "output_bytes": 3655,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 3,
+          "code_bytes": 2423,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 3655,
+          "backend_ns": 2518687,
+          "parse_ns": 2350087,
+          "resolve_ns": 162619,
+          "typecheck_ns": 2257421,
+          "optimize_ns": 50225,
+          "bce_ns": 217494,
+          "frontend_ns": 5038036,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 544,
+              "body_hash": "3526625687805947140",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12,
+                14
+              ]
+            },
+            {
+              "name": "run#3",
+              "index": 14,
+              "code_bytes": 901,
+              "body_hash": "16263905737165008226",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 15,
+              "code_bytes": 978,
+              "body_hash": "12233767003488527898",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 18.125823
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 1,
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/baseline/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/baseline/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/baseline/program.wasm (4528 bytes; 20.313 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.071926396,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "frontend_ms": 12.473169,
+        "cc_ms": 0.0,
+        "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90",
+        "cache_stored": false,
+        "module_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+        "output_bytes": 4528,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 2,
+          "code_bytes": 3311,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 4528,
+          "backend_ns": 3363363,
+          "parse_ns": 3057301,
+          "resolve_ns": 167749,
+          "typecheck_ns": 2238765,
+          "optimize_ns": 94920,
+          "bce_ns": 611904,
+          "frontend_ns": 6175057,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 2333,
+              "body_hash": "16443090959215118067",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 14,
+              "code_bytes": 978,
+              "body_hash": "5291706451820659417",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 20.313281
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 1,
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/candidate/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/candidate/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/candidate/program.wasm (3655 bytes; 20.811 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.072523571,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/1/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "frontend_ms": 12.104878,
+        "cc_ms": 0.0,
+        "compiler_sha256": "85a684a05f3e142a0a0c45e17945d564a3778ebdced819e204fa5baab6a7a841",
+        "cache_stored": false,
+        "module_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+        "output_bytes": 3655,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 3,
+          "code_bytes": 2423,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 3655,
+          "backend_ns": 2717545,
+          "parse_ns": 2497456,
+          "resolve_ns": 159133,
+          "typecheck_ns": 2411564,
+          "optimize_ns": 47160,
+          "bce_ns": 220389,
+          "frontend_ns": 5336002,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 544,
+              "body_hash": "3526625687805947140",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12,
+                14
+              ]
+            },
+            {
+              "name": "run#3",
+              "index": 14,
+              "code_bytes": 901,
+              "body_hash": "16263905737165008226",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 15,
+              "code_bytes": 978,
+              "body_hash": "12233767003488527898",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 20.811037
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 2,
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/candidate/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/candidate/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/candidate/program.wasm (3655 bytes; 18.971 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.0704449,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-scoped/bin/goose",
+        "frontend_ms": 11.165413,
+        "cc_ms": 0.0,
+        "compiler_sha256": "85a684a05f3e142a0a0c45e17945d564a3778ebdced819e204fa5baab6a7a841",
+        "cache_stored": false,
+        "module_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+        "output_bytes": 3655,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 3,
+          "code_bytes": 2423,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 3655,
+          "backend_ns": 2549766,
+          "parse_ns": 2594942,
+          "resolve_ns": 160415,
+          "typecheck_ns": 2208869,
+          "optimize_ns": 48392,
+          "bce_ns": 217954,
+          "frontend_ns": 5231194,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 544,
+              "body_hash": "3526625687805947140",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12,
+                14
+              ]
+            },
+            {
+              "name": "run#3",
+              "index": 14,
+              "code_bytes": 901,
+              "body_hash": "16263905737165008226",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 15,
+              "code_bytes": 978,
+              "body_hash": "12233767003488527898",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 18.97112
+      }
+    },
+    {
+      "task": "Etc::Sieve",
+      "sample": 2,
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/baseline/program.wasm",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "--offline",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/baseline/driver-stats.json",
+        "--no-cache"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "",
+      "returncode": 0,
+      "stdout": "Wrote /home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/baseline/program.wasm (4528 bytes; 21.365 ms; cache disabled)\n",
+      "stderr": "",
+      "wall_seconds": 0.073147297,
+      "error": "",
+      "driver_stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-baseline/source/ports/sieve.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/performance/sieve-scoped-paired/logs/compile/Etc_Sieve/2/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/runtime-sieve-baseline/bin/goose",
+        "frontend_ms": 11.989169,
+        "cc_ms": 0.0,
+        "compiler_sha256": "e56c2541afac9f881012623e4c00e3f567a0d37009bed91a291e32a60671ec90",
+        "cache_stored": false,
+        "module_sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+        "output_bytes": 4528,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 2,
+          "code_bytes": 3311,
+          "region_count": 0,
+          "region_bytes": 0,
+          "activation_bytes": 13775824,
+          "module_bytes": 4528,
+          "backend_ns": 3305594,
+          "parse_ns": 2324068,
+          "resolve_ns": 161296,
+          "typecheck_ns": 2299311,
+          "optimize_ns": 100561,
+          "bce_ns": 651478,
+          "frontend_ns": 5540591,
+          "source_files": 4,
+          "specializations": 107,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 13,
+              "code_bytes": 2333,
+              "body_hash": "16443090959215118067",
+              "dependencies": [
+                1,
+                2,
+                6,
+                7,
+                9,
+                10,
+                11,
+                12
+              ]
+            },
+            {
+              "name": "_start",
+              "index": 14,
+              "code_bytes": 978,
+              "body_hash": "5291706451820659417",
+              "dependencies": [
+                7,
+                13
+              ]
+            }
+          ]
+        },
+        "dependencies": 5,
+        "total_ms": 21.364619
+      }
+    }
+  ],
+  "compile_summary": [
+    {
+      "task": "Etc::Sieve",
+      "baseline": {
+        "wall_seconds": {
+          "n": 5,
+          "median": 0.073313633,
+          "mad": 0.0009899419999999937,
+          "min": 0.071926396,
+          "max": 0.083425193,
+          "p25": 0.073147297,
+          "p75": 0.074303575,
+          "samples": [
+            0.074303575,
+            0.083425193,
+            0.073313633,
+            0.071926396,
+            0.073147297
+          ]
+        },
+        "emitter_seconds": {
+          "n": 5,
+          "median": 0.003363363,
+          "mad": 3.7530999999999936e-05,
+          "min": 0.003305594,
+          "max": 0.006343638,
+          "p25": 0.00334084,
+          "p75": 0.003400894,
+          "samples": [
+            0.00334084,
+            0.006343638,
+            0.003400894,
+            0.003363363,
+            0.003305594
+          ]
+        },
+        "module_bytes": 4528,
+        "code_bytes": 3311
+      },
+      "candidate": {
+        "wall_seconds": {
+          "n": 5,
+          "median": 0.07160754,
+          "mad": 0.0009160309999999977,
+          "min": 0.070074976,
+          "max": 0.072523571,
+          "p25": 0.0704449,
+          "p75": 0.072236114,
+          "samples": [
+            0.072236114,
+            0.07160754,
+            0.070074976,
+            0.072523571,
+            0.0704449
+          ]
+        },
+        "emitter_seconds": {
+          "n": 5,
+          "median": 0.002549766,
+          "mad": 9.971900000000028e-05,
+          "min": 0.002450047,
+          "max": 0.002717545,
+          "p25": 0.002518687,
+          "p75": 0.002697778,
+          "samples": [
+            0.002450047,
+            0.002697778,
+            0.002518687,
+            0.002717545,
+            0.002549766
+          ]
+        },
+        "module_bytes": 3655,
+        "code_bytes": 2423
+      }
+    }
+  ],
+  "harness_sha256": "db53ae26ec187d1d252ef31fec389a3cfa2e49768463802082d479be7b274192",
+  "method": "Shuffled task/engine pairs; baseline/candidate order shuffled within every pair. Official production inputs and warmups. No concurrent work launched by this harness. Shared desktop host.",
+  "finished_utc": "2026-11-01T18:11:23.291498+00:00"
+}

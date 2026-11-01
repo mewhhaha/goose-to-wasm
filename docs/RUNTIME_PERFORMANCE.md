@@ -1,6 +1,37 @@
 # Runtime performance work
 
-## Latest hill: small count loops
+## Latest hill: V8 sieve tiering
+
+Starting from `3065a72`, combine a narrower direct-only inlining policy with
+guarded byte fills. Substantial leaf kernels with nested loops stay callable at
+repeated call sites, allowing V8 to enter optimized code. Explicit `inline`,
+complex lifetime rules and native/C-Wasm inlining keep their existing behavior.
+Simple byte-store loops use `memory.fill` only when the whole physical range
+fits; otherwise they keep the original loop. Region-cursor modules also keep
+the original path. A code-size heuristic preserves entry-point fills outside
+enclosing loops, avoiding an observed V8 regression from changing untimed hash
+preparation. All six control modules remain byte-identical. Astra reviewed both
+gates at xhigh effort.
+
+Five interleaved sieve pairs measure 13.596 → 1.447 seconds on V8 (9.398×)
+and 1.694 → 1.562 seconds on Wasmtime (1.084×). The module shrinks by 873 bytes
+(19.3%). Complete cold builds are effectively unchanged at 73.31 → 71.61 ms;
+emitter medians fall from 3.363 to 2.550 ms. All official checksums pass.
+The [dated measurements and source patches](../bench/results/2026-11-01/sieve/README.md)
+retain dispersion, startup and the controls.
+
+The current retention-only policy is rejected alone: 8.026× on V8 but 0.797×
+on Wasmtime. Fill-only gives 1.195×/1.319×. These are separate baseline-paired
+cohorts, not a direct paired comparison between candidates. The combined default
+improves both engines over the pushed baseline; the fill-only control shows
+remaining Wasmtime headroom. A direct combined/fill-only comparison and a
+profile of their current marking loops remain follow-ups.
+
+The final full O0/O2 matrix passes 9,090 runtime observations and three expected
+compile refusals. Byte-fill boundary, extension, static-data, region,
+dynamic-boundary, compiler-session, incremental and inventory checks also pass.
+
+## Previous hill: small count loops
 
 The next batch starts from `ce282be`. Unroll literal count loops of 1–8
 iterations when their body fits a 32-node budget and uses only scalar locals.
@@ -26,7 +57,7 @@ The full O0/O2 differential gate passes 8,870 runtime observations and three
 expected compile refusals. Extension, static-data, region, dynamic-boundary,
 compiler-session, incremental and capability-inventory checks also pass.
 
-## Previous batch
+## Earlier arithmetic and scalar lowering
 
 Five interleaved baseline/candidate pairs on the same Ryzen 7 3800X host:
 

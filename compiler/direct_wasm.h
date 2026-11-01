@@ -325,6 +325,7 @@ struct Function {
     void CaptureResult(TypeExpr *, uint32_t);
     bool SelectAssignment(IfExpr *);
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
+    bool FillLoop(ForLoop *);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
     vector<TypeExpr *> NaturalResults(Node *);

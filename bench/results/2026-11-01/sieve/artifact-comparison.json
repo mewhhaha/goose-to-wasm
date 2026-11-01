@@ -1,0 +1,86 @@
+[
+  {
+    "task": "Hash::CRC32",
+    "baseline": {
+      "sha256": "5556f22ed0785b5ccf4fb87680299b0fe21e377f81188fbe524dde0c9242cc04",
+      "bytes": 4466
+    },
+    "candidate": {
+      "sha256": "5556f22ed0785b5ccf4fb87680299b0fe21e377f81188fbe524dde0c9242cc04",
+      "bytes": 4466
+    },
+    "identical": true
+  },
+  {
+    "task": "CLBG::Fannkuchredux",
+    "baseline": {
+      "sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "bytes": 4598
+    },
+    "candidate": {
+      "sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "bytes": 4598
+    },
+    "identical": true
+  },
+  {
+    "task": "Etc::Sieve",
+    "baseline": {
+      "sha256": "70756ba6f691313c96af01ea76758c22ef15388e0bde0ed1d3f5a0d9502b125d",
+      "bytes": 4528
+    },
+    "candidate": {
+      "sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "bytes": 3655
+    },
+    "identical": false
+  },
+  {
+    "task": "CLBG::Mandelbrot",
+    "baseline": {
+      "sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "bytes": 5194
+    },
+    "candidate": {
+      "sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "bytes": 5194
+    },
+    "identical": true
+  },
+  {
+    "task": "Hash::SHA256",
+    "baseline": {
+      "sha256": "215c5a7fef3f1456c1abf7b39518a0c20085d8bbac4e4c578f1118365b2e30e5",
+      "bytes": 6313
+    },
+    "candidate": {
+      "sha256": "215c5a7fef3f1456c1abf7b39518a0c20085d8bbac4e4c578f1118365b2e30e5",
+      "bytes": 6313
+    },
+    "identical": true
+  },
+  {
+    "task": "Sort::Quick",
+    "baseline": {
+      "sha256": "b16951d968d8df340377a188b872526cb6cd51174a4a5c4da983afd8e1d104f2",
+      "bytes": 6337
+    },
+    "candidate": {
+      "sha256": "b16951d968d8df340377a188b872526cb6cd51174a4a5c4da983afd8e1d104f2",
+      "bytes": 6337
+    },
+    "identical": true
+  },
+  {
+    "task": "Sort::Merge",
+    "baseline": {
+      "sha256": "a427511bca67a5b9c0775d1b74948e5d4800ad60fecbe27807eddeaf09427029",
+      "bytes": 7516
+    },
+    "candidate": {
+      "sha256": "a427511bca67a5b9c0775d1b74948e5d4800ad60fecbe27807eddeaf09427029",
+      "bytes": 7516
+    },
+    "identical": true
+  }
+]

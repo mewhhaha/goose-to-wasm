@@ -529,7 +529,54 @@ inline bool Function::UnrollCount(ForLoop *node, const Slot &binding, TypeExpr *
     return true;
 }
 
+inline bool Function::FillLoop(ForLoop *node) {
+    // Avoid growing a long entrypoint for one-off preparation. Repeated work
+    // and ordinary callable functions can amortize the guarded bulk path.
+    if (!spec || (spec->sf == c.ast.MainFunction() &&
+        none_of(exits.begin(), exits.end(), [](const Exit &exit) { return exit.continue_label.has_value(); }))) return false;
+    if (c.region_cursors || node->iterkind != IK_COUNT || node->byref || node->idxdef ||
+        node->vdef->isvar || !IsIntT(node->vdef->type) || node->vdef->type->intstorage != IS_I64 ||
+        node->body->tail || node->body->stmts.size() != 1) return false;
+    auto length = Is<Dot>(node->iter);
+    if (!length || length->member != B_LEN) return false;
+    auto source = Is<Ident>(length->obj);
+    if (!source || !source->vdef || source->exprtype->kind != TY_SLICE) return false;
+    auto view = Lookup(source->vdef, source->line);
+    if (view.kind != Slot::LOCAL || view.type->kind != TY_SLICE) return false;
+    auto elem = view.type->sub;
+    if (!IsIntT(elem) || IntBits(elem->intstorage) != 8) return false;
+    auto assign = Is<Assign>(node->body->stmts[0]);
+    if (!assign || assign->pointee || (assign->op != T_ASSIGN && assign->op != T_DOTASSIGN)) return false;
+    auto index = Is<Index>(assign->lval);
+    if (!index) return false;
+    auto object = Is<Ident>(index->obj), position = Is<Ident>(index->idx);
+    if (!object || !object->vdef || object->exprtype->kind != TY_SLICE || !position ||
+        Resolve(position->vdef) != Resolve(node->vdef)) return false;
+    auto target = Lookup(object->vdef, object->line);
+    if (target.kind != Slot::LOCAL || target.index != view.index || target.type != view.type) return false;
+    auto value = assign->rhs;
+    if (!IsIntT(value->exprtype) || value->exprtype->intstorage != elem->intstorage) return false;
+    if (auto id = Is<Ident>(value)) {
+        if (!id->vdef) return false;
+        auto slot = Lookup(id->vdef, id->line);
+        if (slot.kind != Slot::LOCAL || !IsIntT(slot.type) || slot.type->intstorage != elem->intstorage) return false;
+    } else if (!Is<IntLit>(value)) return false;
+    if (Bind(node->vdef).kind != Slot::LOCAL) return false;
+    Read(view); auto packed = Save(I64);
+    Get(packed); code.Op(0xa7); auto pointer = Save(I32);
+    Get(packed); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
+    // A bulk operation checks its whole range before writing. Keep the original
+    // loop for invalid physical ranges so partial writes and traps stay ordered.
+    Get(pointer); code.Op(0xad); Get(count); code.Op(0x7c);
+    code.OpU(0x3f, 0); code.Op(0xad); code.I64Const(16); code.Op(0x86); code.Op(0x58);
+    Begin(0x04);
+    Get(pointer); To(value, elem); Get(count); code.Op(0xa7); code.Fill();
+    code.Op(0x05);
+    return true;
+}
+
 inline void Function::For(ForLoop *n) {
+    auto fill = FillLoop(n);
     auto binding = Bind(n->vdef);
     optional<Slot> indexbinding;
     if (n->idxdef) indexbinding = Bind(n->idxdef);
@@ -598,6 +645,7 @@ inline void Function::For(ForLoop *n) {
     Get(lo); Const(ct, 1); code.Op(W(ct) == I64 ? 0x7c : 0x6a); Normalize(ct); Set(lo);
     Get(ordinal); code.I64Const(1); code.Op(0x7c); Set(ordinal);
     Br(again); End(); End();
+    if (fill) End();
 }
 
 inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinations &destinations, bool elements) {
