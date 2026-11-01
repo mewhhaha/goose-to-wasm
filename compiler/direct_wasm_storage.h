@@ -89,14 +89,21 @@ inline CapturedValue Function::CopyCaptured(CapturedValue value) {
     return { value.type, Save(value.type), CapturedValue::CopiedFixed };
 }
 
-inline void Function::StoreCopy(const Location &place, CapturedValue value) {
+// The stack value already has the destination type. Resolve a memory
+// location after evaluating that value, preserving region relocation rules.
+inline void Function::WriteLocation(const Location &place) {
     c.FixedLayout(place.storage_type);
-    Get(value.value_local); Convert(value.type, place.storage_type, place.storage_type->line);
     if (auto slot = get_if<Slot>(&place.storage)) Write(*slot);
     else {
         auto converted = Save(place.storage_type);
         LocationAddress(place); Get(converted); Store(place.storage_type);
     }
+}
+
+inline void Function::StoreCopy(const Location &place, CapturedValue value) {
+    c.FixedLayout(place.storage_type);
+    Get(value.value_local); Convert(value.type, place.storage_type, place.storage_type->line);
+    WriteLocation(place);
 }
 
 } // namespace goose::direct_wasm

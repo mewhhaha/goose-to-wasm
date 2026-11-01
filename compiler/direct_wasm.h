@@ -231,7 +231,8 @@ struct Function {
     void FloatWrap(TypeExpr *);
     void FloatRemainder(TypeExpr *);
     void Truth(Node *);
-    void BinaryOp(TType, TypeExpr *, Line);
+    bool PowerOfTwoRemainder(Node *, TypeExpr *);
+    void BinaryOp(TType, TypeExpr *, Line, bool nonnegative = false);
     uint32_t Frame(TypeExpr *);
     uint32_t FrameBytes(uint32_t n, uint32_t align = 8);
     void FrameAddress(uint32_t off) { Get(framebase); if (off) { code.I32Const(int32_t(off)); code.Op(0x6a); } }
@@ -271,6 +272,7 @@ struct Function {
     void LocationAddress(const Location &);
     Location OffsetLocation(const Location &, uint32_t, TypeExpr *);
     void ReadLocation(const Location &, TypeExpr *);
+    void WriteLocation(const Location &);
     void ReferenceValue(const Location &);
     CapturedValue CaptureStack(TypeExpr *);
     CapturedValue CaptureBorrowed(Node *, TypeExpr *);
@@ -321,6 +323,7 @@ struct Function {
     void Discard(Node *);
     void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {}, size_t first_statement = 0);
     void CaptureResult(TypeExpr *, uint32_t);
+    bool SelectAssignment(IfExpr *);
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
     vector<TypeExpr *> NaturalResults(Node *);

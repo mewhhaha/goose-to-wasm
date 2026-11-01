@@ -51,6 +51,70 @@ def wrap(value, bits, signed=True):
 
 def cases():
     result = [Case("checked-leaves/scalars", "checked_leaves", stdout="65 70 true\n25 63 4.25\n7 6 7 9\n-inf 1.25 -2.0\n")]
+    for debug in (False, True):
+        result.append(Case(f"codegen/aliases/{debug}", "codegen_aliases",
+                           stdout="8 1\n8 100 100 1\n[8, 100] 1 1\n", debug=debug, group="storage"))
+    for count, index in ((0, -1), (1, -1), (5, -1), (3, 0), (2, 3), (1, 4)):
+        values = [10 + i * 10 + count * i for i in range(4)]
+        total = 100 * count + 3 * count * (count + 1)
+        answer = f"{values} {total} {count}\n{total + 21}\n"
+        exit_code = 0
+        diagnostic = ""
+        if 0 <= index < 4:
+            answer += f"{values[index] + index} {count + 1}\n"
+        elif index >= 4:
+            exit_code = 1
+            diagnostic = "bounds"
+        for debug in (False, True):
+            result.append(Case(f"codegen/loops/{count}/{index}/{debug}", "codegen_loops", f"{count} {index}\n",
+                               answer, exit_code=exit_code, diagnostic=diagnostic, debug=debug, group="control"))
+    for choice in (False, True):
+        for x in (-1, 0, 127, 4294967295):
+            crc = wrap(x, 32, False) >> 1
+            narrow = wrap(x, 8, False) ^ 165
+            flag = x == 0
+            value = x ^ 170
+            if choice:
+                crc ^= 0xEDB88320
+                narrow = wrap(x + 3, 8, False)
+                flag = x > 0
+                value = x ^ 85
+            answer = f"{crc} 1\n{narrow}\n{str(flag).lower()}\n{value}\n"
+            for debug in (False, True):
+                result.append(Case(f"codegen/select/{choice}/{x}/{debug}", "codegen_select",
+                                   f"{int(choice)} {x}\n", answer, debug=debug))
+    for debug in (False, True):
+        for mode, x, other in ((0, 91, 0), (1, 91, 0), (2, 91, 99), (3, (1 << 63) - 1, 0), (4, 128, 0)):
+            result.append(Case(f"codegen/select-lazy/{mode}/{debug}", "codegen_select_lazy",
+                               f"{mode} 0 {x} {other}\n", "37 0\n", debug=debug))
+        result.append(Case(f"codegen/select-call/{debug}", "codegen_select_lazy", "0 1 91 0\n", "91 1\n", debug=debug))
+        result.append(Case(f"codegen/select-zero/{debug}", "codegen_select_lazy", "1 1 91 0\n",
+                           exit_code=1, diagnostic="division by zero", debug=debug))
+        result.append(Case(f"codegen/select-bounds/{debug}", "codegen_select_lazy", "2 1 91 99\n",
+                           exit_code=1, diagnostic="bounds", debug=debug))
+    result.append(Case("codegen/select-overflow", "codegen_select_lazy", f"3 1 {(1 << 63) - 1} 0\n",
+                       exit_code=1, diagnostic="overflow", debug=True))
+    result.append(Case("codegen/select-cast", "codegen_select_lazy", "4 1 128 0\n",
+                       exit_code=1, diagnostic="out of range", debug=True))
+    for x, divisor in [(x, 8) for x in (-(1 << 63), -(1 << 63) + 1, -257, -129, -9, -1,
+                                       0, 1, 7, 8, 127, 128, 255, 256, (1 << 63) - 1)] + [(-(1 << 63), -1), (-9, -8),
+                                       (13, 3), (-13, 3), ((1 << 63) - 1, 3), (0, 3), (-(1 << 63), 3), (13, 0), (-13, 0)]:
+        lines = [" ".join(str(wrap(x, bits) % (1 << (bits - 2))) for bits in (8, 16, 32, 64)),
+                 " ".join(str(wrap(x, bits, False) % (1 << (bits - 1))) for bits in (8, 16, 32, 64)),
+                 f"0 {x % 2} {x % 8} {x % 8}", f"{wrap(x, 8) % 8} {x % 8}", "0 1"]
+        if x >= 0 and divisor > 0:
+            lines.extend([f"{x // divisor} {x % divisor} {x >> 7}", str(divisor - 1)])
+        elif divisor:
+            lines.append(str(x % abs(divisor)))
+        exit_code = 0
+        diagnostic = ""
+        if divisor == 0:
+            exit_code = 1
+            diagnostic = "division by zero"
+        for debug in (False, True):
+            result.append(Case(f"codegen/arithmetic/{x}/{divisor}/{debug}", "codegen_arithmetic",
+                               f"{x} {divisor}\n", "\n".join(lines) + "\n", exit_code=exit_code,
+                               diagnostic=diagnostic, debug=debug))
     aggregate_print_oracles=json.loads((FIXTURES/'aggregate_print_oracles.json').read_text())
     for debug in (False,True):
         for name,oracle in aggregate_print_oracles.items():

@@ -1,0 +1,91 @@
+{
+  "compiler_sha256": "e8ba2751816aee8c107382d05cd8885c9de7856e1f915315bfdfa117970fc20a",
+  "artifact_sha256": "8ed9337bb012225c8cc9174340f78f5d935de3efdfefb69dbc548d0cdfa46ee7",
+  "observations": [
+    {
+      "sample": 0,
+      "mode": "default",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n15061048932\n",
+      "stderr": "",
+      "wall_seconds": 18.045785097,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 15.061048932,
+      "revision_exit": 0
+    },
+    {
+      "sample": 0,
+      "mode": "optimizing",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "--no-liftoff",
+        "--no-wasm-tier-up",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1770714395\n",
+      "stderr": "",
+      "wall_seconds": 2.178641101,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.770714395,
+      "revision_exit": 0
+    },
+    {
+      "sample": 1,
+      "mode": "default",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n15775986559\n",
+      "stderr": "",
+      "wall_seconds": 18.939966865,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 15.775986559,
+      "revision_exit": 0
+    },
+    {
+      "sample": 1,
+      "mode": "optimizing",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "--no-liftoff",
+        "--no-wasm-tier-up",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/performance/baseline/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "stdin": "3000000 270 54\n",
+      "returncode": 0,
+      "stdout": "1042248060\n1791717737\n",
+      "stderr": "",
+      "wall_seconds": 2.194380438,
+      "error": "",
+      "checksum": 1042248060,
+      "expected_checksum": 1042248060,
+      "timed_region_seconds": 1.791717737,
+      "revision_exit": 0
+    }
+  ],
+  "purpose": "diagnostic only; default benchmark configuration is unchanged"
+}

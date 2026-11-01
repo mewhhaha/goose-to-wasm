@@ -235,7 +235,24 @@ inline void Function::FloatRemainder(TypeExpr *t) {
     End(); End();
 }
 
-inline void Function::BinaryOp(TType op, TypeExpr *t, Line line) {
+// Goose's remainder is Euclidean, so masking also works for negative
+// dividends. The caller has evaluated the dividend exactly once; only a
+// positive literal already checked at the arithmetic width can be omitted.
+inline bool Function::PowerOfTwoRemainder(Node *right, TypeExpr *type) {
+    auto literal = Is<IntLit>(right);
+    if (!literal || !IsIntT(type) || literal->val <= 0 ||
+        !literal->exprtype || !IsIntT(literal->exprtype) ||
+        literal->exprtype->intstorage != type->intstorage) return false;
+    auto divisor = uint64_t(literal->val);
+    if (divisor & (divisor - 1)) return false;
+    Const(type, int64_t(divisor - 1));
+    if (W(type) == I64) code.Op(0x83);
+    else code.Op(0x71);
+    Normalize(type);
+    return true;
+}
+
+inline void Function::BinaryOp(TType op, TypeExpr *t, Line line, bool nonnegative) {
     switch (op) {
         case T_PLUSEQ: op = T_PLUS; break; case T_MINUSEQ: op = T_MINUS; break;
         case T_MULEQ: op = T_MUL; break; case T_DIVEQ: op = T_DIV; break;
@@ -267,7 +284,11 @@ inline void Function::BinaryOp(TType op, TypeExpr *t, Line line) {
     }
     if (!IsIntT(t) && t->kind != TY_BOOL && t->kind != TY_REF) Fail(line, "aggregate arithmetic/comparison is not supported");
     auto wide = w == I64;
-    auto u = !IsIntT(t) || IsUnsigned(t->intstorage);
+    // BCE proves a nonnegative dividend and a strictly positive divisor.
+    // For right shifts it proves only the dividend's sign. Other operations
+    // retain their normal signedness and checked arithmetic.
+    nonnegative &= op == T_DIV || op == T_MOD || op == T_SHR;
+    auto u = !IsIntT(t) || IsUnsigned(t->intstorage) || nonnegative;
     auto bits = IsIntT(t) ? IntBits(t->intstorage) : 32;
     uint8_t cmp = 0;
     switch (op) {
@@ -288,7 +309,7 @@ inline void Function::BinaryOp(TType op, TypeExpr *t, Line line) {
     auto checked = c.opts.debug && !u && (op == T_PLUS || op == T_MINUS || op == T_MUL);
     if (op == T_DIV || op == T_MOD || checked) {
         auto b = Save(w), a = Save(w);
-        if (op == T_DIV || op == T_MOD) {
+        if ((op == T_DIV || op == T_MOD) && !nonnegative) {
             Get(b); code.Op(wide ? 0x50 : 0x45); TrapIf(line, "division by zero");
         }
         if ((op == T_DIV && !u && wide) || (checked && op == T_MUL && wide)) {

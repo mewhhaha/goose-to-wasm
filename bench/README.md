@@ -86,6 +86,15 @@ suite does not justify a universal claim that one backend is faster.
 Unchanged-build and edited-source measurements belong to
 `bench/incremental.py`; they use a separate contract and report.
 
+## Paired compiler changes
+
+`compare_runtime.py` compares direct-Wasm artifacts from two qualified LangArena
+reports. It interleaves complete builds and runtime pairs, checks source/engine
+identities and official checksums, and retains raw timings plus startup data.
+Use `--compile-samples 0` to compare preserved artifacts when the original
+compiler executables are unavailable. See the
+[runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
+
 ## LangArena workloads
 
 The [LangArena guide](langarena/README.md) describes a second harness with the

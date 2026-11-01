@@ -306,9 +306,12 @@ inline void Function::AssignNode(Assign *n) {
     if (n->op != T_ASSIGN && n->op != T_DOTASSIGN) {
         if (c.Aggregate(t)) Fail(n->line, "elementwise aggregate assignment is not supported");
         ReadLocation(place, t);
-        To(n->rhs, t); BinaryOp(n->op, t, n->line);
+        if (n->op != T_MODEQ || !PowerOfTwoRemainder(n->rhs, t)) {
+            To(n->rhs, t); BinaryOp(n->op, t, n->line);
+        }
     } else To(n->rhs, t);
-    StoreCopy(place, CaptureStack(t));
+    if (c.Aggregate(t)) StoreCopy(place, CaptureStack(t));
+    else WriteLocation(place);
 }
 inline void Function::IncNode(IncDec *n) {
     auto place = PinPlace(n->lval, true);
@@ -317,7 +320,70 @@ inline void Function::IncNode(IncDec *n) {
     if (t->kind == TY_FLT) { if (IsF32(t)) code.F32Const(1); else code.F64Const(1); }
     else Const(t, 1);
     BinaryOp(n->op == T_INC ? T_PLUS : T_MINUS, t, n->line);
-    StoreCopy(place, CaptureStack(t));
+    WriteLocation(place);
+}
+
+inline bool Function::SelectAssignment(IfExpr *node) {
+    if (node->flat || !node->elseb || !Values(node).empty()) return false;
+    auto assignment = [](Node *arm) -> Assign * {
+        if (auto block = Is<Block>(arm)) {
+            if (block->tail || block->stmts.size() != 1) return nullptr;
+            arm = block->stmts[0];
+        }
+        return Is<Assign>(arm);
+    };
+    auto yes = assignment(node->thenb), no = assignment(node->elseb);
+    if (!yes || !no || yes->pointee || no->pointee) return false;
+    auto left = Is<Ident>(yes->lval), right = Is<Ident>(no->lval);
+    if (!left || !right || !left->vdef || !right->vdef) return false;
+    auto target = Lookup(left->vdef, left->line);
+    auto other = Lookup(right->vdef, right->line);
+    if (target.kind != Slot::LOCAL || other.kind != Slot::LOCAL ||
+        target.index != other.index || target.type != other.type) return false;
+    auto scalar = [](TypeExpr *type) { return type && (IsIntT(type) || type->kind == TY_BOOL); };
+    if (!scalar(target.type)) return false;
+    auto operation = [&](TType op, TypeExpr *type) {
+        switch (op) {
+            case T_ASSIGN: case T_BITAND: case T_ANDEQ: case T_BITOR: case T_OREQ:
+            case T_XOR: case T_XOREQ: case T_SHL: case T_SHLEQ: case T_SHR: case T_SHREQ:
+            case T_EQ: case T_NEQ: case T_LT: case T_LTEQ: case T_GT: case T_GTEQ:
+            case T_NOT: case T_BITNOT: return true;
+            case T_PLUS: case T_PLUSEQ: case T_MINUS: case T_MINUSEQ: case T_MUL: case T_MULEQ:
+                return !c.opts.debug || !IsIntT(type) || IsUnsigned(type->intstorage);
+            default: return false;
+        }
+    };
+    // Speculation never reads memory or invokes a potentially trapping or
+    // effectful expression. Bound duplicated work independently in each arm.
+    function<bool(Node *, int &)> pure = [&](Node *value, int &budget) {
+        if (!value || !scalar(value->exprtype) || budget == 0) return false;
+        budget--;
+        if (Is<IntLit>(value) || Is<BoolLit>(value)) return true;
+        if (auto id = Is<Ident>(value)) {
+            if (!id->vdef) return false;
+            auto slot = Lookup(id->vdef, id->line);
+            return slot.kind == Slot::LOCAL && scalar(slot.type);
+        }
+        if (auto unary = Is<Unary>(value))
+            return operation(unary->op, unary->child->exprtype) && pure(unary->child, budget);
+        if (auto binary = Is<Binary>(value))
+            return operation(binary->op, binary->left->exprtype) &&
+                   pure(binary->left, budget) && pure(binary->right, budget);
+        return false;
+    };
+    for (auto arm : { yes, no }) {
+        if (!operation(arm->op, target.type)) return false;
+        int budget = 12;
+        if (arm->op != T_ASSIGN) budget -= 2;
+        if (!pure(arm->rhs, budget)) return false;
+    }
+    Truth(node->cond); auto condition = Save(I32);
+    for (auto arm : { yes, no }) {
+        if (arm->op == T_ASSIGN) To(arm->rhs, target.type);
+        else { Read(target); To(arm->rhs, target.type); BinaryOp(arm->op, target.type, arm->line); }
+    }
+    Get(condition); code.Op(0x1b); Write(target);
+    return true;
 }
 
 inline void Function::AggregateLiteral(Node *n) {
@@ -1013,9 +1079,12 @@ inline void Function::Expr(Node *n) {
             auto t = b->left->exprtype;
             if (t->kind == TY_REF && b->op != T_DOTEQ && b->op != T_DOTNEQ) t = t->ref->sub;
             To(b->left, t);
+            if (b->op == T_MOD && PowerOfTwoRemainder(b->right, t)) {
+                Convert(t, n->exprtype, n->line); return;
+            }
             if (b->op == T_SHL || b->op == T_SHR) { Expr(b->right); Convert(b->right->exprtype, t, n->line); }
             else To(b->right, t);
-            BinaryOp(b->op, t, n->line);
+            BinaryOp(b->op, t, n->line, b->nonneg);
             bool compare = b->op == T_EQ || b->op == T_NEQ || b->op == T_LT || b->op == T_GT || b->op == T_LTEQ || b->op == T_GTEQ || b->op == T_DOTEQ || b->op == T_DOTNEQ;
             if (!compare) Convert(t, n->exprtype, n->line);
             return;
@@ -1067,7 +1136,9 @@ inline void Function::Expr(Node *n) {
             return;
         }
         case NK_IfExpr: {
-            auto i = static_cast<IfExpr *>(n); auto ts = Values(n); vector<uint32_t> vs;
+            auto i = static_cast<IfExpr *>(n);
+            if (SelectAssignment(i)) return;
+            auto ts = Values(n); vector<uint32_t> vs;
             for (auto t : ts) vs.push_back(Local(t));
             Truth(i->cond); Begin(0x04); BlockInto(i->thenb, ts, vs);
             if (i->elseb) {

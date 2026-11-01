@@ -190,7 +190,10 @@ its corresponding source.
 
 ## Compilation speed and incremental work
 
-To regenerate the README charts from the retained `2026-10-26/langarena/report.json` without rerunning benchmarks, install Matplotlib in an isolated environment and run `python bench/charts.py` from the repository root. The script writes `bench/charts/compilation.svg` and `bench/charts/runtime.svg`.
+The [runtime optimization record](RUNTIME_PERFORMANCE.md) has the current paired
+measurements, implementation choices and rejected experiments.
+
+To regenerate the README charts without rerunning benchmarks, install Matplotlib in an isolated environment and run `python bench/charts.py` from the repository root. `bench/results/latest.json` selects the dated measurements. The script writes `bench/charts/compilation.svg` and `bench/charts/runtime.svg`.
 
 ```sh
 python bench/benchmark.py

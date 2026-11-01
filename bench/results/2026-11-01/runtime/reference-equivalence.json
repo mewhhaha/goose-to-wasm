@@ -1,0 +1,80 @@
+{
+  "status": "passed",
+  "method": "Identical sources, O2 and standard-library path on the reference and candidate compilers; standalone generated C is byte-identical for all seven workloads on both C targets.",
+  "compilers": {
+    "reference": "e8ba2751816aee8c107382d05cd8885c9de7856e1f915315bfdfa117970fc20a",
+    "candidate": "919ca12753c25eaa5079dc9e22210376dccf33d0d6bc83d17343c0658105dd33"
+  },
+  "results": [
+    {
+      "source": "bench/langarena/ports/fannkuch.goose",
+      "target": "native",
+      "generated_c_sha256": "69721e9206be112447a69643e56a41b6fa11574a4fd968693780edec7b395a5c"
+    },
+    {
+      "source": "bench/langarena/ports/fannkuch.goose",
+      "target": "wasm",
+      "generated_c_sha256": "257937303333737983a6faab24872c981e75f9eb78744c54568c12b26d122812"
+    },
+    {
+      "source": "bench/langarena/ports/hash_crc32.goose",
+      "target": "native",
+      "generated_c_sha256": "956340c4496fd06055f9fc8d7883090d5dcbe35e14b51609d33804efdac0a305"
+    },
+    {
+      "source": "bench/langarena/ports/hash_crc32.goose",
+      "target": "wasm",
+      "generated_c_sha256": "c1cbb0eadab716681e5ed54c646ff5190df234e2081e58a2df43eb9af03a7d2a"
+    },
+    {
+      "source": "bench/langarena/ports/hash_sha256.goose",
+      "target": "native",
+      "generated_c_sha256": "b4b3fa7bce0daf91b1ac4dead91d5ffde83e720df6c792994bf97e284377fa93"
+    },
+    {
+      "source": "bench/langarena/ports/hash_sha256.goose",
+      "target": "wasm",
+      "generated_c_sha256": "d6312c1817865da9ba839245012d1ceaf89210715cef11390a4117b1ced058cb"
+    },
+    {
+      "source": "bench/langarena/ports/mandelbrot.goose",
+      "target": "native",
+      "generated_c_sha256": "fa36fe9f4cf84568b61a7587e8a44a7fcd89a057afc527a5a982840b5c999adc"
+    },
+    {
+      "source": "bench/langarena/ports/mandelbrot.goose",
+      "target": "wasm",
+      "generated_c_sha256": "641da8b73230f68e991f1e285bccd5ea142ab8fb47217d0e8c6d2435a07fe878"
+    },
+    {
+      "source": "bench/langarena/ports/sieve.goose",
+      "target": "native",
+      "generated_c_sha256": "c1ff319ab14b314a901daf5ecaa42609ee8b6f23b070b1fcb0c8ec796fd2a7cc"
+    },
+    {
+      "source": "bench/langarena/ports/sieve.goose",
+      "target": "wasm",
+      "generated_c_sha256": "35500ef7f56bd925022c6a28f11e9cbc9e7b3db251217bd7fb141b5a3322973a"
+    },
+    {
+      "source": "bench/langarena/ports/sort_merge.goose",
+      "target": "native",
+      "generated_c_sha256": "dbc07f300e7fc1a89df5b96d8d62de3b4da1eb3dbea03000e31b14f002680d35"
+    },
+    {
+      "source": "bench/langarena/ports/sort_merge.goose",
+      "target": "wasm",
+      "generated_c_sha256": "a983b9bc400b89988e75a7574bc49009b7cb6f2a4bb5a5c1ec4d7c8d1ba22473"
+    },
+    {
+      "source": "bench/langarena/ports/sort_quick.goose",
+      "target": "native",
+      "generated_c_sha256": "347a64b0786c79b3b4d7aeb19bd9ec04f82258b6e803190c64c2ea0100ffbf20"
+    },
+    {
+      "source": "bench/langarena/ports/sort_quick.goose",
+      "target": "wasm",
+      "generated_c_sha256": "9bbd55fd1fca99338aaa0c615fb950012bf742c996d25e7244a5dbcc62cfc09c"
+    }
+  ]
+}
