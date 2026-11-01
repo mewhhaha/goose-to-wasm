@@ -2,7 +2,7 @@
 
 Compile [Goose](https://github.com/aardappel/goose) directly to WebAssembly for V8 and Wasmtime. The backend reuses Goose’s frontend and emits Wasm binaries without generating C or invoking LLVM. It supports a [defined subset](docs/TARGET.md) of Goose; unsupported programs fail to compile.
 
-[Setup and guide](docs/GUIDE.md#quick-start-direct-compilation)
+[Setup and guide](docs/GUIDE.md#quick-start-direct-compilation) · [Examples](examples/README.md) · [Next hills](docs/PERFORMANCE_PLAN.md)
 
 ## Benchmarks
 

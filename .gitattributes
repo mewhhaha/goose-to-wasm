@@ -1,0 +1,3 @@
+# Golden output includes intentional trailing blank lines.
+examples/*.goose text eol=lf
+examples/expected/*.out text eol=lf whitespace=-blank-at-eof

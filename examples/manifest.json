@@ -1,0 +1,144 @@
+{
+  "schema": "goose-examples-v1",
+  "upstream": {
+    "repository": "https://github.com/aardappel/goose",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "license": "Apache-2.0",
+    "license_file": "../LICENSE"
+  },
+  "examples": [
+    {
+      "name": "squares",
+      "file": "squares.goose",
+      "expected": "expected/squares.out",
+      "focus": "Functions and loops",
+      "adaptation": "Original local example."
+    },
+    {
+      "name": "tour",
+      "file": "tour.goose",
+      "expected": "expected/tour.out",
+      "focus": "Language tour",
+      "adaptation": "Replaces builder formatting and aggregate Point arithmetic with explicit byte appends and field updates; preserves output.",
+      "upstream": {
+        "path": "samples/01_tour.goose",
+        "sha256": "47be41339ce1f8a92dea855783b1a6ccbeb39ea1c560dafda93e544be7640002",
+        "expected_path": "samples/expected/tour.out",
+        "expected_sha256": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf",
+        "unchanged": false
+      }
+    },
+    {
+      "name": "functions",
+      "file": "functions.goose",
+      "expected": "expected/functions.out",
+      "focus": "Generics, higher-order functions and captures",
+      "adaptation": "Prints overloaded descriptions on separate lines instead of building them with str; retains the algorithms.",
+      "upstream": {
+        "path": "samples/06_functions.goose",
+        "sha256": "0c413fd3ae50fee4785a961167e3cda47c729c5c5a30ec02715fe49ee2469523",
+        "expected_path": "samples/expected/functions.out",
+        "expected_sha256": "a00fff0ebfafc5cc0413b1326ca11c3da7f6380b24ede855f019d08df4a482fe",
+        "unchanged": false
+      }
+    },
+    {
+      "name": "errors",
+      "file": "errors.goose",
+      "expected": "expected/errors.out",
+      "focus": "Optionals, error flags and nonlocal returns",
+      "adaptation": "Uses explicit byte comparison and diagnostics capped at 128 bytes instead of unsupported aggregate comparison and variable-array nonlocal results.",
+      "upstream": {
+        "path": "samples/04_errors.goose",
+        "sha256": "5163ac147757679cedd66cbcafb192cefb5129e496e9f0e54575461349243b22",
+        "expected_path": "samples/expected/errors.out",
+        "expected_sha256": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f",
+        "unchanged": false
+      }
+    },
+    {
+      "name": "sieve",
+      "file": "sieve.goose",
+      "expected": "expected/sieve.out",
+      "focus": "Prime sieve and wrapping arithmetic",
+      "adaptation": "Omits OS timing/stderr; reduces the limit from 10,000,000 to 100,000 to fit the direct data-region limit.",
+      "upstream": {
+        "path": "samples/07_sieve.goose",
+        "sha256": "ed033a11055a471398d680eb1d8842cd266c8b9ee8702cb7920ed5c28550c860",
+        "expected_path": "samples/expected/sieve.out",
+        "expected_sha256": "9ecc6a1d69a1e558d0270379e971e21f839a7150fbf495d0322a4a810698c949",
+        "unchanged": false
+      }
+    },
+    {
+      "name": "sorting",
+      "file": "sorting.goose",
+      "expected": "expected/sorting.out",
+      "focus": "Slice sorting, searching and recursion",
+      "adaptation": "Omits OS timers; uses 10,000 rather than 1,000,000 items and 2,000 rather than 20,000 for insertion sort; compares slices elementwise.",
+      "upstream": {
+        "path": "samples/09_sorting.goose",
+        "sha256": "cd2d1ad96136b6e222ef78c316cf4c35889e922123c262b79ace4ea4c6262390",
+        "expected_path": "samples/expected/sorting.out",
+        "expected_sha256": "5c075802e2626e33e72f67a4c72221aad725503c19eb913981ff5a22fd76fa04",
+        "unchanged": false
+      }
+    },
+    {
+      "name": "sudoku",
+      "file": "sudoku.goose",
+      "expected": "expected/sudoku.out",
+      "focus": "Backtracking and bitmasks",
+      "adaptation": "Keeps easy/hard puzzles, omits the sparse puzzle; replaces the host popcount import with a Goose helper and omits timing.",
+      "upstream": {
+        "path": "samples/10_sudoku.goose",
+        "sha256": "650905e1de694c899a8765860a886a210810266df11c778b8199ad98f343702f",
+        "expected_path": "samples/expected/sudoku.out",
+        "expected_sha256": "33147634f4392b57f0fb8ac930d32700f87c56b259aca042e98d2f56405faf3c",
+        "unchanged": false
+      }
+    },
+    {
+      "name": "maze",
+      "file": "maze.goose",
+      "expected": "expected/maze.out",
+      "focus": "Breadth-first search and Dijkstra",
+      "adaptation": "Unchanged upstream source and expected output.",
+      "upstream": {
+        "path": "samples/11_maze.goose",
+        "sha256": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781",
+        "expected_path": "samples/expected/maze.out",
+        "expected_sha256": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e",
+        "unchanged": true
+      }
+    },
+    {
+      "name": "vm",
+      "file": "vm.goose",
+      "expected": "expected/vm.out",
+      "focus": "Enums, match dispatch and a stack machine",
+      "adaptation": "Replaces formatter-based disassembly with local decimal byte formatting; preserves output.",
+      "upstream": {
+        "path": "samples/19_vm.goose",
+        "sha256": "5168a33dbb279a4eef63a1b96e8df1bb7f5ea6f5fd2a40d5261e3006b6e0238f",
+        "expected_path": "samples/expected/vm.out",
+        "expected_sha256": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561",
+        "unchanged": false
+      }
+    },
+    {
+      "name": "life",
+      "file": "life.goose",
+      "expected": "expected/life.out",
+      "focus": "Grid simulation and double buffering",
+      "adaptation": "Unchanged upstream source and expected output.",
+      "upstream": {
+        "path": "samples/20_life.goose",
+        "sha256": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97",
+        "expected_path": "samples/expected/life.out",
+        "expected_sha256": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008",
+        "unchanged": true
+      }
+    }
+  ]
+}

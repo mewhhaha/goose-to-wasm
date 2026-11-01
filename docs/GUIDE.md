@@ -26,6 +26,14 @@ Both engines print:
 sum=140
 ```
 
+The [example catalog](../examples/README.md) adds a language tour, functions,
+errors, a prime sieve, sorting, Sudoku, maze search, a bytecode VM and Life. Each entry records
+its upstream source and adaptations. Check the direct examples on both engines:
+
+```sh
+python examples/run.py
+```
+
 The pinned host versions are Node **24.22.1** (V8 **13.6.233.17-node.58**) and
 Wasmtime's Python package **50.0.1**. `toolchain.json` records every upstream/SDK
 pin. Bootstrap downloads one immutable Goose revision, applies the reviewable

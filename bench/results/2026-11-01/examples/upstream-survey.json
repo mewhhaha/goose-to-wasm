@@ -1,0 +1,598 @@
+{
+  "schema": "goose-upstream-example-survey-v1",
+  "method": "Compile-only direct O2 survey. Refusals record the first error; this is not runtime qualification or a language-coverage percentage.",
+  "upstream_revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+  "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+  "compile_passes": 2,
+  "observations": [
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/01_tour.goose",
+      "returncode": 1,
+      "seconds": 0.014296093009761535,
+      "stdout": "parsed ok: 8 top-level declarations, 1 file(s)\ntypechecked ok: 8 specialization(s), 2 struct/0 enum instance(s); optimized -O2: 8 inlined, 0 base case(s), 14 folded, 22 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 8/8 index and 2/2 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/01_tour.goose:97: error: wasm-direct: builtin 'format' is not supported by the direct backend\n    format(s, \"x\", 1, \" \", 2.5);\n",
+      "upstream_path": "samples/01_tour.goose",
+      "source_sha256": "47be41339ce1f8a92dea855783b1a6ccbeb39ea1c560dafda93e544be7640002",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/01_tour.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/01_tour.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/02_memory.goose",
+      "returncode": 1,
+      "seconds": 0.008453868009382859,
+      "stdout": "parsed ok: 132 top-level declarations, 2 file(s)\ntypechecked ok: 58 specialization(s), 4 struct/0 enum instance(s); optimized -O2: 1 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 3/3 index and 0/0 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/02_memory.goose:46: error: wasm-direct: builtin 'format' is not supported by the direct backend\n        format(line, \"line \", i + 1, \" of 3\");\n",
+      "upstream_path": "samples/02_memory.goose",
+      "source_sha256": "be0c2f56211d6b7497b97e4e68631634e7331b280406679a83c027e468fff571",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/02_memory.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/02_memory.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/03_strings.goose",
+      "returncode": 1,
+      "seconds": 0.019361471000593156,
+      "stdout": "parsed ok: 131 top-level declarations, 2 file(s)\ntypechecked ok: 84 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 42 inlined, 0 base case(s), 24 folded, 50 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 110/152 index and 6/21 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/03_strings.goose:28: error: wasm-direct: builtin 'format' is not supported by the direct backend\n    format(s, \"world! \", 6 * 7, \" \", 2.5);\n",
+      "upstream_path": "samples/03_strings.goose",
+      "source_sha256": "3f5619b9c88e2707611866fa025a472ec5253bf002b7a5611688f826e0155219",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/03_strings.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/03_strings.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/04_errors.goose",
+      "returncode": 1,
+      "seconds": 0.009140704001765698,
+      "stdout": "parsed ok: 136 top-level declarations, 2 file(s)\ntypechecked ok: 65 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 11 inlined, 0 base case(s), 4 folded, 2 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 10/12 index and 9/17 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/04_errors.goose:24: error: wasm-direct: aggregate arithmetic/comparison is not supported\n    for &u in users { if u.name == name { return u; } }\n",
+      "upstream_path": "samples/04_errors.goose",
+      "source_sha256": "5163ac147757679cedd66cbcafb192cefb5129e496e9f0e54575461349243b22",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/04_errors.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/04_errors.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/05_shapes.goose",
+      "returncode": 1,
+      "seconds": 0.004530380989308469,
+      "stdout": "parsed ok: 57 top-level declarations, 2 file(s)\ntypechecked ok: 51 specialization(s), 0 struct/2 enum instance(s); optimized -O2: 3 inlined, 0 base case(s), 0 folded, 7 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 1/2 index and 0/0 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/05_shapes.goose:78: error: wasm-direct: only fixed-mode enums with fixed-size payloads are supported\nvar marks: Mark..[>..] = [];\n",
+      "upstream_path": "samples/05_shapes.goose",
+      "source_sha256": "f5a0062ed5956bdcc63c2137c7e3800352c250f66ec136b20a742985c6922c31",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/05_shapes.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/05_shapes.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/06_functions.goose",
+      "returncode": 1,
+      "seconds": 0.020425223992788233,
+      "stdout": "parsed ok: 139 top-level declarations, 2 file(s)\ntypechecked ok: 109 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 62 inlined, 0 base case(s), 13 folded, 69 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 139/191 index and 9/11 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/06_functions.goose:21: error: wasm-direct: builtin 'str' is not supported by the direct backend\nfn describe(x: i64) -> u8[>..] { str(\"int \", x) }\n",
+      "upstream_path": "samples/06_functions.goose",
+      "source_sha256": "0c413fd3ae50fee4785a961167e3cda47c729c5c5a30ec02715fe49ee2469523",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/06_functions.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/06_functions.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/07_sieve.goose",
+      "returncode": 1,
+      "seconds": 0.007865079009206966,
+      "stdout": "parsed ok: 161 top-level declarations, 3 file(s)\ntypechecked ok: 89 specialization(s), 2 struct/0 enum instance(s); optimized -O2: 4 inlined, 0 base case(s), 3 folded, 7 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 7/8 index and 0/1 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:36: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn write_stderr(s: const u8[:]) = \"gs_os_write_stderr\";\n",
+      "upstream_path": "samples/07_sieve.goose",
+      "source_sha256": "ed033a11055a471398d680eb1d8842cd266c8b9ee8702cb7920ed5c28550c860",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/07_sieve.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/07_sieve.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/08_bignum.goose",
+      "returncode": 1,
+      "seconds": 0.009290488989790902,
+      "stdout": "parsed ok: 140 top-level declarations, 2 file(s)\ntypechecked ok: 71 specialization(s), 2 struct/0 enum instance(s); optimized -O2: 16 inlined, 0 base case(s), 7 folded, 19 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 12/15 index and 0/1 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/08_bignum.goose:130: error: wasm-direct: custom formatters are not supported\n    print(\"100! = \", f100);\n",
+      "upstream_path": "samples/08_bignum.goose",
+      "source_sha256": "34449e03f26d155aebe811270dceb2aa33982e7971e902011ef264125b345e99",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/08_bignum.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/08_bignum.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/09_sorting.goose",
+      "returncode": 1,
+      "seconds": 0.025013766004121862,
+      "stdout": "parsed ok: 167 top-level declarations, 3 file(s)\ntypechecked ok: 140 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 61 inlined, 0 base case(s), 6 folded, 49 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 199/285 index and 11/28 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:36: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn write_stderr(s: const u8[:]) = \"gs_os_write_stderr\";\n",
+      "upstream_path": "samples/09_sorting.goose",
+      "source_sha256": "cd2d1ad96136b6e222ef78c316cf4c35889e922123c262b79ace4ea4c6262390",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/09_sorting.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/09_sorting.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/10_sudoku.goose",
+      "returncode": 1,
+      "seconds": 0.013441939008771442,
+      "stdout": "parsed ok: 171 top-level declarations, 3 file(s)\ntypechecked ok: 98 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 15 inlined, 0 base case(s), 3 folded, 3 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 14/18 index and 0/0 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:36: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn write_stderr(s: const u8[:]) = \"gs_os_write_stderr\";\n",
+      "upstream_path": "samples/10_sudoku.goose",
+      "source_sha256": "650905e1de694c899a8765860a886a210810266df11c778b8199ad98f343702f",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/10_sudoku.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/10_sudoku.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/11_maze.goose",
+      "returncode": 0,
+      "seconds": 0.01139127199712675,
+      "stdout": "parsed ok: 144 top-level declarations, 2 file(s)\ntypechecked ok: 74 specialization(s), 4 struct/0 enum instance(s); optimized -O2: 20 inlined, 0 base case(s), 2 folded, 4 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 21/43 index and 1/3 slice checks\nwasm-direct: 6 functions, 89505 code bytes, 91701 module bytes\n",
+      "stderr": "",
+      "upstream_path": "samples/11_maze.goose",
+      "source_sha256": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/11_maze.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/11_maze.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/12_huffman.goose",
+      "returncode": 1,
+      "seconds": 0.010265882010571659,
+      "stdout": "parsed ok: 133 top-level declarations, 2 file(s)\ntypechecked ok: 72 specialization(s), 4 struct/0 enum instance(s); optimized -O2: 10 inlined, 0 base case(s), 4 folded, 6 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 31/60 index and 1/2 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/12_huffman.goose:15: error: wasm-direct: relative and pool references are not supported\nstruct Node { weight: i32, sym: i16, left: Node&<u16>?, right: Node&<u16>? }\n",
+      "upstream_path": "samples/12_huffman.goose",
+      "source_sha256": "56748c8dc3c985b0cfd6a75ef11c44f3b2c061e9c97d5ff02f8bf133168e9f28",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/12_huffman.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/12_huffman.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/13_linked_list.goose",
+      "returncode": 1,
+      "seconds": 0.007090897997841239,
+      "stdout": "parsed ok: 140 top-level declarations, 2 file(s)\ntypechecked ok: 66 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 15 inlined, 0 base case(s), 2 folded, 2 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 13/18 index and 0/0 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/13_linked_list.goose:14: error: wasm-direct: relative and pool references are not supported\nstruct Node { val: i64, prev: Node&<u32 in pool>, next: Node&<u32 in pool> }\n",
+      "upstream_path": "samples/13_linked_list.goose",
+      "source_sha256": "592557225cd451f037b3c058c5a2a7751e589f751cf36b659f00cd2378ebb791",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/13_linked_list.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/13_linked_list.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/14_bst.goose",
+      "returncode": 1,
+      "seconds": 0.011244252003962174,
+      "stdout": "parsed ok: 137 top-level declarations, 2 file(s)\ntypechecked ok: 66 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 5 inlined, 0 base case(s), 1 folded, 1 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 8/10 index and 0/1 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/14_bst.goose:14: error: wasm-direct: relative and pool references are not supported\nstruct Node { key: i32, count: i32 = 1, left: Node&<u32>?, right: Node&<u32>? }\n",
+      "upstream_path": "samples/14_bst.goose",
+      "source_sha256": "bcdb51720fb9fbc65afab098e6ab3e044ec2019cb385b68f9e355fc31a592492",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/14_bst.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/14_bst.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/15_word_freq.goose",
+      "returncode": 1,
+      "seconds": 0.029732803988736123,
+      "stdout": "parsed ok: 178 top-level declarations, 4 file(s)\ntypechecked ok: 115 specialization(s), 5 struct/0 enum instance(s); optimized -O2: 40 inlined, 0 base case(s), 17 folded, 48 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 129/165 index and 10/13 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:41: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn arg(i: i64, out: u8[>..]&) = \"gs_os_arg\";            // appends argument i (0 = the program)\n",
+      "upstream_path": "samples/15_word_freq.goose",
+      "source_sha256": "31d07f3525566ff44f64dfc57aef6eff38e9b965da78bc6d894370b90d21aea7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/15_word_freq.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/15_word_freq.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/16_records.goose",
+      "returncode": 1,
+      "seconds": 0.052096251005423255,
+      "stdout": "parsed ok: 153 top-level declarations, 3 file(s)\ntypechecked ok: 105 specialization(s), 8 struct/0 enum instance(s); optimized -O2: 70 inlined, 0 base case(s), 24 folded, 85 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 222/294 index and 17/32 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/16_records.goose:55: error: wasm-direct: only fixed-size structs are supported\n    var book: Order[>..] = [];\n",
+      "upstream_path": "samples/16_records.goose",
+      "source_sha256": "a1d73c7f296d47c45c1ea279d91d073958e567006a7bffe82688388e764b5041",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/16_records.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/16_records.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/17_calc.goose",
+      "returncode": 1,
+      "seconds": 0.01262982698972337,
+      "stdout": "parsed ok: 222 top-level declarations, 5 file(s)\ntypechecked ok: 152 specialization(s), 4 struct/1 enum instance(s); optimized -O2: 29 inlined, 0 base case(s), 6 folded, 7 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 146/164 index and 20/24 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:35: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn write_stdout(s: const u8[:]) = \"gs_os_write_stdout\";\n",
+      "upstream_path": "samples/17_calc.goose",
+      "source_sha256": "3007add674543239e94778e0ef094f62712a9fd2e1e461a1afbb0769245a3199",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/17_calc.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/17_calc.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/18_json.goose",
+      "returncode": 1,
+      "seconds": 0.018535641007474624,
+      "stdout": "parsed ok: 171 top-level declarations, 3 file(s)\ntypechecked ok: 118 specialization(s), 3 struct/1 enum instance(s); optimized -O2: 27 inlined, 0 base case(s), 6 folded, 1 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 60/84 index and 3/9 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/18_json.goose:33: error: wasm-direct: only fixed-size structs are supported\nvar pool: Node[>..] = [];\n",
+      "upstream_path": "samples/18_json.goose",
+      "source_sha256": "8c87ec759fcfc249531a96f98ca335bff311062398e84ff2684fb11cf33895b1",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/18_json.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/18_json.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/19_vm.goose",
+      "returncode": 1,
+      "seconds": 0.015077638003276661,
+      "stdout": "parsed ok: 134 top-level declarations, 2 file(s)\ntypechecked ok: 63 specialization(s), 3 struct/1 enum instance(s); optimized -O2: 5 inlined, 0 base case(s), 12 folded, 24 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 1/4 index and 0/0 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose:987: error: wasm-direct: builtin 'format' is not supported by the direct backend\n        format(out, v);\n",
+      "upstream_path": "samples/19_vm.goose",
+      "source_sha256": "5168a33dbb279a4eef63a1b96e8df1bb7f5ea6f5fd2a40d5261e3006b6e0238f",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/19_vm.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/19_vm.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/20_life.goose",
+      "returncode": 0,
+      "seconds": 0.009529582996037789,
+      "stdout": "parsed ok: 133 top-level declarations, 2 file(s)\ntypechecked ok: 62 specialization(s), 2 struct/0 enum instance(s); optimized -O2: 10 inlined, 0 base case(s), 8 folded, 49 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 11/14 index and 0/0 slice checks\nwasm-direct: 6 functions, 52205 code bytes, 54057 module bytes\n",
+      "stderr": "",
+      "upstream_path": "samples/20_life.goose",
+      "source_sha256": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/20_life.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/20_life.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/21_raytrace.goose",
+      "returncode": 1,
+      "seconds": 0.009951155007001944,
+      "stdout": "parsed ok: 266 top-level declarations, 5 file(s)\ntypechecked ok: 140 specialization(s), 13 struct/0 enum instance(s); optimized -O2: 17 inlined, 0 base case(s), 12 folded, 20 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 3/5 index and 0/0 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:16: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn write_file(path: const u8[:], data: const u8[:]) -> bool = \"gs_os_write_file\";\n",
+      "upstream_path": "samples/21_raytrace.goose",
+      "source_sha256": "5bd444268782ccacc2f49cb966dc375ccd6e29e0f7dea231850a41789a18bef3",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/21_raytrace.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/21_raytrace.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/22_image_filters.goose",
+      "returncode": 1,
+      "seconds": 0.015107635001186281,
+      "stdout": "parsed ok: 209 top-level declarations, 4 file(s)\ntypechecked ok: 139 specialization(s), 2 struct/0 enum instance(s); optimized -O2: 18 inlined, 0 base case(s), 26 folded, 69 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 38/38 index and 14/14 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:36: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn write_stderr(s: const u8[:]) = \"gs_os_write_stderr\";\n",
+      "upstream_path": "samples/22_image_filters.goose",
+      "source_sha256": "8bec8c87dbdf58a7ddb54196e803013d650721d07e8bd6c1b4739400bd858078",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/22_image_filters.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/22_image_filters.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/23_mandelbrot_threads.goose",
+      "returncode": 1,
+      "seconds": 0.007646063997526653,
+      "stdout": "parsed ok: 168 top-level declarations, 3 file(s)\ntypechecked ok: 93 specialization(s), 4 struct/0 enum instance(s); optimized -O2: 8 inlined, 0 base case(s), 6 folded, 15 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 2/5 index and 0/2 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:36: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn write_stderr(s: const u8[:]) = \"gs_os_write_stderr\";\n",
+      "upstream_path": "samples/23_mandelbrot_threads.goose",
+      "source_sha256": "d1b4ec6182762027aac93f1efbac29c80b8e6a6afa2ff864727e5c68bd783a45",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/23_mandelbrot_threads.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/23_mandelbrot_threads.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/24_call_c.goose",
+      "returncode": 1,
+      "seconds": 0.01180182299867738,
+      "stdout": "parsed ok: 136 top-level declarations, 2 file(s)\ntypechecked ok: 65 specialization(s), 3 struct/0 enum instance(s); optimized -O2: 4 inlined, 0 base case(s), 4 folded, 4 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 1/1 index and 1/2 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/24_call_c.goose:25: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn crc32_bytes(s: const u8[:]) -> u32;\n",
+      "upstream_path": "samples/24_call_c.goose",
+      "source_sha256": "134dce0b8f9ed552074d25c4c69a1ca4aa00d7ff08662ca00f5e537c27e54269",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/24_call_c.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/24_call_c.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/25_serialize.goose",
+      "returncode": 1,
+      "seconds": 0.013497455001925118,
+      "stdout": "parsed ok: 185 top-level declarations, 4 file(s)\ntypechecked ok: 105 specialization(s), 5 struct/1 enum instance(s); optimized -O2: 29 inlined, 0 base case(s), 9 folded, 9 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 75/91 index and 19/22 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose:41: error: wasm-direct: externs currently accept numeric and bool values only\nextern fn arg(i: i64, out: u8[>..]&) = \"gs_os_arg\";            // appends argument i (0 = the program)\n",
+      "upstream_path": "samples/25_serialize.goose",
+      "source_sha256": "541f41a0a3f82661f45c211005af717362e814f696f82acfb16eb0b8db910bc9",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/25_serialize.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/25_serialize.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/26_file_tree.goose",
+      "returncode": 1,
+      "seconds": 0.002954055991722271,
+      "stdout": "parsed ok: 16 top-level declarations, 1 file(s)\ntypechecked ok: 13 specialization(s), 1 struct/0 enum instance(s); optimized -O2: 13 inlined, 0 base case(s), 0 folded, 0 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 6/11 index and 0/1 slice checks\n",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/26_file_tree.goose:25: error: wasm-direct: relative and pool references are not supported\nreusable[] var runs: Link[>..] = [];\n",
+      "upstream_path": "samples/26_file_tree.goose",
+      "source_sha256": "7ecb3edc2995f4bdad68c4655113199e21e6dac16dc82ef4b8499331f95926d4",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/26_file_tree.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/26_file_tree.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/27_gfx_cube.goose",
+      "returncode": 1,
+      "seconds": 0.004508289013756439,
+      "stdout": "",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/27_gfx_cube.goose:25: error: WebAssembly target does not support the native package gfx (graphics, audio, UI and physics require a host port)\n",
+      "upstream_path": "samples/27_gfx_cube.goose",
+      "source_sha256": "18fbb1c74d3d1b4483a13b60d7ec3db4831501ce4b8a614112b878f1e4a2bcda",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/27_gfx_cube.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/27_gfx_cube.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/28_physics_boxes.goose",
+      "returncode": 1,
+      "seconds": 0.005902670003706589,
+      "stdout": "",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/28_physics_boxes.goose:34: error: WebAssembly target does not support the native package gfx (graphics, audio, UI and physics require a host port)\n/home/jacobt/src/goose-to-wasm/build/source/samples/28_physics_boxes.goose:35: error: WebAssembly target does not support the native package physics (graphics, audio, UI and physics require a host port)\n",
+      "upstream_path": "samples/28_physics_boxes.goose",
+      "source_sha256": "e47f247819f428f140bce70c7082167aed93d91647c37fbe5aa9705140210fff",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/28_physics_boxes.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/28_physics_boxes.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/29_ui_todo.goose",
+      "returncode": 1,
+      "seconds": 0.004321885004173964,
+      "stdout": "",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/29_ui_todo.goose:29: error: WebAssembly target does not support the native package gfx (graphics, audio, UI and physics require a host port)\n/home/jacobt/src/goose-to-wasm/build/source/samples/29_ui_todo.goose:30: error: WebAssembly target does not support the native package gfx (graphics, audio, UI and physics require a host port)\n",
+      "upstream_path": "samples/29_ui_todo.goose",
+      "source_sha256": "dfc07fdd5e0a309532189ed57f12189b34aa4b3baa5cac1324de177463ca3028",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/29_ui_todo.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/29_ui_todo.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/30_mini_minecraft.goose",
+      "returncode": 1,
+      "seconds": 0.0077997549960855395,
+      "stdout": "",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/30_mini_minecraft.goose:39: error: WebAssembly target does not support the native package gfx (graphics, audio, UI and physics require a host port)\n",
+      "upstream_path": "samples/30_mini_minecraft.goose",
+      "source_sha256": "e10b655372c5d5428c2de0d16820eaed668ad3ed9bf02f31a714d19266d71292",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/30_mini_minecraft.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/30_mini_minecraft.wasm"
+      ]
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/build/source/samples/31_mini_doom.goose",
+      "returncode": 1,
+      "seconds": 0.014316832995973527,
+      "stdout": "",
+      "stderr": "/home/jacobt/src/goose-to-wasm/build/source/samples/31_mini_doom.goose:34: error: WebAssembly target does not support the native package gfx (graphics, audio, UI and physics require a host port)\n/home/jacobt/src/goose-to-wasm/build/source/samples/31_mini_doom.goose:35: error: WebAssembly target does not support the native package gfx (graphics, audio, UI and physics require a host port)\n",
+      "upstream_path": "samples/31_mini_doom.goose",
+      "source_sha256": "cdbd3709db989ce1b1d0d1f7f8e95be65c32cf7264853657967b2a7da13cf136",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/source/samples/31_mini_doom.goose",
+        "--target",
+        "wasm-direct",
+        "--offline",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/example-survey/31_mini_doom.wasm"
+      ]
+    }
+  ]
+}

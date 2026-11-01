@@ -79,6 +79,10 @@ jobs:
           --backends direct c-wasm native
       - name: Aggregate returns and scalar math qualification
         run: python tests/test_backend_extensions.py
+      - name: Example catalog across all backends and optimization levels
+        run: >-
+          python examples/run.py --backends native c-wasm direct --levels 0 2
+          --output-dir build/examples-qualification
       - name: Sparse static data and memory limits
         run: python tests/test_static_data.py
       - name: Byte fill lowering and partial-write boundaries
@@ -166,6 +170,7 @@ jobs:
             build/toolchain.json
             build/source.json
             build/engine-probes.json
+            build/examples-qualification/report.json
             build/compiler-linux-x64.tar.gz
             build/oracle/**/report.json
             build/oracle/driver-tests/

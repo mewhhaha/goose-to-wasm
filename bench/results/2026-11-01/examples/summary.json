@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "compiler_source_commit": "f3b6117509179b3ee3e552382d7b6a4dba7e0068",
+  "compiler_sha256": "0fde633b0bcd93fd1720e4fa2207a3d3816048a90d9f3e25bcf3e8dfc5ddee79",
+  "examples": 10,
+  "upstream_examples": 9,
+  "unchanged_upstream_examples": [
+    "maze",
+    "life"
+  ],
+  "builds": 60,
+  "executions": 100,
+  "levels": [
+    0,
+    2
+  ],
+  "backends": [
+    "native",
+    "c-wasm",
+    "direct"
+  ],
+  "wasm_engines": [
+    "v8",
+    "wasmtime"
+  ],
+  "default_runner_executions": 20,
+  "failing_engine_rejected": true,
+  "independent_checks": [
+    "sieve primes, twin pairs, digit counts and u32 checksum",
+    "both Sudoku solutions: rows, columns, boxes and original clues"
+  ],
+  "upstream_goldens_preserved": [
+    "tour",
+    "errors",
+    "vm",
+    "maze",
+    "life"
+  ],
+  "compiler_unchanged_from_reader_benchmarks": true
+}
