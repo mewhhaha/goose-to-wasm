@@ -12,6 +12,7 @@ inline void Function::EnsureMemory(uint32_t top, Line line) {
     End();
 }
 inline void Function::Dynamic(uint32_t bytes, Line line) {
+    if (frame_free) Fail(line, "internal: frame-free leaf requested scratch storage");
     code.OpU(0x23, 0); auto base = Save(I32);
     Get(base); Get(bytes); code.Op(0x6a); auto end = Save(I32);
     Get(end); Get(base); code.Op(0x49); TrapIf(line, "linear-memory allocation overflow");
@@ -69,12 +70,14 @@ inline string Function::Finish() {
                   { results[i], resultlocals[i], CapturedValue::BorrowedFixed });
         Get(*resultdestinations[i]); Set(resultlocals[i]);
     }
-    Get(framebase); code.OpU(0x24, 0);
+    if (!frame_free) { Get(framebase); code.OpU(0x24, 0); }
     for (auto r : resultlocals) Get(r);
     auto body = std::move(code.data); code.data.clear();
     // The fixed frame size is now known. Prepend reservation/checks before
     // any initializer or store; recursive calls get independent frames.
-    code.OpU(0x23, 0); Set(framebase);
+    if (!frame_free) { code.OpU(0x23, 0); Set(framebase); }
+    if (frame_free && (framebytes || !owner_entries.empty() || region_peak || !cleanups.empty()))
+        Fail(line, "internal: frame-free leaf changed ownership state");
     if (framebytes) {
         framebytes = Compiler::Align(framebytes, 8);
         Get(framebase); code.I32Const(int32_t(framebytes)); code.Op(0x6a); auto top = Save(I32);
@@ -218,14 +221,15 @@ inline DirectWasmResult Compiler::Compile() {
     });
     for (auto sp : specs) function_type[sp] = Sig(FunctionSig(sp));
     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
+    CollectConstants();
     unordered_set<FnSpec *> return_targets;
     for (auto sp : specs) for (auto target : sp->needs) return_targets.insert(target);
     vector<FnSpec *> runs;
     for (auto sp : specs) if (sp->body && sp->rets.size() == 1 &&
         sp->rets[0]->kind == TY_ARRAY && sp->rets[0]->arr->akind == A_VAR && !return_targets.count(sp)) {
-        run_index[sp] = uint32_t(imports.size() + specs.size() + runs.size()); runs.push_back(sp);
+        run_index[sp] = uint32_t(imports.size() + specs.size() + constant_clones.size() + runs.size()); runs.push_back(sp);
     }
-    auto startindex = uint32_t(imports.size() + specs.size() + runs.size());
+    auto startindex = uint32_t(imports.size() + specs.size() + constant_clones.size() + runs.size());
     if (region_cursors) {
         prefix_helper = startindex++; header_helper = startindex++;
     }
@@ -238,6 +242,15 @@ inline DirectWasmResult Compiler::Compile() {
         Function f(*this, sp, function_index.at(sp), function_type.at(sp));
         auto body = f.Finish();
         string name = string(sp->sf->qname) + "#" + to_string(sp->id);
+        result.function_info.push_back({ name, f.index, body.size(), BodyHash(body),
+                                        vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
+        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
+    }
+    for (size_t index = 0; index < constant_clones.size(); index++) {
+        const auto &clone = constant_clones[index]; auto sp = clone.spec;
+        Function f(*this, sp, clone.index, function_type.at(sp), false, false, clone.bindings);
+        auto body = f.Finish();
+        string name = string(sp->sf->qname) + "_const_" + to_string(index) + "#" + to_string(sp->id);
         result.function_info.push_back({ name, f.index, body.size(), BodyHash(body),
                                         vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);

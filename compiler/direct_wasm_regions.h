@@ -44,6 +44,7 @@ inline uint32_t Compiler::BoundRegions() {
 }
 
 inline void Function::RecordRegionCall(FnSpec *callee, Line line) {
+    if (frame_free) Fail(line, "internal: frame-free leaf called a nonintrinsic function");
     if (c.needs_regions && !callee->sf->isextern)
         c.region_calls[spec].push_back({ callee, region_live, line });
 }
@@ -384,6 +385,7 @@ inline void Function::ConstructRegion(Node *node, const Location &place, optiona
 }
 
 inline void Function::AcquireRegion(const Location &place, Line line, optional<uint32_t> global_region, bool temporary) {
+    if (frame_free) Fail(line, "internal: frame-free leaf acquired a region");
     c.ControlLayout(place.storage_type);
     LocationAddress(TailHeaderLocation(place)); auto header = Save(I32);
     if (global_region) code.I32Const(int32_t(*global_region));

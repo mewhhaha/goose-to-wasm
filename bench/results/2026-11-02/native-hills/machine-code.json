@@ -1,0 +1,60 @@
+{
+  "method": "Final default/parallel Wasmtime50.0.1 AOT and separately tuned GCC native disassembly. Static sites only. Generic Life rem/IDIV fallback remains; constant kernel dispatch changes which functions execute.",
+  "functions": [
+    {
+      "name": "life",
+      "function": "wasm[0]::function[11]::neighbours#4",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm",
+      "aot_sha256": "cb8612390b00ff96d8e0e9f9ceb8582d1e4886aa9ff40f8facf7e60554b05328",
+      "wasm_sha256": "08b2f08a50382b41d7ad47a0e47bf8c73b7fa4fdcb0b7630a457b740b2ae5114",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/native-hills/life-neighbours-4-asm.txt",
+      "disassembly_sha256": "8f3c817795a3f2b56c4643aacd9ead1af727ab533c3084375fe2c84ee313bf5e",
+      "idiv_sites": 2,
+      "popcnt_sites": 0
+    },
+    {
+      "name": "life",
+      "function": "wasm[0]::function[12]::neighbours_const_0#4",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm",
+      "aot_sha256": "cb8612390b00ff96d8e0e9f9ceb8582d1e4886aa9ff40f8facf7e60554b05328",
+      "wasm_sha256": "08b2f08a50382b41d7ad47a0e47bf8c73b7fa4fdcb0b7630a457b740b2ae5114",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/native-hills/life-neighbours_const_0-4-asm.txt",
+      "disassembly_sha256": "3d64a706d3480b2b7e89e81c8e7ca55e4c1e4e10f4785cce6559710fb18bea04",
+      "idiv_sites": 0,
+      "popcnt_sites": 0
+    },
+    {
+      "name": "life",
+      "function": "wasm[0]::function[13]::neighbours_const_1#4",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm",
+      "aot_sha256": "cb8612390b00ff96d8e0e9f9ceb8582d1e4886aa9ff40f8facf7e60554b05328",
+      "wasm_sha256": "08b2f08a50382b41d7ad47a0e47bf8c73b7fa4fdcb0b7630a457b740b2ae5114",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/native-hills/life-neighbours_const_1-4-asm.txt",
+      "disassembly_sha256": "4396f7e6d5b7bc38e01d954bc519be7e8862efbc28b4ef220ee1ebeebce3b7bb",
+      "idiv_sites": 0,
+      "popcnt_sites": 0
+    },
+    {
+      "name": "sudoku",
+      "function": "wasm[0]::function[13]::count_bits#9",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/host-benchmarks/preparation/sudoku/direct/parallel/0/program.cwasm",
+      "aot_sha256": "2c2c8e6409c8c478c33fbb958e3e226e7e3e314ff7316111d6e1598666257aa8",
+      "wasm_sha256": "0d91084230c4509a5856c8eaf63ce9c3072830a4d1ba33f40f08c20505c51693",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/native-hills/sudoku-count_bits-9-asm.txt",
+      "disassembly_sha256": "a80c602d014152e3ae15086d8498b8c07ebcbe37065a25bc987b2785c2fc7ac6",
+      "idiv_sites": 0,
+      "popcnt_sites": 1
+    },
+    {
+      "name": "sorting",
+      "function": "wasm[0]::function[10]::insertion_sort#1",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/host-benchmarks/preparation/sorting/direct/parallel/0/program.cwasm",
+      "aot_sha256": "91940a2affcaa5e3bef809e8fa059290259a2c7d1802c26e36e51f6d1ba70f45",
+      "wasm_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/native-hills/sorting-insertion_sort-1-asm.txt",
+      "disassembly_sha256": "5fd410651036f44a5566d2d0e749ee3d46c1d51f99e418b985f6b6d08be15d94",
+      "idiv_sites": 0,
+      "popcnt_sites": 0
+    }
+  ]
+}

@@ -40,13 +40,13 @@ experiments, including rejected ones.
 
 ## Example Wasm audit
 
-Raw-only array-image specialization removes dispatch in eight examples. Continue with the [audit](WASM_AUDIT.md): measure Life's remainder operations, Sudoku's bit count and literal-print copying before choosing changes.
+The current [audit](WASM_AUDIT.md) covers all ten examples. Leaf frames, bit counts, remainder and call specialization improved measured examples; [tuned native controls](NATIVE_PERFORMANCE.md) show further work remains.
 
 ## Native-host comparison
 
 The [native Wasmtime host comparison](../bench/wasmtime-host.md) now measures
 fresh compilation and explicit precompiled loading alongside the Python host.
-Preparation matters for one-off runs, and direct Wasm still trails native C. Host, callback
+Preparation matters for one-off runs, and ordinary direct Wasm still trails native C. Host, callback
 and I/O differences contribute to the observed gap; it is not a bound on
 steady-state code generation, which remains a separate hill. Serial compilation
 was generally slower and remains a control rather than the default.
@@ -54,8 +54,8 @@ was generally slower and remains a control rather than the default.
 Four-way unrolling improved Sorting's Wasmtime entry time while preserving V8
 performance within measurement noise. Continue comparing generated code with
 native C to investigate the remaining entry-time gap; refreshed full-process
-measurements put precompiled Sorting at 93.519 ms versus 47.638 ms native,
-excluding preparation. See the [sorting experiments](../bench/results/2026-11-02/sorting-execution/README.md).
+measurements put precompiled Sorting at 65.535 ms versus 46.099 ms native,
+excluding preparation. See the [current measurements](../bench/results/2026-11-02/native-hills/README.md).
 
 ## Language and host coverage
 

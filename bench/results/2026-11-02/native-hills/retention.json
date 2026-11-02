@@ -1,0 +1,27 @@
+{
+  "recorded_utc": "2026-11-02T16:31:31.736063+00:00",
+  "base_commit": "93dfbf113525ae75fc3240ba5ea5d28e06ff2a1d",
+  "compiler_sha256": "11ade4a575cd77050a7ad82b40ba972be660f9095f01714235cf57bd36d50aa6",
+  "report_origins": {
+    "paired.json": "final-pairs/report.json",
+    "leaf-paired.json": "leaf-popcount-pairs/report.json",
+    "remainder-paired.json": "remainder-pairs/report.json",
+    "branch-paired.json": "branch-pairs/report.json",
+    "constant-paired.json": "constant-pairs/report.json",
+    "unroll-controls.json": "unroll-controls/report.json",
+    "native-tuned.json": "native-tuned/report.json",
+    "examples.json": "example-benchmarks/report.json",
+    "host.json": "host-benchmarks/report.json",
+    "cohort.json": "langarena/report.json",
+    "qualification.json": "qualification/report.json"
+  },
+  "guest_artifacts": 819,
+  "unique_guest_artifacts": 97,
+  "raw_files": 19221,
+  "notes": [
+    "Archive names are repository-relative original paths; artifact-map resolves repeated guests to retained unique bytes.",
+    "Compiler/Node/tool executables, Wasmtime library, SDK binary archive and full differential/replay guests are omitted; identities, versions, commands, logs and reports retained. Source snapshots, stdlib, SDK headers and host manifest retained.",
+    "Intermediate compilers are frozen independently. Larger unroll factors were immutable Wasm controls and rejected. Tuned native controls are separately collected from identical generated C; their flags differ from headline GCC-O2 native bars.",
+    "Static assembly and paired entry probes are diagnostic; ordinary process headlines come from separate uninstrumented fresh launches. No builds, qualification, archive compression or chart rendering overlap performance sampling."
+  ]
+}

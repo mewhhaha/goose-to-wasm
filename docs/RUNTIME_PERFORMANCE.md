@@ -1,5 +1,9 @@
 # Runtime performance work
 
+## Native execution hills
+
+Leaf-frame removal, exact unsigned `popcnt`, power-of-two signed remainder, limited literal-divisor clones and direct unrolled-loop guards improve selected examples. Fifteen paired Wasmtime entry probes measured Life 24.256 → 12.953 ms, Sudoku 6.541 → 3.836 ms and Sorting 86.565 → 66.117 ms. Entry includes initialization and callbacks. Eight- and sixteen-way unrolling were rejected; four-way remains. The [dated evidence](../bench/results/2026-11-02/native-hills/README.md) includes controls, qualification and fresh process results.
+
 ## Raw array images
 
 Closed modules with only raw array images omit mode dispatch, except where explicit public exports or nonintrinsic user imports permit host memory edits. Across ten examples, module bytes fell from 412,112 to 275,693. Nine paired entry probes measured Sorting at 117.886 → 95.214 ms on V8 (1.240× paired, MAD 0.036) and 108.351 → 90.102 ms on Wasmtime (1.194×, MAD 0.080). Entry includes initialization, callbacks and possible lazy JIT. The separate fresh process cohort and qualification are in the [dated evidence](../bench/results/2026-11-02/raw-array-images/README.md); the [audit](WASM_AUDIT.md) records remaining hills.

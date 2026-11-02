@@ -95,6 +95,14 @@ jobs:
         run: python tests/test_strip_loops.py
       - name: While-loop tails and later-copy traps
         run: python tests/test_while_unroll.py
+      - name: Local popcount loops and observable scalar fallbacks
+        run: python tests/test_popcount.py
+      - name: Dynamic integer remainders and operand effects
+        run: python tests/test_dynamic_remainder.py
+      - name: Bounded constant-divisor leaf clones
+        run: python tests/test_constant_divisors.py
+      - name: Frame-free leaves and resource fallbacks
+        run: python tests/test_leaf_frames.py
       - name: Stable regions, memory isolation and scoped owner cleanup
         run: |
           python tests/test_regions.py

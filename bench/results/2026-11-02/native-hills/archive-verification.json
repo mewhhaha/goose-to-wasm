@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "reviewer": "root",
+  "compiler_sha256": "11ade4a575cd77050a7ad82b40ba972be660f9095f01714235cf57bd36d50aa6",
+  "archive_roundtrip": [
+    {
+      "archive": "charts.tar.gz",
+      "sha256": "668d6caa8b4427af2fbc32ccdf289b40bcaa2f909e71a0c7c8794adc59297edc",
+      "files_verified": 10
+    },
+    {
+      "archive": "disassembly.tar.gz",
+      "sha256": "ad395f4b6b474cab9ffbed32f6705bb5586f5c9c6be198d56f78024238d556be",
+      "files_verified": 28
+    },
+    {
+      "archive": "guest-artifacts.tar.gz",
+      "sha256": "62f3ba1bce2113e785d484d4f35d5a02016897bc9d62959effa8d701126ee761",
+      "files_verified": 97
+    },
+    {
+      "archive": "inputs.tar.gz",
+      "sha256": "876b50aa2513c7ae5b772ce1bcf32cbc97ca45797985b6dada922a922c0f109b",
+      "files_verified": 949
+    },
+    {
+      "archive": "profiles.tar.gz",
+      "sha256": "a88c9ecd7aeb554d87f084735a0dd223408ae94995de859e236e481380bc916f",
+      "files_verified": 305
+    },
+    {
+      "archive": "qualification-logs.tar.gz",
+      "sha256": "c75057cb0d89292035bb90b2642b9c4dcc1f68da7bb970e9c1cb6f92299aa781",
+      "files_verified": 39295
+    },
+    {
+      "archive": "samples.tar.gz",
+      "sha256": "ed1fcd3abe8db24cf34c6e1a1f09a744f67b4f557f0c67f9070e70aa6aae4fdb",
+      "files_verified": 19221
+    }
+  ],
+  "guest_aliases_verified": 819,
+  "unique_guest_artifacts": 97,
+  "current_source_headers_verified": 32,
+  "latest_pointers_verified": 3,
+  "svg_hashes_verified": 9
+}

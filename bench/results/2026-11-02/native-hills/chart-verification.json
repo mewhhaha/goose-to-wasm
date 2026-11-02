@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "charts": [
+    {
+      "chart": "examples-compilation.svg",
+      "labels_checked": 30,
+      "sha256": "cf253c474fb307a14725c45255ac68e9f783450c95dacf933ae263643e732f70"
+    },
+    {
+      "chart": "examples-python-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "3076936600456834a4d7f413e5c14199ee2cbea0187e30d05bcabcd4e0abd180"
+    },
+    {
+      "chart": "examples-entry.svg",
+      "labels_checked": 40,
+      "sha256": "e87de194bdfeaa82af56ca5a4685f461763a5e9873196242bba564104bd3cf68"
+    },
+    {
+      "chart": "examples-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "cf4ebd50651830837331995fcf53179064fc654bf8b7f1a1412c9259cbfb7951"
+    },
+    {
+      "chart": "wasmtime-host-runtime.svg",
+      "labels_checked": 40,
+      "sha256": "b4eaf39a6b7f9ebe7884808e1b17ac31646adb8b85b9659599b694807591c9ed"
+    },
+    {
+      "chart": "wasmtime-host-c-wasm.svg",
+      "labels_checked": 40,
+      "sha256": "eb42b5d29699205f626ee50a0bce188145e1899e1c3d63378623f63134b5f23c"
+    },
+    {
+      "chart": "wasmtime-host-preparation.svg",
+      "labels_checked": 40,
+      "sha256": "ec3b93ead8a748013d438a7d66fe8162213d406098b486defe6c65d67bd60772"
+    },
+    {
+      "chart": "compilation.svg",
+      "labels_checked": 21,
+      "sha256": "4a60dac1600524e247f49792f796deed83e846b18935f317d0b52eb620bcc9de"
+    },
+    {
+      "chart": "runtime.svg",
+      "labels_checked": 42,
+      "sha256": "cac39cd1451e1800ce2855f0b43b51d4aff8eeda4d39ce29c4a6b26bf7ebd792"
+    }
+  ],
+  "total_numeric_bar_labels": 373,
+  "method": "Exact SVG text order and rounded values matched to retained summary cells; chart generators validate their source fingerprints. Pointer hashes checked. Visual inspection recorded separately after rendering.",
+  "visual_review": {
+    "reviewer": "root",
+    "status": "passed",
+    "charts": 9,
+    "render_width_px": 1200,
+    "checks": [
+      "All bar labels, legends, example names and footnotes visible",
+      "No overlapping or clipped labels",
+      "Panels and units consistent with retained cohorts"
+    ],
+    "preview": "runtime-preview.png"
+  }
+}

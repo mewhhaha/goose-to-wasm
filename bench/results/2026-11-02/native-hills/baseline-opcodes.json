@@ -1,0 +1,1986 @@
+{
+  "method": "Static LLVM Wasm disassembly and compiler function stats; instruction sites are not dynamic costs.",
+  "compiler_sha256": "78178c171d7ed846ac20aec7b54f5e2e80ffb5a73bbf3551c44b73b27b373624",
+  "tool_version": [
+    "LLVM (http://llvm.org/):",
+    "  LLVM version 23.1.4",
+    "  Optimized build."
+  ],
+  "examples": [
+    {
+      "name": "squares",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/squares/direct/2/program.wasm",
+      "sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "module_bytes": 1367,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 348,
+          "body_hash": "12141007981470204699",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 10,
+          "code_bytes": 17,
+          "body_hash": "3250867854454395021",
+          "dependencies": [
+            9
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 188,
+          "locals": 16,
+          "global_reads": 3,
+          "global_writes": 3,
+          "calls": 6,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 8,
+          "locals": 1,
+          "global_reads": 1,
+          "global_writes": 1,
+          "calls": 1,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "tour",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/tour/direct/0/program.wasm",
+      "sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+      "module_bytes": 40589,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 37471,
+          "body_hash": "4710847332871392507",
+          "dependencies": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            10,
+            12,
+            14,
+            15
+          ]
+        },
+        {
+          "name": "divide#4",
+          "index": 10,
+          "code_bytes": 233,
+          "body_hash": "12830243480000153501",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 11,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 12,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 13,
+          "code_bytes": 165,
+          "body_hash": "14281802375986102569",
+          "dependencies": [
+            7,
+            9
+          ]
+        },
+        {
+          "name": "read_uleb_array",
+          "index": 14,
+          "code_bytes": 243,
+          "body_hash": "948140771947419429",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "index": 15,
+          "code_bytes": 359,
+          "body_hash": "9576956897144644133",
+          "dependencies": [
+            7
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 16569,
+          "locals": 1365,
+          "global_reads": 299,
+          "global_writes": 134,
+          "calls": 586,
+          "br_tables": 70,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "divide#4",
+          "instructions": 121,
+          "locals": 10,
+          "global_reads": 5,
+          "global_writes": 9,
+          "calls": 3,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 89,
+          "locals": 3,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "global_reads": 6,
+          "global_writes": 0,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "functions",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/functions/direct/3/program.wasm",
+      "sha256": "af0b0f335ca715222ca4bca98d9e3bf35d369ae0e434088559f2a541a866b789",
+      "module_bytes": 55269,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 19972,
+          "body_hash": "16727350741885064752",
+          "dependencies": [
+            0,
+            1,
+            3,
+            5,
+            6,
+            7,
+            10,
+            12,
+            16
+          ]
+        },
+        {
+          "name": "sort#19",
+          "index": 10,
+          "code_bytes": 9328,
+          "body_hash": "11378029032620453238",
+          "dependencies": [
+            7,
+            11
+          ]
+        },
+        {
+          "name": "sort_pivot#25",
+          "index": 11,
+          "code_bytes": 6179,
+          "body_hash": "5238322926258557749",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "sort#39",
+          "index": 12,
+          "code_bytes": 9725,
+          "body_hash": "4054192056900305847",
+          "dependencies": [
+            7,
+            13,
+            14
+          ]
+        },
+        {
+          "name": "by_name#41",
+          "index": 13,
+          "code_bytes": 831,
+          "body_hash": "1473916121775623415",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "sort_pivot#45",
+          "index": 14,
+          "code_bytes": 6479,
+          "body_hash": "15131261270697969777",
+          "dependencies": [
+            7,
+            13
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 15,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 16,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 17,
+          "code_bytes": 894,
+          "body_hash": "10756987509272672075",
+          "dependencies": [
+            7,
+            9
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 9022,
+          "locals": 930,
+          "global_reads": 322,
+          "global_writes": 154,
+          "calls": 274,
+          "br_tables": 0,
+          "signed_remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#19",
+          "instructions": 3946,
+          "locals": 719,
+          "global_reads": 85,
+          "global_writes": 127,
+          "calls": 25,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#25",
+          "instructions": 2617,
+          "locals": 512,
+          "global_reads": 65,
+          "global_writes": 94,
+          "calls": 16,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#39",
+          "instructions": 4124,
+          "locals": 719,
+          "global_reads": 85,
+          "global_writes": 216,
+          "calls": 39,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "by_name#41",
+          "instructions": 444,
+          "locals": 51,
+          "global_reads": 12,
+          "global_writes": 27,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#45",
+          "instructions": 2758,
+          "locals": 512,
+          "global_reads": 65,
+          "global_writes": 172,
+          "calls": 31,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "errors",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/errors/direct/2/program.wasm",
+      "sha256": "17c2ec14d626623e089ad12c5439e3e4b41f12c7bf963c5323fd630ede98cf6c",
+      "module_bytes": 27101,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 5580,
+          "body_hash": "6998452809178104071",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7,
+            8,
+            10,
+            13,
+            14,
+            20
+          ]
+        },
+        {
+          "name": "parse_age#1",
+          "index": 10,
+          "code_bytes": 338,
+          "body_hash": "9337065760686015837",
+          "dependencies": [
+            7,
+            11,
+            12
+          ]
+        },
+        {
+          "name": "parse_int#6",
+          "index": 11,
+          "code_bytes": 938,
+          "body_hash": "17370283095994551358",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "trim#2",
+          "index": 12,
+          "code_bytes": 816,
+          "body_hash": "1358379723924925394",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "find_user#7",
+          "index": 13,
+          "code_bytes": 538,
+          "body_hash": "834927819513760721",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "report#9",
+          "index": 14,
+          "code_bytes": 1969,
+          "body_hash": "1996762002249092328",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7,
+            15
+          ]
+        },
+        {
+          "name": "load#10",
+          "index": 15,
+          "code_bytes": 1366,
+          "body_hash": "6022773243261886437",
+          "dependencies": [
+            7,
+            16,
+            20
+          ]
+        },
+        {
+          "name": "each_split#11",
+          "index": 16,
+          "code_bytes": 6694,
+          "body_hash": "11918069255249097019",
+          "dependencies": [
+            7,
+            10,
+            12,
+            17,
+            18,
+            20
+          ]
+        },
+        {
+          "name": "message#14",
+          "index": 17,
+          "code_bytes": 1504,
+          "body_hash": "16260463749237016262",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "parse_record#12",
+          "index": 18,
+          "code_bytes": 4204,
+          "body_hash": "2240959825679596121",
+          "dependencies": [
+            7,
+            10,
+            12,
+            17,
+            20
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 19,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 20,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 21,
+          "code_bytes": 895,
+          "body_hash": "2983147636565072297",
+          "dependencies": [
+            7,
+            9
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 2707,
+          "locals": 244,
+          "global_reads": 90,
+          "global_writes": 67,
+          "calls": 102,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "parse_age#1",
+          "instructions": 181,
+          "locals": 16,
+          "global_reads": 7,
+          "global_writes": 15,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "parse_int#6",
+          "instructions": 501,
+          "locals": 45,
+          "global_reads": 14,
+          "global_writes": 27,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "trim#2",
+          "instructions": 447,
+          "locals": 49,
+          "global_reads": 10,
+          "global_writes": 13,
+          "calls": 3,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "find_user#7",
+          "instructions": 286,
+          "locals": 30,
+          "global_reads": 10,
+          "global_writes": 21,
+          "calls": 3,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "report#9",
+          "instructions": 1038,
+          "locals": 94,
+          "global_reads": 32,
+          "global_writes": 23,
+          "calls": 37,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "load#10",
+          "instructions": 691,
+          "locals": 52,
+          "global_reads": 24,
+          "global_writes": 15,
+          "calls": 17,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "each_split#11",
+          "instructions": 3137,
+          "locals": 314,
+          "global_reads": 99,
+          "global_writes": 250,
+          "calls": 51,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "message#14",
+          "instructions": 762,
+          "locals": 93,
+          "global_reads": 11,
+          "global_writes": 15,
+          "calls": 13,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "parse_record#12",
+          "instructions": 1988,
+          "locals": 198,
+          "global_reads": 62,
+          "global_writes": 131,
+          "calls": 37,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "sieve",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sieve/direct/2/program.wasm",
+      "sha256": "93cde3a5e23c73a9833cb428afe0084887a9a41ef9eb336dc10c214038fd7ab5",
+      "module_bytes": 7410,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 4813,
+          "body_hash": "13689378265341037697",
+          "dependencies": [
+            0,
+            1,
+            2,
+            6,
+            7,
+            11
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 10,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 11,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 12,
+          "code_bytes": 920,
+          "body_hash": "14656575824925949130",
+          "dependencies": [
+            7,
+            9
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 2344,
+          "locals": 232,
+          "global_reads": 70,
+          "global_writes": 28,
+          "calls": 74,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 369,
+          "locals": 78,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "sorting",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sorting/direct/2/program.wasm",
+      "sha256": "814b1b96b18670e1c5629dd32dfb76ea1522884c159565f76214cf9b8ff6f8f2",
+      "module_bytes": 65038,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 18112,
+          "body_hash": "17049143728646956650",
+          "dependencies": [
+            0,
+            1,
+            5,
+            6,
+            7,
+            10,
+            11,
+            12,
+            13,
+            15,
+            18,
+            19,
+            22,
+            24
+          ]
+        },
+        {
+          "name": "insertion_sort#1",
+          "index": 10,
+          "code_bytes": 825,
+          "body_hash": "8714154564584270084",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "bsearch#3",
+          "index": 11,
+          "code_bytes": 448,
+          "body_hash": "18063077754477491099",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "random_ints#4",
+          "index": 12,
+          "code_bytes": 1294,
+          "body_hash": "12467815469713858081",
+          "dependencies": [
+            7,
+            24
+          ]
+        },
+        {
+          "name": "merge_sort#7",
+          "index": 13,
+          "code_bytes": 1144,
+          "body_hash": "879119803070518306",
+          "dependencies": [
+            7,
+            10,
+            13,
+            14
+          ]
+        },
+        {
+          "name": "copy_into#8",
+          "index": 14,
+          "code_bytes": 312,
+          "body_hash": "11055950311790522081",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "sort#9",
+          "index": 15,
+          "code_bytes": 181,
+          "body_hash": "17743457704416346496",
+          "dependencies": [
+            7,
+            16
+          ]
+        },
+        {
+          "name": "sort#10",
+          "index": 16,
+          "code_bytes": 7473,
+          "body_hash": "4237558766222552762",
+          "dependencies": [
+            7,
+            17
+          ]
+        },
+        {
+          "name": "sort_pivot#16",
+          "index": 17,
+          "code_bytes": 3930,
+          "body_hash": "17512483067487339935",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "binary_search#28",
+          "index": 18,
+          "code_bytes": 394,
+          "body_hash": "14722342153950520397",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "sort#29",
+          "index": 19,
+          "code_bytes": 8993,
+          "body_hash": "3642433368562437595",
+          "dependencies": [
+            7,
+            20,
+            21
+          ]
+        },
+        {
+          "name": "reverse#32",
+          "index": 20,
+          "code_bytes": 428,
+          "body_hash": "2549621761642179924",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "sort_pivot#34",
+          "index": 21,
+          "code_bytes": 6175,
+          "body_hash": "6505733642109584569",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "stable_sort#46",
+          "index": 22,
+          "code_bytes": 12393,
+          "body_hash": "10315843896728560196",
+          "dependencies": [
+            7,
+            20,
+            24
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 23,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 24,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 25,
+          "code_bytes": 895,
+          "body_hash": "13157008628020005889",
+          "dependencies": [
+            7,
+            9
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 8438,
+          "locals": 712,
+          "global_reads": 400,
+          "global_writes": 123,
+          "calls": 222,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "insertion_sort#1",
+          "instructions": 460,
+          "locals": 32,
+          "global_reads": 9,
+          "global_writes": 10,
+          "calls": 3,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "bsearch#3",
+          "instructions": 239,
+          "locals": 25,
+          "global_reads": 8,
+          "global_writes": 9,
+          "calls": 6,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "random_ints#4",
+          "instructions": 638,
+          "locals": 66,
+          "global_reads": 22,
+          "global_writes": 11,
+          "calls": 15,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "merge_sort#7",
+          "instructions": 631,
+          "locals": 77,
+          "global_reads": 14,
+          "global_writes": 26,
+          "calls": 13,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "copy_into#8",
+          "instructions": 164,
+          "locals": 16,
+          "global_reads": 5,
+          "global_writes": 6,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#9",
+          "instructions": 96,
+          "locals": 4,
+          "global_reads": 5,
+          "global_writes": 8,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#10",
+          "instructions": 3164,
+          "locals": 628,
+          "global_reads": 85,
+          "global_writes": 127,
+          "calls": 27,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#16",
+          "instructions": 1657,
+          "locals": 422,
+          "global_reads": 65,
+          "global_writes": 94,
+          "calls": 16,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "binary_search#28",
+          "instructions": 210,
+          "locals": 24,
+          "global_reads": 7,
+          "global_writes": 9,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#29",
+          "instructions": 3818,
+          "locals": 684,
+          "global_reads": 83,
+          "global_writes": 129,
+          "calls": 26,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "reverse#32",
+          "instructions": 218,
+          "locals": 36,
+          "global_reads": 6,
+          "global_writes": 7,
+          "calls": 3,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#34",
+          "instructions": 2617,
+          "locals": 512,
+          "global_reads": 65,
+          "global_writes": 94,
+          "calls": 16,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "stable_sort#46",
+          "instructions": 5526,
+          "locals": 788,
+          "global_reads": 132,
+          "global_writes": 129,
+          "calls": 75,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "sudoku",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sudoku/direct/0/program.wasm",
+      "sha256": "d93b615e98732c0ce5bc3c7d0062b682f838bcfa4ce8a17ee97770a10300639a",
+      "module_bytes": 12415,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 227,
+          "body_hash": "2982359588474739597",
+          "dependencies": [
+            7,
+            10
+          ]
+        },
+        {
+          "name": "run#1",
+          "index": 10,
+          "code_bytes": 3271,
+          "body_hash": "4805109774759721262",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7,
+            11,
+            12
+          ]
+        },
+        {
+          "name": "show#6",
+          "index": 11,
+          "code_bytes": 2435,
+          "body_hash": "3777196875112816780",
+          "dependencies": [
+            0,
+            6,
+            7,
+            19
+          ]
+        },
+        {
+          "name": "solve#7",
+          "index": 12,
+          "code_bytes": 950,
+          "body_hash": "11603636621785815077",
+          "dependencies": [
+            7,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ]
+        },
+        {
+          "name": "count_bits#9",
+          "index": 13,
+          "code_bytes": 319,
+          "body_hash": "18390786654128860329",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "candidates#8",
+          "index": 14,
+          "code_bytes": 527,
+          "body_hash": "8585250616751146264",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "bit#4",
+          "index": 15,
+          "code_bytes": 197,
+          "body_hash": "5752122479444206517",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "place#3",
+          "index": 16,
+          "code_bytes": 785,
+          "body_hash": "4798791130740327902",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "unplace#10",
+          "index": 17,
+          "code_bytes": 839,
+          "body_hash": "4124926322527585170",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 18,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 19,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 20,
+          "code_bytes": 919,
+          "body_hash": "10936843059659966112",
+          "dependencies": [
+            7,
+            9
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 110,
+          "locals": 4,
+          "global_reads": 6,
+          "global_writes": 11,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "run#1",
+          "instructions": 1586,
+          "locals": 179,
+          "global_reads": 32,
+          "global_writes": 34,
+          "calls": 42,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "show#6",
+          "instructions": 1275,
+          "locals": 110,
+          "global_reads": 56,
+          "global_writes": 17,
+          "calls": 37,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "solve#7",
+          "instructions": 484,
+          "locals": 38,
+          "global_reads": 21,
+          "global_writes": 60,
+          "calls": 10,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "count_bits#9",
+          "instructions": 158,
+          "locals": 11,
+          "global_reads": 5,
+          "global_writes": 7,
+          "calls": 3,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "candidates#8",
+          "instructions": 261,
+          "locals": 32,
+          "global_reads": 5,
+          "global_writes": 6,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "bit#4",
+          "instructions": 103,
+          "locals": 6,
+          "global_reads": 4,
+          "global_writes": 5,
+          "calls": 3,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "place#3",
+          "instructions": 385,
+          "locals": 58,
+          "global_reads": 8,
+          "global_writes": 9,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "unplace#10",
+          "instructions": 409,
+          "locals": 58,
+          "global_reads": 8,
+          "global_writes": 9,
+          "calls": 4,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 369,
+          "locals": 78,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "maze",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/maze/direct/2/program.wasm",
+      "sha256": "5d99dd89a48e4c387d2fae104a6b6ab85c37a85342a7b042dde3a8136d95afb9",
+      "module_bytes": 21474,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 9185,
+          "body_hash": "9244779163060590279",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7,
+            10,
+            11,
+            13
+          ]
+        },
+        {
+          "name": "show#9",
+          "index": 10,
+          "code_bytes": 1385,
+          "body_hash": "6081908546882317157",
+          "dependencies": [
+            0,
+            6,
+            7,
+            13
+          ]
+        },
+        {
+          "name": "dijkstra#11",
+          "index": 11,
+          "code_bytes": 7553,
+          "body_hash": "10272545977070829296",
+          "dependencies": [
+            7,
+            13
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 12,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 13,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 14,
+          "code_bytes": 1270,
+          "body_hash": "14156351214024610287",
+          "dependencies": [
+            7,
+            9,
+            13
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 4231,
+          "locals": 460,
+          "global_reads": 130,
+          "global_writes": 70,
+          "calls": 125,
+          "br_tables": 0,
+          "signed_remainders": 4,
+          "popcnt": 0
+        },
+        {
+          "name": "show#9",
+          "instructions": 726,
+          "locals": 64,
+          "global_reads": 24,
+          "global_writes": 13,
+          "calls": 19,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "dijkstra#11",
+          "instructions": 3370,
+          "locals": 479,
+          "global_reads": 99,
+          "global_writes": 62,
+          "calls": 52,
+          "br_tables": 0,
+          "signed_remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 537,
+          "locals": 97,
+          "global_reads": 12,
+          "global_writes": 5,
+          "calls": 11,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "vm",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/vm/direct/0/program.wasm",
+      "sha256": "4f9a3651123e040d4a51e09bc092c708973b478b47293b07c8fdf0bab85a987b",
+      "module_bytes": 29290,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 16860,
+          "body_hash": "9718599905309686444",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7,
+            10,
+            12,
+            13,
+            14
+          ]
+        },
+        {
+          "name": "disassemble#1",
+          "index": 10,
+          "code_bytes": 2286,
+          "body_hash": "10101715317972969646",
+          "dependencies": [
+            0,
+            6,
+            7,
+            11,
+            13
+          ]
+        },
+        {
+          "name": "append_decimal#2",
+          "index": 11,
+          "code_bytes": 1132,
+          "body_hash": "5303894055447618870",
+          "dependencies": [
+            7,
+            13
+          ]
+        },
+        {
+          "name": "run#4",
+          "index": 12,
+          "code_bytes": 6152,
+          "body_hash": "14154988413790322955",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7,
+            13,
+            14
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 13,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 14,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 15,
+          "code_bytes": 1007,
+          "body_hash": "14651560693928864719",
+          "dependencies": [
+            7,
+            9,
+            13
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 7796,
+          "locals": 652,
+          "global_reads": 325,
+          "global_writes": 34,
+          "calls": 427,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "disassemble#1",
+          "instructions": 1138,
+          "locals": 102,
+          "global_reads": 19,
+          "global_writes": 43,
+          "calls": 94,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "append_decimal#2",
+          "instructions": 587,
+          "locals": 60,
+          "global_reads": 10,
+          "global_writes": 13,
+          "calls": 32,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "run#4",
+          "instructions": 2924,
+          "locals": 264,
+          "global_reads": 153,
+          "global_writes": 24,
+          "calls": 149,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 414,
+          "locals": 75,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 32,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "life",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/direct/1/program.wasm",
+      "sha256": "81c1b928ff6ea5deea490dcbddefc48980ca9c02addd3504fc8e745250b80bb4",
+      "module_bytes": 15740,
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 9,
+          "code_bytes": 10928,
+          "body_hash": "6867494228442225170",
+          "dependencies": [
+            0,
+            1,
+            6,
+            7,
+            10,
+            11,
+            13
+          ]
+        },
+        {
+          "name": "show#2",
+          "index": 10,
+          "code_bytes": 1626,
+          "body_hash": "12133002839373094604",
+          "dependencies": [
+            0,
+            6,
+            7,
+            13
+          ]
+        },
+        {
+          "name": "neighbours#4",
+          "index": 11,
+          "code_bytes": 555,
+          "body_hash": "16167824473856484625",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 12,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 13,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 14,
+          "code_bytes": 894,
+          "body_hash": "16295768200600752266",
+          "dependencies": [
+            7,
+            9
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 5000,
+          "locals": 515,
+          "global_reads": 168,
+          "global_writes": 101,
+          "calls": 108,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "show#2",
+          "instructions": 860,
+          "locals": 73,
+          "global_reads": 35,
+          "global_writes": 14,
+          "calls": 28,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "neighbours#4",
+          "instructions": 303,
+          "locals": 33,
+          "global_reads": 7,
+          "global_writes": 11,
+          "calls": 6,
+          "br_tables": 0,
+          "signed_remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "global_reads": 0,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "global_reads": 1,
+          "global_writes": 0,
+          "calls": 0,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "global_reads": 4,
+          "global_writes": 4,
+          "calls": 5,
+          "br_tables": 0,
+          "signed_remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    }
+  ]
+}

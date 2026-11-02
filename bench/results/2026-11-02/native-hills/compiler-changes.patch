@@ -1,0 +1,593 @@
+--- a/compiler/direct_wasm.h
++++ b/compiler/direct_wasm.h
+@@ -94,7 +94,10 @@
+     unordered_set<const VarDef *> inline_named_regions;
+     unordered_set<VarDef *> addressed;
+     vector<unordered_map<VarDef *, VarDef *>> aliases;
++    unordered_map<uint32_t, int64_t> constant_slots;
+     uint32_t framebase = 0, framebytes = 0;
++    bool frame_free = false;
++    bool FrameFreeLeaf();
+     struct OwnerEntry { uint32_t offset; bool temporary; };
+     vector<OwnerEntry> owner_entries;
+     uint32_t effect_frame = 0, previous_effect_frame = 0, mailbox = 0, previous_mailbox = 0;
+@@ -198,7 +201,8 @@
+     }
+     set<uint32_t> dependencies;
+ 
+-    Function(Compiler &, FnSpec *, uint32_t, uint32_t, bool element_run = false, bool auxiliary = false);
++    Function(Compiler &, FnSpec *, uint32_t, uint32_t, bool element_run = false, bool auxiliary = false,
++             const vector<pair<uint32_t, int64_t>> &constants = {});
+     [[noreturn]] void Fail(Line, const string &);
+     uint8_t W(TypeExpr *);
+     uint32_t Local(uint8_t t) { auto i = uint32_t(params.size() + locals.size()); locals.push_back(t); return i; }
+@@ -235,6 +239,8 @@
+     void FloatRemainder(TypeExpr *);
+     void Truth(Node *);
+     bool PowerOfTwoRemainder(Node *, TypeExpr *);
++    optional<int64_t> KnownInteger(Node *, TypeExpr *);
++    bool DynamicRemainder(Node *, TypeExpr *, Line, bool);
+     void BinaryOp(TType, TypeExpr *, Line, bool nonnegative = false);
+     uint32_t Frame(TypeExpr *);
+     uint32_t FrameBytes(uint32_t n, uint32_t align = 8);
+@@ -335,6 +341,7 @@
+     bool FoldBitLoop(ForLoop *);
+     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
+     bool UnrollWhile(While *);
++    bool FoldPopcount(While *, VarDecl *, VarDecl *);
+     bool FillLoop(ForLoop *);
+     optional<Slot> CachedLane(Node *);
+     void CacheLanes(ForLoop *);
+@@ -456,6 +463,19 @@
+     uint32_t uleb_read_helper = 0, uleb_patch_helper = 0;
+     bool needs_uleb_helpers = false, inline_uleb_images = false;
+     bool raw_array_images = false;
++    unordered_map<FnSpec *, bool> leaf_cache;
++    bool Leaf(FnSpec *);
++    struct ConstantClone {
++        FnSpec *spec;
++        vector<pair<uint32_t, int64_t>> bindings;
++        uint32_t index;
++    };
++    vector<ConstantClone> constant_clones;
++    unordered_map<Call *, size_t> constant_calls;
++    unordered_map<FnSpec *, vector<uint32_t>> constant_divisors;
++    const vector<uint32_t> &ConstantDivisors(FnSpec *);
++    void CollectConstants();
++    uint32_t ConstantTarget(Call *, uint32_t);
+     bool may_have_prefix_mappings = true;
+     bool has_prefix_mappings = false;
+     bool Effects() const { return !effect_targets.empty() || region_cursors; }
+@@ -1063,7 +1083,8 @@
+     DirectWasmResult Compile();
+ };
+ 
+-inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run, bool auxiliary)
++inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run, bool auxiliary,
++                          const vector<pair<uint32_t, int64_t>> &constants)
+     : c(compiler), spec(s), index(i), sig(ty), element_run(run) {
+     if (auxiliary) { params = c.signatures[ty].args; return; }
+     addressed.insert(c.captured_storage.begin(), c.captured_storage.end());
+@@ -1093,9 +1114,13 @@
+             } else resultdestinations.push_back(nullopt);
+         }
+     } else for (auto g : c.ast.globals) for (auto n : g->inits) ScanAddresses(n);
++    for (auto [slot, value] : constants) constant_slots.emplace(slot, value);
+     framebase = Local(I32);
+     for (auto t : results) resultlocals.push_back(Local(t));
+-    if (c.Effects()) {
++    frame_free = FrameFreeLeaf();
++    if (!constants.empty() && !frame_free) Fail(spec->sf->line, "internal: constant divisor clone is not a leaf");
++    if (spec) c.leaf_cache[spec] = frame_free;
++    if (c.Effects() && !frame_free) {
+         effect_frame = FrameBytes(12, 4); previous_effect_frame = Local(I32);
+         if (c.effect_globals.count(spec)) {
+             auto layout = c.MailboxLayout(spec);
+@@ -1111,6 +1136,7 @@
+     CallIndex(Compiler::ABORT); code.Op(0x00);
+ }
+ inline uint32_t Function::FrameBytes(uint32_t n, uint32_t align) {
++    if (frame_free) Fail({}, "internal: frame-free leaf requested activation storage");
+     auto off = Compiler::Align(framebytes, align);
+     if (uint64_t(off) + n > uint64_t(c.opts.maximum_pages) * 65536)
+         Fail(spec ? spec->sf->line : Line{}, "activation frame exceeds the linear-memory limit");
+@@ -1169,9 +1195,14 @@
+     code.Mem(bits == 8 ? 0x3a : bits == 16 ? 0x3b : bits == 32 ? 0x36 : 0x37);
+ }
+ inline void Function::Read(const Slot &s) {
+-    if (s.kind == Slot::LOCAL) Get(s.index); else { SlotAddress(s); Load(s.type); }
++    if (s.kind == Slot::LOCAL) {
++        if (auto known = constant_slots.find(s.index); known != constant_slots.end()) Const(s.type, known->second);
++        else Get(s.index);
++    } else { SlotAddress(s); Load(s.type); }
+ }
+ inline void Function::Write(const Slot &s) {
++    if (s.kind == Slot::LOCAL && constant_slots.count(s.index))
++        Fail(s.type->line, "internal: constant divisor parameter was written");
+     if (s.kind == Slot::LOCAL) Set(s.index);
+     else { auto v = Save(s.type); SlotAddress(s); Get(v); Store(s.type); }
+ }
+@@ -1209,6 +1240,8 @@
+ } // namespace goose
+ 
+ #include "direct_wasm_numeric.h"
++#include "direct_wasm_leaf.h"
++#include "direct_wasm_constants.h"
+ #include "direct_wasm_captures.h"
+ #include "direct_wasm_funvals.h"
+ #include "direct_wasm_dispatch.h"
+@@ -1226,6 +1259,7 @@
+ #include "direct_wasm_temps.h"
+ #include "direct_wasm_images.h"
+ #include "direct_wasm_arrays.h"
++#include "direct_wasm_bits.h"
+ #include "direct_wasm_expr.h"
+ #include "direct_wasm_emit.h"
+ 
+--- /dev/null
++++ b/compiler/direct_wasm_bits.h
+@@ -0,0 +1,52 @@
++#pragma once
++namespace goose::direct_wasm {
++
++inline bool Function::FoldPopcount(While *loop, VarDecl *mask_init, VarDecl *count_init) {
++    if (!mask_init || !count_init || mask_init->byref || count_init->byref ||
++        mask_init->defs.size() != 1 || mask_init->inits.size() != 1 ||
++        count_init->defs.size() != 1 || count_init->inits.size() != 1 ||
++        loop->body->tail || loop->body->stmts.size() != 2) return false;
++    auto literal = [](Node *value, int64_t expected) {
++        auto number = Is<IntLit>(value);
++        return number && IsIntT(value->exprtype) && number->val == expected;
++    };
++    if (!literal(count_init->inits[0], 0)) return false;
++    auto mask = Lookup(mask_init->defs[0], mask_init->line);
++    auto count = Lookup(count_init->defs[0], count_init->line);
++    if (mask.kind != Slot::LOCAL || count.kind != Slot::LOCAL || mask.index == count.index ||
++        !IsIntT(mask.type) || !IsIntT(count.type) || !IsUnsigned(mask.type->intstorage) ||
++        Compiler::Varint(mask.type) || Compiler::Varint(count.type)) return false;
++    auto width = IntBits(mask.type->intstorage);
++    if ((width != 8 && width != 16 && width != 32 && width != 64) ||
++        IntBits(count.type->intstorage) < 8) return false;
++    auto same = [&](Node *value, const Slot &expected) {
++        auto id = Is<Ident>(value);
++        if (!id || !id->vdef || !IsIntT(value->exprtype) ||
++            value->exprtype->intstorage != expected.type->intstorage) return false;
++        auto slot = Lookup(id->vdef, id->line);
++        return slot.kind == Slot::LOCAL && slot.index == expected.index && slot.type == expected.type;
++    };
++    auto condition = Is<Binary>(loop->cond);
++    if (!condition || condition->op != T_NEQ || !same(condition->left, mask) ||
++        !literal(condition->right, 0)) return false;
++    auto clear = Is<Assign>(loop->body->stmts[0]);
++    auto increment = Is<IncDec>(loop->body->stmts[1]);
++    if (!clear || clear->pointee || clear->op != T_ANDEQ || !same(clear->lval, mask) ||
++        !increment || increment->op != T_INC || !same(increment->lval, count)) return false;
++    auto subtract = Is<Binary>(clear->rhs);
++    if (!subtract || subtract->op != T_MINUS || !same(subtract->left, mask) ||
++        !literal(subtract->right, 1) || !IsIntT(subtract->exprtype) ||
++        subtract->exprtype->intstorage != mask.type->intstorage) return false;
++
++    // Adjacent declarations normalize the private unsigned mask and start
++    // count at zero. At most 64 increments fit every accepted counter, even
++    // in debug mode; neither local can expose intermediate loop updates.
++    Read(mask);
++    if (W(mask.type) == I64) code.Op(0x7b);
++    else code.Op(0x69);
++    Convert(mask.type, count.type, loop->line); Write(count);
++    Const(mask.type, 0); Write(mask);
++    return true;
++}
++
++} // namespace goose::direct_wasm
+--- /dev/null
++++ b/compiler/direct_wasm_constants.h
+@@ -0,0 +1,105 @@
++#pragma once
++namespace goose::direct_wasm {
++
++inline optional<int64_t> Function::KnownInteger(Node *node, TypeExpr *type) {
++    if (!type || !node || !node->exprtype || !IsIntT(type) || !IsIntT(node->exprtype) ||
++        node->exprtype->intstorage != type->intstorage) return {};
++    if (auto literal = Is<IntLit>(node)) return literal->val;
++    if (auto id = Is<Ident>(node); id && id->vdef) {
++        auto slot = Lookup(id->vdef, id->line);
++        if (slot.kind == Slot::LOCAL && IsIntT(slot.type) && slot.type->intstorage == type->intstorage)
++            if (auto found = constant_slots.find(slot.index); found != constant_slots.end()) return found->second;
++    }
++    return {};
++}
++
++inline const vector<uint32_t> &Compiler::ConstantDivisors(FnSpec *spec) {
++    auto [cached, fresh] = constant_divisors.emplace(spec, vector<uint32_t>{});
++    if (!fresh || !Leaf(spec)) return cached->second;
++    unordered_set<VarDef *> candidates, written;
++    int budget = 256;
++    function<bool(Node *)> scan = [&](Node *node) {
++        if (!node || Is<FnDecl>(node) || Is<StructDecl>(node) || Is<EnumDecl>(node) || Is<AliasDecl>(node)) return true;
++        if (budget-- == 0) return false;
++        if (auto binary = Is<Binary>(node); binary && binary->op == T_MOD &&
++            IsIntT(binary->left->exprtype) && binary->left->exprtype->intstorage == IS_I64) {
++            auto right = Is<Ident>(binary->right);
++            if (right && right->vdef && IsIntT(right->exprtype) && right->exprtype->intstorage == IS_I64)
++                candidates.insert(right->vdef);
++        }
++        Node *target = nullptr;
++        if (auto assignment = Is<Assign>(node)) target = assignment->lval;
++        if (auto change = Is<IncDec>(node)) target = change->lval;
++        if (auto id = Is<Ident>(target); id && id->vdef) written.insert(id->vdef);
++        if (auto loop = Is<ForLoop>(node)) { written.insert(loop->vdef); written.insert(loop->idxdef); }
++        bool valid = true;
++        node->Children([&](Node *child) { if (valid) valid = scan(child); });
++        return valid;
++    };
++    if (!scan(spec->body)) return cached->second;
++    for (uint32_t index = 0; index < spec->params.size(); index++) {
++        auto parameter = spec->params[index];
++        if (IsIntT(parameter->type) && parameter->type->intstorage == IS_I64 &&
++            candidates.count(parameter) && !written.count(parameter)) cached->second.push_back(index);
++    }
++    return cached->second;
++}
++
++inline void Compiler::CollectConstants() {
++    auto consider = [&](Call *call) {
++        auto spec = call->spec;
++        if (!spec || call->builtin >= 0 || call->fvbody || !call->dispatch.empty() ||
++            constant_calls.count(call)) return;
++        const auto &parameters = ConstantDivisors(spec);
++        if (parameters.empty()) return;
++        auto arguments = call->ValueArgNodes();
++        if (arguments.size() != spec->params.size()) return;
++        vector<pair<uint32_t, int64_t>> bindings;
++        bool power_of_two = false;
++        for (auto parameter : parameters) {
++            auto literal = Is<IntLit>(arguments[parameter]);
++            if (!literal || !IsIntT(literal->exprtype) || literal->exprtype->intstorage != IS_I64) continue;
++            bindings.emplace_back(parameter, literal->val);
++            if (literal->val > 0) {
++                auto value = uint64_t(literal->val);
++                if (!(value & (value - 1))) power_of_two = true;
++            }
++        }
++        if (!power_of_two) return;
++        size_t packs = 0;
++        for (size_t index = 0; index < constant_clones.size(); index++) {
++            const auto &clone = constant_clones[index];
++            if (clone.spec != spec) continue;
++            if (clone.bindings == bindings) { constant_calls.emplace(call, index); return; }
++            packs++;
++        }
++        if (packs == 2) return;
++        auto index = uint32_t(imports.size() + specs.size() + constant_clones.size());
++        constant_calls.emplace(call, constant_clones.size());
++        constant_clones.push_back({ spec, std::move(bindings), index });
++    };
++    function<void(Node *)> visit = [&](Node *node) {
++        if (!node || Is<FnDecl>(node) || Is<FunVal>(node) || Is<StructDecl>(node) ||
++            Is<EnumDecl>(node) || Is<AliasDecl>(node)) return;
++        if (auto call = Is<Call>(node)) {
++            consider(call);
++            if (call->fvbody) visit(call->fvbody);
++            if (call->defaultinit) visit(call->defaultinit);
++            for (auto argument : call->ValueArgNodes()) visit(argument);
++            return;
++        }
++        node->Children([&](Node *child) { visit(child); });
++    };
++    for (auto global : ast.globals) for (auto init : global->inits) visit(init);
++    for (auto spec : specs) visit(spec->body);
++}
++
++inline uint32_t Compiler::ConstantTarget(Call *call, uint32_t fallback) {
++    auto found = constant_calls.find(call);
++    if (found == constant_calls.end()) return fallback;
++    const auto &clone = constant_clones[found->second];
++    if (clone.spec != call->spec || call->fvbody || !call->dispatch.empty()) return fallback;
++    return clone.index;
++}
++
++} // namespace goose::direct_wasm
+--- a/compiler/direct_wasm_effects.h
++++ b/compiler/direct_wasm_effects.h
+@@ -135,6 +135,7 @@
+ 
+ inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, bool temporary,
+         optional<uint32_t> publication, uint32_t prefix, bool frame) {
++    if (frame_free) Fail({}, "internal: frame-free leaf registered an owner");
+     if (!c.Effects()) return;
+     if (publication && prefix) {
+         if (!c.may_have_prefix_mappings) Fail(owner.storage_type->line, "internal: unanticipated frame-prefix mapping");
+@@ -172,7 +173,7 @@
+ }
+ 
+ inline void Function::EnterEffectFrame() {
+-    if (!c.Effects()) return;
++    if (!c.Effects() || frame_free) return;
+     code.OpU(0x23, c.effect_frames); Set(previous_effect_frame);
+     FrameAddress(effect_frame); Get(previous_effect_frame); code.Mem(0x36, 2);
+     FrameAddress(effect_frame + 4); Get(framebase); code.Mem(0x36, 2);
+@@ -211,7 +212,7 @@
+ }
+ 
+ inline void Function::LeaveEffectFrame() {
+-    if (!c.Effects()) return;
++    if (!c.Effects() || frame_free) return;
+     if (c.effect_globals.count(spec)) { Get(previous_mailbox); code.OpU(0x24, c.effect_globals.at(spec)); }
+     Get(previous_effect_frame); code.OpU(0x24, c.effect_frames);
+ }
+--- a/compiler/direct_wasm_emit.h
++++ b/compiler/direct_wasm_emit.h
+@@ -12,6 +12,7 @@
+     End();
+ }
+ inline void Function::Dynamic(uint32_t bytes, Line line) {
++    if (frame_free) Fail(line, "internal: frame-free leaf requested scratch storage");
+     code.OpU(0x23, 0); auto base = Save(I32);
+     Get(base); Get(bytes); code.Op(0x6a); auto end = Save(I32);
+     Get(end); Get(base); code.Op(0x49); TrapIf(line, "linear-memory allocation overflow");
+@@ -69,12 +70,14 @@
+                   { results[i], resultlocals[i], CapturedValue::BorrowedFixed });
+         Get(*resultdestinations[i]); Set(resultlocals[i]);
+     }
+-    Get(framebase); code.OpU(0x24, 0);
++    if (!frame_free) { Get(framebase); code.OpU(0x24, 0); }
+     for (auto r : resultlocals) Get(r);
+     auto body = std::move(code.data); code.data.clear();
+     // The fixed frame size is now known. Prepend reservation/checks before
+     // any initializer or store; recursive calls get independent frames.
+-    code.OpU(0x23, 0); Set(framebase);
++    if (!frame_free) { code.OpU(0x23, 0); Set(framebase); }
++    if (frame_free && (framebytes || !owner_entries.empty() || region_peak || !cleanups.empty()))
++        Fail(line, "internal: frame-free leaf changed ownership state");
+     if (framebytes) {
+         framebytes = Compiler::Align(framebytes, 8);
+         Get(framebase); code.I32Const(int32_t(framebytes)); code.Op(0x6a); auto top = Save(I32);
+@@ -218,14 +221,15 @@
+     });
+     for (auto sp : specs) function_type[sp] = Sig(FunctionSig(sp));
+     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
++    CollectConstants();
+     unordered_set<FnSpec *> return_targets;
+     for (auto sp : specs) for (auto target : sp->needs) return_targets.insert(target);
+     vector<FnSpec *> runs;
+     for (auto sp : specs) if (sp->body && sp->rets.size() == 1 &&
+         sp->rets[0]->kind == TY_ARRAY && sp->rets[0]->arr->akind == A_VAR && !return_targets.count(sp)) {
+-        run_index[sp] = uint32_t(imports.size() + specs.size() + runs.size()); runs.push_back(sp);
+-    }
+-    auto startindex = uint32_t(imports.size() + specs.size() + runs.size());
++        run_index[sp] = uint32_t(imports.size() + specs.size() + constant_clones.size() + runs.size()); runs.push_back(sp);
++    }
++    auto startindex = uint32_t(imports.size() + specs.size() + constant_clones.size() + runs.size());
+     if (region_cursors) {
+         prefix_helper = startindex++; header_helper = startindex++;
+     }
+@@ -238,6 +242,15 @@
+         Function f(*this, sp, function_index.at(sp), function_type.at(sp));
+         auto body = f.Finish();
+         string name = string(sp->sf->qname) + "#" + to_string(sp->id);
++        result.function_info.push_back({ name, f.index, body.size(), BodyHash(body),
++                                        vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
++        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
++    }
++    for (size_t index = 0; index < constant_clones.size(); index++) {
++        const auto &clone = constant_clones[index]; auto sp = clone.spec;
++        Function f(*this, sp, clone.index, function_type.at(sp), false, false, clone.bindings);
++        auto body = f.Finish();
++        string name = string(sp->sf->qname) + "_const_" + to_string(index) + "#" + to_string(sp->id);
+         result.function_info.push_back({ name, f.index, body.size(), BodyHash(body),
+                                         vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
+         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
+--- a/compiler/direct_wasm_expr.h
++++ b/compiler/direct_wasm_expr.h
+@@ -36,14 +36,21 @@
+     auto cleanup_depth = cleanups.size();
+     auto private_depth = private_headers.size();
+     auto live = region_live;
+-    if (c.needs_regions) {
++    if (c.needs_regions && !frame_free) {
+         code.OpU(0x23, G_REGION_NEXT);
+         cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
+     }
+     for (size_t i = first_statement; i < b->stmts.size(); i++) {
+         auto s = b->stmts[i];
+         if (auto declaration = Is<VarDecl>(s)) Decl(declaration);
+-        else { auto scope = BeginTempScope(s); Discard(s); EndTempScope(scope); }
++        else {
++            auto scope = BeginTempScope(s);
++            bool folded = false;
++            if (i >= first_statement + 2) if (auto loop = Is<While>(s))
++                folded = FoldPopcount(loop, Is<VarDecl>(b->stmts[i - 2]), Is<VarDecl>(b->stmts[i - 1]));
++            if (!folded) Discard(s);
++            EndTempScope(scope);
++        }
+     }
+     if (b->tail) {
+         auto scope = BeginTempScope(b->tail);
+@@ -54,7 +61,7 @@
+         else SetResults({ b->tail }, types, slots, b->line, destinations);
+         EndTempScope(scope);
+     }
+-    if (c.needs_regions) { CloseCleanups(cleanup_depth); region_live = live; }
++    if (c.needs_regions && !frame_free) { CloseCleanups(cleanup_depth); region_live = live; }
+     private_headers.resize(private_depth);
+ }
+ inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
+@@ -1050,8 +1057,11 @@
+     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
+         code.Op(intrinsic->second);
+     else {
+-        RecordRegionCall(sp, n->line); CallIndex(run ? c.run_index.at(sp) : c.function_index.at(sp));
+-        if (!sp->sf->isextern) CheckPendingEffect(n->line);
++        auto target = c.function_index.at(sp);
++        if (run) target = c.run_index.at(sp);
++        else target = c.ConstantTarget(n, target);
++        RecordRegionCall(sp, n->line); CallIndex(target);
++        if (!sp->sf->isextern && !c.Leaf(sp)) CheckPendingEffect(n->line);
+     }
+     // The frontend forbids results referring into a by-value parameter's
+     // private owner. External references carried by its elements survive.
+@@ -1517,6 +1527,9 @@
+             if (b->op == T_MOD && PowerOfTwoRemainder(b->right, t)) {
+                 Convert(t, n->exprtype, n->line); return;
+             }
++            if (b->op == T_MOD && DynamicRemainder(b->right, t, n->line, b->nonneg)) {
++                Convert(t, n->exprtype, n->line); return;
++            }
+             if (b->op == T_SHL || b->op == T_SHR) { Expr(b->right); Convert(b->right->exprtype, t, n->line); }
+             else To(b->right, t);
+             BinaryOp(b->op, t, n->line, b->nonneg);
+@@ -1600,8 +1613,20 @@
+             auto private_depth = private_headers.size(), temp_depth = temp_scopes.size();
+             auto live = region_live;
+             auto iteration_start = code.data.size();
+-            auto scope = BeginTempScope(w->cond); Truth(w->cond); auto condition = Save(I32); EndTempScope(scope);
+-            Get(condition); code.Op(0x45); Br(done, true);
++            if (unroll) {
++                // Eligible conditions have no materialized temporaries. Branch
++                // on each short-circuit guard instead of merging a bool value.
++                function<void(Node *)> stop = [&](Node *condition) {
++                    if (auto both = Is<Binary>(condition); both && both->op == T_ANDAND) {
++                        stop(both->left); stop(both->right); return;
++                    }
++                    Truth(condition); code.Op(0x45); Br(done, true);
++                };
++                stop(w->cond);
++            } else {
++                auto scope = BeginTempScope(w->cond); Truth(w->cond); auto condition = Save(I32); EndTempScope(scope);
++                Get(condition); code.Op(0x45); Br(done, true);
++            }
+             BlockInto(w->body, {}, {});
+             if (unroll) {
+                 if (labels.size() != label_depth || exits.size() != exit_depth || cleanups.size() != cleanup_depth ||
+--- /dev/null
++++ b/compiler/direct_wasm_leaf.h
+@@ -0,0 +1,70 @@
++#pragma once
++namespace goose::direct_wasm {
++
++inline bool Function::FrameFreeLeaf() {
++    if (!spec || c.effect_globals.count(spec) || !c.captures[spec].empty()) return false;
++    auto scalar = [](TypeExpr *type) {
++        return type && ((IsIntT(type) && !Compiler::Varint(type)) ||
++                        type->kind == TY_FLT || type->kind == TY_BOOL);
++    };
++    auto plain = [&](TypeExpr *type) {
++        return !type || type->kind == TY_VOID || scalar(type) ||
++               (type->kind == TY_SLICE && scalar(type->sub));
++    };
++    auto binding = [&](VarDef *variable) {
++        return !variable || (plain(variable->type) && !addressed.count(variable));
++    };
++    for (auto parameter : spec->params) if (!binding(parameter)) return false;
++    for (auto result : results) if (!plain(result)) return false;
++    // A call-free scalar/view body cannot acquire owners, expose its stack,
++    // or initiate a nonlocal return. Numeric Wasm intrinsics are also leaves.
++    function<bool(Node *)> local = [&](Node *node) {
++        if (!node || Is<FnDecl>(node) || Is<StructDecl>(node) ||
++            Is<EnumDecl>(node) || Is<AliasDecl>(node)) return true;
++        if (!plain(node->exprtype)) return false;
++        switch (node->nkind) {
++            case NK_Ident:
++                if (!binding(static_cast<Ident *>(node)->vdef)) return false;
++                break;
++            case NK_VarDecl:
++                for (auto variable : static_cast<VarDecl *>(node)->defs)
++                    if (!binding(variable)) return false;
++                break;
++            case NK_ForLoop: {
++                auto loop = static_cast<ForLoop *>(node);
++                if (loop->byref || !binding(loop->vdef) || !binding(loop->idxdef)) return false;
++                break;
++            }
++            case NK_Return:
++                if (static_cast<Return *>(node)->target != spec->sf) return false;
++                break;
++            case NK_Call: {
++                auto call = static_cast<Call *>(node);
++                if (call->builtin >= 0 || call->fvbody || !call->dispatch.empty() ||
++                    !c.intrinsic_opcode.count(call->spec)) return false;
++                break;
++            }
++            case NK_Dot:
++                if (static_cast<Dot *>(node)->member != B_LEN) return false;
++                break;
++            case NK_Block: case NK_IfExpr: case NK_While: case NK_LoopExpr:
++            case NK_RangeExpr: case NK_Break: case NK_Continue: case NK_IntLit:
++            case NK_FltLit: case NK_BoolLit: case NK_Unary: case NK_Binary:
++            case NK_AsCast: case NK_Index: case NK_Assign: case NK_IncDec: break;
++            default: return false;
++        }
++        bool valid = true;
++        node->Children([&](Node *child) { if (valid) valid = local(child); });
++        return valid;
++    };
++    return local(spec->body);
++}
++
++inline bool Compiler::Leaf(FnSpec *spec) {
++    if (!spec || spec->sf->isextern) return false;
++    if (auto found = leaf_cache.find(spec); found != leaf_cache.end()) return found->second;
++    Function probe(*this, spec, 0, 0);
++    return probe.frame_free;
++}
++
++} // namespace goose::direct_wasm
+--- a/compiler/direct_wasm_numeric.h
++++ b/compiler/direct_wasm_numeric.h
+@@ -237,19 +237,32 @@
+ 
+ // Goose's remainder is Euclidean, so masking also works for negative
+ // dividends. The caller has evaluated the dividend exactly once; only a
+-// positive literal already checked at the arithmetic width can be omitted.
++// positive constant already checked at the arithmetic width can be omitted.
+ inline bool Function::PowerOfTwoRemainder(Node *right, TypeExpr *type) {
+-    auto literal = Is<IntLit>(right);
+-    if (!literal || !IsIntT(type) || literal->val <= 0 ||
+-        !literal->exprtype || !IsIntT(literal->exprtype) ||
+-        literal->exprtype->intstorage != type->intstorage) return false;
+-    auto divisor = uint64_t(literal->val);
++    auto known = KnownInteger(right, type);
++    if (!known || *known <= 0) return false;
++    auto divisor = uint64_t(*known);
+     if (divisor & (divisor - 1)) return false;
+     Const(type, int64_t(divisor - 1));
+     if (W(type) == I64) code.Op(0x83);
+     else code.Op(0x71);
+     Normalize(type);
+     return true;
++}
++
++inline bool Function::DynamicRemainder(Node *right, TypeExpr *type, Line line, bool nonnegative) {
++    if (!IsIntT(type) || IsUnsigned(type->intstorage) || Compiler::Varint(type) ||
++        W(type) != I64 || Is<IntLit>(right) || KnownInteger(right, type)) return false;
++    To(right, type); auto divisor = Save(I64), dividend = Save(I64);
++    // These wrapping bit operations cannot trap, even for INT64_MIN. Both
++    // source operands have already run once; the fallback keeps its checks.
++    Get(divisor); code.I64Const(0); code.Op(0x55);
++    Get(divisor); Get(divisor); code.I64Const(1); code.Op(0x7d); code.Op(0x83);
++    code.Op(0x50); code.Op(0x71);
++    Begin(0x04, I64);
++    Get(dividend); Get(divisor); code.I64Const(1); code.Op(0x7d); code.Op(0x83);
++    Else(); Get(dividend); Get(divisor); BinaryOp(T_MOD, type, line, nonnegative);
++    End(); return true;
+ }
+ 
+ inline void Function::BinaryOp(TType op, TypeExpr *t, Line line, bool nonnegative) {
+--- a/compiler/direct_wasm_regions.h
++++ b/compiler/direct_wasm_regions.h
+@@ -44,6 +44,7 @@
+ }
+ 
+ inline void Function::RecordRegionCall(FnSpec *callee, Line line) {
++    if (frame_free) Fail(line, "internal: frame-free leaf called a nonintrinsic function");
+     if (c.needs_regions && !callee->sf->isextern)
+         c.region_calls[spec].push_back({ callee, region_live, line });
+ }
+@@ -384,6 +385,7 @@
+ }
+ 
+ inline void Function::AcquireRegion(const Location &place, Line line, optional<uint32_t> global_region, bool temporary) {
++    if (frame_free) Fail(line, "internal: frame-free leaf acquired a region");
+     c.ControlLayout(place.storage_type);
+     LocationAddress(TailHeaderLocation(place)); auto header = Save(I32);
+     if (global_region) code.I32Const(int32_t(*global_region));

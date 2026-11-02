@@ -36,14 +36,21 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
     auto cleanup_depth = cleanups.size();
     auto private_depth = private_headers.size();
     auto live = region_live;
-    if (c.needs_regions) {
+    if (c.needs_regions && !frame_free) {
         code.OpU(0x23, G_REGION_NEXT);
         cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
     }
     for (size_t i = first_statement; i < b->stmts.size(); i++) {
         auto s = b->stmts[i];
         if (auto declaration = Is<VarDecl>(s)) Decl(declaration);
-        else { auto scope = BeginTempScope(s); Discard(s); EndTempScope(scope); }
+        else {
+            auto scope = BeginTempScope(s);
+            bool folded = false;
+            if (i >= first_statement + 2) if (auto loop = Is<While>(s))
+                folded = FoldPopcount(loop, Is<VarDecl>(b->stmts[i - 2]), Is<VarDecl>(b->stmts[i - 1]));
+            if (!folded) Discard(s);
+            EndTempScope(scope);
+        }
     }
     if (b->tail) {
         auto scope = BeginTempScope(b->tail);
@@ -54,7 +61,7 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
         else SetResults({ b->tail }, types, slots, b->line, destinations);
         EndTempScope(scope);
     }
-    if (c.needs_regions) { CloseCleanups(cleanup_depth); region_live = live; }
+    if (c.needs_regions && !frame_free) { CloseCleanups(cleanup_depth); region_live = live; }
     private_headers.resize(private_depth);
 }
 inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
@@ -1050,8 +1057,11 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     if (auto intrinsic = c.intrinsic_opcode.find(sp); intrinsic != c.intrinsic_opcode.end())
         code.Op(intrinsic->second);
     else {
-        RecordRegionCall(sp, n->line); CallIndex(run ? c.run_index.at(sp) : c.function_index.at(sp));
-        if (!sp->sf->isextern) CheckPendingEffect(n->line);
+        auto target = c.function_index.at(sp);
+        if (run) target = c.run_index.at(sp);
+        else target = c.ConstantTarget(n, target);
+        RecordRegionCall(sp, n->line); CallIndex(target);
+        if (!sp->sf->isextern && !c.Leaf(sp)) CheckPendingEffect(n->line);
     }
     // The frontend forbids results referring into a by-value parameter's
     // private owner. External references carried by its elements survive.
@@ -1517,6 +1527,9 @@ inline void Function::Expr(Node *n) {
             if (b->op == T_MOD && PowerOfTwoRemainder(b->right, t)) {
                 Convert(t, n->exprtype, n->line); return;
             }
+            if (b->op == T_MOD && DynamicRemainder(b->right, t, n->line, b->nonneg)) {
+                Convert(t, n->exprtype, n->line); return;
+            }
             if (b->op == T_SHL || b->op == T_SHR) { Expr(b->right); Convert(b->right->exprtype, t, n->line); }
             else To(b->right, t);
             BinaryOp(b->op, t, n->line, b->nonneg);
@@ -1600,8 +1613,20 @@ inline void Function::Expr(Node *n) {
             auto private_depth = private_headers.size(), temp_depth = temp_scopes.size();
             auto live = region_live;
             auto iteration_start = code.data.size();
-            auto scope = BeginTempScope(w->cond); Truth(w->cond); auto condition = Save(I32); EndTempScope(scope);
-            Get(condition); code.Op(0x45); Br(done, true);
+            if (unroll) {
+                // Eligible conditions have no materialized temporaries. Branch
+                // on each short-circuit guard instead of merging a bool value.
+                function<void(Node *)> stop = [&](Node *condition) {
+                    if (auto both = Is<Binary>(condition); both && both->op == T_ANDAND) {
+                        stop(both->left); stop(both->right); return;
+                    }
+                    Truth(condition); code.Op(0x45); Br(done, true);
+                };
+                stop(w->cond);
+            } else {
+                auto scope = BeginTempScope(w->cond); Truth(w->cond); auto condition = Save(I32); EndTempScope(scope);
+                Get(condition); code.Op(0x45); Br(done, true);
+            }
             BlockInto(w->body, {}, {});
             if (unroll) {
                 if (labels.size() != label_depth || exits.size() != exit_depth || cleanups.size() != cleanup_depth ||

@@ -1,0 +1,1653 @@
+{
+  "method": "Linux ITIMER_PROF 1ms initiating-thread RIP samples; attribution only; no elapsed-time claims. Other-thread signal delivery is discarded and counted. Signals may coalesce; samples are not exact instruction costs. Pre-call maps are joined by mapping file offset to ELF section file offset and section VMA. Files must retain their sampled bytes when analyzed; collection manifest records target identities.",
+  "samples": 2287,
+  "profiles": [
+    {
+      "file": "native-00.3814058.0.json",
+      "scope": "main",
+      "samples": 32,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-01.3814060.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-02.3814062.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-03.3814064.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-04.3814066.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-05.3814068.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-06.3814070.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-07.3814072.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-08.3814074.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-09.3814076.0.json",
+      "scope": "main",
+      "samples": 27,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-10.3814078.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-11.3814080.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-12.3814082.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-13.3814084.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-14.3814086.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-15.3814088.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-16.3814090.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-17.3814092.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-18.3814094.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-19.3814096.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-20.3814098.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-21.3814100.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-22.3814102.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-23.3814104.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-24.3814106.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-25.3814108.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-26.3814110.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-27.3814112.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-28.3814114.0.json",
+      "scope": "main",
+      "samples": 20,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-29.3814116.0.json",
+      "scope": "main",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-30.3814118.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-31.3814120.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-32.3814122.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-33.3814124.0.json",
+      "scope": "main",
+      "samples": 14,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-34.3814126.0.json",
+      "scope": "main",
+      "samples": 31,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-35.3814139.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-36.3814141.0.json",
+      "scope": "main",
+      "samples": 32,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-37.3814143.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-38.3814145.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-39.3814147.0.json",
+      "scope": "main",
+      "samples": 32,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-40.3814149.0.json",
+      "scope": "main",
+      "samples": 32,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-41.3814151.0.json",
+      "scope": "main",
+      "samples": 30,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-42.3814153.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-43.3814155.0.json",
+      "scope": "main",
+      "samples": 16,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-44.3814157.0.json",
+      "scope": "main",
+      "samples": 14,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-45.3814159.0.json",
+      "scope": "main",
+      "samples": 33,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-46.3814161.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-47.3814163.0.json",
+      "scope": "main",
+      "samples": 27,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-48.3814165.0.json",
+      "scope": "main",
+      "samples": 15,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "native-49.3814167.0.json",
+      "scope": "main",
+      "samples": 32,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-00.3814059.0.json",
+      "scope": "wasm",
+      "samples": 46,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-01.3814061.0.json",
+      "scope": "wasm",
+      "samples": 44,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-02.3814063.0.json",
+      "scope": "wasm",
+      "samples": 43,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-03.3814065.0.json",
+      "scope": "wasm",
+      "samples": 44,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-04.3814067.0.json",
+      "scope": "wasm",
+      "samples": 43,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-05.3814069.0.json",
+      "scope": "wasm",
+      "samples": 43,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-06.3814071.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-07.3814073.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-08.3814075.0.json",
+      "scope": "wasm",
+      "samples": 43,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-09.3814077.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-10.3814079.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-11.3814081.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-12.3814083.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-13.3814085.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-14.3814087.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-15.3814089.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-16.3814091.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-17.3814093.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-18.3814095.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-19.3814097.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-20.3814099.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-21.3814101.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-22.3814103.0.json",
+      "scope": "wasm",
+      "samples": 44,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-23.3814105.0.json",
+      "scope": "wasm",
+      "samples": 20,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-24.3814107.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-25.3814109.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-26.3814111.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-27.3814113.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-28.3814115.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-29.3814117.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-30.3814119.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-31.3814121.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-32.3814123.0.json",
+      "scope": "wasm",
+      "samples": 43,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-33.3814125.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-34.3814129.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-35.3814140.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-36.3814142.0.json",
+      "scope": "wasm",
+      "samples": 20,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-37.3814144.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-38.3814146.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-39.3814148.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-40.3814150.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-41.3814152.0.json",
+      "scope": "wasm",
+      "samples": 37,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-42.3814154.0.json",
+      "scope": "wasm",
+      "samples": 43,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-43.3814156.0.json",
+      "scope": "wasm",
+      "samples": 39,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-44.3814158.0.json",
+      "scope": "wasm",
+      "samples": 43,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-45.3814160.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-46.3814162.0.json",
+      "scope": "wasm",
+      "samples": 44,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-47.3814164.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-48.3814166.0.json",
+      "scope": "wasm",
+      "samples": 22,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    },
+    {
+      "file": "wasm-49.3814168.0.json",
+      "scope": "wasm",
+      "samples": 21,
+      "dropped_capacity": 0,
+      "other_thread_deliveries": 0
+    }
+  ],
+  "functions": [
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4",
+      1300
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g",
+      925
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0",
+      59
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!main",
+      1
+    ],
+    [
+      "/usr/lib/libc.so.6!_int_malloc",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[13]::publish_header",
+      1
+    ]
+  ],
+  "instructions": [
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x264: test   %rdx,%rdx",
+      435
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x83: mov    %rdx,%rdi",
+      302
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2a0: mov    %r14d,0x180(%r15)",
+      241
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xaa: add    $0x1,%rsi",
+      151
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x98: lea    (%rax,%rcx,1),%rdx",
+      88
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x17f: mov    %rdx,%rcx",
+      77
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x293: jae    5127 <wasm[0]::function[11]::neighbours#4+0x387>",
+      71
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2da: mov    %rsi,%r15",
+      67
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x213: jl     4fc1 <wasm[0]::function[11]::neighbours#4+0x221>",
+      66
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x267: jge    5026 <wasm[0]::function[11]::neighbours#4+0x286>",
+      65
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x9f: jae    2cec <step_g+0x19c>",
+      63
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x9c: cmp    %r13,%rdx",
+      63
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x28a: mov    %rsi,%rax",
+      53
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x210: test   %rdx,%rdx",
+      48
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x8a: mov    %rdi,%rdx",
+      44
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x290: cmp    %rcx,%rax",
+      38
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x91: mov    %rdx,%rax",
+      35
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1d4: jmp    4f7e <wasm[0]::function[11]::neighbours#4+0x1de>",
+      21
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1de: test   %eax,%eax",
+      19
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2f8: mov    (%rsp),%r10",
+      18
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x18e: test   %r8,%r8",
+      18
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x31f: mov    %rcx,0x10(%rsp)",
+      17
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x70: cmp    $0xffffffffffffffff,%r14",
+      14
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1ae: mov    %rdi,%rcx",
+      14
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1e0: jne    5059 <wasm[0]::function[11]::neighbours#4+0x2b9>",
+      12
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x12d: add    $0x1,%rbp",
+      10
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x7f: idivq  (%rsp)",
+      10
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x341: mov    0x58(%rsp),%rcx",
+      9
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x251: jne    5001 <wasm[0]::function[11]::neighbours#4+0x261>",
+      9
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xfa: jae    2d0f <step_g+0x1bf>",
+      7
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xce: idiv   %r8",
+      7
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x17c: idiv   %r8",
+      7
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xd1: mov    %rdx,%rcx",
+      7
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x13f: mov    %rcx,0x48(%rsp)",
+      7
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x128: mov    0x20(%rsp),%rcx",
+      6
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x125: xor    $0x1,%eax",
+      6
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e95: cmp    $0x3,%rax",
+      6
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e60: call   4da0 <wasm[0]::function[11]::neighbours#4>",
+      6
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x115: mov    %ecx,(%rbx,%rax,1)",
+      6
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x134: add    $0x1,%rdi",
+      5
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x16: ja     5208 <wasm[0]::function[11]::neighbours#4+0x468>",
+      5
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x74: jne    2ce0 <step_g+0x190>",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x8e: cmp    %edx,%esi",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x161: neg    %r12",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x66: jb     51e3 <wasm[0]::function[11]::neighbours#4+0x443>",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2afb: cmp    $0x3,%rax",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ecd: jmp    2ed7 <wasm[0]::function[9]::main#0+0x2ed7>",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x371: mov    0x90(%rsp),%r15",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x48: mov    %rcx,%r13",
+      4
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x69: mov    %r14,%rsi",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x5a: idiv   %r8",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x123: or     %edx,%eax",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x4e: xor    %r10d,%r10d",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e69: mov    0x10(%rsp),%rsi",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b6f: mov    0x10(%rsp),%rsi",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b33: jmp    2b3d <wasm[0]::function[9]::main#0+0x2b3d>",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x191: sete   %cl",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xf2: mov    0x38(%r15),%rbx",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e44: mov    $0x20,%r8d",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2aa9: mov    $0x40,%ecx",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b6c: mov    %al,(%rsi,%rdx,1)",
+      3
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x17a: cqto",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x94: imul   %r8,%rax",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x7a: mov    %r11,%rax",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ac2: mov    %rbx,%r9",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x18b: xor    %r12,%r12",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2dd: mov    %r10,(%rsp)",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ed7: test   %eax,%eax",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x13: cmp    %rsp,%r10",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2a97: jge    2d4c <wasm[0]::function[9]::main#0+0x2d4c>",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x61: lea    0x10(%rcx),%eax",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x29b: movzbq (%rbx,%rax,1),%rax",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1fd: jne    4fad <wasm[0]::function[11]::neighbours#4+0x20d>",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1b1: shr    $0x20,%rcx",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e32: jge    30ed <wasm[0]::function[9]::main#0+0x30ed>",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xf6: mov    0x60(%rsp),%rax",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ac5: call   4da0 <wasm[0]::function[11]::neighbours#4>",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b3d: test   %eax,%eax",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xc: add    $0xb0,%r10",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ef6: mov    0x40(%rsp),%rsi",
+      2
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!main+0xb37: movups %xmm0,0x0(%rbp)",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x14f: add    $0x1,%rdx",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x15c: mov    %r13,0x40(%rsp)",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2d67: add    $0x1,%r15",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x4b: mov    %rdx,%r14",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x52: mov    0x10(%rbp),%rsi",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2f08: mov    0x10(%rsp),%rsi",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x240: je     514f <wasm[0]::function[11]::neighbours#4+0x3af>",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2b1: mov    %r15,%rsi",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2e1: mov    %rax,0x18(%rsp)",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2f0: mov    0x30(%rsp),%rcx",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x172: jge    50ce <wasm[0]::function[11]::neighbours#4+0x32e>",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1e9: je     5174 <wasm[0]::function[11]::neighbours#4+0x3d4>",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1: mov    %rsp,%rbp",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x90: ja     4e41 <wasm[0]::function[11]::neighbours#4+0xa1>",
+      1
+    ],
+    [
+      "/usr/lib/libc.so.6!_int_malloc+0x9cb: mov    %rax,0x8(%rdx)",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1a2: lea    (%rdi,%r8,1),%rax",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b5c: mov    0x30(%rsp),%r8",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x118: xor    %eax,%eax",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x16e: cmp    $0x2,%r8",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ace: mov    0x10(%rsp),%rsi",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x6f: cmp    $0x2aafe0,%eax",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x19d: mov    %rsi,0x28(%rsp)",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2aae: mov    $0x20,%r8d",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xeb: mov    0x1e0(%r15),%esi",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b3f: jne    2b52 <wasm[0]::function[9]::main#0+0x2b52>",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b61: add    %r8d,%edx",
+      1
+    ],
+    [
+      "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[13]::publish_header+0x2b: mov    %r14,0x18(%rsp)",
+      1
+    ]
+  ],
+  "unknown": [],
+  "modes": {
+    "main": {
+      "samples": 926,
+      "functions": [
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g",
+          925
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!main",
+          1
+        ]
+      ],
+      "instructions": [
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x83: mov    %rdx,%rdi",
+          302
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xaa: add    $0x1,%rsi",
+          151
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x98: lea    (%rax,%rcx,1),%rdx",
+          88
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x17f: mov    %rdx,%rcx",
+          77
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x9f: jae    2cec <step_g+0x19c>",
+          63
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x9c: cmp    %r13,%rdx",
+          63
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x8a: mov    %rdi,%rdx",
+          44
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x91: mov    %rdx,%rax",
+          35
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x70: cmp    $0xffffffffffffffff,%r14",
+          14
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x12d: add    $0x1,%rbp",
+          10
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x7f: idivq  (%rsp)",
+          10
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xfa: jae    2d0f <step_g+0x1bf>",
+          7
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xce: idiv   %r8",
+          7
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x17c: idiv   %r8",
+          7
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0xd1: mov    %rdx,%rcx",
+          7
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x128: mov    0x20(%rsp),%rcx",
+          6
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x125: xor    $0x1,%eax",
+          6
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x134: add    $0x1,%rdi",
+          5
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x74: jne    2ce0 <step_g+0x190>",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x69: mov    %r14,%rsi",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x5a: idiv   %r8",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x123: or     %edx,%eax",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x4e: xor    %r10d,%r10d",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x17a: cqto",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x94: imul   %r8,%rax",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x7a: mov    %r11,%rax",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!main+0xb37: movups %xmm0,0x0(%rbp)",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin!step_g+0x14f: add    $0x1,%rdx",
+          1
+        ]
+      ]
+    },
+    "wasm": {
+      "samples": 1361,
+      "functions": [
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4",
+          1300
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0",
+          59
+        ],
+        [
+          "/usr/lib/libc.so.6!_int_malloc",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[13]::publish_header",
+          1
+        ]
+      ],
+      "instructions": [
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x264: test   %rdx,%rdx",
+          435
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2a0: mov    %r14d,0x180(%r15)",
+          241
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x293: jae    5127 <wasm[0]::function[11]::neighbours#4+0x387>",
+          71
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2da: mov    %rsi,%r15",
+          67
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x213: jl     4fc1 <wasm[0]::function[11]::neighbours#4+0x221>",
+          66
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x267: jge    5026 <wasm[0]::function[11]::neighbours#4+0x286>",
+          65
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x28a: mov    %rsi,%rax",
+          53
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x210: test   %rdx,%rdx",
+          48
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x290: cmp    %rcx,%rax",
+          38
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1d4: jmp    4f7e <wasm[0]::function[11]::neighbours#4+0x1de>",
+          21
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1de: test   %eax,%eax",
+          19
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2f8: mov    (%rsp),%r10",
+          18
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x18e: test   %r8,%r8",
+          18
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x31f: mov    %rcx,0x10(%rsp)",
+          17
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1ae: mov    %rdi,%rcx",
+          14
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1e0: jne    5059 <wasm[0]::function[11]::neighbours#4+0x2b9>",
+          12
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x341: mov    0x58(%rsp),%rcx",
+          9
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x251: jne    5001 <wasm[0]::function[11]::neighbours#4+0x261>",
+          9
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x13f: mov    %rcx,0x48(%rsp)",
+          7
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e95: cmp    $0x3,%rax",
+          6
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e60: call   4da0 <wasm[0]::function[11]::neighbours#4>",
+          6
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x115: mov    %ecx,(%rbx,%rax,1)",
+          6
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x16: ja     5208 <wasm[0]::function[11]::neighbours#4+0x468>",
+          5
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x8e: cmp    %edx,%esi",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x161: neg    %r12",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x66: jb     51e3 <wasm[0]::function[11]::neighbours#4+0x443>",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2afb: cmp    $0x3,%rax",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ecd: jmp    2ed7 <wasm[0]::function[9]::main#0+0x2ed7>",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x371: mov    0x90(%rsp),%r15",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x48: mov    %rcx,%r13",
+          4
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e69: mov    0x10(%rsp),%rsi",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b6f: mov    0x10(%rsp),%rsi",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b33: jmp    2b3d <wasm[0]::function[9]::main#0+0x2b3d>",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x191: sete   %cl",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xf2: mov    0x38(%r15),%rbx",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e44: mov    $0x20,%r8d",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2aa9: mov    $0x40,%ecx",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b6c: mov    %al,(%rsi,%rdx,1)",
+          3
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ac2: mov    %rbx,%r9",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x18b: xor    %r12,%r12",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2dd: mov    %r10,(%rsp)",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ed7: test   %eax,%eax",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x13: cmp    %rsp,%r10",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2a97: jge    2d4c <wasm[0]::function[9]::main#0+0x2d4c>",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x61: lea    0x10(%rcx),%eax",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x29b: movzbq (%rbx,%rax,1),%rax",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1fd: jne    4fad <wasm[0]::function[11]::neighbours#4+0x20d>",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1b1: shr    $0x20,%rcx",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2e32: jge    30ed <wasm[0]::function[9]::main#0+0x30ed>",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xf6: mov    0x60(%rsp),%rax",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ac5: call   4da0 <wasm[0]::function[11]::neighbours#4>",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b3d: test   %eax,%eax",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xc: add    $0xb0,%r10",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ef6: mov    0x40(%rsp),%rsi",
+          2
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x15c: mov    %r13,0x40(%rsp)",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2d67: add    $0x1,%r15",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x4b: mov    %rdx,%r14",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x52: mov    0x10(%rbp),%rsi",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2f08: mov    0x10(%rsp),%rsi",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x240: je     514f <wasm[0]::function[11]::neighbours#4+0x3af>",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2b1: mov    %r15,%rsi",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2e1: mov    %rax,0x18(%rsp)",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x2f0: mov    0x30(%rsp),%rcx",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x172: jge    50ce <wasm[0]::function[11]::neighbours#4+0x32e>",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1e9: je     5174 <wasm[0]::function[11]::neighbours#4+0x3d4>",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1: mov    %rsp,%rbp",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x90: ja     4e41 <wasm[0]::function[11]::neighbours#4+0xa1>",
+          1
+        ],
+        [
+          "/usr/lib/libc.so.6!_int_malloc+0x9cb: mov    %rax,0x8(%rdx)",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x1a2: lea    (%rdi,%r8,1),%rax",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b5c: mov    0x30(%rsp),%r8",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x118: xor    %eax,%eax",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x16e: cmp    $0x2,%r8",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2ace: mov    0x10(%rsp),%rsi",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x6f: cmp    $0x2aafe0,%eax",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0x19d: mov    %rsi,0x28(%rsp)",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2aae: mov    $0x20,%r8d",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[11]::neighbours#4+0xeb: mov    0x1e0(%r15),%esi",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b3f: jne    2b52 <wasm[0]::function[9]::main#0+0x2b52>",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x2b61: add    %r8d,%edx",
+          1
+        ],
+        [
+          "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm!wasm[0]::function[13]::publish_header+0x2b: mov    %r14,0x18(%rsp)",
+          1
+        ]
+      ]
+    }
+  },
+  "images": {
+    "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin": {
+      "sha256": "1db977e97a62132939eef83210acc6a7a9aef73e3dc04cc017cad2d24e71fd7c",
+      "symbol_count": 9
+    },
+    "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm": {
+      "sha256": "5fc78a081a20e6a5e080281a32bc15a2ea6b5c0e5b75473421a3f81205718926",
+      "symbol_count": 22
+    },
+    "/usr/lib/libc.so.6": {
+      "sha256": "071e34179e645b25f8a8c2e7108894dc665caa9f5f8c939cd579a75b6638bc3f",
+      "symbol_count": 6830
+    }
+  }
+}

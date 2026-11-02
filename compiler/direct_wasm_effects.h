@@ -135,6 +135,7 @@ inline void Compiler::AnalyzeEffects() {
 
 inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, bool temporary,
         optional<uint32_t> publication, uint32_t prefix, bool frame) {
+    if (frame_free) Fail({}, "internal: frame-free leaf registered an owner");
     if (!c.Effects()) return;
     if (publication && prefix) {
         if (!c.may_have_prefix_mappings) Fail(owner.storage_type->line, "internal: unanticipated frame-prefix mapping");
@@ -172,7 +173,7 @@ inline void Function::ClearEffectOwner(uint32_t offset) {
 }
 
 inline void Function::EnterEffectFrame() {
-    if (!c.Effects()) return;
+    if (!c.Effects() || frame_free) return;
     code.OpU(0x23, c.effect_frames); Set(previous_effect_frame);
     FrameAddress(effect_frame); Get(previous_effect_frame); code.Mem(0x36, 2);
     FrameAddress(effect_frame + 4); Get(framebase); code.Mem(0x36, 2);
@@ -211,7 +212,7 @@ inline void Function::EnterEffectFrame() {
 }
 
 inline void Function::LeaveEffectFrame() {
-    if (!c.Effects()) return;
+    if (!c.Effects() || frame_free) return;
     if (c.effect_globals.count(spec)) { Get(previous_mailbox); code.OpU(0x24, c.effect_globals.at(spec)); }
     Get(previous_effect_frame); code.OpU(0x24, c.effect_frames);
 }

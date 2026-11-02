@@ -237,19 +237,32 @@ inline void Function::FloatRemainder(TypeExpr *t) {
 
 // Goose's remainder is Euclidean, so masking also works for negative
 // dividends. The caller has evaluated the dividend exactly once; only a
-// positive literal already checked at the arithmetic width can be omitted.
+// positive constant already checked at the arithmetic width can be omitted.
 inline bool Function::PowerOfTwoRemainder(Node *right, TypeExpr *type) {
-    auto literal = Is<IntLit>(right);
-    if (!literal || !IsIntT(type) || literal->val <= 0 ||
-        !literal->exprtype || !IsIntT(literal->exprtype) ||
-        literal->exprtype->intstorage != type->intstorage) return false;
-    auto divisor = uint64_t(literal->val);
+    auto known = KnownInteger(right, type);
+    if (!known || *known <= 0) return false;
+    auto divisor = uint64_t(*known);
     if (divisor & (divisor - 1)) return false;
     Const(type, int64_t(divisor - 1));
     if (W(type) == I64) code.Op(0x83);
     else code.Op(0x71);
     Normalize(type);
     return true;
+}
+
+inline bool Function::DynamicRemainder(Node *right, TypeExpr *type, Line line, bool nonnegative) {
+    if (!IsIntT(type) || IsUnsigned(type->intstorage) || Compiler::Varint(type) ||
+        W(type) != I64 || Is<IntLit>(right) || KnownInteger(right, type)) return false;
+    To(right, type); auto divisor = Save(I64), dividend = Save(I64);
+    // These wrapping bit operations cannot trap, even for INT64_MIN. Both
+    // source operands have already run once; the fallback keeps its checks.
+    Get(divisor); code.I64Const(0); code.Op(0x55);
+    Get(divisor); Get(divisor); code.I64Const(1); code.Op(0x7d); code.Op(0x83);
+    code.Op(0x50); code.Op(0x71);
+    Begin(0x04, I64);
+    Get(dividend); Get(divisor); code.I64Const(1); code.Op(0x7d); code.Op(0x83);
+    Else(); Get(dividend); Get(divisor); BinaryOp(T_MOD, type, line, nonnegative);
+    End(); return true;
 }
 
 inline void Function::BinaryOp(TType op, TypeExpr *t, Line line, bool nonnegative) {

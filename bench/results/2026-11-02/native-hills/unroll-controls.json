@@ -1,0 +1,1398 @@
+{
+  "status": "passed",
+  "method": "Immutable Wasm unroll control from final four-copy compiler candidate: locate the inner insertion-sort loop and verify its four exact balanced iteration copies, then emit4/8/16 copies with original branch depths/locals/traps/store order. Uninstrumented source algorithm unchanged; default engines; entry includes lazy JIT. Diagnostic experiment; qualification still required after selecting source emitter factor.",
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll_controls.py": "0a42c5e2fccf0e365d82af5be429261b06a4978c0131a703b81fe0eb6f307abb",
+    "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-probe/sorting.wasm": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+    "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+    "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+    "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341"
+  },
+  "observations": [
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 426228,
+        "start_function_ns": 74979806,
+        "engine_total_ns": 75406034
+      },
+      "entry_seconds": 0.074979806,
+      "process_seconds": 0.1356341
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 15968316,
+        "start_function_ns": 112139610,
+        "engine_total_ns": 128107926
+      },
+      "entry_seconds": 0.11213961,
+      "process_seconds": 0.132474295
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 18501934,
+        "start_function_ns": 60960784,
+        "engine_total_ns": 79462718
+      },
+      "entry_seconds": 0.060960784,
+      "process_seconds": 0.083379086
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 383386,
+        "start_function_ns": 73480287,
+        "engine_total_ns": 73863673
+      },
+      "entry_seconds": 0.073480287,
+      "process_seconds": 0.120422919
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 20935393,
+        "start_function_ns": 72401744,
+        "engine_total_ns": 93337137
+      },
+      "entry_seconds": 0.072401744,
+      "process_seconds": 0.098559759
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 436577,
+        "start_function_ns": 71454771,
+        "engine_total_ns": 71891348
+      },
+      "entry_seconds": 0.071454771,
+      "process_seconds": 0.115123263
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 20065365,
+        "start_function_ns": 78275260,
+        "engine_total_ns": 98340625
+      },
+      "entry_seconds": 0.07827526,
+      "process_seconds": 0.103120328
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 554821,
+        "start_function_ns": 80976907,
+        "engine_total_ns": 81531728
+      },
+      "entry_seconds": 0.080976907,
+      "process_seconds": 0.137986678
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16765886,
+        "start_function_ns": 114226886,
+        "engine_total_ns": 130992772
+      },
+      "entry_seconds": 0.114226886,
+      "process_seconds": 0.135403866
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 394507,
+        "start_function_ns": 68866429,
+        "engine_total_ns": 69260936
+      },
+      "entry_seconds": 0.068866429,
+      "process_seconds": 0.105040796
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 28880943,
+        "start_function_ns": 59461865,
+        "engine_total_ns": 88342808
+      },
+      "entry_seconds": 0.059461865,
+      "process_seconds": 0.092154709
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 402562,
+        "start_function_ns": 73638328,
+        "engine_total_ns": 74040890
+      },
+      "entry_seconds": 0.073638328,
+      "process_seconds": 0.119083845
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 340154,
+        "start_function_ns": 74505880,
+        "engine_total_ns": 74846034
+      },
+      "entry_seconds": 0.07450588,
+      "process_seconds": 0.118119097
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 28215323,
+        "start_function_ns": 112015797,
+        "engine_total_ns": 140231120
+      },
+      "entry_seconds": 0.112015797,
+      "process_seconds": 0.144905404
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 387534,
+        "start_function_ns": 73655642,
+        "engine_total_ns": 74043176
+      },
+      "entry_seconds": 0.073655642,
+      "process_seconds": 0.120745564
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 25028025,
+        "start_function_ns": 77824578,
+        "engine_total_ns": 102852603
+      },
+      "entry_seconds": 0.077824578,
+      "process_seconds": 0.10685776
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 527469,
+        "start_function_ns": 86297656,
+        "engine_total_ns": 86825125
+      },
+      "entry_seconds": 0.086297656,
+      "process_seconds": 0.146099046
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16454176,
+        "start_function_ns": 66868425,
+        "engine_total_ns": 83322601
+      },
+      "entry_seconds": 0.066868425,
+      "process_seconds": 0.087253457
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 365973,
+        "start_function_ns": 75220315,
+        "engine_total_ns": 75586288
+      },
+      "entry_seconds": 0.075220315,
+      "process_seconds": 0.105957555
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 391822,
+        "start_function_ns": 77103903,
+        "engine_total_ns": 77495725
+      },
+      "entry_seconds": 0.077103903,
+      "process_seconds": 0.118062412
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 15723723,
+        "start_function_ns": 57149537,
+        "engine_total_ns": 72873260
+      },
+      "entry_seconds": 0.057149537,
+      "process_seconds": 0.076318115
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16520221,
+        "start_function_ns": 113303639,
+        "engine_total_ns": 129823860
+      },
+      "entry_seconds": 0.113303639,
+      "process_seconds": 0.133759534
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16484854,
+        "start_function_ns": 66693995,
+        "engine_total_ns": 83178849
+      },
+      "entry_seconds": 0.066693995,
+      "process_seconds": 0.087542705
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 409285,
+        "start_function_ns": 72378113,
+        "engine_total_ns": 72787398
+      },
+      "entry_seconds": 0.072378113,
+      "process_seconds": 0.123452244
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 433912,
+        "start_function_ns": 69671406,
+        "engine_total_ns": 70105318
+      },
+      "entry_seconds": 0.069671406,
+      "process_seconds": 0.133665628
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 495648,
+        "start_function_ns": 90036210,
+        "engine_total_ns": 90531858
+      },
+      "entry_seconds": 0.09003621,
+      "process_seconds": 0.139468791
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 27365223,
+        "start_function_ns": 80446695,
+        "engine_total_ns": 107811918
+      },
+      "entry_seconds": 0.080446695,
+      "process_seconds": 0.113001969
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 20930084,
+        "start_function_ns": 113629377,
+        "engine_total_ns": 134559461
+      },
+      "entry_seconds": 0.113629377,
+      "process_seconds": 0.139738842
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 348099,
+        "start_function_ns": 73848057,
+        "engine_total_ns": 74196156
+      },
+      "entry_seconds": 0.073848057,
+      "process_seconds": 0.118063697
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 28827303,
+        "start_function_ns": 63569458,
+        "engine_total_ns": 92396761
+      },
+      "entry_seconds": 0.063569458,
+      "process_seconds": 0.097553228
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16968369,
+        "start_function_ns": 113231976,
+        "engine_total_ns": 130200345
+      },
+      "entry_seconds": 0.113231976,
+      "process_seconds": 0.133547907
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16657902,
+        "start_function_ns": 66233766,
+        "engine_total_ns": 82891668
+      },
+      "entry_seconds": 0.066233766,
+      "process_seconds": 0.086649305
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 15531299,
+        "start_function_ns": 62909218,
+        "engine_total_ns": 78440517
+      },
+      "entry_seconds": 0.062909218,
+      "process_seconds": 0.081625931
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 378147,
+        "start_function_ns": 76935136,
+        "engine_total_ns": 77313283
+      },
+      "entry_seconds": 0.076935136,
+      "process_seconds": 0.110686004
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 339403,
+        "start_function_ns": 74034501,
+        "engine_total_ns": 74373904
+      },
+      "entry_seconds": 0.074034501,
+      "process_seconds": 0.117124741
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 413022,
+        "start_function_ns": 68648169,
+        "engine_total_ns": 69061191
+      },
+      "entry_seconds": 0.068648169,
+      "process_seconds": 0.115898307
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 401932,
+        "start_function_ns": 74270007,
+        "engine_total_ns": 74671939
+      },
+      "entry_seconds": 0.074270007,
+      "process_seconds": 0.120273635
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 469629,
+        "start_function_ns": 90720999,
+        "engine_total_ns": 91190628
+      },
+      "entry_seconds": 0.090720999,
+      "process_seconds": 0.12804272
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 15342000,
+        "start_function_ns": 115776667,
+        "engine_total_ns": 131118667
+      },
+      "entry_seconds": 0.115776667,
+      "process_seconds": 0.134849554
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17605647,
+        "start_function_ns": 61529275,
+        "engine_total_ns": 79134922
+      },
+      "entry_seconds": 0.061529275,
+      "process_seconds": 0.082554419
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16597799,
+        "start_function_ns": 94566243,
+        "engine_total_ns": 111164042
+      },
+      "entry_seconds": 0.094566243,
+      "process_seconds": 0.114603477
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 425997,
+        "start_function_ns": 73757648,
+        "engine_total_ns": 74183645
+      },
+      "entry_seconds": 0.073757648,
+      "process_seconds": 0.107566418
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 433170,
+        "start_function_ns": 85656868,
+        "engine_total_ns": 86090038
+      },
+      "entry_seconds": 0.085656868,
+      "process_seconds": 0.123933089
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 16739076,
+        "start_function_ns": 115210767,
+        "engine_total_ns": 131949843
+      },
+      "entry_seconds": 0.115210767,
+      "process_seconds": 0.13577
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 363338,
+        "start_function_ns": 78582608,
+        "engine_total_ns": 78945946
+      },
+      "entry_seconds": 0.078582608,
+      "process_seconds": 0.12188011
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 15667567,
+        "start_function_ns": 58043734,
+        "engine_total_ns": 73711301
+      },
+      "entry_seconds": 0.058043734,
+      "process_seconds": 0.078539396
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 620035,
+        "start_function_ns": 88222697,
+        "engine_total_ns": 88842732
+      },
+      "entry_seconds": 0.088222697,
+      "process_seconds": 0.13563842
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 27555404,
+        "start_function_ns": 84475309,
+        "engine_total_ns": 112030713
+      },
+      "entry_seconds": 0.084475309,
+      "process_seconds": 0.116248773
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 505137,
+        "start_function_ns": 73176248,
+        "engine_total_ns": 73681385
+      },
+      "entry_seconds": 0.073176248,
+      "process_seconds": 0.131676317
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 353079,
+        "start_function_ns": 75940003,
+        "engine_total_ns": 76293082
+      },
+      "entry_seconds": 0.075940003,
+      "process_seconds": 0.111603987
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 22523503,
+        "start_function_ns": 63041472,
+        "engine_total_ns": 85564975
+      },
+      "entry_seconds": 0.063041472,
+      "process_seconds": 0.089386284
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 414525,
+        "start_function_ns": 71022569,
+        "engine_total_ns": 71437094
+      },
+      "entry_seconds": 0.071022569,
+      "process_seconds": 0.112120526
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17023926,
+        "start_function_ns": 114115024,
+        "engine_total_ns": 131138950
+      },
+      "entry_seconds": 0.114115024,
+      "process_seconds": 0.135516702
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 22496683,
+        "start_function_ns": 67004358,
+        "engine_total_ns": 89501041
+      },
+      "entry_seconds": 0.067004358,
+      "process_seconds": 0.094697253
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "engine": "wasmtime",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30484804,
+        "start_function_ns": 84746835,
+        "engine_total_ns": 115231639
+      },
+      "entry_seconds": 0.084746835,
+      "process_seconds": 0.119125715
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "engine": "wasmtime",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 15683768,
+        "start_function_ns": 66159748,
+        "engine_total_ns": 81843516
+      },
+      "entry_seconds": 0.066159748,
+      "process_seconds": 0.085843472
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "engine": "v8",
+      "factor": 8,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll8.wasm",
+      "artifact_sha256": "afd801694c7c2f8e795bf29e50f2282a0a32a2336bec074253a5d65e1a5101fa",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 435325,
+        "start_function_ns": 74083416,
+        "engine_total_ns": 74518741
+      },
+      "entry_seconds": 0.074083416,
+      "process_seconds": 0.118939973
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "engine": "wasmtime",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 24975699,
+        "start_function_ns": 112914691,
+        "engine_total_ns": 137890390
+      },
+      "entry_seconds": 0.112914691,
+      "process_seconds": 0.14167069
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "engine": "v8",
+      "factor": 16,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll16.wasm",
+      "artifact_sha256": "113e43bdd1ec35a4afbd018c9c24e8a6f3d299dcae808ff1f5a9707fcb768cbd",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 470260,
+        "start_function_ns": 72392526,
+        "engine_total_ns": 72862786
+      },
+      "entry_seconds": 0.072392526,
+      "process_seconds": 0.120047272
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "engine": "v8",
+      "factor": 4,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-hills/unroll-controls/unroll4.wasm",
+      "artifact_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 420177,
+        "start_function_ns": 72758388,
+        "engine_total_ns": 73178565
+      },
+      "entry_seconds": 0.072758388,
+      "process_seconds": 0.116843263
+    }
+  ],
+  "summary": [
+    {
+      "engine": "v8",
+      "factor": 4,
+      "entry_seconds": {
+        "median": 0.07450588,
+        "mad": 0.0008675519999999937,
+        "samples": [
+          0.073638328,
+          0.07450588,
+          0.075220315,
+          0.073848057,
+          0.074034501,
+          0.090720999,
+          0.078582608,
+          0.075940003,
+          0.072758388
+        ]
+      },
+      "paired_speedup": {
+        "median": 1.0,
+        "mad": 0.0,
+        "samples": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "module_bytes": 63755
+    },
+    {
+      "engine": "v8",
+      "factor": 8,
+      "entry_seconds": {
+        "median": 0.076935136,
+        "mad": 0.003279494000000008,
+        "samples": [
+          0.080976907,
+          0.073655642,
+          0.077103903,
+          0.09003621,
+          0.076935136,
+          0.074270007,
+          0.085656868,
+          0.071022569,
+          0.074083416
+        ]
+      },
+      "paired_speedup": {
+        "median": 0.975570782713814,
+        "mad": 0.05815913978519327,
+        "samples": [
+          0.9093744220188603,
+          1.0115434198509872,
+          0.975570782713814,
+          0.8202039712688927,
+          0.9622976555211393,
+          1.2215024969635455,
+          0.9174116429286208,
+          1.0692376250146627,
+          0.9821143776631466
+        ]
+      },
+      "module_bytes": 64179
+    },
+    {
+      "engine": "v8",
+      "factor": 16,
+      "entry_seconds": {
+        "median": 0.072392526,
+        "mad": 0.0027211199999999935,
+        "samples": [
+          0.068866429,
+          0.086297656,
+          0.072378113,
+          0.069671406,
+          0.068648169,
+          0.073757648,
+          0.088222697,
+          0.073176248,
+          0.072392526
+        ]
+      },
+      "paired_speedup": {
+        "median": 1.039268804921731,
+        "mad": 0.03421494065955555,
+        "samples": [
+          1.0692920929586751,
+          0.8633592550879945,
+          1.039268804921731,
+          1.0599478500548702,
+          1.078462864756087,
+          1.2299876888699055,
+          0.8907300578217416,
+          1.0377684709934842,
+          1.0050538642621754
+        ]
+      },
+      "module_bytes": 65027
+    },
+    {
+      "engine": "wasmtime",
+      "factor": 4,
+      "entry_seconds": {
+        "median": 0.062909218,
+        "mad": 0.0034473530000000002,
+        "samples": [
+          0.059461865,
+          0.077824578,
+          0.057149537,
+          0.063569458,
+          0.062909218,
+          0.061529275,
+          0.058043734,
+          0.063041472,
+          0.084746835
+        ]
+      },
+      "paired_speedup": {
+        "median": 1.0,
+        "mad": 0.0,
+        "samples": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "module_bytes": 63755
+    },
+    {
+      "engine": "wasmtime",
+      "factor": 8,
+      "entry_seconds": {
+        "median": 0.067004358,
+        "mad": 0.0008446099999999956,
+        "samples": [
+          0.07827526,
+          0.066868425,
+          0.066693995,
+          0.080446695,
+          0.066233766,
+          0.094566243,
+          0.084475309,
+          0.067004358,
+          0.066159748
+        ]
+      },
+      "paired_speedup": {
+        "median": 0.8568917936314956,
+        "mad": 0.09724097931289732,
+        "samples": [
+          0.7596508143185983,
+          1.1638464342475543,
+          0.8568917936314956,
+          0.7902059618484015,
+          0.9498058437444128,
+          0.6506473456918449,
+          0.6871088686991367,
+          0.9408562947502609,
+          1.280942530192225
+        ]
+      },
+      "module_bytes": 64179
+    },
+    {
+      "engine": "wasmtime",
+      "factor": 16,
+      "entry_seconds": {
+        "median": 0.113629377,
+        "mad": 0.0005975089999999961,
+        "samples": [
+          0.114226886,
+          0.112015797,
+          0.113303639,
+          0.113629377,
+          0.113231976,
+          0.115776667,
+          0.115210767,
+          0.114115024,
+          0.112914691
+        ]
+      },
+      "paired_speedup": {
+        "median": 0.55243796820303,
+        "mad": 0.031878692867449265,
+        "samples": [
+          0.5205592753355808,
+          0.6947643107873437,
+          0.5043927759460577,
+          0.5594456264597842,
+          0.5555782052235846,
+          0.5314479730186049,
+          0.5038047702607518,
+          0.55243796820303,
+          0.7505386079478357
+        ]
+      },
+      "module_bytes": 65027
+    }
+  ]
+}

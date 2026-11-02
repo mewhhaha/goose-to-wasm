@@ -1,0 +1,308 @@
+{
+  "schema": "goose-native-hills-baseline-v1",
+  "source_commit": "93dfbf113525ae75fc3240ba5ea5d28e06ff2a1d",
+  "compiler_sha256": "78178c171d7ed846ac20aec7b54f5e2e80ffb5a73bbf3551c44b73b27b373624",
+  "method": "Baseline guest bytes from preceding qualified same-source cohort; current before/after comparisons are separate paired measurements.",
+  "examples": [
+    {
+      "name": "squares",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/squares/direct/2/program.wasm",
+          "sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+          "bytes": 1367
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/squares/c-wasm/3/program.wasm",
+          "sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+          "bytes": 16556
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/squares/native/2/program.bin",
+          "sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+          "bytes": 18064
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/squares/direct/parallel/0/program.cwasm",
+          "sha256": "9a94dc7d6a7132fb9f57b5389109b06156ac9c0fbe64212a3ad325818bbd46a5"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/squares/c-wasm/parallel/0/program.cwasm",
+          "sha256": "aacb7b676300eb85dad46e5298002e3bbb918448e725b7d08ef11503f19eeaa6"
+        }
+      }
+    },
+    {
+      "name": "tour",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/tour/direct/0/program.wasm",
+          "sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+          "bytes": 40589
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/tour/c-wasm/4/program.wasm",
+          "sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+          "bytes": 40709
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/tour/native/2/program.bin",
+          "sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+          "bytes": 26952
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/tour/direct/parallel/0/program.cwasm",
+          "sha256": "6c7ee8031d7138efe530a75279ff401519cc56650e028f3b452347ad612c3485"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/tour/c-wasm/parallel/0/program.cwasm",
+          "sha256": "4859adc797993ceb747e5f89c2db02cec15c5bfee51e348cb505c633c76e3017"
+        }
+      }
+    },
+    {
+      "name": "functions",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/functions/direct/3/program.wasm",
+          "sha256": "af0b0f335ca715222ca4bca98d9e3bf35d369ae0e434088559f2a541a866b789",
+          "bytes": 55269
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/functions/c-wasm/4/program.wasm",
+          "sha256": "0f69bdfd50a8e09d9a9ea4615967c3c7e793a03d6d219bd44d908c7c7f6f7f48",
+          "bytes": 38068
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/functions/native/3/program.bin",
+          "sha256": "d45e72b7dddc75fbd33b1b1962cc0f743172a3a9c6b99763f34a7e43cfe68172",
+          "bytes": 26920
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/functions/direct/parallel/0/program.cwasm",
+          "sha256": "c3aef4937b74e4151bc95270810b3b7245ffb95eb718e0476a0777ba3fdfb861"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/functions/c-wasm/parallel/0/program.cwasm",
+          "sha256": "f9ff39d074eb8ebccf7a85acd784b2b4919a515bb972dfdb0202236db4294cfb"
+        }
+      }
+    },
+    {
+      "name": "errors",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/errors/direct/2/program.wasm",
+          "sha256": "17c2ec14d626623e089ad12c5439e3e4b41f12c7bf963c5323fd630ede98cf6c",
+          "bytes": 27101
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/errors/c-wasm/0/program.wasm",
+          "sha256": "29d988a50295152ff62d7a2dd053976b6853d2a6e1ecae5154f68e99fb6e7b72",
+          "bytes": 34776
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/errors/native/1/program.bin",
+          "sha256": "7d5497c50872a50a1d9e257d0eafd989253476bac5af72c21278b541817c5195",
+          "bytes": 27864
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/errors/direct/parallel/0/program.cwasm",
+          "sha256": "9dda0ada17adef031834138d4e2b7fc04d25c597176b3bd0b43f2c8a1be7ae12"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/errors/c-wasm/parallel/0/program.cwasm",
+          "sha256": "14e8884cc439019f72e9c755c587903683e3adce597fb54b161b7ad007b9ceef"
+        }
+      }
+    },
+    {
+      "name": "sieve",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sieve/direct/2/program.wasm",
+          "sha256": "93cde3a5e23c73a9833cb428afe0084887a9a41ef9eb336dc10c214038fd7ab5",
+          "bytes": 7410
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sieve/c-wasm/2/program.wasm",
+          "sha256": "d99ecf31c05d4c39197057d1c795aca6ea010327b968d8ad6d08b1bb5e5401e5",
+          "bytes": 25822
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sieve/native/3/program.bin",
+          "sha256": "f27e5ac6faf7c7564d71e051c81869bcd1a4256ee30c72129afb4ce3763eeb40",
+          "bytes": 22584
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/sieve/direct/parallel/0/program.cwasm",
+          "sha256": "f5f2ca5ee23285ffbc670332e3839ad1054e7ca21c4c5fd868b70f88cba6b070"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/sieve/c-wasm/parallel/0/program.cwasm",
+          "sha256": "de8610958af9712c03eb55beb017881efb45e0d604d8d1428964eb07f1d6f386"
+        }
+      }
+    },
+    {
+      "name": "sorting",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sorting/direct/2/program.wasm",
+          "sha256": "814b1b96b18670e1c5629dd32dfb76ea1522884c159565f76214cf9b8ff6f8f2",
+          "bytes": 65038
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sorting/c-wasm/0/program.wasm",
+          "sha256": "bc9b1516813a00836a8462a29875cdf93619f1ab92c9f7fbba6e8d0e2a9a5b84",
+          "bytes": 40796
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sorting/native/4/program.bin",
+          "sha256": "27b39f73b23b05537303995787a3a6eb7ac19c05a143902cd74cfbd6d10fb1a5",
+          "bytes": 27208
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/sorting/direct/parallel/0/program.cwasm",
+          "sha256": "df5b4871f830030f3730f6c0eb6e599aa8a03e2459929c0c2ebb29d5dba88f44"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/sorting/c-wasm/parallel/0/program.cwasm",
+          "sha256": "65a5298ebdcc33f4f063d4be2d4b6af6cf5044969d22555538b3d83ad091f73e"
+        }
+      }
+    },
+    {
+      "name": "sudoku",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sudoku/direct/0/program.wasm",
+          "sha256": "d93b615e98732c0ce5bc3c7d0062b682f838bcfa4ce8a17ee97770a10300639a",
+          "bytes": 12415
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sudoku/c-wasm/3/program.wasm",
+          "sha256": "91880be16ded9ed64f78e0184b58a11091e44701c77933fbd6192638f0fa1745",
+          "bytes": 26463
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/sudoku/native/0/program.bin",
+          "sha256": "0b3a3eaaa36ed309f0f0d0ca729f50fecfee5e4eaf1f96f8d0defaa5aab163dd",
+          "bytes": 22776
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/sudoku/direct/parallel/0/program.cwasm",
+          "sha256": "56652c00db12e356a71e6372c62be3a44d54af591b2562b3631ad3f062879887"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/sudoku/c-wasm/parallel/0/program.cwasm",
+          "sha256": "ce05ae7ca15ba12c7b48e7d116ac6e5665e652a4c9de1ca3fc2babb44f6939f2"
+        }
+      }
+    },
+    {
+      "name": "maze",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/maze/direct/2/program.wasm",
+          "sha256": "5d99dd89a48e4c387d2fae104a6b6ab85c37a85342a7b042dde3a8136d95afb9",
+          "bytes": 21474
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/maze/c-wasm/4/program.wasm",
+          "sha256": "7e63f72e3e6f72a33e1915d1f32cdb403b062fc8a1ecf7133df1e679ebd1429a",
+          "bytes": 32140
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/maze/native/4/program.bin",
+          "sha256": "c69764e08b046bc987e0bda728b93d2832fe8ab8ae2a7c8cbe5026602cb5e028",
+          "bytes": 22976
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/maze/direct/parallel/0/program.cwasm",
+          "sha256": "1437e548d529520d51839b16a037760919204bcf47c7971c55a057f30c1737e6"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/maze/c-wasm/parallel/0/program.cwasm",
+          "sha256": "e8897cfef630aa660a7e94ff3d58f5d97bdea03346ad97f20b9bf9483b31653e"
+        }
+      }
+    },
+    {
+      "name": "vm",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/vm/direct/0/program.wasm",
+          "sha256": "4f9a3651123e040d4a51e09bc092c708973b478b47293b07c8fdf0bab85a987b",
+          "bytes": 29290
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/vm/c-wasm/1/program.wasm",
+          "sha256": "601c85a7cb61f48b413a78f5a72674fa1e3ffaeeac7d7f98cd073774e372d061",
+          "bytes": 37218
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/vm/native/3/program.bin",
+          "sha256": "cb36c744c176b4e72281dda6fc78d63179fb1e6f0631f428eff5ea377fc7ace5",
+          "bytes": 22696
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/vm/direct/parallel/0/program.cwasm",
+          "sha256": "f129daa125ebae14ed011f02157a4c942038944a4b43cd4c018870952d2f6161"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/vm/c-wasm/parallel/0/program.cwasm",
+          "sha256": "83b68868f01b8b3dbac8d531d79eead66582655c11e36ebc03bb36eed55d7426"
+        }
+      }
+    },
+    {
+      "name": "life",
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/direct/1/program.wasm",
+          "sha256": "81c1b928ff6ea5deea490dcbddefc48980ca9c02addd3504fc8e745250b80bb4",
+          "bytes": 15740
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/c-wasm/0/program.wasm",
+          "sha256": "8f37c495f753073bb2d54dd515c081686f16289059adf688984096ede813d091",
+          "bytes": 28403
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/example-benchmarks/compile/life/native/0/program.bin",
+          "sha256": "1db977e97a62132939eef83210acc6a7a9aef73e3dc04cc017cad2d24e71fd7c",
+          "bytes": 22480
+        }
+      },
+      "aot": {
+        "direct": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm",
+          "sha256": "5fc78a081a20e6a5e080281a32bc15a2ea6b5c0e5b75473421a3f81205718926"
+        },
+        "c-wasm": {
+          "path": "build/wasm-audit/host-benchmarks/preparation/life/c-wasm/parallel/0/program.cwasm",
+          "sha256": "c56e09535f291373a43655112e8882cece4b4c70b97712d24d05ea88484e2251"
+        }
+      }
+    }
+  ]
+}

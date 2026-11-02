@@ -94,7 +94,10 @@ struct Function {
     unordered_set<const VarDef *> inline_named_regions;
     unordered_set<VarDef *> addressed;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
+    unordered_map<uint32_t, int64_t> constant_slots;
     uint32_t framebase = 0, framebytes = 0;
+    bool frame_free = false;
+    bool FrameFreeLeaf();
     struct OwnerEntry { uint32_t offset; bool temporary; };
     vector<OwnerEntry> owner_entries;
     uint32_t effect_frame = 0, previous_effect_frame = 0, mailbox = 0, previous_mailbox = 0;
@@ -198,7 +201,8 @@ struct Function {
     }
     set<uint32_t> dependencies;
 
-    Function(Compiler &, FnSpec *, uint32_t, uint32_t, bool element_run = false, bool auxiliary = false);
+    Function(Compiler &, FnSpec *, uint32_t, uint32_t, bool element_run = false, bool auxiliary = false,
+             const vector<pair<uint32_t, int64_t>> &constants = {});
     [[noreturn]] void Fail(Line, const string &);
     uint8_t W(TypeExpr *);
     uint32_t Local(uint8_t t) { auto i = uint32_t(params.size() + locals.size()); locals.push_back(t); return i; }
@@ -235,6 +239,8 @@ struct Function {
     void FloatRemainder(TypeExpr *);
     void Truth(Node *);
     bool PowerOfTwoRemainder(Node *, TypeExpr *);
+    optional<int64_t> KnownInteger(Node *, TypeExpr *);
+    bool DynamicRemainder(Node *, TypeExpr *, Line, bool);
     void BinaryOp(TType, TypeExpr *, Line, bool nonnegative = false);
     uint32_t Frame(TypeExpr *);
     uint32_t FrameBytes(uint32_t n, uint32_t align = 8);
@@ -335,6 +341,7 @@ struct Function {
     bool FoldBitLoop(ForLoop *);
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
     bool UnrollWhile(While *);
+    bool FoldPopcount(While *, VarDecl *, VarDecl *);
     bool FillLoop(ForLoop *);
     optional<Slot> CachedLane(Node *);
     void CacheLanes(ForLoop *);
@@ -456,6 +463,19 @@ struct Compiler {
     uint32_t uleb_read_helper = 0, uleb_patch_helper = 0;
     bool needs_uleb_helpers = false, inline_uleb_images = false;
     bool raw_array_images = false;
+    unordered_map<FnSpec *, bool> leaf_cache;
+    bool Leaf(FnSpec *);
+    struct ConstantClone {
+        FnSpec *spec;
+        vector<pair<uint32_t, int64_t>> bindings;
+        uint32_t index;
+    };
+    vector<ConstantClone> constant_clones;
+    unordered_map<Call *, size_t> constant_calls;
+    unordered_map<FnSpec *, vector<uint32_t>> constant_divisors;
+    const vector<uint32_t> &ConstantDivisors(FnSpec *);
+    void CollectConstants();
+    uint32_t ConstantTarget(Call *, uint32_t);
     bool may_have_prefix_mappings = true;
     bool has_prefix_mappings = false;
     bool Effects() const { return !effect_targets.empty() || region_cursors; }
@@ -1063,7 +1083,8 @@ struct Compiler {
     DirectWasmResult Compile();
 };
 
-inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run, bool auxiliary)
+inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty, bool run, bool auxiliary,
+                          const vector<pair<uint32_t, int64_t>> &constants)
     : c(compiler), spec(s), index(i), sig(ty), element_run(run) {
     if (auxiliary) { params = c.signatures[ty].args; return; }
     addressed.insert(c.captured_storage.begin(), c.captured_storage.end());
@@ -1093,9 +1114,13 @@ inline Function::Function(Compiler &compiler, FnSpec *s, uint32_t i, uint32_t ty
             } else resultdestinations.push_back(nullopt);
         }
     } else for (auto g : c.ast.globals) for (auto n : g->inits) ScanAddresses(n);
+    for (auto [slot, value] : constants) constant_slots.emplace(slot, value);
     framebase = Local(I32);
     for (auto t : results) resultlocals.push_back(Local(t));
-    if (c.Effects()) {
+    frame_free = FrameFreeLeaf();
+    if (!constants.empty() && !frame_free) Fail(spec->sf->line, "internal: constant divisor clone is not a leaf");
+    if (spec) c.leaf_cache[spec] = frame_free;
+    if (c.Effects() && !frame_free) {
         effect_frame = FrameBytes(12, 4); previous_effect_frame = Local(I32);
         if (c.effect_globals.count(spec)) {
             auto layout = c.MailboxLayout(spec);
@@ -1111,6 +1136,7 @@ inline void Function::Abort(Line l, string_view msg) {
     CallIndex(Compiler::ABORT); code.Op(0x00);
 }
 inline uint32_t Function::FrameBytes(uint32_t n, uint32_t align) {
+    if (frame_free) Fail({}, "internal: frame-free leaf requested activation storage");
     auto off = Compiler::Align(framebytes, align);
     if (uint64_t(off) + n > uint64_t(c.opts.maximum_pages) * 65536)
         Fail(spec ? spec->sf->line : Line{}, "activation frame exceeds the linear-memory limit");
@@ -1169,9 +1195,14 @@ inline void Function::Store(TypeExpr *t) {
     code.Mem(bits == 8 ? 0x3a : bits == 16 ? 0x3b : bits == 32 ? 0x36 : 0x37);
 }
 inline void Function::Read(const Slot &s) {
-    if (s.kind == Slot::LOCAL) Get(s.index); else { SlotAddress(s); Load(s.type); }
+    if (s.kind == Slot::LOCAL) {
+        if (auto known = constant_slots.find(s.index); known != constant_slots.end()) Const(s.type, known->second);
+        else Get(s.index);
+    } else { SlotAddress(s); Load(s.type); }
 }
 inline void Function::Write(const Slot &s) {
+    if (s.kind == Slot::LOCAL && constant_slots.count(s.index))
+        Fail(s.type->line, "internal: constant divisor parameter was written");
     if (s.kind == Slot::LOCAL) Set(s.index);
     else { auto v = Save(s.type); SlotAddress(s); Get(v); Store(s.type); }
 }
@@ -1209,6 +1240,8 @@ inline void Function::ScanAddresses(Node *n) {
 } // namespace goose
 
 #include "direct_wasm_numeric.h"
+#include "direct_wasm_leaf.h"
+#include "direct_wasm_constants.h"
 #include "direct_wasm_captures.h"
 #include "direct_wasm_funvals.h"
 #include "direct_wasm_dispatch.h"
@@ -1226,6 +1259,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_temps.h"
 #include "direct_wasm_images.h"
 #include "direct_wasm_arrays.h"
+#include "direct_wasm_bits.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"
 

@@ -1,0 +1,82 @@
+[
+  {
+    "name": "squares",
+    "baseline_bytes": 1367,
+    "candidate_bytes": 1367,
+    "baseline_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+    "candidate_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+    "identical": true
+  },
+  {
+    "name": "tour",
+    "baseline_bytes": 40589,
+    "candidate_bytes": 40157,
+    "baseline_sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+    "candidate_sha256": "247a716b79a2f14b1ca5d73714969e20100c73ed1a0ca6153c8ad39ac7205c33",
+    "identical": false
+  },
+  {
+    "name": "functions",
+    "baseline_bytes": 55269,
+    "candidate_bytes": 55269,
+    "baseline_sha256": "af0b0f335ca715222ca4bca98d9e3bf35d369ae0e434088559f2a541a866b789",
+    "candidate_sha256": "af0b0f335ca715222ca4bca98d9e3bf35d369ae0e434088559f2a541a866b789",
+    "identical": true
+  },
+  {
+    "name": "errors",
+    "baseline_bytes": 27101,
+    "candidate_bytes": 26793,
+    "baseline_sha256": "17c2ec14d626623e089ad12c5439e3e4b41f12c7bf963c5323fd630ede98cf6c",
+    "candidate_sha256": "5b8f0a9b50531e3ada87321ccf13fcec7eb4e704bedfb90e39d270a00890a13c",
+    "identical": false
+  },
+  {
+    "name": "sieve",
+    "baseline_bytes": 7410,
+    "candidate_bytes": 7410,
+    "baseline_sha256": "93cde3a5e23c73a9833cb428afe0084887a9a41ef9eb336dc10c214038fd7ab5",
+    "candidate_sha256": "93cde3a5e23c73a9833cb428afe0084887a9a41ef9eb336dc10c214038fd7ab5",
+    "identical": true
+  },
+  {
+    "name": "sorting",
+    "baseline_bytes": 65038,
+    "candidate_bytes": 63755,
+    "baseline_sha256": "814b1b96b18670e1c5629dd32dfb76ea1522884c159565f76214cf9b8ff6f8f2",
+    "candidate_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+    "identical": false
+  },
+  {
+    "name": "sudoku",
+    "baseline_bytes": 12415,
+    "candidate_bytes": 11953,
+    "baseline_sha256": "d93b615e98732c0ce5bc3c7d0062b682f838bcfa4ce8a17ee97770a10300639a",
+    "candidate_sha256": "0d91084230c4509a5856c8eaf63ce9c3072830a4d1ba33f40f08c20505c51693",
+    "identical": false
+  },
+  {
+    "name": "maze",
+    "baseline_bytes": 21474,
+    "candidate_bytes": 21740,
+    "baseline_sha256": "5d99dd89a48e4c387d2fae104a6b6ab85c37a85342a7b042dde3a8136d95afb9",
+    "candidate_sha256": "0cdd10ea4bccd76b0d6f05cc6e22c2c12ed99b0b6c0761026c84abb278e4206b",
+    "identical": false
+  },
+  {
+    "name": "vm",
+    "baseline_bytes": 29290,
+    "candidate_bytes": 29290,
+    "baseline_sha256": "4f9a3651123e040d4a51e09bc092c708973b478b47293b07c8fdf0bab85a987b",
+    "candidate_sha256": "4f9a3651123e040d4a51e09bc092c708973b478b47293b07c8fdf0bab85a987b",
+    "identical": true
+  },
+  {
+    "name": "life",
+    "baseline_bytes": 15740,
+    "candidate_bytes": 15719,
+    "baseline_sha256": "81c1b928ff6ea5deea490dcbddefc48980ca9c02addd3504fc8e745250b80bb4",
+    "candidate_sha256": "08b2f08a50382b41d7ad47a0e47bf8c73b7fa4fdcb0b7630a457b740b2ae5114",
+    "identical": false
+  }
+]
