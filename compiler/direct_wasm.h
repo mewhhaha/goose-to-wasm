@@ -447,6 +447,8 @@ struct Compiler {
     bool region_cursors = false;
     uint32_t cursor_global = 0, cursor_table = 0;
     uint32_t prefix_helper = 0, header_helper = 0;
+    bool may_have_prefix_mappings = true;
+    bool has_prefix_mappings = false;
     bool Effects() const { return !effect_targets.empty() || region_cursors; }
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;

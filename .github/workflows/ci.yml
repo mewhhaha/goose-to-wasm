@@ -92,6 +92,7 @@ jobs:
       - name: Stable regions, memory isolation and scoped owner cleanup
         run: |
           python tests/test_regions.py
+          python tests/test_prefix_resolution.py
           python tests/test_dynamic_boundaries.py
           python tests/test_static_capture_boundaries.py
           python tests/test_variable_enum_boundaries.py

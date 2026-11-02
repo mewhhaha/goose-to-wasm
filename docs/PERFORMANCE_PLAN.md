@@ -1,8 +1,9 @@
 # More levers
 
 There is substantial headroom in code generation, compilation work and language
-coverage. The current evidence covers seven adapted workloads on one machine;
-it does not establish a Goose or WebAssembly ceiling.
+coverage. The current evidence covers seven adapted LangArena workloads and ten
+example programs on one machine; it does not establish a Goose or WebAssembly
+ceiling. V8 first-call behavior and generated code size remain hills.
 
 At compiler commit `f3b6117`, CRC32 takes about 10–12% longer than C-Wasm.
 Custom hash takes about 1.6× native C time. Merge sort takes 2.165 seconds on

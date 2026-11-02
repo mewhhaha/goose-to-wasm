@@ -1,0 +1,97 @@
+diff --git a/compiler/direct_wasm.h b/compiler/direct_wasm.h
+index f05e184..f3898a8 100644
+--- a/compiler/direct_wasm.h
++++ b/compiler/direct_wasm.h
+@@ -447,6 +447,8 @@ struct Compiler {
+     bool region_cursors = false;
+     uint32_t cursor_global = 0, cursor_table = 0;
+     uint32_t prefix_helper = 0, header_helper = 0;
++    bool may_have_prefix_mappings = true;
++    bool has_prefix_mappings = false;
+     bool Effects() const { return !effect_targets.empty() || region_cursors; }
+     unordered_map<FnSpec *, uint32_t> function_index;
+     unordered_map<FnSpec *, uint32_t> function_type;
+diff --git a/compiler/direct_wasm_effects.h b/compiler/direct_wasm_effects.h
+index ea36d21..f4a8ce0 100644
+--- a/compiler/direct_wasm_effects.h
++++ b/compiler/direct_wasm_effects.h
+@@ -136,6 +136,10 @@ inline void Compiler::AnalyzeEffects() {
+ inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, bool temporary,
+         optional<uint32_t> publication, uint32_t prefix, bool frame) {
+     if (!c.Effects()) return;
++    if (publication && prefix) {
++        if (!c.may_have_prefix_mappings) Fail(owner.storage_type->line, "internal: unanticipated frame-prefix mapping");
++        c.has_prefix_mappings = true;
++    }
+     auto offset = FrameBytes(c.region_cursors ? 40 : 16, 4);
+     owner_entries.push_back({ offset, temporary });
+     FrameAddress(offset + 4); LocationAddress(TailHeaderLocation(owner)); code.Mem(0x36, 2);
+diff --git a/compiler/direct_wasm_emit.h b/compiler/direct_wasm_emit.h
+index 6d3e900..1935366 100644
+--- a/compiler/direct_wasm_emit.h
++++ b/compiler/direct_wasm_emit.h
+@@ -134,6 +134,12 @@ inline DirectWasmResult Compiler::Compile() {
+         FunctionSig(sp); // establish region requirements before assigning globals
+     }
+     AnalyzeEffects();
++    // Only frame-record result construction can map a nonempty prefix.
++    // Checker-owned instantiations are complete and stable before emission;
++    // unused frame types merely keep the conservative resolver path.
++    may_have_prefix_mappings = any_of(ast.structinsts.begin(), ast.structinsts.end(), [](auto instance) {
++        return instance->sclass == SC_RESIZABLE && instance->frameobj;
++    });
+     for (auto sp : specs) function_type[sp] = Sig(FunctionSig(sp));
+     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
+     unordered_set<FnSpec *> return_targets;
+@@ -167,6 +173,10 @@ inline DirectWasmResult Compiler::Compile() {
+                                         vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
+         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
+     }
++    // Startup can inline global constructors with prefix mappings. Emit it
++    // before deciding whether the address resolver can be an identity.
++    Function start(*this, nullptr, startindex, startsig);
++    auto startbody = start.Finish();
+     if (region_cursors) for (bool header : { false, true }) {
+         auto signature = Sig({ { I32, I32 }, header ? vector<uint8_t>{} : vector<uint8_t>{ I32 } });
+         Function f(*this, nullptr, header ? header_helper : prefix_helper, signature, false, true);
+@@ -174,12 +184,9 @@ inline DirectWasmResult Compiler::Compile() {
+         result.function_info.push_back({ header ? "publish_header" : "resolve_prefix", f.index, body.size(), BodyHash(body), {} });
+         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(signature);
+     }
+-    {
+-        Function f(*this, nullptr, startindex, startsig); auto body = f.Finish();
+-        result.function_info.push_back({ "_start", f.index, body.size(), BodyHash(body),
+-                                        vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
+-        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(startsig);
+-    }
++    result.function_info.push_back({ "_start", start.index, startbody.size(), BodyHash(startbody),
++                                    vector<uint32_t>(start.dependencies.begin(), start.dependencies.end()) });
++    result.code_bytes += startbody.size(); bodies.push_back(std::move(startbody)); ftypes.push_back(startsig);
+     result.functions = bodies.size();
+     result.region_count = needs_regions ? BoundRegions() : 0;
+     if (region_cursors) {
+diff --git a/compiler/direct_wasm_publication.h b/compiler/direct_wasm_publication.h
+index 7ee74f8..a14465e 100644
+--- a/compiler/direct_wasm_publication.h
++++ b/compiler/direct_wasm_publication.h
+@@ -31,7 +31,7 @@ inline optional<uint32_t> Function::OffsetPublication(const ConstructionDestinat
+ }
+ 
+ inline void Function::CanonicalAddress(uint32_t bytes) {
+-    if (!c.region_cursors || !bytes) return;
++    if (!c.region_cursors || !bytes || !c.may_have_prefix_mappings) return;
+     code.I32Const(int32_t(bytes)); CallIndex(c.prefix_helper);
+ }
+ 
+@@ -44,6 +44,11 @@ inline void Function::PublishHeader(uint32_t header, uint32_t word) {
+ // an activation or changes the active owner chain. Mappings expire on every
+ // construction exit independently of the dying-owner evidence used to unwind.
+ inline string Function::PublicationHelper(bool header) {
++    // Array publication has a zero-length prefix and cannot translate a
++    // nonempty access. Keep its separate header publication helper active.
++    if (!header && !c.has_prefix_mappings) {
++        Get(0); code.Op(0x0b); return EncodeBody();
++    }
+     auto frame = Local(I32), entry = Local(I32), source = Local(I32), target = Local(I32);
+     auto finished = Begin(); auto restart = Begin(0x03);
+     code.OpU(0x23, c.effect_frames); Set(frame);

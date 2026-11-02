@@ -1,6 +1,16 @@
 # Runtime performance work
 
-## Latest hill: basis selects and cached lanes
+## Prefix resolution
+
+The sorting profile attributed 74.9% of samples to `resolve_prefix`: 401,711,695 calls checked 2,812,502,155 owner entries despite having no active mappings or remaps. The workload remains at 20,000 insertion values; only its misleading source header and manifest description were corrected.
+
+The emitter tracks actual positive-prefix registrations and makes the resolver an identity when there are none. It emits the start body before choosing that helper so global constructors count. Separately, the complete checker-owned `Ast::structinsts` registry proves whether frame-record types exist before function emission; when none exist, resolver calls are omitted entirely. A guard rejects a registration that contradicts this early proof. Positive-prefix frame modules retain the original resolver, and header publication, ownership, bounds and unwind behavior remain intact. No runtime counters or globals were added.
+
+Sorting Wasm shrank from 144,519 to 138,792 bytes, with no resolver callers. The identity-only stage measured 15.84× on V8 and 6.18× on Wasmtime in five paired sorting **entry** probes; those figures are separate from ordinary launch-to-exit timing. The final variant, measured in seven pairs per cell across five examples, reduced sorting entry time 26.292× on V8 and 34.608× on Wasmtime; Sudoku improved 18.439× and 29.814×. The experiment used 50 builds, 20 warmups and 140 measured probes. Squares remained byte-identical with unchanged entry time; instrumented process time varied by about 10%. Maze showed no reliable V8 change and improved 1.217× on Wasmtime; Life improved 2.043× on Wasmtime. Startup and engine tiering remain hills.
+
+Qualification passed 9,453 differential observations, including 7,560 native stdout comparisons, and 43 focused commands, including region and prefix cases, warm CLI fixture parity, and the 60-build/100-execution example matrix. The [dated evidence](../bench/results/2026-11-02/prefix-resolution/README.md) retains the measurements and details.
+
+## Basis selects and cached lanes
 
 Starting from `efb1788`, replace each CRC basis mask with a select of its
 constant column or zero, preserving the balanced XOR tree. Cache small fixed

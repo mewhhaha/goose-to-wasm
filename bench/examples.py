@@ -91,7 +91,7 @@ def render(report):
              "program initialization, computation, output delivery and teardown. Each observation starts a fresh "
              "process/instance and calls the entrypoint once. This measures CLI cost, not warmed kernel throughput.", "",
              f"Each cell has {cfg['compile_samples']} build samples or {cfg['samples']} runtime samples. "
-             f"There are {cfg['warmups']} untimed fresh-process warmups per runtime cell. Orders are shuffled "
+             f"Untimed fresh-process warmups per runtime cell: {cfg['warmups']}. Orders are shuffled "
              "with the recorded seed; builds and runtime never overlap. Every used artifact must pass its golden output. "
              "Values are median milliseconds ± median absolute deviation (MAD).", "",
              "Headline runtime samples use the ordinary runners without timing-file instrumentation. "
@@ -140,7 +140,7 @@ def render(report):
                     value = cell(runs[(name, backend, engine)][metric])
                 values.append(value)
             lines.append("| " + " | ".join([name, *values]) + " |")
-    lines += ["", "The entrypoint interval includes Goose initialization and host output callbacks. It excludes final "
+    lines += ["", "The entrypoint interval includes Goose initialization, host output callbacks and any lazy JIT work. It excludes final "
               "Wasm-host output concatenation/delivery. Native Goose prints unbuffered, so no native entrypoint "
               "column or cross-boundary speedup is presented. Process time minus engine time also includes loading, "
               "bookkeeping and teardown; it is not a pure startup measurement.", "",

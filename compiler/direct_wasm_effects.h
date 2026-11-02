@@ -136,6 +136,10 @@ inline void Compiler::AnalyzeEffects() {
 inline void Function::RegisterEffectOwner(const Location &owner, bool lexical, bool temporary,
         optional<uint32_t> publication, uint32_t prefix, bool frame) {
     if (!c.Effects()) return;
+    if (publication && prefix) {
+        if (!c.may_have_prefix_mappings) Fail(owner.storage_type->line, "internal: unanticipated frame-prefix mapping");
+        c.has_prefix_mappings = true;
+    }
     auto offset = FrameBytes(c.region_cursors ? 40 : 16, 4);
     owner_entries.push_back({ offset, temporary });
     FrameAddress(offset + 4); LocationAddress(TailHeaderLocation(owner)); code.Mem(0x36, 2);

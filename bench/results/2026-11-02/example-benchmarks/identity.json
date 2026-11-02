@@ -1,0 +1,13 @@
+{
+  "schema": "goose-example-benchmark-identity-v1",
+  "base_revision": "8f4584a4dae0ab19e85392b14b6e44ce664ba3a4",
+  "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+  "compiler_change_record": "../prefix-resolution/README.md",
+  "report_sha256": "1731a54f6c949061322377a510bbb1a90db2b8ade8aa918df25442cc45919123",
+  "observations": 1600,
+  "notes": [
+    "Tool fingerprints identify named executables and the Wasmtime library, not every compiler subprocess or system library.",
+    "inputs.tar.gz excludes tool binaries; versions and fingerprints remain in report.json.",
+    "Sorting still uses 20,000 insertion-sort values. Only its header and catalog description changed."
+  ]
+}

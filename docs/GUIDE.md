@@ -157,6 +157,7 @@ python tests/test_static_data.py
 python tests/test_fill_loops.py
 python tests/test_strip_loops.py
 python tests/test_regions.py
+python tests/test_prefix_resolution.py
 python tests/test_dynamic_boundaries.py
 python tests/test_incremental.py
 python tests/test_input_dependencies.py

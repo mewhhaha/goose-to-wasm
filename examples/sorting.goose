@@ -1,7 +1,7 @@
 // Adapted from upstream Goose samples/09_sorting.goose at revision
 // 2e2bedef5b980bf013cac5aaa0095bfea64e5569. Kept insertion/merge/binary
 // search and standard-library sorts; removed timing and reduced workloads
-// to 10,000 random values (2,000 for insertion sort) for a quick example.
+// to 10,000 random values; insertion sort still uses 20,000.
 //
 // Sorting and searching, written out: insertion sort, a recursive merge
 // sort, and binary search, all over slices, so they work on any array kind

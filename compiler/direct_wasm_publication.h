@@ -31,7 +31,7 @@ inline optional<uint32_t> Function::OffsetPublication(const ConstructionDestinat
 }
 
 inline void Function::CanonicalAddress(uint32_t bytes) {
-    if (!c.region_cursors || !bytes) return;
+    if (!c.region_cursors || !bytes || !c.may_have_prefix_mappings) return;
     code.I32Const(int32_t(bytes)); CallIndex(c.prefix_helper);
 }
 
@@ -44,6 +44,11 @@ inline void Function::PublishHeader(uint32_t header, uint32_t word) {
 // an activation or changes the active owner chain. Mappings expire on every
 // construction exit independently of the dying-owner evidence used to unwind.
 inline string Function::PublicationHelper(bool header) {
+    // Array publication has a zero-length prefix and cannot translate a
+    // nonempty access. Keep its separate header publication helper active.
+    if (!header && !c.has_prefix_mappings) {
+        Get(0); code.Op(0x0b); return EncodeBody();
+    }
     auto frame = Local(I32), entry = Local(I32), source = Local(I32), target = Local(I32);
     auto finished = Begin(); auto restart = Begin(0x03);
     code.OpU(0x23, c.effect_frames); Set(frame);

@@ -75,7 +75,7 @@
       "file": "sorting.goose",
       "expected": "expected/sorting.out",
       "focus": "Slice sorting, searching and recursion",
-      "adaptation": "Omits OS timers; uses 10,000 rather than 1,000,000 items and 2,000 rather than 20,000 for insertion sort; compares slices elementwise.",
+      "adaptation": "Omits OS timers; uses 10,000 rather than 1,000,000 items, retaining 20,000 for insertion sort; compares slices elementwise.",
       "upstream": {
         "path": "samples/09_sorting.goose",
         "sha256": "cd2d1ad96136b6e222ef78c316cf4c35889e922123c262b79ace4ea4c6262390",

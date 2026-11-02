@@ -134,6 +134,12 @@ inline DirectWasmResult Compiler::Compile() {
         FunctionSig(sp); // establish region requirements before assigning globals
     }
     AnalyzeEffects();
+    // Only frame-record result construction can map a nonempty prefix.
+    // Checker-owned instantiations are complete and stable before emission;
+    // unused frame types merely keep the conservative resolver path.
+    may_have_prefix_mappings = any_of(ast.structinsts.begin(), ast.structinsts.end(), [](auto instance) {
+        return instance->sclass == SC_RESIZABLE && instance->frameobj;
+    });
     for (auto sp : specs) function_type[sp] = Sig(FunctionSig(sp));
     for (uint32_t i = 0; i < specs.size(); i++) function_index[specs[i]] = uint32_t(imports.size()) + i;
     unordered_set<FnSpec *> return_targets;
@@ -167,6 +173,10 @@ inline DirectWasmResult Compiler::Compile() {
                                         vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(f.sig);
     }
+    // Startup can inline global constructors with prefix mappings. Emit it
+    // before deciding whether the address resolver can be an identity.
+    Function start(*this, nullptr, startindex, startsig);
+    auto startbody = start.Finish();
     if (region_cursors) for (bool header : { false, true }) {
         auto signature = Sig({ { I32, I32 }, header ? vector<uint8_t>{} : vector<uint8_t>{ I32 } });
         Function f(*this, nullptr, header ? header_helper : prefix_helper, signature, false, true);
@@ -174,12 +184,9 @@ inline DirectWasmResult Compiler::Compile() {
         result.function_info.push_back({ header ? "publish_header" : "resolve_prefix", f.index, body.size(), BodyHash(body), {} });
         result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(signature);
     }
-    {
-        Function f(*this, nullptr, startindex, startsig); auto body = f.Finish();
-        result.function_info.push_back({ "_start", f.index, body.size(), BodyHash(body),
-                                        vector<uint32_t>(f.dependencies.begin(), f.dependencies.end()) });
-        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(startsig);
-    }
+    result.function_info.push_back({ "_start", start.index, startbody.size(), BodyHash(startbody),
+                                    vector<uint32_t>(start.dependencies.begin(), start.dependencies.end()) });
+    result.code_bytes += startbody.size(); bodies.push_back(std::move(startbody)); ftypes.push_back(startsig);
     result.functions = bodies.size();
     result.region_count = needs_regions ? BoundRegions() : 0;
     if (region_cursors) {

@@ -8,11 +8,9 @@ Ten [example programs](../examples/README.md) compare direct Wasm, C-to-Wasm and
 
 ![Example Wasm entry times](charts/examples-entry.svg)
 
-[2026-11-01 results and raw samples](results/2026-11-01/example-benchmarks/README.md) · [Latest report pointer](results/examples-latest.json)
+[2026-11-02 results and raw samples](results/2026-11-02/example-benchmarks/README.md) · [Latest report pointer](results/examples-latest.json)
 
-In this constant-input snapshot, direct builds took 63–95 ms versus 515–939 ms for C-to-Wasm. Runtime gaps remain: sorting took 4.040 s direct versus 0.239 s C-to-Wasm on V8, and 4.335 s versus 0.246 s on Wasmtime, measured from process launch to exit.
-
-Sorting's insertion-sort pass uses **20,000 values**. Its header and catalog incorrectly say 2,000; the measured source is preserved in the [input snapshot](results/2026-11-01/example-benchmarks/inputs.tar.gz).
+In this constant-input snapshot, direct builds took 66–98 ms versus 526–994 ms for C-to-Wasm. Sorting took 262 ms direct versus 259 ms C-to-Wasm on V8, and 300 ms versus 268 ms on Wasmtime, measured from process launch to exit. The [paired entry measurements](../docs/RUNTIME_PERFORMANCE.md#prefix-resolution) use a separate timing boundary.
 
 ## Method
 

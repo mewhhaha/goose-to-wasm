@@ -1,0 +1,74 @@
+{
+  "schema": "goose-prefix-resolution-review-v1",
+  "status": "passed",
+  "scope": "Read-only source and saved-evidence audit; no compiler, runtime, tests or renders executed.",
+  "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+  "source_review": "Approved: fixed pre-emission instantiated-type absence proof, unconditional contradictory-registration failure, precise late helper selection including startup, and unchanged header publication.",
+  "verified": {
+    "langarena": {
+      "observations": 315,
+      "builds": 105,
+      "official_test_executions": 35,
+      "measured_executions": 175,
+      "direct_artifacts_identical_to_previous_cohort": 7
+    },
+    "examples": {
+      "observations": 1600,
+      "builds": 150,
+      "qualification": 50,
+      "warmups": 50,
+      "ordinary_runtime": 750,
+      "separate_engine_probes": 600,
+      "golden_stdout_hashes_match": true
+    },
+    "differential": {
+      "observations": 9453,
+      "native_stdout_comparisons_rechecked": 7560,
+      "mismatches": 0,
+      "refusals": 3
+    },
+    "focused_commands": 43,
+    "paired_final": {
+      "builds": 50,
+      "warmups": 20,
+      "measured_probes": 140,
+      "samples_per_cell": 7
+    },
+    "raw_summary_cells_recomputed": 433,
+    "cohort_artifacts_rehashed": 255,
+    "current_input_hashes_match": true,
+    "current_compiler_headers_match_frozen_identity": true,
+    "identity_stage_old_inputs_match_archive": true,
+    "identity_stage_headers_reconstructed_against_8f4584a": true,
+    "readme_chart_summaries_equal_current_cohort": true,
+    "readme_source_report_hashes_match": true,
+    "profile_samples": 3695,
+    "profile_resolver_samples": 2767,
+    "dated_checksum_manifest_files": 31,
+    "archive_members_compared_with_saved_sources": 10026,
+    "input_archive_member_hashes": 473,
+    "compressed_differential_matches_raw_report": true,
+    "compiler_patch_reverse_check_passed": true,
+    "final_documentation_links_exist": true
+  },
+  "interpretation": [
+    "Sorting paired entry speedup is 26.291761x V8 and 34.607691x Wasmtime; Sudoku is 18.438590x and 29.814235x.",
+    "Entry probes are distinct from ordinary process runtime; no pure startup inference from their residual.",
+    "Squares is byte-identical with entry time unchanged; instrumented process variation is not a compiler regression.",
+    "Maze V8 is inconclusive; Maze Wasmtime entry improvement is small in absolute time and process time is flat.",
+    "No compilation-speed or LangArena-kernel speedup is attributed to this patch."
+  ],
+  "blockers": [],
+  "pending": [],
+  "finished_utc": "2026-11-02T00:39:06.303506+00:00",
+  "evidence_sha256": {
+    "bench/results/2026-11-02/prefix-resolution/paired.json": "59ed66a9d9ea31068dd5d0ac9c39e8bf457a925dd3f8e9a981802b375bdf106a",
+    "bench/results/2026-11-02/prefix-resolution/cohort.json": "d33d3e40242d026609ee27342a2daa7593c1c6ce38315c679f90f9ca9c2539f4",
+    "bench/results/2026-11-02/example-benchmarks/report.json": "1731a54f6c949061322377a510bbb1a90db2b8ade8aa918df25442cc45919123",
+    "bench/results/2026-11-02/prefix-resolution/compiler-changes.patch": "60bc1667a801b1b0f9089931ca775518aae875ae2d7381bf3a824b7da6905896"
+  },
+  "notes": [
+    "Checksum manifests were verified before this review file is added to the evidence directory; refresh the containing manifest after adding it.",
+    "Archive comparisons read existing files only; no workload, compiler, test or renderer was executed."
+  ]
+}

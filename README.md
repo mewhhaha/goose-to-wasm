@@ -6,17 +6,27 @@ Compile [Goose](https://github.com/aardappel/goose) directly to WebAssembly for 
 
 ## Benchmarks
 
-**2026-11-01 · AMD Ryzen 7 3800X · lower is better.** Medians from five samples per cell, using seven adapted LangArena workloads. Six replace growable storage with bounded arrays; each backend compiles the same adapted source. These are not results for the full 50-task suite. Direct Wasm uses memory32; C-to-Wasm uses memory64.
+**2026-11-02 · AMD Ryzen 7 3800X · lower is better.** Medians from five samples per cell, using seven adapted LangArena workloads. Six replace growable storage with bounded arrays; each backend compiles the same adapted source. These are not results for the full 50-task suite. Direct Wasm uses memory32; C-to-Wasm uses memory64.
 
 ![Cold build times by workload and backend](bench/charts/compilation.svg)
 
-Complete uncached builds include Python driver startup. Direct builds took 73–82 ms, 8.0–9.0× faster than C-to-Wasm on these inputs.
+Complete uncached builds include Python driver startup. Direct builds took 73–88 ms, 7.7–9.0× faster than C-to-Wasm on these inputs.
 
 ![Runtime by workload, backend, and engine](bench/charts/runtime.svg)
 
 Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine: direct Wasm trails C-to-Wasm on CRC32 and is close on custom hash.
 
-[Full results and raw samples](bench/results/2026-11-01/lanes/README.md) · [Benchmark method](bench/langarena/README.md) · [Example benchmarks](bench/examples.md)
+[Full results and raw samples](bench/results/2026-11-02/prefix-resolution/README.md) · [Benchmark method](bench/langarena/README.md)
+
+### Example programs
+
+All ten examples use the same constant inputs across backends and check their output. Runtime measures fresh process launch to exit, including startup, engine work and output; the LangArena charts above measure warmed computational regions.
+
+![Example cold build times by backend](bench/charts/examples-compilation.svg)
+
+![Example process times by backend and engine](bench/charts/examples-runtime.svg)
+
+[Method, results and entry timings](bench/examples.md)
 
 ## How it was built
 
