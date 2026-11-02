@@ -20,20 +20,13 @@ Seconds per configured measured iteration count, excluding preparation, warmups,
 
 ### Example programs
 
-All ten examples use the same constant inputs across backends and check their output. Runtime measures fresh process launch to exit, including startup, engine work and output; the LangArena charts above measure warmed computational regions. Host startup remains a gap to native on small programs.
+All ten examples use the same constant inputs across backends and check their output. Runtime measures fresh process launch to exit, including startup, engine work and output; the LangArena charts above measure warmed computational regions. The native Wasmtime host compiles on each ordinary launch; precompiled runs exclude preparation.
 
 ![Example cold build times by backend](bench/charts/examples-compilation.svg)
 
-![Example process times by backend and engine](bench/charts/examples-runtime.svg)
+![Example process times with the native Wasmtime host and native C](bench/charts/examples-runtime.svg)
 
-[Method, results and entry timings](bench/examples.md)
-
-The optional native Wasmtime host runs the same direct modules in a fresh process.
-Precompiled runs exclude preparation; native C still leads these direct examples.
-
-![Direct Wasm process times with Python and native Wasmtime hosts](bench/charts/wasmtime-host-runtime.svg)
-
-[Host comparison, preparation costs and qualification](bench/wasmtime-host.md)
+[Method and results](bench/examples.md) · [Host comparison, preparation costs and qualification](bench/wasmtime-host.md)
 
 ## How it was built
 

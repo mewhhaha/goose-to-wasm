@@ -47,6 +47,10 @@ and I/O differences contribute to the observed gap; it is not a bound on
 steady-state code generation, which remains a separate hill. Serial compilation
 was generally slower and remains a control rather than the default.
 
+Next, profile direct Sorting's generated code against native C. The [execution
+probes](../bench/results/2026-11-02/execution-boundaries/README.md) show a small
+precompiled setup cost alongside a substantial entry-time gap.
+
 ## Language and host coverage
 
 The [upstream sample survey](../bench/results/2026-11-01/examples/upstream-survey.json)

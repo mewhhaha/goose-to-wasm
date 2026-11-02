@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "reviewed_utc": "2026-11-02T09:35:03.211504+00:00",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "scope": "Read-only review of benchmark documentation, renderer, measured timing boundaries, retained raw data, archive identities and visual preview. Only this review file was written.",
+  "findings": [
+    "No blocking issues or unsupported causal claims found. Historical Python-hosted figures and the current native-host cohort are distinguished.",
+    "All 60 chart labels match the retained native-host report in order and value. Both panels explicitly repeat the same native C cohort; precompiled runtime excludes preparation.",
+    "The previous V8/Python chart is byte-identical to the implementation-base commit. Archived chart and diagnostic-input bytes match their workspace sources.",
+    "Independently checked 400 archived phase outputs against goldens and raw timing records, all 50 phase summaries, 90 control observations and paired summaries, and 45 archived control timing files.",
+    "All 68 phase input hashes still match. Report, host-library, chart, preview and archive identities are consistent. The control lack of pre/post hashes is disclosed.",
+    "The retained PNG shows all ten example groups and 60 labels with legible legends and timing-boundary notes; no overlap was observed.",
+    "Sorting supports a substantial remaining execution-path gap. Life variation remains unexplained; the documentation avoids attributing it to instrumentation, frequency or a universal engine penalty."
+  ],
+  "limitations": [
+    "No guest execution, performance sampling, build, test suite or renderer rerun was performed by this reviewer. Existing full host qualification and deterministic-render results were reviewed as retained evidence.",
+    "The phase probes are separate from headline measurements. Native main includes unbuffered stdout while Wasm entry excludes final host output delivery; neither is a pure compute kernel.",
+    "Control input hashes were recorded after collection only. The shared-host measurements do not isolate scheduling, frequency, layout or code-generation causes.",
+    "The final SHA256.json manifest is intentionally outside this review because it will be generated after this file."
+  ],
+  "reviewed_files_sha256": {
+    "README.md": "94894d0b084b4f04e9d28dc29224134e3ad9271620c1ba530e490c84f5715e63",
+    "bench/examples.md": "a91e0243406e2249a60b0c0b9ca3a6e18ba29db5fa9e83ad40eaf4193a265f5e",
+    "docs/RUNTIME_PERFORMANCE.md": "976e11aaa948a951d0b2543a4cd59b87a8eb5ab0cf36adb3459b2625d2fa6443",
+    "docs/PERFORMANCE_PLAN.md": "ed0ae51f66920de55c1c6a34b739b3d39e6ee3dff88ab8fab56f3dd54a293cd9",
+    "bench/example_runtime_charts.py": "8f51572fdce8202b61f9a168476b1adab5e6e14850ff45e656c23fdbf947ad23",
+    "bench/example_charts.py": "b72c61946f4a9d86321dd49d4aab8d10f69d066356e4664a08652f4ee51c6846",
+    "bench/wasmtime_host_charts.py": "053da677cedb55a81580f5c21b343e27ad6b796e82aa91a5eb6a8da05813a810",
+    "bench/charts/examples-runtime.svg": "8806c49acc61ac2dd2cd86423e8db5404a6ec5c61f041081620fd458a70d7921",
+    "bench/charts/examples-python-runtime.svg": "b6bac301a5712f8fbbc4a6fddf0803e1c38b2d1b1b3c8c176b6ad50527a0896c",
+    "bench/results/2026-11-02/wasmtime-host/report.json": "f98d1f9b4e93cc5064fda681a256a92a8d83ece62a96549ef64d5ab2ae4b98af",
+    "bench/results/2026-11-02/compact-examples/report.json": "1e75eb613041092b3539c5a4e0e11a44dc7710b5c4abb18dae7dc1e9f2ac3a28",
+    "build/benchmark-refresh/measure_phases.py": "55f4da28a4b1cd9bdd9c011ba090bba80b300082afd18c96ad2f33184a39c89c",
+    "build/benchmark-refresh/control_native_timer.py": "613d8fabeb91f3b7ed996201bf05b805f27106e8a62560a185728e36ca41c9fe",
+    "build/benchmark-refresh/native_main_timer.c": "f3c8af620e8f984d1069c71bd83d5e90a6aea9e01b2b64ada945f79a6bec55e8",
+    "build/benchmark-refresh/verify_refresh.py": "0e53493c8400e90de9c6b065f958f2f3d45d23abe1dce4315192d140a89ff13e",
+    "host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+    "docs/TARGET.md": "a0543bd1fa6f6b4e5bfe62fc0bf3d285460a28ca26cd9cb27e7ede4a36e4aa68",
+    "compiler/direct_wasm_expr.h": "720df9ecbd0a05c382381a8370e2819d8fcd7d86fd418701acaed426c60bbdfc",
+    "scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33",
+    "bench/results/2026-11-02/execution-boundaries/README.md": "6a884d9532384e63032ff9726a0660ea3977402f36171409d624c2639caaac83",
+    "bench/results/2026-11-02/execution-boundaries/identities.json": "c851a1676b74db9b320f1ce8842c1d031bdb79126cd35222e837a5dc4d495c39",
+    "bench/results/2026-11-02/execution-boundaries/chart-verification.json": "335fc5a83080280f825905ac20063a5f60b18ad6e453a64d9d1aea562063745f",
+    "bench/results/2026-11-02/execution-boundaries/phase-probes.json": "c5f74a9b601c78848ec2e1af35bb97ef0fcc4b4c2195ff56f3d2210e8fcdfda0",
+    "bench/results/2026-11-02/execution-boundaries/timer-control.json": "d7a5065fd394cdf5263488f89e069aba9af4eb2c9f6b23a20b1ba9907bd7234f",
+    "bench/results/2026-11-02/execution-boundaries/diagnostic-inputs.tar.gz": "ef71c8c52ca9621b6f4b54859ab7913027a797f98402506b9f82343d8d6ec78f",
+    "bench/results/2026-11-02/execution-boundaries/phase-samples.tar.gz": "5fab68a8f96e9c070df8d461caaccff4dcce83843301140d5efba808e8cc09ba",
+    "bench/results/2026-11-02/execution-boundaries/timer-control-samples.tar.gz": "1d4312960d1322f42a62d0a486f47a909c3b040d9f9078edf9395c00a30abca5",
+    "bench/results/2026-11-02/execution-boundaries/charts.tar.gz": "d1730951c44e039ba525d3ae0f6248b2794d4871d34d99781798ba424c2c2d68",
+    "bench/results/2026-11-02/execution-boundaries/runtime-preview.png": "607d03d56f80a1f1e2982b461e54877350c74407725e525a4affb8ee012288a5"
+  }
+}

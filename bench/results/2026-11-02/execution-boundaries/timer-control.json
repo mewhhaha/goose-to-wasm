@@ -1,0 +1,660 @@
+{
+  "status": "passed",
+  "samples": 15,
+  "observations": [
+    {
+      "name": "sorting",
+      "sample": 0,
+      "variant": "ordinary",
+      "process_seconds": 0.071522945,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 0,
+      "variant": "instrumented",
+      "process_seconds": 0.073921109,
+      "main_ns": 72782231
+    },
+    {
+      "name": "squares",
+      "sample": 0,
+      "variant": "instrumented",
+      "process_seconds": 0.00132443,
+      "main_ns": 223285
+    },
+    {
+      "name": "squares",
+      "sample": 0,
+      "variant": "ordinary",
+      "process_seconds": 0.000643304,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 0,
+      "variant": "ordinary",
+      "process_seconds": 0.017846876,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 0,
+      "variant": "instrumented",
+      "process_seconds": 0.035653879,
+      "main_ns": 34571760
+    },
+    {
+      "name": "sorting",
+      "sample": 1,
+      "variant": "ordinary",
+      "process_seconds": 0.070183046,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 1,
+      "variant": "instrumented",
+      "process_seconds": 0.073747238,
+      "main_ns": 72733298
+    },
+    {
+      "name": "life",
+      "sample": 1,
+      "variant": "ordinary",
+      "process_seconds": 0.018926731,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 1,
+      "variant": "instrumented",
+      "process_seconds": 0.018132721,
+      "main_ns": 17474749
+    },
+    {
+      "name": "squares",
+      "sample": 1,
+      "variant": "ordinary",
+      "process_seconds": 0.000664124,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 1,
+      "variant": "instrumented",
+      "process_seconds": 0.001278984,
+      "main_ns": 224847
+    },
+    {
+      "name": "squares",
+      "sample": 2,
+      "variant": "ordinary",
+      "process_seconds": 0.000648714,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 2,
+      "variant": "instrumented",
+      "process_seconds": 0.000722324,
+      "main_ns": 111592
+    },
+    {
+      "name": "sorting",
+      "sample": 2,
+      "variant": "ordinary",
+      "process_seconds": 0.045394873,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 2,
+      "variant": "instrumented",
+      "process_seconds": 0.045694162,
+      "main_ns": 44865084
+    },
+    {
+      "name": "life",
+      "sample": 2,
+      "variant": "ordinary",
+      "process_seconds": 0.018287916,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 2,
+      "variant": "instrumented",
+      "process_seconds": 0.017810348,
+      "main_ns": 17163136
+    },
+    {
+      "name": "squares",
+      "sample": 3,
+      "variant": "instrumented",
+      "process_seconds": 0.000727885,
+      "main_ns": 108366
+    },
+    {
+      "name": "squares",
+      "sample": 3,
+      "variant": "ordinary",
+      "process_seconds": 0.000639417,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 3,
+      "variant": "instrumented",
+      "process_seconds": 0.046620865,
+      "main_ns": 45670847
+    },
+    {
+      "name": "sorting",
+      "sample": 3,
+      "variant": "ordinary",
+      "process_seconds": 0.045070445,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 3,
+      "variant": "ordinary",
+      "process_seconds": 0.017839513,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 3,
+      "variant": "instrumented",
+      "process_seconds": 0.017825647,
+      "main_ns": 17158848
+    },
+    {
+      "name": "life",
+      "sample": 4,
+      "variant": "ordinary",
+      "process_seconds": 0.017889187,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 4,
+      "variant": "instrumented",
+      "process_seconds": 0.018002112,
+      "main_ns": 17313712
+    },
+    {
+      "name": "sorting",
+      "sample": 4,
+      "variant": "ordinary",
+      "process_seconds": 0.045253634,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 4,
+      "variant": "instrumented",
+      "process_seconds": 0.045341481,
+      "main_ns": 44447029
+    },
+    {
+      "name": "squares",
+      "sample": 4,
+      "variant": "instrumented",
+      "process_seconds": 0.001102748,
+      "main_ns": 137712
+    },
+    {
+      "name": "squares",
+      "sample": 4,
+      "variant": "ordinary",
+      "process_seconds": 0.001086357,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 5,
+      "variant": "instrumented",
+      "process_seconds": 0.00074632,
+      "main_ns": 111341
+    },
+    {
+      "name": "squares",
+      "sample": 5,
+      "variant": "ordinary",
+      "process_seconds": 0.001016534,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 5,
+      "variant": "ordinary",
+      "process_seconds": 0.045549066,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 5,
+      "variant": "instrumented",
+      "process_seconds": 0.072862995,
+      "main_ns": 72143867
+    },
+    {
+      "name": "life",
+      "sample": 5,
+      "variant": "instrumented",
+      "process_seconds": 0.018269742,
+      "main_ns": 17336556
+    },
+    {
+      "name": "life",
+      "sample": 5,
+      "variant": "ordinary",
+      "process_seconds": 0.017734833,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 6,
+      "variant": "instrumented",
+      "process_seconds": 0.017934444,
+      "main_ns": 17256955
+    },
+    {
+      "name": "life",
+      "sample": 6,
+      "variant": "ordinary",
+      "process_seconds": 0.017801631,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 6,
+      "variant": "instrumented",
+      "process_seconds": 0.000722003,
+      "main_ns": 115349
+    },
+    {
+      "name": "squares",
+      "sample": 6,
+      "variant": "ordinary",
+      "process_seconds": 0.001073964,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 6,
+      "variant": "ordinary",
+      "process_seconds": 0.044829857,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 6,
+      "variant": "instrumented",
+      "process_seconds": 0.045711936,
+      "main_ns": 44999159
+    },
+    {
+      "name": "life",
+      "sample": 7,
+      "variant": "instrumented",
+      "process_seconds": 0.03574426,
+      "main_ns": 34627425
+    },
+    {
+      "name": "life",
+      "sample": 7,
+      "variant": "ordinary",
+      "process_seconds": 0.01783795,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 7,
+      "variant": "ordinary",
+      "process_seconds": 0.001047413,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 7,
+      "variant": "instrumented",
+      "process_seconds": 0.000702567,
+      "main_ns": 114739
+    },
+    {
+      "name": "sorting",
+      "sample": 7,
+      "variant": "ordinary",
+      "process_seconds": 0.075407647,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 7,
+      "variant": "instrumented",
+      "process_seconds": 0.045450648,
+      "main_ns": 44716932
+    },
+    {
+      "name": "sorting",
+      "sample": 8,
+      "variant": "ordinary",
+      "process_seconds": 0.047315376,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 8,
+      "variant": "instrumented",
+      "process_seconds": 0.045715422,
+      "main_ns": 44984511
+    },
+    {
+      "name": "squares",
+      "sample": 8,
+      "variant": "instrumented",
+      "process_seconds": 0.000742132,
+      "main_ns": 112525
+    },
+    {
+      "name": "squares",
+      "sample": 8,
+      "variant": "ordinary",
+      "process_seconds": 0.001120282,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 8,
+      "variant": "ordinary",
+      "process_seconds": 0.017934022,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 8,
+      "variant": "instrumented",
+      "process_seconds": 0.017827531,
+      "main_ns": 17152196
+    },
+    {
+      "name": "sorting",
+      "sample": 9,
+      "variant": "instrumented",
+      "process_seconds": 0.044709998,
+      "main_ns": 44035195
+    },
+    {
+      "name": "sorting",
+      "sample": 9,
+      "variant": "ordinary",
+      "process_seconds": 0.045510182,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 9,
+      "variant": "ordinary",
+      "process_seconds": 0.001107647,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 9,
+      "variant": "instrumented",
+      "process_seconds": 0.001249147,
+      "main_ns": 222443
+    },
+    {
+      "name": "life",
+      "sample": 9,
+      "variant": "ordinary",
+      "process_seconds": 0.017784368,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 9,
+      "variant": "instrumented",
+      "process_seconds": 0.035492761,
+      "main_ns": 34510252
+    },
+    {
+      "name": "sorting",
+      "sample": 10,
+      "variant": "instrumented",
+      "process_seconds": 0.045206253,
+      "main_ns": 44560074
+    },
+    {
+      "name": "sorting",
+      "sample": 10,
+      "variant": "ordinary",
+      "process_seconds": 0.076876352,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 10,
+      "variant": "instrumented",
+      "process_seconds": 0.001227045,
+      "main_ns": 224447
+    },
+    {
+      "name": "squares",
+      "sample": 10,
+      "variant": "ordinary",
+      "process_seconds": 0.000675044,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 10,
+      "variant": "instrumented",
+      "process_seconds": 0.018206371,
+      "main_ns": 17528792
+    },
+    {
+      "name": "life",
+      "sample": 10,
+      "variant": "ordinary",
+      "process_seconds": 0.017979188,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 11,
+      "variant": "ordinary",
+      "process_seconds": 0.01803217,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 11,
+      "variant": "instrumented",
+      "process_seconds": 0.019055978,
+      "main_ns": 18094578
+    },
+    {
+      "name": "sorting",
+      "sample": 11,
+      "variant": "ordinary",
+      "process_seconds": 0.045431412,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 11,
+      "variant": "instrumented",
+      "process_seconds": 0.074530278,
+      "main_ns": 73561574
+    },
+    {
+      "name": "squares",
+      "sample": 11,
+      "variant": "instrumented",
+      "process_seconds": 0.000732914,
+      "main_ns": 109909
+    },
+    {
+      "name": "squares",
+      "sample": 11,
+      "variant": "ordinary",
+      "process_seconds": 0.00105106,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 12,
+      "variant": "ordinary",
+      "process_seconds": 0.046146311,
+      "main_ns": null
+    },
+    {
+      "name": "sorting",
+      "sample": 12,
+      "variant": "instrumented",
+      "process_seconds": 0.045606405,
+      "main_ns": 44604058
+    },
+    {
+      "name": "squares",
+      "sample": 12,
+      "variant": "ordinary",
+      "process_seconds": 0.000664033,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 12,
+      "variant": "instrumented",
+      "process_seconds": 0.001224219,
+      "main_ns": 223114
+    },
+    {
+      "name": "life",
+      "sample": 12,
+      "variant": "ordinary",
+      "process_seconds": 0.017834413,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 12,
+      "variant": "instrumented",
+      "process_seconds": 0.018680353,
+      "main_ns": 17749692
+    },
+    {
+      "name": "life",
+      "sample": 13,
+      "variant": "ordinary",
+      "process_seconds": 0.017870181,
+      "main_ns": null
+    },
+    {
+      "name": "life",
+      "sample": 13,
+      "variant": "instrumented",
+      "process_seconds": 0.018758682,
+      "main_ns": 17804877
+    },
+    {
+      "name": "sorting",
+      "sample": 13,
+      "variant": "instrumented",
+      "process_seconds": 0.045488861,
+      "main_ns": 44778239
+    },
+    {
+      "name": "sorting",
+      "sample": 13,
+      "variant": "ordinary",
+      "process_seconds": 0.061200475,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 13,
+      "variant": "ordinary",
+      "process_seconds": 0.001029248,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 13,
+      "variant": "instrumented",
+      "process_seconds": 0.001312938,
+      "main_ns": 224888
+    },
+    {
+      "name": "sorting",
+      "sample": 14,
+      "variant": "instrumented",
+      "process_seconds": 0.046631135,
+      "main_ns": 45570185
+    },
+    {
+      "name": "sorting",
+      "sample": 14,
+      "variant": "ordinary",
+      "process_seconds": 0.071361989,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 14,
+      "variant": "ordinary",
+      "process_seconds": 0.001192078,
+      "main_ns": null
+    },
+    {
+      "name": "squares",
+      "sample": 14,
+      "variant": "instrumented",
+      "process_seconds": 0.001273213,
+      "main_ns": 221091
+    },
+    {
+      "name": "life",
+      "sample": 14,
+      "variant": "instrumented",
+      "process_seconds": 0.018613445,
+      "main_ns": 17647477
+    },
+    {
+      "name": "life",
+      "sample": 14,
+      "variant": "ordinary",
+      "process_seconds": 0.035248307,
+      "main_ns": null
+    }
+  ],
+  "summary": [
+    {
+      "name": "squares",
+      "paired_ordinary_over_instrumented_median": 0.8980928226114597,
+      "paired_mad": 0.35567925118347177,
+      "ordinary": 0.001029248,
+      "instrumented": 0.001102748
+    },
+    {
+      "name": "sorting",
+      "paired_ordinary_over_instrumented_median": 0.9980625467438966,
+      "paired_mad": 0.03693557708398809,
+      "ordinary": 0.046146311,
+      "instrumented": 0.045711936
+    },
+    {
+      "name": "life",
+      "paired_ordinary_over_instrumented_median": 0.9875217856430587,
+      "paired_mad": 0.0348865738515266,
+      "ordinary": 0.017870181,
+      "instrumented": 0.018269742
+    }
+  ],
+  "method": "Separate matched within-pair ordinary/native-main-timer process control. Instrumented process includes its timing-file write; no throughput speedup is claimed."
+}
