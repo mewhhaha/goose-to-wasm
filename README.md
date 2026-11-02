@@ -10,13 +10,13 @@ Compile [Goose](https://github.com/aardappel/goose) directly to WebAssembly for 
 
 ![Cold build times by workload and backend](bench/charts/compilation.svg)
 
-Complete uncached builds include Python driver startup. Direct builds took 68–72 ms, 8.7–9.8× faster than C-to-Wasm on these inputs.
+Complete uncached builds include Python driver startup. Direct builds took 73–85 ms, 7.6–9.5× faster than C-to-Wasm on these inputs.
 
 ![Runtime by workload, backend, and engine](bench/charts/runtime.svg)
 
 Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine.
 
-[Full results and raw samples](bench/results/2026-11-02/native-hills/README.md) · [Benchmark method](bench/langarena/README.md)
+[Full results and raw samples](bench/results/2026-11-02/resource-free-calls/README.md) · [Benchmark method](bench/langarena/README.md)
 
 ### Runtime targets
 

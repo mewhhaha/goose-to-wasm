@@ -44,7 +44,7 @@ inline uint32_t Compiler::BoundRegions() {
 }
 
 inline void Function::RecordRegionCall(FnSpec *callee, Line line) {
-    if (frame_free) Fail(line, "internal: frame-free leaf called a nonintrinsic function");
+    if (frame_free && !c.Leaf(callee)) Fail(line, "internal: frame-free leaf called a resource-using function");
     if (c.needs_regions && !callee->sf->isextern)
         c.region_calls[spec].push_back({ callee, region_live, line });
 }

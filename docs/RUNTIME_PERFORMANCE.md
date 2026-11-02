@@ -1,5 +1,9 @@
 # Runtime performance work
 
+## Resource-free calls
+
+Proven resource-free recursive and fixed-reference calls omit frames, including numeric inline occurrences. In full-example entry probes, Sudoku's separate medians fell from 12.137 to 6.009 ms on V8 and 3.757 to 2.992 ms on Wasmtime. Median paired speedups were 1.642× (ratio MAD 0.326) and 1.259× (MAD 0.032); V8 varied more. Its module shrank from 11,953 to 10,966 bytes. The other nine modules were byte-identical, so timing changes there are noise. Nine fresh warmed reference rounds measured the Sudoku adapter at 1.066× baseline/current (MAD 0.002). The first SCC-only experiment (`f0d`) changed none of the ten modules; numeric inline support was needed. [Evidence](../bench/results/2026-11-02/resource-free-calls/README.md) records both.
+
 ## Native execution hills
 
 Leaf-frame removal, exact unsigned `popcnt`, power-of-two signed remainder, limited literal-divisor clones and direct unrolled-loop guards improve selected examples. Fifteen paired Wasmtime entry probes measured Life 24.256 → 12.953 ms, Sudoku 6.541 → 3.836 ms and Sorting 86.565 → 66.117 ms. Entry includes initialization and callbacks. Eight- and sixteen-way unrolling were rejected; four-way remains. The [dated evidence](../bench/results/2026-11-02/native-hills/README.md) includes controls, qualification and fresh process results.

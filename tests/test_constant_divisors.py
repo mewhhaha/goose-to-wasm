@@ -24,7 +24,7 @@ fn main() { print(mixed(observe(1,-17),8,observe(2,100),-3,observe(3,7))," ",ord
 FALLBACK = '''recursive fn changed(a:i64,var b:i64)->i64 { b++; return a%b; }
 recursive fn addressed(a:i64,var b:i64)->i64 { let alias:i64& = b; alias++; return a%b; }
 recursive fn captured(a:i64,var b:i64)->i64 { recursive fn bump() { b++; } bump(); return a%b; }
-recursive fn observe()->i64 { return 0; }
+recursive fn observe()->i64 { var values:i64[>..]=[0]; return values[0]; }
 recursive fn called(a:i64,b:i64)->i64 { let side=observe(); return a%b+side; }
 recursive fn shadowed(a:i64,b:i64)->i64 { { var b=3; b++; } return a%b; }
 recursive fn narrow(a:i32,b:i32)->i32 { a%b }

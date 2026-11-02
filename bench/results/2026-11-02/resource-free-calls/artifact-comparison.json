@@ -1,0 +1,186 @@
+{
+  "examples": [
+    {
+      "name": "errors",
+      "baseline_sha256": "5b8f0a9b50531e3ada87321ccf13fcec7eb4e704bedfb90e39d270a00890a13c",
+      "candidate_sha256": "5b8f0a9b50531e3ada87321ccf13fcec7eb4e704bedfb90e39d270a00890a13c",
+      "baseline_bytes": 26793,
+      "candidate_bytes": 26793,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/errors/direct/2/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/errors/direct/2/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "functions",
+      "baseline_sha256": "af0b0f335ca715222ca4bca98d9e3bf35d369ae0e434088559f2a541a866b789",
+      "candidate_sha256": "af0b0f335ca715222ca4bca98d9e3bf35d369ae0e434088559f2a541a866b789",
+      "baseline_bytes": 55269,
+      "candidate_bytes": 55269,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/functions/direct/3/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/functions/direct/3/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "life",
+      "baseline_sha256": "08b2f08a50382b41d7ad47a0e47bf8c73b7fa4fdcb0b7630a457b740b2ae5114",
+      "candidate_sha256": "08b2f08a50382b41d7ad47a0e47bf8c73b7fa4fdcb0b7630a457b740b2ae5114",
+      "baseline_bytes": 15719,
+      "candidate_bytes": 15719,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/life/direct/1/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/life/direct/1/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "maze",
+      "baseline_sha256": "0cdd10ea4bccd76b0d6f05cc6e22c2c12ed99b0b6c0761026c84abb278e4206b",
+      "candidate_sha256": "0cdd10ea4bccd76b0d6f05cc6e22c2c12ed99b0b6c0761026c84abb278e4206b",
+      "baseline_bytes": 21740,
+      "candidate_bytes": 21740,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/maze/direct/2/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/maze/direct/2/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "sieve",
+      "baseline_sha256": "93cde3a5e23c73a9833cb428afe0084887a9a41ef9eb336dc10c214038fd7ab5",
+      "candidate_sha256": "93cde3a5e23c73a9833cb428afe0084887a9a41ef9eb336dc10c214038fd7ab5",
+      "baseline_bytes": 7410,
+      "candidate_bytes": 7410,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/sieve/direct/2/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/sieve/direct/2/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "sorting",
+      "baseline_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "candidate_sha256": "61e459f92cde7bae85786859f21a6bc31c3222678a2c5349eb20c1c9901ce381",
+      "baseline_bytes": 63755,
+      "candidate_bytes": 63755,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/sorting/direct/2/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/sorting/direct/2/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "squares",
+      "baseline_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "candidate_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "baseline_bytes": 1367,
+      "candidate_bytes": 1367,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/squares/direct/2/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/squares/direct/2/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "sudoku",
+      "baseline_sha256": "0d91084230c4509a5856c8eaf63ce9c3072830a4d1ba33f40f08c20505c51693",
+      "candidate_sha256": "5baf57c7fa8bad4a1df4cada50d9b3cdf64af7b16f150a5e8a0c64ba8ebb6b09",
+      "baseline_bytes": 11953,
+      "candidate_bytes": 10966,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/sudoku/direct/0/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/sudoku/direct/0/program.wasm",
+      "identical": false,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "tour",
+      "baseline_sha256": "247a716b79a2f14b1ca5d73714969e20100c73ed1a0ca6153c8ad39ac7205c33",
+      "candidate_sha256": "247a716b79a2f14b1ca5d73714969e20100c73ed1a0ca6153c8ad39ac7205c33",
+      "baseline_bytes": 40157,
+      "candidate_bytes": 40157,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/tour/direct/0/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/tour/direct/0/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    },
+    {
+      "name": "vm",
+      "baseline_sha256": "4f9a3651123e040d4a51e09bc092c708973b478b47293b07c8fdf0bab85a987b",
+      "candidate_sha256": "4f9a3651123e040d4a51e09bc092c708973b478b47293b07c8fdf0bab85a987b",
+      "baseline_bytes": 29290,
+      "candidate_bytes": 29290,
+      "baseline_artifact": "build/native-hills/example-benchmarks/compile/vm/direct/0/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/examples/compile/vm/direct/0/program.wasm",
+      "identical": true,
+      "matches_paired_builds": true
+    }
+  ],
+  "langarena": [
+    {
+      "task": "CLBG::Fannkuchredux",
+      "baseline_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "candidate_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "baseline_bytes": 4598,
+      "candidate_bytes": 4598,
+      "baseline_artifact": "build/native-hills/langarena/logs/compile/adapted/CLBG_Fannkuchredux/direct/cold/3/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/langarena/logs/compile/adapted/CLBG_Fannkuchredux/direct/cold/3/program.wasm",
+      "identical": true
+    },
+    {
+      "task": "CLBG::Mandelbrot",
+      "baseline_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "candidate_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "baseline_bytes": 5194,
+      "candidate_bytes": 5194,
+      "baseline_artifact": "build/native-hills/langarena/logs/compile/adapted/CLBG_Mandelbrot/direct/cold/1/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/langarena/logs/compile/adapted/CLBG_Mandelbrot/direct/cold/1/program.wasm",
+      "identical": true
+    },
+    {
+      "task": "Etc::Sieve",
+      "baseline_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "candidate_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "baseline_bytes": 3655,
+      "candidate_bytes": 3655,
+      "baseline_artifact": "build/native-hills/langarena/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/langarena/logs/compile/adapted/Etc_Sieve/direct/cold/0/program.wasm",
+      "identical": true
+    },
+    {
+      "task": "Hash::CRC32",
+      "baseline_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+      "candidate_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+      "baseline_bytes": 3664,
+      "candidate_bytes": 3664,
+      "baseline_artifact": "build/native-hills/langarena/logs/compile/adapted/Hash_CRC32/direct/cold/4/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/langarena/logs/compile/adapted/Hash_CRC32/direct/cold/4/program.wasm",
+      "identical": true
+    },
+    {
+      "task": "Hash::SHA256",
+      "baseline_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+      "candidate_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+      "baseline_bytes": 6635,
+      "candidate_bytes": 6635,
+      "baseline_artifact": "build/native-hills/langarena/logs/compile/adapted/Hash_SHA256/direct/cold/0/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/langarena/logs/compile/adapted/Hash_SHA256/direct/cold/0/program.wasm",
+      "identical": true
+    },
+    {
+      "task": "Sort::Merge",
+      "baseline_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+      "candidate_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+      "baseline_bytes": 5798,
+      "candidate_bytes": 5798,
+      "baseline_artifact": "build/native-hills/langarena/logs/compile/adapted/Sort_Merge/direct/cold/0/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/langarena/logs/compile/adapted/Sort_Merge/direct/cold/0/program.wasm",
+      "identical": true
+    },
+    {
+      "task": "Sort::Quick",
+      "baseline_sha256": "68d8acad4abf19a4ffb5c79073855b79484f4acbd91cac7e401f64240d4d53e5",
+      "candidate_sha256": "68d8acad4abf19a4ffb5c79073855b79484f4acbd91cac7e401f64240d4d53e5",
+      "baseline_bytes": 4976,
+      "candidate_bytes": 4976,
+      "baseline_artifact": "build/native-hills/langarena/logs/compile/adapted/Sort_Quick/direct/cold/3/program.wasm",
+      "candidate_artifact": "build/runtime-reference/scc-current/langarena/logs/compile/adapted/Sort_Quick/direct/cold/3/program.wasm",
+      "identical": true
+    }
+  ]
+}

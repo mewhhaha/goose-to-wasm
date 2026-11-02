@@ -1206,7 +1206,7 @@ inline void Function::Write(const Slot &s) {
     if (s.kind == Slot::LOCAL) Set(s.index);
     else { auto v = Save(s.type); SlotAddress(s); Get(v); Store(s.type); }
 }
-inline void Function::ScanAddresses(Node *n) {
+inline void ScanAddressed(Node *n, unordered_set<VarDef *> &addressed) {
     if (!n || Is<FnDecl>(n) || Is<FunVal>(n)) return;
     if (auto id = Is<Ident>(n); id && id->vdef && n->exprtype &&
         n->exprtype->kind == TY_REF && id->vdef->type->kind != TY_REF)
@@ -1216,7 +1216,7 @@ inline void Function::ScanAddresses(Node *n) {
     if (auto d = Is<VarDecl>(n); d && d->byref)
         for (auto x : d->inits) if (auto id = Is<Ident>(x); id && id->vdef) addressed.insert(id->vdef);
     if (auto call = Is<Call>(n)) {
-        if (call->fvbody) ScanAddresses(call->fvbody);
+        if (call->fvbody) ScanAddressed(call->fvbody, addressed);
         auto args = call->ValueArgNodes();
         auto signature = call->spec ? call->spec : call->dispatch.empty() ? nullptr : call->dispatch.front();
         if (signature) {
@@ -1229,11 +1229,14 @@ inline void Function::ScanAddresses(Node *n) {
                 ai++;
             }
         }
-        for (auto a : args) ScanAddresses(a);
-        if (call->defaultinit) ScanAddresses(call->defaultinit);
+        for (auto a : args) ScanAddressed(a, addressed);
+        if (call->defaultinit) ScanAddressed(call->defaultinit, addressed);
         return;
     }
-    n->Children([&](Node *ch) { ScanAddresses(ch); });
+    n->Children([&](Node *ch) { ScanAddressed(ch, addressed); });
+}
+inline void Function::ScanAddresses(Node *n) {
+    ScanAddressed(n, addressed);
 }
 
 } // namespace direct_wasm

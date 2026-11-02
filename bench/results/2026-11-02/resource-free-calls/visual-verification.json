@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "method": "All ten SVG charts rendered to 1200px PNG and visually inspected for legible labels, panel titles, legends, whitespace and unclipped content. Nine standard charts independently match 373 summary labels; target chart matches 30 paired-ratio labels.",
+  "charts": {
+    "compilation.svg": {
+      "svg_sha256": "6916d6fcd1b706648d79ddf92c20e486b5865661c666da75b6e17b0494c6c5ac",
+      "preview": "compilation.png",
+      "preview_sha256": "6a66e436c6a9907bc4ef67f976b152c5d82cc19fd8dd7cafd0613c1ecf684a57"
+    },
+    "examples-compilation.svg": {
+      "svg_sha256": "dd5c3aa0ae9c2dad9fab8150a39d76b44243a65ecea3739cc07975d4ca19d6e0",
+      "preview": "examples-compilation.png",
+      "preview_sha256": "47cfa2bd04a17dbd934c84e0ee55e5a5e260f53284215a3134a4b0aaf179f82c"
+    },
+    "examples-entry.svg": {
+      "svg_sha256": "26866113ee4e5d187b077154981ae2c764ebafd8a23811c6a3160cab848f58fd",
+      "preview": "examples-entry.png",
+      "preview_sha256": "606e1ff232680a76ae7f49c38c86146defee7a9e09ea9f537d18b24edea62104"
+    },
+    "examples-python-runtime.svg": {
+      "svg_sha256": "611b97ffd2ee0e6b4415f5513a16e1fc11b92b963d86aeb3d86fdf634dd80c91",
+      "preview": "examples-python-runtime.png",
+      "preview_sha256": "45f56338d55e1fa2b2e91c638b90ca81a32b9c83245fdd61975eb00717faeca6"
+    },
+    "examples-runtime.svg": {
+      "svg_sha256": "ceb07b3e464e216ab36ba281a2b66011d60b17a33e0b7a150184ca89b81f87fe",
+      "preview": "examples-runtime.png",
+      "preview_sha256": "22b291e159b5687982a96a25c99cc8953813aa7a2ab8f752352b57f1585517ea"
+    },
+    "runtime-targets.svg": {
+      "svg_sha256": "7799f06b03bccbec3a6650e78ef7985eeeaaed9866fb26a877eac98cebfd995e",
+      "preview": "runtime-targets.png",
+      "preview_sha256": "b92dd2e5e4892a218a2c0313c205910249e0cdd7affc028896f852cca985bf12"
+    },
+    "runtime.svg": {
+      "svg_sha256": "3681f6f9965a246f75610b28cae79c7a3a5bdc1077cbfee1aa626ee54a073675",
+      "preview": "runtime.png",
+      "preview_sha256": "3cf14cf6fa60d85af73feda9462f97f4494de6026983a293059c84bcc3ded627"
+    },
+    "wasmtime-host-c-wasm.svg": {
+      "svg_sha256": "5f582712154bad07248ac885eeede7d5843901ba00b7d9378fb00252ec1eea00",
+      "preview": "wasmtime-host-c-wasm.png",
+      "preview_sha256": "8951a1b812b317033d0f201cb1a2b39ac8bc14a622a6c6b18f6b96e9731c0018"
+    },
+    "wasmtime-host-preparation.svg": {
+      "svg_sha256": "0fbb67863e3b2244abf6f479cee282d7e66c9021e3c9495c9f86bf42d6f54003",
+      "preview": "wasmtime-host-preparation.png",
+      "preview_sha256": "872debdc6264a74bb06fe95c21e08e677408cb030a878914fa8d0e24e3b5d371"
+    },
+    "wasmtime-host-runtime.svg": {
+      "svg_sha256": "993c1893e186b8fe96716ba2bb52795e43962d72f976285a1e4949dfc45a0531",
+      "preview": "wasmtime-host-runtime.png",
+      "preview_sha256": "a170ac97e454e0c55195137c40b0ada070183342553c1daa0c3df26079363a2f"
+    }
+  },
+  "numeric_labels_checked": 403
+}

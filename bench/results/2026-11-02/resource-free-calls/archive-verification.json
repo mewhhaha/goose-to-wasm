@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "command": [
+    "python",
+    "build/runtime-reference/verify_current.py"
+  ],
+  "exit_status": 0,
+  "wall_seconds": 8.395039597991854,
+  "stdout": "Verified 6 archives, 730 pinned sources, 813 guest aliases and 32535 public report guest identities\n",
+  "stderr": "",
+  "verifier_sha256": "9fc0f882191f24824ac452e3c53017545139c6652e7b62c7b2ba2b8cfacb52f9",
+  "archives": "archives.json.gz",
+  "archives_sha256": "9797ae14cb4350e7f4f75d845c0f5c7d79a3a3ecace55611dbceef1ef25b2d6b",
+  "omitted_inputs_exclude_retained_guest_hashes": true
+}

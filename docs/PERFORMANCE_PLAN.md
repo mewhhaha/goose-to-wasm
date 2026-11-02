@@ -1,6 +1,6 @@
 # More levers
 
-The [runtime targets](RUNTIME_TARGETS.md) rank the next measured work: custom hash and Life have the largest gaps to selected Wasm, followed by Quicksort and Sudoku. Insertion sort selects direct Wasm itself but remains far from tuned native. These workload-specific references use frozen confirmation selections.
+The [runtime targets](RUNTIME_TARGETS.md) rank the next measured work: Life and insertion sort remain about 7.1× and 6.9× selected native, with custom hash at 4.1×. Sudoku improved 1.066× in the fresh paired warmed adapter and remains 1.8× selected native. These workload-specific references use frozen confirmation selections.
 
 There is substantial headroom in code generation, compilation work and language
 coverage. The current evidence covers seven adapted LangArena workloads and ten
@@ -56,8 +56,8 @@ was generally slower and remains a control rather than the default.
 Four-way unrolling improved Sorting's Wasmtime entry time while preserving V8
 performance within measurement noise. Continue comparing generated code with
 native C to investigate the remaining entry-time gap; refreshed full-process
-measurements put precompiled Sorting at 65.535 ms versus 46.099 ms native,
-excluding preparation. See the [current measurements](../bench/results/2026-11-02/native-hills/README.md).
+measurements put precompiled Sorting at 68.899 ms versus 46.512 ms native,
+excluding preparation. See the [current measurements](../bench/results/2026-11-02/resource-free-calls/README.md).
 
 ## Language and host coverage
 

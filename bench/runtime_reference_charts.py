@@ -71,6 +71,87 @@ def validate(report):
     return table
 
 
+def apply_climb(table, report, reference, reference_sha256):
+    assert report["schema"] == "goose-runtime-climb-v1" and report["status"] == "passed"
+    assert report["reference_sha256"] == reference_sha256
+    assert report["workloads"] == reference["workloads"]
+    assert report["selection"] == reference["selection"]
+    assert report["configuration"]["cpu"] == reference["configuration"]["cpu"]
+    assert report["baseline_compiler_sha256"] == reference["inputs"][reference["configuration"]["goose"]]
+    pins = report["input_sha256"]
+    assert pins[report["configuration"]["reference"]] == reference_sha256
+    assert pins[report["configuration"]["goose"]] == report["candidate_compiler_sha256"]
+    assert all(pins.get(path) == expected for path, expected in reference["inputs"].items())
+    assert all(command["returncode"] == 0 and not command["error"] for command in report["commands"])
+    samples = report["configuration"]["samples"]
+    assert type(samples) is int and samples >= 9
+    for path, expected in pins.items():
+        assert digest(path) == expected, path
+    cases = {case["name"]: case for case in report["workloads"]}
+    assert set(cases) == {row["task"] for row in table}
+    assert set(report["artifacts"]) == set(cases)
+    expected_rows = set()
+    for task, case in cases.items():
+        selection = reference["selection"][task]
+        variants = {"direct-O2", "native-gcc-O2-generic", selection["native"]["variant"],
+                    selection["wasm"]["wasmtime"]["variant"]}
+        artifacts = report["artifacts"][task]
+        assert set(artifacts) == variants | {"candidate-O2"}
+        for variant in variants:
+            assert artifacts[variant] == reference["artifacts"][case["id"] + "/" + variant]
+        candidate = artifacts["candidate-O2"]
+        assert candidate["variant"] == "candidate-O2" and candidate["family"] == "direct"
+        for artifact in artifacts.values():
+            assert pins[artifact["path"]] == artifact["sha256"]
+            if artifact["family"] != "native":
+                assert pins[artifact["aot_path"]] == artifact["aot_sha256"]
+        expected_rows.add((task, "candidate-O2", "qualify", 0))
+        expected_rows.update((task, variant, "measure", i)
+                             for variant in artifacts for i in range(samples))
+    indexed = {}
+    observed_rows = set()
+    for observation in report["observations"]:
+        task, variant, round_ = observation["task"], observation["variant"], observation["round"]
+        phase = observation["phase"]
+        identity = task, variant, phase, round_
+        assert type(round_) is int and identity in expected_rows and identity not in observed_rows
+        observed_rows.add(identity)
+        profile = "run"
+        if phase == "qualify":
+            profile = "test"
+        engine = "wasmtime"
+        if report["artifacts"][task][variant]["family"] == "native":
+            engine = "native"
+        assert observation["engine"] == engine and observation["profile"] == profile
+        expected = cases[task][profile]["checksum"]
+        assert observation["checksum"] == observation["expected_checksum"] == expected
+        assert observation["revision_exit"] == 0
+        elapsed, wall = observation["timed_region_seconds"], observation["process_wall_seconds"]
+        assert math.isfinite(elapsed) and math.isfinite(wall) and 0 < elapsed <= wall
+        if phase != "measure":
+            continue
+        key = task, variant, round_
+        assert key not in indexed
+        indexed[key] = elapsed
+    assert observed_rows == expected_rows
+    for row in table:
+        task = row["task"]
+        variants = {"anchor": "native-gcc-O2-generic", "native": row["native_reference"],
+                    "direct": "candidate-O2", "wasm": row["wasm_reference"], "baseline": "direct-O2"}
+        for name, variant in variants.items():
+            row["times"][name] = arena.summarize([indexed[task, variant, i] for i in range(samples)])
+            row["relative_to_native"][name] = arena.summarize([
+                indexed[task, variant, i] / indexed[task, row["native_reference"], i]
+                for i in range(samples)])
+        row["direct_over_selected_wasm"] = arena.summarize([
+            indexed[task, "candidate-O2", i] / indexed[task, row["wasm_reference"], i]
+            for i in range(samples)])
+        row["baseline_over_current"] = arena.summarize([
+            indexed[task, "direct-O2", i] / indexed[task, "candidate-O2", i] for i in range(samples)])
+        row["wasm_reference_is_baseline"] = row.pop("wasm_self_reference")
+    return samples
+
+
 def render(report, table, destination):
     import matplotlib
     matplotlib.use("Agg")
@@ -124,6 +205,8 @@ def render(report, table, destination):
                   ncol=3, frameon=False)
     config = report["configuration"]
     rounds = f"{config['pilot_samples']} selection rounds · {config['samples']} fresh confirmation rounds"
+    if report.get("climb_comparison"):
+        rounds = f"{config['pilot_samples']} prior selection rounds · {config['samples']} fresh paired rounds"
     date = report["started_utc"][:10]
     figure.text(.075, .056, date + " · " + rounds + " · bars: median paired ratios · whiskers: ±MAD",
                 fontsize=9, color="#405372")
@@ -146,11 +229,18 @@ def render(report, table, destination):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report", type=Path)
+    parser.add_argument("--climb", type=Path, help="fresh candidate comparisons using the prior frozen references")
     parser.add_argument("--output", type=Path, default=Path("bench/charts/runtime-targets.svg"))
     parser.add_argument("--verification", type=Path, required=True)
     args = parser.parse_args()
     report = json.loads(args.report.read_text())
     table = validate(report)
+    climb = None
+    if args.climb:
+        climb = json.loads(args.climb.read_text())
+        report["configuration"]["samples"] = apply_climb(table, climb, report, digest(args.report))
+        report["started_utc"] = climb["started_utc"]
+        report["climb_comparison"] = True
     labels = render(report, table, args.output)
     svg = ET.parse(args.output).getroot()
     observed = []
@@ -161,6 +251,10 @@ def main():
     verification = {"status": "passed", "report_sha256": digest(args.report),
                     "chart_sha256": digest(args.output), "numeric_labels": labels, "table": table,
                     "method": "Raw confirmation samples only. Each series uses per-round ratios to the frozen selected native reference. Source fingerprints and positive timing intervals verified."}
+    if climb:
+        verification.update(climb_sha256=digest(args.climb),
+                            current_compiler_sha256=climb["candidate_compiler_sha256"],
+                            method="Fresh paired candidate comparisons against previously frozen references; no selection on the new measurements. Current direct Wasm, native anchor and selected references share the same rounds. Source fingerprints, workload checksums and timing intervals verified.")
     args.verification.parent.mkdir(parents=True, exist_ok=True)
     args.verification.write_text(json.dumps(verification, indent=2) + "\n")
     print(f"Verified {len(labels)} labels; wrote {args.output}")

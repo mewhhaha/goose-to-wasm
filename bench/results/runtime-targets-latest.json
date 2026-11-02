@@ -1,5 +1,13 @@
 {
   "schema": "goose-runtime-reference-latest-v1",
   "report": "2026-11-02/runtime-targets/references.json",
-  "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350"
+  "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "comparison": {
+    "report": "2026-11-02/resource-free-calls/warmed-paired.json",
+    "sha256": "f93ab56bba1fefa53ba3fd5d307f2c995f70b529da9c56efab385aac899887fc"
+  },
+  "chart_verification": {
+    "report": "2026-11-02/resource-free-calls/target-chart-verification.json",
+    "sha256": "bfc752c2ce7723c70ec40879d92e94238985da6bbb01627512a51ca915dfd37d"
+  }
 }
