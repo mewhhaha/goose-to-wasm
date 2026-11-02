@@ -3,7 +3,9 @@
 ## Engines and features
 
 The qualified engines are V8 13.6.233.17-node.58 through Node 24.22.1, and Wasmtime
-through Python package 50.0.1. `scripts/check_engines.py` assembles and executes
+through Python package 50.0.1. An optional native C API host links the same
+Wasmtime library; both hosts implement the known direct and standalone C ABI.
+`scripts/check_engines.py` assembles and executes
 feature probes in both engines. It checks numeric operations, sign extension,
 multi-value, bulk memory, SIMD, tail calls, memory64, multi-memory, and standard
 exception handling (`try_table`). Engine support does not imply that every Goose

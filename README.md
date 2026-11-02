@@ -28,6 +28,13 @@ All ten examples use the same constant inputs across backends and check their ou
 
 [Method, results and entry timings](bench/examples.md)
 
+The optional native Wasmtime host runs the same direct modules in a fresh process.
+Precompiled runs exclude preparation; native C still leads these direct examples.
+
+![Direct Wasm process times with Python and native Wasmtime hosts](bench/charts/wasmtime-host-runtime.svg)
+
+[Host comparison, preparation costs and qualification](bench/wasmtime-host.md)
+
 ## How it was built
 
 The direct backend is developed against Goose’s C backend as an oracle. Differential tests compile the same programs through direct Wasm, C-to-Wasm, and native C, then compare output, exit status, diagnostics, and independently calculated answers. Both Wasm paths run on V8 and Wasmtime. The [guide](docs/GUIDE.md#correctness-qualification) covers the tests and their limits.

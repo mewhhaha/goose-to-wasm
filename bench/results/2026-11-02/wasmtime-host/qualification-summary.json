@@ -1,0 +1,74 @@
+{
+  "schema": "goose-wasmtime-host-qualification-summary-v1",
+  "status": "pass",
+  "observations": 11340,
+  "expected_observations": 11340,
+  "failures": 0,
+  "runtime_failures": 0,
+  "preparation_failures": 0,
+  "compile_refusals": "Not rerun: compiler and all baseline input pins are unchanged.",
+  "baseline_cases": 966,
+  "baseline_observations": 9453,
+  "unique_wasm": 1557,
+  "coverage_exact": true,
+  "compiler_sha256": "3316710bb9d2b3100e94c2023000f0cb1b7517010ef04076314b4703fdcfcbba",
+  "boundary_report_sha256": "5d416fd0a975cf55d66cce52c524a8609d6b7c6b26f49ef8823d1a35a9cf0e71",
+  "boundary_methods": 10,
+  "boundary_exit_code": 0,
+  "final_benchmark_script_sha256": "654b3d617898be83bc712b32786a5e03ed512f1cf2b4b87fea832a6ed095567b",
+  "artifact_qualification_cells": 40,
+  "unique_serialized_artifacts": 20,
+  "serial_aot_prior_report_sha256": "1fabce0465c030c1687add13961e129d337a6058a61499b55013abc96bda3a47",
+  "serial_aot_harness_sha256": "3985ec8ea6e207b49467397acb49e1ac8fa0454c9a49f296224a18b33a0e5454",
+  "serial_aot_report_recorded_script_sha256": "3985ec8ea6e207b49467397acb49e1ac8fa0454c9a49f296224a18b33a0e5454",
+  "old_compact_report_sha256": "1e75eb613041092b3539c5a4e0e11a44dc7710b5c4abb18dae7dc1e9f2ac3a28",
+  "qualification_modes": {
+    "precompiled-no-parallel": {
+      "module_mode": "precompiled",
+      "parallel_compilation": false
+    },
+    "wasm": {
+      "module_mode": "wasm",
+      "parallel_compilation": true
+    },
+    "wasm-no-parallel": {
+      "module_mode": "wasm",
+      "parallel_compilation": false
+    }
+  },
+  "benchmark_modes": [
+    "native",
+    "native-C",
+    "native-serial",
+    "precompiled",
+    "python"
+  ],
+  "source_pin_sha256": {
+    "host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+    "host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+    "scripts/build_wasmtime_host.py": "4db7fe9ba6f4c8215e08ffed3dea590dadccc323e86cfdba6e33b10fafa2bdb4",
+    "scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+    "bench/qualify_wasmtime_host.py": "0e54a3342fe0b0812d7ab26178bc4209709abf0bc77d06720dfba5c6a575fd58",
+    "tests/test_native_wasmtime.py": "60d5fc2f1b4165cb398d27fb21f881107d17ffd422778f3769ddf12df80537c9",
+    "build/wasmtime-host/qualify_boundaries.py": "7a5d85a0d5802078c1b4d2b7c94a6adb85678639ee5f07ab077acf0523fca724",
+    "build/bin/goose": "3316710bb9d2b3100e94c2023000f0cb1b7517010ef04076314b4703fdcfcbba",
+    "bench/wasmtime_host.py": "654b3d617898be83bc712b32786a5e03ed512f1cf2b4b87fea832a6ed095567b",
+    "bench/wasmtime_host_charts.py (post-measurement)": "053da677cedb55a81580f5c21b343e27ad6b796e82aa91a5eb6a8da05813a810",
+    "frozen serial-AOT harness": "3985ec8ea6e207b49467397acb49e1ac8fa0454c9a49f296224a18b33a0e5454",
+    "old serial-AOT measured script identity": "3985ec8ea6e207b49467397acb49e1ac8fa0454c9a49f296224a18b33a0e5454"
+  },
+  "sdk_pin": {
+    "version": "50.0.1",
+    "targets": {
+      "linux-x86_64": {
+        "asset": "wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz",
+        "sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d"
+      }
+    }
+  },
+  "note": "Prior serial-AOT cohort uses its frozen exact harness; it is not attributed to the current harness.",
+  "benchmark_runtime_observations": 1440,
+  "benchmark_preparation_observations": 200,
+  "qualification_report_uncompressed_sha256": "87a398fabcd0381e5284a51cd4ae569dba8509b7e07746d267d1e85a69ad980f",
+  "qualification_report_compressed_sha256": "3d09b205ef608cf4b61495d3f376d1eb3ceb59e1494f4e5c232559f67fef8347"
+}

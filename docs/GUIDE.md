@@ -53,6 +53,24 @@ interface to the reference pipelines. Direct compilation needs no Emscripten
 installation. A qualification test runs it with an empty `PATH` and unavailable
 C-compiler paths.
 
+## Optional native Wasmtime host
+
+On Linux x86_64, install the pinned Python requirements and build with C++20
+`clang++`. The builder downloads and checks the pinned official SDK headers and
+links the same Wasmtime 50.0.1 library used by the Python runner.
+
+```sh
+python scripts/build_wasmtime_host.py
+build/bin/goose-wasmtime build/squares.wasm
+build/bin/goose-wasmtime --compile build/squares.wasm build/squares.cwasm
+build/bin/goose-wasmtime --precompiled build/squares.cwasm
+```
+
+Normal execution compiles the module on every launch. Precompiled artifacts
+contain native code and depend on the Wasmtime version and CPU; load only
+trusted artifacts you produced for the target. [Wasmtime documents serialization](https://docs.wasmtime.dev/examples-serialize.html). See the [host measurements](../bench/wasmtime-host.md)
+for preparation costs and coverage.
+
 ## The three compilation paths
 
 | Driver backend | Pipeline | Output |
@@ -373,7 +391,7 @@ medians from 12.3–14.7 ms to 9.5–10.9 ms. [Raw timings and limitations](../b
 | `oracle/` | Checked C runtime patch, Emscripten driver, and retained qualification corpus |
 | `scripts/bootstrap.py` | Reproducible compiler build and source verification |
 | `scripts/goose_wasm.py` | Common driver, module cache, and persistent build server |
-| `scripts/run_wasm.mjs`, `scripts/run_wasmtime.py` | Engine hosts and explicit runtime services |
+| `scripts/run_wasm.mjs`, `scripts/run_wasmtime.py`, `host/wasmtime.cpp` | Engine hosts and explicit runtime services |
 | `tests/` | Direct/reference comparisons and incremental contracts |
 | `bench/` | Runtime-input workloads and reproducible measurement harnesses |
 

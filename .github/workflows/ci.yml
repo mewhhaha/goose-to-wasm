@@ -61,6 +61,10 @@ jobs:
           cat build/toolchain.json
       - name: Verify shared engine features
         run: python scripts/check_engines.py --output build/engine-probes.json
+      - name: Native Wasmtime host and ABI boundaries
+        run: |
+          python scripts/build_wasmtime_host.py
+          python tests/test_native_wasmtime.py
       - name: Oracle source and driver contracts
         run: |
           python oracle/tests/test_bootstrap.py
@@ -163,9 +167,13 @@ jobs:
         run: >-
           python bench/examples.py squares tour --smoke --samples 2 --compile-samples 1
           --warmups 0 --output-dir build/example-benchmark-smoke
+      - name: Native Wasmtime host benchmark correctness smoke
+        run: >-
+          python bench/wasmtime_host.py squares tour --smoke --prepare-samples 1 --samples 2 --warmups 0
+          --example-report build/example-benchmark-smoke/report.json --output-dir build/wasmtime-host/smoke
       - name: Package compiler and corresponding sources
         run: |
-          tar --exclude=source/.git -C build -czf build/compiler-linux-x64.tar.gz bin source toolchain.json source.json
+          tar --exclude=source/.git --exclude=bin/goose-wasmtime --exclude=bin/goose-wasmtime.json -C build -czf build/compiler-linux-x64.tar.gz bin source toolchain.json source.json
       - name: Publish qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -187,4 +195,6 @@ jobs:
             build/isolated-sieve-smoke/
             build/benchmark-smoke/
             build/example-benchmark-smoke/
+            build/wasmtime-host/smoke/
+            build/bin/goose-wasmtime.json
             build/incremental-benchmark.json

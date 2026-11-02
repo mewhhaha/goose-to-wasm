@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "labels": 120,
+  "charts": [
+    {
+      "chart": "bench/charts/wasmtime-host-runtime.svg",
+      "labels": 40,
+      "sha256": "1fabd81793669f1e7e4f4ddff94fb28a8771a3f81b8cfbdb8ed42d66eb6e2f54"
+    },
+    {
+      "chart": "bench/charts/wasmtime-host-c-wasm.svg",
+      "labels": 40,
+      "sha256": "86957692d73f39d176731b4994b5d9ee9686685b264cb32375d405dc971c7121"
+    },
+    {
+      "chart": "bench/charts/wasmtime-host-preparation.svg",
+      "labels": 40,
+      "sha256": "6263fc3e82decb4c22c5aac7a3c61df3a7caac46b7c98748dc7e505c8472fa10"
+    }
+  ],
+  "visual_inspection": {
+    "status": "passed",
+    "rendered_width": 1500,
+    "charts": 3,
+    "checks": [
+      "Labels, legends and preparation boundary visible",
+      "No clipping or text overlap"
+    ]
+  }
+}

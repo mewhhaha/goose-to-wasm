@@ -40,7 +40,12 @@ experiments, including rejected ones.
 
 ## Native-host comparison
 
-The fresh Node and Python runners have measurable launch costs in the [startup controls](../bench/results/2026-11-02/native-gap/README.md). A native-host launcher and optional cached or AOT engine artifacts are separate proposed measurement lanes. Include artifact preparation in compilation cost, retain the ordinary fresh-process lane, and validate the same ABI, output, traps and memory behavior. These controls are independent observations, not a hard performance bound.
+The [native Wasmtime host comparison](../bench/wasmtime-host.md) now measures
+fresh compilation and explicit precompiled loading alongside the Python host.
+Preparation matters for one-off runs, and direct Wasm still trails native C. Host, callback
+and I/O differences contribute to the observed gap; it is not a bound on
+steady-state code generation, which remains a separate hill. Serial compilation
+was generally slower and remains a control rather than the default.
 
 ## Language and host coverage
 

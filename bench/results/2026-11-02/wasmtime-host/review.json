@@ -1,0 +1,165 @@
+{
+  "schema": "goose-native-wasmtime-evidence-review-v1",
+  "status": "passed",
+  "reviewed_utc": "2026-11-02T08:31:53.867062+00:00",
+  "method": "Independent read-only recomputation from both packaged cohorts, archive members, retained differential references and current pinned case expectations. No guest execution, tests, compilation or performance measurement was rerun.",
+  "checks": {
+    "status": "passed",
+    "archives": 5,
+    "archive_map_entries": 62390,
+    "unique_archive_members": 62010,
+    "final_runtime_observations": 1440,
+    "final_preparation_observations": 200,
+    "final_artifact_configuration_qualifications": 40,
+    "unique_example_aot_bytes": 20,
+    "full_replay_observations": 11340,
+    "full_replay_unique_wasm": 1557,
+    "boundary_methods": 10,
+    "arithmetic_checked": [
+      "all final and prior-cohort median, MAD, min, max, quartiles, sample arrays",
+      "all 120 final and prior-cohort paired summaries",
+      "all 40 final and prior-cohort amortization estimates"
+    ],
+    "host_sha256": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "selected_direct_medians_ms": [
+      {
+        "name": "squares",
+        "python": 84.204177,
+        "native": 5.107984,
+        "native-serial": 4.867293,
+        "precompiled": 2.2329239999999997,
+        "native-C": 0.773277
+      },
+      {
+        "name": "sorting",
+        "python": 235.586566,
+        "native": 159.33378100000002,
+        "native-serial": 181.248085,
+        "precompiled": 118.099156,
+        "native-C": 46.073544
+      },
+      {
+        "name": "sudoku",
+        "python": 103.66671099999999,
+        "native": 18.953733,
+        "native-serial": 21.415249,
+        "precompiled": 8.952304,
+        "native-C": 4.392568000000001
+      },
+      {
+        "name": "maze",
+        "python": 111.03102600000001,
+        "native": 30.125766,
+        "native-serial": 41.956052,
+        "precompiled": 2.850593,
+        "native-C": 0.8362769999999999
+      },
+      {
+        "name": "life",
+        "python": 133.618535,
+        "native": 53.319486,
+        "native-serial": 52.016633999999996,
+        "precompiled": 26.931178,
+        "native-C": 18.572315999999997
+      }
+    ]
+  },
+  "independent_case_expectation_checks": {
+    "goldens": 10668,
+    "diagnostics": 1488,
+    "stdin": 11340,
+    "module_identity": 11340
+  },
+  "raw_byte_checks": {
+    "example_runtime_outputs": 2880,
+    "example_aot_artifact_configuration_outputs": 80,
+    "differential_replay_outputs": 11340
+  },
+  "identities": {
+    "host_sha256": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "python_and_native_library_sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "compiler_sha256": "3316710bb9d2b3100e94c2023000f0cb1b7517010ef04076314b4703fdcfcbba",
+    "packaged_elf_dependency": "DT_NEEDED names the exact absolute Python wheel _libwasmtime.so path; verified with readelf.",
+    "aot_identity": "All 20 example AOT identities are identical across parallel and serial preparation and across both retained cohorts."
+  },
+  "documentation_review": [
+    "Selected process medians, preparation medians, preparation-plus-one estimates and break-even estimates agree with raw final data.",
+    "AOT preparation is excluded from runtime bars and accounted for separately; sums and ratios are identified as estimates.",
+    "Fresh native reference executions are distinguished from reused artifact builds and separately collected differential references.",
+    "The full replay covers default Wasm, serial-compilation Wasm and serial-loader AOT; default-loader AOT coverage is separately stated as boundary tests and example artifacts.",
+    "Native C superiority is scoped to these direct examples; C-Wasm Life AOT 6.754 ms versus native C 18.572 ms is disclosed alongside 17.666 ms preparation.",
+    "Full-replay binary omissions, retained hashes, prior fixture/source evidence and absolute-path host binary limitations are disclosed."
+  ],
+  "reviewed_package_sha256": {
+    "report.json": "f98d1f9b4e93cc5064fda681a256a92a8d83ece62a96549ef64d5ab2ae4b98af",
+    "serial-aot-experiment.json": "1fabce0465c030c1687add13961e129d337a6058a61499b55013abc96bda3a47",
+    "host-build.json": "16943ad0629fb39f705cdc0a813b30085d1f05c74271aed7533ec91a09419bd0",
+    "goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "goose-wasmtime.json": "27f56e970f1ebc49ff02d071491193abfd00d4441180ac346b2ef765cbd5e482",
+    "wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+    "wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+    "qualification-report.json.gz": "3d09b205ef608cf4b61495d3f376d1eb3ceb59e1494f4e5c232559f67fef8347",
+    "boundary-report.json": "5d416fd0a975cf55d66cce52c524a8609d6b7c6b26f49ef8823d1a35a9cf0e71",
+    "boundary-tests.log": "6b1712f6fa841e1f12bfe95545a56e2ba14be289139441dd72561a449c0ffc45",
+    "archive-map.json.gz": "24ada5182e91110e93ccf7aa3a3a1ac1836ca0dc4fefe0e545be60ed72e1268a",
+    "source-and-guest-inputs.tar.gz": "3e5f2ca93e6bcbe415192defe30aa0300e62f7ab09fe0cde2e9045ee75721573",
+    "bench-samples.tar.gz": "2672c020945b1dfb6ae1308093bac181f7b44d5ab604576a222aa9dc0d6bba68",
+    "qualification-logs.tar.gz": "f74cacf958c62c7261961bd964b0a1283f1e12c0785b4d42ef4e1032e05ce951",
+    "wasmtime-sdk-headers.tar.gz": "4ac0a32bb29902b61d36b176950cb0248eb9b5c391be0311029b1f4834671a6b",
+    "measure-serial-aot.py": "3985ec8ea6e207b49467397acb49e1ac8fa0454c9a49f296224a18b33a0e5454",
+    "README.md": "f267641af5c0e76cd405f5cba65e688c5294e0d7d59e0645e957cb062794844b",
+    "charts.tar.gz": "180d6ca74039659199fc84b2c7e5b6645f18d2e93bd8204eb240d39f5128316a",
+    "chart-verification.json": "68599186ac2cbc2cc4345b5ededf78c638ed4aaf7e7647855d67f8b1bc609921",
+    "qualification-summary.json": "b7d542842a1e2733006757da3cc985117f61612e5284b222a0c37cd6ed5004de",
+    "reproduction/build_wasmtime_host.py": "4db7fe9ba6f4c8215e08ffed3dea590dadccc323e86cfdba6e33b10fafa2bdb4",
+    "reproduction/check_charts.py": "73a84dfd5a8810ce119dec38f614e9996f3caa6384f9b1256641b1f0c38b1c06",
+    "reproduction/example_charts.py": "b72c61946f4a9d86321dd49d4aab8d10f69d066356e4664a08652f4ee51c6846",
+    "reproduction/finalize.py": "69a407b7133afd0858ed49160276892bfba10ff4df2a9c96436b41b7e2751bf6",
+    "reproduction/package.py": "53103f1b1f9ce2891c53066da2a073b011db298f42c378659cea9d39f8b37e72",
+    "reproduction/qualify_boundaries.py": "7a5d85a0d5802078c1b4d2b7c94a6adb85678639ee5f07ab077acf0523fca724",
+    "reproduction/qualify_wasmtime_host.py": "0e54a3342fe0b0812d7ab26178bc4209709abf0bc77d06720dfba5c6a575fd58",
+    "reproduction/wasmtime_host.py": "654b3d617898be83bc712b32786a5e03ed512f1cf2b4b87fea832a6ed095567b",
+    "reproduction/wasmtime_host_charts.py": "053da677cedb55a81580f5c21b343e27ad6b796e82aa91a5eb6a8da05813a810"
+  },
+  "reviewed_document_sha256": {
+    "README.md": "063f4a2c6256d39160ce9d1818029f8212524b08f3edb69b9d9f7eff5405be8c",
+    "bench/wasmtime-host.md": "50b628a2fa81b7619d7c9c85f4b95648d481d096975de3d884716cc0ce6265a8",
+    "docs/GUIDE.md": "ed6441b862b19d6a715bb0be606ac01ebd265dd2d6852dd4d2e53a7206ed777c",
+    "docs/PERFORMANCE_PLAN.md": "aa0aa4e5613f857137a78ed8738a245ed5d46b40fdf723fcfd41b59fcf736afd",
+    "bench/results/wasmtime-host-latest.json": "7ca8533e1d68678a4af4a56f47bd801c321235e5cfb673892fd7598e0707465f"
+  },
+  "scope": "Numerical, raw-output, coverage, archive-integrity, provenance, documentation and SVG numeric-label review. The final delivery checksum manifest is regenerated after this review; visual chart inspection was performed separately.",
+  "findings": [],
+  "metadata_review_utc": "2026-11-02T08:37:41.646784+00:00",
+  "post_measurement_chart_addendum": {
+    "status": "passed",
+    "new_archive_members": 6,
+    "core_map_integrity": {
+      "old_sha256": "0fb3c0d6eb3077fb45951af80d2f11e1169e539a251eebddea6d4298eef6e032",
+      "original_gzip_mtime": 1793607406,
+      "entries": 62384,
+      "status": "passed"
+    },
+    "numeric_labels_recomputed": 120,
+    "charts": [
+      {
+        "chart": "bench/charts/wasmtime-host-runtime.svg",
+        "labels": 40,
+        "sha256": "1fabd81793669f1e7e4f4ddff94fb28a8771a3f81b8cfbdb8ed42d66eb6e2f54"
+      },
+      {
+        "chart": "bench/charts/wasmtime-host-c-wasm.svg",
+        "labels": 40,
+        "sha256": "86957692d73f39d176731b4994b5d9ee9686685b264cb32375d405dc971c7121"
+      },
+      {
+        "chart": "bench/charts/wasmtime-host-preparation.svg",
+        "labels": 40,
+        "sha256": "6263fc3e82decb4c22c5aac7a3c61df3a7caac46b7c98748dc7e505c8472fa10"
+      }
+    ],
+    "embedded_report_host_library_identities": "passed",
+    "visual_inspection": "Separate parent inspection retained in chart-verification.json; not rerun in this metadata audit.",
+    "summary_fields_and_latest_pointer": "passed"
+  }
+}

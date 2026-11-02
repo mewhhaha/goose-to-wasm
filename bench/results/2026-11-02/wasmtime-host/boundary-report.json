@@ -1,0 +1,47 @@
+{
+  "schema": "goose-native-host-boundaries-v1",
+  "status": "pass",
+  "methods": 10,
+  "exit_code": 0,
+  "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "/home/jacobt/src/goose-to-wasm/tests/test_native_wasmtime.py",
+    "--host",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"
+  ],
+  "source_sha256": {
+    "/home/jacobt/src/goose-to-wasm/tests/test_native_wasmtime.py": "60d5fc2f1b4165cb398d27fb21f881107d17ffd422778f3769ddf12df80537c9",
+    "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+    "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "4db7fe9ba6f4c8215e08ffed3dea590dadccc323e86cfdba6e33b10fafa2bdb4",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+    "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+    "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/qualify_boundaries.py": "7a5d85a0d5802078c1b4d2b7c94a6adb85678639ee5f07ab077acf0523fca724"
+  },
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/tests/test_native_wasmtime.py": "60d5fc2f1b4165cb398d27fb21f881107d17ffd422778f3769ddf12df80537c9",
+    "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+    "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "4db7fe9ba6f4c8215e08ffed3dea590dadccc323e86cfdba6e33b10fafa2bdb4",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+    "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+    "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/qualify_boundaries.py": "7a5d85a0d5802078c1b4d2b7c94a6adb85678639ee5f07ab077acf0523fca724",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json": "27f56e970f1ebc49ff02d071491193abfd00d4441180ac346b2ef765cbd5e482",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e"
+  },
+  "input_sha256_after": {
+    "/home/jacobt/src/goose-to-wasm/tests/test_native_wasmtime.py": "60d5fc2f1b4165cb398d27fb21f881107d17ffd422778f3769ddf12df80537c9",
+    "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+    "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "4db7fe9ba6f4c8215e08ffed3dea590dadccc323e86cfdba6e33b10fafa2bdb4",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+    "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+    "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/qualify_boundaries.py": "7a5d85a0d5802078c1b4d2b7c94a6adb85678639ee5f07ab077acf0523fca724",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json": "27f56e970f1ebc49ff02d071491193abfd00d4441180ac346b2ef765cbd5e482",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e"
+  },
+  "host_sha256": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+  "library_sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+  "log": "boundaries.log"
+}
