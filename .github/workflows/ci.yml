@@ -106,6 +106,7 @@ jobs:
           python tests/test_owned_struct_boundaries.py
           python tests/test_packed_layout_boundaries.py
           python tests/test_array_images.py
+          python tests/test_array_image_modes.py
           python tests/test_sparse_array_images.py
           python tests/test_record_images.py
           python tests/test_enum_tags.py

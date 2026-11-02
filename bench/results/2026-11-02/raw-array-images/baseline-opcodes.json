@@ -1,0 +1,1195 @@
+{
+  "method": "Static LLVM Wasm opcode disassembly. Offset20 mode-store counts are a diagnostic, not a proof: unrelated fields could use the same offset.",
+  "tool": "LLVM (http://llvm.org/):\n  LLVM version 23.1.4\n  Optimized build.\n\n\n  Registered Targets:\n    aarch64     - AArch64 (little endian)\n    aarch64_32  - AArch64 (little endian ILP32)\n    aarch64_be  - AArch64 (big endian)\n    amdgcn      - legacy name for amdgpu\n    amdgpu      - AMDGPU gfx6+\n    arm         - ARM\n    arm64       - ARM64 (little endian)\n    arm64_32    - ARM64 (little endian ILP32)\n    armeb       - ARM (big endian)\n    avr         - Atmel AVR Microcontroller\n    bpf         - BPF (host endian)\n    bpfeb       - BPF (big endian)\n    bpfel       - BPF (little endian)\n    hexagon     - Hexagon\n    lanai       - Lanai\n    loongarch32 - 32-bit LoongArch\n    loongarch64 - 64-bit LoongArch\n    mips        - MIPS (32-bit big endian)\n    mips64      - MIPS (64-bit big endian)\n    mips64el    - MIPS (64-bit little endian)\n    mipsel      - MIPS (32-bit little endian)\n    msp430      - MSP430 [experimental]\n    nvptx       - NVIDIA PTX 32-bit\n    nvptx64     - NVIDIA PTX 64-bit\n    ppc32       - PowerPC 32\n    ppc32le     - PowerPC 32 LE\n    ppc64       - PowerPC 64\n    ppc64le     - PowerPC 64 LE\n    r600        - AMD GPUs HD2XXX-HD6XXX\n    riscv32     - 32-bit RISC-V\n    riscv32be   - 32-bit big endian RISC-V\n    riscv64     - 64-bit RISC-V\n    riscv64be   - 64-bit big endian RISC-V\n    sparc       - Sparc\n    sparcel     - Sparc LE\n    sparcv9     - Sparc V9\n    spirv       - SPIR-V Logical\n    spirv32     - SPIR-V 32-bit\n    spirv64     - SPIR-V 64-bit\n    systemz     - SystemZ\n    thumb       - Thumb\n    thumbeb     - Thumb (big endian)\n    ve          - VE\n    wasm32      - WebAssembly 32-bit\n    wasm64      - WebAssembly 64-bit\n    x86         - 32-bit X86: Pentium-Pro and above\n    x86-64      - 64-bit X86: EM64T and AMD64\n    xcore       - XCore\n",
+  "examples": [
+    {
+      "name": "squares",
+      "sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 188,
+          "locals": 16,
+          "calls": 6,
+          "branches": 1,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 8,
+          "locals": 1,
+          "calls": 1,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {},
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "tour",
+      "sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 16569,
+          "locals": 1365,
+          "calls": 586,
+          "branches": 547,
+          "divisions": 52,
+          "remainder": 0,
+          "br_tables": 70
+        },
+        {
+          "name": "divide#4",
+          "instructions": 121,
+          "locals": 10,
+          "calls": 3,
+          "branches": 2,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 89,
+          "locals": 3,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 7,
+        "3": 1
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "functions",
+      "sha256": "ddab366d518ba1c4199532c9023b3cffaabeb46bd0e6f3db4d776d1f8fc7b682",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 16361,
+          "locals": 1317,
+          "calls": 482,
+          "branches": 648,
+          "divisions": 63,
+          "remainder": 2,
+          "br_tables": 85
+        },
+        {
+          "name": "sort#19",
+          "instructions": 3946,
+          "locals": 719,
+          "calls": 25,
+          "branches": 44,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort_pivot#25",
+          "instructions": 2617,
+          "locals": 512,
+          "calls": 16,
+          "branches": 17,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort#39",
+          "instructions": 4124,
+          "locals": 719,
+          "calls": 39,
+          "branches": 44,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "by_name#41",
+          "instructions": 444,
+          "locals": 51,
+          "calls": 5,
+          "branches": 9,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort_pivot#45",
+          "instructions": 2758,
+          "locals": 512,
+          "calls": 31,
+          "branches": 17,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 12
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "errors",
+      "sha256": "eb268d511caac3dbb967f414a1a5912e028d985bc3bdee34a9c97035217ffcc4",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 4871,
+          "locals": 360,
+          "calls": 164,
+          "branches": 171,
+          "divisions": 10,
+          "remainder": 0,
+          "br_tables": 24
+        },
+        {
+          "name": "parse_age#1",
+          "instructions": 181,
+          "locals": 16,
+          "calls": 5,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "parse_int#6",
+          "instructions": 501,
+          "locals": 45,
+          "calls": 5,
+          "branches": 7,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "trim#2",
+          "instructions": 447,
+          "locals": 49,
+          "calls": 3,
+          "branches": 6,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "find_user#7",
+          "instructions": 286,
+          "locals": 30,
+          "calls": 3,
+          "branches": 9,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "report#9",
+          "instructions": 1650,
+          "locals": 128,
+          "calls": 55,
+          "branches": 45,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 6
+        },
+        {
+          "name": "load#10",
+          "instructions": 904,
+          "locals": 60,
+          "calls": 22,
+          "branches": 30,
+          "divisions": 6,
+          "remainder": 0,
+          "br_tables": 4
+        },
+        {
+          "name": "each_split#11",
+          "instructions": 3759,
+          "locals": 334,
+          "calls": 65,
+          "branches": 97,
+          "divisions": 16,
+          "remainder": 0,
+          "br_tables": 12
+        },
+        {
+          "name": "message#14",
+          "instructions": 762,
+          "locals": 93,
+          "calls": 13,
+          "branches": 7,
+          "divisions": 1,
+          "remainder": 1,
+          "br_tables": 0
+        },
+        {
+          "name": "parse_record#12",
+          "instructions": 2380,
+          "locals": 206,
+          "calls": 45,
+          "branches": 61,
+          "divisions": 8,
+          "remainder": 0,
+          "br_tables": 8
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 13
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "sieve",
+      "sha256": "e4be05348b72ae4dd833045530e2393d59d2bd86310923aa0e92925d0af19593",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 6136,
+          "locals": 435,
+          "calls": 183,
+          "branches": 305,
+          "divisions": 13,
+          "remainder": 1,
+          "br_tables": 41
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 369,
+          "locals": 78,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 4
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "sorting",
+      "sha256": "cd182e10e03dd0c0e4be69826119d5d6e96b1cad048b9ec8d4c70586778c0b26",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 18088,
+          "locals": 1232,
+          "calls": 500,
+          "branches": 756,
+          "divisions": 99,
+          "remainder": 0,
+          "br_tables": 104
+        },
+        {
+          "name": "insertion_sort#1",
+          "instructions": 460,
+          "locals": 32,
+          "calls": 3,
+          "branches": 7,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "bsearch#3",
+          "instructions": 239,
+          "locals": 25,
+          "calls": 6,
+          "branches": 2,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "random_ints#4",
+          "instructions": 966,
+          "locals": 80,
+          "calls": 23,
+          "branches": 46,
+          "divisions": 6,
+          "remainder": 1,
+          "br_tables": 6
+        },
+        {
+          "name": "merge_sort#7",
+          "instructions": 631,
+          "locals": 77,
+          "calls": 13,
+          "branches": 7,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "copy_into#8",
+          "instructions": 164,
+          "locals": 16,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort#9",
+          "instructions": 96,
+          "locals": 4,
+          "calls": 4,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort#10",
+          "instructions": 3164,
+          "locals": 628,
+          "calls": 27,
+          "branches": 44,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort_pivot#16",
+          "instructions": 1657,
+          "locals": 422,
+          "calls": 16,
+          "branches": 17,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "binary_search#28",
+          "instructions": 210,
+          "locals": 24,
+          "calls": 4,
+          "branches": 3,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort#29",
+          "instructions": 3818,
+          "locals": 684,
+          "calls": 26,
+          "branches": 42,
+          "divisions": 1,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "reverse#32",
+          "instructions": 218,
+          "locals": 36,
+          "calls": 3,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "sort_pivot#34",
+          "instructions": 2617,
+          "locals": 512,
+          "calls": 16,
+          "branches": 17,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "stable_sort#46",
+          "instructions": 8821,
+          "locals": 963,
+          "calls": 169,
+          "branches": 314,
+          "divisions": 14,
+          "remainder": 0,
+          "br_tables": 37
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 17
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "sudoku",
+      "sha256": "264d5f2af0978cc23e5e535c7ec2237d8c84a098f3a55d6e7dad2b305493b144",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 110,
+          "locals": 4,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "run#1",
+          "instructions": 1586,
+          "locals": 179,
+          "calls": 42,
+          "branches": 11,
+          "divisions": 3,
+          "remainder": 2,
+          "br_tables": 0
+        },
+        {
+          "name": "show#6",
+          "instructions": 2073,
+          "locals": 148,
+          "calls": 58,
+          "branches": 88,
+          "divisions": 15,
+          "remainder": 0,
+          "br_tables": 12
+        },
+        {
+          "name": "solve#7",
+          "instructions": 484,
+          "locals": 38,
+          "calls": 10,
+          "branches": 10,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "count_bits#9",
+          "instructions": 158,
+          "locals": 11,
+          "calls": 3,
+          "branches": 3,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "candidates#8",
+          "instructions": 261,
+          "locals": 32,
+          "calls": 4,
+          "branches": 0,
+          "divisions": 3,
+          "remainder": 2,
+          "br_tables": 0
+        },
+        {
+          "name": "bit#4",
+          "instructions": 103,
+          "locals": 6,
+          "calls": 3,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "place#3",
+          "instructions": 385,
+          "locals": 58,
+          "calls": 4,
+          "branches": 0,
+          "divisions": 3,
+          "remainder": 2,
+          "br_tables": 0
+        },
+        {
+          "name": "unplace#10",
+          "instructions": 409,
+          "locals": 58,
+          "calls": 4,
+          "branches": 0,
+          "divisions": 3,
+          "remainder": 2,
+          "br_tables": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 369,
+          "locals": 78,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 2
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "maze",
+      "sha256": "35e5707ee2430c93442342615e6d0b596de1aebb56bbe03e23d078dca6bce82b",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 9592,
+          "locals": 749,
+          "calls": 279,
+          "branches": 436,
+          "divisions": 29,
+          "remainder": 4,
+          "br_tables": 59
+        },
+        {
+          "name": "show#9",
+          "instructions": 2048,
+          "locals": 134,
+          "calls": 57,
+          "branches": 102,
+          "divisions": 3,
+          "remainder": 0,
+          "br_tables": 14
+        },
+        {
+          "name": "dijkstra#11",
+          "instructions": 9228,
+          "locals": 796,
+          "calls": 221,
+          "branches": 464,
+          "divisions": 24,
+          "remainder": 2,
+          "br_tables": 63
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 635,
+          "locals": 99,
+          "calls": 13,
+          "branches": 14,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 2
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 12
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "vm",
+      "sha256": "3c6be3c9b7f56b8cb6840118639ba299475c7b05877dab6ffd721cc5af5d5bfe",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 12972,
+          "locals": 921,
+          "calls": 566,
+          "branches": 553,
+          "divisions": 124,
+          "remainder": 0,
+          "br_tables": 79
+        },
+        {
+          "name": "disassemble#1",
+          "instructions": 1138,
+          "locals": 102,
+          "calls": 94,
+          "branches": 19,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "append_decimal#2",
+          "instructions": 587,
+          "locals": 60,
+          "calls": 32,
+          "branches": 6,
+          "divisions": 1,
+          "remainder": 1,
+          "br_tables": 0
+        },
+        {
+          "name": "run#4",
+          "instructions": 4977,
+          "locals": 368,
+          "calls": 202,
+          "branches": 268,
+          "divisions": 50,
+          "remainder": 0,
+          "br_tables": 36
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 414,
+          "locals": 75,
+          "calls": 32,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 6
+      },
+      "other_offset20_writes": 0
+    },
+    {
+      "name": "life",
+      "sha256": "71ab2274a8c118f8db267b799d8601a66578ba3f1da61a02a14a475db039a1ed",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 11054,
+          "locals": 836,
+          "calls": 281,
+          "branches": 514,
+          "divisions": 27,
+          "remainder": 0,
+          "br_tables": 67
+        },
+        {
+          "name": "show#2",
+          "instructions": 1428,
+          "locals": 99,
+          "calls": 43,
+          "branches": 60,
+          "divisions": 7,
+          "remainder": 0,
+          "br_tables": 8
+        },
+        {
+          "name": "neighbours#4",
+          "instructions": 303,
+          "locals": 33,
+          "calls": 6,
+          "branches": 6,
+          "divisions": 0,
+          "remainder": 2,
+          "br_tables": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "locals": 0,
+          "calls": 0,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "locals": 4,
+          "calls": 0,
+          "branches": 5,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "locals": 75,
+          "calls": 5,
+          "branches": 0,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "locals": 9,
+          "calls": 4,
+          "branches": 2,
+          "divisions": 0,
+          "remainder": 0,
+          "br_tables": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "locals": 15,
+          "calls": 4,
+          "branches": 4,
+          "divisions": 2,
+          "remainder": 0,
+          "br_tables": 0
+        }
+      ],
+      "possible_mode_constants_offset20": {
+        "0": 10
+      },
+      "other_offset20_writes": 0
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "recorded_utc": "2026-11-02T14:20:58.656805+00:00",
+  "base_commit": "0799b1da5cbba7c70a64b880762a9d5286db17b2",
+  "compiler_sha256": "78178c171d7ed846ac20aec7b54f5e2e80ffb5a73bbf3551c44b73b27b373624",
+  "report_origins": {
+    "paired.json": "final-pairs/report.json",
+    "preliminary-paired.json": "raw-pairs/report.json",
+    "examples.json": "example-benchmarks/report.json",
+    "host.json": "host-benchmarks/report.json",
+    "cohort.json": "langarena/report.json",
+    "qualification.json": "qualification/report.json"
+  },
+  "guest_artifacts": 716,
+  "unique_guest_artifacts": 87,
+  "raw_files": 15257,
+  "notes": [
+    "Archive names are repository-relative original paths; artifact-map resolves repeated guests to retained unique bytes.",
+    "Compiler/Node/tool executables, Wasmtime library, SDK binary archive and full differential/replay guests are omitted; identities, versions, commands, logs and reports retained. Source snapshots, stdlib, SDK headers and host manifest retained.",
+    "Preliminary compiler lacked export/import exclusion; its ten example modules match final modules byte for byte. Existing host-forged descriptor coverage was preserved by the final conservative boundary.",
+    "Static assembly and paired entry probes are diagnostic; ordinary process headlines come from separate uninstrumented fresh launches. No builds, qualification, archive compression or chart rendering overlap performance sampling."
+  ]
+}

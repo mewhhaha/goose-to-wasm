@@ -1,0 +1,3588 @@
+{
+  "schema": "goose-wasm-audit-all-examples-v1",
+  "source_commit": "0799b1d",
+  "reports": {
+    "examples": "bench/results/2026-11-02/sorting-execution/examples.json",
+    "host": "bench/results/2026-11-02/sorting-execution/host.json"
+  },
+  "measurement_note": "Existing archived n=15 reports only; no measurements/build/guest execution in this inventory task. Runtime medians/MADs shown in milliseconds. Entry medians include the guest startup path as defined by examples report; native host samples are separate report. Artifact paths are ignored build outputs.",
+  "function_locals_note": "Driver stats function_info includes code_bytes, names, indices and dependencies but no local counts; locals are null.",
+  "examples": [
+    {
+      "name": "squares",
+      "source": "examples/squares.goose",
+      "source_bytes": 165,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/squares/direct/4/program.wasm",
+          "sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+          "bytes": 1367,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 1367,
+          "actual_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/squares/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 2.520724,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+            "output_bytes": 1367,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 2,
+              "code_bytes": 365,
+              "region_count": 0,
+              "region_bytes": 0,
+              "activation_bytes": 16776128,
+              "module_bytes": 1367,
+              "backend_ns": 80734,
+              "parse_ns": 203858,
+              "resolve_ns": 15930,
+              "typecheck_ns": 200141,
+              "optimize_ns": 18054,
+              "bce_ns": 32041,
+              "frontend_ns": 470284,
+              "source_files": 1,
+              "specializations": 2,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 348,
+                  "body_hash": "12141007981470204699",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7
+                  ]
+                },
+                {
+                  "name": "_start",
+                  "index": 10,
+                  "code_bytes": 17,
+                  "body_hash": "3250867854454395021",
+                  "dependencies": [
+                    9
+                  ]
+                }
+              ]
+            },
+            "dependencies": 2,
+            "total_ms": 10.398423
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/squares/c-wasm/4/program.wasm",
+          "sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+          "bytes": 16556,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 16556,
+          "actual_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/squares/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 445.660962,
+            "output_bytes": 16556,
+            "module_sha256": "c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 446.031476
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/squares/native/4/program.bin",
+          "sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+          "bytes": 18064,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 18064,
+          "actual_sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/squares/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 3.787141,
+            "cc_ms": 142.76184,
+            "output_bytes": 18064,
+            "output_sha256": "0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 148.83124
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 2,
+        "code_bytes": 365,
+        "region_bytes": 0,
+        "activation_bytes": 16776128,
+        "module_bytes": 1367
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 348,
+          "locals": null
+        },
+        {
+          "name": "_start",
+          "code_bytes": 17,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/squares/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 18952,
+          "sha256": "9a94dc7d6a7132fb9f57b5389109b06156ac9c0fbe64212a3ad325818bbd46a5"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/squares/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 67808,
+          "sha256": "aacb7b676300eb85dad46e5298002e3bbb918448e725b7d08ef11503f19eeaa6"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 27.734,
+              "mad_ms": 3.082
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 0.21,
+              "mad_ms": 0.034
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.26,
+              "mad_ms": 0.046
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 84.245,
+              "mad_ms": 3.181
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 0.131,
+              "mad_ms": 0.004
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 3.039,
+              "mad_ms": 0.157
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 31.917,
+              "mad_ms": 4.907
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 0.987,
+              "mad_ms": 0.04
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.596,
+              "mad_ms": 0.06
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 93.434,
+              "mad_ms": 2.357
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 0.654,
+              "mad_ms": 0.012
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 10.685,
+              "mad_ms": 0.653
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 86.362,
+          "mad_ms": 3.11
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 4.104,
+          "mad_ms": 0.39
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 2.229,
+          "mad_ms": 0.226
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 95.568,
+          "mad_ms": 3.174
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 12.39,
+          "mad_ms": 0.97
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 2.569,
+          "mad_ms": 0.296
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 0.862,
+          "mad_ms": 0.093
+        }
+      },
+      "direct_main_code_bytes": 348
+    },
+    {
+      "name": "tour",
+      "source": "examples/tour.goose",
+      "source_bytes": 7640,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/tour/direct/4/program.wasm",
+          "sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+          "bytes": 40589,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 40589,
+          "actual_sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/tour/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 4.029022,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+            "output_bytes": 40589,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 7,
+              "code_bytes": 38617,
+              "region_count": 4,
+              "region_bytes": 3355096,
+              "activation_bytes": 3355104,
+              "module_bytes": 40589,
+              "backend_ns": 512003,
+              "parse_ns": 369062,
+              "resolve_ns": 40166,
+              "typecheck_ns": 653613,
+              "optimize_ns": 92626,
+              "bce_ns": 470445,
+              "frontend_ns": 1626333,
+              "source_files": 1,
+              "specializations": 8,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 37471,
+                  "body_hash": "4710847332871392507",
+                  "dependencies": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    10,
+                    12,
+                    14,
+                    15
+                  ]
+                },
+                {
+                  "name": "divide#4",
+                  "index": 10,
+                  "code_bytes": 233,
+                  "body_hash": "12830243480000153501",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 11,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 12,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 13,
+                  "code_bytes": 165,
+                  "body_hash": "14281802375986102569",
+                  "dependencies": [
+                    7,
+                    9
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 14,
+                  "code_bytes": 243,
+                  "body_hash": "948140771947419429",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 15,
+                  "code_bytes": 359,
+                  "body_hash": "9576956897144644133",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 2,
+            "total_ms": 11.461727
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/tour/c-wasm/4/program.wasm",
+          "sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+          "bytes": 40709,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 40709,
+          "actual_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/tour/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 949.067292,
+            "output_bytes": 40709,
+            "module_sha256": "37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 949.49228
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/tour/native/4/program.bin",
+          "sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+          "bytes": 26952,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 26952,
+          "actual_sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/tour.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/tour/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 5.513055,
+            "cc_ms": 358.748132,
+            "output_bytes": 26952,
+            "output_sha256": "f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 365.457672
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 7,
+        "code_bytes": 38617,
+        "region_bytes": 3355096,
+        "activation_bytes": 3355104,
+        "module_bytes": 40589
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 37471,
+          "locals": null
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "code_bytes": 359,
+          "locals": null
+        },
+        {
+          "name": "read_uleb_array",
+          "code_bytes": 243,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/tour/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 97632,
+          "sha256": "6c7ee8031d7138efe530a75279ff401519cc56650e028f3b452347ad612c3485"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/tour/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 133888,
+          "sha256": "4859adc797993ceb747e5f89c2db02cec15c5bfee51e348cb505c633c76e3017"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 51.164,
+              "mad_ms": 2.888
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 17.443,
+              "mad_ms": 1.124
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.467,
+              "mad_ms": 0.07
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 125.042,
+              "mad_ms": 9.63
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.797,
+              "mad_ms": 0.038
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 35.902,
+              "mad_ms": 3.185
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 40.831,
+              "mad_ms": 8.135
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 2.751,
+              "mad_ms": 0.065
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.619,
+              "mad_ms": 0.035
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 134.411,
+              "mad_ms": 10.277
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.78,
+              "mad_ms": 0.035
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 32.256,
+              "mad_ms": 0.698
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 118.903,
+          "mad_ms": 3.508
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 37.522,
+          "mad_ms": 0.912
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 2.969,
+          "mad_ms": 0.227
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 118.583,
+          "mad_ms": 4.38
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 36.428,
+          "mad_ms": 1.705
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 2.977,
+          "mad_ms": 0.416
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 1.228,
+          "mad_ms": 0.115
+        }
+      },
+      "direct_main_code_bytes": 37471
+    },
+    {
+      "name": "functions",
+      "source": "examples/functions.goose",
+      "source_bytes": 4509,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/functions/direct/4/program.wasm",
+          "sha256": "ddab366d518ba1c4199532c9023b3cffaabeb46bd0e6f3db4d776d1f8fc7b682",
+          "bytes": 73346,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 73346,
+          "actual_sha256": "ddab366d518ba1c4199532c9023b3cffaabeb46bd0e6f3db4d776d1f8fc7b682",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/functions.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/functions/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 21.860306,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "ddab366d518ba1c4199532c9023b3cffaabeb46bd0e6f3db4d776d1f8fc7b682",
+            "output_bytes": 73346,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 11,
+              "code_bytes": 71318,
+              "region_count": 5,
+              "region_bytes": 2795880,
+              "activation_bytes": 2795896,
+              "module_bytes": 73346,
+              "backend_ns": 1772740,
+              "parse_ns": 2262592,
+              "resolve_ns": 174001,
+              "typecheck_ns": 4655211,
+              "optimize_ns": 829427,
+              "bce_ns": 8982460,
+              "frontend_ns": 16903932,
+              "source_files": 2,
+              "specializations": 110,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 37134,
+                  "body_hash": "3088673139073419711",
+                  "dependencies": [
+                    0,
+                    1,
+                    3,
+                    5,
+                    6,
+                    7,
+                    10,
+                    12,
+                    16,
+                    18,
+                    19
+                  ]
+                },
+                {
+                  "name": "sort#19",
+                  "index": 10,
+                  "code_bytes": 9328,
+                  "body_hash": "7208225531270669820",
+                  "dependencies": [
+                    7,
+                    11
+                  ]
+                },
+                {
+                  "name": "sort_pivot#25",
+                  "index": 11,
+                  "code_bytes": 6179,
+                  "body_hash": "7427497304047781891",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "sort#39",
+                  "index": 12,
+                  "code_bytes": 9725,
+                  "body_hash": "2012685119085577741",
+                  "dependencies": [
+                    7,
+                    13,
+                    14
+                  ]
+                },
+                {
+                  "name": "by_name#41",
+                  "index": 13,
+                  "code_bytes": 831,
+                  "body_hash": "7047809795898325939",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "sort_pivot#45",
+                  "index": 14,
+                  "code_bytes": 6479,
+                  "body_hash": "2032272309958373491",
+                  "dependencies": [
+                    7,
+                    13
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 15,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 16,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 17,
+                  "code_bytes": 894,
+                  "body_hash": "14569167820939915233",
+                  "dependencies": [
+                    7,
+                    9
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 18,
+                  "code_bytes": 243,
+                  "body_hash": "11157169726913242198",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 19,
+                  "code_bytes": 359,
+                  "body_hash": "10836069912395817826",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 29.634939
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/functions/c-wasm/4/program.wasm",
+          "sha256": "0f69bdfd50a8e09d9a9ea4615967c3c7e793a03d6d219bd44d908c7c7f6f7f48",
+          "bytes": 38068,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 38068,
+          "actual_sha256": "0f69bdfd50a8e09d9a9ea4615967c3c7e793a03d6d219bd44d908c7c7f6f7f48",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/functions.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/functions/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 873.646102,
+            "output_bytes": 38068,
+            "module_sha256": "0f69bdfd50a8e09d9a9ea4615967c3c7e793a03d6d219bd44d908c7c7f6f7f48",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 874.035573
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/functions/native/4/program.bin",
+          "sha256": "d45e72b7dddc75fbd33b1b1962cc0f743172a3a9c6b99763f34a7e43cfe68172",
+          "bytes": 26920,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 26920,
+          "actual_sha256": "d45e72b7dddc75fbd33b1b1962cc0f743172a3a9c6b99763f34a7e43cfe68172",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/functions.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/functions/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 23.900048,
+            "cc_ms": 461.256409,
+            "output_bytes": 26920,
+            "output_sha256": "d45e72b7dddc75fbd33b1b1962cc0f743172a3a9c6b99763f34a7e43cfe68172",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 486.261009
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 11,
+        "code_bytes": 71318,
+        "region_bytes": 2795880,
+        "activation_bytes": 2795896,
+        "module_bytes": 73346
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 37134,
+          "locals": null
+        },
+        {
+          "name": "sort#39",
+          "code_bytes": 9725,
+          "locals": null
+        },
+        {
+          "name": "sort#19",
+          "code_bytes": 9328,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/functions/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 151240,
+          "sha256": "a9a1342d52e94dd20e6677b3c56598e2f339000828b2c3f8d031465eaf573684"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/functions/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 129648,
+          "sha256": "f9ff39d074eb8ebccf7a85acd784b2b4919a515bb972dfdb0202236db4294cfb"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 49.746,
+              "mad_ms": 1.946
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 20.978,
+              "mad_ms": 0.854
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.447,
+              "mad_ms": 0.068
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 130.509,
+              "mad_ms": 12.946
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.366,
+              "mad_ms": 0.014
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 35.514,
+              "mad_ms": 2.035
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 33.252,
+              "mad_ms": 1.443
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 2.814,
+              "mad_ms": 0.19
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.611,
+              "mad_ms": 0.07
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 124.306,
+              "mad_ms": 10.61
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.997,
+              "mad_ms": 0.05
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 30.657,
+              "mad_ms": 1.783
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 119.175,
+          "mad_ms": 2.748
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 40.081,
+          "mad_ms": 4.397
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 3.28,
+          "mad_ms": 0.536
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 120.519,
+          "mad_ms": 8.514
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 31.992,
+          "mad_ms": 3.101
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 2.765,
+          "mad_ms": 0.288
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 1.224,
+          "mad_ms": 0.18
+        }
+      },
+      "direct_main_code_bytes": 37134
+    },
+    {
+      "name": "errors",
+      "source": "examples/errors.goose",
+      "source_bytes": 4888,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/errors/direct/4/program.wasm",
+          "sha256": "eb268d511caac3dbb967f414a1a5912e028d985bc3bdee34a9c97035217ffcc4",
+          "bytes": 37229,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 37229,
+          "actual_sha256": "eb268d511caac3dbb967f414a1a5912e028d985bc3bdee34a9c97035217ffcc4",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/errors.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/errors/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 10.597571,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "eb268d511caac3dbb967f414a1a5912e028d985bc3bdee34a9c97035217ffcc4",
+            "output_bytes": 37229,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 15,
+              "code_bytes": 34803,
+              "region_count": 2,
+              "region_bytes": 5591672,
+              "activation_bytes": 5591680,
+              "module_bytes": 37229,
+              "backend_ns": 689631,
+              "parse_ns": 2861461,
+              "resolve_ns": 170595,
+              "typecheck_ns": 2490075,
+              "optimize_ns": 183559,
+              "bce_ns": 958963,
+              "frontend_ns": 6670364,
+              "source_files": 2,
+              "specializations": 67,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 10588,
+                  "body_hash": "3010469870395988533",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7,
+                    8,
+                    10,
+                    13,
+                    14,
+                    20,
+                    22,
+                    23
+                  ]
+                },
+                {
+                  "name": "parse_age#1",
+                  "index": 10,
+                  "code_bytes": 338,
+                  "body_hash": "12934701217906304223",
+                  "dependencies": [
+                    7,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "parse_int#6",
+                  "index": 11,
+                  "code_bytes": 938,
+                  "body_hash": "17226867461095246524",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "trim#2",
+                  "index": 12,
+                  "code_bytes": 816,
+                  "body_hash": "18097168286028525112",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "find_user#7",
+                  "index": 13,
+                  "code_bytes": 538,
+                  "body_hash": "14786354761676804111",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "report#9",
+                  "index": 14,
+                  "code_bytes": 3186,
+                  "body_hash": "8374436120956706881",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7,
+                    15,
+                    22
+                  ]
+                },
+                {
+                  "name": "load#10",
+                  "index": 15,
+                  "code_bytes": 1842,
+                  "body_hash": "2953774595459025411",
+                  "dependencies": [
+                    7,
+                    16,
+                    20,
+                    22,
+                    23
+                  ]
+                },
+                {
+                  "name": "each_split#11",
+                  "index": 16,
+                  "code_bytes": 8264,
+                  "body_hash": "11355797110611920537",
+                  "dependencies": [
+                    7,
+                    10,
+                    12,
+                    17,
+                    18,
+                    20,
+                    22,
+                    23
+                  ]
+                },
+                {
+                  "name": "message#14",
+                  "index": 17,
+                  "code_bytes": 1504,
+                  "body_hash": "15402483593613837024",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "parse_record#12",
+                  "index": 18,
+                  "code_bytes": 5146,
+                  "body_hash": "1722951870710033069",
+                  "dependencies": [
+                    7,
+                    10,
+                    12,
+                    17,
+                    20,
+                    23
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 19,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 20,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 21,
+                  "code_bytes": 895,
+                  "body_hash": "13833399763208933425",
+                  "dependencies": [
+                    7,
+                    9
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 22,
+                  "code_bytes": 243,
+                  "body_hash": "5966629278282532125",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 23,
+                  "code_bytes": 359,
+                  "body_hash": "2067527783172955839",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 18.225707
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/errors/c-wasm/4/program.wasm",
+          "sha256": "29d988a50295152ff62d7a2dd053976b6853d2a6e1ecae5154f68e99fb6e7b72",
+          "bytes": 34776,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 34776,
+          "actual_sha256": "29d988a50295152ff62d7a2dd053976b6853d2a6e1ecae5154f68e99fb6e7b72",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/errors.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/errors/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 651.476891,
+            "output_bytes": 34776,
+            "module_sha256": "29d988a50295152ff62d7a2dd053976b6853d2a6e1ecae5154f68e99fb6e7b72",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 651.841123
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/errors/native/4/program.bin",
+          "sha256": "7d5497c50872a50a1d9e257d0eafd989253476bac5af72c21278b541817c5195",
+          "bytes": 27864,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 27864,
+          "actual_sha256": "7d5497c50872a50a1d9e257d0eafd989253476bac5af72c21278b541817c5195",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/errors.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/errors/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 10.368838,
+            "cc_ms": 277.336574,
+            "output_bytes": 27864,
+            "output_sha256": "7d5497c50872a50a1d9e257d0eafd989253476bac5af72c21278b541817c5195",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 288.608389
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 15,
+        "code_bytes": 34803,
+        "region_bytes": 5591672,
+        "activation_bytes": 5591680,
+        "module_bytes": 37229
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 10588,
+          "locals": null
+        },
+        {
+          "name": "each_split#11",
+          "code_bytes": 8264,
+          "locals": null
+        },
+        {
+          "name": "parse_record#12",
+          "code_bytes": 5146,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/errors/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 94768,
+          "sha256": "eb835351b123bc6c9b7bd21538bf1f9778c39712bbd9f1a8a331d95e3c84d6ed"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/errors/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 127048,
+          "sha256": "14e8884cc439019f72e9c755c587903683e3adce597fb54b161b7ad007b9ceef"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 35.289,
+              "mad_ms": 4.813
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 4.321,
+              "mad_ms": 1.353
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.453,
+              "mad_ms": 0.084
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 101.872,
+              "mad_ms": 7.104
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 0.85,
+              "mad_ms": 0.006
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 17.3,
+              "mad_ms": 2.871
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 29.453,
+              "mad_ms": 1.89
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 2.412,
+              "mad_ms": 0.594
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.672,
+              "mad_ms": 0.106
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 105.004,
+              "mad_ms": 6.371
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.757,
+              "mad_ms": 0.033
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 16.604,
+              "mad_ms": 2.243
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 101.235,
+          "mad_ms": 3.974
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 17.788,
+          "mad_ms": 2.134
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 2.297,
+          "mad_ms": 0.134
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 100.435,
+          "mad_ms": 4.628
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 17.679,
+          "mad_ms": 2.027
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 2.713,
+          "mad_ms": 0.189
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 0.899,
+          "mad_ms": 0.119
+        }
+      },
+      "direct_main_code_bytes": 10588
+    },
+    {
+      "name": "sieve",
+      "source": "examples/sieve.goose",
+      "source_bytes": 1927,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sieve/direct/4/program.wasm",
+          "sha256": "e4be05348b72ae4dd833045530e2393d59d2bd86310923aa0e92925d0af19593",
+          "bytes": 16860,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 16860,
+          "actual_sha256": "e4be05348b72ae4dd833045530e2393d59d2bd86310923aa0e92925d0af19593",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sieve.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sieve/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 7.653805,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "e4be05348b72ae4dd833045530e2393d59d2bd86310923aa0e92925d0af19593",
+            "output_bytes": 16860,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 6,
+              "code_bytes": 15016,
+              "region_count": 2,
+              "region_bytes": 5591800,
+              "activation_bytes": 5591808,
+              "module_bytes": 16860,
+              "backend_ns": 226892,
+              "parse_ns": 2688162,
+              "resolve_ns": 157499,
+              "typecheck_ns": 2033698,
+              "optimize_ns": 26560,
+              "bce_ns": 181766,
+              "frontend_ns": 5087885,
+              "source_files": 2,
+              "specializations": 57,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 13348,
+                  "body_hash": "4807195656945045004",
+                  "dependencies": [
+                    0,
+                    1,
+                    2,
+                    6,
+                    7,
+                    11,
+                    13,
+                    14
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 10,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 11,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 12,
+                  "code_bytes": 920,
+                  "body_hash": "7720023003395960958",
+                  "dependencies": [
+                    7,
+                    9
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 13,
+                  "code_bytes": 243,
+                  "body_hash": "15318469270537621487",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 14,
+                  "code_bytes": 359,
+                  "body_hash": "10078338580813172656",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 15.068806
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sieve/c-wasm/4/program.wasm",
+          "sha256": "d99ecf31c05d4c39197057d1c795aca6ea010327b968d8ad6d08b1bb5e5401e5",
+          "bytes": 25822,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 25822,
+          "actual_sha256": "d99ecf31c05d4c39197057d1c795aca6ea010327b968d8ad6d08b1bb5e5401e5",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sieve.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sieve/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 504.288118,
+            "output_bytes": 25822,
+            "module_sha256": "d99ecf31c05d4c39197057d1c795aca6ea010327b968d8ad6d08b1bb5e5401e5",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 504.665716
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sieve/native/4/program.bin",
+          "sha256": "f27e5ac6faf7c7564d71e051c81869bcd1a4256ee30c72129afb4ce3763eeb40",
+          "bytes": 22584,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 22584,
+          "actual_sha256": "f27e5ac6faf7c7564d71e051c81869bcd1a4256ee30c72129afb4ce3763eeb40",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sieve.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sieve/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 7.876488,
+            "cc_ms": 189.10614,
+            "output_bytes": 22584,
+            "output_sha256": "f27e5ac6faf7c7564d71e051c81869bcd1a4256ee30c72129afb4ce3763eeb40",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 198.217626
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 6,
+        "code_bytes": 15016,
+        "region_bytes": 5591800,
+        "activation_bytes": 5591808,
+        "module_bytes": 16860
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 13348,
+          "locals": null
+        },
+        {
+          "name": "_start",
+          "code_bytes": 920,
+          "locals": null
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "code_bytes": 359,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/sieve/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 48304,
+          "sha256": "c2d4c2a17eb51aa1a89a9becfc25723ce413f53202a72d8818359059f67333d6"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/sieve/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 98080,
+          "sha256": "de8610958af9712c03eb55beb017881efb45e0d604d8d1428964eb07f1d6f386"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 49.242,
+              "mad_ms": 6.538
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 8.306,
+              "mad_ms": 0.28
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.351,
+              "mad_ms": 0.053
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 109.379,
+              "mad_ms": 11.772
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.648,
+              "mad_ms": 0.024
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 13.618,
+              "mad_ms": 0.592
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 34.569,
+              "mad_ms": 4.069
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 2.537,
+              "mad_ms": 0.677
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.666,
+              "mad_ms": 0.092
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 96.524,
+              "mad_ms": 3.233
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.397,
+              "mad_ms": 0.016
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 12.641,
+              "mad_ms": 1.045
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 105.091,
+          "mad_ms": 4.904
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 17.622,
+          "mad_ms": 2.443
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 3.747,
+          "mad_ms": 0.707
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 102.815,
+          "mad_ms": 10.356
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 15.266,
+          "mad_ms": 2.024
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 3.445,
+          "mad_ms": 0.429
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 1.385,
+          "mad_ms": 0.356
+        }
+      },
+      "direct_main_code_bytes": 13348
+    },
+    {
+      "name": "sorting",
+      "source": "examples/sorting.goose",
+      "source_bytes": 4501,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sorting/direct/4/program.wasm",
+          "sha256": "cd182e10e03dd0c0e4be69826119d5d6e96b1cad048b9ec8d4c70586778c0b26",
+          "bytes": 96689,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 96689,
+          "actual_sha256": "cd182e10e03dd0c0e4be69826119d5d6e96b1cad048b9ec8d4c70586778c0b26",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sorting.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sorting/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 29.735663,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "cd182e10e03dd0c0e4be69826119d5d6e96b1cad048b9ec8d4c70586778c0b26",
+            "output_bytes": 96689,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 19,
+              "code_bytes": 94480,
+              "region_count": 9,
+              "region_bytes": 1677520,
+              "activation_bytes": 1677584,
+              "module_bytes": 96689,
+              "backend_ns": 2207658,
+              "parse_ns": 3351613,
+              "resolve_ns": 181986,
+              "typecheck_ns": 5332350,
+              "optimize_ns": 1030469,
+              "bce_ns": 13682558,
+              "frontend_ns": 23579276,
+              "source_files": 2,
+              "specializations": 107,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 40420,
+                  "body_hash": "11979989803464562917",
+                  "dependencies": [
+                    0,
+                    1,
+                    5,
+                    6,
+                    7,
+                    10,
+                    11,
+                    12,
+                    13,
+                    15,
+                    18,
+                    19,
+                    22,
+                    24,
+                    26,
+                    27
+                  ]
+                },
+                {
+                  "name": "insertion_sort#1",
+                  "index": 10,
+                  "code_bytes": 825,
+                  "body_hash": "3470100562231496748",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "bsearch#3",
+                  "index": 11,
+                  "code_bytes": 448,
+                  "body_hash": "14518908445546378058",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "random_ints#4",
+                  "index": 12,
+                  "code_bytes": 2028,
+                  "body_hash": "5309620780850391869",
+                  "dependencies": [
+                    7,
+                    24,
+                    26,
+                    27
+                  ]
+                },
+                {
+                  "name": "merge_sort#7",
+                  "index": 13,
+                  "code_bytes": 1144,
+                  "body_hash": "9486032383235200526",
+                  "dependencies": [
+                    7,
+                    10,
+                    13,
+                    14
+                  ]
+                },
+                {
+                  "name": "copy_into#8",
+                  "index": 14,
+                  "code_bytes": 312,
+                  "body_hash": "17532292892523771452",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "sort#9",
+                  "index": 15,
+                  "code_bytes": 181,
+                  "body_hash": "270933832686350904",
+                  "dependencies": [
+                    7,
+                    16
+                  ]
+                },
+                {
+                  "name": "sort#10",
+                  "index": 16,
+                  "code_bytes": 7473,
+                  "body_hash": "9288620768060374334",
+                  "dependencies": [
+                    7,
+                    17
+                  ]
+                },
+                {
+                  "name": "sort_pivot#16",
+                  "index": 17,
+                  "code_bytes": 3930,
+                  "body_hash": "6024411878555490661",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "binary_search#28",
+                  "index": 18,
+                  "code_bytes": 394,
+                  "body_hash": "17084370052648399603",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "sort#29",
+                  "index": 19,
+                  "code_bytes": 8993,
+                  "body_hash": "17999336630068174855",
+                  "dependencies": [
+                    7,
+                    20,
+                    21
+                  ]
+                },
+                {
+                  "name": "reverse#32",
+                  "index": 20,
+                  "code_bytes": 428,
+                  "body_hash": "9415512592208445416",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "sort_pivot#34",
+                  "index": 21,
+                  "code_bytes": 6175,
+                  "body_hash": "4368728011195497275",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "stable_sort#46",
+                  "index": 22,
+                  "code_bytes": 20086,
+                  "body_hash": "14510485574113914225",
+                  "dependencies": [
+                    7,
+                    20,
+                    24,
+                    26,
+                    27
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 23,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 24,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 25,
+                  "code_bytes": 895,
+                  "body_hash": "5305740092382913493",
+                  "dependencies": [
+                    7,
+                    9
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 26,
+                  "code_bytes": 243,
+                  "body_hash": "10538979194236602731",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 27,
+                  "code_bytes": 359,
+                  "body_hash": "11974923526835687996",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 37.757638
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sorting/c-wasm/4/program.wasm",
+          "sha256": "bc9b1516813a00836a8462a29875cdf93619f1ab92c9f7fbba6e8d0e2a9a5b84",
+          "bytes": 40796,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 40796,
+          "actual_sha256": "bc9b1516813a00836a8462a29875cdf93619f1ab92c9f7fbba6e8d0e2a9a5b84",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sorting.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sorting/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 925.697449,
+            "output_bytes": 40796,
+            "module_sha256": "bc9b1516813a00836a8462a29875cdf93619f1ab92c9f7fbba6e8d0e2a9a5b84",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 926.060769
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sorting/native/4/program.bin",
+          "sha256": "27b39f73b23b05537303995787a3a6eb7ac19c05a143902cd74cfbd6d10fb1a5",
+          "bytes": 27208,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 27208,
+          "actual_sha256": "27b39f73b23b05537303995787a3a6eb7ac19c05a143902cd74cfbd6d10fb1a5",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sorting.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sorting/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 28.834487,
+            "cc_ms": 464.653359,
+            "output_bytes": 27208,
+            "output_sha256": "27b39f73b23b05537303995787a3a6eb7ac19c05a143902cd74cfbd6d10fb1a5",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 494.503648
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 19,
+        "code_bytes": 94480,
+        "region_bytes": 1677520,
+        "activation_bytes": 1677584,
+        "module_bytes": 96689
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 40420,
+          "locals": null
+        },
+        {
+          "name": "stable_sort#46",
+          "code_bytes": 20086,
+          "locals": null
+        },
+        {
+          "name": "sort#29",
+          "code_bytes": 8993,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/sorting/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 185080,
+          "sha256": "d6bdf3ed29368154822e4bb74bcb81190a9c88d27020b8d733bc64f33317bbb9"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/sorting/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 139704,
+          "sha256": "65a5298ebdcc33f4f063d4be2d4b6af6cf5044969d22555538b3d83ad091f73e"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 150.79,
+              "mad_ms": 5.4
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 120.341,
+              "mad_ms": 4.8
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.597,
+              "mad_ms": 0.08
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 225.214,
+              "mad_ms": 11.759
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 94.082,
+              "mad_ms": 2.126
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 41.706,
+              "mad_ms": 4.063
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 243.111,
+              "mad_ms": 8.483
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 209.8,
+              "mad_ms": 4.53
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.631,
+              "mad_ms": 0.046
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 256.32,
+              "mad_ms": 12.982
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 131.72,
+              "mad_ms": 0.975
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 31.921,
+              "mad_ms": 1.234
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 221.51,
+          "mad_ms": 10.546
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 138.141,
+          "mad_ms": 2.007
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 93.519,
+          "mad_ms": 1.391
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 247.811,
+          "mad_ms": 5.631
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 166.368,
+          "mad_ms": 2.943
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 132.365,
+          "mad_ms": 1.983
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 47.638,
+          "mad_ms": 0.702
+        }
+      },
+      "direct_main_code_bytes": 40420
+    },
+    {
+      "name": "sudoku",
+      "source": "examples/sudoku.goose",
+      "source_bytes": 3824,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sudoku/direct/4/program.wasm",
+          "sha256": "264d5f2af0978cc23e5e535c7ec2237d8c84a098f3a55d6e7dad2b305493b144",
+          "bytes": 15116,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 15116,
+          "actual_sha256": "264d5f2af0978cc23e5e535c7ec2237d8c84a098f3a55d6e7dad2b305493b144",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sudoku/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 14.816007,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "264d5f2af0978cc23e5e535c7ec2237d8c84a098f3a55d6e7dad2b305493b144",
+            "output_bytes": 15116,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 14,
+              "code_bytes": 13003,
+              "region_count": 1,
+              "region_bytes": 8387640,
+              "activation_bytes": 8387640,
+              "module_bytes": 15116,
+              "backend_ns": 699460,
+              "parse_ns": 4396561,
+              "resolve_ns": 330388,
+              "typecheck_ns": 4474600,
+              "optimize_ns": 207615,
+              "bce_ns": 1555297,
+              "frontend_ns": 10971625,
+              "source_files": 2,
+              "specializations": 67,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 227,
+                  "body_hash": "2982359588474739597",
+                  "dependencies": [
+                    7,
+                    10
+                  ]
+                },
+                {
+                  "name": "run#1",
+                  "index": 10,
+                  "code_bytes": 3271,
+                  "body_hash": "4805109774759721262",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7,
+                    11,
+                    12
+                  ]
+                },
+                {
+                  "name": "show#6",
+                  "index": 11,
+                  "code_bytes": 4221,
+                  "body_hash": "16796775632945644576",
+                  "dependencies": [
+                    0,
+                    6,
+                    7,
+                    19,
+                    21,
+                    22
+                  ]
+                },
+                {
+                  "name": "solve#7",
+                  "index": 12,
+                  "code_bytes": 950,
+                  "body_hash": "11603636621785815077",
+                  "dependencies": [
+                    7,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17
+                  ]
+                },
+                {
+                  "name": "count_bits#9",
+                  "index": 13,
+                  "code_bytes": 319,
+                  "body_hash": "18390786654128860329",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "candidates#8",
+                  "index": 14,
+                  "code_bytes": 527,
+                  "body_hash": "8585250616751146264",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "bit#4",
+                  "index": 15,
+                  "code_bytes": 197,
+                  "body_hash": "5752122479444206517",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "place#3",
+                  "index": 16,
+                  "code_bytes": 785,
+                  "body_hash": "4798791130740327902",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "unplace#10",
+                  "index": 17,
+                  "code_bytes": 839,
+                  "body_hash": "4124926322527585170",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 18,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 19,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 20,
+                  "code_bytes": 919,
+                  "body_hash": "987132310128964393",
+                  "dependencies": [
+                    7,
+                    9
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 21,
+                  "code_bytes": 243,
+                  "body_hash": "8573077546138575719",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 22,
+                  "code_bytes": 359,
+                  "body_hash": "1059315416802807652",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 22.427923
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sudoku/c-wasm/4/program.wasm",
+          "sha256": "91880be16ded9ed64f78e0184b58a11091e44701c77933fbd6192638f0fa1745",
+          "bytes": 26463,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 26463,
+          "actual_sha256": "91880be16ded9ed64f78e0184b58a11091e44701c77933fbd6192638f0fa1745",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sudoku/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 492.408429,
+            "output_bytes": 26463,
+            "module_sha256": "91880be16ded9ed64f78e0184b58a11091e44701c77933fbd6192638f0fa1745",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 492.808681
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sudoku/native/4/program.bin",
+          "sha256": "0b3a3eaaa36ed309f0f0d0ca729f50fecfee5e4eaf1f96f8d0defaa5aab163dd",
+          "bytes": 22776,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 22776,
+          "actual_sha256": "0b3a3eaaa36ed309f0f0d0ca729f50fecfee5e4eaf1f96f8d0defaa5aab163dd",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/sudoku/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 10.920305,
+            "cc_ms": 200.668691,
+            "output_bytes": 22776,
+            "output_sha256": "0b3a3eaaa36ed309f0f0d0ca729f50fecfee5e4eaf1f96f8d0defaa5aab163dd",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 212.484198
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 14,
+        "code_bytes": 13003,
+        "region_bytes": 8387640,
+        "activation_bytes": 8387640,
+        "module_bytes": 15116
+      },
+      "direct_top_functions": [
+        {
+          "name": "show#6",
+          "code_bytes": 4221,
+          "locals": null
+        },
+        {
+          "name": "run#1",
+          "code_bytes": 3271,
+          "locals": null
+        },
+        {
+          "name": "solve#7",
+          "code_bytes": 950,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/sudoku/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 45288,
+          "sha256": "0cc40e6b9306ad2902cbc83b787b823c0fad3d18916ca828722fc364194bb772"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/sudoku/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 102800,
+          "sha256": "ce05ae7ca15ba12c7b48e7d116ac6e5665e652a4c9de1ca3fc2babb44f6939f2"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 48.856,
+              "mad_ms": 9.798
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 11.497,
+              "mad_ms": 0.188
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.346,
+              "mad_ms": 0.032
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 97.62,
+              "mad_ms": 2.021
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 7.825,
+              "mad_ms": 0.112
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 6.991,
+              "mad_ms": 0.394
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 35.459,
+              "mad_ms": 2.427
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 6.741,
+              "mad_ms": 0.368
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.613,
+              "mad_ms": 0.068
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 110.114,
+              "mad_ms": 10.087
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 8.618,
+              "mad_ms": 0.189
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 11.808,
+              "mad_ms": 1.219
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 97.981,
+          "mad_ms": 1.745
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 18.274,
+          "mad_ms": 3.582
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 9.591,
+          "mad_ms": 0.528
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 118.357,
+          "mad_ms": 11.301
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 18.994,
+          "mad_ms": 1.878
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 7.965,
+          "mad_ms": 0.633
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 4.631,
+          "mad_ms": 0.498
+        }
+      },
+      "direct_main_code_bytes": 227
+    },
+    {
+      "name": "maze",
+      "source": "examples/maze.goose",
+      "source_bytes": 4892,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/maze/direct/4/program.wasm",
+          "sha256": "35e5707ee2430c93442342615e6d0b596de1aebb56bbe03e23d078dca6bce82b",
+          "bytes": 50993,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 50993,
+          "actual_sha256": "35e5707ee2430c93442342615e6d0b596de1aebb56bbe03e23d078dca6bce82b",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/maze.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/maze/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 19.102969,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "35e5707ee2430c93442342615e6d0b596de1aebb56bbe03e23d078dca6bce82b",
+            "output_bytes": 50993,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 8,
+              "code_bytes": 48743,
+              "region_count": 4,
+              "region_bytes": 3354992,
+              "activation_bytes": 3355024,
+              "module_bytes": 50993,
+              "backend_ns": 1299190,
+              "parse_ns": 2893652,
+              "resolve_ns": 334527,
+              "typecheck_ns": 5012963,
+              "optimize_ns": 492286,
+              "bce_ns": 6227233,
+              "frontend_ns": 14960982,
+              "source_files": 2,
+              "specializations": 74,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 21530,
+                  "body_hash": "16788678282449576207",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7,
+                    10,
+                    11,
+                    13,
+                    15,
+                    16
+                  ]
+                },
+                {
+                  "name": "show#9",
+                  "index": 10,
+                  "code_bytes": 4058,
+                  "body_hash": "8985098107073574568",
+                  "dependencies": [
+                    0,
+                    6,
+                    7,
+                    13,
+                    15,
+                    16
+                  ]
+                },
+                {
+                  "name": "dijkstra#11",
+                  "index": 11,
+                  "code_bytes": 20919,
+                  "body_hash": "9038681979409237151",
+                  "dependencies": [
+                    7,
+                    13,
+                    15,
+                    16
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 12,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 13,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 1488,
+                  "body_hash": "13949527585165491221",
+                  "dependencies": [
+                    7,
+                    9,
+                    13,
+                    16
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 15,
+                  "code_bytes": 243,
+                  "body_hash": "5010287154737820953",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 16,
+                  "code_bytes": 359,
+                  "body_hash": "10355983192787876410",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 26.86486
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/maze/c-wasm/4/program.wasm",
+          "sha256": "7e63f72e3e6f72a33e1915d1f32cdb403b062fc8a1ecf7133df1e679ebd1429a",
+          "bytes": 32140,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 32140,
+          "actual_sha256": "7e63f72e3e6f72a33e1915d1f32cdb403b062fc8a1ecf7133df1e679ebd1429a",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/maze.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/maze/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 673.29662,
+            "output_bytes": 32140,
+            "module_sha256": "7e63f72e3e6f72a33e1915d1f32cdb403b062fc8a1ecf7133df1e679ebd1429a",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 673.719404
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/maze/native/4/program.bin",
+          "sha256": "c69764e08b046bc987e0bda728b93d2832fe8ab8ae2a7c8cbe5026602cb5e028",
+          "bytes": 22976,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 22976,
+          "actual_sha256": "c69764e08b046bc987e0bda728b93d2832fe8ab8ae2a7c8cbe5026602cb5e028",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/maze.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/maze/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 14.637443,
+            "cc_ms": 292.129762,
+            "output_bytes": 22976,
+            "output_sha256": "c69764e08b046bc987e0bda728b93d2832fe8ab8ae2a7c8cbe5026602cb5e028",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 307.661817
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 8,
+        "code_bytes": 48743,
+        "region_bytes": 3354992,
+        "activation_bytes": 3355024,
+        "module_bytes": 50993
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 21530,
+          "locals": null
+        },
+        {
+          "name": "dijkstra#11",
+          "code_bytes": 20919,
+          "locals": null
+        },
+        {
+          "name": "show#9",
+          "code_bytes": 4058,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/maze/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 122384,
+          "sha256": "68e12e797ab1169fe3ac4fc572d02b1fce27cc1b383ad2754fb243f3a5e476db"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/maze/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 115224,
+          "sha256": "e8897cfef630aa660a7e94ff3d58f5d97bdea03346ad97f20b9bf9483b31653e"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 45.402,
+              "mad_ms": 1.743
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 16.664,
+              "mad_ms": 3.391
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.494,
+              "mad_ms": 0.053
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 112.57,
+              "mad_ms": 7.808
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 0.807,
+              "mad_ms": 0.013
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 22.697,
+              "mad_ms": 1.566
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 35.071,
+              "mad_ms": 5.753
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 1.996,
+              "mad_ms": 0.086
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.605,
+              "mad_ms": 0.053
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 113.397,
+              "mad_ms": 13.276
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 2.342,
+              "mad_ms": 0.03
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 16.85,
+              "mad_ms": 1.118
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 113.004,
+          "mad_ms": 7.5
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 31.235,
+          "mad_ms": 6.503
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 2.81,
+          "mad_ms": 0.58
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 100.287,
+          "mad_ms": 1.343
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 17.37,
+          "mad_ms": 1.53
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 3.312,
+          "mad_ms": 0.649
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 0.859,
+          "mad_ms": 0.082
+        }
+      },
+      "direct_main_code_bytes": 21530
+    },
+    {
+      "name": "vm",
+      "source": "examples/vm.goose",
+      "source_bytes": 5768,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/vm/direct/4/program.wasm",
+          "sha256": "3c6be3c9b7f56b8cb6840118639ba299475c7b05877dab6ffd721cc5af5d5bfe",
+          "bytes": 48133,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 48133,
+          "actual_sha256": "3c6be3c9b7f56b8cb6840118639ba299475c7b05877dab6ffd721cc5af5d5bfe",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/vm.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/vm/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 8.224479,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "3c6be3c9b7f56b8cb6840118639ba299475c7b05877dab6ffd721cc5af5d5bfe",
+            "output_bytes": 48133,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 9,
+              "code_bytes": 46113,
+              "region_count": 3,
+              "region_bytes": 4193824,
+              "activation_bytes": 4193824,
+              "module_bytes": 48133,
+              "backend_ns": 520810,
+              "parse_ns": 2303630,
+              "resolve_ns": 176746,
+              "typecheck_ns": 2320022,
+              "optimize_ns": 75954,
+              "bce_ns": 419418,
+              "frontend_ns": 5299888,
+              "source_files": 2,
+              "specializations": 61,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 29625,
+                  "body_hash": "386804445427651417",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7,
+                    10,
+                    12,
+                    13,
+                    14,
+                    16,
+                    17
+                  ]
+                },
+                {
+                  "name": "disassemble#1",
+                  "index": 10,
+                  "code_bytes": 2286,
+                  "body_hash": "17010585236325859803",
+                  "dependencies": [
+                    0,
+                    6,
+                    7,
+                    11,
+                    13
+                  ]
+                },
+                {
+                  "name": "append_decimal#2",
+                  "index": 11,
+                  "code_bytes": 1132,
+                  "body_hash": "10154681299152651178",
+                  "dependencies": [
+                    7,
+                    13
+                  ]
+                },
+                {
+                  "name": "run#4",
+                  "index": 12,
+                  "code_bytes": 11315,
+                  "body_hash": "10736554653063200507",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7,
+                    13,
+                    14,
+                    16,
+                    17
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 13,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 14,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 15,
+                  "code_bytes": 1007,
+                  "body_hash": "2894891741873352731",
+                  "dependencies": [
+                    7,
+                    9,
+                    13
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 16,
+                  "code_bytes": 243,
+                  "body_hash": "2474073054665039913",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 17,
+                  "code_bytes": 359,
+                  "body_hash": "14008640737175699030",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 15.749527
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/vm/c-wasm/4/program.wasm",
+          "sha256": "601c85a7cb61f48b413a78f5a72674fa1e3ffaeeac7d7f98cd073774e372d061",
+          "bytes": 37218,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 37218,
+          "actual_sha256": "601c85a7cb61f48b413a78f5a72674fa1e3ffaeeac7d7f98cd073774e372d061",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/vm.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/vm/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 662.453648,
+            "output_bytes": 37218,
+            "module_sha256": "601c85a7cb61f48b413a78f5a72674fa1e3ffaeeac7d7f98cd073774e372d061",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 662.874128
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/vm/native/4/program.bin",
+          "sha256": "cb36c744c176b4e72281dda6fc78d63179fb1e6f0631f428eff5ea377fc7ace5",
+          "bytes": 22696,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 22696,
+          "actual_sha256": "cb36c744c176b4e72281dda6fc78d63179fb1e6f0631f428eff5ea377fc7ace5",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/vm.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/vm/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 9.104393,
+            "cc_ms": 228.244539,
+            "output_bytes": 22696,
+            "output_sha256": "cb36c744c176b4e72281dda6fc78d63179fb1e6f0631f428eff5ea377fc7ace5",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 238.307264
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 9,
+        "code_bytes": 46113,
+        "region_bytes": 4193824,
+        "activation_bytes": 4193824,
+        "module_bytes": 48133
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 29625,
+          "locals": null
+        },
+        {
+          "name": "run#4",
+          "code_bytes": 11315,
+          "locals": null
+        },
+        {
+          "name": "disassemble#1",
+          "code_bytes": 2286,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/vm/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 118392,
+          "sha256": "2155ee9371aeeaa67650b79788fd62e10d83402df9ca2c7708e782adf2db2c56"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/vm/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 131568,
+          "sha256": "83b68868f01b8b3dbac8d531d79eead66582655c11e36ebc03bb36eed55d7426"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 42.225,
+              "mad_ms": 3.323
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 12.265,
+              "mad_ms": 1.892
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.4,
+              "mad_ms": 0.05
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 117.055,
+              "mad_ms": 8.092
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 0.962,
+              "mad_ms": 0.013
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 28.47,
+              "mad_ms": 2.181
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 35.913,
+              "mad_ms": 2.428
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 2.264,
+              "mad_ms": 0.053
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.637,
+              "mad_ms": 0.055
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 109.261,
+              "mad_ms": 4.915
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 3.083,
+              "mad_ms": 0.036
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 17.139,
+              "mad_ms": 1.084
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 131.005,
+          "mad_ms": 18.769
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 29.776,
+          "mad_ms": 1.342
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 2.42,
+          "mad_ms": 0.246
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 105.414,
+          "mad_ms": 5.101
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 18.385,
+          "mad_ms": 1.901
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 3.234,
+          "mad_ms": 0.653
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 1.218,
+          "mad_ms": 0.138
+        }
+      },
+      "direct_main_code_bytes": 29625
+    },
+    {
+      "name": "life",
+      "source": "examples/life.goose",
+      "source_bytes": 2832,
+      "artifacts": {
+        "direct": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/life/direct/4/program.wasm",
+          "sha256": "71ab2274a8c118f8db267b799d8601a66578ba3f1da61a02a14a475db039a1ed",
+          "bytes": 31790,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 31790,
+          "actual_sha256": "71ab2274a8c118f8db267b799d8601a66578ba3f1da61a02a14a475db039a1ed",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "direct",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/life.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/life/direct/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 10.655001,
+            "cc_ms": 0.0,
+            "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+            "cache_stored": false,
+            "module_sha256": "71ab2274a8c118f8db267b799d8601a66578ba3f1da61a02a14a475db039a1ed",
+            "output_bytes": 31790,
+            "backend_stats": {
+              "backend": "direct",
+              "functions": 8,
+              "code_bytes": 29884,
+              "region_count": 5,
+              "region_bytes": 2795896,
+              "activation_bytes": 2795912,
+              "module_bytes": 31790,
+              "backend_ns": 470825,
+              "parse_ns": 3361913,
+              "resolve_ns": 165054,
+              "typecheck_ns": 2272451,
+              "optimize_ns": 142401,
+              "bce_ns": 1062160,
+              "frontend_ns": 7004199,
+              "source_files": 2,
+              "specializations": 62,
+              "function_info": [
+                {
+                  "name": "main#0",
+                  "index": 9,
+                  "code_bytes": 24871,
+                  "body_hash": "12087915161000136478",
+                  "dependencies": [
+                    0,
+                    1,
+                    6,
+                    7,
+                    10,
+                    11,
+                    13,
+                    15,
+                    16
+                  ]
+                },
+                {
+                  "name": "show#2",
+                  "index": 10,
+                  "code_bytes": 2816,
+                  "body_hash": "6537290468309657198",
+                  "dependencies": [
+                    0,
+                    6,
+                    7,
+                    13,
+                    15,
+                    16
+                  ]
+                },
+                {
+                  "name": "neighbours#4",
+                  "index": 11,
+                  "code_bytes": 555,
+                  "body_hash": "16016328385611169689",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "resolve_prefix",
+                  "index": 12,
+                  "code_bytes": 4,
+                  "body_hash": "7085529457549504980",
+                  "dependencies": []
+                },
+                {
+                  "name": "publish_header",
+                  "index": 13,
+                  "code_bytes": 142,
+                  "body_hash": "5989252060242843659",
+                  "dependencies": []
+                },
+                {
+                  "name": "_start",
+                  "index": 14,
+                  "code_bytes": 894,
+                  "body_hash": "1304484852884469345",
+                  "dependencies": [
+                    7,
+                    9
+                  ]
+                },
+                {
+                  "name": "read_uleb_array",
+                  "index": 15,
+                  "code_bytes": 243,
+                  "body_hash": "7355417982351290824",
+                  "dependencies": [
+                    7
+                  ]
+                },
+                {
+                  "name": "patch_uleb_array_length",
+                  "index": 16,
+                  "code_bytes": 359,
+                  "body_hash": "6138568942398074234",
+                  "dependencies": [
+                    7
+                  ]
+                }
+              ]
+            },
+            "dependencies": 3,
+            "total_ms": 18.308605
+          }
+        },
+        "c-wasm": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/life/c-wasm/4/program.wasm",
+          "sha256": "8f37c495f753073bb2d54dd515c081686f16289059adf688984096ede813d091",
+          "bytes": 28403,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 28403,
+          "actual_sha256": "8f37c495f753073bb2d54dd515c081686f16289059adf688984096ede813d091",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "c-wasm",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/life.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/life/c-wasm/4/program.wasm",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 0.0,
+            "cc_ms": 0.0,
+            "oracle_ms": 553.916163,
+            "output_bytes": 28403,
+            "module_sha256": "8f37c495f753073bb2d54dd515c081686f16289059adf688984096ede813d091",
+            "host": "wasi_snapshot_preview1",
+            "c_pointer_bits": 64,
+            "memory_address_bits": 64,
+            "target_profile": "memory64-lp64-wasi64-standard-eh",
+            "total_ms": 554.268342
+          }
+        },
+        "native": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/life/native/4/program.bin",
+          "sha256": "1db977e97a62132939eef83210acc6a7a9aef73e3dc04cc017cad2d24e71fd7c",
+          "bytes": 22480,
+          "exists": true,
+          "sample": 4,
+          "actual_bytes": 22480,
+          "actual_sha256": "1db977e97a62132939eef83210acc6a7a9aef73e3dc04cc017cad2d24e71fd7c",
+          "driver_stats": {
+            "schema": "goose-direct-build-v2",
+            "backend": "native",
+            "source": "/home/jacobt/src/goose-to-wasm/examples/life.goose",
+            "output": "/home/jacobt/src/goose-to-wasm/build/execution-hill/example-benchmarks/compile/life/native/4/program.bin",
+            "optimization": "-O2",
+            "cache": "disabled",
+            "compiler": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+            "frontend_ms": 15.600749,
+            "cc_ms": 268.878258,
+            "output_bytes": 22480,
+            "output_sha256": "1db977e97a62132939eef83210acc6a7a9aef73e3dc04cc017cad2d24e71fd7c",
+            "cc": "/usr/bin/gcc",
+            "total_ms": 285.434954
+          }
+        }
+      },
+      "direct_stats": {
+        "functions": 8,
+        "code_bytes": 29884,
+        "region_bytes": 2795896,
+        "activation_bytes": 2795912,
+        "module_bytes": 31790
+      },
+      "direct_top_functions": [
+        {
+          "name": "main#0",
+          "code_bytes": 24871,
+          "locals": null
+        },
+        {
+          "name": "show#2",
+          "code_bytes": 2816,
+          "locals": null
+        },
+        {
+          "name": "_start",
+          "code_bytes": 894,
+          "locals": null
+        }
+      ],
+      "aot": {
+        "direct": {
+          "path": "build/execution-hill/host-benchmarks/preparation/life/direct/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 85528,
+          "sha256": "96d9ce7ff0c595ac864ad3c1b9e7a0a25efbc9e1f2e812ae7caf987be500eedf"
+        },
+        "c-wasm": {
+          "path": "build/execution-hill/host-benchmarks/preparation/life/c-wasm/parallel/4/program.cwasm",
+          "exists": true,
+          "bytes": 111040,
+          "sha256": "c56e09535f291373a43655112e8882cece4b4c70b97712d24d05ea88484e2251"
+        }
+      },
+      "entry_runtime": {
+        "direct": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 83.943,
+              "mad_ms": 10.982
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 42.021,
+              "mad_ms": 4.327
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.459,
+              "mad_ms": 0.107
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 147.63,
+              "mad_ms": 14.665
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 26.006,
+              "mad_ms": 0.115
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 23.49,
+              "mad_ms": 1.042
+            }
+          }
+        },
+        "c-wasm": {
+          "v8": {
+            "process": {
+              "n": 15,
+              "median_ms": 40.798,
+              "mad_ms": 2.394
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 12.781,
+              "mad_ms": 2.395
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 0.615,
+              "mad_ms": 0.053
+            }
+          },
+          "wasmtime": {
+            "process": {
+              "n": 15,
+              "median_ms": 108.843,
+              "mad_ms": 4.615
+            },
+            "entry": {
+              "n": 15,
+              "median_ms": 9.902,
+              "mad_ms": 0.142
+            },
+            "engine_compile_instantiate": {
+              "n": 15,
+              "median_ms": 14.403,
+              "mad_ms": 2.067
+            }
+          }
+        }
+      },
+      "native_host_ms": {
+        "direct_python": {
+          "n": 15,
+          "median_ms": 137.066,
+          "mad_ms": 7.719
+        },
+        "direct_native_host": {
+          "n": 15,
+          "median_ms": 53.58,
+          "mad_ms": 2.653
+        },
+        "direct_aot": {
+          "n": 15,
+          "median_ms": 31.781,
+          "mad_ms": 5.209
+        },
+        "c_wasm_python": {
+          "n": 15,
+          "median_ms": 106.27,
+          "mad_ms": 2.682
+        },
+        "c_wasm_native_host": {
+          "n": 15,
+          "median_ms": 20.203,
+          "mad_ms": 2.242
+        },
+        "c_wasm_aot": {
+          "n": 15,
+          "median_ms": 7.685,
+          "mad_ms": 1.435
+        },
+        "native_c": {
+          "n": 15,
+          "median_ms": 20.214,
+          "mad_ms": 0.826
+        }
+      },
+      "direct_main_code_bytes": 24871
+    }
+  ]
+}

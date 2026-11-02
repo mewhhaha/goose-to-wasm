@@ -1,6 +1,12 @@
 #pragma once
 namespace goose::direct_wasm {
 
+inline void Function::WriteArrayMode(uint32_t header, ArrayStorageMode mode) {
+    if (c.raw_array_images && mode != ArrayStorageMode::RawElements)
+        Fail({}, "internal: nonraw array image escaped the module proof");
+    Get(header); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
+}
+
 inline void Function::DispatchArrayMode(uint32_t mode, const std::function<void(ArrayStorageMode)> &emit) {
     auto done = Begin();
     for (int i = 0; i < 6; i++) Begin();
@@ -17,6 +23,7 @@ inline void Function::DispatchArrayMode(uint32_t mode, const std::function<void(
 // a Var natural type while receiving raw storage, so TypeExpr alone is not a
 // sufficient recipe for reading its result.
 inline void Function::ReadArrayBase(uint32_t header) {
+    if (c.raw_array_images) { Get(header); code.Mem(0x28, 2); return; }
     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
     auto result = Local(I32); Get(header); code.Mem(0x28, 2); Set(result);
     DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
@@ -33,6 +40,10 @@ inline void Function::ReadArrayBase(uint32_t header) {
 }
 
 inline void Function::ValidateArrayImage(uint32_t header, uint32_t count, TypeExpr *element, Line line) {
+    if (c.raw_array_images) {
+        if (Compiler::Varint(element)) Fail(line, "internal: varint element escaped the module proof");
+        return;
+    }
     if (Compiler::Varint(element)) {
         // Metadata views stay O(1). Each encoded element needs at least one
         // byte; consumers that need the actual extent walk it separately.
@@ -66,6 +77,7 @@ inline void Function::ValidateArrayImage(uint32_t header, uint32_t count, TypeEx
 }
 
 inline void Function::ReadArrayLength(uint32_t header) {
+    if (c.raw_array_images) { Get(header); code.Mem(0x28, 2, 4); return; }
     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
     auto result = Local(I32);
     Get(header); code.Mem(0x28, 2, 4); Set(result);
@@ -88,6 +100,7 @@ inline void Function::ReadArrayLength(uint32_t header) {
 }
 
 inline void Function::ReadArrayCapacity(uint32_t header) {
+    if (c.raw_array_images) { Get(header); code.Mem(0x28, 2, 12); return; }
     Get(header); code.Mem(0x28, 2, 20); code.I32Const(int32_t(ArrayStorageMode::RuntimeLimited)); code.Op(0x46);
     Begin(0x04, I32);
     Get(header); code.Mem(0x28, 2, 16); code.Mem(0x28, 0);
@@ -96,6 +109,7 @@ inline void Function::ReadArrayCapacity(uint32_t header) {
 
 inline void Function::WriteArrayLength(uint32_t header, uint32_t count) {
     Get(header); Get(count); code.Mem(0x36, 2, 4);
+    if (c.raw_array_images) { PublishHeader(header, 4); return; }
     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
     DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
         if (selected == ArrayStorageMode::VarULEB) { PatchULEBArrayAccessor(header, count); return; }
@@ -114,6 +128,7 @@ inline void Function::WriteArrayLength(uint32_t header, uint32_t count) {
 
 inline void Function::WriteArrayCapacity(uint32_t header, uint32_t count) {
     Get(header); Get(count); code.Mem(0x36, 2, 12);
+    if (c.raw_array_images) return;
     Get(header); code.Mem(0x28, 2, 20); code.I32Const(int32_t(ArrayStorageMode::RuntimeLimited)); code.Op(0x46);
     Begin(0x04); Get(header); code.Mem(0x28, 2, 16); Get(count); code.Mem(0x36, 0); End();
 }
@@ -133,7 +148,7 @@ inline void Function::InitializeArrayImage(uint32_t header, const ConstructionDe
     }
     // An existing limited receiver retains its prefix and pinned capacity.
     if (Compiler::RuntimeLimited(type) && destination.lifetime == ConstructionDestination::Existing) return;
-    Get(header); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
+    WriteArrayMode(header, mode);
     if (!prefix) { Get(header); code.I32Const(0); code.Mem(0x36, 2, 16); return; }
     Get(header); code.Mem(0x28, 2); auto image = Save(I32);
     // A private raw stage starts at the committed cursor; ordinary receivers
@@ -157,7 +172,7 @@ inline ConstructionDestination Function::RawArrayReceiver(const ConstructionDest
     LocationAddress(adapter); auto raw = Save(I32);
     Get(raw); Get(receiving); code.I32Const(int32_t(layout.size)); code.Copy();
     Get(raw); code.I32Const(0); code.Mem(0x36, 2, 16);
-    Get(raw); code.I32Const(0); code.Mem(0x36, 2, 20);
+    WriteArrayMode(raw, ArrayStorageMode::RawElements);
     auto result = destination; result.location = adapter; result.elements = true;
     return result;
 }
@@ -177,7 +192,8 @@ inline ConstructionDestination Function::ValueArrayReceiver(const ConstructionDe
     LocationAddress(adapter); auto value = Save(I32);
     Get(value); Get(receiving); code.I32Const(int32_t(layout.size)); code.Copy();
     Get(value); Get(RegionCursor(receiving)); code.Mem(0x36, 2);
-    for (auto offset : { 4u, 12u, 16u, 20u }) { Get(value); code.I32Const(0); code.Mem(0x36, 2, offset); }
+    for (auto offset : { 4u, 12u, 16u }) { Get(value); code.I32Const(0); code.Mem(0x36, 2, offset); }
+    WriteArrayMode(value, ArrayStorageMode::RawElements);
     auto result = destination; result.location = adapter; result.elements = false;
     code.I32Const(0); result.publication = Save(I32);
     return result;
@@ -212,11 +228,11 @@ inline void Function::FinishValueArrayReceiver(const ConstructionDestination &so
         Get(receiving); Get(target_elements); code.Mem(0x36, 2);
         auto mode = uleb ? ArrayStorageMode::VarULEB : fixed_prefix == 1 ? ArrayStorageMode::VarU8 :
                     fixed_prefix == 2 ? ArrayStorageMode::VarU16 : fixed_prefix == 4 ? ArrayStorageMode::VarU32 : ArrayStorageMode::VarU64;
-        Get(receiving); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
+        WriteArrayMode(receiving, mode);
         if (uleb) { Get(receiving); Get(prefix); code.Mem(0x36, 2, 12); }
     } else {
         Get(receiving); code.I32Const(0); code.Mem(0x36, 2, 16);
-        Get(receiving); code.I32Const(0); code.Mem(0x36, 2, 20);
+        WriteArrayMode(receiving, ArrayStorageMode::RawElements);
     }
     if (uleb) { Get(end); code.Op(0xa7); PublishCursor(receiving, Save(I32)); }
     WriteArrayLength(receiving, count);
@@ -271,7 +287,7 @@ inline void Function::FinishArrayImage(uint32_t original, uint32_t start, uint32
 inline void Function::SetArrayImageAnchor(uint32_t header, uint32_t anchor, TypeExpr *type) {
     if (Compiler::ULEBLength(type)) {
         Get(header); Get(anchor); code.Mem(0x36, 2, 16);
-        Get(header); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Mem(0x36, 2, 20);
+        WriteArrayMode(header, ArrayStorageMode::VarULEB);
         Get(header); Get(anchor); code.I32Const(1); code.Op(0x6a); code.Mem(0x36, 2);
         Get(header); code.I32Const(1); code.Mem(0x36, 2, 12);
         Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); return;
@@ -281,7 +297,7 @@ inline void Function::SetArrayImageAnchor(uint32_t header, uint32_t anchor, Type
                 prefix == 1 ? ArrayStorageMode::VarU8 : prefix == 2 ? ArrayStorageMode::VarU16 :
                 prefix == 4 ? ArrayStorageMode::VarU32 : ArrayStorageMode::VarU64;
     Get(header); Get(anchor); code.Mem(0x36, 2, 16);
-    Get(header); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
+    WriteArrayMode(header, mode);
     Get(header); Get(anchor); code.I32Const(int32_t(prefix)); code.Op(0x6a); code.Mem(0x36, 2);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);

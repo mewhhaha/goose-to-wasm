@@ -10,13 +10,13 @@ Compile [Goose](https://github.com/aardappel/goose) directly to WebAssembly for 
 
 ![Cold build times by workload and backend](bench/charts/compilation.svg)
 
-Complete uncached builds include Python driver startup. Direct builds took 69–74 ms, 8.8–9.8× faster than C-to-Wasm on these inputs.
+Complete uncached builds include Python driver startup. Direct builds took 69–93 ms, 7.0–9.7× faster than C-to-Wasm on these inputs.
 
 ![Runtime by workload, backend, and engine](bench/charts/runtime.svg)
 
-Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine: direct Wasm trails C-to-Wasm on CRC32 and is faster on custom hash in this snapshot.
+Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine.
 
-[Full results and raw samples](bench/results/2026-11-02/sorting-execution/README.md) · [Benchmark method](bench/langarena/README.md)
+[Full results and raw samples](bench/results/2026-11-02/raw-array-images/README.md) · [Benchmark method](bench/langarena/README.md)
 
 ### Example programs
 
@@ -27,6 +27,8 @@ All ten examples use the same constant inputs across backends and check their ou
 ![Example process times with the native Wasmtime host and native C](bench/charts/examples-runtime.svg)
 
 [Method and results](bench/examples.md) · [Host comparison, preparation costs and qualification](bench/wasmtime-host.md)
+
+The [Wasm audit](docs/WASM_AUDIT.md) covers all ten examples and the smaller raw-array modules.
 
 ## How it was built
 

@@ -8,9 +8,9 @@
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>Example compilation</dc:title>
-    <dc:description>Complete uncached builds, including C compiler/linker work for the reference backends. Environment: {"compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8", "compiler_source_identity": {"direct_enabled": true, "headers": {"checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259", "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23", "direct_wasm.h": "4703e2f8a590ffef74d2a88f820b942e9a0f0ce90ee4d3778a440f5cac5410e0", "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2", "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3", "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451", "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29", "direct_wasm_effects.h": "b0162271f95898c0dc7bcbc3e0deef6d44d1f33793694f35c199851571e7e61c", "direct_wasm_emit.h": "bec11d6ef938a481f61c55e2550ee4beb502760ecbbbd39affc10f15301ebdeb", "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b", "direct_wasm_expr.h": "6241a35eec8d7fc7af93d538f9a0fe322af74111b0ba2d9ce0f7d9430e00173a", "direct_wasm_funvals.h": "b2862546b542c3185e89d7dd7a63fcc5f0720d0afd81f5a533ca92ac87a2abaf", "direct_wasm_images.h": "3231618f87465f2ec7a0741f3ef1e369f9489717b37d030878366cb1377c31b0", "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79", "direct_wasm_numeric.h": "761882b094a7ecc683a38f827c801687f4794541c55feefc0f4fb56e396c97d0", "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1", "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5", "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc", "direct_wasm_regions.h": "c085ba8470a98a7cd0dcd019675c2e14643f15400bfb0cf8c15c836d1bfb3ede", "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63", "direct_wasm_storage.h": "04e51f7170a31cc440f791cabe428223468b62f7f8f13c17c7321e0e97d34356", "direct_wasm_temps.h": "ff6d9811083061c8eda7eca86d94df7d2d261da61b155f83385ff32270019e5c", "direct_wasm_uleb_arrays.h": "205571c56c3b000fb322af6824deccb2f07a973e0ec7f138272b004f6ae9790d", "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e", "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd", "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3", "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43", "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8", "wasm_binary.h": "6c92d4a20b351f42417d79321dce56d5c64e4f3811ea1771de6ffd8d56f48def"}, "patches": {"oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1", "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"}, "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569", "source_diff_sha256": "51aa9a89900f1188ff940233407e29a6cd394a4294375a7122482974189adcff"}, "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "emcc": {"command": ["emcc", "--version"], "exit_code": 0, "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "env_overrides": {"CC": null, "CFLAGS": null, "EMCC_CFLAGS": null, "EMCC_CORES": "2", "EM_CACHE": "/home/jacobt/src/goose-to-wasm/build/em-cache", "GOOSE_STDLIB": null, "NODE_OPTIONS": null}, "input_sha256": {"/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb", "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178", "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f", "/home/jacobt/src/goose-to-wasm/bench/examples.py": "495601b9d40e33f784fa01a050749eb1831fa62454f1f058dc0a005da3db7c2a", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc": "33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343", "/home/jacobt/src/goose-to-wasm/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca", "/home/jacobt/src/goose-to-wasm/examples/expected/errors.out": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f", "/home/jacobt/src/goose-to-wasm/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43", "/home/jacobt/src/goose-to-wasm/examples/expected/life.out": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008", "/home/jacobt/src/goose-to-wasm/examples/expected/maze.out": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e", "/home/jacobt/src/goose-to-wasm/examples/expected/sieve.out": "08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446", "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341", "/home/jacobt/src/goose-to-wasm/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc", "/home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out": "33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf", "/home/jacobt/src/goose-to-wasm/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf", "/home/jacobt/src/goose-to-wasm/examples/expected/vm.out": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561", "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565", "/home/jacobt/src/goose-to-wasm/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97", "/home/jacobt/src/goose-to-wasm/examples/manifest.json": "e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a", "/home/jacobt/src/goose-to-wasm/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781", "/home/jacobt/src/goose-to-wasm/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a", "/home/jacobt/src/goose-to-wasm/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e", "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14", "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555", "/home/jacobt/src/goose-to-wasm/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834", "/home/jacobt/src/goose-to-wasm/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498", "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086", "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33", "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44", "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864", "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5", "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145", "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "AMD Ryzen 7 3800X, shared desktop host", "tool_paths": {"cc": "/usr/bin/gcc", "emcc": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc", "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node", "python": "/usr/bin/python3.14", "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so"}, "toolchain_pin": {"emscripten": "6.0.13", "emsdk_repository": "https://github.com/emscripten-core/emsdk.git", "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154", "minimum_cmake": "3.27", "minimum_python": "3.10", "node": "24.22.1", "patches": ["oracle/patches/0001-webassembly-target.patch", "patches/direct-target.patch"], "repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569", "schema": "goose-to-wasm-toolchain-v1", "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}</dc:description>
+    <dc:description>Complete uncached builds, including C compiler/linker work for the reference backends. Environment: {"compiler_sha256": "78178c171d7ed846ac20aec7b54f5e2e80ffb5a73bbf3551c44b73b27b373624", "compiler_source_identity": {"direct_enabled": true, "headers": {"checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259", "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23", "direct_wasm.h": "ab6d65216260a1348a4dd66d7b5d349b42b916ed31d71134815bc20f9f7cd427", "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2", "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3", "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451", "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29", "direct_wasm_effects.h": "b0162271f95898c0dc7bcbc3e0deef6d44d1f33793694f35c199851571e7e61c", "direct_wasm_emit.h": "c2191b493703f2634633b7d1d94ca71af6074a991261b42968446f99815a4cb5", "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b", "direct_wasm_expr.h": "6241a35eec8d7fc7af93d538f9a0fe322af74111b0ba2d9ce0f7d9430e00173a", "direct_wasm_funvals.h": "b2862546b542c3185e89d7dd7a63fcc5f0720d0afd81f5a533ca92ac87a2abaf", "direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02", "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79", "direct_wasm_numeric.h": "761882b094a7ecc683a38f827c801687f4794541c55feefc0f4fb56e396c97d0", "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1", "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5", "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc", "direct_wasm_regions.h": "c085ba8470a98a7cd0dcd019675c2e14643f15400bfb0cf8c15c836d1bfb3ede", "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63", "direct_wasm_storage.h": "04e51f7170a31cc440f791cabe428223468b62f7f8f13c17c7321e0e97d34356", "direct_wasm_temps.h": "ff6d9811083061c8eda7eca86d94df7d2d261da61b155f83385ff32270019e5c", "direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde", "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e", "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd", "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3", "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43", "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8", "wasm_binary.h": "6c92d4a20b351f42417d79321dce56d5c64e4f3811ea1771de6ffd8d56f48def"}, "patches": {"oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1", "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"}, "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569", "source_diff_sha256": "626dc009868c473576716231911f076fff7caa5d7dec1c853886341f24f740b2"}, "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "emcc": {"command": ["emcc", "--version"], "exit_code": 0, "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "env_overrides": {"CC": null, "CFLAGS": null, "EMCC_CFLAGS": null, "EMCC_CORES": "2", "EM_CACHE": "/home/jacobt/src/goose-to-wasm/build/em-cache", "GOOSE_STDLIB": null, "NODE_OPTIONS": null}, "input_sha256": {"/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb", "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178", "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f", "/home/jacobt/src/goose-to-wasm/bench/examples.py": "495601b9d40e33f784fa01a050749eb1831fa62454f1f058dc0a005da3db7c2a", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc": "33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343", "/home/jacobt/src/goose-to-wasm/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca", "/home/jacobt/src/goose-to-wasm/examples/expected/errors.out": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f", "/home/jacobt/src/goose-to-wasm/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43", "/home/jacobt/src/goose-to-wasm/examples/expected/life.out": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008", "/home/jacobt/src/goose-to-wasm/examples/expected/maze.out": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e", "/home/jacobt/src/goose-to-wasm/examples/expected/sieve.out": "08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446", "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341", "/home/jacobt/src/goose-to-wasm/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc", "/home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out": "33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf", "/home/jacobt/src/goose-to-wasm/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf", "/home/jacobt/src/goose-to-wasm/examples/expected/vm.out": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561", "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565", "/home/jacobt/src/goose-to-wasm/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97", "/home/jacobt/src/goose-to-wasm/examples/manifest.json": "e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a", "/home/jacobt/src/goose-to-wasm/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781", "/home/jacobt/src/goose-to-wasm/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a", "/home/jacobt/src/goose-to-wasm/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e", "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14", "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555", "/home/jacobt/src/goose-to-wasm/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834", "/home/jacobt/src/goose-to-wasm/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498", "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086", "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33", "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44", "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864", "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5", "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145", "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "AMD Ryzen 7 3800X, shared desktop host", "tool_paths": {"cc": "/usr/bin/gcc", "emcc": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc", "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node", "python": "/usr/bin/python3.14", "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so"}, "toolchain_pin": {"emscripten": "6.0.13", "emsdk_repository": "https://github.com/emscripten-core/emsdk.git", "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154", "minimum_cmake": "3.27", "minimum_python": "3.10", "node": "24.22.1", "patches": ["oracle/patches/0001-webassembly-target.patch", "patches/direct-target.patch"], "repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569", "schema": "goose-to-wasm-toolchain-v1", "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}</dc:description>
     <dc:format>image/svg+xml</dc:format>
-    <dc:source>/home/jacobt/src/goose-to-wasm/bench/results/2026-11-02/sorting-execution/examples.json sha256:595e7dea41fe0f2bf04fcf1ab9232fa4a4e976db58fa5f4e58229882dbb39a92; /home/jacobt/src/goose-to-wasm/bench/example_charts.py sha256:b72c61946f4a9d86321dd49d4aab8d10f69d066356e4664a08652f4ee51c6846; /home/jacobt/src/goose-to-wasm/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/bench/examples.py sha256:495601b9d40e33f784fa01a050749eb1831fa62454f1f058dc0a005da3db7c2a; /home/jacobt/src/goose-to-wasm/bench/benchmark.py sha256:98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5; /home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py sha256:6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33; /home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py sha256:617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086; /home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs sha256:dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44; /home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py sha256:219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864; /home/jacobt/src/goose-to-wasm/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc sha256:33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; compiler sha256:82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8</dc:source>
+    <dc:source>/home/jacobt/src/goose-to-wasm/bench/results/2026-11-02/raw-array-images/examples.json sha256:28ec3292e49358b7418a96ba710b6b5e48ae8a2bab134f9a841d95da465dbd06; /home/jacobt/src/goose-to-wasm/bench/example_charts.py sha256:b72c61946f4a9d86321dd49d4aab8d10f69d066356e4664a08652f4ee51c6846; /home/jacobt/src/goose-to-wasm/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/bench/examples.py sha256:495601b9d40e33f784fa01a050749eb1831fa62454f1f058dc0a005da3db7c2a; /home/jacobt/src/goose-to-wasm/bench/benchmark.py sha256:98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5; /home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py sha256:6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33; /home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py sha256:617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086; /home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs sha256:dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44; /home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py sha256:219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864; /home/jacobt/src/goose-to-wasm/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc sha256:33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; compiler sha256:78178c171d7ed846ac20aec7b54f5e2e80ffb5a73bbf3551c44b73b27b373624</dc:source>
     <dc:creator>
      <cc:Agent>
       <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
@@ -116,57 +116,57 @@ L 987.84 408.24
     </g>
     <g id="ytick_2">
      <g id="line2d_13">
-      <path d="M 75.6 351.967548
-L 987.84 351.967548
+      <path d="M 75.6 348.776452
+L 987.84 348.776452
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_14"/>
      <g id="text_12">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="355.766376" transform="rotate(-0 67.6 355.766376)">250</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="352.57528" transform="rotate(-0 67.6 352.57528)">250</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_15">
-      <path d="M 75.6 295.695096
-L 987.84 295.695096
+      <path d="M 75.6 289.312904
+L 987.84 289.312904
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_16"/>
      <g id="text_13">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="299.493924" transform="rotate(-0 67.6 299.493924)">500</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="293.111732" transform="rotate(-0 67.6 293.111732)">500</text>
      </g>
     </g>
     <g id="ytick_4">
      <g id="line2d_17">
-      <path d="M 75.6 239.422644
-L 987.84 239.422644
+      <path d="M 75.6 229.849356
+L 987.84 229.849356
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_18"/>
      <g id="text_14">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="243.221472" transform="rotate(-0 67.6 243.221472)">750</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="233.648185" transform="rotate(-0 67.6 233.648185)">750</text>
      </g>
     </g>
     <g id="ytick_5">
      <g id="line2d_19">
-      <path d="M 75.6 183.150192
-L 987.84 183.150192
+      <path d="M 75.6 170.385809
+L 987.84 170.385809
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_20"/>
      <g id="text_15">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="186.949021" transform="rotate(-0 67.6 186.949021)">1,000</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="174.184637" transform="rotate(-0 67.6 174.184637)">1,000</text>
      </g>
     </g>
     <g id="ytick_6">
      <g id="line2d_21">
-      <path d="M 75.6 126.877741
-L 987.84 126.877741
+      <path d="M 75.6 110.922261
+L 987.84 110.922261
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_22"/>
      <g id="text_16">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="130.676569" transform="rotate(-0 67.6 130.676569)">1,250</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="114.721089" transform="rotate(-0 67.6 114.721089)">1,250</text>
      </g>
     </g>
     <g id="text_17">
@@ -176,273 +176,273 @@ L 987.84 126.877741
    <g id="patch_3">
     <path d="M 94.27834 408.24
 L 112.920551 408.24
-L 112.920551 393.480488
-L 94.27834 393.480488
+L 112.920551 393.65914
+L 94.27834 393.65914
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_4">
     <path d="M 184.599132 408.24
 L 203.241343 408.24
-L 203.241343 394.038404
-L 184.599132 394.038404
+L 203.241343 393.140972
+L 184.599132 393.140972
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_5">
     <path d="M 274.919924 408.24
 L 293.562135 408.24
-L 293.562135 389.993199
-L 274.919924 389.993199
+L 293.562135 388.948763
+L 274.919924 388.948763
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_6">
     <path d="M 365.240716 408.24
 L 383.882928 408.24
-L 383.882928 388.3651
-L 365.240716 388.3651
+L 383.882928 391.898867
+L 365.240716 391.898867
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_7">
     <path d="M 455.561508 408.24
 L 474.20372 408.24
-L 474.20372 391.956704
-L 455.561508 391.956704
+L 474.20372 392.551032
+L 455.561508 392.551032
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_8">
     <path d="M 545.8823 408.24
 L 564.524512 408.24
-L 564.524512 388.020858
-L 545.8823 388.020858
+L 564.524512 381.381083
+L 545.8823 381.381083
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_9">
     <path d="M 636.203092 408.24
 L 654.845304 408.24
-L 654.845304 391.471429
-L 636.203092 391.471429
+L 654.845304 387.324702
+L 636.203092 387.324702
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_10">
     <path d="M 726.523884 408.24
 L 745.166096 408.24
-L 745.166096 390.839271
-L 726.523884 390.839271
+L 745.166096 391.386993
+L 726.523884 391.386993
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_11">
     <path d="M 816.844676 408.24
 L 835.486888 408.24
-L 835.486888 392.941655
-L 816.844676 392.941655
+L 835.486888 387.810171
+L 816.844676 387.810171
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_12">
     <path d="M 907.165469 408.24
 L 925.80768 408.24
-L 925.80768 392.786178
-L 907.165469 392.786178
+L 925.80768 392.044186
+L 907.165469 392.044186
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_13">
     <path d="M 115.95533 408.24
 L 134.597541 408.24
-L 134.597541 294.345927
-L 115.95533 294.345927
+L 134.597541 286.577613
+L 115.95533 286.577613
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_14">
     <path d="M 206.276122 408.24
 L 224.918333 408.24
-L 224.918333 196.703997
-L 206.276122 196.703997
+L 224.918333 188.992633
+L 206.276122 188.992633
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_15">
     <path d="M 296.596914 408.24
 L 315.239126 408.24
-L 315.239126 196.333256
-L 296.596914 196.333256
+L 315.239126 195.616848
+L 296.596914 195.616848
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_16">
     <path d="M 386.917706 408.24
 L 405.559918 408.24
-L 405.559918 249.947846
-L 386.917706 249.947846
+L 405.559918 242.808822
+L 386.917706 242.808822
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_17">
     <path d="M 477.238498 408.24
 L 495.88071 408.24
-L 495.88071 281.714845
-L 477.238498 281.714845
+L 495.88071 274.779789
+L 477.238498 274.779789
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_18">
     <path d="M 567.55929 408.24
 L 586.201502 408.24
-L 586.201502 188.296547
-L 567.55929 188.296547
+L 586.201502 200.528643
+L 567.55929 200.528643
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_19">
     <path d="M 657.880082 408.24
 L 676.522294 408.24
-L 676.522294 284.259934
-L 657.880082 284.259934
+L 676.522294 281.27594
+L 657.880082 281.27594
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_20">
     <path d="M 748.200874 408.24
 L 766.843086 408.24
-L 766.843086 240.507606
-L 748.200874 240.507606
+L 766.843086 249.932728
+L 748.200874 249.932728
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_21">
     <path d="M 838.521667 408.24
 L 857.163878 408.24
-L 857.163878 250.269267
-L 838.521667 250.269267
+L 857.163878 242.629974
+L 838.521667 242.629974
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_22">
     <path d="M 928.842459 408.24
 L 947.48467 408.24
-L 947.48467 267.658345
-L 928.842459 267.658345
+L 947.48467 267.424894
+L 928.842459 267.424894
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #ce862a"/>
    </g>
    <g id="patch_23">
     <path d="M 137.63232 408.24
 L 156.274531 408.24
-L 156.274531 358.895815
-L 137.63232 358.895815
+L 156.274531 360.90192
+L 137.63232 360.90192
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_24">
     <path d="M 227.953112 408.24
 L 246.595324 408.24
-L 246.595324 313.835844
-L 227.953112 313.835844
+L 246.595324 311.851725
+L 227.953112 311.851725
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_25">
     <path d="M 318.273904 408.24
 L 336.916116 408.24
-L 336.916116 294.982939
-L 318.273904 294.982939
+L 336.916116 293.06007
+L 318.273904 293.06007
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_26">
     <path d="M 408.594696 408.24
 L 427.236908 408.24
-L 427.236908 328.328488
-L 408.594696 328.328488
+L 427.236908 324.8203
+L 408.594696 324.8203
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_27">
     <path d="M 498.915488 408.24
 L 517.5577 408.24
-L 517.5577 348.603449
-L 498.915488 348.603449
+L 517.5577 344.42761
+L 498.915488 344.42761
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_28">
     <path d="M 589.23628 408.24
 L 607.878492 408.24
-L 607.878492 286.496605
-L 589.23628 286.496605
+L 607.878492 279.649373
+L 589.23628 279.649373
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_29">
     <path d="M 679.557072 408.24
 L 698.199284 408.24
-L 698.199284 346.0968
-L 679.557072 346.0968
+L 698.199284 346.190432
+L 679.557072 346.190432
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_30">
     <path d="M 769.877865 408.24
 L 788.520076 408.24
-L 788.520076 323.843069
-L 769.877865 323.843069
+L 788.520076 323.071813
+L 769.877865 323.071813
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_31">
     <path d="M 860.198657 408.24
 L 878.840868 408.24
-L 878.840868 341.663945
-L 860.198657 341.663945
+L 878.840868 342.457199
+L 860.198657 342.457199
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_32">
     <path d="M 950.519449 408.24
 L 969.16166 408.24
-L 969.16166 340.170019
-L 950.519449 340.170019
+L 969.16166 333.467272
+L 950.519449 333.467272
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="LineCollection_1">
-    <path d="M 103.599446 394.606768
-L 103.599446 392.354207
+    <path d="M 103.599446 393.903188
+L 103.599446 393.415093
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 193.920238 394.132823
-L 193.920238 393.943984
+    <path d="M 193.920238 393.465513
+L 193.920238 392.816431
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 284.24103 390.07291
-L 284.24103 389.913487
+    <path d="M 284.24103 389.08372
+L 284.24103 388.813806
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 374.561822 390.749382
-L 374.561822 385.980818
+    <path d="M 374.561822 392.02727
+L 374.561822 391.770463
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 464.882614 393.088039
-L 464.882614 390.825369
+    <path d="M 464.882614 392.598931
+L 464.882614 392.503134
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 555.203406 388.510963
-L 555.203406 387.530753
+    <path d="M 555.203406 382.060571
+L 555.203406 380.701594
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 645.524198 391.68532
-L 645.524198 391.257539
+    <path d="M 645.524198 390.455399
+L 645.524198 384.194005
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 735.84499 392.162752
-L 735.84499 389.515791
+    <path d="M 735.84499 391.676295
+L 735.84499 391.097691
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 826.165782 393.129434
-L 826.165782 392.753877
+    <path d="M 826.165782 390.211796
+L 826.165782 385.408546
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 916.486574 392.922983
-L 916.486574 392.649372
+    <path d="M 916.486574 392.34223
+L 916.486574 391.746142
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_23">
@@ -452,150 +452,150 @@ L -2 -0
 " style="stroke: #334155"/>
     </defs>
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="103.599446" y="394.606768" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="193.920238" y="394.132823" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="284.24103" y="390.07291" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="374.561822" y="390.749382" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="464.882614" y="393.088039" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="555.203406" y="388.510963" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="645.524198" y="391.68532" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="735.84499" y="392.162752" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="826.165782" y="393.129434" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="916.486574" y="392.922983" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="103.599446" y="393.903188" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="193.920238" y="393.465513" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="284.24103" y="389.08372" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="374.561822" y="392.02727" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="464.882614" y="392.598931" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="555.203406" y="382.060571" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="645.524198" y="390.455399" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="735.84499" y="391.676295" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="826.165782" y="390.211796" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="916.486574" y="392.34223" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_24">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="103.599446" y="392.354207" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="193.920238" y="393.943984" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="284.24103" y="389.913487" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="374.561822" y="385.980818" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="464.882614" y="390.825369" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="555.203406" y="387.530753" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="645.524198" y="391.257539" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="735.84499" y="389.515791" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="826.165782" y="392.753877" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="916.486574" y="392.649372" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="103.599446" y="393.415093" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="193.920238" y="392.816431" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="284.24103" y="388.813806" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="374.561822" y="391.770463" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="464.882614" y="392.503134" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="555.203406" y="380.701594" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="645.524198" y="384.194005" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="735.84499" y="391.097691" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="826.165782" y="385.408546" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="916.486574" y="391.746142" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="LineCollection_2">
-    <path d="M 125.276436 296.112598
-L 125.276436 292.579256
+    <path d="M 125.276436 288.949756
+L 125.276436 284.20547
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 215.597228 206.953339
-L 215.597228 186.454655
+    <path d="M 215.597228 192.527874
+L 215.597228 185.457391
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 305.91802 204.43334
-L 305.91802 188.233172
+    <path d="M 305.91802 200.767276
+L 305.91802 190.46642
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 396.238812 259.034643
-L 396.238812 240.861049
+    <path d="M 396.238812 246.530315
+L 396.238812 239.087328
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 486.559604 282.66633
-L 486.559604 280.76336
+    <path d="M 486.559604 279.389365
+L 486.559604 270.170213
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 576.880396 191.135703
-L 576.880396 185.457391
+    <path d="M 576.880396 205.61917
+L 576.880396 195.438117
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 667.201188 285.92512
-L 667.201188 282.594749
+    <path d="M 667.201188 286.987102
+L 667.201188 275.564777
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 757.52198 245.168391
-L 757.52198 235.846821
+    <path d="M 757.52198 254.191727
+L 757.52198 245.67373
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 847.842772 254.229346
-L 847.842772 246.309189
+    <path d="M 847.842772 247.948586
+L 847.842772 237.311363
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 938.163564 272.087784
-L 938.163564 263.228906
+    <path d="M 938.163564 271.159619
+L 938.163564 263.690169
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_25">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="125.276436" y="296.112598" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="215.597228" y="206.953339" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="305.91802" y="204.43334" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="396.238812" y="259.034643" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="486.559604" y="282.66633" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="576.880396" y="191.135703" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="667.201188" y="285.92512" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="757.52198" y="245.168391" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="847.842772" y="254.229346" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="938.163564" y="272.087784" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="125.276436" y="288.949756" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="215.597228" y="192.527874" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="305.91802" y="200.767276" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="396.238812" y="246.530315" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="486.559604" y="279.389365" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="576.880396" y="205.61917" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="667.201188" y="286.987102" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="757.52198" y="254.191727" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="847.842772" y="247.948586" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="938.163564" y="271.159619" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_26">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="125.276436" y="292.579256" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="215.597228" y="186.454655" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="305.91802" y="188.233172" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="396.238812" y="240.861049" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="486.559604" y="280.76336" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="576.880396" y="185.457391" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="667.201188" y="282.594749" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="757.52198" y="235.846821" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="847.842772" y="246.309189" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="938.163564" y="263.228906" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="125.276436" y="284.20547" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="215.597228" y="185.457391" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="305.91802" y="190.46642" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="396.238812" y="239.087328" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="486.559604" y="270.170213" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="576.880396" y="195.438117" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="667.201188" y="275.564777" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="757.52198" y="245.67373" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="847.842772" y="237.311363" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="938.163564" y="263.690169" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="LineCollection_3">
-    <path d="M 146.953426 362.376376
-L 146.953426 355.415255
+    <path d="M 146.953426 363.328404
+L 146.953426 358.475435
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 237.274218 315.177009
-L 237.274218 312.494679
+    <path d="M 237.274218 313.443636
+L 237.274218 310.259813
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 327.59501 297.960049
-L 327.59501 292.005829
+    <path d="M 327.59501 293.489976
+L 327.59501 292.630163
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 417.915802 331.701319
-L 417.915802 324.955658
+    <path d="M 417.915802 327.252903
+L 417.915802 322.387696
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 508.236594 351.688374
-L 508.236594 345.518523
+    <path d="M 508.236594 345.252782
+L 508.236594 343.602438
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 598.557386 287.570002
-L 598.557386 285.423209
+    <path d="M 598.557386 280.652188
+L 598.557386 278.646557
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 688.878178 348.813932
-L 688.878178 343.379667
+    <path d="M 688.878178 347.474845
+L 688.878178 344.90602
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 779.19897 326.92076
-L 779.19897 320.765378
+    <path d="M 779.19897 325.839638
+L 779.19897 320.303987
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 869.519762 344.752266
-L 869.519762 338.575623
+    <path d="M 869.519762 342.491601
+L 869.519762 342.422797
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 959.840554 341.738302
-L 959.840554 338.601735
+    <path d="M 959.840554 337.422252
+L 959.840554 329.512292
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_27">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="146.953426" y="362.376376" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="237.274218" y="315.177009" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="327.59501" y="297.960049" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="417.915802" y="331.701319" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="508.236594" y="351.688374" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="598.557386" y="287.570002" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="688.878178" y="348.813932" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="779.19897" y="326.92076" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="869.519762" y="344.752266" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="959.840554" y="341.738302" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="146.953426" y="363.328404" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="237.274218" y="313.443636" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="327.59501" y="293.489976" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="417.915802" y="327.252903" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="508.236594" y="345.252782" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="598.557386" y="280.652188" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="688.878178" y="347.474845" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="779.19897" y="325.839638" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="869.519762" y="342.491601" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="959.840554" y="337.422252" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_28">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="146.953426" y="355.415255" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="237.274218" y="312.494679" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="327.59501" y="292.005829" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="417.915802" y="324.955658" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="508.236594" y="345.518523" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="598.557386" y="285.423209" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="688.878178" y="343.379667" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="779.19897" y="320.765378" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="869.519762" y="338.575623" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="959.840554" y="338.601735" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="146.953426" y="358.475435" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="237.274218" y="310.259813" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="327.59501" y="292.630163" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="417.915802" y="322.387696" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="508.236594" y="343.602438" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="598.557386" y="278.646557" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="688.878178" y="344.90602" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="779.19897" y="320.303987" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="869.519762" y="342.422797" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="959.840554" y="329.512292" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="patch_33">
@@ -604,94 +604,94 @@ L 987.84 408.24
 " style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="text_18">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(105.677571 389.680816) rotate(-90)">65.6 ±5</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(105.677571 390.741701) rotate(-90)">61.3 ±1</text>
    </g>
    <g id="text_19">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(195.998363 391.270593) rotate(-90)">63.1 ±0.42</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(195.998363 390.143039) rotate(-90)">63.5 ±1.4</text>
    </g>
    <g id="text_20">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(286.319155 387.240096) rotate(-90)">81.1 ±0.35</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(286.319155 386.140415) rotate(-90)">81.1 ±0.57</text>
    </g>
    <g id="text_21">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(376.639947 383.307426) rotate(-90)">88.3 ±11</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(376.639947 389.097072) rotate(-90)">68.7 ±0.54</text>
    </g>
    <g id="text_22">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(466.960739 388.151978) rotate(-90)">72.3 ±5</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(466.960739 389.829742) rotate(-90)">66 ±0.2</text>
    </g>
    <g id="text_23">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(557.281531 384.857362) rotate(-90)">89.8 ±2.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(557.281531 378.028202) rotate(-90)">113 ±2.9</text>
    </g>
    <g id="text_24">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(647.602323 388.584148) rotate(-90)">74.5 ±0.95</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(647.602323 381.520614) rotate(-90)">87.9 ±13</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(737.923115 386.8424) rotate(-90)">77.3 ±5.9</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(737.923115 388.4243) rotate(-90)">70.9 ±1.2</text>
    </g>
    <g id="text_26">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(828.243907 390.080485) rotate(-90)">68 ±0.83</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(828.243907 382.735155) rotate(-90)">85.9 ±10</text>
    </g>
    <g id="text_27">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(918.564699 389.975981) rotate(-90)">68.7 ±0.61</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(918.564699 389.072751) rotate(-90)">68.1 ±1.3</text>
    </g>
    <g id="text_28">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(127.354561 289.905865) rotate(-90)">506 ±7.8</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(127.354561 281.532078) rotate(-90)">511 ±10</text>
    </g>
    <g id="text_29">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(217.675353 183.781264) rotate(-90)">940 ±46</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(217.675353 182.784) rotate(-90)">922 ±15</text>
    </g>
    <g id="text_30">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(307.996145 185.55978) rotate(-90)">941 ±36</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(307.996145 187.793029) rotate(-90)">894 ±22</text>
    </g>
    <g id="text_31">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(398.316937 238.187657) rotate(-90)">703 ±40</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(398.316937 236.413937) rotate(-90)">696 ±16</text>
    </g>
    <g id="text_32">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(488.637729 278.089968) rotate(-90)">562 ±4.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(488.637729 267.496821) rotate(-90)">561 ±19</text>
    </g>
    <g id="text_33">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(578.958521 182.784) rotate(-90)">977 ±13</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(578.958521 192.764725) rotate(-90)">873 ±21</text>
    </g>
    <g id="text_34">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(669.279313 279.921357) rotate(-90)">551 ±7.4</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(669.279313 272.891386) rotate(-90)">534 ±24</text>
    </g>
    <g id="text_35">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(759.600105 233.173429) rotate(-90)">745 ±21</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(759.600105 243.000339) rotate(-90)">666 ±18</text>
    </g>
    <g id="text_36">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(849.920897 243.635798) rotate(-90)">702 ±18</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(849.920897 234.637972) rotate(-90)">696 ±22</text>
    </g>
    <g id="text_37">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(940.241689 260.555515) rotate(-90)">625 ±20</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(940.241689 261.016778) rotate(-90)">592 ±16</text>
    </g>
    <g id="text_38">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(149.031551 352.741863) rotate(-90)">219 ±15</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(149.031551 355.802044) rotate(-90)">199 ±10</text>
    </g>
    <g id="text_39">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(239.352343 309.821288) rotate(-90)">419 ±6</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(239.352343 307.586422) rotate(-90)">405 ±6.7</text>
    </g>
    <g id="text_40">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(329.673135 289.332437) rotate(-90)">503 ±13</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(329.673135 289.956772) rotate(-90)">484 ±1.8</text>
    </g>
    <g id="text_41">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(419.993927 322.282267) rotate(-90)">355 ±15</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(419.993927 319.714305) rotate(-90)">351 ±10</text>
    </g>
    <g id="text_42">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(510.314719 342.845131) rotate(-90)">265 ±14</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(510.314719 340.929047) rotate(-90)">268 ±3.5</text>
    </g>
    <g id="text_43">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(600.635511 282.749817) rotate(-90)">541 ±4.8</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(600.635511 275.973166) rotate(-90)">541 ±4.2</text>
    </g>
    <g id="text_44">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(690.956303 340.706276) rotate(-90)">276 ±12</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(690.956303 342.232628) rotate(-90)">261 ±5.4</text>
    </g>
    <g id="text_45">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(781.277095 318.091987) rotate(-90)">375 ±14</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(781.277095 317.630596) rotate(-90)">358 ±12</text>
    </g>
    <g id="text_46">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(871.597887 335.902232) rotate(-90)">296 ±14</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(871.597887 339.749405) rotate(-90)">277 ±0.14</text>
    </g>
    <g id="text_47">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(961.918679 335.928344) rotate(-90)">302 ±7</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(961.918679 326.838901) rotate(-90)">314 ±17</text>
    </g>
   </g>
   <g id="text_48">

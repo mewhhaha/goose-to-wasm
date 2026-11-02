@@ -97,6 +97,81 @@ inline string Function::EncodeBody() {
     out.Raw(code.data); return out.data;
 }
 
+inline bool Compiler::RawArrayImages() {
+    // This proves a closed module's physical modes, not an individual
+    // expression's natural type. Public exports and user imports allow host
+    // edits between accesses, so they retain authoritative mode dispatch.
+    for (auto spec : reachable)
+        if (spec->sf->isexport || (spec->sf->isextern && !intrinsic_opcode.count(spec))) return false;
+    unordered_set<TypeExpr *> seen;
+    function<bool(TypeExpr *)> type = [&](TypeExpr *value) {
+        if (!value || !seen.insert(value).second) return true;
+        if (value->kind == TY_STRUCT && !value->struc->inst) return false;
+        if (value->kind == TY_VARIANT && (!value->var->adt || value->var->adt->kind != TY_ENUM ||
+            !value->var->adt->enu->inst)) return false;
+        if (Varint(value) || RegionRecord(value) || RegionEnum(value)) return false;
+        switch (value->kind) {
+            case TY_INT: case TY_FLT: case TY_BOOL: case TY_VOID: return true;
+            case TY_REF:
+                return value->ref->lenstorage != IS_VARINT && type(value->ref->sub);
+            case TY_SLICE: return type(value->sub);
+            case TY_ARRAY:
+                switch (value->arr->akind) {
+                    case A_GROW: case A_GROWSHRINK: break;
+                    case A_FIXED: case A_LIMITED:
+                        if (value->arr->size < 0) return false;
+                        break;
+                    default: return false;
+                }
+                return type(value->arr->sub);
+            case TY_STRUCT: case TY_VARIANT:
+                for (auto field : RecordFields(value)) if (!type(field)) return false;
+                return true;
+            case TY_ENUM:
+                if (!value->enu->inst) return false;
+                for (auto &fields : value->enu->inst->vftypes)
+                    for (auto field : fields) if (!type(field)) return false;
+                return true;
+            case TY_FN:
+                for (auto argument : value->fn->args) if (!type(argument)) return false;
+                for (auto result : value->fn->rets) if (!type(result)) return false;
+                return true;
+            default: return false;
+        }
+    };
+    auto signature = [&](FnSpec *spec) {
+        for (auto parameter : spec->params) if (!type(parameter->type)) return false;
+        for (auto result : spec->rets) if (!type(result)) return false;
+        for (auto capture : captures[spec]) if (!type(capture->type)) return false;
+        return true;
+    };
+    function<bool(Node *)> node = [&](Node *value) {
+        if (!value || Is<FnDecl>(value) || Is<FunVal>(value) || Is<StructDecl>(value) ||
+            Is<EnumDecl>(value) || Is<AliasDecl>(value)) return true;
+        if (!type(value->exprtype)) return false;
+        if (auto literal = Is<ArrayLit>(value); literal && literal->capexpr) return false;
+        if (auto identifier = Is<Ident>(value); identifier && identifier->vdef && !type(identifier->vdef->type)) return false;
+        if (auto declaration = Is<VarDecl>(value))
+            for (auto variable : declaration->defs) if (!type(variable->type)) return false;
+        if (auto cast = Is<AsCast>(value); cast && !type(cast->totype)) return false;
+        if (auto inlined = Is<InlineBlock>(value); inlined && inlined->spec && !signature(inlined->spec)) return false;
+        if (auto call = Is<Call>(value)) {
+            for (auto result : call->rettypes) if (!type(result)) return false;
+            for (auto parameter : call->fvparams) if (!type(parameter->type)) return false;
+            if (call->spec && !signature(call->spec)) return false;
+            if (!node(call->fvbody) || !node(call->defaultinit)) return false;
+            for (auto argument : call->ValueArgNodes()) if (!node(argument)) return false;
+            return true;
+        }
+        bool valid = true;
+        value->Children([&](Node *child) { if (valid) valid = node(child); });
+        return valid;
+    };
+    for (auto global : ast.globals) if (!node(global)) return false;
+    for (auto spec : specs) if (!signature(spec) || !node(spec->body)) return false;
+    return true;
+}
+
 inline DirectWasmResult Compiler::Compile() {
     if (!opts.initial_pages || opts.initial_pages > opts.maximum_pages || opts.maximum_pages > 65535)
         Fail({}, "linear memory requires 1 <= initial_pages <= maximum_pages <= 65535");
@@ -134,6 +209,7 @@ inline DirectWasmResult Compiler::Compile() {
         FunctionSig(sp); // establish region requirements before assigning globals
     }
     AnalyzeEffects();
+    raw_array_images = RawArrayImages();
     // Only frame-record result construction can map a nonempty prefix.
     // Checker-owned instantiations are complete and stable before emission;
     // unused frame types merely keep the conservative resolver path.

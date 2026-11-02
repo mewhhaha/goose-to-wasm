@@ -1,0 +1,804 @@
+{
+  "method": "Static LLVM Wasm instruction counts; these first raw candidate modules are later required byte-identical to final compiler/example artifacts. Remainder may lower to native IDIV.",
+  "examples": [
+    {
+      "name": "squares",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 188,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 8,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "tour",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 16569,
+          "br_tables": 70,
+          "divisions": 52,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "divide#4",
+          "instructions": 121,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 89,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "read_uleb_array",
+          "instructions": 130,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "instructions": 193,
+          "br_tables": 0,
+          "divisions": 2,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "functions",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 9022,
+          "br_tables": 0,
+          "divisions": 63,
+          "remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#19",
+          "instructions": 3946,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#25",
+          "instructions": 2617,
+          "br_tables": 0,
+          "divisions": 2,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#39",
+          "instructions": 4124,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "by_name#41",
+          "instructions": 444,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#45",
+          "instructions": 2758,
+          "br_tables": 0,
+          "divisions": 2,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "errors",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 2707,
+          "br_tables": 0,
+          "divisions": 10,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "parse_age#1",
+          "instructions": 181,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "parse_int#6",
+          "instructions": 501,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "trim#2",
+          "instructions": 447,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "find_user#7",
+          "instructions": 286,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "report#9",
+          "instructions": 1038,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "load#10",
+          "instructions": 691,
+          "br_tables": 0,
+          "divisions": 6,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "each_split#11",
+          "instructions": 3137,
+          "br_tables": 0,
+          "divisions": 16,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "message#14",
+          "instructions": 762,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 1,
+          "popcnt": 0
+        },
+        {
+          "name": "parse_record#12",
+          "instructions": 1988,
+          "br_tables": 0,
+          "divisions": 8,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "sieve",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 2344,
+          "br_tables": 0,
+          "divisions": 13,
+          "remainders": 1,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 369,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "sorting",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 8438,
+          "br_tables": 0,
+          "divisions": 99,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "insertion_sort#1",
+          "instructions": 460,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "bsearch#3",
+          "instructions": 239,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "random_ints#4",
+          "instructions": 638,
+          "br_tables": 0,
+          "divisions": 6,
+          "remainders": 1,
+          "popcnt": 0
+        },
+        {
+          "name": "merge_sort#7",
+          "instructions": 631,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "copy_into#8",
+          "instructions": 164,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#9",
+          "instructions": 96,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#10",
+          "instructions": 3164,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#16",
+          "instructions": 1657,
+          "br_tables": 0,
+          "divisions": 2,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "binary_search#28",
+          "instructions": 210,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort#29",
+          "instructions": 3818,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "reverse#32",
+          "instructions": 218,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "sort_pivot#34",
+          "instructions": 2617,
+          "br_tables": 0,
+          "divisions": 2,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "stable_sort#46",
+          "instructions": 5526,
+          "br_tables": 0,
+          "divisions": 14,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "sudoku",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 110,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "run#1",
+          "instructions": 1586,
+          "br_tables": 0,
+          "divisions": 3,
+          "remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "show#6",
+          "instructions": 1275,
+          "br_tables": 0,
+          "divisions": 15,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "solve#7",
+          "instructions": 484,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "count_bits#9",
+          "instructions": 158,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "candidates#8",
+          "instructions": 261,
+          "br_tables": 0,
+          "divisions": 3,
+          "remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "bit#4",
+          "instructions": 103,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "place#3",
+          "instructions": 385,
+          "br_tables": 0,
+          "divisions": 3,
+          "remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "unplace#10",
+          "instructions": 409,
+          "br_tables": 0,
+          "divisions": 3,
+          "remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 369,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "maze",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 4231,
+          "br_tables": 0,
+          "divisions": 29,
+          "remainders": 4,
+          "popcnt": 0
+        },
+        {
+          "name": "show#9",
+          "instructions": 726,
+          "br_tables": 0,
+          "divisions": 3,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "dijkstra#11",
+          "instructions": 3370,
+          "br_tables": 0,
+          "divisions": 24,
+          "remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 537,
+          "br_tables": 0,
+          "divisions": 2,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "vm",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 7796,
+          "br_tables": 0,
+          "divisions": 124,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "disassemble#1",
+          "instructions": 1138,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "append_decimal#2",
+          "instructions": 587,
+          "br_tables": 0,
+          "divisions": 1,
+          "remainders": 1,
+          "popcnt": 0
+        },
+        {
+          "name": "run#4",
+          "instructions": 2924,
+          "br_tables": 0,
+          "divisions": 50,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 414,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    },
+    {
+      "name": "life",
+      "functions": [
+        {
+          "name": "CODE",
+          "instructions": 0,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "main#0",
+          "instructions": 5000,
+          "br_tables": 0,
+          "divisions": 27,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "show#2",
+          "instructions": 860,
+          "br_tables": 0,
+          "divisions": 7,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "neighbours#4",
+          "instructions": 303,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 2,
+          "popcnt": 0
+        },
+        {
+          "name": "resolve_prefix",
+          "instructions": 2,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "publish_header",
+          "instructions": 73,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        },
+        {
+          "name": "_start",
+          "instructions": 360,
+          "br_tables": 0,
+          "divisions": 0,
+          "remainders": 0,
+          "popcnt": 0
+        }
+      ]
+    }
+  ],
+  "tool": {
+    "path": "/usr/bin/llvm-objdump",
+    "sha256": "004e9c613fe529ba8ed54f4eb7978ec36c65e71a0a36e766a0e604ea04cb936c",
+    "version": "23.1.4"
+  }
+}

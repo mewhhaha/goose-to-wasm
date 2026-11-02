@@ -1,0 +1,92 @@
+[
+  {
+    "name": "squares",
+    "before_bytes": 1367,
+    "after_bytes": 1367,
+    "before_mode_dispatches": 0,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 132834
+  },
+  {
+    "name": "tour",
+    "before_bytes": 40589,
+    "after_bytes": 40589,
+    "before_mode_dispatches": 70,
+    "after_br_tables": 70,
+    "uleb_helpers": 2,
+    "backend_ns": 947168
+  },
+  {
+    "name": "functions",
+    "before_bytes": 73346,
+    "after_bytes": 55269,
+    "before_mode_dispatches": 85,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 1654769
+  },
+  {
+    "name": "errors",
+    "before_bytes": 37229,
+    "after_bytes": 27101,
+    "before_mode_dispatches": 54,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 1239215
+  },
+  {
+    "name": "sieve",
+    "before_bytes": 16860,
+    "after_bytes": 7410,
+    "before_mode_dispatches": 41,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 316194
+  },
+  {
+    "name": "sorting",
+    "before_bytes": 96689,
+    "after_bytes": 65038,
+    "before_mode_dispatches": 147,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 3811497
+  },
+  {
+    "name": "sudoku",
+    "before_bytes": 15116,
+    "after_bytes": 12415,
+    "before_mode_dispatches": 12,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 359457
+  },
+  {
+    "name": "maze",
+    "before_bytes": 50993,
+    "after_bytes": 21474,
+    "before_mode_dispatches": 138,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 533058
+  },
+  {
+    "name": "vm",
+    "before_bytes": 48133,
+    "after_bytes": 29290,
+    "before_mode_dispatches": 115,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 443346
+  },
+  {
+    "name": "life",
+    "before_bytes": 31790,
+    "after_bytes": 15740,
+    "before_mode_dispatches": 75,
+    "after_br_tables": 0,
+    "uleb_helpers": 0,
+    "backend_ns": 351010
+  }
+]

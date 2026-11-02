@@ -1,0 +1,17 @@
+{
+  "command": "source build/performance-env.sh\npython tests/test_array_image_modes.py",
+  "exit_status": 0,
+  "stdout": "",
+  "stderr": "........\n----------------------------------------------------------------------\nRan 8 tests in 15.454s\n\nOK\n",
+  "compiler_sha256": "78178c171d7ed846ac20aec7b54f5e2e80ffb5a73bbf3551c44b73b27b373624",
+  "test_file_sha256": "0cba9661c4dcb4c293113f13f9a2f5dd25c4cbe33c6bbff6329c3f5e7592efd9",
+  "compiler_path": "build/bin/goose",
+  "test_path": "tests/test_array_image_modes.py",
+  "test_methods": 8,
+  "direct_compile_configurations": 26,
+  "native_golden_checks": 24,
+  "wasm_engine_checks": 52,
+  "helper_pair_checks": 22,
+  "runner_seconds": 15.454,
+  "timing_note": "Actual unittest runner elapsed reported in captured stderr; external process startup/import wall time was not separately captured."
+}

@@ -8,21 +8,21 @@ A native C++ host links the exact Wasmtime 50.0.1 library used by the Python hos
 
 ![Precompiled artifact preparation](charts/wasmtime-host-preparation.svg)
 
-The 2026-11-02 run used a shared AMD Ryzen 7 3800X Linux machine, Goose revision `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, compiler SHA-256 `82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8`, GCC 16.2.1, Emscripten 6.0.13, and Wasmtime 50.0.1. The direct Wasm, C-Wasm and native C artifact bytes were reused from the separately collected example build cohort; native C was freshly executed in the same runtime blocks. Each runtime cell has one fresh-process warmup and 15 measured launches, with checked output bytes. There are 1,440 observations across 90 cells. Preparation is measured separately with five fresh preparations for each example, backend and parallel/serial setting: 200 total. Forty unique artifact/configuration pairs were qualified.
+The 2026-11-02 run used a shared AMD Ryzen 7 3800X Linux machine, Goose revision `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, compiler SHA-256 `78178c171d7ed846ac20aec7b54f5e2e80ffb5a73bbf3551c44b73b27b373624`, GCC 16.2.1, Emscripten 6.0.13, and Wasmtime 50.0.1. The direct Wasm, C-Wasm and native C artifact bytes were reused from the separately collected example build cohort; native C was freshly executed in the same runtime blocks. Each runtime cell has one fresh-process warmup and 15 measured launches, with checked output bytes. There are 1,440 observations across 90 cells. Preparation is measured separately with five fresh preparations for each example, backend and parallel/serial setting: 200 total. Forty unique artifact/configuration pairs were qualified.
 
 Selected direct-process medians in milliseconds:
 
 | Example | Python host | Native host | Precompiled run | Native C |
 | --- | ---: | ---: | ---: | ---: |
-| Squares | 86.362 | 4.104 | 2.229 | 0.862 |
-| Sorting | 221.510 | 138.141 | 93.519 | 47.638 |
-| Sudoku | 97.981 | 18.274 | 9.591 | 4.631 |
-| Maze | 113.004 | 31.235 | 2.810 | 0.859 |
-| Life | 137.066 | 53.580 | 31.781 | 20.214 |
+| Squares | 85.707 | 4.600 | 2.561 | 0.895 |
+| Sorting | 191.871 | 107.472 | 88.994 | 45.807 |
+| Sudoku | 96.284 | 15.114 | 8.734 | 4.065 |
+| Maze | 96.862 | 11.699 | 2.281 | 1.032 |
+| Life | 123.154 | 42.077 | 27.186 | 18.135 |
 
-For Life, precompiled C-to-Wasm runs in 7.685 ms versus 20.214 ms for native C. Its separate parallel preparation median is 22.948 ms; adding the medians estimates 30.633 ms for preparation plus one run.
+For Life, precompiled C-to-Wasm runs in 8.422 ms versus 18.135 ms for native C. Its separate parallel preparation median is 16.740 ms; adding the medians estimates 25.162 ms for preparation plus one run.
 
-Precompiled run times exclude preparation. Default parallel preparation medians for those examples are respectively 4.792, 47.531, 8.714, 24.511 and 29.025 ms, including launch, compilation, serialization and writing. Adding separately measured medians estimates one preparation plus one run at 7.021 ms for Squares and 141.050 ms for Sorting, versus 4.104 and 138.141 ms for ordinary native-host launches. Dividing preparation by per-run savings estimates break-even at 2.56 and 1.07 runs respectively; these sums and ratios are estimates, not separately measured end-to-end samples. Serial compilation remains a control, not the default.
+Precompiled run times exclude preparation. Parallel preparation medians for those examples are respectively 5.182, 30.805, 8.339, 15.880 and 13.174 ms, including launch, compilation, serialization and writing. Adding separately measured medians estimates one preparation plus one run at 119.799 ms for Sorting, versus 107.472 ms for ordinary native-host launches; this is an estimate, not a separately measured end-to-end sample. Serial compilation remains a control, not the default.
 
 The retained replay passed 11,484 executions: 3,828 case/backend/level combinations across normal default, normal serial and precompiled serial modes. Native and Python references were collected separately. Default precompiled loading also passed ten public WAT unit methods across four modes and twenty example artifacts; it did not receive the full replay. The unit tests cover floating point, random, NUL and UTF-8 bytes, memory64 and bounds. Numeric benchmark input tokens are ASCII; this does not establish arbitrary Python stdin Unicode parity.
 
@@ -36,7 +36,7 @@ python bench/wasmtime_host.py --example-report build/example-benchmarks/report.j
 python bench/wasmtime_host_charts.py build/wasmtime-host/bench/report.json --output-dir bench/charts
 ```
 
-Chart rendering requires Matplotlib. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-02/sorting-execution/README.md) for retained raw data and qualification.
+Chart rendering requires Matplotlib. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-02/raw-array-images/README.md) for retained raw data and qualification.
 
 To regenerate the qualification baseline and replay from a fresh checkout:
 

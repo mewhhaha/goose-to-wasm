@@ -1,0 +1,138 @@
+{
+  "examples": [
+    {
+      "name": "squares",
+      "baseline_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "candidate_sha256": "2b156afe7fc3966db213984bfb6f4dd7a60e06640b1a78246475b764d710e07e",
+      "baseline_bytes": 1367,
+      "candidate_bytes": 1367,
+      "identical": true,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "tour",
+      "baseline_sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+      "candidate_sha256": "8052b117e165579c7e99216b7a8ce6dbb65cf616e851c14acf8d53a949fea3d3",
+      "baseline_bytes": 40589,
+      "candidate_bytes": 40589,
+      "identical": true,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "functions",
+      "baseline_sha256": "ddab366d518ba1c4199532c9023b3cffaabeb46bd0e6f3db4d776d1f8fc7b682",
+      "candidate_sha256": "af0b0f335ca715222ca4bca98d9e3bf35d369ae0e434088559f2a541a866b789",
+      "baseline_bytes": 73346,
+      "candidate_bytes": 55269,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "errors",
+      "baseline_sha256": "eb268d511caac3dbb967f414a1a5912e028d985bc3bdee34a9c97035217ffcc4",
+      "candidate_sha256": "17c2ec14d626623e089ad12c5439e3e4b41f12c7bf963c5323fd630ede98cf6c",
+      "baseline_bytes": 37229,
+      "candidate_bytes": 27101,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "sieve",
+      "baseline_sha256": "e4be05348b72ae4dd833045530e2393d59d2bd86310923aa0e92925d0af19593",
+      "candidate_sha256": "93cde3a5e23c73a9833cb428afe0084887a9a41ef9eb336dc10c214038fd7ab5",
+      "baseline_bytes": 16860,
+      "candidate_bytes": 7410,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "sorting",
+      "baseline_sha256": "cd182e10e03dd0c0e4be69826119d5d6e96b1cad048b9ec8d4c70586778c0b26",
+      "candidate_sha256": "814b1b96b18670e1c5629dd32dfb76ea1522884c159565f76214cf9b8ff6f8f2",
+      "baseline_bytes": 96689,
+      "candidate_bytes": 65038,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "sudoku",
+      "baseline_sha256": "264d5f2af0978cc23e5e535c7ec2237d8c84a098f3a55d6e7dad2b305493b144",
+      "candidate_sha256": "d93b615e98732c0ce5bc3c7d0062b682f838bcfa4ce8a17ee97770a10300639a",
+      "baseline_bytes": 15116,
+      "candidate_bytes": 12415,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "maze",
+      "baseline_sha256": "35e5707ee2430c93442342615e6d0b596de1aebb56bbe03e23d078dca6bce82b",
+      "candidate_sha256": "5d99dd89a48e4c387d2fae104a6b6ab85c37a85342a7b042dde3a8136d95afb9",
+      "baseline_bytes": 50993,
+      "candidate_bytes": 21474,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "vm",
+      "baseline_sha256": "3c6be3c9b7f56b8cb6840118639ba299475c7b05877dab6ffd721cc5af5d5bfe",
+      "candidate_sha256": "4f9a3651123e040d4a51e09bc092c708973b478b47293b07c8fdf0bab85a987b",
+      "baseline_bytes": 48133,
+      "candidate_bytes": 29290,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    },
+    {
+      "name": "life",
+      "baseline_sha256": "71ab2274a8c118f8db267b799d8601a66578ba3f1da61a02a14a475db039a1ed",
+      "candidate_sha256": "81c1b928ff6ea5deea490dcbddefc48980ca9c02addd3504fc8e745250b80bb4",
+      "baseline_bytes": 31790,
+      "candidate_bytes": 15740,
+      "identical": false,
+      "matches_preliminary_and_final_pairs": true
+    }
+  ],
+  "langarena": [
+    {
+      "task": "CLBG::Fannkuchredux",
+      "baseline_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "candidate_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "identical": true
+    },
+    {
+      "task": "CLBG::Mandelbrot",
+      "baseline_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "candidate_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "identical": true
+    },
+    {
+      "task": "Etc::Sieve",
+      "baseline_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "candidate_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "identical": true
+    },
+    {
+      "task": "Hash::CRC32",
+      "baseline_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+      "candidate_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+      "identical": true
+    },
+    {
+      "task": "Hash::SHA256",
+      "baseline_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+      "candidate_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+      "identical": true
+    },
+    {
+      "task": "Sort::Merge",
+      "baseline_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+      "candidate_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+      "identical": true
+    },
+    {
+      "task": "Sort::Quick",
+      "baseline_sha256": "0e2e9eb39fa6262e32e327378918928bbb12a88a0cc06401d5c5a863170c7056",
+      "candidate_sha256": "0e2e9eb39fa6262e32e327378918928bbb12a88a0cc06401d5c5a863170c7056",
+      "identical": true
+    }
+  ]
+}

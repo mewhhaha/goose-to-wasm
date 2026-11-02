@@ -1,0 +1,38 @@
+{
+  "method": "Final qualified default/parallel Wasmtime50.0.1 AOT artifacts; GNU objdump disassembly, static instruction sites only. This does not measure dynamic costs.",
+  "functions": [
+    {
+      "name": "life",
+      "function": "wasm[0]::function[11]::neighbours#4",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/life/direct/parallel/0/program.cwasm",
+      "aot_sha256": "5fc78a081a20e6a5e080281a32bc15a2ea6b5c0e5b75473421a3f81205718926",
+      "wasm_sha256": "81c1b928ff6ea5deea490dcbddefc48980ca9c02addd3504fc8e745250b80bb4",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/life-final-asm.txt",
+      "disassembly_sha256": "4c25d8585b1772e1e16f43daf28f298a848d55ac365a3f6af464f6d8db93247f",
+      "idiv_sites": 2,
+      "popcnt_sites": 0
+    },
+    {
+      "name": "sudoku",
+      "function": "wasm[0]::function[13]::count_bits#9",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/sudoku/direct/parallel/0/program.cwasm",
+      "aot_sha256": "56652c00db12e356a71e6372c62be3a44d54af591b2562b3631ad3f062879887",
+      "wasm_sha256": "d93b615e98732c0ce5bc3c7d0062b682f838bcfa4ce8a17ee97770a10300639a",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/sudoku-final-asm.txt",
+      "disassembly_sha256": "817973933bb2f8b476f5a45947f6e0245a65812c541a646fe3d9cb5e6421bccc",
+      "idiv_sites": 0,
+      "popcnt_sites": 0
+    },
+    {
+      "name": "sorting",
+      "function": "wasm[0]::function[10]::insertion_sort#1",
+      "aot_artifact": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/host-benchmarks/preparation/sorting/direct/parallel/0/program.cwasm",
+      "aot_sha256": "df5b4871f830030f3730f6c0eb6e599aa8a03e2459929c0c2ebb29d5dba88f44",
+      "wasm_sha256": "814b1b96b18670e1c5629dd32dfb76ea1522884c159565f76214cf9b8ff6f8f2",
+      "disassembly": "/home/jacobt/src/goose-to-wasm/build/wasm-audit/sorting-final-asm.txt",
+      "disassembly_sha256": "b911aeb130bba544b19453766fd39c57f8d7467ce6febace27d550ad887b727c",
+      "idiv_sites": 0,
+      "popcnt_sites": 0
+    }
+  ]
+}

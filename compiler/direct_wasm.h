@@ -289,6 +289,7 @@ struct Function {
     void ReadStaticArrayLength(TypeExpr *);
     void WriteStaticArrayLength(TypeExpr *);
     void DispatchArrayMode(uint32_t, const function<void(ArrayStorageMode)> &);
+    void WriteArrayMode(uint32_t, ArrayStorageMode);
     void ReadArrayLength(uint32_t);
     void ReadArrayBase(uint32_t);
     pair<uint32_t, uint32_t> ReadULEBArrayAccessor(uint32_t);
@@ -454,6 +455,7 @@ struct Compiler {
     uint32_t prefix_helper = 0, header_helper = 0;
     uint32_t uleb_read_helper = 0, uleb_patch_helper = 0;
     bool needs_uleb_helpers = false, inline_uleb_images = false;
+    bool raw_array_images = false;
     bool may_have_prefix_mappings = true;
     bool has_prefix_mappings = false;
     bool Effects() const { return !effect_targets.empty() || region_cursors; }
@@ -1057,6 +1059,7 @@ struct Compiler {
         }
         n->Children([&](Node *ch) { Scan(ch); });
     }
+    bool RawArrayImages();
     DirectWasmResult Compile();
 };
 

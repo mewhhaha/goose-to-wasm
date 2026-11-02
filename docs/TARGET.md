@@ -236,6 +236,10 @@ Wasm instructions instead. These operations do not call the host from numerical
 loops. Ordinary Goose function bodies are not recognized by name; for example,
 Goose's `abs` retains its existing negative-zero semantics.
 
+Raw-only array-image specialization excludes modules with explicit public
+exports or nonintrinsic user imports, preserving host edits to image headers.
+Pure math intrinsics do not prevent it.
+
 Hosts must provide matching signatures and semantics for remaining imports. The supplied hosts
 include input, timing, and barrier functions used by the tests and benchmarks.
 Arbitrary external native libraries are not loaded into a Wasm module.

@@ -1,5 +1,9 @@
 # Runtime performance work
 
+## Raw array images
+
+Closed modules with only raw array images omit mode dispatch, except where explicit public exports or nonintrinsic user imports permit host memory edits. Across ten examples, module bytes fell from 412,112 to 275,693. Nine paired entry probes measured Sorting at 117.886 → 95.214 ms on V8 (1.240× paired, MAD 0.036) and 108.351 → 90.102 ms on Wasmtime (1.194×, MAD 0.080). Entry includes initialization, callbacks and possible lazy JIT. The separate fresh process cohort and qualification are in the [dated evidence](../bench/results/2026-11-02/raw-array-images/README.md); the [audit](WASM_AUDIT.md) records remaining hills.
+
 ## Sorting loop unrolling
 
 Profiles of baseline `7957d3c` (compiler SHA-256 `3316710bb9d2b3100e94c2023000f0cb1b7517010ef04076314b4703fdcfcbba`) put both native and Wasm Sorting in insertion sort. Its hot loop has no calls, explicit language bounds checks, mode checks or global stores; Wasm's hardware memory guard remains. The direct emitter now unrolls eligible local-index loops four ways: it emits one balanced iteration and copies its bytes three times, sharing locals and branch depths. Eligibility requires a local integer increment and pure local slice/scalar operands, without source calls, declarations, control flow or owners. Conditions, traps, stores and cleanup retain their order; no load CSE was kept.

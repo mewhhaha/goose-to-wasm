@@ -1,0 +1,263 @@
+diff --git a/compiler/direct_wasm.h b/compiler/direct_wasm.h
+index 49c3a2d..1d4c2d3 100644
+--- a/compiler/direct_wasm.h
++++ b/compiler/direct_wasm.h
+@@ -289,6 +289,7 @@ struct Function {
+     void ReadStaticArrayLength(TypeExpr *);
+     void WriteStaticArrayLength(TypeExpr *);
+     void DispatchArrayMode(uint32_t, const function<void(ArrayStorageMode)> &);
++    void WriteArrayMode(uint32_t, ArrayStorageMode);
+     void ReadArrayLength(uint32_t);
+     void ReadArrayBase(uint32_t);
+     pair<uint32_t, uint32_t> ReadULEBArrayAccessor(uint32_t);
+@@ -454,6 +455,7 @@ struct Compiler {
+     uint32_t prefix_helper = 0, header_helper = 0;
+     uint32_t uleb_read_helper = 0, uleb_patch_helper = 0;
+     bool needs_uleb_helpers = false, inline_uleb_images = false;
++    bool raw_array_images = false;
+     bool may_have_prefix_mappings = true;
+     bool has_prefix_mappings = false;
+     bool Effects() const { return !effect_targets.empty() || region_cursors; }
+@@ -1057,6 +1059,7 @@ struct Compiler {
+         }
+         n->Children([&](Node *ch) { Scan(ch); });
+     }
++    bool RawArrayImages();
+     DirectWasmResult Compile();
+ };
+ 
+diff --git a/compiler/direct_wasm_emit.h b/compiler/direct_wasm_emit.h
+index 3dd19bf..730461b 100644
+--- a/compiler/direct_wasm_emit.h
++++ b/compiler/direct_wasm_emit.h
+@@ -97,6 +97,81 @@ inline string Function::EncodeBody() {
+     out.Raw(code.data); return out.data;
+ }
+ 
++inline bool Compiler::RawArrayImages() {
++    // This proves a closed module's physical modes, not an individual
++    // expression's natural type. Public exports and user imports allow host
++    // edits between accesses, so they retain authoritative mode dispatch.
++    for (auto spec : reachable)
++        if (spec->sf->isexport || (spec->sf->isextern && !intrinsic_opcode.count(spec))) return false;
++    unordered_set<TypeExpr *> seen;
++    function<bool(TypeExpr *)> type = [&](TypeExpr *value) {
++        if (!value || !seen.insert(value).second) return true;
++        if (value->kind == TY_STRUCT && !value->struc->inst) return false;
++        if (value->kind == TY_VARIANT && (!value->var->adt || value->var->adt->kind != TY_ENUM ||
++            !value->var->adt->enu->inst)) return false;
++        if (Varint(value) || RegionRecord(value) || RegionEnum(value)) return false;
++        switch (value->kind) {
++            case TY_INT: case TY_FLT: case TY_BOOL: case TY_VOID: return true;
++            case TY_REF:
++                return value->ref->lenstorage != IS_VARINT && type(value->ref->sub);
++            case TY_SLICE: return type(value->sub);
++            case TY_ARRAY:
++                switch (value->arr->akind) {
++                    case A_GROW: case A_GROWSHRINK: break;
++                    case A_FIXED: case A_LIMITED:
++                        if (value->arr->size < 0) return false;
++                        break;
++                    default: return false;
++                }
++                return type(value->arr->sub);
++            case TY_STRUCT: case TY_VARIANT:
++                for (auto field : RecordFields(value)) if (!type(field)) return false;
++                return true;
++            case TY_ENUM:
++                if (!value->enu->inst) return false;
++                for (auto &fields : value->enu->inst->vftypes)
++                    for (auto field : fields) if (!type(field)) return false;
++                return true;
++            case TY_FN:
++                for (auto argument : value->fn->args) if (!type(argument)) return false;
++                for (auto result : value->fn->rets) if (!type(result)) return false;
++                return true;
++            default: return false;
++        }
++    };
++    auto signature = [&](FnSpec *spec) {
++        for (auto parameter : spec->params) if (!type(parameter->type)) return false;
++        for (auto result : spec->rets) if (!type(result)) return false;
++        for (auto capture : captures[spec]) if (!type(capture->type)) return false;
++        return true;
++    };
++    function<bool(Node *)> node = [&](Node *value) {
++        if (!value || Is<FnDecl>(value) || Is<FunVal>(value) || Is<StructDecl>(value) ||
++            Is<EnumDecl>(value) || Is<AliasDecl>(value)) return true;
++        if (!type(value->exprtype)) return false;
++        if (auto literal = Is<ArrayLit>(value); literal && literal->capexpr) return false;
++        if (auto identifier = Is<Ident>(value); identifier && identifier->vdef && !type(identifier->vdef->type)) return false;
++        if (auto declaration = Is<VarDecl>(value))
++            for (auto variable : declaration->defs) if (!type(variable->type)) return false;
++        if (auto cast = Is<AsCast>(value); cast && !type(cast->totype)) return false;
++        if (auto inlined = Is<InlineBlock>(value); inlined && inlined->spec && !signature(inlined->spec)) return false;
++        if (auto call = Is<Call>(value)) {
++            for (auto result : call->rettypes) if (!type(result)) return false;
++            for (auto parameter : call->fvparams) if (!type(parameter->type)) return false;
++            if (call->spec && !signature(call->spec)) return false;
++            if (!node(call->fvbody) || !node(call->defaultinit)) return false;
++            for (auto argument : call->ValueArgNodes()) if (!node(argument)) return false;
++            return true;
++        }
++        bool valid = true;
++        value->Children([&](Node *child) { if (valid) valid = node(child); });
++        return valid;
++    };
++    for (auto global : ast.globals) if (!node(global)) return false;
++    for (auto spec : specs) if (!signature(spec) || !node(spec->body)) return false;
++    return true;
++}
++
+ inline DirectWasmResult Compiler::Compile() {
+     if (!opts.initial_pages || opts.initial_pages > opts.maximum_pages || opts.maximum_pages > 65535)
+         Fail({}, "linear memory requires 1 <= initial_pages <= maximum_pages <= 65535");
+@@ -134,6 +209,7 @@ inline DirectWasmResult Compiler::Compile() {
+         FunctionSig(sp); // establish region requirements before assigning globals
+     }
+     AnalyzeEffects();
++    raw_array_images = RawArrayImages();
+     // Only frame-record result construction can map a nonempty prefix.
+     // Checker-owned instantiations are complete and stable before emission;
+     // unused frame types merely keep the conservative resolver path.
+diff --git a/compiler/direct_wasm_images.h b/compiler/direct_wasm_images.h
+index b8a73fb..6c42279 100644
+--- a/compiler/direct_wasm_images.h
++++ b/compiler/direct_wasm_images.h
+@@ -1,6 +1,12 @@
+ #pragma once
+ namespace goose::direct_wasm {
+ 
++inline void Function::WriteArrayMode(uint32_t header, ArrayStorageMode mode) {
++    if (c.raw_array_images && mode != ArrayStorageMode::RawElements)
++        Fail({}, "internal: nonraw array image escaped the module proof");
++    Get(header); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
++}
++
+ inline void Function::DispatchArrayMode(uint32_t mode, const std::function<void(ArrayStorageMode)> &emit) {
+     auto done = Begin();
+     for (int i = 0; i < 6; i++) Begin();
+@@ -17,6 +23,7 @@ inline void Function::DispatchArrayMode(uint32_t mode, const std::function<void(
+ // a Var natural type while receiving raw storage, so TypeExpr alone is not a
+ // sufficient recipe for reading its result.
+ inline void Function::ReadArrayBase(uint32_t header) {
++    if (c.raw_array_images) { Get(header); code.Mem(0x28, 2); return; }
+     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
+     auto result = Local(I32); Get(header); code.Mem(0x28, 2); Set(result);
+     DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
+@@ -33,6 +40,10 @@ inline void Function::ReadArrayBase(uint32_t header) {
+ }
+ 
+ inline void Function::ValidateArrayImage(uint32_t header, uint32_t count, TypeExpr *element, Line line) {
++    if (c.raw_array_images) {
++        if (Compiler::Varint(element)) Fail(line, "internal: varint element escaped the module proof");
++        return;
++    }
+     if (Compiler::Varint(element)) {
+         // Metadata views stay O(1). Each encoded element needs at least one
+         // byte; consumers that need the actual extent walk it separately.
+@@ -66,6 +77,7 @@ inline void Function::ValidateArrayImage(uint32_t header, uint32_t count, TypeEx
+ }
+ 
+ inline void Function::ReadArrayLength(uint32_t header) {
++    if (c.raw_array_images) { Get(header); code.Mem(0x28, 2, 4); return; }
+     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
+     auto result = Local(I32);
+     Get(header); code.Mem(0x28, 2, 4); Set(result);
+@@ -88,6 +100,7 @@ inline void Function::ReadArrayLength(uint32_t header) {
+ }
+ 
+ inline void Function::ReadArrayCapacity(uint32_t header) {
++    if (c.raw_array_images) { Get(header); code.Mem(0x28, 2, 12); return; }
+     Get(header); code.Mem(0x28, 2, 20); code.I32Const(int32_t(ArrayStorageMode::RuntimeLimited)); code.Op(0x46);
+     Begin(0x04, I32);
+     Get(header); code.Mem(0x28, 2, 16); code.Mem(0x28, 0);
+@@ -96,6 +109,7 @@ inline void Function::ReadArrayCapacity(uint32_t header) {
+ 
+ inline void Function::WriteArrayLength(uint32_t header, uint32_t count) {
+     Get(header); Get(count); code.Mem(0x36, 2, 4);
++    if (c.raw_array_images) { PublishHeader(header, 4); return; }
+     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
+     DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
+         if (selected == ArrayStorageMode::VarULEB) { PatchULEBArrayAccessor(header, count); return; }
+@@ -114,6 +128,7 @@ inline void Function::WriteArrayLength(uint32_t header, uint32_t count) {
+ 
+ inline void Function::WriteArrayCapacity(uint32_t header, uint32_t count) {
+     Get(header); Get(count); code.Mem(0x36, 2, 12);
++    if (c.raw_array_images) return;
+     Get(header); code.Mem(0x28, 2, 20); code.I32Const(int32_t(ArrayStorageMode::RuntimeLimited)); code.Op(0x46);
+     Begin(0x04); Get(header); code.Mem(0x28, 2, 16); Get(count); code.Mem(0x36, 0); End();
+ }
+@@ -133,7 +148,7 @@ inline void Function::InitializeArrayImage(uint32_t header, const ConstructionDe
+     }
+     // An existing limited receiver retains its prefix and pinned capacity.
+     if (Compiler::RuntimeLimited(type) && destination.lifetime == ConstructionDestination::Existing) return;
+-    Get(header); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
++    WriteArrayMode(header, mode);
+     if (!prefix) { Get(header); code.I32Const(0); code.Mem(0x36, 2, 16); return; }
+     Get(header); code.Mem(0x28, 2); auto image = Save(I32);
+     // A private raw stage starts at the committed cursor; ordinary receivers
+@@ -157,7 +172,7 @@ inline ConstructionDestination Function::RawArrayReceiver(const ConstructionDest
+     LocationAddress(adapter); auto raw = Save(I32);
+     Get(raw); Get(receiving); code.I32Const(int32_t(layout.size)); code.Copy();
+     Get(raw); code.I32Const(0); code.Mem(0x36, 2, 16);
+-    Get(raw); code.I32Const(0); code.Mem(0x36, 2, 20);
++    WriteArrayMode(raw, ArrayStorageMode::RawElements);
+     auto result = destination; result.location = adapter; result.elements = true;
+     return result;
+ }
+@@ -177,7 +192,8 @@ inline ConstructionDestination Function::ValueArrayReceiver(const ConstructionDe
+     LocationAddress(adapter); auto value = Save(I32);
+     Get(value); Get(receiving); code.I32Const(int32_t(layout.size)); code.Copy();
+     Get(value); Get(RegionCursor(receiving)); code.Mem(0x36, 2);
+-    for (auto offset : { 4u, 12u, 16u, 20u }) { Get(value); code.I32Const(0); code.Mem(0x36, 2, offset); }
++    for (auto offset : { 4u, 12u, 16u }) { Get(value); code.I32Const(0); code.Mem(0x36, 2, offset); }
++    WriteArrayMode(value, ArrayStorageMode::RawElements);
+     auto result = destination; result.location = adapter; result.elements = false;
+     code.I32Const(0); result.publication = Save(I32);
+     return result;
+@@ -212,11 +228,11 @@ inline void Function::FinishValueArrayReceiver(const ConstructionDestination &so
+         Get(receiving); Get(target_elements); code.Mem(0x36, 2);
+         auto mode = uleb ? ArrayStorageMode::VarULEB : fixed_prefix == 1 ? ArrayStorageMode::VarU8 :
+                     fixed_prefix == 2 ? ArrayStorageMode::VarU16 : fixed_prefix == 4 ? ArrayStorageMode::VarU32 : ArrayStorageMode::VarU64;
+-        Get(receiving); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
++        WriteArrayMode(receiving, mode);
+         if (uleb) { Get(receiving); Get(prefix); code.Mem(0x36, 2, 12); }
+     } else {
+         Get(receiving); code.I32Const(0); code.Mem(0x36, 2, 16);
+-        Get(receiving); code.I32Const(0); code.Mem(0x36, 2, 20);
++        WriteArrayMode(receiving, ArrayStorageMode::RawElements);
+     }
+     if (uleb) { Get(end); code.Op(0xa7); PublishCursor(receiving, Save(I32)); }
+     WriteArrayLength(receiving, count);
+@@ -271,7 +287,7 @@ inline void Function::FinishArrayImage(uint32_t original, uint32_t start, uint32
+ inline void Function::SetArrayImageAnchor(uint32_t header, uint32_t anchor, TypeExpr *type) {
+     if (Compiler::ULEBLength(type)) {
+         Get(header); Get(anchor); code.Mem(0x36, 2, 16);
+-        Get(header); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Mem(0x36, 2, 20);
++        WriteArrayMode(header, ArrayStorageMode::VarULEB);
+         Get(header); Get(anchor); code.I32Const(1); code.Op(0x6a); code.Mem(0x36, 2);
+         Get(header); code.I32Const(1); code.Mem(0x36, 2, 12);
+         Get(header); code.I32Const(0); code.Mem(0x36, 2, 4); return;
+@@ -281,7 +297,7 @@ inline void Function::SetArrayImageAnchor(uint32_t header, uint32_t anchor, Type
+                 prefix == 1 ? ArrayStorageMode::VarU8 : prefix == 2 ? ArrayStorageMode::VarU16 :
+                 prefix == 4 ? ArrayStorageMode::VarU32 : ArrayStorageMode::VarU64;
+     Get(header); Get(anchor); code.Mem(0x36, 2, 16);
+-    Get(header); code.I32Const(int32_t(mode)); code.Mem(0x36, 2, 20);
++    WriteArrayMode(header, mode);
+     Get(header); Get(anchor); code.I32Const(int32_t(prefix)); code.Op(0x6a); code.Mem(0x36, 2);
+     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+     Get(header); code.I32Const(0); code.Mem(0x36, 2, 12);
+diff --git a/compiler/direct_wasm_uleb_arrays.h b/compiler/direct_wasm_uleb_arrays.h
+index c113cdf..8ce7cb3 100644
+--- a/compiler/direct_wasm_uleb_arrays.h
++++ b/compiler/direct_wasm_uleb_arrays.h
+@@ -66,7 +66,7 @@ inline void Function::ReserveULEBArrayPrefix(uint32_t header, uint32_t width, Li
+     Get(header); Get(image); code.Mem(0x36, 2, 16);
+     Get(header); Get(end); code.Mem(0x36, 2);
+     Get(header); Get(width); code.Mem(0x36, 2, 12);
+-    Get(header); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Mem(0x36, 2, 20);
++    WriteArrayMode(header, ArrayStorageMode::VarULEB);
+     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
+     PublishCursor(header, end); // Unknown reservations deliberately write no data.
+ }

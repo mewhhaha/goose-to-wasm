@@ -66,7 +66,7 @@ inline void Function::ReserveULEBArrayPrefix(uint32_t header, uint32_t width, Li
     Get(header); Get(image); code.Mem(0x36, 2, 16);
     Get(header); Get(end); code.Mem(0x36, 2);
     Get(header); Get(width); code.Mem(0x36, 2, 12);
-    Get(header); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Mem(0x36, 2, 20);
+    WriteArrayMode(header, ArrayStorageMode::VarULEB);
     Get(header); code.I32Const(0); code.Mem(0x36, 2, 4);
     PublishCursor(header, end); // Unknown reservations deliberately write no data.
 }

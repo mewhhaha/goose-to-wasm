@@ -38,6 +38,10 @@ Run both engines and unaffected controls. A kept compiler change must pass the
 full differential and boundary gates, refresh the README cohort and retain its
 experiments, including rejected ones.
 
+## Example Wasm audit
+
+Raw-only array-image specialization removes dispatch in eight examples. Continue with the [audit](WASM_AUDIT.md): measure Life's remainder operations, Sudoku's bit count and literal-print copying before choosing changes.
+
 ## Native-host comparison
 
 The [native Wasmtime host comparison](../bench/wasmtime-host.md) now measures
