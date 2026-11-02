@@ -1,0 +1,1042 @@
+{
+  "build/runtime-reference/production/build/etc_sieve/direct-O2.wasm": {
+    "sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/direct-O2.cwasm": {
+    "sha256": "157d55b9eb9e908d7cb01ce746e0d84365f36b0ec94752bdd0437d5f427121ed",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-clang-O2-generic.bin": {
+    "sha256": "d176e4db60b6d64766ceeba2c38fa69a4918b97f7df635ebe0d8a74f598da295",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-clang-O2-native.bin": {
+    "sha256": "197a828b37f61e78f5654234635056d91082132d350597ef525ad71cac9ecf73",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-clang-O3-generic.bin": {
+    "sha256": "fec4928d8b00f9caef6e1f51f77b564cf40956fdbdc18c0f911c92d78b858da1",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-clang-O3-native.bin": {
+    "sha256": "71009fc0788a3b4c66867320eec33273506de410c6538087ef071579fac21b12",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-gcc-O2-generic.bin": {
+    "sha256": "f21e4024ccfcb04bd16239ab703c6ebc24a013dd19803c5c7a526b7a8a3f1e4a",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-gcc-O2-native.bin": {
+    "sha256": "e9c020f96ad6cd802901e03ffafcd85b65335d3108d780747bdd06e0f60819c1",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-gcc-O3-generic.bin": {
+    "sha256": "762941033dac3c6abc9d9a52200cfcd1bd60410bfb5dfc19d3298ccfdfc4240a",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/native-gcc-O3-native.bin": {
+    "sha256": "cbcfca12e2f641cada38ef6d979899d03fc269a77315890b776251179cb7326e",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-scalar.wasm": {
+    "sha256": "fa7c1bd4adc7cb2bc44db9dc534a194ed51bb82ef0212655c803be30b3c5fb4a",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-scalar.cwasm": {
+    "sha256": "bf8e417e710055a9c83066bfec3e6cfc3d0e37035128fafd86edae1c2ee6e025",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-simd128.wasm": {
+    "sha256": "7b8cba7e49d7b942d632201a359c6f29e6d289c47f486fe92026d515fd4634c8",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-simd128.cwasm": {
+    "sha256": "52279f17363e8b5640b4a5482e473dff2fa0794860d19f007da10cce9183ab90",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-scalar.wasm": {
+    "sha256": "220912a2310118b3942c56abaa2b9b45a1453fb20b4ef8d748e3dcaf18f31e40",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-scalar.cwasm": {
+    "sha256": "e2933e638db386d44f19828e7f41cdff26288f6b4c4f475a0f639002bb018995",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-simd128.wasm": {
+    "sha256": "0a47a2a06d783734aafe13ed0db9ccd39725a6730c3d311ba9f02e47f1dd7bc9",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-simd128.cwasm": {
+    "sha256": "c051974d6f3c95f2544b7768513676fcc49294ec9cf9d4e2bf85e121189f83e2",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/direct-wasm-opt-O3.wasm": {
+    "sha256": "6a11f738db50023b026e7564bf5b7d5fe13f56e7f3dcf13a0f084d271fdc9765",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/etc_sieve/direct-wasm-opt-O3.cwasm": {
+    "sha256": "12f322b3ed96e4477e285bbd21b42eb027545a2368bb3fe0e16fa54aaaa4aa10",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/direct-O2.wasm": {
+    "sha256": "68d8acad4abf19a4ffb5c79073855b79484f4acbd91cac7e401f64240d4d53e5",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/direct-O2.cwasm": {
+    "sha256": "113495b2f58ffd6ef947c017aeefa1a3a6a85091383741bdc4aa408999ed0f4e",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-clang-O2-generic.bin": {
+    "sha256": "641e5d9fc2c8951ecb32bd841633fdefa96688984d0ea0b2935ea7766b72ee4c",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-clang-O2-native.bin": {
+    "sha256": "cd6c39aafb06e80eeb0d1513148a47245850f597228b5723a087d8d1db727ae6",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-clang-O3-generic.bin": {
+    "sha256": "e966173801b2402bb75a057d83479a5fd80b405f026ebab03167804ab753e63f",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-clang-O3-native.bin": {
+    "sha256": "e0d68b1170e4090f9c0203ef51a3d2aa176c688a564bfb3e1c9f8a2b7f67b88c",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-gcc-O2-generic.bin": {
+    "sha256": "5df2a3d9aa209b4269290f0a51fa21c0d66845918c5647cd55b251dcdd1082b8",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-gcc-O2-native.bin": {
+    "sha256": "1d43c2b378586cf633ea537da183f428294d3dcd2d57fda1f6868e1d4428e5a7",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-gcc-O3-generic.bin": {
+    "sha256": "98a3932359ac46272b03da6d2ebd96be7311005270bf0f13d9063bdfedbbc2a5",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/native-gcc-O3-native.bin": {
+    "sha256": "51c80d35c8fc5f351ecdc1055a5ea7eec5bd44db6b871e78d4ebe04f16f7957e",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O2-scalar.wasm": {
+    "sha256": "44e56efe3522de4f3693ba1dc9515526fc73d92d099f7ab29b472995c7513081",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O2-scalar.cwasm": {
+    "sha256": "4fcb5b62b57373e98cecc62a524222ef23a3b3991edb44ad18b275758332d7a1",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O2-simd128.wasm": {
+    "sha256": "cad71d5f7c1f06a8c15ca03cab728248c2f1ecac85b03f85b363f7edb1881dee",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O2-simd128.cwasm": {
+    "sha256": "24bd372d2d79751331a0da0a095a1bdadcad9cd3f22be07c6a55ebc74f02d4c6",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O3-scalar.wasm": {
+    "sha256": "0948ffaaa83756094165aa1b0d3af1e1405b717f76402b405ae20d1801362cb8",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O3-scalar.cwasm": {
+    "sha256": "58e4ccbda0be7134c776898e5b2a3c2be8d1477ef361e143c38fd8d47d0261a8",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O3-simd128.wasm": {
+    "sha256": "4d5a9e7399b0c1f3c4e3006d3231018c86ee45c06383ca86bdf128e589eb8579",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/c-wasm-O3-simd128.cwasm": {
+    "sha256": "ecd5f009053db40f892d9e9eff8ec265cc6fb35b2ad2b34c0835132e36fabd8e",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/direct-wasm-opt-O3.wasm": {
+    "sha256": "e86bc30197259b4cb5b1ba3a42acd447d99a96d2220c114cb2a3a2c5d5f5b136",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/sort_quick/direct-wasm-opt-O3.cwasm": {
+    "sha256": "05badcdaefa04c2bf363af6d8ee231c21a69f7053f985fb7cf2f9730bb92d1f8",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/direct-O2.wasm": {
+    "sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/direct-O2.cwasm": {
+    "sha256": "20f9370dac0602cb7fb7726bc8b013cd7a3e3ea2c6dabb45f18a95e6f505848e",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-clang-O2-generic.bin": {
+    "sha256": "36fc92177de094dfa414942ea33a065f5fe7531e27b48b56e057c164974a1a6a",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-clang-O2-native.bin": {
+    "sha256": "9fd2eda0fb12ee9a9875ad081340d29b9e482cc61d95be1e48be3f63386ef5ac",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-clang-O3-generic.bin": {
+    "sha256": "caf5911262386c570cc9069d72eb6f91e9ee7f3c90d5bd79c6915a9395c41650",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-clang-O3-native.bin": {
+    "sha256": "ddfa86f5a77eaa43dae5da4163b7b41d8b39f01b59673efd04267d03bac3c562",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-gcc-O2-generic.bin": {
+    "sha256": "0fb4d5934124be8e5aba23da3cb160a234b0a28f6cf9f637d421bedd99c2ad39",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-gcc-O2-native.bin": {
+    "sha256": "867d3796c97db841bebaadc262598947bccdd63de63234d0d353a7989ea0802b",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-gcc-O3-generic.bin": {
+    "sha256": "ef1390608403b37c274fbc168fb17db50f5b0be8a0721af71730ac945d495677",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/native-gcc-O3-native.bin": {
+    "sha256": "b2f508852c827f6bd61ddc56fdb22370c9481b9a4ad151d14625172831421135",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O2-scalar.wasm": {
+    "sha256": "ccf29a499891befbadadb8fcc43a03a4c6193ddecedd91cac4373c3a9bdb85b2",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O2-scalar.cwasm": {
+    "sha256": "81cbba502237f8e7be250fb81ae7dec7d4838c4722a633e3e048616a00a157c5",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O2-simd128.wasm": {
+    "sha256": "f9c645ad2980bb73289f4f9120d7609484678e844b8a19795b1693ffaf24f394",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O2-simd128.cwasm": {
+    "sha256": "3b0ce1fae5728e6a021f43fc17ac1a380cbe55cdb86c708dafe7cc81c4e86846",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O3-scalar.wasm": {
+    "sha256": "440e54894867d246bd8f89b152898250c130b410ec4c3197b231ae8463953e37",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O3-scalar.cwasm": {
+    "sha256": "88f046f0c4c13076a484eefb8436c6c614ac1bf62ee8717d115d9a6689aca9ea",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O3-simd128.wasm": {
+    "sha256": "21cd3e2615b18aecae88c99a792346ba72390c133b70415492241a4a33586e8f",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/c-wasm-O3-simd128.cwasm": {
+    "sha256": "d15eb8d94b295584abaf86f5631ad909e3ae22a75f97c0cbef0b5dc7ff98ec2c",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/direct-wasm-opt-O3.wasm": {
+    "sha256": "62f1058fb831a3747b6018d6d0b825321f7131d6f95382d971bdaabe18c6dfbf",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/sort_merge/direct-wasm-opt-O3.cwasm": {
+    "sha256": "651f4712a96fc8aba2fd943158027c70d4748b80fcfa0c7a82f7eb3f479d8614",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/direct-O2.wasm": {
+    "sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/direct-O2.cwasm": {
+    "sha256": "9f553f7d4acb7105cc069bf95e0c8c59776f6f2b11dd411c1b7a1bb8d84e42d4",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-clang-O2-generic.bin": {
+    "sha256": "fa7f016d7848e52a04970b71785f27ce57237633ef6921ed34fca674351043c1",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-clang-O2-native.bin": {
+    "sha256": "23f2fe81810d863d5b314ba762246a5684826fdba9dc909e413cda28c9b2a691",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-clang-O3-generic.bin": {
+    "sha256": "2e93f9478d4d69bba1af45eb46fe6488c4c50d48545736d74610363f975cb687",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-clang-O3-native.bin": {
+    "sha256": "8fb052266a3fd34834c329cec92d9cc8fb2dfa9ed65e325d511d045e6f2bb1f2",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-gcc-O2-generic.bin": {
+    "sha256": "1abc578c8b82725ff73031886bd8da6f61fd035b94e1ca566f1f2d664a3c3f8e",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-gcc-O2-native.bin": {
+    "sha256": "2f7412a9f1500d9757dabb217147211cfb2cbbc5d5ab0eada9ff64881e16e013",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-gcc-O3-generic.bin": {
+    "sha256": "dbac78cf5c7ba4bc093fb95558e32cfd3fbba1ef139f110ef661485dbbff2554",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/native-gcc-O3-native.bin": {
+    "sha256": "b1a81106a54b85a6078e95f0efc80956d0d2f55fb1306ba3563349a08afbcd7d",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-scalar.wasm": {
+    "sha256": "ecd2a0a1b71798a7f1033018debce98b762c34be17ce380afff0392af057f7e9",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-scalar.cwasm": {
+    "sha256": "53e38758e8cfee0c79ba0a3adf877500a500b3535ce6ffd7b02386ec567ad59f",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-simd128.wasm": {
+    "sha256": "efa5851ac928461d3524321181feb074654df903b4f9f99d434f398ade54a824",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-simd128.cwasm": {
+    "sha256": "eb736e636d069a3c21730381db0ff3ff696a3987784a1f466a2b7aefdc960360",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-scalar.wasm": {
+    "sha256": "e92c7d77eb75d248e1a6feec731813009d25b0ba3b94a9656e3b9cc008f313c8",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-scalar.cwasm": {
+    "sha256": "73234c8bc701c82b1097d12da05c6bada279a0df3d22a06e9f9d739413a5a98a",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-simd128.wasm": {
+    "sha256": "3cacf880d9ff7c2ff847871c8946fc0d267a48fb55b3abe38ee9e4ac1e302bc0",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-simd128.cwasm": {
+    "sha256": "1bb9f1dbf1272a144d0f2a78a032478d4f8422c7136aa183b6fe94bd7a65cd1d",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/direct-wasm-opt-O3.wasm": {
+    "sha256": "637c6f309399d07e30c06156ed29006211f88c144d9c1d850f3385c3d7105056",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/hash_sha256/direct-wasm-opt-O3.cwasm": {
+    "sha256": "986d8c9205ec95be79e48cb015d20ede9f9f1ad792975b66ec25dc629772c586",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/direct-O2.wasm": {
+    "sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/direct-O2.cwasm": {
+    "sha256": "8c4f39e47ff54899970809728bafbc026478df0039f5f79645d0d1d80571be7b",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-clang-O2-generic.bin": {
+    "sha256": "c8ee918fffeba4e3406df0d500116259448ec37dcffbfbd703dab79cfaab0c4e",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-clang-O2-native.bin": {
+    "sha256": "27540f2d9b478b8db22c1fe8df17d7a5cb46423949ad35e64608f735e82eb938",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-clang-O3-generic.bin": {
+    "sha256": "c46a54ed76af0c883b21dabae9268ead92f0f8406c3d7297a3c049fdac960e39",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-clang-O3-native.bin": {
+    "sha256": "ea1663c6cc108558dad5987a987689c9c9a182efd7deab509bfc8e2f6aff3680",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-gcc-O2-generic.bin": {
+    "sha256": "65307c4835cb746f978b537fd1bf09aefbfa3d0051605836b49609c0bb2d9161",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-gcc-O2-native.bin": {
+    "sha256": "80e1ed2c175b18ce12005c4469488e9c70f4f271d71026b1d313e9a7af815972",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-gcc-O3-generic.bin": {
+    "sha256": "5ef19b749410921378a8b7e67ef437d6df3bebc5a4bd1cda665eaeca05892125",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/native-gcc-O3-native.bin": {
+    "sha256": "ee6baa6715cd0ae4793836f468ffb19f80b615a94ab387b88d23ea526b41d0a4",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-scalar.wasm": {
+    "sha256": "23a2e9b5d3880262c40edaed05b460613f06c5e62b80358dc30d6d63b7b116c6",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-scalar.cwasm": {
+    "sha256": "9293f80fcb31c3726e4b47b95c0c3e11b93534652de38d69ad6d8856cefe0f2c",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-simd128.wasm": {
+    "sha256": "66424dd373fadca6602bfe06cdb79496ee0e42d63a08575741fe3aaf2cd662a4",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-simd128.cwasm": {
+    "sha256": "d6eb8656918f81ab49709217876cf25646966d001102cef1f0469363b75944ef",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-scalar.wasm": {
+    "sha256": "98851a5eccae9b0f12af29633739a7a54d35bd0250905a4165e062d5c37cb043",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-scalar.cwasm": {
+    "sha256": "79d8d47255761478d416a76f6517c9a109ccf42bf143c209a98e953fb050085b",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-simd128.wasm": {
+    "sha256": "119d569d80d111997983b5bf7f23251e7842be3205ef337c80d59f6a0930a3fc",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-simd128.cwasm": {
+    "sha256": "0a927d91a52d25c33b2af1e1a39be8564a865e7078c349255338cbcb61e8f338",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/direct-wasm-opt-O3.wasm": {
+    "sha256": "97c62eb7e4319a53f6601ac921cb32f1bb08875ee3989a6e4931f5f8eae0a0c7",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/hash_crc32/direct-wasm-opt-O3.cwasm": {
+    "sha256": "6cb25f0653afdf53a0cfd84984edd750b82f033457fca7f2890ffb1140f061f4",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/direct-O2.wasm": {
+    "sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/direct-O2.cwasm": {
+    "sha256": "4054ecffc1e3c0cf45f905099d897d16ec05fc28125f8cb622e85d3fd252f14a",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O2-generic.bin": {
+    "sha256": "fe1af0af5dba3bcaf1b3a59acf83b62c98c3a8013383a53d76e109b84d596532",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O2-native.bin": {
+    "sha256": "4fc4c4eb377b314b7227e01f5dcde208ea1d3ec8405cbb8b7ed79135ab967a55",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O3-generic.bin": {
+    "sha256": "be89196a0b15199c4d9fcdbec711171a145891a528d04a33e5ec96422705026e",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O3-native.bin": {
+    "sha256": "128129f82b4c444afec7fbb53deb67fb12ecf981b3b73585f1a1f7c38d737a2b",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O2-generic.bin": {
+    "sha256": "1ae96d029907fd16a15fe70358e6bb04d7f28a445186059299178f88d3d74e68",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O2-native.bin": {
+    "sha256": "721160bf2fab3834bee45ac4a815394fabd84512fc143dd3148f2944fb8fe271",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O3-generic.bin": {
+    "sha256": "82a8c0988e7eb20b51342ffd176870029ba32a7faa58f0c4de1931d8cc1caf1b",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O3-native.bin": {
+    "sha256": "49cbb5c82f0baba20fd10513a0d377f8528b86a64917943c9faa23539333324a",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-scalar.wasm": {
+    "sha256": "5ab180d0aa53c7c993aae511cffc69cc34fb45214a477a2bd478293ccd72710a",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-scalar.cwasm": {
+    "sha256": "d471a540e315b87fc50b8657fbb367d5dae48b6ccaf7e9b277c0f9d64167d943",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-simd128.wasm": {
+    "sha256": "9098d27c51d01dea296e8046426d7d5d1ebdd7db91ec0a52a45ec8ca337823ba",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-simd128.cwasm": {
+    "sha256": "82fe00a2c8132b148af8bbde5128f4a634a0353f9f80dab1ba8ae561745e4308",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-scalar.wasm": {
+    "sha256": "323fd85168b82e3b980a7e6db4992f16200577400a7f9d838bdf48451d8abc77",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-scalar.cwasm": {
+    "sha256": "43816208bf1ce0ab78292b19fee38f6d0a72fcde5a274f0bff01f81368c2adeb",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-simd128.wasm": {
+    "sha256": "74588fcd1c1adee5813e96e1817d4cf271be97513a01e5656889e82e6f71569e",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-simd128.cwasm": {
+    "sha256": "b70b6221c040c32de7446db074f88c411d69916e0698347a46940ce47930177e",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/direct-wasm-opt-O3.wasm": {
+    "sha256": "e9d3050ae6b4c95cc5b427804fdd94222e7797890e2210d934f8e64a73d67789",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_fannkuchredux/direct-wasm-opt-O3.cwasm": {
+    "sha256": "20d0fe4f92470d32d4f356b06dc0aa99f679fa68295d771117b1efa00b215e9d",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/direct-O2.wasm": {
+    "sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/direct-O2.cwasm": {
+    "sha256": "8a00d8cb521f4ad32d68f277753ad576c63cbe82d1b3d26cdd673eea7e99cef1",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O2-generic.bin": {
+    "sha256": "59bb3aa1dd2bfbd70fb6774c7691c1fc8b39414af5c6be45bbbc29b5eea5cb50",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O2-native.bin": {
+    "sha256": "ecb663063c1f1bae4c3eb43e82a1157346189cf048440b749c001c85a63c6b1d",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O3-generic.bin": {
+    "sha256": "b6a2c3d55530f54cd100363c04c37fa2dac34381ee80f916880f52ed10554036",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O3-native.bin": {
+    "sha256": "a49a7372344a973effe9db08bbad88f6bbaa7d4ff3c051acd644ef522de5f4ab",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O2-generic.bin": {
+    "sha256": "e2efb3b438c516a5fcfecad1d92c4f72d237ad3a6890a44f77259d0dbe5265a5",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O2-native.bin": {
+    "sha256": "5fb47935735a25b6d9cd503c6c56034292c6f23c5eeafc5de3daccfcacd12f79",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O3-generic.bin": {
+    "sha256": "8eb73ec404e19b2245328ae9022b1b551aac5174c8ff4fcd723176cc5e35b812",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O3-native.bin": {
+    "sha256": "d4a454c7664d74ec80e333f79d64180a185fdf77ba5afd2ab3ac74d8b8e0103c",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-scalar.wasm": {
+    "sha256": "f351520cf1d0d8ae33c73cfacde9d8f669f58570b25e76365e44b7416ceb2098",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-scalar.cwasm": {
+    "sha256": "b0dccd9759a108e3ad350a71dd630771c98538998fd5105d52665247f287e975",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-simd128.wasm": {
+    "sha256": "4c2b4fea55d89367e919a448c0453142c5128759c8b150c7456a6b10a6bb601a",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-simd128.cwasm": {
+    "sha256": "14084734d90a8823cce843f58f06c7d3691cff0da5df6fb7f59874ebe6a080c7",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-scalar.wasm": {
+    "sha256": "7c36c55991ef41f95767adeca686a4f9795bc9c7edd61547c33ad08b8b088ead",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-scalar.cwasm": {
+    "sha256": "883f8095884b3802b8cda7f31bfccfc9d4417346a551a19e55cdeefb66fee488",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-simd128.wasm": {
+    "sha256": "b6414722048919269a2892f07288ce2c257143bb884ec918bc8ab0e3eea13292",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-simd128.cwasm": {
+    "sha256": "fd949781127181e912bc341e9683d507b045a2af3e99ff2b3d0188cc8659d130",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/direct-wasm-opt-O3.wasm": {
+    "sha256": "6588ac4cb18aef930b42e61757e27e3d08878720c71bae1510edfe7fccfb0846",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/clbg_mandelbrot/direct-wasm-opt-O3.cwasm": {
+    "sha256": "a14bbe670f3b0e944484bbf819d582dc273b68ea1adbcb3505d50e55b0ed649b",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/example_life/direct-O2.wasm": {
+    "sha256": "0263d21eea9787c209bbcee138de64d2da19d62b58364ba3747e14b71df5e9a7",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/example_life/direct-O2.cwasm": {
+    "sha256": "36cc3bb8a218f94a8e9287435d15360abfa2090232b6011ce7536fdca5a475ab",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/example_life/native-clang-O2-generic.bin": {
+    "sha256": "302a7b74fa6e61469b28bfedff40309b58013ae7d20737844c008209a0c54a1f",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_life/native-clang-O2-native.bin": {
+    "sha256": "bea4413690881cd5066e1395dff62003afd115dffd4db2265b2b57359bd485b9",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/example_life/native-clang-O3-generic.bin": {
+    "sha256": "7276509b5030a6060a502bcdedce1f3ab15b8fc11d8852d4106d52041c4cd5bb",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_life/native-clang-O3-native.bin": {
+    "sha256": "8b8cc420a8d5bf1529852a14d6f00bb93a5106e536b847129c0bb40d888df868",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/example_life/native-gcc-O2-generic.bin": {
+    "sha256": "06ebded9b2fc8c6b2f39c4e48a7f0b28ff26986646135bc6397022eeb12eb336",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_life/native-gcc-O2-native.bin": {
+    "sha256": "7f57993d176c349c1cb74afe276729cab868b6db1658024753ff76f15e2d1902",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/example_life/native-gcc-O3-generic.bin": {
+    "sha256": "65ac223a5cd4fdcc51acb63bb274affe9760fac6bd3d7b5f7d3b301d345fe1bc",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_life/native-gcc-O3-native.bin": {
+    "sha256": "4a6a3132e2c4b85e745ee0c7be2f5b4fd8a94f2b72a24683c863fe1441548229",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O2-scalar.wasm": {
+    "sha256": "e5ea394edabfbfb0b3a5efcd54dbed8a646d5de306ff3d53df61862bb707cc8e",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O2-scalar.cwasm": {
+    "sha256": "f6322d3854eba316d3ca621f357e855380a06cfdbacf1674c60c328b0d436b06",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O2-simd128.wasm": {
+    "sha256": "c67e6f318a433285a7b0ff43b4236e84f46df961089ea177e8e95f1cdf6f0085",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O2-simd128.cwasm": {
+    "sha256": "7d87beba6533b82b45f70180b0c23075a460ed91b8067f676101c99478ee2b1f",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O3-scalar.wasm": {
+    "sha256": "e0abb8c23c1da7e92235399ff46dee7b94391e3115e624a4d830e870a41d9ab0",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O3-scalar.cwasm": {
+    "sha256": "d6e33f1fdc3a823ac377d4482ccd6789ba38e287861b7511a359a4832c6d9bef",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O3-simd128.wasm": {
+    "sha256": "898369b4e95cdade3ad356cfa23d1ddbaca0b0ae6162dc56397cbac799bac128",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/example_life/c-wasm-O3-simd128.cwasm": {
+    "sha256": "b7f7413acd09d00672c73dca2c34c1aada46e4d3d35e9c70482351aa7ff1e685",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/example_life/direct-wasm-opt-O3.wasm": {
+    "sha256": "72a091d08edfcc697b94d8fd5ec7cb32369fc94aea2f1f311915949014ff3fd0",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/example_life/direct-wasm-opt-O3.cwasm": {
+    "sha256": "3cc775aa06a34093a6b01d88ede3ffca34e4b9cc4b8e268bb183a0755d3e13ab",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/direct-O2.wasm": {
+    "sha256": "9533b9251d4f0c621bf80ef95192ec7cd09532b250461e353cd369d1d418a06a",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/direct-O2.cwasm": {
+    "sha256": "dec0a5e5d07476ddfbc7e1f420e6e25eadb208e5c09147872d57fd10ac79bcd4",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-clang-O2-generic.bin": {
+    "sha256": "6b33b784933fe3ee6b977aa9238c96240c1a5da36c0ce392d2ca770f077c2b1c",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-clang-O2-native.bin": {
+    "sha256": "f17e94885bace7a8f3c99cd85dda94a05a31804cf253a75851c7bc093440d6b2",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-clang-O3-generic.bin": {
+    "sha256": "aaa8d92a3174ce51481d1b07164a9c47c53169a047e2d5273adbc8bf93042f61",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-clang-O3-native.bin": {
+    "sha256": "8a35055c837c5fd0101fbd7669aa07b7d60c708812f98fee810b6454cf185ca6",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-gcc-O2-generic.bin": {
+    "sha256": "eef748ae7c266a9f558751df68bee3765bc18fc0fb81db7589738899475b4bec",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-gcc-O2-native.bin": {
+    "sha256": "bf75bbc3b83e238f16214382a96bfa51608f01477be5ef82eb5683fca96bc20e",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-gcc-O3-generic.bin": {
+    "sha256": "f01fca30e8ecc615bc77bbeaf2241aaf561b8288476795e8e36c88da0f6fa4ea",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/native-gcc-O3-native.bin": {
+    "sha256": "a9fb944640fcfde1f62c97504dec8b2bc467cc2c7e5082b9c50d05ff4cf64be7",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O2-scalar.wasm": {
+    "sha256": "3d1613e5a00d11fd1f7d54f5f75ffdee3a037d7f53549cfdb2937250de88c685",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O2-scalar.cwasm": {
+    "sha256": "d40da4a6539e5f90b451f76c8eae72f622c71f7a4711c49778536f1a2af5bcaf",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O2-simd128.wasm": {
+    "sha256": "7dd1bae6f4391d52606a0c4701cda87651e8c1f022d6c19e2d3e755484a96d20",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O2-simd128.cwasm": {
+    "sha256": "4437d7fe9008ad0a9d2bbc1c74670b74e9750e47a2b1c013865b061ba44915a9",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O3-scalar.wasm": {
+    "sha256": "65c0968154f1462faa70e1d5cd46ab043078102640766bcfd240a9217fd5ca89",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O3-scalar.cwasm": {
+    "sha256": "66513519d715664bc06623655b329a12bad7f34485a9e65d12837d75f00b52cd",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O3-simd128.wasm": {
+    "sha256": "367cf401508f25048c9b3dcd846508c46692b8f1786acfcc6f3e9c5dc648d5cf",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/c-wasm-O3-simd128.cwasm": {
+    "sha256": "cadcd43a854a585f887b09151d5a1507e8dee98a7acf71ffc6c90b0adb565ed5",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/direct-wasm-opt-O3.wasm": {
+    "sha256": "9d1eeb6baba7ba53fb9e4492e7f442e82da4ced7439c1a1d00a58618c2f016d0",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/example_sorting/direct-wasm-opt-O3.cwasm": {
+    "sha256": "f501d1f160885c20292a51ee2225d2ec16b37e7302c8ef13d491c9d128014d65",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/direct-O2.wasm": {
+    "sha256": "d81954fe09af44d80ed72c7979ce3e871d79571513ccd3f48e0eb9c30ec87736",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-O2.wasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/direct-O2.cwasm": {
+    "sha256": "a555511791058ec32c56a452a27c8790cf91b54c7e227a48380d84e0ae94c330",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-O2.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-clang-O2-generic.bin": {
+    "sha256": "3afaebfa3d998e652ed6df9ddf674136ab2cb4a2d01eb4a23d2690331eb8a36b",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-clang-O2-native.bin": {
+    "sha256": "67b66e064564f3d0381bb29ff8c334f49d67b93b7c2a64ea9b4b541193410436",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-clang-O3-generic.bin": {
+    "sha256": "3d221d0c6c5a07ab9ec5ca881c8c481145cbd46e8f8e5604231302293aa694fe",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-clang-O3-native.bin": {
+    "sha256": "fd41ab98f98ccd65592732223c8f41d2dcd9682f486dc3c29d900425f1ff8008",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-gcc-O2-generic.bin": {
+    "sha256": "6ad3e314f16029e988b7d0f97585ae33ce89b2e242097269a2f3df30113ae236",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-gcc-O2-native.bin": {
+    "sha256": "5cf4025e03d2331359b8194b7c5dffe0e89661e5348e459ca9d7262f405fcc08",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-gcc-O3-generic.bin": {
+    "sha256": "63a0e6c296172452143e0adbc66776e6ef08b15560e9eda818f156d3539df596",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/native-gcc-O3-native.bin": {
+    "sha256": "8046ac57f550ad9882197df0b88226aeaf7862448a2ea80605f0a7efe06b2b78",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-scalar.wasm": {
+    "sha256": "a36aa95714788330ac84387847270195604bb792ec4b31954ed945520b937108",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-scalar.cwasm": {
+    "sha256": "daafe3b6234579dca35725776db7c551d8cd27bfd642c2d974d01620e2480226",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-simd128.wasm": {
+    "sha256": "c33c5271e58326545ea6720d6cf3b0cc64c696261c615d1524a3d0badba1da1a",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-simd128.cwasm": {
+    "sha256": "83c84dacaf5c27daaa72077746fccb310ee93d7b58932612e8570075f1f36c4b",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-scalar.wasm": {
+    "sha256": "2dce702af46a4974aa94c43119ab2c2bdd2830930ad8b631a8a5e24a7cbd4c2c",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-scalar.cwasm": {
+    "sha256": "d9960aa3f5378bdfe0a0e5e6006002591e54293b73ed7c6fe427a58b52eca391",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-simd128.wasm": {
+    "sha256": "676696a4210bb4f6a46209719ab9037fd59432409aa015bdab177505021ed44e",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-simd128.cwasm": {
+    "sha256": "d8fe7eb7a62c0d2f6f0a3d5b548974a9a3b4bc9b90db237ef82e27d0ec4560c7",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/direct-wasm-opt-O3.wasm": {
+    "sha256": "0ee3651bf0811e0f143529f648cf80f5a1550ce784dcb53f3fd5b20cc9065ad4",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/production/build/example_sudoku/direct-wasm-opt-O3.cwasm": {
+    "sha256": "b2528f1212e22070f7ceedf67a1880cc44e199c54b9c4df18cb404a61dd1057a",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/direct-O2.wasm": {
+    "sha256": "0263d21eea9787c209bbcee138de64d2da19d62b58364ba3747e14b71df5e9a7",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-O2.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/direct-O2.cwasm": {
+    "sha256": "36cc3bb8a218f94a8e9287435d15360abfa2090232b6011ce7536fdca5a475ab",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-O2.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-clang-O2-generic.bin": {
+    "sha256": "302a7b74fa6e61469b28bfedff40309b58013ae7d20737844c008209a0c54a1f",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-clang-O2-native.bin": {
+    "sha256": "bea4413690881cd5066e1395dff62003afd115dffd4db2265b2b57359bd485b9",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-clang-O3-generic.bin": {
+    "sha256": "7276509b5030a6060a502bcdedce1f3ab15b8fc11d8852d4106d52041c4cd5bb",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-clang-O3-native.bin": {
+    "sha256": "8b8cc420a8d5bf1529852a14d6f00bb93a5106e536b847129c0bb40d888df868",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-gcc-O2-generic.bin": {
+    "sha256": "06ebded9b2fc8c6b2f39c4e48a7f0b28ff26986646135bc6397022eeb12eb336",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-gcc-O2-native.bin": {
+    "sha256": "7f57993d176c349c1cb74afe276729cab868b6db1658024753ff76f15e2d1902",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-gcc-O3-generic.bin": {
+    "sha256": "65ac223a5cd4fdcc51acb63bb274affe9760fac6bd3d7b5f7d3b301d345fe1bc",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/native-gcc-O3-native.bin": {
+    "sha256": "4a6a3132e2c4b85e745ee0c7be2f5b4fd8a94f2b72a24683c863fe1441548229",
+    "archive_path": "build/runtime-reference/production/build/example_life/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O2-scalar.wasm": {
+    "sha256": "e5ea394edabfbfb0b3a5efcd54dbed8a646d5de306ff3d53df61862bb707cc8e",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O2-scalar.cwasm": {
+    "sha256": "f6322d3854eba316d3ca621f357e855380a06cfdbacf1674c60c328b0d436b06",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O2-simd128.wasm": {
+    "sha256": "c67e6f318a433285a7b0ff43b4236e84f46df961089ea177e8e95f1cdf6f0085",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O2-simd128.cwasm": {
+    "sha256": "7d87beba6533b82b45f70180b0c23075a460ed91b8067f676101c99478ee2b1f",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O3-scalar.wasm": {
+    "sha256": "e0abb8c23c1da7e92235399ff46dee7b94391e3115e624a4d830e870a41d9ab0",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O3-scalar.cwasm": {
+    "sha256": "d6e33f1fdc3a823ac377d4482ccd6789ba38e287861b7511a359a4832c6d9bef",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O3-simd128.wasm": {
+    "sha256": "898369b4e95cdade3ad356cfa23d1ddbaca0b0ae6162dc56397cbac799bac128",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/c-wasm-O3-simd128.cwasm": {
+    "sha256": "b7f7413acd09d00672c73dca2c34c1aada46e4d3d35e9c70482351aa7ff1e685",
+    "archive_path": "build/runtime-reference/production/build/example_life/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/direct-wasm-opt-O3.wasm": {
+    "sha256": "72a091d08edfcc697b94d8fd5ec7cb32369fc94aea2f1f311915949014ff3fd0",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_life/direct-wasm-opt-O3.cwasm": {
+    "sha256": "3cc775aa06a34093a6b01d88ede3ffca34e4b9cc4b8e268bb183a0755d3e13ab",
+    "archive_path": "build/runtime-reference/production/build/example_life/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/direct-O2.wasm": {
+    "sha256": "9533b9251d4f0c621bf80ef95192ec7cd09532b250461e353cd369d1d418a06a",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-O2.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/direct-O2.cwasm": {
+    "sha256": "dec0a5e5d07476ddfbc7e1f420e6e25eadb208e5c09147872d57fd10ac79bcd4",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-O2.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-clang-O2-generic.bin": {
+    "sha256": "6b33b784933fe3ee6b977aa9238c96240c1a5da36c0ce392d2ca770f077c2b1c",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-clang-O2-native.bin": {
+    "sha256": "f17e94885bace7a8f3c99cd85dda94a05a31804cf253a75851c7bc093440d6b2",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-clang-O3-generic.bin": {
+    "sha256": "aaa8d92a3174ce51481d1b07164a9c47c53169a047e2d5273adbc8bf93042f61",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-clang-O3-native.bin": {
+    "sha256": "8a35055c837c5fd0101fbd7669aa07b7d60c708812f98fee810b6454cf185ca6",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-gcc-O2-generic.bin": {
+    "sha256": "eef748ae7c266a9f558751df68bee3765bc18fc0fb81db7589738899475b4bec",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-gcc-O2-native.bin": {
+    "sha256": "bf75bbc3b83e238f16214382a96bfa51608f01477be5ef82eb5683fca96bc20e",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-gcc-O3-generic.bin": {
+    "sha256": "f01fca30e8ecc615bc77bbeaf2241aaf561b8288476795e8e36c88da0f6fa4ea",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/native-gcc-O3-native.bin": {
+    "sha256": "a9fb944640fcfde1f62c97504dec8b2bc467cc2c7e5082b9c50d05ff4cf64be7",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O2-scalar.wasm": {
+    "sha256": "3d1613e5a00d11fd1f7d54f5f75ffdee3a037d7f53549cfdb2937250de88c685",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O2-scalar.cwasm": {
+    "sha256": "d40da4a6539e5f90b451f76c8eae72f622c71f7a4711c49778536f1a2af5bcaf",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O2-simd128.wasm": {
+    "sha256": "7dd1bae6f4391d52606a0c4701cda87651e8c1f022d6c19e2d3e755484a96d20",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O2-simd128.cwasm": {
+    "sha256": "4437d7fe9008ad0a9d2bbc1c74670b74e9750e47a2b1c013865b061ba44915a9",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O3-scalar.wasm": {
+    "sha256": "65c0968154f1462faa70e1d5cd46ab043078102640766bcfd240a9217fd5ca89",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O3-scalar.cwasm": {
+    "sha256": "66513519d715664bc06623655b329a12bad7f34485a9e65d12837d75f00b52cd",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O3-simd128.wasm": {
+    "sha256": "367cf401508f25048c9b3dcd846508c46692b8f1786acfcc6f3e9c5dc648d5cf",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/c-wasm-O3-simd128.cwasm": {
+    "sha256": "cadcd43a854a585f887b09151d5a1507e8dee98a7acf71ffc6c90b0adb565ed5",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/direct-wasm-opt-O3.wasm": {
+    "sha256": "9d1eeb6baba7ba53fb9e4492e7f442e82da4ced7439c1a1d00a58618c2f016d0",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sorting/direct-wasm-opt-O3.cwasm": {
+    "sha256": "f501d1f160885c20292a51ee2225d2ec16b37e7302c8ef13d491c9d128014d65",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/direct-wasm-opt-O3.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/direct-O2.wasm": {
+    "sha256": "d81954fe09af44d80ed72c7979ce3e871d79571513ccd3f48e0eb9c30ec87736",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-O2.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/direct-O2.cwasm": {
+    "sha256": "a555511791058ec32c56a452a27c8790cf91b54c7e227a48380d84e0ae94c330",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-O2.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-clang-O2-generic.bin": {
+    "sha256": "3afaebfa3d998e652ed6df9ddf674136ab2cb4a2d01eb4a23d2690331eb8a36b",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O2-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-clang-O2-native.bin": {
+    "sha256": "67b66e064564f3d0381bb29ff8c334f49d67b93b7c2a64ea9b4b541193410436",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O2-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-clang-O3-generic.bin": {
+    "sha256": "3d221d0c6c5a07ab9ec5ca881c8c481145cbd46e8f8e5604231302293aa694fe",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O3-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-clang-O3-native.bin": {
+    "sha256": "fd41ab98f98ccd65592732223c8f41d2dcd9682f486dc3c29d900425f1ff8008",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-clang-O3-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-gcc-O2-generic.bin": {
+    "sha256": "6ad3e314f16029e988b7d0f97585ae33ce89b2e242097269a2f3df30113ae236",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O2-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-gcc-O2-native.bin": {
+    "sha256": "5cf4025e03d2331359b8194b7c5dffe0e89661e5348e459ca9d7262f405fcc08",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O2-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-gcc-O3-generic.bin": {
+    "sha256": "63a0e6c296172452143e0adbc66776e6ef08b15560e9eda818f156d3539df596",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O3-generic.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/native-gcc-O3-native.bin": {
+    "sha256": "8046ac57f550ad9882197df0b88226aeaf7862448a2ea80605f0a7efe06b2b78",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native-gcc-O3-native.bin"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O2-scalar.wasm": {
+    "sha256": "a36aa95714788330ac84387847270195604bb792ec4b31954ed945520b937108",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-scalar.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O2-scalar.cwasm": {
+    "sha256": "daafe3b6234579dca35725776db7c551d8cd27bfd642c2d974d01620e2480226",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-scalar.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O2-simd128.wasm": {
+    "sha256": "c33c5271e58326545ea6720d6cf3b0cc64c696261c615d1524a3d0badba1da1a",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-simd128.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O2-simd128.cwasm": {
+    "sha256": "83c84dacaf5c27daaa72077746fccb310ee93d7b58932612e8570075f1f36c4b",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O2-simd128.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O3-scalar.wasm": {
+    "sha256": "2dce702af46a4974aa94c43119ab2c2bdd2830930ad8b631a8a5e24a7cbd4c2c",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-scalar.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O3-scalar.cwasm": {
+    "sha256": "d9960aa3f5378bdfe0a0e5e6006002591e54293b73ed7c6fe427a58b52eca391",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-scalar.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O3-simd128.wasm": {
+    "sha256": "676696a4210bb4f6a46209719ab9037fd59432409aa015bdab177505021ed44e",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-simd128.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/c-wasm-O3-simd128.cwasm": {
+    "sha256": "d8fe7eb7a62c0d2f6f0a3d5b548974a9a3b4bc9b90db237ef82e27d0ec4560c7",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/c-wasm-O3-simd128.cwasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/direct-wasm-opt-O3.wasm": {
+    "sha256": "0ee3651bf0811e0f143529f648cf80f5a1550ce784dcb53f3fd5b20cc9065ad4",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-wasm-opt-O3.wasm"
+  },
+  "build/runtime-reference/smoke-full/build/example_sudoku/direct-wasm-opt-O3.cwasm": {
+    "sha256": "b2528f1212e22070f7ceedf67a1880cc44e199c54b9c4df18cb404a61dd1057a",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/direct-wasm-opt-O3.cwasm"
+  }
+}

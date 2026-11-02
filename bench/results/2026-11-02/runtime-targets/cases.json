@@ -1,0 +1,71 @@
+{
+  "schema": "goose-runtime-reference-cases-v1",
+  "cases": [
+    {
+      "name": "Example::Life",
+      "source": "life.goose",
+      "notes": "Kernel adapter; original function bodies retained, display and other example jobs excluded. One-time preparation is outside the timer; per-run reset, perturbation, validation and checksum are timed. Each job uses one opaque barrier. Warmup checksums are consumed separately. Runtime imports disable the direct compiler's closed-module raw-array proof; this is separate from the original full-program binary.",
+      "original": "/home/jacobt/src/goose-to-wasm/examples/life.goose",
+      "original_sha256": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97",
+      "retained_prefix_sha256": "654786f6d092638323b30894b3414b9c244f51ee6591a023bda680427a6c48cc",
+      "source_files": [
+        "/home/jacobt/src/goose-to-wasm/examples/life.goose",
+        "/home/jacobt/src/goose-to-wasm/bench/reference_examples.py",
+        "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose"
+      ],
+      "kernel": "Fixed 64x32 toroidal step, original SplitMix64 soup, 200 generations/run. Copy, one-cell input perturbation and final grid hash included. Literal dimensions retain specialization eligibility.",
+      "test": {
+        "stdin": "2024 4 2 1\n",
+        "checksum": 1246595516
+      },
+      "run": {
+        "stdin": "2024 200 64 2\n",
+        "checksum": 3218777910
+      }
+    },
+    {
+      "name": "Example::Sorting",
+      "source": "sorting.goose",
+      "notes": "Kernel adapter; original function bodies retained, display and other example jobs excluded. One-time preparation is outside the timer; per-run reset, perturbation, validation and checksum are timed. Each job uses one opaque barrier. Warmup checksums are consumed separately. Runtime imports disable the direct compiler's closed-module raw-array proof; this is separate from the original full-program binary.",
+      "original": "/home/jacobt/src/goose-to-wasm/examples/sorting.goose",
+      "original_sha256": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+      "retained_prefix_sha256": "80939ad40467543545bd73cd817cf7bee64fcbc282b432a1e7a6038189264d83",
+      "source_files": [
+        "/home/jacobt/src/goose-to-wasm/examples/sorting.goose",
+        "/home/jacobt/src/goose-to-wasm/bench/reference_examples.py",
+        "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose"
+      ],
+      "kernel": "Original insertion_sort on 20000 SplitMix64 values; copy, first-value perturbation, sortedness check and final array hash included.",
+      "test": {
+        "stdin": "64 1 3 1\n",
+        "checksum": 494862597
+      },
+      "run": {
+        "stdin": "20000 1 32 2\n",
+        "checksum": 2113279088
+      }
+    },
+    {
+      "name": "Example::Sudoku",
+      "source": "sudoku.goose",
+      "notes": "Kernel adapter; original function bodies retained, display and other example jobs excluded. One-time preparation is outside the timer; per-run reset, perturbation, validation and checksum are timed. Each job uses one opaque barrier. Warmup checksums are consumed separately. Runtime imports disable the direct compiler's closed-module raw-array proof; this is separate from the original full-program binary.",
+      "original": "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose",
+      "original_sha256": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555",
+      "retained_prefix_sha256": "cfc42b84ca4d2acbff932827326da024639aa1038ea66e5da428c0e4371d4806",
+      "source_files": [
+        "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose",
+        "/home/jacobt/src/goose-to-wasm/bench/reference_examples.py",
+        "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose"
+      ],
+      "kernel": "Original MRV solver alternating the same easy/hard puzzles; parse, solve, guess count and final solution hash included.",
+      "test": {
+        "stdin": "0 2 1\n",
+        "checksum": 1683248594
+      },
+      "run": {
+        "stdin": "0 128 4\n",
+        "checksum": 353727616
+      }
+    }
+  ]
+}

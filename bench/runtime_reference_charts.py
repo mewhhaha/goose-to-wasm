@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""Plot fresh confirmation rounds against the frozen selected native target."""
+
+import argparse
+import hashlib
+import json
+import math
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+import langarena as arena
+
+GROUPS = (
+    ("Adapted LangArena workloads", (
+        ("CLBG::Fannkuchredux", "Fannkuch"), ("CLBG::Mandelbrot", "Mandelbrot"),
+        ("Etc::Sieve", "Sieve"), ("Hash::CRC32", "CRC32"),
+        ("Hash::SHA256", "Custom hash"), ("Sort::Merge", "Merge sort"),
+        ("Sort::Quick", "Quicksort"))),
+    ("Example kernel adapters", (
+        ("Example::Life", "Life"), ("Example::Sorting", "Insertion sort"),
+        ("Example::Sudoku", "Sudoku"))),
+)
+SERIES = (("anchor", "Native GCC -O2", "#727b8e"),
+          ("direct", "Direct Wasm", "#087f8c"),
+          ("wasm", "Selected Wasm", "#ce862a"))
+
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def validate(report):
+    assert report["schema"] == "goose-runtime-reference-v1"
+    assert report["status"] == "passed" and not report["failures"]
+    config = report["configuration"]
+    assert not config["smoke"] and config["samples"] >= 9 and config["pilot_samples"] >= 3
+    assert config["engines"] == ["wasmtime"] and config["wasmtime_mode"] == "precompiled"
+    expected_tasks = {task for _, group in GROUPS for task, _ in group}
+    assert {case["name"] for case in report["workloads"]} == expected_tasks
+    for path, expected in report["inputs"].items():
+        assert digest(path) == expected, path
+    rows = [row for row in report["observations"] if row["phase"] == "confirm"]
+    assert all(row["status"] == "passed" for row in rows)
+    indexed = {}
+    for row in rows:
+        key = row["task"], row["variant"], row["engine"], row["round"]
+        assert key not in indexed, key
+        assert math.isfinite(row["timed_region_seconds"]) and 0 < row["timed_region_seconds"] <= row["wall_seconds"]
+        indexed[key] = row["timed_region_seconds"]
+    table = []
+    for _, group in GROUPS:
+        for task, label in group:
+            selection = report["selection"][task]
+            native = selection["native"]["variant"]
+            wasm = selection["wasm"]["wasmtime"]["variant"]
+            variants = {"anchor": ("native-gcc-O2-generic", "native"),
+                        "native": (native, "native"), "direct": ("direct-O2", "wasmtime"),
+                        "wasm": (wasm, "wasmtime")}
+            row = {"task": task, "label": label, "native_reference": native, "wasm_reference": wasm,
+                   "wasm_self_reference": wasm == "direct-O2", "times": {}, "relative_to_native": {}}
+            for name, (variant, engine) in variants.items():
+                samples = [indexed[task, variant, engine, round_] for round_ in range(config["samples"])]
+                row["times"][name] = arena.summarize(samples)
+                ratios = [indexed[task, variant, engine, round_] / indexed[task, native, "native", round_]
+                          for round_ in range(config["samples"])]
+                row["relative_to_native"][name] = arena.summarize(ratios)
+            row["direct_over_selected_wasm"] = arena.summarize([
+                indexed[task, "direct-O2", "wasmtime", round_] / indexed[task, wasm, "wasmtime", round_]
+                for round_ in range(config["samples"])])
+            table.append(row)
+    return table
+
+
+def render(report, table, destination):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    matplotlib.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10,
+                               "svg.fonttype": "none", "svg.hashsalt": "goose-runtime-targets"})
+    lookup = {row["task"]: row for row in table}
+    figure, axes = plt.subplots(2, 1, figsize=(13.5, 8.6), gridspec_kw={"height_ratios": [1, 1]})
+    figure.patch.set_facecolor("white")
+    labels = []
+    for axis, (title, group) in zip(axes, GROUPS):
+        for spine in ("top", "right", "left"):
+            axis.spines[spine].set_visible(False)
+        axis.spines["bottom"].set_color("#9aabc3")
+        axis.tick_params(axis="both", length=0, colors="#405372")
+        axis.set_axisbelow(True)
+        axis.grid(axis="y", color="#e3eaf3", linewidth=.8)
+        axis.set_yscale("log", base=2)
+        axis.set_ylabel("time / selected native time")
+        axis.set_title(title, loc="left", fontweight="bold", color="#111b30", pad=18)
+        maximum = 1.0
+        minimum = .5
+        for series_index, (name, _, color) in enumerate(SERIES):
+            values = [lookup[task]["relative_to_native"][name] for task, _ in group]
+            centers = [index + (series_index - 1) * .245 for index in range(len(group))]
+            medians = [value["median"] for value in values]
+            errors = [value["mad"] for value in values]
+            axis.bar(centers, medians, width=.225, color=color, zorder=3)
+            axis.errorbar(centers, medians, yerr=errors, fmt="none", color="#405372", capsize=2, linewidth=.8)
+            for (task, _), center, value in zip(group, centers, values):
+                label = f"{value['median']:.2f}×"
+                labels.append({"task": task, "series": name, "label": label,
+                               "median": value["median"], "mad": value["mad"]})
+                annotation = axis.annotate(label, (center, value["median"] + value["mad"]), xytext=(0, 5),
+                                           textcoords="offset points", ha="center", fontsize=8, color="#405372")
+                annotation.set_gid(f"target-label-{len(labels)}")
+                maximum = max(maximum, value["median"] + value["mad"])
+                minimum = min(minimum, value["median"] - value["mad"])
+        axis.axhline(1, color="#30415c", linewidth=1.1, linestyle=(0, (4, 3)))
+        axis.set_ylim(minimum * .7, maximum * 1.7)
+        ticks = [2.0 ** exponent for exponent in range(-5, 9) if minimum * .7 < 2.0 ** exponent < maximum * 1.7]
+        axis.set_yticks(ticks, [f"{tick:g}×" for tick in ticks])
+        axis.set_xticks(range(len(group)), [label for _, label in group])
+        axis.set_xlim(-.65, len(group) - .35)
+    figure.suptitle("Warmed execution targets", x=.075, y=.97, ha="left", fontsize=22,
+                    fontweight="bold", color="#111b30")
+    figure.text(.075, .923, "Fresh confirmation rounds · lower is better · selected native reference = 1×",
+                color="#405372")
+    handles = [plt.Rectangle((0, 0), 1, 1, color=color) for _, _, color in SERIES]
+    figure.legend(handles, [label for _, label, _ in SERIES], loc="upper left", bbox_to_anchor=(.07, .905),
+                  ncol=3, frameon=False)
+    config = report["configuration"]
+    rounds = f"{config['pilot_samples']} selection rounds · {config['samples']} fresh confirmation rounds"
+    date = report["started_utc"][:10]
+    figure.text(.075, .056, date + " · " + rounds + " · bars: median paired ratios · whiskers: ±MAD",
+                fontsize=9, color="#405372")
+    cpu = "unknown CPU"
+    for line in report["environment"].get("cpuinfo", "").splitlines():
+        if line.startswith("model name"):
+            cpu = line.partition(":")[2].strip().replace(" 8-Core Processor", "")
+            break
+    version = report["host_build"]["version"]
+    figure.text(.075, .032, f"{cpu}, shared host · CPU {config['cpu']} · Wasmtime {version} AOT · preparation excluded · empirical references",
+                fontsize=9, color="#405372")
+    figure.subplots_adjust(left=.075, right=.98, top=.80, bottom=.115, hspace=.56)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(destination, metadata={"Date": None})
+    destination.write_text("\n".join(line.rstrip() for line in destination.read_text().splitlines()) + "\n")
+    plt.close(figure)
+    return labels
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("report", type=Path)
+    parser.add_argument("--output", type=Path, default=Path("bench/charts/runtime-targets.svg"))
+    parser.add_argument("--verification", type=Path, required=True)
+    args = parser.parse_args()
+    report = json.loads(args.report.read_text())
+    table = validate(report)
+    labels = render(report, table, args.output)
+    svg = ET.parse(args.output).getroot()
+    observed = []
+    for element in svg.iter():
+        if element.attrib.get("id", "").startswith("target-label-"):
+            observed.append("".join(element.itertext()).strip())
+    assert observed == [row["label"] for row in labels], observed
+    verification = {"status": "passed", "report_sha256": digest(args.report),
+                    "chart_sha256": digest(args.output), "numeric_labels": labels, "table": table,
+                    "method": "Raw confirmation samples only. Each series uses per-round ratios to the frozen selected native reference. Source fingerprints and positive timing intervals verified."}
+    args.verification.parent.mkdir(parents=True, exist_ok=True)
+    args.verification.write_text(json.dumps(verification, indent=2) + "\n")
+    print(f"Verified {len(labels)} labels; wrote {args.output}")
+
+
+if __name__ == "__main__":
+    main()

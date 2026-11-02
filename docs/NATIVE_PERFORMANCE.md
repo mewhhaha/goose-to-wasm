@@ -1,5 +1,7 @@
 # Getting closer to native
 
+The newer [matched runtime targets](RUNTIME_TARGETS.md) compare selected native and Wasm profiles under the same warmed workloads; the full-process controls below are separate.
+
 The existing example charts use GCC 16 `-O2` for generic CPU native C. Separate controls compiled the same generated C, from the same frozen Goose `-O2` compiler and unchanged sources, with host-tuned flags. Medians below are milliseconds from fresh process launch to exit, with one warmup and 15 measured launches per cell; outputs were checked.
 
 | Example | GCC `-O2` generic | GCC `-O3 -march=native` | Clang 23 `-O3 -march=native` |

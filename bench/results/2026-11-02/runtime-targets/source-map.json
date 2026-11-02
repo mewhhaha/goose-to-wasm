@@ -1,0 +1,414 @@
+{
+  "/home/jacobt/src/goose-to-wasm/bench/host_input.c": {
+    "sha256": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+    "archive_path": "bench/host_input.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/manifest.json": {
+    "sha256": "95383d34c7f2214e5b7cfd346b0d0742c23df81f9d568ef4c6dad7c8a6302646",
+    "archive_path": "bench/langarena/manifest.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/common.goose": {
+    "sha256": "c25a158f5d17037c46243c970a573e846080c4c8adfd32164ad1b6212d91a65c",
+    "archive_path": "bench/langarena/ports/common.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/fannkuch.goose": {
+    "sha256": "13fe4b2630a22e717ba583e9c9b255cc3ccc6c605351a652bb73e07d636ee004",
+    "archive_path": "bench/langarena/ports/fannkuch.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/hash_crc32.goose": {
+    "sha256": "22891f3c000d0eac66742cfe4bb234ab7ddf3dce0b803aaae15908c0d9a2c4a2",
+    "archive_path": "bench/langarena/ports/hash_crc32.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/hash_sha256.goose": {
+    "sha256": "e530813993a835ec10b4e8978d3d5d82d585a1a55b0291045e2afe046c8ebf1e",
+    "archive_path": "bench/langarena/ports/hash_sha256.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/mandelbrot.goose": {
+    "sha256": "017d40be3efc3d0aa3d629fabfa843cf676193a7507c6e653cdb6981c19adf8d",
+    "archive_path": "bench/langarena/ports/mandelbrot.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/sieve.goose": {
+    "sha256": "849b68f2113209776b638f22d5c1500b38138ee211ed269c6e8be351a6b17b70",
+    "archive_path": "bench/langarena/ports/sieve.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/sort_merge.goose": {
+    "sha256": "54358db410344035b3f86c24563d961fa6c5029ca5d73ee633adee2a654391dc",
+    "archive_path": "bench/langarena/ports/sort_merge.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/sort_quick.goose": {
+    "sha256": "5c838972c053214766fb5dd8cd577f4db569d92e3940938ee20830a4aeca9f79",
+    "archive_path": "bench/langarena/ports/sort_quick.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/run.json": {
+    "sha256": "8fe7baed41e8eb0a233057c4406446029f7e5d792cf3a3ac6fc7e714964a155f",
+    "archive_path": "bench/langarena/run.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena/test.json": {
+    "sha256": "424371dd25f3fa3f779789c823a05dbe90d2eddbc2a3ca3c5e4319252c572797",
+    "archive_path": "bench/langarena/test.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/langarena.py": {
+    "sha256": "2469c5d008cd3d1f3fa211f92bf4fc1ab20bd7e583e055cdc5f2f6970bc94865",
+    "archive_path": "bench/langarena.py"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/reference_examples.py": {
+    "sha256": "fb846a8a189471d0daa3cfe1fd71dc992d55aeb3765ffae1674823762f34ed40",
+    "archive_path": "bench/reference_examples.py"
+  },
+  "/home/jacobt/src/goose-to-wasm/bench/runtime_reference.py": {
+    "sha256": "94f67b878962c5476a9e5be744cf93c30ae5687b6e79379c21c9877f842453a6",
+    "archive_path": "bench/runtime_reference.py"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json": {
+    "sha256": "27f56e970f1ebc49ff02d071491193abfd00d4441180ac346b2ef765cbd5e482",
+    "archive_path": "build/bin/goose-wasmtime.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/bin/stdlib/std.goose": {
+    "sha256": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "archive_path": "build/bin/stdlib/std.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/include/goose.h": {
+    "sha256": "197478d1694847146f714ea3df1372e3d710644580b72603de8273d3c59d00a9",
+    "archive_path": "build/native-hills/constant-compiler/bin/include/goose.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/base64.goose": {
+    "sha256": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/base64.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/binary.goose": {
+    "sha256": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/binary.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/csv.goose": {
+    "sha256": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/csv.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/dictionary.goose": {
+    "sha256": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/dictionary.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/exception.goose": {
+    "sha256": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/exception.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/ffi.goose": {
+    "sha256": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/ffi.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/json.goose": {
+    "sha256": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/json.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/math.goose": {
+    "sha256": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/math.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/os.goose": {
+    "sha256": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/os.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/regex.goose": {
+    "sha256": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/regex.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/std.goose": {
+    "sha256": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/std.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/stdlib/vec.goose": {
+    "sha256": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "archive_path": "build/native-hills/constant-compiler/bin/stdlib/vec.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/checked_leaf_cache.h": {
+    "sha256": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "archive_path": "build/native-hills/constant-compiler/compiler/checked_leaf_cache.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_input_trace.h": {
+    "sha256": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_input_trace.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm.h": {
+    "sha256": "fcdf5ededae85068a5efacbb3d5d2c65572614469a25253ecd9f4074dd3a2286",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_arrays.h": {
+    "sha256": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_arrays.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_bits.h": {
+    "sha256": "87ddcf4a1e498845fe8c8c68c13fb080460ec4a7146cb972f2e3e511d1bb922d",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_bits.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_captures.h": {
+    "sha256": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_captures.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_constants.h": {
+    "sha256": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_constants.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_dependencies.h": {
+    "sha256": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_dependencies.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_dispatch.h": {
+    "sha256": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_dispatch.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_effects.h": {
+    "sha256": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_effects.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_emit.h": {
+    "sha256": "64e94e933ff2322d72a337ff4c5a21b11a317d2bc278eed40a5d68a399bcb6c8",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_emit.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_enums.h": {
+    "sha256": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_enums.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_expr.h": {
+    "sha256": "bebc9a243ccb12f6b334a33b7b43bd631eb03cc48439778f77d788ff1afaef42",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_expr.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_funvals.h": {
+    "sha256": "b2862546b542c3185e89d7dd7a63fcc5f0720d0afd81f5a533ca92ac87a2abaf",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_funvals.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_images.h": {
+    "sha256": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_images.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_landing.h": {
+    "sha256": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_landing.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_leaf.h": {
+    "sha256": "5d9cb47ae64323e82c29ce7e2cd8a93caca25d42d6efc30c392c5be8ba56c241",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_leaf.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_numeric.h": {
+    "sha256": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_numeric.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_owned.h": {
+    "sha256": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_owned.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_publication.h": {
+    "sha256": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_publication.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_record_images.h": {
+    "sha256": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_record_images.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_regions.h": {
+    "sha256": "21f3c7024a1942da6072080009145d1747daac79f8da48fe9af1a9760af9fcf0",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_regions.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_session.h": {
+    "sha256": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_session.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_storage.h": {
+    "sha256": "04e51f7170a31cc440f791cabe428223468b62f7f8f13c17c7321e0e97d34356",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_storage.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_temps.h": {
+    "sha256": "ff6d9811083061c8eda7eca86d94df7d2d261da61b155f83385ff32270019e5c",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_temps.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_uleb_arrays.h": {
+    "sha256": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_uleb_arrays.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_varint_arrays.h": {
+    "sha256": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_varint_arrays.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/direct_wasm_varints.h": {
+    "sha256": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "archive_path": "build/native-hills/constant-compiler/compiler/direct_wasm_varints.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/lexer_cache.h": {
+    "sha256": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "archive_path": "build/native-hills/constant-compiler/compiler/lexer_cache.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/parsed_module_cache.h": {
+    "sha256": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "archive_path": "build/native-hills/constant-compiler/compiler/parsed_module_cache.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/parsed_module_clone.h": {
+    "sha256": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "archive_path": "build/native-hills/constant-compiler/compiler/parsed_module_clone.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/compiler/wasm_binary.h": {
+    "sha256": "6c92d4a20b351f42417d79321dce56d5c64e4f3811ea1771de6ffd8d56f48def",
+    "archive_path": "build/native-hills/constant-compiler/compiler/wasm_binary.h"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/source.json": {
+    "sha256": "d2b117fcce820d59d6b1a3a1f7778483378b6694f671d0c8b54887a24ac70049",
+    "archive_path": "build/native-hills/constant-compiler/source.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/toolchain.json": {
+    "sha256": "e90b72f525b7f98b74382a7c80c2366a9748249432c3c045eeaf01cbab830994",
+    "archive_path": "build/native-hills/constant-compiler/toolchain.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/inputs/cases.json": {
+    "sha256": "18d17886193e8608ed7a6df451bea51ddff757f6742a4142d0d46e98b746d731",
+    "archive_path": "build/runtime-reference/inputs/cases.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/inputs/life.goose": {
+    "sha256": "1a3d80fb4ec82927b9e18c159521660a8b4e56497e015d77ba8b4455103c52e0",
+    "archive_path": "build/runtime-reference/inputs/life.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/inputs/sorting.goose": {
+    "sha256": "8eddfbf78e40c1349a4be52926a1ef4fcbbb1a36e1acb4cbbb79c02c5071cfbe",
+    "archive_path": "build/runtime-reference/inputs/sorting.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/inputs/sudoku.goose": {
+    "sha256": "4af5475e8b7b65b32362db874fa0a993cb9e3642acc1e10c2a6c78900964cfd7",
+    "archive_path": "build/runtime-reference/inputs/sudoku.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/examples/life.goose": {
+    "sha256": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97",
+    "archive_path": "examples/life.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/examples/sorting.goose": {
+    "sha256": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+    "archive_path": "examples/sorting.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose": {
+    "sha256": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555",
+    "archive_path": "examples/sudoku.goose"
+  },
+  "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": {
+    "sha256": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+    "archive_path": "oracle/goose_wasm.py"
+  },
+  "/home/jacobt/src/goose-to-wasm/oracle/patches/0001-webassembly-target.patch": {
+    "sha256": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "archive_path": "oracle/patches/0001-webassembly-target.patch"
+  },
+  "/home/jacobt/src/goose-to-wasm/patches/direct-target.patch": {
+    "sha256": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91",
+    "archive_path": "patches/direct-target.patch"
+  },
+  "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": {
+    "sha256": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "archive_path": "scripts/run_wasm.mjs"
+  },
+  "/home/jacobt/src/goose-to-wasm/toolchain.json": {
+    "sha256": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5",
+    "archive_path": "toolchain.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/etc_sieve/native.c": {
+    "sha256": "c1ff319ab14b314a901daf5ecaa42609ee8b6f23b070b1fcb0c8ec796fd2a7cc",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/etc_sieve/wasm.c": {
+    "sha256": "a754348aa515a3aa536853a743017eb6ff05e235e283f0196f2a466948576baa",
+    "archive_path": "build/runtime-reference/production/build/etc_sieve/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/sort_quick/native.c": {
+    "sha256": "b26a9c888fedebd81c57f25518f21d302e128eb5260b878ae8f9620df8f6fbba",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/sort_quick/wasm.c": {
+    "sha256": "643c76f05cd04651465e67f328a7b2e26a14824c2ca4921e84fb9d46dadb9930",
+    "archive_path": "build/runtime-reference/production/build/sort_quick/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/sort_merge/native.c": {
+    "sha256": "ad26bfea818fa828d0a6f88ff166179d0e257b5af75e183c1bc23126664961c7",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/sort_merge/wasm.c": {
+    "sha256": "d65c1e05dd39a449b0ba6f2d46eb96e31c2e05fb8064cd39c6ecbae70899819e",
+    "archive_path": "build/runtime-reference/production/build/sort_merge/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/hash_sha256/native.c": {
+    "sha256": "a763f78a0128cec4ff95fa74081ee818585759fbc4eebca8d1127c8c0a567fae",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/hash_sha256/wasm.c": {
+    "sha256": "bcb2bb1daacfe54c082e2d83df9c7abb684488a3e16c7013aa51f225e81fc723",
+    "archive_path": "build/runtime-reference/production/build/hash_sha256/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/hash_crc32/native.c": {
+    "sha256": "956340c4496fd06055f9fc8d7883090d5dcbe35e14b51609d33804efdac0a305",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/hash_crc32/wasm.c": {
+    "sha256": "3582862a6f40bb5869c18e7c0447a41269d268b9d51b576085d0c68ad0b337ed",
+    "archive_path": "build/runtime-reference/production/build/hash_crc32/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/clbg_fannkuchredux/native.c": {
+    "sha256": "b7fdbc4c8022a13a2a17c566751f9fee4b52093809e2d917c4e6cceca2fd0162",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/clbg_fannkuchredux/wasm.c": {
+    "sha256": "f6bd8c9ecc778b7589bc2f5777049177af7421bcd063bc434dbf6948ce8440fe",
+    "archive_path": "build/runtime-reference/production/build/clbg_fannkuchredux/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/clbg_mandelbrot/native.c": {
+    "sha256": "fa36fe9f4cf84568b61a7587e8a44a7fcd89a057afc527a5a982840b5c999adc",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/clbg_mandelbrot/wasm.c": {
+    "sha256": "9cf4661ca020974b70c4a03aaa4deb42f022f18029b9d445315f02001254590f",
+    "archive_path": "build/runtime-reference/production/build/clbg_mandelbrot/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/example_life/native.c": {
+    "sha256": "0fa24f8bdbe29efb8931eb74ddb24bb6d1f0477cf4ea0d5748db11d874e0b22a",
+    "archive_path": "build/runtime-reference/production/build/example_life/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/example_life/wasm.c": {
+    "sha256": "f71c400a7fec7787b68d728df06197ff69ef45a5984c0cffe10bbd9e0d307047",
+    "archive_path": "build/runtime-reference/production/build/example_life/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/example_sorting/native.c": {
+    "sha256": "e415503b0739be98d335adbba2d27c8ea52b59b8dc5c73ebfd6152d473be024d",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/example_sorting/wasm.c": {
+    "sha256": "afc32277e9ecbd71f04fbae9373dcdef9d5af22c308368ff46ddec6ecab65ef3",
+    "archive_path": "build/runtime-reference/production/build/example_sorting/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/example_sudoku/native.c": {
+    "sha256": "3b849266b4b36e928d50933d077a21f095a08b5f9f4c582c60a375a5b1a3850a",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/example_sudoku/wasm.c": {
+    "sha256": "a96c671a5e6996000aa68b3d1d30dd20e7e858b6d9e2ab92548521405d535480",
+    "archive_path": "build/runtime-reference/production/build/example_sudoku/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-cases.json": {
+    "sha256": "477218b3006df5c056b56694c1dae233eeacad53a90863f240763d430ff59193",
+    "archive_path": "build/runtime-reference/smoke-cases.json"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/example_life/native.c": {
+    "sha256": "0fa24f8bdbe29efb8931eb74ddb24bb6d1f0477cf4ea0d5748db11d874e0b22a",
+    "archive_path": "build/runtime-reference/smoke-full/build/example_life/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/example_life/wasm.c": {
+    "sha256": "f71c400a7fec7787b68d728df06197ff69ef45a5984c0cffe10bbd9e0d307047",
+    "archive_path": "build/runtime-reference/smoke-full/build/example_life/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/example_sorting/native.c": {
+    "sha256": "e415503b0739be98d335adbba2d27c8ea52b59b8dc5c73ebfd6152d473be024d",
+    "archive_path": "build/runtime-reference/smoke-full/build/example_sorting/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/example_sorting/wasm.c": {
+    "sha256": "afc32277e9ecbd71f04fbae9373dcdef9d5af22c308368ff46ddec6ecab65ef3",
+    "archive_path": "build/runtime-reference/smoke-full/build/example_sorting/wasm.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/example_sudoku/native.c": {
+    "sha256": "3b849266b4b36e928d50933d077a21f095a08b5f9f4c582c60a375a5b1a3850a",
+    "archive_path": "build/runtime-reference/smoke-full/build/example_sudoku/native.c"
+  },
+  "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/example_sudoku/wasm.c": {
+    "sha256": "a96c671a5e6996000aa68b3d1d30dd20e7e858b6d9e2ab92548521405d535480",
+    "archive_path": "build/runtime-reference/smoke-full/build/example_sudoku/wasm.c"
+  }
+}

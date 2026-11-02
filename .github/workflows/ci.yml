@@ -141,6 +141,10 @@ jobs:
           python tests/test_uleb_length_boundaries.py
       - name: LangArena inputs and measurement contracts
         run: python tests/test_langarena.py
+      - name: Warmed runtime reference contracts and independent example answers
+        run: |
+          python tests/test_runtime_reference.py
+          python tests/test_reference_examples.py
       - name: LangArena official small cases and observable marker edits
         run: |
           python bench/langarena.py fetch

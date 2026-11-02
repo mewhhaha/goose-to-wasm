@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "commands": [
+    {
+      "name": "test_runtime_reference",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_runtime_reference.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.10735080600716174,
+      "source_sha256": "72b6e2d25b0d210ed2a6e337de2f7169e345be59acf8e6a477f95c9bb52f34ca"
+    },
+    {
+      "name": "test_reference_examples",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_reference_examples.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 1.8558203799766488,
+      "source_sha256": "b88120df5b58c097ff9a5f1cae1f7e255e563a4ff56a5ec6e3cb8adeac6e4907"
+    }
+  ]
+}

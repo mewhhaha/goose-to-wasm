@@ -1,0 +1,85 @@
+{
+  "status": "passed",
+  "reviewer": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh"
+  },
+  "reviewed_utc": "2026-11-02T18:23:24.061517+00:00",
+  "scope": "Reference-only tooling, adapters, qualification, measurement records, documentation, chart and retained evidence. Frozen compiler 11ade4a575cd77050a7ad82b40ba972be660f9095f01714235cf57bd36d50aa6; working-tree SCC/compiler experiments excluded.",
+  "findings": [],
+  "checks": {
+    "production": {
+      "workloads": 10,
+      "variants": 14,
+      "artifacts": 140,
+      "aot_preparations": 60,
+      "qualification_executions": 140,
+      "pilot_executions": 420,
+      "confirmation_executions": 315
+    },
+    "smoke": {
+      "artifacts": 42,
+      "aot_preparations": 18,
+      "executions": 95
+    },
+    "raw_execution_records_verified": 970,
+    "selection": "Recomputed every median-plus-MAD pilot choice; nine fresh confirmation rounds retain frozen choices, anchors and deduplicated cells. Five raw-direct Wasm self-references verified.",
+    "statistics": "Recomputed 228 runtime summaries, 39 paired summaries and six geometric summaries; all 30 SVG labels and ten documentation timing rows match raw confirmation data.",
+    "controls": "Verified 318 production input pins, 32 frozen headers, two patches, 140 artifact build commands, 60 default AOT preparations, 20 target-specific Goose-O2 C generations, CPU-2 runtime commands and seeded execution order. All builds precede sampling.",
+    "workloads": "Seven catalog entries and three unchanged original helper prefixes verified; adapter oracle and barrier/clock boundaries reviewed.",
+    "qualification": "Recorded logs show nine runner and four independent-oracle tests passed; both suites are wired into CI.",
+    "archives": {
+      "charts": 2,
+      "disassembly": 25,
+      "guest_artifacts": 200,
+      "inputs": 208,
+      "qualification_logs": 951,
+      "samples": 5620
+    },
+    "retention": "Independently compared every archive member with disk. All 260 production/smoke guest aliases resolve to 200 canonical artifacts; 103 source-map paths, 41 upstream files, frozen compiler sources and host SDK headers match pins. Retained guests are absent from the omitted-input list.",
+    "presentation": "Reviewed existing PNG: labels, legends and footnotes visible without overlap. Verified final normalized SVG labels, latest pointer and 41 local documentation links."
+  },
+  "limitations": [
+    "Read-only independent audit; no builds, guest executions, tests, benchmark repetitions or rendering performed for this review.",
+    "References are empirical for the pinned workloads/toolchains and shared host. Three screening rounds and nine confirmation rounds do not prove universal ceilings; MAD is dispersion, not a confidence bound, and selections are not re-ranked using confirmation.",
+    "Warmed example adapters are separate from full-program binaries. Native ISA flags and direct memory32 versus C-Wasm LP64 memory64 prevent attributing the entire difference to runtime overhead.",
+    "External tool executables, Wasmtime shared library, intermediate host objects and SDK sysroot remain omitted as declared; their identities and commands are retained. Final SHA256.json is generated after this review."
+  ],
+  "sha256": {
+    ".github/workflows/ci.yml": "63516446c3a62775cc721af5445e1427ed9512b9f9235036fe28abc86ff77e21",
+    "README.md": "e4eaa089010603f336576d294c181aa9149d0425649fae7688da3629f6ff2732",
+    "bench/charts/runtime-targets.svg": "b82709b3346c0a1dc5e9509925bce584cc57e84dac85220cedb8891068fdcfdd",
+    "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+    "bench/langarena/manifest.json": "95383d34c7f2214e5b7cfd346b0d0742c23df81f9d568ef4c6dad7c8a6302646",
+    "bench/langarena.py": "2469c5d008cd3d1f3fa211f92bf4fc1ab20bd7e583e055cdc5f2f6970bc94865",
+    "bench/reference_examples.py": "fb846a8a189471d0daa3cfe1fd71dc992d55aeb3765ffae1674823762f34ed40",
+    "bench/results/2026-11-02/runtime-targets/README.md": "f9a4d99ba937fd761a4ef98df765c73b289cd4f1b1a71f8026ffb7a5a0b19661",
+    "bench/results/2026-11-02/runtime-targets/archive-verification.json": "aa70dc28fb350cc17b87cf938485b4302930306beb730b2f14b1c7307666a4a4",
+    "bench/results/2026-11-02/runtime-targets/artifact-map.json": "a36a3d13b503771c754fef797e713fc7c9bf2cfad2ae2dd1c0b443680b9f0854",
+    "bench/results/2026-11-02/runtime-targets/cases.json": "18d17886193e8608ed7a6df451bea51ddff757f6742a4142d0d46e98b746d731",
+    "bench/results/2026-11-02/runtime-targets/chart-verification.json": "eb250cb18745e57346d857198a6f1299d7e6d03182ab399a2dad519e73722dbc",
+    "bench/results/2026-11-02/runtime-targets/charts.tar.gz": "6a216f9468233c5554c0e077ac7db2d2bf6ab772a3e185124db4ba097f2bb89a",
+    "bench/results/2026-11-02/runtime-targets/compiler-identity.json": "6df92eb1958634a922f4beb967924a56a3dcf45688d10a4d70c4e4143e1f3bb8",
+    "bench/results/2026-11-02/runtime-targets/disassembly.tar.gz": "51c6b14c6d080f95653090f5358d5c4efec25220589eac0ab28fa33b69b71ad4",
+    "bench/results/2026-11-02/runtime-targets/guest-artifacts.tar.gz": "b56864ad1cb486aa3806ecafe04af52ccc400773e389b6123b49539fa43a4027",
+    "bench/results/2026-11-02/runtime-targets/inputs.tar.gz": "d5b08113ae621c0fa7d8caf138f59fd15eae56021c9cbf4ac5711bb72a869f52",
+    "bench/results/2026-11-02/runtime-targets/module-inventory.json": "d3b903df67a2972d92237721cfb14fe7aa3732b9d5364b60d358c67de12000a6",
+    "bench/results/2026-11-02/runtime-targets/qualification-logs.tar.gz": "3d26d750d29fe6370086400553996775074064522e1c4afbad2f73f1d5f09e9f",
+    "bench/results/2026-11-02/runtime-targets/qualification.json": "7c69bf5783f2e03304461a180bf3afe8977e9f75f2b138971be15088dac75bb3",
+    "bench/results/2026-11-02/runtime-targets/references.json": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "bench/results/2026-11-02/runtime-targets/retention.json": "e862042e69e41fbfc880570075d5c93732d2956dd99aa06d3e6fd7926e98a26a",
+    "bench/results/2026-11-02/runtime-targets/runtime-targets.png": "c1e5045de3aa5eb4486c1ce44c590f7993970eda1a4789dc31663bbfea344310",
+    "bench/results/2026-11-02/runtime-targets/samples.tar.gz": "3edc4de95717c7250a5fce3e38167fe0e5666c1b19a80b97dadf4eb041bb17b3",
+    "bench/results/2026-11-02/runtime-targets/smoke.json": "9331ad8f6151acc32a3b15545d07c2595606c5d055eadf1d88df434c06a3053b",
+    "bench/results/2026-11-02/runtime-targets/source-map.json": "de9891f4320d9a6052443f0af0e63aa4e88d73e291ecf4783daf19696b108de1",
+    "bench/results/runtime-targets-latest.json": "8aba1eba50cc6290b3e937928023f2456fad6f591b01e5c18acb8872ab506200",
+    "bench/runtime_reference.py": "94f67b878962c5476a9e5be744cf93c30ae5687b6e79379c21c9877f842453a6",
+    "bench/runtime_reference_charts.py": "156a0a1c36958a0be97ebcccac88e023591ffeb46dc0ea9ab0f901f409531175",
+    "docs/NATIVE_PERFORMANCE.md": "8d48a3e749db7fa6977f8bfcc7f368e039359a0484535e93afaab4b82974222e",
+    "docs/PERFORMANCE_PLAN.md": "a77c7510ded4836fcae66f6770e396d38da6061f9ec07b4d2f9ca21de1e75e3b",
+    "docs/RUNTIME_TARGETS.md": "c7d25e78bca9889e2bffa6991199ccdf0874e1a1e7fd4958d63e07aef3f09d72",
+    "host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+    "tests/test_reference_examples.py": "b88120df5b58c097ff9a5f1cae1f7e255e563a4ff56a5ec6e3cb8adeac6e4907",
+    "tests/test_runtime_reference.py": "72b6e2d25b0d210ed2a6e337de2f7169e345be59acf8e6a477f95c9bb52f34ca"
+  }
+}

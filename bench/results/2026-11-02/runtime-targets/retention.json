@@ -1,0 +1,153 @@
+{
+  "baseline_commit": "b3d694d46111246d9ca7f8e751bdb2c2c12fa4dd",
+  "compiler_sha256": "11ade4a575cd77050a7ad82b40ba972be660f9095f01714235cf57bd36d50aa6",
+  "raw_sample_files": 5620,
+  "guest_paths": 260,
+  "unique_guests": 200,
+  "text_input_paths": 103,
+  "original_upstream_files": 41,
+  "omitted_inputs": [
+    {
+      "path": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+      "sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so",
+      "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+      "sha256": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/bin/clang-24",
+      "sha256": "34e40f7033074b19c6c9ea5f4571097d948b4bb33e5a4c3a51fc6b73815baa1e"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/bin/wasm-opt",
+      "sha256": "36dbedfdbea6141751e0263825231f715fe293fa5ee6ae6b8747bab13e3b2230"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc",
+      "sha256": "33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/native-hills/constant-compiler/bin/goose",
+      "sha256": "11ade4a575cd77050a7ad82b40ba972be660f9095f01714235cf57bd36d50aa6"
+    },
+    {
+      "path": "/usr/bin/clang-23",
+      "sha256": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d"
+    },
+    {
+      "path": "/usr/bin/gcc",
+      "sha256": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145"
+    },
+    {
+      "path": "/usr/bin/taskset",
+      "sha256": "0b1215b87e625815ed53f47d99ec4083eb505eb1b0c3b403b077a6cbc02107a3"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-clang-O2-generic.o",
+      "sha256": "35f06d99be56c3f6aed84ba63e2d9c1ff5cf262416a7ec234575f1a4f852258a"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-clang-O2-native.o",
+      "sha256": "1757b9d8728a4b56a3ee05bfa4fde6d2a79a72d90405b29753e5a08d25e02fac"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-clang-O3-generic.o",
+      "sha256": "35f06d99be56c3f6aed84ba63e2d9c1ff5cf262416a7ec234575f1a4f852258a"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-clang-O3-native.o",
+      "sha256": "1757b9d8728a4b56a3ee05bfa4fde6d2a79a72d90405b29753e5a08d25e02fac"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-gcc-O2-generic.o",
+      "sha256": "0f0ef2437292fa845de28e1e666c5091e96c3e9a5d1fb541d089669a7c4875e8"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-gcc-O2-native.o",
+      "sha256": "14c0fde8f6c77efbd8bc3a4b8f12a4e08cb45518331051f68a4da04d96db45d1"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-gcc-O3-generic.o",
+      "sha256": "0f0ef2437292fa845de28e1e666c5091e96c3e9a5d1fb541d089669a7c4875e8"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/native-gcc-O3-native.o",
+      "sha256": "14c0fde8f6c77efbd8bc3a4b8f12a4e08cb45518331051f68a4da04d96db45d1"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/c-wasm-O2-scalar.o",
+      "sha256": "d14ce030ae8b10293a062e70c37b7d0c346fd315c1f3427dd54c06bb6d92db4c"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/c-wasm-O2-simd128.o",
+      "sha256": "396b30416e3c8b347269608a7e082851e2552ed5621edd53c7e995e96aa2c1e3"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/c-wasm-O3-scalar.o",
+      "sha256": "d14ce030ae8b10293a062e70c37b7d0c346fd315c1f3427dd54c06bb6d92db4c"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/build/host/c-wasm-O3-simd128.o",
+      "sha256": "396b30416e3c8b347269608a7e082851e2552ed5621edd53c7e995e96aa2c1e3"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-clang-O2-generic.o",
+      "sha256": "35f06d99be56c3f6aed84ba63e2d9c1ff5cf262416a7ec234575f1a4f852258a"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-clang-O2-native.o",
+      "sha256": "1757b9d8728a4b56a3ee05bfa4fde6d2a79a72d90405b29753e5a08d25e02fac"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-clang-O3-generic.o",
+      "sha256": "35f06d99be56c3f6aed84ba63e2d9c1ff5cf262416a7ec234575f1a4f852258a"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-clang-O3-native.o",
+      "sha256": "1757b9d8728a4b56a3ee05bfa4fde6d2a79a72d90405b29753e5a08d25e02fac"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-gcc-O2-generic.o",
+      "sha256": "0f0ef2437292fa845de28e1e666c5091e96c3e9a5d1fb541d089669a7c4875e8"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-gcc-O2-native.o",
+      "sha256": "14c0fde8f6c77efbd8bc3a4b8f12a4e08cb45518331051f68a4da04d96db45d1"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-gcc-O3-generic.o",
+      "sha256": "0f0ef2437292fa845de28e1e666c5091e96c3e9a5d1fb541d089669a7c4875e8"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/native-gcc-O3-native.o",
+      "sha256": "14c0fde8f6c77efbd8bc3a4b8f12a4e08cb45518331051f68a4da04d96db45d1"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/c-wasm-O2-scalar.o",
+      "sha256": "d14ce030ae8b10293a062e70c37b7d0c346fd315c1f3427dd54c06bb6d92db4c"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/c-wasm-O2-simd128.o",
+      "sha256": "396b30416e3c8b347269608a7e082851e2552ed5621edd53c7e995e96aa2c1e3"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/c-wasm-O3-scalar.o",
+      "sha256": "d14ce030ae8b10293a062e70c37b7d0c346fd315c1f3427dd54c06bb6d92db4c"
+    },
+    {
+      "path": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/smoke-full/build/host/c-wasm-O3-simd128.o",
+      "sha256": "396b30416e3c8b347269608a7e082851e2552ed5621edd53c7e995e96aa2c1e3"
+    }
+  ],
+  "notes": [
+    "Tool executables, Wasmtime shared library, intermediate host objects and SDK sysroot are omitted; recorded identities, versions, commands and source snapshots remain.",
+    "All 14 candidates and any failures are visible; this run has no failures. Three pilot rounds select references before nine fresh confirmation rounds. No fast math, LTO or unsafe Binaryen passes.",
+    "Our builds and tests finish before timing; unrelated shared-host load remains possible. Aggregate phase CPU affinity and load are retained.",
+    "Source-map names original pinned text inputs; archive paths are repository-relative. Full example process results remain a separate cohort."
+  ]
+}

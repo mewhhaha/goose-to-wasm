@@ -18,6 +18,14 @@ Seconds per configured measured iteration count, excluding preparation, warmups,
 
 [Full results and raw samples](bench/results/2026-11-02/native-hills/README.md) · [Benchmark method](bench/langarena/README.md)
 
+### Runtime targets
+
+Pilot-selected Wasm and native references show attainable results for these workloads on this machine; they are not universal ceilings.
+
+![Warmed runtime targets](bench/charts/runtime-targets.svg)
+
+[Results and method](docs/RUNTIME_TARGETS.md)
+
 ### Example programs
 
 All ten examples use the same constant inputs across backends and check their output. Runtime measures fresh process launch to exit, including startup, engine work and output; the LangArena charts above measure warmed computational regions. The native Wasmtime host compiles on each ordinary launch; precompiled runs exclude preparation.

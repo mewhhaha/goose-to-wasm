@@ -1,0 +1,938 @@
+{
+  "status": "passed",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "method": "Static module headers, compiler function metadata and instruction sites only. These counts are not dynamic costs; native full disassembly is retained without attributing ISA usage to a hot loop.",
+  "workloads": [
+    {
+      "task": "Etc::Sieve",
+      "direct_region_count": 0,
+      "direct_module_bytes": 3655,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 544,
+          "body_hash": "3526625687805947140",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "run#3",
+          "index": 14,
+          "code_bytes": 901,
+          "body_hash": "16263905737165008226",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 15,
+          "code_bytes": 978,
+          "body_hash": "12233767003488527898",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+          "bytes": 3655,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/etc_sieve-direct-O2.txt",
+          "disassembly_sha256": "2d4f6d4afc469051e19ee4b4822ae34d9ca1ef9a1b16991db698ec4a4e3f2f2f",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-gcc-O3-generic",
+          "family": "native",
+          "artifact_sha256": "762941033dac3c6abc9d9a52200cfcd1bd60410bfb5dfc19d3298ccfdfc4240a",
+          "bytes": 22832,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/etc_sieve-native-gcc-O3-generic.txt",
+          "disassembly_sha256": "2009fb1cd8d419ee3438e41e1920ceca3fe0aa220e5c9bcd1dc9fc0f6e46fba5"
+        }
+      ]
+    },
+    {
+      "task": "Sort::Quick",
+      "direct_region_count": 0,
+      "direct_module_bytes": 4976,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 935,
+          "body_hash": "7175421451598880447",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "run#5",
+          "index": 14,
+          "code_bytes": 1145,
+          "body_hash": "5815771503757851802",
+          "dependencies": [
+            7,
+            15
+          ]
+        },
+        {
+          "name": "quick_sort#7",
+          "index": 15,
+          "code_bytes": 463,
+          "body_hash": "1721362983366303",
+          "dependencies": [
+            7,
+            15,
+            16
+          ]
+        },
+        {
+          "name": "swap_at#8",
+          "index": 16,
+          "code_bytes": 131,
+          "body_hash": "16059372938077413294",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 17,
+          "code_bytes": 1020,
+          "body_hash": "4556058509992447793",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "68d8acad4abf19a4ffb5c79073855b79484f4acbd91cac7e401f64240d4d53e5",
+          "bytes": 4976,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/sort_quick-direct-O2.txt",
+          "disassembly_sha256": "696d9cc7482306292a7c5a710b46f9c35948cac39a86f6a476b429ff870800f1",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "direct-wasm-opt-O3",
+          "family": "wasm-opt",
+          "artifact_sha256": "e86bc30197259b4cb5b1ba3a42acd447d99a96d2220c114cb2a3a2c5d5f5b136",
+          "bytes": 3180,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/sort_quick-direct-wasm-opt-O3.txt",
+          "disassembly_sha256": "ddc4ba27b264660f17cd477bd98a7f20a80a9bd314955f33877da3763b00f5b8",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-clang-O2-generic",
+          "family": "native",
+          "artifact_sha256": "641e5d9fc2c8951ecb32bd841633fdefa96688984d0ea0b2935ea7766b72ee4c",
+          "bytes": 27456,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/sort_quick-native-clang-O2-generic.txt",
+          "disassembly_sha256": "1c07e3b11bd0fc55b192133bcff2e44961acc82f10c6de347db9c1ae27b8f7dc"
+        }
+      ]
+    },
+    {
+      "task": "Sort::Merge",
+      "direct_region_count": 0,
+      "direct_module_bytes": 5798,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 936,
+          "body_hash": "10617299348819176715",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "run#5",
+          "index": 14,
+          "code_bytes": 1399,
+          "body_hash": "6198076423570038729",
+          "dependencies": [
+            7,
+            15
+          ]
+        },
+        {
+          "name": "merge_sort_helper#9",
+          "index": 15,
+          "code_bytes": 229,
+          "body_hash": "14094543046377064715",
+          "dependencies": [
+            7,
+            15,
+            16
+          ]
+        },
+        {
+          "name": "merge#10",
+          "index": 16,
+          "code_bytes": 795,
+          "body_hash": "5278608447538716003",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 17,
+          "code_bytes": 1119,
+          "body_hash": "1255978389583138039",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+          "bytes": 5798,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/sort_merge-direct-O2.txt",
+          "disassembly_sha256": "051c4851dd9439564b5d59e220785e2cd1c3cc44f1188a57f498f7cd7dac54a0",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-clang-O2-generic",
+          "family": "native",
+          "artifact_sha256": "36fc92177de094dfa414942ea33a065f5fe7531e27b48b56e057c164974a1a6a",
+          "bytes": 27464,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/sort_merge-native-clang-O2-generic.txt",
+          "disassembly_sha256": "2afb9beb90caa5d6962e931bc607fe58838a90fca42830031254160d780e88dc"
+        }
+      ]
+    },
+    {
+      "task": "Hash::SHA256",
+      "direct_region_count": 0,
+      "direct_module_bytes": 6635,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 1128,
+          "body_hash": "2772435856416929352",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "run#6",
+          "index": 14,
+          "code_bytes": 2942,
+          "body_hash": "12555009029211805827",
+          "dependencies": [
+            7,
+            15
+          ]
+        },
+        {
+          "name": "binary::read_u32le#8",
+          "index": 15,
+          "code_bytes": 366,
+          "body_hash": "8451785563277454337",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 16,
+          "code_bytes": 924,
+          "body_hash": "14510790542498921144",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "c-wasm-O3-simd128",
+          "family": "c-wasm",
+          "artifact_sha256": "3cacf880d9ff7c2ff847871c8946fc0d267a48fb55b3abe38ee9e4ac1e302bc0",
+          "bytes": 51840,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/hash_sha256-c-wasm-O3-simd128.txt",
+          "disassembly_sha256": "12d933de1ff363e9f7d37dcc871cd1d33ca0d80c3ec6683b1a590e7c11d2d456",
+          "memory_address_bits": [
+            64
+          ],
+          "simd_instruction_sites": 92
+        },
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+          "bytes": 6635,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/hash_sha256-direct-O2.txt",
+          "disassembly_sha256": "902ed6f25383b896db91134997d0f710b62c266a0b2f4b836863d076a6a9fd16",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-clang-O3-native",
+          "family": "native",
+          "artifact_sha256": "8fb052266a3fd34834c329cec92d9cc8fb2dfa9ed65e325d511d045e6f2bb1f2",
+          "bytes": 27368,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/hash_sha256-native-clang-O3-native.txt",
+          "disassembly_sha256": "81daa679b3c03ad78e52851c0354d24a61b526e81f233fff973f07d211c4badf"
+        }
+      ]
+    },
+    {
+      "task": "Hash::CRC32",
+      "direct_region_count": 0,
+      "direct_module_bytes": 3664,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 1128,
+          "body_hash": "17199484235287401017",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "run#6",
+          "index": 14,
+          "code_bytes": 369,
+          "body_hash": "16732544977584769854",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 15,
+          "code_bytes": 924,
+          "body_hash": "14510790542498921144",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "c-wasm-O2-simd128",
+          "family": "c-wasm",
+          "artifact_sha256": "66424dd373fadca6602bfe06cdb79496ee0e42d63a08575741fe3aaf2cd662a4",
+          "bytes": 51815,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/hash_crc32-c-wasm-O2-simd128.txt",
+          "disassembly_sha256": "7a4247103879436da83f725e2875343056f3b4798d0f75d589de83043917b951",
+          "memory_address_bits": [
+            64
+          ],
+          "simd_instruction_sites": 12
+        },
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+          "bytes": 3664,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/hash_crc32-direct-O2.txt",
+          "disassembly_sha256": "37a7bf6012668351ea47461a6c4a1f1fb46fc6bfab7407d5d5002606be1fabcf",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-gcc-O3-native",
+          "family": "native",
+          "artifact_sha256": "ee6baa6715cd0ae4793836f468ffb19f80b615a94ab387b88d23ea526b41d0a4",
+          "bytes": 22832,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/hash_crc32-native-gcc-O3-native.txt",
+          "disassembly_sha256": "2fcf150d1a27c251afcc774bcc0ffbf0ff70dc5c4a85ccef49ee64b4e5bb4816"
+        }
+      ]
+    },
+    {
+      "task": "CLBG::Fannkuchredux",
+      "direct_region_count": 0,
+      "direct_module_bytes": 4598,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 726,
+          "body_hash": "6493400586635985066",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "fannkuchredux#4",
+          "index": 14,
+          "code_bytes": 1814,
+          "body_hash": "14271478718866276683",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 15,
+          "code_bytes": 824,
+          "body_hash": "16555545332780484502",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+          "bytes": 4598,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/clbg_fannkuchredux-direct-O2.txt",
+          "disassembly_sha256": "2d6fbbe80782b936990ae6100cbac3dd11032e6df9b99fe789fb78383e115f61",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-clang-O3-generic",
+          "family": "native",
+          "artifact_sha256": "be89196a0b15199c4d9fcdbec711171a145891a528d04a33e5ec96422705026e",
+          "bytes": 27200,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/clbg_fannkuchredux-native-clang-O3-generic.txt",
+          "disassembly_sha256": "f92ec5e69c3b387c442e140787edddf55d7e73137d7f2b018c21fa63d67d4bd4"
+        }
+      ]
+    },
+    {
+      "task": "CLBG::Mandelbrot",
+      "direct_region_count": 0,
+      "direct_module_bytes": 5194,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 862,
+          "body_hash": "8421450403734538885",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "run#3",
+          "index": 14,
+          "code_bytes": 1360,
+          "body_hash": "14125786629670138025",
+          "dependencies": [
+            7,
+            15
+          ]
+        },
+        {
+          "name": "append_dimension#6",
+          "index": 15,
+          "code_bytes": 685,
+          "body_hash": "17559687029358477777",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 16,
+          "code_bytes": 993,
+          "body_hash": "17703412796408003016",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+          "bytes": 5194,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/clbg_mandelbrot-direct-O2.txt",
+          "disassembly_sha256": "8f3c7a851221d2d8b6e3b40639d4fa0b5505e796b92e813ac280614ee4a64035",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-gcc-O3-generic",
+          "family": "native",
+          "artifact_sha256": "8eb73ec404e19b2245328ae9022b1b551aac5174c8ff4fcd723176cc5e35b812",
+          "bytes": 23096,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/clbg_mandelbrot-native-gcc-O3-generic.txt",
+          "disassembly_sha256": "493431d2a2cfb2a280b451081ee111e2994cf9845717a434c6edac03e67df5a1"
+        }
+      ]
+    },
+    {
+      "task": "Example::Life",
+      "direct_region_count": 3,
+      "direct_module_bytes": 16955,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [
+        "read_uleb_array",
+        "patch_uleb_array_length"
+      ],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 12750,
+          "body_hash": "1004416096234128921",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            15,
+            17,
+            19,
+            20
+          ]
+        },
+        {
+          "name": "neighbours#8",
+          "index": 14,
+          "code_bytes": 409,
+          "body_hash": "660542781589993769",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "neighbours_const_0#8",
+          "index": 15,
+          "code_bytes": 218,
+          "body_hash": "4955756085651060588",
+          "dependencies": []
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 16,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 17,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 18,
+          "code_bytes": 895,
+          "body_hash": "12598065106449168037",
+          "dependencies": [
+            7,
+            13
+          ]
+        },
+        {
+          "name": "read_uleb_array",
+          "index": 19,
+          "code_bytes": 243,
+          "body_hash": "6035430449770093815",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "index": 20,
+          "code_bytes": 359,
+          "body_hash": "11075599107673320252",
+          "dependencies": [
+            7
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "c-wasm-O2-simd128",
+          "family": "c-wasm",
+          "artifact_sha256": "c67e6f318a433285a7b0ff43b4236e84f46df961089ea177e8e95f1cdf6f0085",
+          "bytes": 50899,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_life-c-wasm-O2-simd128.txt",
+          "disassembly_sha256": "9dbcf05614062197d9d1853891b1ef06f71d6b27bac464030ffac1c9925caf6c",
+          "memory_address_bits": [
+            64
+          ],
+          "simd_instruction_sites": 10
+        },
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "0263d21eea9787c209bbcee138de64d2da19d62b58364ba3747e14b71df5e9a7",
+          "bytes": 16955,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_life-direct-O2.txt",
+          "disassembly_sha256": "efd90ff3dda795b5508341e1f95dba147cf16f472778d7157eebabde07858089",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-clang-O3-native",
+          "family": "native",
+          "artifact_sha256": "8b8cc420a8d5bf1529852a14d6f00bb93a5106e536b847129c0bb40d888df868",
+          "bytes": 27136,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_life-native-clang-O3-native.txt",
+          "disassembly_sha256": "9d48ef5fba6988ce8e35b64097bedd96ad9520e07d66310eca8f2f03288747f9"
+        }
+      ]
+    },
+    {
+      "task": "Example::Sorting",
+      "direct_region_count": 2,
+      "direct_module_bytes": 12217,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [
+        "read_uleb_array",
+        "patch_uleb_array_length"
+      ],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 7315,
+          "body_hash": "10553187730401876290",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14,
+            16,
+            18,
+            19
+          ]
+        },
+        {
+          "name": "measured_run#5",
+          "index": 14,
+          "code_bytes": 1349,
+          "body_hash": "12956701023839149613",
+          "dependencies": [
+            7,
+            10
+          ]
+        },
+        {
+          "name": "resolve_prefix",
+          "index": 15,
+          "code_bytes": 4,
+          "body_hash": "7085529457549504980",
+          "dependencies": []
+        },
+        {
+          "name": "publish_header",
+          "index": 16,
+          "code_bytes": 142,
+          "body_hash": "5989252060242843659",
+          "dependencies": []
+        },
+        {
+          "name": "_start",
+          "index": 17,
+          "code_bytes": 895,
+          "body_hash": "5651031191640203208",
+          "dependencies": [
+            7,
+            13
+          ]
+        },
+        {
+          "name": "read_uleb_array",
+          "index": 18,
+          "code_bytes": 243,
+          "body_hash": "7408738161448139431",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "patch_uleb_array_length",
+          "index": 19,
+          "code_bytes": 359,
+          "body_hash": "11075599107673320252",
+          "dependencies": [
+            7
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "9533b9251d4f0c621bf80ef95192ec7cd09532b250461e353cd369d1d418a06a",
+          "bytes": 12217,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_sorting-direct-O2.txt",
+          "disassembly_sha256": "2aea3e85899e12f79b47110d6b30a4d3220bdf478a54723a52f42155e16d891c",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-gcc-O3-native",
+          "family": "native",
+          "artifact_sha256": "a9fb944640fcfde1f62c97504dec8b2bc467cc2c7e5082b9c50d05ff4cf64be7",
+          "bytes": 26888,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_sorting-native-gcc-O3-native.txt",
+          "disassembly_sha256": "5b5a253a715ed418c327fb0991befcad16424e86dcbc4fcba589c94b9253cfff"
+        }
+      ]
+    },
+    {
+      "task": "Example::Sudoku",
+      "direct_region_count": 0,
+      "direct_module_bytes": 6531,
+      "closed_raw_array_proof": "excluded by reachable nonintrinsic benchmark externs; this does not imply every access has mode dispatch",
+      "uleb_helpers": [],
+      "function_info": [
+        {
+          "name": "main#0",
+          "index": 13,
+          "code_bytes": 409,
+          "body_hash": "17070998924472089355",
+          "dependencies": [
+            1,
+            2,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14
+          ]
+        },
+        {
+          "name": "measured_run#2",
+          "index": 14,
+          "code_bytes": 1728,
+          "body_hash": "27905827996985668",
+          "dependencies": [
+            7,
+            10,
+            15
+          ]
+        },
+        {
+          "name": "solve#8",
+          "index": 15,
+          "code_bytes": 464,
+          "body_hash": "11375020378092681915",
+          "dependencies": [
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        },
+        {
+          "name": "count_bits#10",
+          "index": 16,
+          "code_bytes": 62,
+          "body_hash": "12037747340714337730",
+          "dependencies": []
+        },
+        {
+          "name": "candidates#9",
+          "index": 17,
+          "code_bytes": 374,
+          "body_hash": "15607386539406295636",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "bit#6",
+          "index": 18,
+          "code_bytes": 46,
+          "body_hash": "16534708724804724667",
+          "dependencies": []
+        },
+        {
+          "name": "place#5",
+          "index": 19,
+          "code_bytes": 592,
+          "body_hash": "4547424223020242569",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "unplace#11",
+          "index": 20,
+          "code_bytes": 646,
+          "body_hash": "5583153691321267672",
+          "dependencies": [
+            7
+          ]
+        },
+        {
+          "name": "_start",
+          "index": 21,
+          "code_bytes": 735,
+          "body_hash": "3155998913712456128",
+          "dependencies": [
+            7,
+            13
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "variant": "direct-O2",
+          "family": "direct",
+          "artifact_sha256": "d81954fe09af44d80ed72c7979ce3e871d79571513ccd3f48e0eb9c30ec87736",
+          "bytes": 6531,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_sudoku-direct-O2.txt",
+          "disassembly_sha256": "7ec80e6bd1986098e8be1a325c610c68e4939be0987a848ac407bfee7fd0d171",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "direct-wasm-opt-O3",
+          "family": "wasm-opt",
+          "artifact_sha256": "0ee3651bf0811e0f143529f648cf80f5a1550ce784dcb53f3fd5b20cc9065ad4",
+          "bytes": 3471,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_sudoku-direct-wasm-opt-O3.txt",
+          "disassembly_sha256": "6df408f4d7a382218708b0ef369a1e669a5eee5cf6a3c0fbc40b6feee3a24cfc",
+          "memory_address_bits": [
+            32
+          ],
+          "simd_instruction_sites": 0
+        },
+        {
+          "variant": "native-gcc-O3-native",
+          "family": "native",
+          "artifact_sha256": "8046ac57f550ad9882197df0b88226aeaf7862448a2ea80605f0a7efe06b2b78",
+          "bytes": 23088,
+          "disassembly": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/disassembly/example_sudoku-native-gcc-O3-native.txt",
+          "disassembly_sha256": "c2b49ce12c216df5a69357ed2bce9feb66d6ca620fc2c89b2737ab0252d33680"
+        }
+      ]
+    }
+  ]
+}

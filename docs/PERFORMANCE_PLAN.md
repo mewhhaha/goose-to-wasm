@@ -1,5 +1,7 @@
 # More levers
 
+The [runtime targets](RUNTIME_TARGETS.md) rank the next measured work: custom hash and Life have the largest gaps to selected Wasm, followed by Quicksort and Sudoku. Insertion sort selects direct Wasm itself but remains far from tuned native. These workload-specific references use frozen confirmation selections.
+
 There is substantial headroom in code generation, compilation work and language
 coverage. The current evidence covers seven adapted LangArena workloads and ten
 example programs on one machine; it does not establish a Goose or WebAssembly
