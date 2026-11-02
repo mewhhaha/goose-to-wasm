@@ -933,6 +933,7 @@ def main():
     parser.add_argument("--levels", nargs="+", type=int, choices=(0, 1, 2), default=[0, 2])
     parser.add_argument("--scalar-only", action="store_true")
     parser.add_argument("--filter", default="")
+    parser.add_argument("--skip-refusals", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "build" / "differential")
     args = parser.parse_args()
     args.goose = args.goose.resolve()
@@ -1008,7 +1009,7 @@ def main():
                     if row["status"] == "fail":
                         print(row["error"], flush=True)
     # The direct fragment must explicitly refuse these valid Goose programs.
-    if "direct" in args.backends and not args.filter:
+    if "direct" in args.backends and not args.filter and not args.skip_refusals:
         for fixture in ("unsupported_varint_array", "unsupported_pointer_extern", "invalid_source"):
             directory = output / "refusals" / fixture
             directory.mkdir(parents=True, exist_ok=True)
@@ -1030,6 +1031,8 @@ def main():
     report = {"schema": "goose-direct-differential-v1", "platform": platform.platform(),
               "python": sys.version, "toolchain": json.loads((ROOT / "toolchain.json").read_text()),
               "compiler_sha256": hashlib.sha256(args.goose.read_bytes()).hexdigest(),
+              "configuration": {"backends": args.backends, "levels": args.levels,
+                                "filter": args.filter, "skip_refusals": args.skip_refusals},
               "cases": len(selected), "observations": len(rows), "failures": failures, "results": rows}
     report_path = output / "report.json"
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

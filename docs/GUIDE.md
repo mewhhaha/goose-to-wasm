@@ -158,6 +158,7 @@ python tests/test_fill_loops.py
 python tests/test_strip_loops.py
 python tests/test_regions.py
 python tests/test_prefix_resolution.py
+python tests/test_uleb_accessor_helpers.py
 python tests/test_dynamic_boundaries.py
 python tests/test_incremental.py
 python tests/test_input_dependencies.py
@@ -182,6 +183,14 @@ Wasm backends execute on both engines. Tests cover optimization levels O0/O2,
 numeric edge cases, narrow integer wrapping, checked arithmetic/casts, floating
 formatting, control flow, recursion, references, aggregate operations, and target
 refusals. A refused program is not counted as a successful execution.
+
+For a faster local run of the same differential matrix, shard by backend and
+optimization level. The merger checks exact coverage and all native stdout
+comparisons before writing a passing report:
+
+```sh
+python bench/qualify_compiler.py --jobs 6 --output-dir build/differential-sharded
+```
 
 The retained oracle corpus also checks the fixed data-stack runtime, capacity
 boundaries, serialization, relative references, builders, and other Goose features

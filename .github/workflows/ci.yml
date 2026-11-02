@@ -116,6 +116,7 @@ jobs:
           python tests/test_varint_grow.py
           python tests/test_varint_grow_boundaries.py
           python tests/test_uleb_lengths.py
+          python tests/test_uleb_accessor_helpers.py
           python tests/test_combined_varints.py
           python tests/test_combined_varint_boundaries.py
           python tests/test_encoded_record_tails.py

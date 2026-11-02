@@ -38,6 +38,10 @@ Run both engines and unaffected controls. A kept compiler change must pass the
 full differential and boundary gates, refresh the README cohort and retain its
 experiments, including rejected ones.
 
+## Native-host comparison
+
+The fresh Node and Python runners have measurable launch costs in the [startup controls](../bench/results/2026-11-02/native-gap/README.md). A native-host launcher and optional cached or AOT engine artifacts are separate proposed measurement lanes. Include artifact preparation in compilation cost, retain the ordinary fresh-process lane, and validate the same ABI, output, traps and memory behavior. These controls are independent observations, not a hard performance bound.
+
 ## Language and host coverage
 
 The [upstream sample survey](../bench/results/2026-11-01/examples/upstream-survey.json)

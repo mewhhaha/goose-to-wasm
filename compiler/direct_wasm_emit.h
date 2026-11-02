@@ -153,6 +153,7 @@ inline DirectWasmResult Compiler::Compile() {
     if (region_cursors) {
         prefix_helper = startindex++; header_helper = startindex++;
     }
+    uleb_read_helper = startindex + 1; uleb_patch_helper = startindex + 2;
     auto startsig = Sig({ {}, {} });
     DirectWasmResult result;
     vector<string> bodies;
@@ -187,6 +188,20 @@ inline DirectWasmResult Compiler::Compile() {
     result.function_info.push_back({ "_start", start.index, startbody.size(), BodyHash(startbody),
                                     vector<uint32_t>(start.dependencies.begin(), start.dependencies.end()) });
     result.code_bytes += startbody.size(); bodies.push_back(std::move(startbody)); ftypes.push_back(startsig);
+    if (needs_uleb_helpers) for (bool patch : { false, true }) {
+        auto index = uleb_read_helper;
+        Signature signature { { I32 }, { I32, I32 } };
+        string name = "read_uleb_array";
+        if (patch) {
+            index = uleb_patch_helper; signature = { { I32, I32 }, {} }; name = "patch_uleb_array_length";
+        }
+        auto type = Sig(std::move(signature));
+        Function helper(*this, nullptr, index, type, false, true);
+        auto body = helper.ULEBArrayHelper(patch);
+        result.function_info.push_back({ name, index, body.size(), BodyHash(body),
+                                        vector<uint32_t>(helper.dependencies.begin(), helper.dependencies.end()) });
+        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(type);
+    }
     result.functions = bodies.size();
     result.region_count = needs_regions ? BoundRegions() : 0;
     if (region_cursors) {

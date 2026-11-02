@@ -288,8 +288,12 @@ struct Function {
     void PackArrayView(TypeExpr *);
     void ReadStaticArrayLength(TypeExpr *);
     void WriteStaticArrayLength(TypeExpr *);
+    void DispatchArrayMode(uint32_t, const function<void(ArrayStorageMode)> &);
     void ReadArrayLength(uint32_t);
     void ReadArrayBase(uint32_t);
+    pair<uint32_t, uint32_t> ReadULEBArrayAccessor(uint32_t);
+    void PatchULEBArrayAccessor(uint32_t, uint32_t);
+    string ULEBArrayHelper(bool);
     void ValidateArrayImage(uint32_t, uint32_t, TypeExpr *, Line);
     void ReadArrayCapacity(uint32_t);
     void WriteArrayLength(uint32_t, uint32_t);
@@ -447,6 +451,8 @@ struct Compiler {
     bool region_cursors = false;
     uint32_t cursor_global = 0, cursor_table = 0;
     uint32_t prefix_helper = 0, header_helper = 0;
+    uint32_t uleb_read_helper = 0, uleb_patch_helper = 0;
+    bool needs_uleb_helpers = false, inline_uleb_images = false;
     bool may_have_prefix_mappings = true;
     bool has_prefix_mappings = false;
     bool Effects() const { return !effect_targets.empty() || region_cursors; }
@@ -715,6 +721,7 @@ struct Compiler {
     }
     Layout HeaderLayout(TypeExpr *t) {
         if (!RegionArray(t)) return FixedLayout(t);
+        if (ULEBLength(t)) inline_uleb_images = true;
         if (Varint(t->arr->sub)) {
             if (t->arr->akind != A_VAR && t->arr->akind != A_GROW)
                 Fail(t->line, "varint elements support immutable variable or growable arrays only");
@@ -1023,11 +1030,18 @@ struct Compiler {
         if (!n) return;
         if (auto literal = Is<ArrayLit>(n); literal && literal->capexpr) needs_regions = true;
         auto type = n->exprtype;
+        // Types guide code placement only; control headers still select the
+        // physical image at runtime, including on specialized element runs.
+        if (ULEBLength(type) || (type && type->kind == TY_REF && ULEBLength(type->ref->sub)))
+            inline_uleb_images = true;
         if (RegionOwner(type) || (type && type->kind == TY_REF && RegionOwner(type->ref->sub))) needs_regions = true;
         if (auto inlined = Is<InlineBlock>(n); inlined && inlined->spec)
             for (auto result : inlined->spec->rets) if (RegionOwner(result)) needs_regions = true;
         if (auto declaration = Is<VarDecl>(n))
-            for (auto variable : declaration->defs) if (RegionOwner(variable->type)) needs_regions = true;
+            for (auto variable : declaration->defs) {
+                if (RegionOwner(variable->type)) needs_regions = true;
+                if (ULEBLength(variable->type)) inline_uleb_images = true;
+            }
         if (Is<FnDecl>(n) || Is<StructDecl>(n) || Is<EnumDecl>(n) || Is<AliasDecl>(n) || Is<FunVal>(n)) return;
         if (auto call = Is<Call>(n)) {
             if (call->fvbody) {

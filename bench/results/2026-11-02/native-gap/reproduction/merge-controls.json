@@ -1,0 +1,26 @@
+{
+  "smoke_report": "/home/jacobt/src/goose-to-wasm/build/native-gap/qualification-smoke/report.json",
+  "compiler_sha256": "a2f9ba43d28f7bd5f6ea506b1cb77221af35392bc17a218d5f3ff2a831a8aaf4",
+  "observations": 10,
+  "cases": 1,
+  "failures": 0,
+  "native_stdout_comparisons": 8,
+  "negative_controls": {
+    "missing_shard": {
+      "rejected": true,
+      "reason": ""
+    },
+    "duplicate_runtime_row": {
+      "rejected": true,
+      "reason": "('duplicate', ('checked-leaves/scalars', 0, False, 'native', 'native'))"
+    },
+    "wrong_stdout": {
+      "rejected": true,
+      "reason": "('native stdout mismatch', ('checked-leaves/scalars', 0, False, 'direct', 'v8'))"
+    },
+    "wrong_configuration": {
+      "rejected": true,
+      "reason": "(('direct', 2), {'backends': ['direct'], 'levels': [2], 'filter': 'checked-leaves/scalars', 'skip_refusals': False}, {'backends': ['direct'], 'levels': [2], 'filter': 'checked-leaves/scalars', 'skip_refusals': True})"
+    }
+  }
+}

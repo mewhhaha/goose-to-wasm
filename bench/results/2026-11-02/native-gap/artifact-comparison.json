@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "comparison": [
+    {
+      "task": "CLBG::Fannkuchredux",
+      "old_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "candidate_sha256": "871804a870ba44a615e0edf39cafeb0c5305b44747c486dd91f232d0a3c6101e",
+      "identical": true
+    },
+    {
+      "task": "CLBG::Mandelbrot",
+      "old_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "candidate_sha256": "6cbec39d70694e4ed2eb93fd11fabd34dda4422696f7a5a7bd88f4c8073a13c9",
+      "identical": true
+    },
+    {
+      "task": "Etc::Sieve",
+      "old_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "candidate_sha256": "051ad5ab1994b513420490277dfc481bc42e1c595110ce0bd4b7a51c99ef6cd4",
+      "identical": true
+    },
+    {
+      "task": "Hash::CRC32",
+      "old_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+      "candidate_sha256": "a67d700803cc140b20c4b70218d631cd681ed1f4c63cd76afa7cd2e4c02b9c8d",
+      "identical": true
+    },
+    {
+      "task": "Hash::SHA256",
+      "old_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+      "candidate_sha256": "51e7f31d2aa8e40ab864cf4c100227219221fa761657bf1ecce368c0811fb75e",
+      "identical": true
+    },
+    {
+      "task": "Sort::Merge",
+      "old_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+      "candidate_sha256": "2ab4e4b169f79055a8a9dee6a7bbb22b3543df7a23e73e5e98de2724c778f633",
+      "identical": true
+    },
+    {
+      "task": "Sort::Quick",
+      "old_sha256": "0e2e9eb39fa6262e32e327378918928bbb12a88a0cc06401d5c5a863170c7056",
+      "candidate_sha256": "0e2e9eb39fa6262e32e327378918928bbb12a88a0cc06401d5c5a863170c7056",
+      "identical": true
+    }
+  ]
+}

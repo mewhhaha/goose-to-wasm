@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "verified_labels": 193,
+  "charts": [
+    {
+      "chart": "bench/charts/compilation.svg",
+      "labels": 21,
+      "sha256": "1ecda02cb67e8da0b3c609fec62f26ec24d110953a2cc2340f1225d8bc7b7393"
+    },
+    {
+      "chart": "bench/charts/runtime.svg",
+      "labels": 42,
+      "sha256": "84643f29b171714c66ad85bb1bf4de870b5b1d2216e5c826fca737dc99ff7a30"
+    },
+    {
+      "chart": "bench/charts/examples-compilation.svg",
+      "labels": 30,
+      "sha256": "1f55afb2a4496f9f7502958e788b33f3c2b8f1f58e8d80728878e723b69bc277"
+    },
+    {
+      "chart": "bench/charts/examples-runtime.svg",
+      "labels": 60,
+      "sha256": "b6bac301a5712f8fbbc4a6fddf0803e1c38b2d1b1b3c8c176b6ad50527a0896c"
+    },
+    {
+      "chart": "bench/charts/examples-entry.svg",
+      "labels": 40,
+      "sha256": "db8d604d38c35e1e2bca1ceff2323176a1fc1b78767343b5532a4c41d0fa7d97"
+    }
+  ],
+  "visual_inspection": {
+    "status": "passed",
+    "charts": 5,
+    "preview_width": 1400,
+    "entry_individual_width": 1501,
+    "checks": [
+      "Legends, engine panels, labels and footnotes visible",
+      "No clipped labels or overlapping text"
+    ]
+  },
+  "checker_sha256": "bdacfdef1213e17c3deea86df3e1554c202ffea845bcef5de629138997d6c273"
+}

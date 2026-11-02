@@ -1,0 +1,236 @@
+diff --git a/compiler/direct_wasm.h b/compiler/direct_wasm.h
+index f3898a8..58f0533 100644
+--- a/compiler/direct_wasm.h
++++ b/compiler/direct_wasm.h
+@@ -288,8 +288,12 @@ struct Function {
+     void PackArrayView(TypeExpr *);
+     void ReadStaticArrayLength(TypeExpr *);
+     void WriteStaticArrayLength(TypeExpr *);
++    void DispatchArrayMode(uint32_t, const function<void(ArrayStorageMode)> &);
+     void ReadArrayLength(uint32_t);
+     void ReadArrayBase(uint32_t);
++    pair<uint32_t, uint32_t> ReadULEBArrayAccessor(uint32_t);
++    void PatchULEBArrayAccessor(uint32_t, uint32_t);
++    string ULEBArrayHelper(bool);
+     void ValidateArrayImage(uint32_t, uint32_t, TypeExpr *, Line);
+     void ReadArrayCapacity(uint32_t);
+     void WriteArrayLength(uint32_t, uint32_t);
+@@ -447,6 +451,8 @@ struct Compiler {
+     bool region_cursors = false;
+     uint32_t cursor_global = 0, cursor_table = 0;
+     uint32_t prefix_helper = 0, header_helper = 0;
++    uint32_t uleb_read_helper = 0, uleb_patch_helper = 0;
++    bool needs_uleb_helpers = false, inline_uleb_images = false;
+     bool may_have_prefix_mappings = true;
+     bool has_prefix_mappings = false;
+     bool Effects() const { return !effect_targets.empty() || region_cursors; }
+@@ -715,6 +721,7 @@ struct Compiler {
+     }
+     Layout HeaderLayout(TypeExpr *t) {
+         if (!RegionArray(t)) return FixedLayout(t);
++        if (ULEBLength(t)) inline_uleb_images = true;
+         if (Varint(t->arr->sub)) {
+             if (t->arr->akind != A_VAR && t->arr->akind != A_GROW)
+                 Fail(t->line, "varint elements support immutable variable or growable arrays only");
+@@ -1023,11 +1030,18 @@ struct Compiler {
+         if (!n) return;
+         if (auto literal = Is<ArrayLit>(n); literal && literal->capexpr) needs_regions = true;
+         auto type = n->exprtype;
++        // Types guide code placement only; control headers still select the
++        // physical image at runtime, including on specialized element runs.
++        if (ULEBLength(type) || (type && type->kind == TY_REF && ULEBLength(type->ref->sub)))
++            inline_uleb_images = true;
+         if (RegionOwner(type) || (type && type->kind == TY_REF && RegionOwner(type->ref->sub))) needs_regions = true;
+         if (auto inlined = Is<InlineBlock>(n); inlined && inlined->spec)
+             for (auto result : inlined->spec->rets) if (RegionOwner(result)) needs_regions = true;
+         if (auto declaration = Is<VarDecl>(n))
+-            for (auto variable : declaration->defs) if (RegionOwner(variable->type)) needs_regions = true;
++            for (auto variable : declaration->defs) {
++                if (RegionOwner(variable->type)) needs_regions = true;
++                if (ULEBLength(variable->type)) inline_uleb_images = true;
++            }
+         if (Is<FnDecl>(n) || Is<StructDecl>(n) || Is<EnumDecl>(n) || Is<AliasDecl>(n) || Is<FunVal>(n)) return;
+         if (auto call = Is<Call>(n)) {
+             if (call->fvbody) {
+diff --git a/compiler/direct_wasm_emit.h b/compiler/direct_wasm_emit.h
+index 1935366..3dd19bf 100644
+--- a/compiler/direct_wasm_emit.h
++++ b/compiler/direct_wasm_emit.h
+@@ -153,6 +153,7 @@ inline DirectWasmResult Compiler::Compile() {
+     if (region_cursors) {
+         prefix_helper = startindex++; header_helper = startindex++;
+     }
++    uleb_read_helper = startindex + 1; uleb_patch_helper = startindex + 2;
+     auto startsig = Sig({ {}, {} });
+     DirectWasmResult result;
+     vector<string> bodies;
+@@ -187,6 +188,20 @@ inline DirectWasmResult Compiler::Compile() {
+     result.function_info.push_back({ "_start", start.index, startbody.size(), BodyHash(startbody),
+                                     vector<uint32_t>(start.dependencies.begin(), start.dependencies.end()) });
+     result.code_bytes += startbody.size(); bodies.push_back(std::move(startbody)); ftypes.push_back(startsig);
++    if (needs_uleb_helpers) for (bool patch : { false, true }) {
++        auto index = uleb_read_helper;
++        Signature signature { { I32 }, { I32, I32 } };
++        string name = "read_uleb_array";
++        if (patch) {
++            index = uleb_patch_helper; signature = { { I32, I32 }, {} }; name = "patch_uleb_array_length";
++        }
++        auto type = Sig(std::move(signature));
++        Function helper(*this, nullptr, index, type, false, true);
++        auto body = helper.ULEBArrayHelper(patch);
++        result.function_info.push_back({ name, index, body.size(), BodyHash(body),
++                                        vector<uint32_t>(helper.dependencies.begin(), helper.dependencies.end()) });
++        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(type);
++    }
+     result.functions = bodies.size();
+     result.region_count = needs_regions ? BoundRegions() : 0;
+     if (region_cursors) {
+diff --git a/compiler/direct_wasm_images.h b/compiler/direct_wasm_images.h
+index c94ae71..b8a73fb 100644
+--- a/compiler/direct_wasm_images.h
++++ b/compiler/direct_wasm_images.h
+@@ -1,21 +1,34 @@
+ #pragma once
+ namespace goose::direct_wasm {
+ 
++inline void Function::DispatchArrayMode(uint32_t mode, const std::function<void(ArrayStorageMode)> &emit) {
++    auto done = Begin();
++    for (int i = 0; i < 6; i++) Begin();
++    Get(mode); code.Op(0x0e); code.U(7); code.U(6);
++    for (int i = 0; i < 6; i++) code.U(i);
++    code.U(6); // Raw and unknown modes keep the cached control value.
++    for (int i = 1; i <= 6; i++) {
++        End(); emit(static_cast<ArrayStorageMode>(i)); Br(done);
++    }
++    End();
++}
++
+ // Controls describe the physical form. An element-run specialization can have
+ // a Var natural type while receiving raw storage, so TypeExpr alone is not a
+ // sufficient recipe for reading its result.
+ inline void Function::ReadArrayBase(uint32_t header) {
+     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
+     auto result = Local(I32); Get(header); code.Mem(0x28, 2); Set(result);
+-    for (auto [kind, width] : vector<pair<ArrayStorageMode, uint32_t>> {
+-        { ArrayStorageMode::VarU8, 1 }, { ArrayStorageMode::VarU16, 2 },
+-        { ArrayStorageMode::VarU32, 4 }, { ArrayStorageMode::VarU64, 8 },
+-        { ArrayStorageMode::RuntimeLimited, 8 } }) {
+-        Get(mode); code.I32Const(int32_t(kind)); code.Op(0x46); Begin(0x04);
+-        Get(header); code.Mem(0x28, 2, 16); code.I32Const(int32_t(width)); code.Op(0x6a); Set(result); End();
+-    }
+-    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
+-    Get(ReadULEBArray(header, {}).second); Set(result); End();
++    DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
++        if (selected == ArrayStorageMode::VarULEB) { Get(ReadULEBArrayAccessor(header).second); Set(result); return; }
++        for (auto [kind, width] : initializer_list<pair<ArrayStorageMode, uint32_t>> {
++            { ArrayStorageMode::VarU8, 1 }, { ArrayStorageMode::VarU16, 2 },
++            { ArrayStorageMode::VarU32, 4 }, { ArrayStorageMode::VarU64, 8 },
++            { ArrayStorageMode::RuntimeLimited, 8 } }) {
++            if (selected != kind) continue;
++            Get(header); code.Mem(0x28, 2, 16); code.I32Const(int32_t(width)); code.Op(0x6a); Set(result);
++        }
++    });
+     Get(result);
+ }
+ 
+@@ -56,20 +69,21 @@ inline void Function::ReadArrayLength(uint32_t header) {
+     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
+     auto result = Local(I32);
+     Get(header); code.Mem(0x28, 2, 4); Set(result);
+-    for (auto [kind, opcode, offset] : vector<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
+-        { ArrayStorageMode::VarU8, 0x2d, 0 }, { ArrayStorageMode::VarU16, 0x2f, 0 },
+-        { ArrayStorageMode::VarU32, 0x28, 0 }, { ArrayStorageMode::VarU64, 0x29, 0 },
+-        { ArrayStorageMode::RuntimeLimited, 0x28, 4 } }) {
+-        Get(mode); code.I32Const(int32_t(kind)); code.Op(0x46); Begin(0x04);
+-        Get(header); code.Mem(0x28, 2, 16); code.Mem(opcode, 0, offset);
+-        if (kind == ArrayStorageMode::VarU64) {
+-            auto count = Save(I64); Get(count); code.I64Const(UINT32_MAX); code.Op(0x56);
+-            TrapIf({}, "array image length exceeds wasm32 range"); Get(count); code.Op(0xa7);
++    DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
++        if (selected == ArrayStorageMode::VarULEB) { Get(ReadULEBArrayAccessor(header).first); Set(result); return; }
++        for (auto [kind, opcode, offset] : initializer_list<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
++            { ArrayStorageMode::VarU8, 0x2d, 0 }, { ArrayStorageMode::VarU16, 0x2f, 0 },
++            { ArrayStorageMode::VarU32, 0x28, 0 }, { ArrayStorageMode::VarU64, 0x29, 0 },
++            { ArrayStorageMode::RuntimeLimited, 0x28, 4 } }) {
++            if (selected != kind) continue;
++            Get(header); code.Mem(0x28, 2, 16); code.Mem(opcode, 0, offset);
++            if (kind == ArrayStorageMode::VarU64) {
++                auto count = Save(I64); Get(count); code.I64Const(UINT32_MAX); code.Op(0x56);
++                TrapIf({}, "array image length exceeds wasm32 range"); Get(count); code.Op(0xa7);
++            }
++            Set(result);
+         }
+-        Set(result); End();
+-    }
+-    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
+-    Get(ReadULEBArray(header, {}).first); Set(result); End();
++    });
+     Get(result);
+ }
+ 
+@@ -83,17 +97,18 @@ inline void Function::ReadArrayCapacity(uint32_t header) {
+ inline void Function::WriteArrayLength(uint32_t header, uint32_t count) {
+     Get(header); Get(count); code.Mem(0x36, 2, 4);
+     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
+-    for (auto [kind, opcode, offset] : vector<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
+-        { ArrayStorageMode::VarU8, 0x3a, 0 }, { ArrayStorageMode::VarU16, 0x3b, 0 },
+-        { ArrayStorageMode::VarU32, 0x36, 0 }, { ArrayStorageMode::VarU64, 0x37, 0 },
+-        { ArrayStorageMode::RuntimeLimited, 0x36, 4 } }) {
+-        Get(mode); code.I32Const(int32_t(kind)); code.Op(0x46); Begin(0x04);
+-        Get(header); code.Mem(0x28, 2, 16); Get(count);
+-        if (kind == ArrayStorageMode::VarU64) code.Op(0xad);
+-        code.Mem(opcode, 0, offset); End();
+-    }
+-    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
+-    PatchULEBArrayLength(header, count, {}); End();
++    DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
++        if (selected == ArrayStorageMode::VarULEB) { PatchULEBArrayAccessor(header, count); return; }
++        for (auto [kind, opcode, offset] : initializer_list<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
++            { ArrayStorageMode::VarU8, 0x3a, 0 }, { ArrayStorageMode::VarU16, 0x3b, 0 },
++            { ArrayStorageMode::VarU32, 0x36, 0 }, { ArrayStorageMode::VarU64, 0x37, 0 },
++            { ArrayStorageMode::RuntimeLimited, 0x36, 4 } }) {
++            if (selected != kind) continue;
++            Get(header); code.Mem(0x28, 2, 16); Get(count);
++            if (kind == ArrayStorageMode::VarU64) code.Op(0xad);
++            code.Mem(opcode, 0, offset);
++        }
++    });
+     PublishHeader(header, 4);
+ }
+ 
+diff --git a/compiler/direct_wasm_uleb_arrays.h b/compiler/direct_wasm_uleb_arrays.h
+index 148f25b..c113cdf 100644
+--- a/compiler/direct_wasm_uleb_arrays.h
++++ b/compiler/direct_wasm_uleb_arrays.h
+@@ -1,6 +1,31 @@
+ #pragma once
+ namespace goose::direct_wasm {
+ 
++inline pair<uint32_t, uint32_t> Function::ReadULEBArrayAccessor(uint32_t header) {
++    if (c.inline_uleb_images) return ReadULEBArray(header, {});
++    c.needs_uleb_helpers = true;
++    Get(header); CallIndex(c.uleb_read_helper);
++    auto end = Save(I32), count = Save(I32);
++    return { count, end };
++}
++
++inline void Function::PatchULEBArrayAccessor(uint32_t header, uint32_t count) {
++    if (c.inline_uleb_images) { PatchULEBArrayLength(header, count, {}); return; }
++    c.needs_uleb_helpers = true;
++    Get(header); Get(count); CallIndex(c.uleb_patch_helper);
++}
++
++// Bare auxiliary functions retain the caller's owner/effect frame and the
++// original unknown source line used by these accessor branches.
++inline string Function::ULEBArrayHelper(bool patch) {
++    if (patch) PatchULEBArrayLength(0, 1, {});
++    else {
++        auto decoded = ReadULEBArray(0, {});
++        Get(decoded.first); Get(decoded.second);
++    }
++    code.Op(0x0b); return EncodeBody();
++}
++
+ inline uint32_t Function::ULEBWidth(uint32_t value) {
+     Get(value); auto remaining = Save(I64);
+     code.I32Const(1); auto width = Save(I32);

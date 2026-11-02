@@ -1,6 +1,31 @@
 #pragma once
 namespace goose::direct_wasm {
 
+inline pair<uint32_t, uint32_t> Function::ReadULEBArrayAccessor(uint32_t header) {
+    if (c.inline_uleb_images) return ReadULEBArray(header, {});
+    c.needs_uleb_helpers = true;
+    Get(header); CallIndex(c.uleb_read_helper);
+    auto end = Save(I32), count = Save(I32);
+    return { count, end };
+}
+
+inline void Function::PatchULEBArrayAccessor(uint32_t header, uint32_t count) {
+    if (c.inline_uleb_images) { PatchULEBArrayLength(header, count, {}); return; }
+    c.needs_uleb_helpers = true;
+    Get(header); Get(count); CallIndex(c.uleb_patch_helper);
+}
+
+// Bare auxiliary functions retain the caller's owner/effect frame and the
+// original unknown source line used by these accessor branches.
+inline string Function::ULEBArrayHelper(bool patch) {
+    if (patch) PatchULEBArrayLength(0, 1, {});
+    else {
+        auto decoded = ReadULEBArray(0, {});
+        Get(decoded.first); Get(decoded.second);
+    }
+    code.Op(0x0b); return EncodeBody();
+}
+
 inline uint32_t Function::ULEBWidth(uint32_t value) {
     Get(value); auto remaining = Save(I64);
     code.I32Const(1); auto width = Save(I32);

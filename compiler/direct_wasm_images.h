@@ -1,21 +1,34 @@
 #pragma once
 namespace goose::direct_wasm {
 
+inline void Function::DispatchArrayMode(uint32_t mode, const std::function<void(ArrayStorageMode)> &emit) {
+    auto done = Begin();
+    for (int i = 0; i < 6; i++) Begin();
+    Get(mode); code.Op(0x0e); code.U(7); code.U(6);
+    for (int i = 0; i < 6; i++) code.U(i);
+    code.U(6); // Raw and unknown modes keep the cached control value.
+    for (int i = 1; i <= 6; i++) {
+        End(); emit(static_cast<ArrayStorageMode>(i)); Br(done);
+    }
+    End();
+}
+
 // Controls describe the physical form. An element-run specialization can have
 // a Var natural type while receiving raw storage, so TypeExpr alone is not a
 // sufficient recipe for reading its result.
 inline void Function::ReadArrayBase(uint32_t header) {
     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
     auto result = Local(I32); Get(header); code.Mem(0x28, 2); Set(result);
-    for (auto [kind, width] : vector<pair<ArrayStorageMode, uint32_t>> {
-        { ArrayStorageMode::VarU8, 1 }, { ArrayStorageMode::VarU16, 2 },
-        { ArrayStorageMode::VarU32, 4 }, { ArrayStorageMode::VarU64, 8 },
-        { ArrayStorageMode::RuntimeLimited, 8 } }) {
-        Get(mode); code.I32Const(int32_t(kind)); code.Op(0x46); Begin(0x04);
-        Get(header); code.Mem(0x28, 2, 16); code.I32Const(int32_t(width)); code.Op(0x6a); Set(result); End();
-    }
-    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
-    Get(ReadULEBArray(header, {}).second); Set(result); End();
+    DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
+        if (selected == ArrayStorageMode::VarULEB) { Get(ReadULEBArrayAccessor(header).second); Set(result); return; }
+        for (auto [kind, width] : initializer_list<pair<ArrayStorageMode, uint32_t>> {
+            { ArrayStorageMode::VarU8, 1 }, { ArrayStorageMode::VarU16, 2 },
+            { ArrayStorageMode::VarU32, 4 }, { ArrayStorageMode::VarU64, 8 },
+            { ArrayStorageMode::RuntimeLimited, 8 } }) {
+            if (selected != kind) continue;
+            Get(header); code.Mem(0x28, 2, 16); code.I32Const(int32_t(width)); code.Op(0x6a); Set(result);
+        }
+    });
     Get(result);
 }
 
@@ -56,20 +69,21 @@ inline void Function::ReadArrayLength(uint32_t header) {
     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
     auto result = Local(I32);
     Get(header); code.Mem(0x28, 2, 4); Set(result);
-    for (auto [kind, opcode, offset] : vector<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
-        { ArrayStorageMode::VarU8, 0x2d, 0 }, { ArrayStorageMode::VarU16, 0x2f, 0 },
-        { ArrayStorageMode::VarU32, 0x28, 0 }, { ArrayStorageMode::VarU64, 0x29, 0 },
-        { ArrayStorageMode::RuntimeLimited, 0x28, 4 } }) {
-        Get(mode); code.I32Const(int32_t(kind)); code.Op(0x46); Begin(0x04);
-        Get(header); code.Mem(0x28, 2, 16); code.Mem(opcode, 0, offset);
-        if (kind == ArrayStorageMode::VarU64) {
-            auto count = Save(I64); Get(count); code.I64Const(UINT32_MAX); code.Op(0x56);
-            TrapIf({}, "array image length exceeds wasm32 range"); Get(count); code.Op(0xa7);
+    DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
+        if (selected == ArrayStorageMode::VarULEB) { Get(ReadULEBArrayAccessor(header).first); Set(result); return; }
+        for (auto [kind, opcode, offset] : initializer_list<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
+            { ArrayStorageMode::VarU8, 0x2d, 0 }, { ArrayStorageMode::VarU16, 0x2f, 0 },
+            { ArrayStorageMode::VarU32, 0x28, 0 }, { ArrayStorageMode::VarU64, 0x29, 0 },
+            { ArrayStorageMode::RuntimeLimited, 0x28, 4 } }) {
+            if (selected != kind) continue;
+            Get(header); code.Mem(0x28, 2, 16); code.Mem(opcode, 0, offset);
+            if (kind == ArrayStorageMode::VarU64) {
+                auto count = Save(I64); Get(count); code.I64Const(UINT32_MAX); code.Op(0x56);
+                TrapIf({}, "array image length exceeds wasm32 range"); Get(count); code.Op(0xa7);
+            }
+            Set(result);
         }
-        Set(result); End();
-    }
-    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
-    Get(ReadULEBArray(header, {}).first); Set(result); End();
+    });
     Get(result);
 }
 
@@ -83,17 +97,18 @@ inline void Function::ReadArrayCapacity(uint32_t header) {
 inline void Function::WriteArrayLength(uint32_t header, uint32_t count) {
     Get(header); Get(count); code.Mem(0x36, 2, 4);
     Get(header); code.Mem(0x28, 2, 20); auto mode = Save(I32);
-    for (auto [kind, opcode, offset] : vector<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
-        { ArrayStorageMode::VarU8, 0x3a, 0 }, { ArrayStorageMode::VarU16, 0x3b, 0 },
-        { ArrayStorageMode::VarU32, 0x36, 0 }, { ArrayStorageMode::VarU64, 0x37, 0 },
-        { ArrayStorageMode::RuntimeLimited, 0x36, 4 } }) {
-        Get(mode); code.I32Const(int32_t(kind)); code.Op(0x46); Begin(0x04);
-        Get(header); code.Mem(0x28, 2, 16); Get(count);
-        if (kind == ArrayStorageMode::VarU64) code.Op(0xad);
-        code.Mem(opcode, 0, offset); End();
-    }
-    Get(mode); code.I32Const(int32_t(ArrayStorageMode::VarULEB)); code.Op(0x46); Begin(0x04);
-    PatchULEBArrayLength(header, count, {}); End();
+    DispatchArrayMode(mode, [&](ArrayStorageMode selected) {
+        if (selected == ArrayStorageMode::VarULEB) { PatchULEBArrayAccessor(header, count); return; }
+        for (auto [kind, opcode, offset] : initializer_list<tuple<ArrayStorageMode, uint8_t, uint32_t>> {
+            { ArrayStorageMode::VarU8, 0x3a, 0 }, { ArrayStorageMode::VarU16, 0x3b, 0 },
+            { ArrayStorageMode::VarU32, 0x36, 0 }, { ArrayStorageMode::VarU64, 0x37, 0 },
+            { ArrayStorageMode::RuntimeLimited, 0x36, 4 } }) {
+            if (selected != kind) continue;
+            Get(header); code.Mem(0x28, 2, 16); Get(count);
+            if (kind == ArrayStorageMode::VarU64) code.Op(0xad);
+            code.Mem(opcode, 0, offset);
+        }
+    });
     PublishHeader(header, 4);
 }
 

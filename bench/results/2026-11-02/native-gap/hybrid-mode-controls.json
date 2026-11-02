@@ -1,0 +1,4231 @@
+{
+  "status": "passed",
+  "started_utc": "2026-11-02T01:59:17.892814+00:00",
+  "environment": {
+    "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+    "machine": "x86_64",
+    "cpu": "AMD Ryzen 7 3800X 8-Core Processor",
+    "supplied_machine_label": "AMD Ryzen 7 3800X, shared desktop host",
+    "logical_cpu_count": 16,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]",
+    "node": {
+      "command": [
+        "node",
+        "-p",
+        "JSON.stringify(process.versions)"
+      ],
+      "exit_code": 0,
+      "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"
+    },
+    "native_cc": {
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "emcc": {
+      "command": [
+        "emcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "wasmtime": "50.0.1",
+    "toolchain_pin": {
+      "schema": "goose-to-wasm-toolchain-v1",
+      "repository": "https://github.com/aardappel/goose.git",
+      "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+      "emscripten": "6.0.13",
+      "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+      "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "wasmtime_python": "50.0.1",
+      "patches": [
+        "oracle/patches/0001-webassembly-target.patch",
+        "patches/direct-target.patch"
+      ],
+      "minimum_cmake": "3.27",
+      "minimum_python": "3.10"
+    },
+    "wasmtime_config": {
+      "cranelift_opt_level": "speed",
+      "wasm_memory64": true,
+      "wasm_tail_call": true,
+      "wasm_exceptions": true,
+      "wasm_simd": true,
+      "wasm_bulk_memory": true,
+      "wasm_multi_value": true,
+      "wasm_threads": false,
+      "wasm_relaxed_simd": false
+    },
+    "v8_runner_flags": [],
+    "compiler_sha256": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60",
+    "input_sha256": {
+      "scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33",
+      "oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+      "scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+      "scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+      "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d",
+      "bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f"
+    }
+  },
+  "samples": 5,
+  "iterations": 1000000,
+  "expected": 127478617,
+  "method": "Fresh processes; ten prepared 32768-iteration guest kernel warmups before one timed million-iteration kernel. The kernel mutates payload bytes and repeatedly accesses the actual physical metadata. Preparation and printing are outside clocks. Every checksum is independently derived in Python. These are hot metadata controls, not example entry or process timings.",
+  "compiler_sha256": {
+    "baseline": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+    "candidate": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60"
+  },
+  "sources": {
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/measure_hybrid_modes.py": "4401775c70b1172f37a1d495612652107907f628d1372a94ffec4834e073c15b",
+    "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f",
+    "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "6676677973e2cb56fe0a0b7a4cb2c0fe9c1620d3445078e72e67e2256171ab33",
+    "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "219825be5b2706d386e135d1737c64a66a124585ea497a7b16b469539bee8864",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/source.json": "e697daaa30187541992d131716bf92cb19f5304374c4cc464b0e536f8de7a14d",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/toolchain.json": "133971adfc3749e60e27ee2ce472517cea5225beff8cea0e3bb494ecb15372b7",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/source.json": "ed0b70e1e4ed84b74c8281b78f317b8392ab98bfa8e1aff41d152360ee49735d",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/toolchain.json": "b33a815776ac6de5ce59c22fd58d36f2c5fef90d356ac89af06335c65cadc88f",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/raw.goose": "6fbd85116eb8161aefda25ed1e038787a197b3abb222f8cb04faadbf514a2ae7",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u8.goose": "da329ad070f5fe376e65b63bddbe110bd1e9f7335a59e0b7adb058a819d489d9",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u32.goose": "1bb74ed81983a8577c0c4d8dacbe048e1b096fd68ac585ab60ab126e75609b08",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u64.goose": "d07dfeb110eb61924d64f54779eb885d51440a3ca026babf68e832c70f4293bc",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/uleb.goose": "e44bedc2a2b254251c8c37c3156f43dadb436cdcbd123aa457d60977f47a3c1c",
+    "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/limited.goose": "361a7579139b6f9764f596a4df27cf870a07970d1da3c832094b062e56c354ea"
+  },
+  "builds": [
+    {
+      "name": "raw",
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/raw.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/stats.json"
+      ],
+      "wall_seconds": 0.060624321,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm",
+      "sha256": "c71639c400f4764fb4adbb0f024fd2f6fc030b712b38d10c858038d1fae9ba7c",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/raw.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "frontend_ms": 3.304926,
+        "cc_ms": 0.0,
+        "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+        "cache_stored": false,
+        "module_sha256": "c71639c400f4764fb4adbb0f024fd2f6fc030b712b38d10c858038d1fae9ba7c",
+        "output_bytes": 10261,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 8433,
+          "region_count": 1,
+          "region_bytes": 8387832,
+          "activation_bytes": 8387832,
+          "module_bytes": 10261,
+          "backend_ns": 312625,
+          "parse_ns": 428727,
+          "resolve_ns": 30387,
+          "typecheck_ns": 489333,
+          "optimize_ns": 57780,
+          "bce_ns": 139225,
+          "frontend_ns": 1145823,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 3690,
+              "body_hash": "18222648155044296479",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 3032,
+              "body_hash": "12823585816253714577",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1565,
+              "body_hash": "3158996695255044254",
+              "dependencies": [
+                7,
+                12,
+                15
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.539148
+      }
+    },
+    {
+      "name": "raw",
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/raw.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/stats.json"
+      ],
+      "wall_seconds": 0.059073597,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm",
+      "sha256": "18b5a86dcd19ab348b0200f9a965d288f95515e7ee1945b0211dda4d77c97cd8",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/raw.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "frontend_ms": 2.446821,
+        "cc_ms": 0.0,
+        "compiler_sha256": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60",
+        "cache_stored": false,
+        "module_sha256": "18b5a86dcd19ab348b0200f9a965d288f95515e7ee1945b0211dda4d77c97cd8",
+        "output_bytes": 7518,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 7,
+          "code_bytes": 5636,
+          "region_count": 1,
+          "region_bytes": 8387832,
+          "activation_bytes": 8387832,
+          "module_bytes": 7518,
+          "backend_ns": 161568,
+          "parse_ns": 233195,
+          "resolve_ns": 18254,
+          "typecheck_ns": 263793,
+          "optimize_ns": 31811,
+          "bce_ns": 77297,
+          "frontend_ns": 624580,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 2315,
+              "body_hash": "2799203332354323828",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13,
+                17
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 1700,
+              "body_hash": "8451664055607719454",
+              "dependencies": [
+                7,
+                17
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 873,
+              "body_hash": "15513916483817812791",
+              "dependencies": [
+                7,
+                12,
+                15,
+                18
+              ]
+            },
+            {
+              "name": "read_uleb_array",
+              "index": 17,
+              "code_bytes": 243,
+              "body_hash": "14779951859325801325",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "patch_uleb_array_length",
+              "index": 18,
+              "code_bytes": 359,
+              "body_hash": "17366735101394631048",
+              "dependencies": [
+                7
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 9.413383
+      }
+    },
+    {
+      "name": "u8",
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u8.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/stats.json"
+      ],
+      "wall_seconds": 0.08842409,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm",
+      "sha256": "96ab22bba7f556e9bfef6ba78b33d80591b5c73b38a8fcb96db4cacbfec30ce6",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u8.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "frontend_ms": 2.644147,
+        "cc_ms": 0.0,
+        "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+        "cache_stored": false,
+        "module_sha256": "96ab22bba7f556e9bfef6ba78b33d80591b5c73b38a8fcb96db4cacbfec30ce6",
+        "output_bytes": 10475,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 8613,
+          "region_count": 1,
+          "region_bytes": 8387816,
+          "activation_bytes": 8387816,
+          "module_bytes": 10475,
+          "backend_ns": 174623,
+          "parse_ns": 236691,
+          "resolve_ns": 17944,
+          "typecheck_ns": 296215,
+          "optimize_ns": 30017,
+          "bce_ns": 77147,
+          "frontend_ns": 658204,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 3690,
+              "body_hash": "18222648155044296479",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 3032,
+              "body_hash": "12823585816253714577",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1745,
+              "body_hash": "3715264028768439355",
+              "dependencies": [
+                7,
+                12,
+                15
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 9.785021
+      }
+    },
+    {
+      "name": "u8",
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u8.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/stats.json"
+      ],
+      "wall_seconds": 0.059989341,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm",
+      "sha256": "886528afde3311fd402d8b65e0cb3ddb1024a52df5696bba8dc3520e05f997f1",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u8.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "frontend_ms": 2.532044,
+        "cc_ms": 0.0,
+        "compiler_sha256": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60",
+        "cache_stored": false,
+        "module_sha256": "886528afde3311fd402d8b65e0cb3ddb1024a52df5696bba8dc3520e05f997f1",
+        "output_bytes": 7732,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 7,
+          "code_bytes": 5816,
+          "region_count": 1,
+          "region_bytes": 8387816,
+          "activation_bytes": 8387816,
+          "module_bytes": 7732,
+          "backend_ns": 163141,
+          "parse_ns": 229126,
+          "resolve_ns": 20920,
+          "typecheck_ns": 275305,
+          "optimize_ns": 29085,
+          "bce_ns": 76516,
+          "frontend_ns": 631152,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 2315,
+              "body_hash": "2799203332354323828",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13,
+                17
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 1700,
+              "body_hash": "8451664055607719454",
+              "dependencies": [
+                7,
+                17
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1053,
+              "body_hash": "2877597430837846039",
+              "dependencies": [
+                7,
+                12,
+                15,
+                18
+              ]
+            },
+            {
+              "name": "read_uleb_array",
+              "index": 17,
+              "code_bytes": 243,
+              "body_hash": "993350862951476269",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "patch_uleb_array_length",
+              "index": 18,
+              "code_bytes": 359,
+              "body_hash": "8300401592304429187",
+              "dependencies": [
+                7
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 9.591832
+      }
+    },
+    {
+      "name": "u32",
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u32.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/stats.json"
+      ],
+      "wall_seconds": 0.062701989,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm",
+      "sha256": "68a2d4c13a57f95e328dd61d3c0dfcedccb49c6a53f5bce663898024d4de47d5",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u32.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "frontend_ms": 3.243318,
+        "cc_ms": 0.0,
+        "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+        "cache_stored": false,
+        "module_sha256": "68a2d4c13a57f95e328dd61d3c0dfcedccb49c6a53f5bce663898024d4de47d5",
+        "output_bytes": 10478,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 8616,
+          "region_count": 1,
+          "region_bytes": 8387816,
+          "activation_bytes": 8387816,
+          "module_bytes": 10478,
+          "backend_ns": 177518,
+          "parse_ns": 241069,
+          "resolve_ns": 17764,
+          "typecheck_ns": 291816,
+          "optimize_ns": 29887,
+          "bce_ns": 76185,
+          "frontend_ns": 656952,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 3690,
+              "body_hash": "18222648155044296479",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 3032,
+              "body_hash": "12823585816253714577",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1748,
+              "body_hash": "15418539262216297357",
+              "dependencies": [
+                7,
+                12,
+                15
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.406044
+      }
+    },
+    {
+      "name": "u32",
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u32.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/stats.json"
+      ],
+      "wall_seconds": 0.06116493,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm",
+      "sha256": "1a56074420c30ad16608b8443db685b31977fc78ed6c29064a7e9708d84f7ef1",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u32.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "frontend_ms": 3.318371,
+        "cc_ms": 0.0,
+        "compiler_sha256": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60",
+        "cache_stored": false,
+        "module_sha256": "1a56074420c30ad16608b8443db685b31977fc78ed6c29064a7e9708d84f7ef1",
+        "output_bytes": 7735,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 7,
+          "code_bytes": 5819,
+          "region_count": 1,
+          "region_bytes": 8387816,
+          "activation_bytes": 8387816,
+          "module_bytes": 7735,
+          "backend_ns": 297847,
+          "parse_ns": 434528,
+          "resolve_ns": 35578,
+          "typecheck_ns": 484603,
+          "optimize_ns": 55956,
+          "bce_ns": 137382,
+          "frontend_ns": 1148388,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 2315,
+              "body_hash": "2799203332354323828",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13,
+                17
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 1700,
+              "body_hash": "8451664055607719454",
+              "dependencies": [
+                7,
+                17
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1056,
+              "body_hash": "3662699087070615331",
+              "dependencies": [
+                7,
+                12,
+                15,
+                18
+              ]
+            },
+            {
+              "name": "read_uleb_array",
+              "index": 17,
+              "code_bytes": 243,
+              "body_hash": "993350862951476269",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "patch_uleb_array_length",
+              "index": 18,
+              "code_bytes": 359,
+              "body_hash": "8300401592304429187",
+              "dependencies": [
+                7
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.646743
+      }
+    },
+    {
+      "name": "u64",
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u64.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/stats.json"
+      ],
+      "wall_seconds": 0.061102532,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm",
+      "sha256": "0f0329c5f72099279a705625415410e382e16f94a20ea6f07347e75cb5eac411",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u64.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "frontend_ms": 3.630856,
+        "cc_ms": 0.0,
+        "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+        "cache_stored": false,
+        "module_sha256": "0f0329c5f72099279a705625415410e382e16f94a20ea6f07347e75cb5eac411",
+        "output_bytes": 10422,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 8594,
+          "region_count": 1,
+          "region_bytes": 8387832,
+          "activation_bytes": 8387832,
+          "module_bytes": 10422,
+          "backend_ns": 305793,
+          "parse_ns": 435740,
+          "resolve_ns": 24817,
+          "typecheck_ns": 486076,
+          "optimize_ns": 48112,
+          "bce_ns": 142171,
+          "frontend_ns": 1142486,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 3690,
+              "body_hash": "18222648155044296479",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 3032,
+              "body_hash": "12823585816253714577",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1726,
+              "body_hash": "4477294522112231695",
+              "dependencies": [
+                7,
+                12,
+                15
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.744279
+      }
+    },
+    {
+      "name": "u64",
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u64.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/stats.json"
+      ],
+      "wall_seconds": 0.06014078,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm",
+      "sha256": "6c347be1863580059c1bd04751c8f5d42ffee0a624fbf037b33c4db3198d37dd",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/u64.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "frontend_ms": 2.975008,
+        "cc_ms": 0.0,
+        "compiler_sha256": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60",
+        "cache_stored": false,
+        "module_sha256": "6c347be1863580059c1bd04751c8f5d42ffee0a624fbf037b33c4db3198d37dd",
+        "output_bytes": 7679,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 7,
+          "code_bytes": 5797,
+          "region_count": 1,
+          "region_bytes": 8387832,
+          "activation_bytes": 8387832,
+          "module_bytes": 7679,
+          "backend_ns": 161057,
+          "parse_ns": 230379,
+          "resolve_ns": 18586,
+          "typecheck_ns": 273120,
+          "optimize_ns": 26370,
+          "bce_ns": 75725,
+          "frontend_ns": 624410,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 2315,
+              "body_hash": "2799203332354323828",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13,
+                17
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 1700,
+              "body_hash": "8451664055607719454",
+              "dependencies": [
+                7,
+                17
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1034,
+              "body_hash": "4250380170056926022",
+              "dependencies": [
+                7,
+                12,
+                15,
+                18
+              ]
+            },
+            {
+              "name": "read_uleb_array",
+              "index": 17,
+              "code_bytes": 243,
+              "body_hash": "14779951859325801325",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "patch_uleb_array_length",
+              "index": 18,
+              "code_bytes": 359,
+              "body_hash": "17366735101394631048",
+              "dependencies": [
+                7
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.172529
+      }
+    },
+    {
+      "name": "uleb",
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/uleb.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/stats.json"
+      ],
+      "wall_seconds": 0.060855491,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm",
+      "sha256": "2973de2f37e6fbabdd048e9f180fa92c232a5f5731506eb36524db09393444a2",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/uleb.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "frontend_ms": 3.413683,
+        "cc_ms": 0.0,
+        "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+        "cache_stored": false,
+        "module_sha256": "2973de2f37e6fbabdd048e9f180fa92c232a5f5731506eb36524db09393444a2",
+        "output_bytes": 10619,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 8791,
+          "region_count": 1,
+          "region_bytes": 8387832,
+          "activation_bytes": 8387832,
+          "module_bytes": 10619,
+          "backend_ns": 173471,
+          "parse_ns": 234326,
+          "resolve_ns": 17774,
+          "typecheck_ns": 280815,
+          "optimize_ns": 30297,
+          "bce_ns": 81015,
+          "frontend_ns": 644477,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 3690,
+              "body_hash": "18222648155044296479",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 3032,
+              "body_hash": "12823585816253714577",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1923,
+              "body_hash": "15156414508582700488",
+              "dependencies": [
+                7,
+                12,
+                15
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.563213
+      }
+    },
+    {
+      "name": "uleb",
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/uleb.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/stats.json"
+      ],
+      "wall_seconds": 0.060256761,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm",
+      "sha256": "de2706950984879010307952c2106407b05e1df1e524dbc966ce45cad569a93a",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/uleb.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "frontend_ms": 3.064779,
+        "cc_ms": 0.0,
+        "compiler_sha256": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60",
+        "cache_stored": false,
+        "module_sha256": "de2706950984879010307952c2106407b05e1df1e524dbc966ce45cad569a93a",
+        "output_bytes": 10689,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 8861,
+          "region_count": 1,
+          "region_bytes": 8387832,
+          "activation_bytes": 8387832,
+          "module_bytes": 10689,
+          "backend_ns": 181055,
+          "parse_ns": 227734,
+          "resolve_ns": 22042,
+          "typecheck_ns": 273621,
+          "optimize_ns": 31941,
+          "bce_ns": 76385,
+          "frontend_ns": 631924,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 3720,
+              "body_hash": "16813852029981174651",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 3062,
+              "body_hash": "13538272078786900443",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1933,
+              "body_hash": "16042042457872068991",
+              "dependencies": [
+                7,
+                12,
+                15
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.055967
+      }
+    },
+    {
+      "name": "limited",
+      "variant": "baseline",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/limited.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/stats.json"
+      ],
+      "wall_seconds": 0.061545456,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm",
+      "sha256": "2aac7388c6ecb4652083317ab8e64f70b00e674727148866238811d2afb5bce6",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/limited.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/baseline/bin/goose",
+        "frontend_ms": 3.895652,
+        "cc_ms": 0.0,
+        "compiler_sha256": "67256d720a48e56ba7c1fade0b76af0ee2b6ac1f96d0da72cf141951b3dc39cc",
+        "cache_stored": false,
+        "module_sha256": "2aac7388c6ecb4652083317ab8e64f70b00e674727148866238811d2afb5bce6",
+        "output_bytes": 11562,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 5,
+          "code_bytes": 9684,
+          "region_count": 1,
+          "region_bytes": 8387808,
+          "activation_bytes": 8387808,
+          "module_bytes": 11562,
+          "backend_ns": 320029,
+          "parse_ns": 431612,
+          "resolve_ns": 27753,
+          "typecheck_ns": 528427,
+          "optimize_ns": 53071,
+          "bce_ns": 167068,
+          "frontend_ns": 1208232,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 5324,
+              "body_hash": "12976444339559178156",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13,
+                15
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 3032,
+              "body_hash": "1312503843235497917",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 1182,
+              "body_hash": "17247758892246761897",
+              "dependencies": [
+                7,
+                12,
+                15
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 11.08129
+      }
+    },
+    {
+      "name": "limited",
+      "variant": "candidate",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/limited.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/stats.json"
+      ],
+      "wall_seconds": 0.061448261,
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm",
+      "sha256": "6250d68203e2ebe4ccd164ba289b8b60ecde08bff07973417dfc962c55da5a9c",
+      "stats": {
+        "schema": "goose-direct-build-v2",
+        "backend": "direct",
+        "source": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/source/limited.goose",
+        "output": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm",
+        "optimization": "-O2",
+        "cache": "disabled",
+        "compiler": "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid/bin/goose",
+        "frontend_ms": 3.902204,
+        "cc_ms": 0.0,
+        "compiler_sha256": "15b5ba32e147ac57cb7acc6d2fe5ee79226617521f1928a303d1b3908ce73a60",
+        "cache_stored": false,
+        "module_sha256": "6250d68203e2ebe4ccd164ba289b8b60ecde08bff07973417dfc962c55da5a9c",
+        "output_bytes": 8178,
+        "backend_stats": {
+          "backend": "direct",
+          "functions": 7,
+          "code_bytes": 6246,
+          "region_count": 1,
+          "region_bytes": 8387808,
+          "activation_bytes": 8387808,
+          "module_bytes": 8178,
+          "backend_ns": 288881,
+          "parse_ns": 420020,
+          "resolve_ns": 31190,
+          "typecheck_ns": 517546,
+          "optimize_ns": 50005,
+          "bce_ns": 160997,
+          "frontend_ns": 1180028,
+          "source_files": 1,
+          "specializations": 6,
+          "function_info": [
+            {
+              "name": "main#0",
+              "index": 12,
+              "code_bytes": 2962,
+              "body_hash": "10274299949848819109",
+              "dependencies": [
+                0,
+                1,
+                6,
+                7,
+                9,
+                10,
+                11,
+                13,
+                15,
+                17,
+                18
+              ]
+            },
+            {
+              "name": "kernel#3",
+              "index": 13,
+              "code_bytes": 1700,
+              "body_hash": "10949663010586178095",
+              "dependencies": [
+                7,
+                17
+              ]
+            },
+            {
+              "name": "resolve_prefix",
+              "index": 14,
+              "code_bytes": 4,
+              "body_hash": "7085529457549504980",
+              "dependencies": []
+            },
+            {
+              "name": "publish_header",
+              "index": 15,
+              "code_bytes": 142,
+              "body_hash": "5989252060242843659",
+              "dependencies": []
+            },
+            {
+              "name": "_start",
+              "index": 16,
+              "code_bytes": 836,
+              "body_hash": "2385022689407558843",
+              "dependencies": [
+                7,
+                12,
+                15,
+                18
+              ]
+            },
+            {
+              "name": "read_uleb_array",
+              "index": 17,
+              "code_bytes": 243,
+              "body_hash": "384180179245460896",
+              "dependencies": [
+                7
+              ]
+            },
+            {
+              "name": "patch_uleb_array_length",
+              "index": 18,
+              "code_bytes": 359,
+              "body_hash": "11355877770393301051",
+              "dependencies": [
+                7
+              ]
+            }
+          ]
+        },
+        "dependencies": 2,
+        "total_ms": 10.929632
+      }
+    }
+  ],
+  "runs": [
+    {
+      "phase": "warmup",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02063493,
+      "wall_seconds": 0.113787037
+    },
+    {
+      "phase": "warmup",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020202547,
+      "wall_seconds": 0.116857216
+    },
+    {
+      "phase": "warmup",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.024191466,
+      "wall_seconds": 0.119509519
+    },
+    {
+      "phase": "warmup",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021898297,
+      "wall_seconds": 0.121308525
+    },
+    {
+      "phase": "warmup",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.038302687,
+      "wall_seconds": 0.139581205
+    },
+    {
+      "phase": "warmup",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.039713695,
+      "wall_seconds": 0.138331604
+    },
+    {
+      "phase": "warmup",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.022090953,
+      "wall_seconds": 0.059586012
+    },
+    {
+      "phase": "warmup",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.022864197,
+      "wall_seconds": 0.063383567
+    },
+    {
+      "phase": "warmup",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021362145,
+      "wall_seconds": 0.056799144
+    },
+    {
+      "phase": "warmup",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021709537,
+      "wall_seconds": 0.058643577
+    },
+    {
+      "phase": "warmup",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.004223346,
+      "wall_seconds": 0.093086822
+    },
+    {
+      "phase": "warmup",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013088835,
+      "wall_seconds": 0.118711267
+    },
+    {
+      "phase": "warmup",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.023173295,
+      "wall_seconds": 0.069670664
+    },
+    {
+      "phase": "warmup",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021195147,
+      "wall_seconds": 0.06401492
+    },
+    {
+      "phase": "warmup",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02139114,
+      "wall_seconds": 0.1111537
+    },
+    {
+      "phase": "warmup",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020387608,
+      "wall_seconds": 0.143188256
+    },
+    {
+      "phase": "warmup",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013006608,
+      "wall_seconds": 0.046033756
+    },
+    {
+      "phase": "warmup",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.007021336,
+      "wall_seconds": 0.05937972
+    },
+    {
+      "phase": "warmup",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.045368889,
+      "wall_seconds": 0.095041717
+    },
+    {
+      "phase": "warmup",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.041865495,
+      "wall_seconds": 0.111968813
+    },
+    {
+      "phase": "warmup",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021125925,
+      "wall_seconds": 0.11230342
+    },
+    {
+      "phase": "warmup",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020632715,
+      "wall_seconds": 0.142460901
+    },
+    {
+      "phase": "warmup",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021313372,
+      "wall_seconds": 0.062226392
+    },
+    {
+      "phase": "warmup",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021841178,
+      "wall_seconds": 0.076281678
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021153598,
+      "wall_seconds": 0.057898478
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020941464,
+      "wall_seconds": 0.056982413
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021168186,
+      "wall_seconds": 0.061063787
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02087136,
+      "wall_seconds": 0.062858547
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.004375946,
+      "wall_seconds": 0.106107888
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.012986569,
+      "wall_seconds": 0.103614327
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.041305137,
+      "wall_seconds": 0.142614433
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.039221798,
+      "wall_seconds": 0.14083336
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.030510613,
+      "wall_seconds": 0.089666787
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.022793763,
+      "wall_seconds": 0.058906668
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02122256,
+      "wall_seconds": 0.055786504
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021585069,
+      "wall_seconds": 0.059796384
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.031008842,
+      "wall_seconds": 0.092874969
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021102321,
+      "wall_seconds": 0.055750105
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.037955746,
+      "wall_seconds": 0.164216876
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.038758416,
+      "wall_seconds": 0.149184399
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.023140864,
+      "wall_seconds": 0.061492856
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.022922117,
+      "wall_seconds": 0.063134463
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.038317285,
+      "wall_seconds": 0.154706339
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.039031937,
+      "wall_seconds": 0.140503873
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020388892,
+      "wall_seconds": 0.113679612
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.019920138,
+      "wall_seconds": 0.112523961
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013017509,
+      "wall_seconds": 0.101913757
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.004126721,
+      "wall_seconds": 0.088852906
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.003207831,
+      "wall_seconds": 0.032399021
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013034491,
+      "wall_seconds": 0.048898593
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.012843147,
+      "wall_seconds": 0.129483489
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.004216482,
+      "wall_seconds": 0.086847537
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020653275,
+      "wall_seconds": 0.118122646
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020136841,
+      "wall_seconds": 0.117586024
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.028011382,
+      "wall_seconds": 0.089405599
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021262075,
+      "wall_seconds": 0.060342073
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.0218946,
+      "wall_seconds": 0.062168872
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.023037297,
+      "wall_seconds": 0.062573404
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.038394762,
+      "wall_seconds": 0.168571872
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.039983238,
+      "wall_seconds": 0.138530714
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.023580201,
+      "wall_seconds": 0.060953377
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021638963,
+      "wall_seconds": 0.057273467
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.047030223,
+      "wall_seconds": 0.099470834
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.037755865,
+      "wall_seconds": 0.084751483
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020432675,
+      "wall_seconds": 0.109879002
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020118987,
+      "wall_seconds": 0.116043264
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021051624,
+      "wall_seconds": 0.111483588
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020616666,
+      "wall_seconds": 0.113367667
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.01905472,
+      "wall_seconds": 0.053759683
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.005173616,
+      "wall_seconds": 0.040647515
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021829695,
+      "wall_seconds": 0.05909128
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.029650375,
+      "wall_seconds": 0.088034868
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.029774421,
+      "wall_seconds": 0.093137429
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.023068626,
+      "wall_seconds": 0.068869848
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.027605209,
+      "wall_seconds": 0.077687156
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.029496802,
+      "wall_seconds": 0.091752791
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.042470518,
+      "wall_seconds": 0.113445094
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.050152431,
+      "wall_seconds": 0.126386659
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.024043202,
+      "wall_seconds": 0.11644999
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021842782,
+      "wall_seconds": 0.116223999
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021861617,
+      "wall_seconds": 0.058740642
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.027878169,
+      "wall_seconds": 0.083261284
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021381362,
+      "wall_seconds": 0.114672192
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020527475,
+      "wall_seconds": 0.141713266
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021442338,
+      "wall_seconds": 0.131109516
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020313567,
+      "wall_seconds": 0.11247684
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021819065,
+      "wall_seconds": 0.061728834
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021579148,
+      "wall_seconds": 0.056943819
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.028712788,
+      "wall_seconds": 0.08723303
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020836914,
+      "wall_seconds": 0.074706217
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020457883,
+      "wall_seconds": 0.110656903
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020234577,
+      "wall_seconds": 0.11259228
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013022638,
+      "wall_seconds": 0.046611366
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.005965855,
+      "wall_seconds": 0.062403499
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.040561731,
+      "wall_seconds": 0.101397554
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.048415593,
+      "wall_seconds": 0.094283852
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02145917,
+      "wall_seconds": 0.112857826
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020722516,
+      "wall_seconds": 0.117172725
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021404776,
+      "wall_seconds": 0.113554663
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.02061398,
+      "wall_seconds": 0.112754268
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.004185944,
+      "wall_seconds": 0.093633914
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013067474,
+      "wall_seconds": 0.103558851
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013038719,
+      "wall_seconds": 0.045603836
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.003174167,
+      "wall_seconds": 0.031354941
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.023749123,
+      "wall_seconds": 0.118500565
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021852781,
+      "wall_seconds": 0.116012445
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021904809,
+      "wall_seconds": 0.11675018
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.024116813,
+      "wall_seconds": 0.121851769
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.045360603,
+      "wall_seconds": 0.091858011
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.040448105,
+      "wall_seconds": 0.098760129
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013009843,
+      "wall_seconds": 0.04624125
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.003206447,
+      "wall_seconds": 0.031512602
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020016202,
+      "wall_seconds": 0.114068692
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02038351,
+      "wall_seconds": 0.112861343
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021855795,
+      "wall_seconds": 0.115771005
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.024052159,
+      "wall_seconds": 0.117874442
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.022085894,
+      "wall_seconds": 0.058069775
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.023058066,
+      "wall_seconds": 0.063111397
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.022824922,
+      "wall_seconds": 0.060948258
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021893317,
+      "wall_seconds": 0.05833606
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020979305,
+      "wall_seconds": 0.142615554
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020376268,
+      "wall_seconds": 0.137585973
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02070801,
+      "wall_seconds": 0.055497092
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.026181796,
+      "wall_seconds": 0.088921176
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021687494,
+      "wall_seconds": 0.058575046
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021412852,
+      "wall_seconds": 0.05594185
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.037939766,
+      "wall_seconds": 0.139272916
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.037802775,
+      "wall_seconds": 0.139803457
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.024049965,
+      "wall_seconds": 0.115169659
+    },
+    {
+      "phase": "measure",
+      "name": "limited",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 3,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/limited/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.021865805,
+      "wall_seconds": 0.142322787
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021226787,
+      "wall_seconds": 0.11217245
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.02079281,
+      "wall_seconds": 0.112506887
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021272524,
+      "wall_seconds": 0.116642956
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020812016,
+      "wall_seconds": 0.116423678
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.021271051,
+      "wall_seconds": 0.117988029
+    },
+    {
+      "phase": "measure",
+      "name": "u64",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 1,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u64/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.02072439,
+      "wall_seconds": 0.118089923
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.020963005,
+      "wall_seconds": 0.056241351
+    },
+    {
+      "phase": "measure",
+      "name": "u32",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 2,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u32/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.030327885,
+      "wall_seconds": 0.09071293
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.004221563,
+      "wall_seconds": 0.090113848
+    },
+    {
+      "phase": "measure",
+      "name": "raw",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 4,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/raw/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.013037166,
+      "wall_seconds": 0.105531499
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.02114398,
+      "wall_seconds": 0.114926997
+    },
+    {
+      "phase": "measure",
+      "name": "u8",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/u8/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.020405202,
+      "wall_seconds": 0.116200703
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "candidate",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/candidate/program.wasm"
+      ],
+      "kernel_seconds": 0.050741393,
+      "wall_seconds": 0.10064039
+    },
+    {
+      "phase": "measure",
+      "name": "uleb",
+      "engine": "v8",
+      "variant": "baseline",
+      "sample": 0,
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/hybrid-modes/compile/uleb/baseline/program.wasm"
+      ],
+      "kernel_seconds": 0.040318247,
+      "wall_seconds": 0.088957916
+    }
+  ],
+  "summary": [
+    {
+      "name": "raw",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 0.013034491,
+        "min": 0.013009843,
+        "max": 0.01905472,
+        "mad": 1.1853000000000904e-05,
+        "p25": 0.013022638,
+        "p75": 0.013038719,
+        "samples": [
+          0.013022638,
+          0.013034491,
+          0.013038719,
+          0.013009843,
+          0.01905472
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.003207831,
+        "min": 0.003174167,
+        "max": 0.005965855,
+        "mad": 3.366400000000009e-05,
+        "p25": 0.003206447,
+        "p75": 0.005173616,
+        "samples": [
+          0.005965855,
+          0.003207831,
+          0.003174167,
+          0.003206447,
+          0.005173616
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 4.057401541332197,
+        "min": 2.1828619703294834,
+        "max": 4.107760870804845,
+        "mad": 0.05035932947264765,
+        "p25": 3.6830564927895697,
+        "p75": 4.063334695624551,
+        "samples": [
+          2.1828619703294834,
+          4.063334695624551,
+          4.107760870804845,
+          4.057401541332197,
+          3.6830564927895697
+        ]
+      }
+    },
+    {
+      "name": "raw",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 0.013017509,
+        "min": 0.012843147,
+        "max": 0.013067474,
+        "mad": 3.0940000000000134e-05,
+        "p25": 0.012986569,
+        "p75": 0.013037166,
+        "samples": [
+          0.012986569,
+          0.012843147,
+          0.013067474,
+          0.013017509,
+          0.013037166
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.004216482,
+        "min": 0.004126721,
+        "max": 0.004375946,
+        "mad": 3.053800000000009e-05,
+        "p25": 0.004185944,
+        "p75": 0.004221563,
+        "samples": [
+          0.004375946,
+          0.004216482,
+          0.004185944,
+          0.004126721,
+          0.004221563
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 3.088232012645553,
+        "min": 2.9677169233806815,
+        "max": 3.1544436854345133,
+        "mad": 0.042293004723783056,
+        "p25": 3.04593900792177,
+        "p75": 3.121750792652745,
+        "samples": [
+          2.9677169233806815,
+          3.04593900792177,
+          3.121750792652745,
+          3.1544436854345133,
+          3.088232012645553
+        ]
+      }
+    },
+    {
+      "name": "u8",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 0.021861617,
+        "min": 0.021585069,
+        "max": 0.031008842,
+        "mad": 0.00027654800000000146,
+        "p25": 0.021687494,
+        "p75": 0.022793763,
+        "samples": [
+          0.021861617,
+          0.022793763,
+          0.021585069,
+          0.031008842,
+          0.021687494
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.021412852,
+        "min": 0.021102321,
+        "max": 0.030510613,
+        "mad": 0.0003105309999999993,
+        "p25": 0.02122256,
+        "p75": 0.027878169,
+        "samples": [
+          0.027878169,
+          0.030510613,
+          0.02122256,
+          0.021102321,
+          0.021412852
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.012826035504285,
+        "min": 0.7470765336638763,
+        "max": 1.4694517252391335,
+        "mad": 0.22864193073040273,
+        "p25": 0.7841841047738823,
+        "p75": 1.01708130404626,
+        "samples": [
+          0.7841841047738823,
+          0.7470765336638763,
+          1.01708130404626,
+          1.4694517252391335,
+          1.012826035504285
+        ]
+      }
+    },
+    {
+      "name": "u8",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 0.020405202,
+        "min": 0.020313567,
+        "max": 0.020812016,
+        "mad": 9.163499999999963e-05,
+        "p25": 0.020376268,
+        "p75": 0.020616666,
+        "samples": [
+          0.020405202,
+          0.020812016,
+          0.020376268,
+          0.020616666,
+          0.020313567
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.02114398,
+        "min": 0.020979305,
+        "max": 0.021442338,
+        "mad": 0.00012854400000000127,
+        "p25": 0.021051624,
+        "p75": 0.021272524,
+        "samples": [
+          0.02114398,
+          0.021272524,
+          0.020979305,
+          0.021051624,
+          0.021442338
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 0.9712556254842569,
+        "min": 0.9473578394296369,
+        "max": 0.9793385061409038,
+        "mad": 0.007096355691084466,
+        "p25": 0.9650596529130278,
+        "p75": 0.9783519811753414,
+        "samples": [
+          0.9650596529130278,
+          0.9783519811753414,
+          0.9712556254842569,
+          0.9793385061409038,
+          0.9473578394296369
+        ]
+      }
+    },
+    {
+      "name": "u32",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 0.026181796,
+        "min": 0.021153598,
+        "max": 0.030327885,
+        "mad": 0.004146088999999999,
+        "p25": 0.021168186,
+        "p75": 0.028712788,
+        "samples": [
+          0.028712788,
+          0.021153598,
+          0.030327885,
+          0.026181796,
+          0.021168186
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.02087136,
+        "min": 0.02070801,
+        "max": 0.020963005,
+        "mad": 7.010400000000139e-05,
+        "p25": 0.020836914,
+        "p75": 0.020941464,
+        "samples": [
+          0.020836914,
+          0.020941464,
+          0.020963005,
+          0.02070801,
+          0.02087136
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.2643318213580157,
+        "min": 1.0101298552956948,
+        "max": 1.4467336624687157,
+        "mad": 0.1824018411107,
+        "p25": 1.0142216894347087,
+        "p75": 1.37797698833906,
+        "samples": [
+          1.37797698833906,
+          1.0101298552956948,
+          1.4467336624687157,
+          1.2643318213580157,
+          1.0142216894347087
+        ]
+      }
+    },
+    {
+      "name": "u32",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 0.020118987,
+        "min": 0.019920138,
+        "max": 0.020234577,
+        "mad": 0.00010278500000000107,
+        "p25": 0.020016202,
+        "p75": 0.020136841,
+        "samples": [
+          0.020136841,
+          0.020016202,
+          0.019920138,
+          0.020234577,
+          0.020118987
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.020432675,
+        "min": 0.02038351,
+        "max": 0.020653275,
+        "mad": 4.37830000000021e-05,
+        "p25": 0.020388892,
+        "p75": 0.020457883,
+        "samples": [
+          0.020653275,
+          0.02038351,
+          0.020388892,
+          0.020457883,
+          0.020432675
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 0.9819801398287145,
+        "min": 0.9749950552636325,
+        "max": 0.9890845988316582,
+        "mad": 0.004970795721148336,
+        "p25": 0.9770093441075661,
+        "p75": 0.984647727231016,
+        "samples": [
+          0.9749950552636325,
+          0.9819801398287145,
+          0.9770093441075661,
+          0.9890845988316582,
+          0.984647727231016
+        ]
+      }
+    },
+    {
+      "name": "u64",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 0.023580201,
+        "min": 0.021819065,
+        "max": 0.028011382,
+        "mad": 0.001761136,
+        "p25": 0.021829695,
+        "p75": 0.027605209,
+        "samples": [
+          0.021819065,
+          0.021829695,
+          0.028011382,
+          0.023580201,
+          0.027605209
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.021638963,
+        "min": 0.021262075,
+        "max": 0.029650375,
+        "mad": 0.0003768880000000023,
+        "p25": 0.021579148,
+        "p75": 0.029496802,
+        "samples": [
+          0.021579148,
+          0.029650375,
+          0.021262075,
+          0.021638963,
+          0.029496802
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.0111180015077519,
+        "min": 0.7362367255051581,
+        "max": 1.3174340698167983,
+        "mad": 0.07859230485027457,
+        "p25": 0.935871251398711,
+        "p75": 1.0897103063580265,
+        "samples": [
+          1.0111180015077519,
+          0.7362367255051581,
+          1.3174340698167983,
+          1.0897103063580265,
+          0.935871251398711
+        ]
+      }
+    },
+    {
+      "name": "u64",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 0.020722516,
+        "min": 0.020527475,
+        "max": 0.02079281,
+        "mad": 7.029399999999852e-05,
+        "p25": 0.02061398,
+        "p75": 0.02072439,
+        "samples": [
+          0.020527475,
+          0.02072439,
+          0.020722516,
+          0.02061398,
+          0.02079281
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.021381362,
+        "min": 0.021226787,
+        "max": 0.02145917,
+        "mad": 7.780799999999866e-05,
+        "p25": 0.021271051,
+        "p75": 0.021404776,
+        "samples": [
+          0.021381362,
+          0.021271051,
+          0.02145917,
+          0.021404776,
+          0.021226787
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 0.9656718316691653,
+        "min": 0.9600639566366258,
+        "max": 0.97955521954406,
+        "mad": 0.0056078750325394555,
+        "p25": 0.9630551611472131,
+        "p75": 0.9743002355642888,
+        "samples": [
+          0.9600639566366258,
+          0.9743002355642888,
+          0.9656718316691653,
+          0.9630551611472131,
+          0.97955521954406
+        ]
+      }
+    },
+    {
+      "name": "uleb",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 0.040448105,
+        "min": 0.037755865,
+        "max": 0.042470518,
+        "mad": 0.0001298579999999966,
+        "p25": 0.040318247,
+        "p75": 0.040561731,
+        "samples": [
+          0.040318247,
+          0.037755865,
+          0.040448105,
+          0.040561731,
+          0.042470518
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.048415593,
+        "min": 0.045360603,
+        "max": 0.050741393,
+        "mad": 0.0017368379999999975,
+        "p25": 0.047030223,
+        "p75": 0.050152431,
+        "samples": [
+          0.050741393,
+          0.047030223,
+          0.045360603,
+          0.048415593,
+          0.050152431
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 0.8377823855219536,
+        "min": 0.7945829748899483,
+        "max": 0.8917012192276191,
+        "mad": 0.034982343514923464,
+        "p25": 0.8028000420070301,
+        "p75": 0.8468287010852974,
+        "samples": [
+          0.7945829748899483,
+          0.8028000420070301,
+          0.8917012192276191,
+          0.8377823855219536,
+          0.8468287010852974
+        ]
+      }
+    },
+    {
+      "name": "uleb",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 0.038758416,
+        "min": 0.037939766,
+        "max": 0.041305137,
+        "mad": 0.000363653999999998,
+        "p25": 0.038394762,
+        "p75": 0.039031937,
+        "samples": [
+          0.041305137,
+          0.038394762,
+          0.039031937,
+          0.038758416,
+          0.037939766
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.038317285,
+        "min": 0.037802775,
+        "max": 0.039983238,
+        "mad": 0.0005145100000000027,
+        "p25": 0.037955746,
+        "p75": 0.039221798,
+        "samples": [
+          0.039221798,
+          0.039983238,
+          0.038317285,
+          0.037955746,
+          0.037802775
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.0186509038936344,
+        "min": 0.9602714517518567,
+        "max": 1.0531168662895056,
+        "mad": 0.015027069400002535,
+        "p25": 1.003623834493632,
+        "p75": 1.0211475226965634,
+        "samples": [
+          1.0531168662895056,
+          0.9602714517518567,
+          1.0186509038936344,
+          1.0211475226965634,
+          1.003623834493632
+        ]
+      }
+    },
+    {
+      "name": "limited",
+      "engine": "v8",
+      "baseline": {
+        "n": 5,
+        "median": 0.023058066,
+        "min": 0.022824922,
+        "max": 0.023140864,
+        "mad": 2.0768999999996873e-05,
+        "p25": 0.023037297,
+        "p75": 0.023068626,
+        "samples": [
+          0.022824922,
+          0.023140864,
+          0.023068626,
+          0.023058066,
+          0.023037297
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.022085894,
+        "min": 0.021893317,
+        "max": 0.029774421,
+        "mad": 0.00019257699999999933,
+        "p25": 0.0218946,
+        "p75": 0.022922117,
+        "samples": [
+          0.021893317,
+          0.022922117,
+          0.029774421,
+          0.022085894,
+          0.0218946
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.0425520262644532,
+        "min": 0.7747800032786532,
+        "max": 1.0521908141733578,
+        "mad": 0.0096387879089046,
+        "p25": 1.0095430539858077,
+        "p75": 1.0440177789497678,
+        "samples": [
+          1.0425520262644532,
+          1.0095430539858077,
+          0.7747800032786532,
+          1.0440177789497678,
+          1.0521908141733578
+        ]
+      }
+    },
+    {
+      "name": "limited",
+      "engine": "wasmtime",
+      "baseline": {
+        "n": 5,
+        "median": 0.021855795,
+        "min": 0.021842782,
+        "max": 0.021904809,
+        "mad": 1.0009999999997798e-05,
+        "p25": 0.021852781,
+        "p75": 0.021865805,
+        "samples": [
+          0.021855795,
+          0.021842782,
+          0.021904809,
+          0.021865805,
+          0.021852781
+        ]
+      },
+      "candidate": {
+        "n": 5,
+        "median": 0.024049965,
+        "min": 0.023749123,
+        "max": 0.024116813,
+        "mad": 6.762999999999908e-06,
+        "p25": 0.024043202,
+        "p75": 0.024052159,
+        "samples": [
+          0.024052159,
+          0.024043202,
+          0.024116813,
+          0.024049965,
+          0.023749123
+        ]
+      },
+      "paired_speedup": {
+        "n": 5,
+        "median": 0.9086832911756487,
+        "min": 0.9082795890153479,
+        "max": 0.9201510725259203,
+        "mad": 0.00040370216030083395,
+        "p25": 0.9084805759232901,
+        "p75": 0.9091824042155571,
+        "samples": [
+          0.9086832911756487,
+          0.9084805759232901,
+          0.9082795890153479,
+          0.9091824042155571,
+          0.9201510725259203
+        ]
+      }
+    }
+  ],
+  "finished_utc": "2026-11-02T01:59:32.609385+00:00"
+}
