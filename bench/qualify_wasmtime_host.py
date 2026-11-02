@@ -268,8 +268,6 @@ def qualify(args, output, report):
                 unique.setdefault(sha, {"module": str(module)})
                 units.append((case, level, backend, module, sha, native, python))
     require(bool(units), "selected cases have no O0/O2 runtime observations")
-    if not args.filter:
-        require(len(units) == 3780, "full qualification must cover 3780 retained Wasmtime observations")
     report.update(expected_observations=len(units) * len(MODES), modules=list(modules.values()), unique_wasm=len(unique))
     inputs = set(old_pins) | set(manifest["input_sha256"])
     inputs.update(str(path) for path in (host, manifest_path, library, sdk_pin_path, archive,

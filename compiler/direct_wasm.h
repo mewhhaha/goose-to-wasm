@@ -333,6 +333,7 @@ struct Function {
     bool SelectAssignment(IfExpr *);
     bool FoldBitLoop(ForLoop *);
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
+    bool UnrollWhile(While *);
     bool FillLoop(ForLoop *);
     optional<Slot> CachedLane(Node *);
     void CacheLanes(ForLoop *);

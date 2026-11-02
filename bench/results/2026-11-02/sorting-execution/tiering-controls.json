@@ -1,0 +1,473 @@
+{
+  "method": "Separate immutable module engine-flag controls, never headline benchmarks. All output bytes checked.",
+  "status": "passed",
+  "artifact_sha256": {
+    "build/execution-hill/load-reuse-pairs/compile/sorting/baseline/0/program.wasm": "37fbf8e4c516fc7886a80f551d7b4637e35a5fcf5413c750a018963ad6b1ebdd",
+    "build/execution-hill/load-reuse-pairs/compile/sorting/candidate/0/program.wasm": "e2f45bbb6f2c74c8a0bac70f895f491f5b4ab6a3bfd0d8ffad7761da3379ef0e"
+  },
+  "flags": {
+    "liftoff-only": [
+      "--liftoff-only"
+    ],
+    "optimized-only": [
+      "--no-liftoff",
+      "--no-wasm-tier-up"
+    ],
+    "low-budget": [
+      "--wasm-tiering-budget=10000"
+    ],
+    "default": []
+  },
+  "observations": [
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "sample": 0,
+      "entry_seconds": 0.113585492
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "sample": 0,
+      "entry_seconds": 0.487761817
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "sample": 0,
+      "entry_seconds": 0.198650437
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "sample": 0,
+      "entry_seconds": 0.469482353
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "sample": 0,
+      "entry_seconds": 0.512011623
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "sample": 0,
+      "entry_seconds": 0.114224592
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "sample": 0,
+      "entry_seconds": 0.191785736
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "sample": 0,
+      "entry_seconds": 0.10613815
+    },
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "sample": 1,
+      "entry_seconds": 0.115782475
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "sample": 1,
+      "entry_seconds": 0.196551621
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "sample": 1,
+      "entry_seconds": 0.120812774
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "sample": 1,
+      "entry_seconds": 0.516292432
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "sample": 1,
+      "entry_seconds": 0.181974993
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "sample": 1,
+      "entry_seconds": 0.472647401
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "sample": 1,
+      "entry_seconds": 0.107502212
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "sample": 1,
+      "entry_seconds": 0.48463117
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "sample": 2,
+      "entry_seconds": 0.515966799
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "sample": 2,
+      "entry_seconds": 0.113942794
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "sample": 2,
+      "entry_seconds": 0.57883817
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "sample": 2,
+      "entry_seconds": 0.490153688
+    },
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "sample": 2,
+      "entry_seconds": 0.159961263
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "sample": 2,
+      "entry_seconds": 0.191631651
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "sample": 2,
+      "entry_seconds": 0.10829234
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "sample": 2,
+      "entry_seconds": 0.182707761
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "sample": 3,
+      "entry_seconds": 0.111865579
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "sample": 3,
+      "entry_seconds": 0.53308708
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "sample": 3,
+      "entry_seconds": 0.108133547
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "sample": 3,
+      "entry_seconds": 0.188920006
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "sample": 3,
+      "entry_seconds": 0.510264495
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "sample": 3,
+      "entry_seconds": 0.49128737
+    },
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "sample": 3,
+      "entry_seconds": 0.11164059
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "sample": 3,
+      "entry_seconds": 0.187412169
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "sample": 4,
+      "entry_seconds": 0.191621411
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "sample": 4,
+      "entry_seconds": 0.184123122
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "sample": 4,
+      "entry_seconds": 0.115315643
+    },
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "sample": 4,
+      "entry_seconds": 0.108818273
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "sample": 4,
+      "entry_seconds": 0.465436566
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "sample": 4,
+      "entry_seconds": 0.108432216
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "sample": 4,
+      "entry_seconds": 0.500741491
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "sample": 4,
+      "entry_seconds": 0.516239746
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "sample": 5,
+      "entry_seconds": 0.188509743
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "sample": 5,
+      "entry_seconds": 0.115703903
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "sample": 5,
+      "entry_seconds": 0.525723514
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "sample": 5,
+      "entry_seconds": 0.514802603
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "sample": 5,
+      "entry_seconds": 0.114215122
+    },
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "sample": 5,
+      "entry_seconds": 0.116649508
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "sample": 5,
+      "entry_seconds": 0.474666899
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "sample": 5,
+      "entry_seconds": 0.195463302
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "sample": 6,
+      "entry_seconds": 0.114669109
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "sample": 6,
+      "entry_seconds": 0.491377108
+    },
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "sample": 6,
+      "entry_seconds": 0.112847482
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "sample": 6,
+      "entry_seconds": 0.462134332
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "sample": 6,
+      "entry_seconds": 0.106579962
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "sample": 6,
+      "entry_seconds": 0.188102965
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "sample": 6,
+      "entry_seconds": 0.182179912
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "sample": 6,
+      "entry_seconds": 0.532502618
+    }
+  ],
+  "summary": [
+    {
+      "mode": "liftoff-only",
+      "variant": "baseline",
+      "median": 0.516292432,
+      "samples": [
+        0.512011623,
+        0.516292432,
+        0.515966799,
+        0.53308708,
+        0.516239746,
+        0.525723514,
+        0.532502618
+      ]
+    },
+    {
+      "mode": "liftoff-only",
+      "variant": "candidate",
+      "median": 0.472647401,
+      "samples": [
+        0.469482353,
+        0.472647401,
+        0.57883817,
+        0.510264495,
+        0.465436566,
+        0.474666899,
+        0.462134332
+      ]
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "baseline",
+      "median": 0.191631651,
+      "samples": [
+        0.191785736,
+        0.196551621,
+        0.191631651,
+        0.188920006,
+        0.191621411,
+        0.195463302,
+        0.188102965
+      ]
+    },
+    {
+      "mode": "optimized-only",
+      "variant": "candidate",
+      "median": 0.184123122,
+      "samples": [
+        0.198650437,
+        0.181974993,
+        0.182707761,
+        0.187412169,
+        0.184123122,
+        0.188509743,
+        0.182179912
+      ]
+    },
+    {
+      "mode": "low-budget",
+      "variant": "baseline",
+      "median": 0.114224592,
+      "samples": [
+        0.114224592,
+        0.120812774,
+        0.113942794,
+        0.111865579,
+        0.115315643,
+        0.114215122,
+        0.114669109
+      ]
+    },
+    {
+      "mode": "low-budget",
+      "variant": "candidate",
+      "median": 0.108133547,
+      "samples": [
+        0.10613815,
+        0.107502212,
+        0.10829234,
+        0.108133547,
+        0.108432216,
+        0.115703903,
+        0.106579962
+      ]
+    },
+    {
+      "mode": "default",
+      "variant": "baseline",
+      "median": 0.113585492,
+      "samples": [
+        0.113585492,
+        0.115782475,
+        0.159961263,
+        0.11164059,
+        0.108818273,
+        0.116649508,
+        0.112847482
+      ]
+    },
+    {
+      "mode": "default",
+      "variant": "candidate",
+      "median": 0.49128737,
+      "samples": [
+        0.487761817,
+        0.48463117,
+        0.490153688,
+        0.49128737,
+        0.500741491,
+        0.514802603,
+        0.491377108
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "charts": [
+    {
+      "chart": "examples-compilation.svg",
+      "labels_checked": 30,
+      "sha256": "391081531636e9b91e516f74afe003fda713aa86cf2c65dce0ea321600449ff2"
+    },
+    {
+      "chart": "examples-python-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "68638540e1975c1055753eb0dd3cdb9dd1ab91bb448087c142b8d78fee89bafa"
+    },
+    {
+      "chart": "examples-entry.svg",
+      "labels_checked": 40,
+      "sha256": "c77a52efd52835cdd6c94da0af55f586ca590fd1b6f0df3cbb2dde23c52c1a72"
+    },
+    {
+      "chart": "examples-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "683ce0b1afab99fb4ecfafd27b2ac9edcd2e4f73f036af8bef8b33f7fa993ffc"
+    },
+    {
+      "chart": "wasmtime-host-runtime.svg",
+      "labels_checked": 40,
+      "sha256": "5237e05a92c29af34f9347d3b16ec1e086c3f49c50ed992f92f597a1e3485c83"
+    },
+    {
+      "chart": "wasmtime-host-c-wasm.svg",
+      "labels_checked": 40,
+      "sha256": "9dbd45b1ae8e2d8fbfbe05905b1e7edb3440ea8f6c3bd143fba555d2d9d73de0"
+    },
+    {
+      "chart": "wasmtime-host-preparation.svg",
+      "labels_checked": 40,
+      "sha256": "25c6c4f8f931ef56157bd68b49754a7e5d180aa5acaca3f94b0da12d259677a4"
+    },
+    {
+      "chart": "compilation.svg",
+      "labels_checked": 21,
+      "sha256": "273d802cd85fa9fed73418e622f03916067a7336b77c69f39cdd50153bd2b5f8"
+    },
+    {
+      "chart": "runtime.svg",
+      "labels_checked": 42,
+      "sha256": "9eca81787f331fe1f1c4c318b9843e5b37d143065a2fdbd641fec52886abf5d8"
+    }
+  ],
+  "total_numeric_bar_labels": 373,
+  "method": "Exact SVG text order and rounded values matched to retained summary cells; chart generators validate their source fingerprints. Pointer hashes checked. Visual inspection recorded separately after rendering.",
+  "visual_check": {
+    "status": "passed",
+    "charts_rendered_and_inspected": 9,
+    "render_width": 1500,
+    "notes": "All groups, labels, legends and timing-boundary footnotes visible; no overlap found.",
+    "runtime_preview_sha256": "5d0c67b59e3c37aa98d906fd1efc9638ef9f59a51ba9af65e2988eebe08444be"
+  }
+}

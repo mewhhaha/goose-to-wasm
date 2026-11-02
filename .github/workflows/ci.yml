@@ -93,6 +93,8 @@ jobs:
         run: python tests/test_fill_loops.py
       - name: Strip-mined loops, tails and ordered traps
         run: python tests/test_strip_loops.py
+      - name: While-loop tails and later-copy traps
+        run: python tests/test_while_unroll.py
       - name: Stable regions, memory isolation and scoped owner cleanup
         run: |
           python tests/test_regions.py

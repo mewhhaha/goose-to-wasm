@@ -1,0 +1,97 @@
+diff --git a/compiler/direct_wasm.h b/compiler/direct_wasm.h
+index 58f0533..49c3a2d 100644
+--- a/compiler/direct_wasm.h
++++ b/compiler/direct_wasm.h
+@@ -333,6 +333,7 @@ struct Function {
+     bool SelectAssignment(IfExpr *);
+     bool FoldBitLoop(ForLoop *);
+     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
++    bool UnrollWhile(While *);
+     bool FillLoop(ForLoop *);
+     optional<Slot> CachedLane(Node *);
+     void CacheLanes(ForLoop *);
+diff --git a/compiler/direct_wasm_expr.h b/compiler/direct_wasm_expr.h
+index 0148255..2599568 100644
+--- a/compiler/direct_wasm_expr.h
++++ b/compiler/direct_wasm_expr.h
+@@ -621,6 +621,55 @@ inline bool Function::UnrollCount(ForLoop *node, const Slot &binding, TypeExpr *
+     return true;
+ }
+ 
++inline bool Function::UnrollWhile(While *node) {
++    if (node->body->tail || node->body->stmts.size() != 2 ||
++        MayMaterialize(node->cond) || MayMaterialize(node->body)) return false;
++    auto assignment = Is<Assign>(node->body->stmts[0]);
++    auto change = Is<IncDec>(node->body->stmts[1]);
++    if (!assignment || assignment->pointee || assignment->op != T_ASSIGN || !change) return false;
++    auto counter = Is<Ident>(change->lval);
++    if (!counter || !counter->vdef || !IsIntT(counter->exprtype) ||
++        Lookup(counter->vdef, counter->line).kind != Slot::LOCAL) return false;
++    auto scalar = [](TypeExpr *type) { return type && (IsIntT(type) || type->kind == TY_FLT); };
++    for (auto value : { assignment->lval, assignment->rhs }) {
++        auto index = Is<Index>(value);
++        if (!index) return false;
++        auto object = Is<Ident>(index->obj);
++        if (!object || !object->vdef || !scalar(index->exprtype)) return false;
++        auto slot = Lookup(object->vdef, object->line);
++        if (slot.kind != Slot::LOCAL || slot.type->kind != TY_SLICE || !scalar(slot.type->sub)) return false;
++    }
++    int budget = 64;
++    function<bool(Node *)> pure = [&](Node *value) {
++        if (!value || budget-- == 0) return false;
++        auto type = value->exprtype;
++        if (!type || (!scalar(type) && type->kind != TY_BOOL && type->kind != TY_SLICE)) return false;
++        if (type->kind == TY_SLICE && !scalar(type->sub)) return false;
++        switch (value->nkind) {
++            case NK_Ident: {
++                auto id = static_cast<Ident *>(value);
++                if (!id->vdef) return false;
++                auto slot = Lookup(id->vdef, id->line);
++                if (slot.kind != Slot::LOCAL || slot.type->kind != type->kind) return false;
++                break;
++            }
++            case NK_Unary:
++                if (static_cast<Unary *>(value)->op == T_BITAND) return false;
++                break;
++            case NK_Dot:
++                if (static_cast<Dot *>(value)->member != B_LEN) return false;
++                break;
++            case NK_IntLit: case NK_FltLit: case NK_BoolLit: case NK_Index: case NK_AsCast: case NK_Binary:
++                break;
++            default: return false;
++        }
++        bool valid = true;
++        value->Children([&](Node *child) { if (valid) valid = pure(child); });
++        return valid;
++    };
++    return pure(node->cond) && pure(assignment->lval) && pure(assignment->rhs) && pure(change->lval);
++}
++
+ inline bool Function::FillLoop(ForLoop *node) {
+     // Avoid growing a long entrypoint for one-off preparation. Repeated work
+     // and ordinary callable functions can amortize the guarded bulk path.
+@@ -1546,9 +1595,23 @@ inline void Function::Expr(Node *n) {
+         case NK_While: {
+             auto w = static_cast<While *>(n); auto done = Begin(), again = Begin(0x03);
+             PushExit({ done, nullptr, {}, {}, true, again });
++            auto unroll = UnrollWhile(w);
++            auto label_depth = labels.size(), exit_depth = exits.size(), cleanup_depth = cleanups.size();
++            auto private_depth = private_headers.size(), temp_depth = temp_scopes.size();
++            auto live = region_live;
++            auto iteration_start = code.data.size();
+             auto scope = BeginTempScope(w->cond); Truth(w->cond); auto condition = Save(I32); EndTempScope(scope);
+             Get(condition); code.Op(0x45); Br(done, true);
+-            BlockInto(w->body, {}, {}); exits.pop_back();
++            BlockInto(w->body, {}, {});
++            if (unroll) {
++                if (labels.size() != label_depth || exits.size() != exit_depth || cleanups.size() != cleanup_depth ||
++                    private_headers.size() != private_depth || temp_scopes.size() != temp_depth || region_live != live)
++                    Fail(w->line, "internal: unrolled while iteration changed control or cleanup state");
++                // Balanced copies share the original locals and outer branch depths.
++                auto iteration = code.data.substr(iteration_start);
++                for (int copy = 1; copy < 4; copy++) code.Raw(iteration);
++            }
++            exits.pop_back();
+             Br(again); End(); End(); return;
+         }
+         case NK_ForLoop: For(static_cast<ForLoop *>(n)); return;

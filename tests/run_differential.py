@@ -178,6 +178,24 @@ def cases():
         for debug in (False, True):
             result.append(Case(f"codegen/loop-indices/{count}/{debug}", "codegen_loop_indices",
                                f"{count}\n", answer, debug=debug, group="control"))
+    for n in (0, 1, 7, 23):
+        whole = sorted([n % 7 - 3, (n * 5) % 13 - 6, n % 3 - 1, 4 - n % 5, n % 7 - 3])
+        middle = sorted([n % 5 - 2, (n * 3) % 7 - 3, n % 3 - 1, n % 5 - 2,
+                         2 - n % 4, (n * 11) % 9 - 4])
+        answer = (f"{whole}\n{[91] + middle + [-91]}\n"
+                  f"{[n + 101, n + 101, n + 102]} 2\n{[n + 201, n + 201, n + 202]} 2\n"
+                  f"{[n + 1, n + 1, n + 2]}\n{[n + 3, n + 3, n + 4]} {[n + 5, n + 5, n + 6]}\n"
+                  f"{[n + 20, n + 30, n + 30]}\n{[n + 20, n + 20, n + 40]}\n{[n + 1, n + 2, 0]}\n"
+                  f"{sorted([-128, 127, -1, 0, 1, n])}\n{sorted([4294967295, 0, 2147483648, 7, n])}\n"
+                  f"{[n + 11, n + 11, n + 12]}\n{list(range(n, n + 7))}\n")
+        for debug in (False, True):
+            result.append(Case(f"codegen/while-slice-unroll/{n}/{debug}", "while_slice_unroll",
+                               f"{n}\n", answer, debug=debug, group="control", levels=(0, 2)))
+    for debug in (False, True):
+        for mode, value, diagnostic in ((0, 3, "bounds"), (1, 0, "division by zero")):
+            result.append(Case(f"codegen/while-slice-unroll/trap/{mode}/{debug}", "while_slice_unroll_trap",
+                               f"{mode} {value} 0\n", f"before {mode}\n", exit_code=1,
+                               diagnostic=diagnostic, debug=debug, group="control", levels=(0, 2)))
     for debug in (False, True):
         result.append(Case(f"codegen/aliases/{debug}", "codegen_aliases",
                            stdout="8 1\n8 100 100 1\n[8, 100] 1 1\n", debug=debug, group="storage"))

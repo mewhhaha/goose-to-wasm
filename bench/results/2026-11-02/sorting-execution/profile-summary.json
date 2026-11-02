@@ -1,0 +1,719 @@
+{
+  "v8": {
+    "method": "Separate V8 CPU sampling, 25 runs with checked golden output. Attribution only, no profiled elapsed claims; compilation cache and tiering differ from fresh-process headline samples.",
+    "node": "v24.22.1",
+    "source_wasm_sha256": "37fbf8e4c516fc7886a80f551d7b4637e35a5fcf5413c750a018963ad6b1ebdd",
+    "profile_sha256": "5fde291da90ba25cd9427b69280400f79cdf724312876e4586e1ecb2b0a3bb9c",
+    "samples": 4438,
+    "samples_by_function": {
+      "insertion_sort#1": 4235,
+      "random_ints#4": 32,
+      "_start": 30,
+      "sort#10": 29,
+      "merge_sort#7": 22,
+      "(idle)": 20,
+      "main#0": 18,
+      "(garbage collector)": 18,
+      "publish_header": 7,
+      "(program)": 4,
+      "copy_into#8": 4,
+      "compileForInternalLoader": 3,
+      "": 3,
+      "initializePermission": 1,
+      "finalizeResolution": 1,
+      "getESMFacade": 1,
+      "compileSourceTextModule": 1,
+      "read": 1,
+      "sort#9": 1,
+      "runModule": 1,
+      "binary_search#28": 1,
+      "memoryBytes": 1,
+      "from": 1,
+      "print_i64": 1,
+      "sort#29": 1,
+      "fromStringFast": 1
+    }
+  },
+  "native_and_wasmtime": {
+    "method": "Linux ITIMER_PROF 1ms initiating-thread RIP samples; attribution only; no elapsed-time claims. Other-thread signal delivery is discarded and counted. Signals may coalesce; samples are not exact instruction costs. Pre-call maps are joined by mapping file offset to ELF section file offset and section VMA. Files must retain their sampled bytes when analyzed; collection manifest records target identities.",
+    "samples": 3431,
+    "profiles": [
+      {
+        "file": "native-00.3117887.0.json",
+        "scope": "main",
+        "samples": 68,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-01.3117889.0.json",
+        "scope": "main",
+        "samples": 41,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-02.3117891.0.json",
+        "scope": "main",
+        "samples": 69,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-03.3117893.0.json",
+        "scope": "main",
+        "samples": 70,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-04.3117895.0.json",
+        "scope": "main",
+        "samples": 43,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-05.3117897.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-06.3117899.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-07.3117901.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-08.3117903.0.json",
+        "scope": "main",
+        "samples": 66,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-09.3117905.0.json",
+        "scope": "main",
+        "samples": 46,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-10.3117907.0.json",
+        "scope": "main",
+        "samples": 49,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-11.3117909.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-12.3117911.0.json",
+        "scope": "main",
+        "samples": 74,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-13.3117913.0.json",
+        "scope": "main",
+        "samples": 64,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-14.3117915.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-15.3117917.0.json",
+        "scope": "main",
+        "samples": 73,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-16.3117919.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-17.3117921.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-18.3117923.0.json",
+        "scope": "main",
+        "samples": 42,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "native-19.3117925.0.json",
+        "scope": "main",
+        "samples": 72,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-00.3117888.0.json",
+        "scope": "wasm",
+        "samples": 123,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-01.3117890.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-02.3117892.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-03.3117894.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-04.3117896.0.json",
+        "scope": "wasm",
+        "samples": 114,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-05.3117898.0.json",
+        "scope": "wasm",
+        "samples": 112,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-06.3117900.0.json",
+        "scope": "wasm",
+        "samples": 112,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-07.3117902.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-08.3117904.0.json",
+        "scope": "wasm",
+        "samples": 117,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-09.3117906.0.json",
+        "scope": "wasm",
+        "samples": 133,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-10.3117908.0.json",
+        "scope": "wasm",
+        "samples": 118,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-11.3117910.0.json",
+        "scope": "wasm",
+        "samples": 114,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-12.3117912.0.json",
+        "scope": "wasm",
+        "samples": 120,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-13.3117914.0.json",
+        "scope": "wasm",
+        "samples": 138,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-14.3117916.0.json",
+        "scope": "wasm",
+        "samples": 141,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-15.3117918.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-16.3117920.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-17.3117922.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-18.3117924.0.json",
+        "scope": "wasm",
+        "samples": 113,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      },
+      {
+        "file": "wasm-19.3117926.0.json",
+        "scope": "wasm",
+        "samples": 114,
+        "dropped_capacity": 0,
+        "other_thread_deliveries": 0
+      }
+    ],
+    "functions": [
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1",
+        2344
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g",
+        1068
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10",
+        6
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0",
+        3
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4",
+        3
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[24]::publish_header",
+        3
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0",
+        3
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime!_ZL8callbackPvP15wasmtime_callerPK12wasmtime_valmPS2_m",
+        1
+      ]
+    ],
+    "instructions": [
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x154: je     1093a <wasm[0]::function[10]::insertion_sort#1+0x17a>",
+        947
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x43: mov    %rax,%rsi",
+        682
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x129: jg     108f7 <wasm[0]::function[10]::insertion_sort#1+0x137>",
+        648
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x126: test   %r11,%r11",
+        386
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x40: mov    -0x4(%rax),%ecx",
+        254
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x151: test   %r15d,%r15d",
+        163
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x175: jmp    108e6 <wasm[0]::function[10]::insertion_sort#1+0x126>",
+        61
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x48: jle    1939 <insertion_sort_g+0x59>",
+        58
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x14d: movzbl %r15b,%r15d",
+        53
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x171: sub    $0x1,%r11",
+        44
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x54: jne    1920 <insertion_sort_g+0x40>",
+        43
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x149: setg   %r15b",
+        17
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x4c: lea    -0x4(%rax),%rax",
+        11
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x146: cmp    %r14d,%r15d",
+        11
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x46: cmp    %edi,%ecx",
+        9
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x16d: mov    %r15d,(%rdx,%rdi,1)",
+        9
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x50: sub    $0x1,%rdx",
+        6
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x23: mov    %r9,%rax",
+        4
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10+0x94b: lea    (%r12,%rdi,4),%r11d",
+        4
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x17e: mov    %r14d,(%rdx,%rdi,1)",
+        3
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[24]::publish_header+0x6c: test   %r11d,%r11d",
+        2
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0+0x728: cmp    %rdx,%rax",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0+0x71f: jl     31b0 <main_g.constprop.0+0xd00>",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0+0x697: cmp    %ecx,%edx",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x5f: add    $0x4,%r9",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4+0x8e2: mov    0x18(%rsp),%rcx",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime!_ZL8callbackPvP15wasmtime_callerPK12wasmtime_valmPS2_m+0xf6f: movb   $0x0,(%rax,%r15,1)",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x169: lea    (%r9,%r11,4),%edi",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4+0x6a9: shl    $0x2,%edx",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10+0x98b: mov    %r8d,0x180(%rax)",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10+0x987: mov    (%rsp),%rax",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[24]::publish_header+0x4c: cmp    $0x4,%ecx",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4+0x7d5: cmovb  %edx,%eax",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x142: mov    (%rdx,%r15,1),%r15d",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x86b0: jmp    86bd <wasm[0]::function[9]::main#0+0x86bd>",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x7910: shl    $0x20,%rax",
+        1
+      ],
+      [
+        "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x819b: jge    81f5 <wasm[0]::function[9]::main#0+0x81f5>",
+        1
+      ]
+    ],
+    "unknown": [],
+    "modes": {
+      "main": {
+        "samples": 1071,
+        "functions": [
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g",
+            1068
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0",
+            3
+          ]
+        ],
+        "instructions": [
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x43: mov    %rax,%rsi",
+            682
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x40: mov    -0x4(%rax),%ecx",
+            254
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x48: jle    1939 <insertion_sort_g+0x59>",
+            58
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x54: jne    1920 <insertion_sort_g+0x40>",
+            43
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x4c: lea    -0x4(%rax),%rax",
+            11
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x46: cmp    %edi,%ecx",
+            9
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x50: sub    $0x1,%rdx",
+            6
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x23: mov    %r9,%rax",
+            4
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0+0x728: cmp    %rdx,%rax",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0+0x71f: jl     31b0 <main_g.constprop.0+0xd00>",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!main_g.constprop.0+0x697: cmp    %ecx,%edx",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin!insertion_sort_g+0x5f: add    $0x4,%r9",
+            1
+          ]
+        ]
+      },
+      "wasm": {
+        "samples": 2360,
+        "functions": [
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1",
+            2344
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10",
+            6
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4",
+            3
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[24]::publish_header",
+            3
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0",
+            3
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime!_ZL8callbackPvP15wasmtime_callerPK12wasmtime_valmPS2_m",
+            1
+          ]
+        ],
+        "instructions": [
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x154: je     1093a <wasm[0]::function[10]::insertion_sort#1+0x17a>",
+            947
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x129: jg     108f7 <wasm[0]::function[10]::insertion_sort#1+0x137>",
+            648
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x126: test   %r11,%r11",
+            386
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x151: test   %r15d,%r15d",
+            163
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x175: jmp    108e6 <wasm[0]::function[10]::insertion_sort#1+0x126>",
+            61
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x14d: movzbl %r15b,%r15d",
+            53
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x171: sub    $0x1,%r11",
+            44
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x149: setg   %r15b",
+            17
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x146: cmp    %r14d,%r15d",
+            11
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x16d: mov    %r15d,(%rdx,%rdi,1)",
+            9
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10+0x94b: lea    (%r12,%rdi,4),%r11d",
+            4
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x17e: mov    %r14d,(%rdx,%rdi,1)",
+            3
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[24]::publish_header+0x6c: test   %r11d,%r11d",
+            2
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4+0x8e2: mov    0x18(%rsp),%rcx",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime!_ZL8callbackPvP15wasmtime_callerPK12wasmtime_valmPS2_m+0xf6f: movb   $0x0,(%rax,%r15,1)",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x169: lea    (%r9,%r11,4),%edi",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4+0x6a9: shl    $0x2,%edx",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10+0x98b: mov    %r8d,0x180(%rax)",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[16]::sort#10+0x987: mov    (%rsp),%rax",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[24]::publish_header+0x4c: cmp    $0x4,%ecx",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[12]::random_ints#4+0x7d5: cmovb  %edx,%eax",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[10]::insertion_sort#1+0x142: mov    (%rdx,%r15,1),%r15d",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x86b0: jmp    86bd <wasm[0]::function[9]::main#0+0x86bd>",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x7910: shl    $0x20,%rax",
+            1
+          ],
+          [
+            "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm!wasm[0]::function[9]::main#0+0x819b: jge    81f5 <wasm[0]::function[9]::main#0+0x81f5>",
+            1
+          ]
+        ]
+      }
+    },
+    "images": {
+      "/home/jacobt/src/goose-to-wasm/build/native-gap/example-benchmarks/compile/sorting/native/0/program.bin": {
+        "sha256": "27b39f73b23b05537303995787a3a6eb7ac19c05a143902cd74cfbd6d10fb1a5",
+        "symbol_count": 20
+      },
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/bench/preparation/sorting/direct/parallel/0/program.cwasm": {
+        "sha256": "0f23da2aef5654a58738f8fbc4516c5ad24203bd03583ab8d44fd1168a34355f",
+        "symbol_count": 39
+      },
+      "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": {
+        "sha256": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+        "symbol_count": 53
+      }
+    }
+  },
+  "note": "Diagnostic sampling and engine-flag controls are separate from headline process measurements; sample counts are not exact instruction costs."
+}

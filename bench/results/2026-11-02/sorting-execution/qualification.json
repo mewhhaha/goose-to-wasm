@@ -1,0 +1,477 @@
+{
+  "status": "passed",
+  "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+  "commands": [
+    {
+      "name": "test_backend_extensions",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_backend_extensions.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 8.23452348698629,
+      "log": "test_backend_extensions.log"
+    },
+    {
+      "name": "test_static_data",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_static_data.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.644401643978199,
+      "log": "test_static_data.log"
+    },
+    {
+      "name": "test_fill_loops",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_fill_loops.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.6493256159883458,
+      "log": "test_fill_loops.log"
+    },
+    {
+      "name": "test_strip_loops",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_strip_loops.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 2.024615039001219,
+      "log": "test_strip_loops.log"
+    },
+    {
+      "name": "test_while_unroll",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_while_unroll.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.28083937100018375,
+      "log": "test_while_unroll.log"
+    },
+    {
+      "name": "test_native_wasmtime",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_native_wasmtime.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 3.8513177180138882,
+      "log": "test_native_wasmtime.log"
+    },
+    {
+      "name": "test_regions",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_regions.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 86.51612240500981,
+      "log": "test_regions.log"
+    },
+    {
+      "name": "test_prefix_resolution",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_prefix_resolution.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 4.611123923008563,
+      "log": "test_prefix_resolution.log"
+    },
+    {
+      "name": "test_dynamic_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_dynamic_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.15343642700463533,
+      "log": "test_dynamic_boundaries.log"
+    },
+    {
+      "name": "test_static_capture_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_static_capture_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.2895305050187744,
+      "log": "test_static_capture_boundaries.log"
+    },
+    {
+      "name": "test_variable_enum_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_variable_enum_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.14465614201617427,
+      "log": "test_variable_enum_boundaries.log"
+    },
+    {
+      "name": "test_variable_variant_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_variable_variant_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.14510903699556366,
+      "log": "test_variable_variant_boundaries.log"
+    },
+    {
+      "name": "test_owned_struct_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_owned_struct_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.16159049700945616,
+      "log": "test_owned_struct_boundaries.log"
+    },
+    {
+      "name": "test_packed_layout_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_packed_layout_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.162429952993989,
+      "log": "test_packed_layout_boundaries.log"
+    },
+    {
+      "name": "test_array_images",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_array_images.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.6185968499921728,
+      "log": "test_array_images.log"
+    },
+    {
+      "name": "test_sparse_array_images",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_sparse_array_images.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.35134974800166674,
+      "log": "test_sparse_array_images.log"
+    },
+    {
+      "name": "test_record_images",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_record_images.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.5889981960062869,
+      "log": "test_record_images.log"
+    },
+    {
+      "name": "test_enum_tags",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_enum_tags.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.3979788249998819,
+      "log": "test_enum_tags.log"
+    },
+    {
+      "name": "test_enum_images",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_enum_images.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.5373854209901765,
+      "log": "test_enum_images.log"
+    },
+    {
+      "name": "test_enum_image_returns",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_enum_image_returns.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.3626967110030819,
+      "log": "test_enum_image_returns.log"
+    },
+    {
+      "name": "test_static_limited_images",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_static_limited_images.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.6773940740094986,
+      "log": "test_static_limited_images.log"
+    },
+    {
+      "name": "test_record_padding",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_record_padding.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.6491644399939105,
+      "log": "test_record_padding.log"
+    },
+    {
+      "name": "test_padding_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_padding_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.15008282201597467,
+      "log": "test_padding_boundaries.log"
+    },
+    {
+      "name": "test_varint_records",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_varint_records.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 1.2213046239921823,
+      "log": "test_varint_records.log"
+    },
+    {
+      "name": "test_varint_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_varint_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.17300640800385736,
+      "log": "test_varint_boundaries.log"
+    },
+    {
+      "name": "test_varint_capture_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_varint_capture_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.07975486398208886,
+      "log": "test_varint_capture_boundaries.log"
+    },
+    {
+      "name": "test_varint_arrays",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_varint_arrays.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.7382007699925452,
+      "log": "test_varint_arrays.log"
+    },
+    {
+      "name": "test_varint_array_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_varint_array_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.10675407500821166,
+      "log": "test_varint_array_boundaries.log"
+    },
+    {
+      "name": "test_varint_grow",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_varint_grow.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.38450079699396156,
+      "log": "test_varint_grow.log"
+    },
+    {
+      "name": "test_varint_grow_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_varint_grow_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.13118049199692905,
+      "log": "test_varint_grow_boundaries.log"
+    },
+    {
+      "name": "test_uleb_lengths",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_uleb_lengths.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.9678751030005515,
+      "log": "test_uleb_lengths.log"
+    },
+    {
+      "name": "test_uleb_accessor_helpers",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_uleb_accessor_helpers.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 1.3973724899988156,
+      "log": "test_uleb_accessor_helpers.log"
+    },
+    {
+      "name": "test_combined_varints",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_combined_varints.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.8198377270018682,
+      "log": "test_combined_varints.log"
+    },
+    {
+      "name": "test_combined_varint_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_combined_varint_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.10411636999924667,
+      "log": "test_combined_varint_boundaries.log"
+    },
+    {
+      "name": "test_encoded_record_tails",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_encoded_record_tails.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.7121067509870045,
+      "log": "test_encoded_record_tails.log"
+    },
+    {
+      "name": "test_encoded_record_tail_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_encoded_record_tail_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.17648002499481663,
+      "log": "test_encoded_record_tail_boundaries.log"
+    },
+    {
+      "name": "test_aggregate_print",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_aggregate_print.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 1.5597104790213052,
+      "log": "test_aggregate_print.log"
+    },
+    {
+      "name": "test_aggregate_print_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_aggregate_print_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.13840172698837705,
+      "log": "test_aggregate_print_boundaries.log"
+    },
+    {
+      "name": "test_uleb_length_boundaries",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_uleb_length_boundaries.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.1767614349955693,
+      "log": "test_uleb_length_boundaries.log"
+    },
+    {
+      "name": "test_compiler_session",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_compiler_session.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 15.493144739011768,
+      "log": "test_compiler_session.log"
+    },
+    {
+      "name": "test_incremental",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_incremental.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 2.2810584499966353,
+      "log": "test_incremental.log"
+    },
+    {
+      "name": "test_input_dependencies",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_input_dependencies.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 4.320572615979472,
+      "log": "test_input_dependencies.log"
+    },
+    {
+      "name": "test_langarena",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_langarena.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.6149643179960549,
+      "log": "test_langarena.log"
+    },
+    {
+      "name": "check_engines",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "scripts/check_engines.py",
+        "--output",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/qualification/engine-probes.json"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.14267829098389484,
+      "log": "check_engines.log"
+    },
+    {
+      "name": "check_capabilities",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "scripts/check_capabilities.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.05024527097702958,
+      "log": "check_capabilities.log"
+    },
+    {
+      "name": "run",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "examples/run.py",
+        "--backends",
+        "native",
+        "c-wasm",
+        "direct",
+        "--levels",
+        "0",
+        "2",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/qualification/examples"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 38.006090177979786,
+      "log": "run.log"
+    }
+  ]
+}

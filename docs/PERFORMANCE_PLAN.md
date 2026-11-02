@@ -47,9 +47,11 @@ and I/O differences contribute to the observed gap; it is not a bound on
 steady-state code generation, which remains a separate hill. Serial compilation
 was generally slower and remains a control rather than the default.
 
-Next, profile direct Sorting's generated code against native C. The [execution
-probes](../bench/results/2026-11-02/execution-boundaries/README.md) show a small
-precompiled setup cost alongside a substantial entry-time gap.
+Four-way unrolling improved Sorting's Wasmtime entry time while preserving V8
+performance within measurement noise. Continue comparing generated code with
+native C to investigate the remaining entry-time gap; refreshed full-process
+measurements put precompiled Sorting at 93.519 ms versus 47.638 ms native,
+excluding preparation. See the [sorting experiments](../bench/results/2026-11-02/sorting-execution/README.md).
 
 ## Language and host coverage
 

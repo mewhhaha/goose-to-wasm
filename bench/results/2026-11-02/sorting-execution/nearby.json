@@ -1,0 +1,2090 @@
+{
+  "status": "passed",
+  "started_utc": "2026-11-02T11:37:26.086616+00:00",
+  "method": "Nearby source-size and prelude-count controls. Original source copied with only two explicit workload constants varied. Native C supplies independent golden bytes for each case. Same frozen baseline module with only insertion_sort innerloop duplicated four times; no compiler flag or algorithm changes. Fresh instrumented processes, shuffled variant pairs; controls not headline results.",
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby.py": "75d24fda50382ba15c8a78d185ab63809db7b7c4fd56924285d39f5038561761",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/unroll_experiments.py": "27b5477d3daf5404e2fce8dfcd2b714bf33fb57368aa111d5162d5b6edce8a71",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose": "3316710bb9d2b3100e94c2023000f0cb1b7517010ef04076314b4703fdcfcbba",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/program.wasm": "bbb44a4662121f7f9c3653d9fb90b282cb91adde7bf9ebfda11ce3dfbcb38dc2",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/unroll4.wasm": "27093bd306c686b20c741287672f121c6b04f075d925da87fd5cb1a08cf71775",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/program.wasm": "6cc0ccb5f5513e47b66f0ff7428c9adf2fdabd5f620deae89256170a12d0caa9",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/unroll4.wasm": "9ef3714d341a36ff4700296aaabbd2debc3a4168b2e39f73bc7996edb7d2f794",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/program.wasm": "85b3550a38220115bf9007967ff7e98cf099186de5f4bbe24d8e4f76bddf1483",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/unroll4.wasm": "fb47126dc679f9426ad69bf7f297a5aebb09ae3b3b1195ee0c3a1336e28a8342",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/program.wasm": "6e5b9e38d877efa99173b6b84f4c8746d3d4cd5c9e5dd30c5f334ed066edcee2",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/unroll4.wasm": "28509369c1c7c7dcd7c6bd2c76fb48c8ee2f8116c5d680c7b0ad050a4f7e7082",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/program.wasm": "5faa949bb0158eb50b65cdd41d7c0e065d2c839fd68a871f4ad1ac8607d2b173",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/unroll4.wasm": "16a99a990fb4ff64274a5281d2c44724be2a5887fa032c25b7b2de54c7f5656d",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/program.wasm": "219b115517bf80b7a02aac4c9f063fc10ad0a1c98d57ac6527708a4f216a92ae",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/unroll4.wasm": "0272d6472815ff25830f22d533b094d969352b2b5d733f01dc68a1bd651a5f42",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/sorting.goose": "b009a0f7b7bfdf6956cb814b213e4ad959a8a1447ae88ccc731dadaca4e7ef80",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/program.bin": "c9ecc7badfa225877789a55e0420400a6f471ff394646055539488f8b2cb6046",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/expected": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/sorting.goose": "8ff9730f03b93d823c2a734233c0279af62e9eb25e30b716b3e434b6fb9b476a",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/program.bin": "da32200cabb4c84e7add33c4a3bd96d1bedf0f9403744775d6237cfd413b61fb",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/expected": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/sorting.goose": "84d5dc6eb8a7f58fa36433ac1ed192729d5c790db83a9f4d69b67325e406ec55",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/program.bin": "306d7feb20ac00413c7736798ec0d4b6fa6f146c0646883d9f19a171c4adc450",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/expected": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/sorting.goose": "f15bf13f35937ee5d96107c9df14144db68558e60f097fc05eefd830718c9502",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/program.bin": "7faf6fc2757c519a3d9097f7512b0df1990f8a3a5ab8f6e32fc188b89d52b2a0",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/expected": "e0f37120e0238b97dec3120569e92d6800ae7bebc6c1a22ab6606fdf08fbdb77",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/sorting.goose": "f871a3f5a7c336ae2f7a01b8ac617e98cef3ca0371e5d8b33dfd3165a9ee6e8b",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/program.bin": "bf46b37423094484b275fcb09a53a9031df1d8cc6b67827931d46f60a95f756d",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/expected": "7ebe0b0ea7639a9a9dc7df389f5b5eb609ad9c8cd3a8ee33c68865dd06bbaf7d",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/sorting.goose": "a51c261cf319740b28e2dae778746915041d3a3a02dac4c750adcfe0f571ccc7",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/program.bin": "7734f006111ad6eb9c0d46088fe9997b8c4e4e912864837bef88a3756159d62b",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/expected": "af0afbd1971461721d083f884e51e26595b689100ae83870b3bdda7a6ffa8869"
+  },
+  "builds": [
+    {
+      "name": "p10000-i12000",
+      "source_sha256": "b009a0f7b7bfdf6956cb814b213e4ad959a8a1447ae88ccc731dadaca4e7ef80",
+      "backend": "direct",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/program.wasm",
+      "artifact_sha256": "bbb44a4662121f7f9c3653d9fb90b282cb91adde7bf9ebfda11ce3dfbcb38dc2",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/sorting.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/program.wasm"
+      ]
+    },
+    {
+      "name": "p10000-i12000",
+      "source_sha256": "b009a0f7b7bfdf6956cb814b213e4ad959a8a1447ae88ccc731dadaca4e7ef80",
+      "backend": "native",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/program.bin",
+      "artifact_sha256": "c9ecc7badfa225877789a55e0420400a6f471ff394646055539488f8b2cb6046",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/sorting.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i12000/program.bin"
+      ]
+    },
+    {
+      "name": "p10000-i16000",
+      "source_sha256": "8ff9730f03b93d823c2a734233c0279af62e9eb25e30b716b3e434b6fb9b476a",
+      "backend": "direct",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/program.wasm",
+      "artifact_sha256": "6cc0ccb5f5513e47b66f0ff7428c9adf2fdabd5f620deae89256170a12d0caa9",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/sorting.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/program.wasm"
+      ]
+    },
+    {
+      "name": "p10000-i16000",
+      "source_sha256": "8ff9730f03b93d823c2a734233c0279af62e9eb25e30b716b3e434b6fb9b476a",
+      "backend": "native",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/program.bin",
+      "artifact_sha256": "da32200cabb4c84e7add33c4a3bd96d1bedf0f9403744775d6237cfd413b61fb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/sorting.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i16000/program.bin"
+      ]
+    },
+    {
+      "name": "p10000-i24000",
+      "source_sha256": "84d5dc6eb8a7f58fa36433ac1ed192729d5c790db83a9f4d69b67325e406ec55",
+      "backend": "direct",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/program.wasm",
+      "artifact_sha256": "85b3550a38220115bf9007967ff7e98cf099186de5f4bbe24d8e4f76bddf1483",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/sorting.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/program.wasm"
+      ]
+    },
+    {
+      "name": "p10000-i24000",
+      "source_sha256": "84d5dc6eb8a7f58fa36433ac1ed192729d5c790db83a9f4d69b67325e406ec55",
+      "backend": "native",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/program.bin",
+      "artifact_sha256": "306d7feb20ac00413c7736798ec0d4b6fa6f146c0646883d9f19a171c4adc450",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/sorting.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p10000-i24000/program.bin"
+      ]
+    },
+    {
+      "name": "p1000-i20000",
+      "source_sha256": "f15bf13f35937ee5d96107c9df14144db68558e60f097fc05eefd830718c9502",
+      "backend": "direct",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/program.wasm",
+      "artifact_sha256": "6e5b9e38d877efa99173b6b84f4c8746d3d4cd5c9e5dd30c5f334ed066edcee2",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/sorting.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/program.wasm"
+      ]
+    },
+    {
+      "name": "p1000-i20000",
+      "source_sha256": "f15bf13f35937ee5d96107c9df14144db68558e60f097fc05eefd830718c9502",
+      "backend": "native",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/program.bin",
+      "artifact_sha256": "7faf6fc2757c519a3d9097f7512b0df1990f8a3a5ab8f6e32fc188b89d52b2a0",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/sorting.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p1000-i20000/program.bin"
+      ]
+    },
+    {
+      "name": "p5000-i20000",
+      "source_sha256": "f871a3f5a7c336ae2f7a01b8ac617e98cef3ca0371e5d8b33dfd3165a9ee6e8b",
+      "backend": "direct",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/program.wasm",
+      "artifact_sha256": "5faa949bb0158eb50b65cdd41d7c0e065d2c839fd68a871f4ad1ac8607d2b173",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/sorting.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/program.wasm"
+      ]
+    },
+    {
+      "name": "p5000-i20000",
+      "source_sha256": "f871a3f5a7c336ae2f7a01b8ac617e98cef3ca0371e5d8b33dfd3165a9ee6e8b",
+      "backend": "native",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/program.bin",
+      "artifact_sha256": "bf46b37423094484b275fcb09a53a9031df1d8cc6b67827931d46f60a95f756d",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/sorting.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p5000-i20000/program.bin"
+      ]
+    },
+    {
+      "name": "p20000-i20000",
+      "source_sha256": "a51c261cf319740b28e2dae778746915041d3a3a02dac4c750adcfe0f571ccc7",
+      "backend": "direct",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/program.wasm",
+      "artifact_sha256": "219b115517bf80b7a02aac4c9f063fc10ad0a1c98d57ac6527708a4f216a92ae",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/sorting.goose",
+        "--backend",
+        "direct",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/program.wasm"
+      ]
+    },
+    {
+      "name": "p20000-i20000",
+      "source_sha256": "a51c261cf319740b28e2dae778746915041d3a3a02dac4c750adcfe0f571ccc7",
+      "backend": "native",
+      "artifact": "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/program.bin",
+      "artifact_sha256": "7734f006111ad6eb9c0d46088fe9997b8c4e4e912864837bef88a3756159d62b",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/sorting.goose",
+        "--backend",
+        "native",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/baseline/bin/goose",
+        "--offline",
+        "--no-cache",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/execution-hill/nearby/p20000-i20000/program.bin"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.122207315
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.176184035
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.069903538
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.10232543
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.084193073
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.14076873
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.155038378
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.133394981
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.143708781
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.104885254
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.053630488
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.034123178
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.102289321
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.07913365
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.494808568
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.517333546
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.143771911
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.14699955
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.521486961
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.478389449
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.082297927
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.115042644
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.070502831
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.092804664
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.115629885
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.095811691
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.115110053
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.110900681
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.16525494
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.138217713
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.11982564
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.084576174
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.08765563
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.082484613
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.043986998
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.032602997
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.057455226
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.061972715
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.089455172
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.061751955
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.537711808
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.474560644
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.166067631
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.122929102
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.508855529
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.482501705
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.090032654
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.132659668
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.157680989
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.162529861
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.090354939
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.119302351
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.043050081
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.043638653
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.057966472
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.07665043
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.075625956
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.080500687
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.493305609
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.520210925
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.085061639
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.08729978
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.11214754
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.115138637
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.149792447
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.169513856
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.119690151
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.117087776
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.524368066
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.498241415
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.115675451
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.086394863
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.085614214
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.088956992
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.130044558
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.094539203
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.478298234
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.514666655
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.043324654
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.043986587
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.094860676
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.144330375
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.136902933
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.144162806
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.529257043
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.475379834
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.121237454
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.132822609
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.133413675
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.111584576
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.168008574
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.128774464
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.062168689
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.090678176
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.059755745
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.065172621
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.664828456
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.491681027
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.168160232
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.126393922
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.144649514
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.088414316
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.070822701
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.090984621
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.143369702
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.15268697
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.085061649
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.136103759
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.520604242
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.477751078
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.080020079
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.084667698
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.113786988
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.127353142
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.121372972
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.086541182
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.070630816
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.066532856
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.043485832
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.037934199
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.089829947
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.079396459
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.127948488
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.085200564
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.130493584
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.106395905
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.169161613
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.131885751
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.126201013
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.111025058
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.057481536
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.086357141
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.14978908
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.147148713
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.034509494
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.060989329
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.506810983
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.668936571
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.140782145
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "variant": "unroll4",
+      "entry_seconds": 0.098101719
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.515732436
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.489837798
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.067107592
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "variant": "unroll4",
+      "entry_seconds": 0.06469567
+    }
+  ],
+  "summary": [
+    {
+      "name": "p10000-i12000",
+      "engine": "v8",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.061593027060194,
+        "min": 0.9168841774830568,
+        "max": 1.3223235321273306,
+        "mad": 0.024311984913169438,
+        "p25": 1.0372810421470247,
+        "p75": 1.078626250639063,
+        "samples": [
+          1.078626250639063,
+          1.3223235321273306,
+          0.9168841774830568,
+          1.061593027060194,
+          1.0372810421470247
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.067107592,
+        "min": 0.059755745,
+        "max": 0.07665043,
+        "mad": 0.005134876999999996,
+        "p25": 0.061972715,
+        "p75": 0.070630816,
+        "samples": [
+          0.061972715,
+          0.07665043,
+          0.059755745,
+          0.070630816,
+          0.067107592
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.06469567,
+        "min": 0.057455226,
+        "max": 0.066532856,
+        "mad": 0.0018371860000000045,
+        "p25": 0.057966472,
+        "p75": 0.065172621,
+        "samples": [
+          0.057455226,
+          0.057966472,
+          0.065172621,
+          0.066532856,
+          0.06469567
+        ]
+      }
+    },
+    {
+      "name": "p10000-i12000",
+      "engine": "wasmtime",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.1463490240033802,
+        "min": 1.0136717977371519,
+        "max": 1.7673202916275734,
+        "mad": 0.13267722626622835,
+        "p25": 1.015278437076497,
+        "p75": 1.3491703845508436,
+        "samples": [
+          1.3491703845508436,
+          1.0136717977371519,
+          1.015278437076497,
+          1.1463490240033802,
+          1.7673202916275734
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.043986587,
+        "min": 0.043485832,
+        "max": 0.060989329,
+        "mad": 0.00034793400000000113,
+        "p25": 0.043638653,
+        "p75": 0.043986998,
+        "samples": [
+          0.043986998,
+          0.043638653,
+          0.043986587,
+          0.043485832,
+          0.060989329
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.037934199,
+        "min": 0.032602997,
+        "max": 0.043324654,
+        "mad": 0.005115881999999995,
+        "p25": 0.034509494,
+        "p75": 0.043050081,
+        "samples": [
+          0.032602997,
+          0.043050081,
+          0.043324654,
+          0.037934199,
+          0.034509494
+        ]
+      }
+    },
+    {
+      "name": "p10000-i16000",
+      "engine": "v8",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.0390446614390456,
+        "min": 0.9451075308555099,
+        "max": 1.1314099914707783,
+        "mad": 0.02364602488326284,
+        "p25": 1.026311990061701,
+        "p75": 1.0626906863223085,
+        "samples": [
+          1.0626906863223085,
+          1.026311990061701,
+          1.0390446614390456,
+          0.9451075308555099,
+          1.1314099914707783
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.08765563,
+        "min": 0.080020079,
+        "max": 0.089829947,
+        "mad": 0.0013013620000000004,
+        "p25": 0.08729978,
+        "p75": 0.088956992,
+        "samples": [
+          0.08765563,
+          0.08729978,
+          0.088956992,
+          0.080020079,
+          0.089829947
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.084667698,
+        "min": 0.079396459,
+        "max": 0.085614214,
+        "mad": 0.0009465159999999945,
+        "p25": 0.082484613,
+        "p75": 0.085061639,
+        "samples": [
+          0.082484613,
+          0.085061639,
+          0.085614214,
+          0.084667698,
+          0.079396459
+        ]
+      }
+    },
+    {
+      "name": "p10000-i16000",
+      "engine": "wasmtime",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.448620889816363,
+        "min": 0.9394448521911372,
+        "max": 1.5023457445535207,
+        "mad": 0.0537248547371576,
+        "p25": 1.2846816023014993,
+        "p75": 1.4585827280353298,
+        "samples": [
+          1.448620889816363,
+          0.9394448521911372,
+          1.4585827280353298,
+          1.2846816023014993,
+          1.5023457445535207
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.089455172,
+        "min": 0.075625956,
+        "max": 0.090984621,
+        "mad": 0.0015294490000000022,
+        "p25": 0.086357141,
+        "p75": 0.090678176,
+        "samples": [
+          0.089455172,
+          0.075625956,
+          0.090678176,
+          0.090984621,
+          0.086357141
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.062168689,
+        "min": 0.057481536,
+        "max": 0.080500687,
+        "mad": 0.0046871529999999995,
+        "p25": 0.061751955,
+        "p75": 0.070822701,
+        "samples": [
+          0.061751955,
+          0.080500687,
+          0.062168689,
+          0.070822701,
+          0.057481536
+        ]
+      }
+    },
+    {
+      "name": "p10000-i24000",
+      "engine": "v8",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.0530293459819446,
+        "min": 0.9701662699385437,
+        "max": 1.195613329240949,
+        "mad": 0.07065657888837551,
+        "p25": 0.9823727670935691,
+        "p75": 1.064987705700888,
+        "samples": [
+          1.195613329240949,
+          0.9701662699385437,
+          1.0530293459819446,
+          1.064987705700888,
+          0.9823727670935691
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.15268697,
+        "min": 0.144162806,
+        "max": 0.16525494,
+        "mad": 0.005538257000000019,
+        "p25": 0.147148713,
+        "p75": 0.157680989,
+        "samples": [
+          0.16525494,
+          0.157680989,
+          0.144162806,
+          0.15268697,
+          0.147148713
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.143369702,
+        "min": 0.136902933,
+        "max": 0.162529861,
+        "mad": 0.006419378000000003,
+        "p25": 0.138217713,
+        "p75": 0.14978908,
+        "samples": [
+          0.138217713,
+          0.162529861,
+          0.136902933,
+          0.143369702,
+          0.14978908
+        ]
+      }
+    },
+    {
+      "name": "p10000-i24000",
+      "engine": "wasmtime",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.3046730600253167,
+        "min": 1.1316582337425865,
+        "max": 1.350922021703209,
+        "mad": 0.025772497317227083,
+        "p25": 1.282637523139251,
+        "p75": 1.3304455573425438,
+        "samples": [
+          1.350922021703209,
+          1.1316582337425865,
+          1.3046730600253167,
+          1.3304455573425438,
+          1.282637523139251
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.168160232,
+        "min": 0.166067631,
+        "max": 0.169513856,
+        "mad": 0.0010013809999999956,
+        "p25": 0.168008574,
+        "p75": 0.169161613,
+        "samples": [
+          0.166067631,
+          0.169513856,
+          0.168008574,
+          0.168160232,
+          0.169161613
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.128774464,
+        "min": 0.122929102,
+        "max": 0.149792447,
+        "mad": 0.0031112869999999904,
+        "p25": 0.126393922,
+        "p75": 0.131885751,
+        "samples": [
+          0.122929102,
+          0.149792447,
+          0.128774464,
+          0.126393922,
+          0.131885751
+        ]
+      }
+    },
+    {
+      "name": "p1000-i20000",
+      "engine": "v8",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.089697681435687,
+        "min": 1.0524377344263924,
+        "max": 1.13307290606256,
+        "mad": 0.036833982256637476,
+        "p25": 1.0528636991790494,
+        "p75": 1.1133350747057562,
+        "samples": [
+          1.13307290606256,
+          1.0524377344263924,
+          1.1133350747057562,
+          1.089697681435687,
+          1.0528636991790494
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.524368066,
+        "min": 0.515732436,
+        "max": 0.537711808,
+        "mad": 0.0048889770000000166,
+        "p25": 0.520604242,
+        "p75": 0.529257043,
+        "samples": [
+          0.537711808,
+          0.524368066,
+          0.529257043,
+          0.520604242,
+          0.515732436
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.477751078,
+        "min": 0.474560644,
+        "max": 0.498241415,
+        "mad": 0.0031904340000000198,
+        "p25": 0.475379834,
+        "p75": 0.489837798,
+        "samples": [
+          0.474560644,
+          0.498241415,
+          0.475379834,
+          0.477751078,
+          0.489837798
+        ]
+      }
+    },
+    {
+      "name": "p1000-i20000",
+      "engine": "wasmtime",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.2264906623990839,
+        "min": 1.026671088817463,
+        "max": 1.4167777322251536,
+        "mad": 0.17599736925271392,
+        "p25": 1.1956282828909974,
+        "p75": 1.4024880316517978,
+        "samples": [
+          1.4167777322251536,
+          1.026671088817463,
+          1.1956282828909974,
+          1.4024880316517978,
+          1.2264906623990839
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.121372972,
+        "min": 0.115138637,
+        "max": 0.133413675,
+        "mad": 0.006234334999999994,
+        "p25": 0.11982564,
+        "p75": 0.130493584,
+        "samples": [
+          0.11982564,
+          0.115138637,
+          0.133413675,
+          0.121372972,
+          0.130493584
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.106395905,
+        "min": 0.084576174,
+        "max": 0.11214754,
+        "mad": 0.005751635000000005,
+        "p25": 0.086541182,
+        "p75": 0.111584576,
+        "samples": [
+          0.084576174,
+          0.11214754,
+          0.111584576,
+          0.086541182,
+          0.106395905
+        ]
+      }
+    },
+    {
+      "name": "p5000-i20000",
+      "engine": "v8",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.0760371216423934,
+        "min": 1.0545408677889168,
+        "max": 1.3521539768505242,
+        "mad": 0.021496253853476643,
+        "p25": 1.0546191313458675,
+        "p75": 1.3198935963074816,
+        "samples": [
+          1.0546191313458675,
+          1.0545408677889168,
+          1.0760371216423934,
+          1.3521539768505242,
+          1.3198935963074816
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.520210925,
+        "min": 0.508855529,
+        "max": 0.668936571,
+        "mad": 0.011355396000000018,
+        "p25": 0.514666655,
+        "p75": 0.664828456,
+        "samples": [
+          0.508855529,
+          0.520210925,
+          0.514666655,
+          0.664828456,
+          0.668936571
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.491681027,
+        "min": 0.478298234,
+        "max": 0.506810983,
+        "mad": 0.00917932199999999,
+        "p25": 0.482501705,
+        "p75": 0.493305609,
+        "samples": [
+          0.482501705,
+          0.493305609,
+          0.478298234,
+          0.491681027,
+          0.506810983
+        ]
+      }
+    },
+    {
+      "name": "p5000-i20000",
+      "engine": "wasmtime",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.375562241623721,
+        "min": 1.206845258581231,
+        "max": 1.600060198691892,
+        "mad": 0.1261706342290725,
+        "p25": 1.3389158450312029,
+        "p75": 1.5017328758527935,
+        "samples": [
+          1.206845258581231,
+          1.3389158450312029,
+          1.375562241623721,
+          1.600060198691892,
+          1.5017328758527935
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.127948488,
+        "min": 0.115629885,
+        "max": 0.136103759,
+        "mad": 0.008155270999999992,
+        "p25": 0.115675451,
+        "p75": 0.130044558,
+        "samples": [
+          0.115629885,
+          0.115675451,
+          0.130044558,
+          0.136103759,
+          0.127948488
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.086394863,
+        "min": 0.085061649,
+        "max": 0.095811691,
+        "mad": 0.0013332139999999992,
+        "p25": 0.085200564,
+        "p75": 0.094539203,
+        "samples": [
+          0.095811691,
+          0.086394863,
+          0.094539203,
+          0.085061649,
+          0.085200564
+        ]
+      }
+    },
+    {
+      "name": "p20000-i20000",
+      "engine": "v8",
+      "paired_speedup": {
+        "n": 5,
+        "median": 0.9634317603867318,
+        "min": 0.8934760949988969,
+        "max": 1.136689457978036,
+        "mad": 0.058794086656429934,
+        "p25": 0.9127772365923033,
+        "p75": 1.0222258470431618,
+        "samples": [
+          0.9634317603867318,
+          1.0222258470431618,
+          0.9127772365923033,
+          0.8934760949988969,
+          1.136689457978036
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.119690151,
+        "min": 0.110900681,
+        "max": 0.126201013,
+        "mad": 0.005903162999999989,
+        "p25": 0.113786988,
+        "p75": 0.121237454,
+        "samples": [
+          0.110900681,
+          0.119690151,
+          0.121237454,
+          0.113786988,
+          0.126201013
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.117087776,
+        "min": 0.111025058,
+        "max": 0.132822609,
+        "mad": 0.006062718000000009,
+        "p25": 0.115110053,
+        "p75": 0.127353142,
+        "samples": [
+          0.115110053,
+          0.117087776,
+          0.132822609,
+          0.127353142,
+          0.111025058
+        ]
+      }
+    },
+    {
+      "name": "p20000-i20000",
+      "engine": "wasmtime",
+      "paired_speedup": {
+        "n": 5,
+        "median": 1.4734617064604139,
+        "min": 1.3203744291167083,
+        "max": 1.6360417695251976,
+        "mad": 0.048036780436306215,
+        "p25": 1.435062977846494,
+        "p75": 1.52149848689672,
+        "samples": [
+          1.4734617064604139,
+          1.3203744291167083,
+          1.52149848689672,
+          1.6360417695251976,
+          1.435062977846494
+        ]
+      },
+      "baseline": {
+        "n": 5,
+        "median": 0.140782145,
+        "min": 0.119302351,
+        "max": 0.144649514,
+        "mad": 0.0038673690000000094,
+        "p25": 0.132659668,
+        "p75": 0.144330375,
+        "samples": [
+          0.132659668,
+          0.119302351,
+          0.144330375,
+          0.144649514,
+          0.140782145
+        ]
+      },
+      "unroll4": {
+        "n": 5,
+        "median": 0.090354939,
+        "min": 0.088414316,
+        "max": 0.098101719,
+        "mad": 0.0019406229999999886,
+        "p25": 0.090032654,
+        "p75": 0.094860676,
+        "samples": [
+          0.090032654,
+          0.090354939,
+          0.094860676,
+          0.088414316,
+          0.098101719
+        ]
+      }
+    }
+  ],
+  "finished_utc": "2026-11-02T11:37:58.111748+00:00"
+}

@@ -1,0 +1,728 @@
+{
+  "status": "passed",
+  "method": "Separate immutable Wasm control-shape experiment: only the two insertion_sort while-condition br_if instructions become if+br+end, with adjusted target depths. All other function bodies and sections remain unchanged. v8-optimized-control explicitly disables Liftoff/tier-up and is not a headline configuration. No compiler/source/algorithm changes in these WAT controls.",
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/cfg_experiments.py": "a9ff1e2dc6cafbc46699db8102edbc4ad91bd2cd623ace2cf75cda99de5f7ecb",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/branches-pairs/compile/sorting/baseline/0/program.wasm": "37fbf8e4c516fc7886a80f551d7b4637e35a5fcf5413c750a018963ad6b1ebdd",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/branches-pairs/compile/sorting/candidate/0/program.wasm": "9d0b51ccae893e886eadddfa88f30ad94c63c7a8ac844fafd24630dcf090e81a",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/cfg-experiments/if-branches.wasm": "e7be2b5eeb2dcc8f8b3f0092d23b25a10a3a244a969602f5f9ae61a1540fc6da",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341"
+  },
+  "observations": [
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.234282492,
+      "entry_seconds": 0.185583651
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.165922273,
+      "entry_seconds": 0.114027636
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.482320856,
+      "entry_seconds": 0.450964683
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.169294296,
+      "entry_seconds": 0.128753804
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.21956552,
+      "entry_seconds": 0.179260749
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.212744837,
+      "entry_seconds": 0.174035064
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.120464986,
+      "entry_seconds": 0.078398097
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.481775221,
+      "entry_seconds": 0.453641665
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "warmup",
+      "sample": 0,
+      "outer_seconds": 0.116536419,
+      "entry_seconds": 0.075104434
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.15874583,
+      "entry_seconds": 0.090867563
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.22335053,
+      "entry_seconds": 0.184923087
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.481159813,
+      "entry_seconds": 0.453182756
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.144076088,
+      "entry_seconds": 0.113919537
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.117739056,
+      "entry_seconds": 0.075450695
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.211518591,
+      "entry_seconds": 0.175143299
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.485423036,
+      "entry_seconds": 0.456240516
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.15975682,
+      "entry_seconds": 0.117843645
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 0,
+      "outer_seconds": 0.211436925,
+      "entry_seconds": 0.173183373
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.22008596,
+      "entry_seconds": 0.180406995
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.488879056,
+      "entry_seconds": 0.458909082
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.478508959,
+      "entry_seconds": 0.448665147
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.218725409,
+      "entry_seconds": 0.177632543
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.139599694,
+      "entry_seconds": 0.09717873
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.119118731,
+      "entry_seconds": 0.074688478
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.173214961,
+      "entry_seconds": 0.128049143
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.141865723,
+      "entry_seconds": 0.107411882
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 1,
+      "outer_seconds": 0.214456712,
+      "entry_seconds": 0.174576573
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.155693904,
+      "entry_seconds": 0.116132565
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.492698127,
+      "entry_seconds": 0.462211155
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.115487491,
+      "entry_seconds": 0.075843494
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.505510486,
+      "entry_seconds": 0.466770315
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.143009588,
+      "entry_seconds": 0.114912694
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.212770858,
+      "entry_seconds": 0.176082598
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.216429509,
+      "entry_seconds": 0.179743744
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.116423418,
+      "entry_seconds": 0.074744143
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 2,
+      "outer_seconds": 0.215495545,
+      "entry_seconds": 0.177133577
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.535214457,
+      "entry_seconds": 0.491098094
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.116755293,
+      "entry_seconds": 0.074372522
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.228039611,
+      "entry_seconds": 0.188895751
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.235213479,
+      "entry_seconds": 0.180175468
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.486868809,
+      "entry_seconds": 0.454055945
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.152853103,
+      "entry_seconds": 0.113988916
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.114356669,
+      "entry_seconds": 0.074232684
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.169417462,
+      "entry_seconds": 0.129451841
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 3,
+      "outer_seconds": 0.211651107,
+      "entry_seconds": 0.173484332
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.481468468,
+      "entry_seconds": 0.453069777
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.212008289,
+      "entry_seconds": 0.175574345
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.116731565,
+      "entry_seconds": 0.075482743
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.157056854,
+      "entry_seconds": 0.11554554
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.246690133,
+      "entry_seconds": 0.184300146
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.22587426,
+      "entry_seconds": 0.185162253
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.139241144,
+      "entry_seconds": 0.111240573
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.492343794,
+      "entry_seconds": 0.463702891
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 4,
+      "outer_seconds": 0.115689774,
+      "entry_seconds": 0.075472583
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.220340235,
+      "entry_seconds": 0.180061266
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.184788017,
+      "entry_seconds": 0.118674567
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.219957293,
+      "entry_seconds": 0.181969172
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.163329738,
+      "entry_seconds": 0.115903532
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.482604721,
+      "entry_seconds": 0.451380221
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.48774422,
+      "entry_seconds": 0.455392948
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.122456141,
+      "entry_seconds": 0.073536653
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.118055773,
+      "entry_seconds": 0.075594294
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 5,
+      "outer_seconds": 0.219989643,
+      "entry_seconds": 0.181130837
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.159807216,
+      "entry_seconds": 0.116697548
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.161228911,
+      "entry_seconds": 0.12204251
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.494704215,
+      "entry_seconds": 0.46404722
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.215129866,
+      "entry_seconds": 0.178889374
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.218989862,
+      "entry_seconds": 0.181962295
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.11733205,
+      "entry_seconds": 0.074530551
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.242199918,
+      "entry_seconds": 0.18573335
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.488239118,
+      "entry_seconds": 0.460728766
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "phase": "measure",
+      "sample": 6,
+      "outer_seconds": 0.149007619,
+      "entry_seconds": 0.091501376
+    }
+  ],
+  "summary": [
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "median": 0.114912694,
+      "mad": 0.0036721210000000004,
+      "samples": [
+        0.113919537,
+        0.107411882,
+        0.114912694,
+        0.129451841,
+        0.111240573,
+        0.115903532,
+        0.12204251
+      ]
+    },
+    {
+      "engine": "v8",
+      "variant": "branches",
+      "median": 0.460728766,
+      "mad": 0.006041548999999979,
+      "samples": [
+        0.456240516,
+        0.448665147,
+        0.466770315,
+        0.491098094,
+        0.463702891,
+        0.451380221,
+        0.460728766
+      ]
+    },
+    {
+      "engine": "v8",
+      "variant": "if-branches",
+      "median": 0.455392948,
+      "mad": 0.0023231710000000128,
+      "samples": [
+        0.453182756,
+        0.458909082,
+        0.462211155,
+        0.454055945,
+        0.453069777,
+        0.455392948,
+        0.46404722
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "median": 0.116697548,
+      "mad": 0.001152007999999996,
+      "samples": [
+        0.117843645,
+        0.128049143,
+        0.116132565,
+        0.113988916,
+        0.11554554,
+        0.118674567,
+        0.116697548
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "branches",
+      "median": 0.075482743,
+      "mad": 0.0007386000000000059,
+      "samples": [
+        0.075450695,
+        0.09717873,
+        0.074744143,
+        0.074232684,
+        0.075482743,
+        0.075594294,
+        0.091501376
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "if-branches",
+      "median": 0.074688478,
+      "mad": 0.0007841049999999933,
+      "samples": [
+        0.090867563,
+        0.074688478,
+        0.075843494,
+        0.074372522,
+        0.075472583,
+        0.073536653,
+        0.074530551
+      ]
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "baseline",
+      "median": 0.181969172,
+      "mad": 0.0022254280000000015,
+      "samples": [
+        0.184923087,
+        0.180406995,
+        0.179743744,
+        0.188895751,
+        0.185162253,
+        0.181969172,
+        0.181962295
+      ]
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "branches",
+      "median": 0.178889374,
+      "mad": 0.002806775999999983,
+      "samples": [
+        0.173183373,
+        0.174576573,
+        0.176082598,
+        0.180175468,
+        0.184300146,
+        0.181130837,
+        0.178889374
+      ]
+    },
+    {
+      "engine": "v8-optimized-control",
+      "variant": "if-branches",
+      "median": 0.177133577,
+      "mad": 0.0019902779999999842,
+      "samples": [
+        0.175143299,
+        0.177632543,
+        0.177133577,
+        0.173484332,
+        0.175574345,
+        0.180061266,
+        0.18573335
+      ]
+    }
+  ]
+}

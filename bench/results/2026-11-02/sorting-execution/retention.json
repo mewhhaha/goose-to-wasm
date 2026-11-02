@@ -1,0 +1,29 @@
+{
+  "recorded_utc": "2026-11-02T12:26:34.767735+00:00",
+  "base_commit": "7957d3c800cca6741e6e7a7481bbcea7db92917c",
+  "compiler_sha256": "82b14bd7e795864606042853b13994e0fa8e6bddb22f02f9eef19d87849043e8",
+  "report_origins": {
+    "paired.json": "final-pairs/report.json",
+    "branch-paired.json": "branches-pairs/report.json",
+    "guard-paired.json": "guards-pairs/report.json",
+    "load-paired.json": "load-reuse-pairs/report.json",
+    "cfg-controls.json": "cfg-experiments/report.json",
+    "tiering-controls.json": "tiering-controls/report.json",
+    "unroll-controls.json": "unroll-experiments/report.json",
+    "nearby.json": "nearby/report.json",
+    "nearby-repeat.json": "nearby-repeat/report.json",
+    "examples.json": "example-benchmarks/report.json",
+    "host.json": "host-benchmarks/report.json",
+    "cohort.json": "langarena/report.json",
+    "qualification.json": "qualification/report.json"
+  },
+  "guest_artifacts": 663,
+  "unique_guest_artifacts": 99,
+  "raw_files": 16999,
+  "notes": [
+    "All archived names are repository-relative original paths. artifact-map maps repeated guest aliases to the retained unique bytes.",
+    "Full differential/native-host replay guest binaries, compiler/Node/C-tool executables, the Wasmtime shared library and original SDK binary archive are omitted; hashes, versions and commands are retained in reports. Installed Goose stdlib sources, SDK headers and native host build manifest are retained.",
+    "Original experiment reports keep collection-time absolute paths and fingerprints; compiler inputs are retained as source snapshots and patches for each rejected experiment.",
+    "Profiles and timing-instrumented probes are separate from ordinary process headline timings."
+  ]
+}

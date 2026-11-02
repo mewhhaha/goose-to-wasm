@@ -1,0 +1,968 @@
+{
+  "status": "passed",
+  "method": "Immutable Wasm inner-loop two/four-copy unroll experiment. Only insertion_sort loop content before its backedge duplicated; same conditions/stores/traps/sourcealgorithm, no engineflag changes. Attribution and experiment only, finalcompiler qualification still required.",
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/unroll_experiments.py": "27b5477d3daf5404e2fce8dfcd2b714bf33fb57368aa111d5162d5b6edce8a71",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/load-reuse-pairs/compile/sorting/baseline/0/program.wasm": "37fbf8e4c516fc7886a80f551d7b4637e35a5fcf5413c750a018963ad6b1ebdd",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/unroll-experiments/baseline-unroll2.wasm": "a49d6003db330ce3964c84907af51e9d8024876e963f0e111b8e2816e31f790a",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/unroll-experiments/baseline-unroll4.wasm": "cd182e10e03dd0c0e4be69826119d5d6e96b1cad048b9ec8d4c70586778c0b26",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/load-reuse-pairs/compile/sorting/candidate/0/program.wasm": "e2f45bbb6f2c74c8a0bac70f895f491f5b4ab6a3bfd0d8ffad7761da3379ef0e",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/unroll-experiments/candidate-unroll2.wasm": "600a426873d3688e9fee5bcb49749a7004e971a961bfa3a44165183ecb46746f",
+    "/home/jacobt/src/goose-to-wasm/build/execution-hill/unroll-experiments/candidate-unroll4.wasm": "988d740de859446cbd41940cefdb15aa9377c4b0141f160ee04c1a6eb8cb1ecf",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341"
+  },
+  "observations": [
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.100175452,
+      "process_seconds": 0.139858284
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.135367424,
+      "process_seconds": 0.16595976
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.133003834,
+      "process_seconds": 0.161316971
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.100195231,
+      "process_seconds": 0.144346448
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.107096278,
+      "process_seconds": 0.144039893
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.122582739,
+      "process_seconds": 0.192203047
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.492379305,
+      "process_seconds": 0.541969492
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.130291308,
+      "process_seconds": 0.159423507
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.113295167,
+      "process_seconds": 0.141457746
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.087834273,
+      "process_seconds": 0.150029973
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.091376312,
+      "process_seconds": 0.133402455
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.117594241,
+      "process_seconds": 0.174927022
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.121007453,
+      "process_seconds": 0.168045359
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.133317874,
+      "process_seconds": 0.175715485
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.470260358,
+      "process_seconds": 0.507544933
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.088062749,
+      "process_seconds": 0.130822021
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.139151876,
+      "process_seconds": 0.185877015
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.107277554,
+      "process_seconds": 0.153787172
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.120182199,
+      "process_seconds": 0.149040304
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.144450687,
+      "process_seconds": 0.179027465
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.117129834,
+      "process_seconds": 0.159592179
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.123582797,
+      "process_seconds": 0.191192719
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.110130888,
+      "process_seconds": 0.139445495
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.092492462,
+      "process_seconds": 0.134287774
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.117884675,
+      "process_seconds": 0.163084162
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.088604793,
+      "process_seconds": 0.135476733
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.125536625,
+      "process_seconds": 0.15989694
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.125069915,
+      "process_seconds": 0.157682556
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.121976161,
+      "process_seconds": 0.165736954
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.108503653,
+      "process_seconds": 0.150365723
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.113218099,
+      "process_seconds": 0.144637293
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.488413246,
+      "process_seconds": 0.51987493
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.12539759,
+      "process_seconds": 0.166459543
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.088731726,
+      "process_seconds": 0.130209372
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.113635696,
+      "process_seconds": 0.143625412
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.085403404,
+      "process_seconds": 0.128560094
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.142012503,
+      "process_seconds": 0.171467921
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.100843226,
+      "process_seconds": 0.140350873
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.129636038,
+      "process_seconds": 0.157914758
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.088868235,
+      "process_seconds": 0.130805709
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.107788969,
+      "process_seconds": 0.142462272
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.109375537,
+      "process_seconds": 0.149961422
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.500203954,
+      "process_seconds": 0.548968875
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.108897064,
+      "process_seconds": 0.150902598
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.105623988,
+      "process_seconds": 0.142582862
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.136058793,
+      "process_seconds": 0.177522623
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.114552716,
+      "process_seconds": 0.156368016
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.116180632,
+      "process_seconds": 0.147939483
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.133666398,
+      "process_seconds": 0.180297949
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.129596692,
+      "process_seconds": 0.156435705
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.140626959,
+      "process_seconds": 0.182259411
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.131056477,
+      "process_seconds": 0.160264191
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.099794675,
+      "process_seconds": 0.140358107
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.107454872,
+      "process_seconds": 0.139849707
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.113669781,
+      "process_seconds": 0.141707021
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.084726333,
+      "process_seconds": 0.124098671
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.101010895,
+      "process_seconds": 0.141885391
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.100192264,
+      "process_seconds": 0.141615637
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.099075472,
+      "process_seconds": 0.151345903
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.517875643,
+      "process_seconds": 0.545170667
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.487792289,
+      "process_seconds": 0.517219911
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.11124831,
+      "process_seconds": 0.141641175
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.115555248,
+      "process_seconds": 0.147208268
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.0901496,
+      "process_seconds": 0.129868781
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.13188607,
+      "process_seconds": 0.15995958
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.146516999,
+      "process_seconds": 0.187906877
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.117659133,
+      "process_seconds": 0.177283305
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.088453033,
+      "process_seconds": 0.128905834
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.123953905,
+      "process_seconds": 0.166534946
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.093016481,
+      "process_seconds": 0.143655889
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.112519375,
+      "process_seconds": 0.156250192
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.135178703,
+      "process_seconds": 0.165282967
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.109690518,
+      "process_seconds": 0.141350039
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.133233041,
+      "process_seconds": 0.174322666
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.119935557,
+      "process_seconds": 0.163143685
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.112418413,
+      "process_seconds": 0.148524228
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.151711781,
+      "process_seconds": 0.218058792
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.134880955,
+      "process_seconds": 0.164947557
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.127650558,
+      "process_seconds": 0.155917797
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.510397892,
+      "process_seconds": 0.556290063
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.090663962,
+      "process_seconds": 0.131956735
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.1124799,
+      "process_seconds": 0.145908878
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.114231472,
+      "process_seconds": 0.157465911
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.106375982,
+      "process_seconds": 0.173034538
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.087119008,
+      "process_seconds": 0.127979125
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.127736682,
+      "process_seconds": 0.161616952
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "variant": "baseline",
+      "entry_seconds": 0.11282592,
+      "process_seconds": 0.143889314
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.115261037,
+      "process_seconds": 0.145093482
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "entry_seconds": 0.119210633,
+      "process_seconds": 0.159604892
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "entry_seconds": 0.089282756,
+      "process_seconds": 0.130206084
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.114416465,
+      "process_seconds": 0.158756643
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "entry_seconds": 0.108138506,
+      "process_seconds": 0.139402542
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "entry_seconds": 0.09996006,
+      "process_seconds": 0.168210783
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "entry_seconds": 0.147672092,
+      "process_seconds": 0.217839914
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "entry_seconds": 0.12779307,
+      "process_seconds": 0.157451563
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "engine": "v8",
+      "variant": "candidate",
+      "entry_seconds": 0.484745422,
+      "process_seconds": 0.515062472
+    }
+  ],
+  "summary": [
+    {
+      "engine": "v8",
+      "variant": "baseline",
+      "median": 0.115555248,
+      "mad": 0.002729328000000003,
+      "samples": [
+        0.120182199,
+        0.113635696,
+        0.116180632,
+        0.133666398,
+        0.115555248,
+        0.1124799,
+        0.11282592
+      ]
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline-unroll2",
+      "median": 0.13188607,
+      "mad": 0.004149388000000004,
+      "samples": [
+        0.144450687,
+        0.125536625,
+        0.142012503,
+        0.131056477,
+        0.13188607,
+        0.134880955,
+        0.127736682
+      ]
+    },
+    {
+      "engine": "v8",
+      "variant": "baseline-unroll4",
+      "median": 0.112519375,
+      "mad": 0.0011504059999999927,
+      "samples": [
+        0.107277554,
+        0.113218099,
+        0.107788969,
+        0.113669781,
+        0.112519375,
+        0.112418413,
+        0.115261037
+      ]
+    },
+    {
+      "engine": "v8",
+      "variant": "candidate",
+      "median": 0.488413246,
+      "mad": 0.011790707999999928,
+      "samples": [
+        0.470260358,
+        0.488413246,
+        0.500203954,
+        0.517875643,
+        0.487792289,
+        0.510397892,
+        0.484745422
+      ]
+    },
+    {
+      "engine": "v8",
+      "variant": "candidate-unroll2",
+      "median": 0.129596692,
+      "mad": 0.001946134000000016,
+      "samples": [
+        0.139151876,
+        0.125069915,
+        0.129636038,
+        0.129596692,
+        0.135178703,
+        0.127650558,
+        0.12779307
+      ]
+    },
+    {
+      "engine": "v8",
+      "variant": "candidate-unroll4",
+      "median": 0.109690518,
+      "mad": 0.0015577920000000023,
+      "samples": [
+        0.110130888,
+        0.121976161,
+        0.105623988,
+        0.107454872,
+        0.11124831,
+        0.109690518,
+        0.108138506
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline",
+      "median": 0.119935557,
+      "mad": 0.002805722999999996,
+      "samples": [
+        0.117129834,
+        0.117884675,
+        0.136058793,
+        0.140626959,
+        0.117659133,
+        0.119935557,
+        0.147672092
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline-unroll2",
+      "median": 0.12539759,
+      "mad": 0.007920284,
+      "samples": [
+        0.133317874,
+        0.12539759,
+        0.108897064,
+        0.100192264,
+        0.146516999,
+        0.133233041,
+        0.119210633
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "baseline-unroll4",
+      "median": 0.0901496,
+      "mad": 0.004746195999999994,
+      "samples": [
+        0.123582797,
+        0.085403404,
+        0.109375537,
+        0.084726333,
+        0.0901496,
+        0.090663962,
+        0.089282756
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "candidate",
+      "median": 0.106375982,
+      "mad": 0.006415921999999991,
+      "samples": [
+        0.121007453,
+        0.108503653,
+        0.100843226,
+        0.099794675,
+        0.123953905,
+        0.106375982,
+        0.09996006
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "candidate-unroll2",
+      "median": 0.092492462,
+      "mad": 0.004039428999999997,
+      "samples": [
+        0.092492462,
+        0.088731726,
+        0.088868235,
+        0.101010895,
+        0.088453033,
+        0.151711781,
+        0.114416465
+      ]
+    },
+    {
+      "engine": "wasmtime",
+      "variant": "candidate-unroll4",
+      "median": 0.093016481,
+      "mad": 0.005897473,
+      "samples": [
+        0.088062749,
+        0.088604793,
+        0.114552716,
+        0.099075472,
+        0.093016481,
+        0.114231472,
+        0.087119008
+      ]
+    }
+  ]
+}
