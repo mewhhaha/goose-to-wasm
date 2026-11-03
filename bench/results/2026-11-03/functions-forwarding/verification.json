@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+  "archives": {
+    "evidence-000.tar.gz": 4477,
+    "evidence-001.tar.gz": 4904,
+    "evidence-002.tar.gz": 4897,
+    "evidence-003.tar.gz": 3488,
+    "evidence-004.tar.gz": 4949,
+    "evidence-005.tar.gz": 4605,
+    "evidence-006.tar.gz": 4507,
+    "evidence-007.tar.gz": 641
+  },
+  "aliases": 120342,
+  "omissions": 76,
+  "required_guests": 4294,
+  "retained_guest_objects": 4481,
+  "qualification": {
+    "focused": 67,
+    "cases": 978,
+    "observations": 9573,
+    "native_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_modules": 1574
+  },
+  "measurements": {
+    "warmed": 550,
+    "v8": 200,
+    "paired_rounds": 9,
+    "examples": 1600,
+    "host": 1440,
+    "preparations": 200,
+    "cohort": 315
+  },
+  "retention_sha256": "ed8735b8c46f5e0b0b4005e4d341991c9992c1b2b82b6e17617c03838ceb8e92",
+  "index_sha256": "e73e971087742bd9a9ec285ae4199fdbf5c049c3acbe34585c0fa6e53741ef5a",
+  "scope": "Only this bundle is read. No historical archives, source checkouts, compilers, tests or guest engines are executed."
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "goose-forwarding-bundle-spec-v1",
+  "build": "build/functions-next",
+  "output": "bench/results/2026-11-03/functions-forwarding",
+  "compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+  "reference": "build/runtime-reference/production/report.json",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "reports": {
+    "qualification.json": "qualification/attempt-1/focused/report.json",
+    "differential.json": "qualification/attempt-1/differential/report.json",
+    "host-qualification.json": "qualification/attempt-1/host/report.json",
+    "final-warmed.json": "delivered-warmed/report.json",
+    "final-v8.json": "delivered-v8/report.json",
+    "examples.json": "current/examples/report.json",
+    "host.json": "current/host/report.json",
+    "cohort.json": "current/langarena/report.json"
+  },
+  "extra_reports": {
+    "holdout-cpu2.json": "holdout-cpu2/report.json",
+    "holdout-default.json": "holdout-default/report.json"
+  },
+  "trees": [
+    "qualification/attempt-1", "qualification/sources", "delivery-execution",
+    "delivered-warmed", "delivered-v8", "current/examples", "current/host", "current/langarena",
+    "forward-v1", "forward-v2", "forward-v3", "test-development", "ensure-memory",
+    "holdout-cpu2", "holdout-default"
+  ],
+  "optional_trees": ["chart-previews", "reviews", "packaging-attempts"],
+  "evidence_documents": [
+    "qualification/attempt-1/selected.json", "qualification/attempt-1/input-pins.json",
+    "delivery-execution/report.json", "forward-v1/screen/report.json",
+    "forwarding-static-review.json", "forwarding-test-static-review.json",
+    "module-analysis.json", "campaign.json", "final-numbers.json", "holdout-cpu2/report.json", "holdout-default/report.json"
+  ],
+  "optional_evidence_documents": ["qualification/summary.json", "reviews/final-public-review.json"],
+  "source_stages": {
+    "forward-v1": "build/functions-next/forward-v1",
+    "forward-v2": "build/functions-next/forward-v2",
+    "final": "build/functions-next/forward-v3",
+    "baseline-5e3": "build/functions-hill/final"
+  },
+  "direct_files": ["build/functions-hill/compact/O2.wasm", "build/native/CMakeCache.txt"],
+  "public_files": [
+    "README.md", "bench/examples.md", "bench/wasmtime-host.md", "docs/FUNCTIONS_PERFORMANCE.md", "docs/PERFORMANCE_PLAN.md", "docs/RUNTIME_TARGETS.md",
+    "bench/results/latest.json", "bench/results/examples-latest.json", "bench/results/wasmtime-host-latest.json", "bench/results/runtime-targets-latest.json",
+    "bench/charts/compilation.svg", "bench/charts/runtime.svg", "bench/charts/runtime-targets.svg",
+    "bench/charts/examples-compilation.svg", "bench/charts/examples-runtime.svg", "bench/charts/examples-python-runtime.svg", "bench/charts/examples-entry.svg",
+    "bench/charts/wasmtime-host-preparation.svg", "bench/charts/wasmtime-host-runtime.svg", "bench/charts/wasmtime-host-c-wasm.svg"
+  ],
+  "required_public_files": ["README.md", "campaign.json", "readme.json", "target-chart-verification.json", "chart-verification.json", "chart-visual-review.json"],
+  "max_raw_archive_bytes": 67108864,
+  "policy": "Fresh self-contained byte objects only. No prior alias-index loads, historical archive dependencies, old report recursion or source/SDK/native build tree copies. Current explicitly referenced guest paths must resolve to exact retained bytes, including measured native programs. Historical source/report pins are byte leaves. Ensure-memory remains an unmeasured proposal."
+}

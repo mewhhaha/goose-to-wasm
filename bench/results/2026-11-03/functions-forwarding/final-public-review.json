@@ -1,0 +1,330 @@
+{
+  "schema": "goose-functions-forwarding-final-public-review-v1",
+  "reviewed_at_utc": "2026-11-03T08:51:30.769248+00:00",
+  "reviewer": "Astra xhigh",
+  "status": "passed",
+  "blockers": [],
+  "scope": "Read-only review of final documentation, retained numeric reports, source identities, current pointers and chart evidence. No builds, qualification runs, guest execution or timing collection.",
+  "compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+  "baseline_compiler_sha256": "5e3b87720d24f3285a5f9df57989c200bf7152a28f296cfd3af0220db1cc2edf",
+  "inputs": [
+    {
+      "path": "README.md",
+      "sha256": "edda8fb1f8f158a519c14d4af5d6500e1ef537ccb7068991f18c076f563c3b96",
+      "bytes": 2859
+    },
+    {
+      "path": "docs/FUNCTIONS_PERFORMANCE.md",
+      "sha256": "9da30b20070d04d5bd4d1a1a67ca68adaf2cbdb7c27d4ac1ba0edca9b748cee2",
+      "bytes": 2251
+    },
+    {
+      "path": "bench/examples.md",
+      "sha256": "d5503472cfe2742f3bffe47483430eeb3798616c73b490eaa91d9ffa8c81808d",
+      "bytes": 3850
+    },
+    {
+      "path": "bench/wasmtime-host.md",
+      "sha256": "dd553bf888bf4ae88895b9a50316d6bd4f94d985d4e1e852da370aa6dc0346f8",
+      "bytes": 2762
+    },
+    {
+      "path": "docs/PERFORMANCE_PLAN.md",
+      "sha256": "f1f10c9e33d1066b3f380169c2ee544d36038d93d8b8e3694e8b441418059f14",
+      "bytes": 2918
+    },
+    {
+      "path": "docs/RUNTIME_TARGETS.md",
+      "sha256": "37b0964b43a4690af6a43c4f59654db847694c38eff19975f4e226258d0809c3",
+      "bytes": 3078
+    },
+    {
+      "path": "compiler/direct_wasm_funvals.h",
+      "sha256": "620c0bfc613ee751834216d12d12bc2bd0e3fd5dfe92a32d0431debf45c5c317",
+      "bytes": 12819
+    },
+    {
+      "path": "tests/test_function_value_forwarding.py",
+      "sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+      "bytes": 11979
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "3f143c2a20a1e75a48ad6ad44a71e5d35e14d36a3c48a1a22f5ef3fc4aecaa53",
+      "bytes": 10814
+    },
+    {
+      "path": "build/functions-next/forwarding-static-review.json",
+      "sha256": "d8271535d9d7881e4028143b43e118b1886e71371e996372f3d08c83f32f6791",
+      "bytes": 5834
+    },
+    {
+      "path": "build/functions-next/forwarding-test-static-review.json",
+      "sha256": "37035cace1a3b0b0c4fe017069c66916c427557cba210d038ba72462d14470c3",
+      "bytes": 3870
+    },
+    {
+      "path": "build/functions-next/check_charts.py",
+      "sha256": "5c47477fd98d56463f0857b1b16b06fd2e04eceb58676abc8c583980f8c51e34",
+      "bytes": 4465
+    },
+    {
+      "path": "build/functions-next/holdout_cpu2.py",
+      "sha256": "16dc80362f8c9e1c4bb626c55404e481a326615c370e9ad135a5a34405760bba",
+      "bytes": 6298
+    },
+    {
+      "path": "build/functions-next/holdout_default.py",
+      "sha256": "77c7b662661d61d52e93e94a0808c5517604664615990320282765d17e19ab4b",
+      "bytes": 6265
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/README.md",
+      "sha256": "5c5918d67331e942a21619f55ccf90802ecae2410830051877c3c60fb7ba357d",
+      "bytes": 2875
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/campaign.json",
+      "sha256": "a97db891f34719b2eca6902e25fb3ea8ea73f278492692618254f77fb4c6ba61",
+      "bytes": 110185
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/final-numbers.json",
+      "sha256": "1f296faf7c29b17a5f7e1144efbc00b33bed95fc2be29a6e64a1e439e8d6008a",
+      "bytes": 95110
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/module-analysis.json",
+      "sha256": "8575e14bb2e01aca94f1bd03690787b2f0e4cdb0ea3f2b7d690cc9fab96b53b8",
+      "bytes": 3406
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/compiler-identity.json",
+      "sha256": "9b05cda71c3b937c43707dcb0c58e5c2465a62cac3822c985d537539be016c17",
+      "bytes": 8495
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/holdout-cpu2.json",
+      "sha256": "2efbb55aefba95ceb7b74b69e9095ef8945f91ed86aa1cc855b6fa8ce7cf435f",
+      "bytes": 137302
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/holdout-default.json",
+      "sha256": "67230f22aa8cb45b2567df7a82fb6c36786b7334ff82f83334234640bae8eef4",
+      "bytes": 137393
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/final-warmed.json",
+      "sha256": "d8abbbca5b9226e5c60b0bfc1c92f32a9cb2ee849b733b82661389f98d8b53ad",
+      "bytes": 1511803
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/final-v8.json",
+      "sha256": "55cd153d51b0221d57e997d788fd1f052afda41d74732300fc5810a5d2ef647d",
+      "bytes": 796373
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/examples.json",
+      "sha256": "536b3e4c30a89c84ac334a9f6c21c0a8ca9ac05e1be40db212d7a9fcebc43f9d",
+      "bytes": 1786408
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/host.json",
+      "sha256": "1d4426630af05470f129d2249d417c094a1481d60ced709b5210a123dd19adf1",
+      "bytes": 1100658
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/cohort.json",
+      "sha256": "3eefa88cfa98121b11fec2b275d3d5e585231765240bf25ee17e78cdd34233b8",
+      "bytes": 867052
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/references.json",
+      "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+      "bytes": 1939980
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/readme.json",
+      "sha256": "47aff85ab8744ed1daeaf4a4b295dd9dc9c3aa7865e54e83c240619800a7c811",
+      "bytes": 108948
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/qualification.json",
+      "sha256": "a5801b9dd3dc7f943c7bbd27a3418e488470d209aa08a90a2839613821fa6777",
+      "bytes": 29340
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/differential.json",
+      "sha256": "17256c80ce8bcef2421c7fd5442df1705b97cb773ef94b39538313ba2d7acce4",
+      "bytes": 5942730
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/host-qualification.json",
+      "sha256": "704fab8bb1f68d778045ea71a4f6668f488fe6f93fa135c3ea34387032e40e49",
+      "bytes": 20384546
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/chart-verification.json",
+      "sha256": "99755265af17e2dcbad16e42a1e1fa1fa910bac23e36cc1b2e3c088078d0888f",
+      "bytes": 1942
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/target-chart-verification.json",
+      "sha256": "5d1b79fa501c9d59ce3e8d6e0141389652dbd882992090b776ace0c0fa52ccd1",
+      "bytes": 75487
+    },
+    {
+      "path": "bench/results/2026-11-03/functions-forwarding/chart-visual-review.json",
+      "sha256": "622260c03c4a0b0cccbbe18c0c2321e2cff6d4f5f79570374f32ceebde0d2de6",
+      "bytes": 5250
+    },
+    {
+      "path": "bench/results/latest.json",
+      "sha256": "549df80952a8c180597860e20fc157e424bb913d0f37d44a548039172afe96c7",
+      "bytes": 180
+    },
+    {
+      "path": "bench/results/examples-latest.json",
+      "sha256": "88ed2876d5a8bdc5a216da54580e0395ca9a2b1ab79c7dc8d705ee5ddb430bed",
+      "bytes": 194
+    },
+    {
+      "path": "bench/results/wasmtime-host-latest.json",
+      "sha256": "247b74768f266ba6805bdfd820414a65be090db00862da458fa86313d49f50e6",
+      "bytes": 185
+    },
+    {
+      "path": "bench/results/runtime-targets-latest.json",
+      "sha256": "bbc98860d48249d367e64466c5e885684d2a1244b423de00bb1513e59781e5f8",
+      "bytes": 583
+    },
+    {
+      "path": "bench/charts/examples-compilation.svg",
+      "sha256": "d095ac1fa00fd507e5750ea124b116832fc433a6f9dfe318f43d3ce09ae1e0c0",
+      "bytes": 51398
+    },
+    {
+      "path": "bench/charts/examples-python-runtime.svg",
+      "sha256": "b55f7c4a542662f5fd887e481cb0a96218e6400404758707a6c29883ce02f0dd",
+      "bytes": 93857
+    },
+    {
+      "path": "bench/charts/examples-entry.svg",
+      "sha256": "d88d5c5f0b0dabfe18855f602418e3d58445ea322d2a4fc6d587e5cd1541532e",
+      "bytes": 81256
+    },
+    {
+      "path": "bench/charts/examples-runtime.svg",
+      "sha256": "d33794a1ee4278ece81bbcb092c503b292a6aba73eb2625a2ea440055685d235",
+      "bytes": 114516
+    },
+    {
+      "path": "bench/charts/wasmtime-host-runtime.svg",
+      "sha256": "f9a450410ca179ed69f1e5d7a95c92589a9230516825ff293ae8da61e8f68173",
+      "bytes": 86881
+    },
+    {
+      "path": "bench/charts/wasmtime-host-c-wasm.svg",
+      "sha256": "2df3b18c298086f230250b425bada8e3882865f694a49523466139ed95191b8d",
+      "bytes": 87283
+    },
+    {
+      "path": "bench/charts/wasmtime-host-preparation.svg",
+      "sha256": "78fc7fbe14fdc246d841b1d80a1bc8582f48f91ebe02f212bed6389ec9dfe94f",
+      "bytes": 94341
+    },
+    {
+      "path": "bench/charts/compilation.svg",
+      "sha256": "2b8d0c602adc1078de4e13c6f8f1a20ae5fb3fab7c69803d0042532fa558342b",
+      "bytes": 25604
+    },
+    {
+      "path": "bench/charts/runtime.svg",
+      "sha256": "a24c838c941d707351830db8135d00a889b0c0e5e58fb41d686debe9626d9f33",
+      "bytes": 47345
+    },
+    {
+      "path": "bench/charts/runtime-targets.svg",
+      "sha256": "b99f07e51f41e5866c07e2a9ecc32edc86ae6ba2585ff9cfae79f8eb78e95c8c",
+      "bytes": 37731
+    }
+  ],
+  "checks": [
+    "All seven requested documents agree with final compiler, report values and measurement boundaries. The dated README correctly distinguishes 978 cases from 1,574 unique Wasm modules.",
+    "Independently recomputed medians and MADs from both raw holdouts: 61 pairs for each process mode and 31 pairs for each engine phase. Final numeric cache and campaign summary match.",
+    "CPU2 child commands use taskset -c 2; the report top-level affinity records the coordinator mask. Documentation correctly describes inherited child/worker affinity as a diagnostic boundary, separate from default affinity.",
+    "Independently recomputed nine-round warmed task ratios and per-round geometric means. Actual baseline/current Wasm bytes match on all ten workloads in both reports, making these timing differences noise controls.",
+    "Recomputed every native-host runtime median/MAD from raw observations; checked 1,440 runtime observations and 200 preparation observations, Functions process values, host table and separate build ranges.",
+    "Verified Functions module sizes and hashes, 427 to 317 recorded static copy-instruction totals, and byte-for-byte identity of every non-code section. Unchanged workload and prior baseline remain separately pinned.",
+    "Verified all 13 campaign report links by exact SHA, all four latest-pointer links, derived README source hashes and its exact raw summary lineage.",
+    "Read-only evaluation of the reviewed chart checker, with its output write and print excluded, confirmed 403 numeric labels across ten SVGs. Recomputed all 30 runtime-target table cells from fresh paired report summaries.",
+    "Verified chart hashes and preview hashes against the separate passing visual review. Visual inspection itself was performed and recorded by root; this reviewer did not claim a second visual pass.",
+    "Recorded qualification reports show 67 focused commands, 9,573 differential observations, 7,656 native comparisons, 978 cases and 11,484 host replay observations across 1,574 modules, with no failures.",
+    "All 32 current compiler headers match the frozen identity map. Active/frozen compiler binaries match 19d377; sealed forwarding test c4512803 and CI 3f143c2a match earlier review pins. Earlier static reviews remain unchanged."
+  ],
+  "claim_boundaries": {
+    "wasmtime_cpu2_compile_instantiate": {
+      "baseline_ms": 35.310998,
+      "current_ms": 32.881149,
+      "paired_speedup": {
+        "n": 31,
+        "median": 1.074526419344561,
+        "mad": 0.007654223193546805
+      },
+      "conclusion": "Measured diagnostic improvement; not generalized to normal-pool whole-process timing."
+    },
+    "v8_cpu2_first_entry": {
+      "paired_speedup": {
+        "n": 31,
+        "median": 1.014491967298881,
+        "mad": 0.05820771765798127
+      },
+      "conclusion": "Inconclusive; documentation makes no established V8 improvement claim."
+    },
+    "wasmtime_cpu2_first_entry": {
+      "paired_speedup": {
+        "n": 31,
+        "median": 0.9721939362086522,
+        "mad": 0.04279364502369787
+      },
+      "conclusion": "Possible small cost within the observed variation is disclosed."
+    },
+    "default_process": {
+      "paired_speedups": {
+        "ordinary": {
+          "n": 61,
+          "median": 1.0271972746892717,
+          "mad": 0.2966249320292593
+        },
+        "aot": {
+          "n": 61,
+          "median": 1.0354906512770465,
+          "mad": 0.14303893048820093
+        },
+        "v8": {
+          "n": 61,
+          "median": 1.096376970483821,
+          "mad": 0.32361174671179604
+        }
+      },
+      "conclusion": "Large variation prevents a broad process-speed claim; fresh 15-sample values are not paired with the earlier delivery."
+    },
+    "warmed_controls": {
+      "warmed_wasmtime": {
+        "n": 9,
+        "median": 0.9964920331913488,
+        "mad": 0.007516741864356913
+      },
+      "warmed_v8": {
+        "n": 9,
+        "median": 0.9998569385555995,
+        "mad": 0.00023737683504942986
+      }
+    },
+    "size": "45,923 to 42,296 bytes (7.9%) and 427 to 317 static memory.copy instructions describe this unchanged Functions workload, not all programs or dynamically executed copies.",
+    "engines": "Native C API full static SDK, separately frozen warmed reference host and Python bindings have distinct engine/host bytes even at Wasmtime 50.0.1. Process, first-entry, compilation and warmed-region boundaries remain separate.",
+    "references": "Selected artifacts were built earlier but executed in fresh paired rounds. Native selections are workload references, not universal ceilings; the CRC vectorization caveat remains appropriately bounded.",
+    "future_work": "EnsureMemory slow-path outlining remains unmeasured, with no invented rejected-timing claim."
+  },
+  "remaining_boundary": "Archive assembly and final archive/manifest closure are not yet audited here; they require a separate supplemental audit after the package is sealed."
+}

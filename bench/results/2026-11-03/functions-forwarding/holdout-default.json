@@ -1,0 +1,5457 @@
+{
+  "status": "passed",
+  "started_utc": "2026-11-03T08:44:28.188347+00:00",
+  "method": "Fresh process launch-to-exit. Randomized variant/mode blocks; Default inherited process affinity and engine settings; independently collected paired process cohort. Native C built previously, executed freshly. Engine phase probes are separately instrumented diagnostics.",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "environment": {
+    "RAYON_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "BINARYEN_CORES": null
+  },
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/holdout_default.py": "77c7b662661d61d52e93e94a0808c5517604664615990320282765d17e19ab4b",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json": "64c9a495d77916bfc86c1698511330586ffc780e0c48e9ce84832221c68d8020",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/functions/native/3/program.bin": "98b53f9578464a8eb5e1fb9e7f8fa734c653c7bb86b584140fab1ff908ca6404",
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565",
+    "/home/jacobt/src/goose-to-wasm/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43",
+    "/home/jacobt/src/goose-to-wasm/build/functions-hill/compact/O2.wasm": "c9ad6eca9f1ed37230518b4c86f0a84b2342ecd2d2fc3bd22180686822d814c9",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/O2.wasm": "ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/goose": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-hill/final/bin/goose": "5e3b87720d24f3285a5f9df57989c200bf7152a28f296cfd3af0220db1cc2edf",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/toolchain.json": "92be5b554e9732b08ae3c06f9dd7e64c3d88c0d3c1dd46e26fa96a6f967dbb20",
+    "/home/jacobt/src/goose-to-wasm/build/functions-hill/final/toolchain.json": "5904bd086e3d5843926d0c7dd47bce8d59623860c54c4272b5eb54401f1341f3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/qualification/attempt-1/focused/report.json": "a5801b9dd3dc7f943c7bbd27a3418e488470d209aa08a90a2839613821fa6777",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/qualification/attempt-1/differential/report.json": "17256c80ce8bcef2421c7fd5442df1705b97cb773ef94b39538313ba2d7acce4",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/qualification/attempt-1/host/report.json": "704fab8bb1f68d778045ea71a4f6668f488fe6f93fa135c3ea34387032e40e49",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/report.json": "536b3e4c30a89c84ac334a9f6c21c0a8ca9ac05e1be40db212d7a9fcebc43f9d"
+  },
+  "variants": {
+    "baseline-O2": {
+      "wasm": "/home/jacobt/src/goose-to-wasm/build/functions-hill/compact/O2.wasm",
+      "sha256": "c9ad6eca9f1ed37230518b4c86f0a84b2342ecd2d2fc3bd22180686822d814c9",
+      "aot": "/home/jacobt/src/goose-to-wasm/build/functions-next/holdout-default/baseline-O2.cwasm",
+      "aot_sha256": "4b80f0ff2ee9cd1471af89974b510f5d32b34810131ab4acd825da3da0ddaae6",
+      "preparation_seconds": 0.019159931
+    },
+    "forward-O2": {
+      "wasm": "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/O2.wasm",
+      "sha256": "ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec",
+      "aot": "/home/jacobt/src/goose-to-wasm/build/functions-next/holdout-default/forward-O2.cwasm",
+      "aot_sha256": "5b2d899fe7325a82cfc2633fdb2e5d0c241b827816a0e48684b02f3c7076b763",
+      "preparation_seconds": 0.018637465
+    }
+  },
+  "host": {
+    "schema": "goose-native-wasmtime-host-v1",
+    "version": "50.0.1",
+    "target": "linux-x86_64",
+    "linkage": "sdk-static",
+    "static_cxx_runtime": true,
+    "supported_modes": [
+      "ordinary",
+      "precompiled"
+    ],
+    "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a",
+    "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648",
+    "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz",
+    "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d",
+    "input_sha256": {
+      "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+      "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+      "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5",
+      "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "263acca3771c73dcc9a84d8e235ef71d7cc0af5936b85ae308383481aadec507",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648",
+      "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h": "025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b",
+      "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2",
+      "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212",
+      "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb"
+    },
+    "command": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include",
+      "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a",
+      "-Wl,--gc-sections",
+      "-static-libstdc++",
+      "-static-libgcc",
+      "-lpthread",
+      "-ldl",
+      "-lm",
+      "-o",
+      "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"
+    ],
+    "host_sha256": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb",
+    "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n"
+  },
+  "observations": [
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001087341
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "forward-O2/v8",
+      "seconds": 0.031707884
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.028520622
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018259095
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.058088921
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "native-C",
+      "seconds": 0.001232519
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001723834
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034007265
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001960735
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "forward-O2/v8",
+      "seconds": 0.037318734
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00117042
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031398324
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.01808355
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "native-C",
+      "seconds": 0.002311363
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "native-C",
+      "seconds": 0.002201424
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001709377
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.032685146
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001107299
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "forward-O2/v8",
+      "seconds": 0.033963581
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.021994591
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.053368919
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "forward-O2/v8",
+      "seconds": 0.039803456
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.032883113
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.060750161
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001933143
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034584314
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001866886
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "native-C",
+      "seconds": 0.001156323
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "native-C",
+      "seconds": 0.001112689
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.032915555
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001907564
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001524945
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030056328
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.055270982
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.020120199
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.055426679
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "native-C",
+      "seconds": 0.001339221
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.032082949
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002084371
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.024235089
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "forward-O2/v8",
+      "seconds": 0.05930656
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001871376
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.032641292
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.039099846
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "forward-O2/v8",
+      "seconds": 0.05557355
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "native-C",
+      "seconds": 0.000882782
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.020146359
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001889429
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001647518
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "native-C",
+      "seconds": 0.000675668
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.033306309
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.061552049
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001933313
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030884907
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019360261
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001944594
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018868075
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.058677342
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001606911
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001772687
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "forward-O2/v8",
+      "seconds": 0.033478547
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "native-C",
+      "seconds": 0.000835091
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.027221628
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001928794
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "native-C",
+      "seconds": 0.000821174
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.035930167
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.056642756
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001719055
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "forward-O2/v8",
+      "seconds": 0.059404787
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.022599061
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.059539534
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.031797505
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001894599
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001855154
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.019361314
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "native-C",
+      "seconds": 0.00086107
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "forward-O2/v8",
+      "seconds": 0.049360062
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001862518
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "forward-O2/v8",
+      "seconds": 0.051130094
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.035861597
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001947911
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "native-C",
+      "seconds": 0.000718619
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.027586062
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.028888653
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.0019945
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.033075249
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001918565
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "native-C",
+      "seconds": 0.001272494
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "forward-O2/v8",
+      "seconds": 0.034743638
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.031248059
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.060426765
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001198894
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.03430416
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "native-C",
+      "seconds": 0.000880407
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.058117305
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001773539
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "forward-O2/v8",
+      "seconds": 0.056452643
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019498576
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "forward-O2/v8",
+      "seconds": 0.047460063
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "native-C",
+      "seconds": 0.001320055
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.055855987
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.034663595
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.033775914
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001935578
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "forward-O2/aot",
+      "seconds": 0.00172687
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "forward-O2/v8",
+      "seconds": 0.053684912
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001849934
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.025490159
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "native-C",
+      "seconds": 0.001035934
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001070819
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032045527
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.032632416
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001904699
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "native-C",
+      "seconds": 0.000735501
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.03382107
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.019235664
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.055495721
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "forward-O2/v8",
+      "seconds": 0.057545246
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001903196
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018596577
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "native-C",
+      "seconds": 0.000786629
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "forward-O2/v8",
+      "seconds": 0.029651246
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001887155
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "forward-O2/aot",
+      "seconds": 0.000957865
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.03241973
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.039089527
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "native-C",
+      "seconds": 0.000799804
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.064017535
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001851687
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.019603816
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "forward-O2/v8",
+      "seconds": 0.059797777
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001852208
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.032094431
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "forward-O2/v8",
+      "seconds": 0.035704648
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.046737195
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.035961778
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001889349
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001721139
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "native-C",
+      "seconds": 0.00217333
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.029062886
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.054405074
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "native-C",
+      "seconds": 0.001379378
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018983284
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030145909
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001841628
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "forward-O2/aot",
+      "seconds": 0.000966211
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.017860524
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.026978384
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001121376
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.017893759
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030980399
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "native-C",
+      "seconds": 0.001252876
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.033966196
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001930989
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.03399432
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "forward-O2/v8",
+      "seconds": 0.05657643
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.019125554
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "native-C",
+      "seconds": 0.000845811
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001037346
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.055097332
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00193195
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.039969693
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001179878
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001734495
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "forward-O2/v8",
+      "seconds": 0.034150548
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "native-C",
+      "seconds": 0.001207771
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034956874
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.02266652
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.017923665
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031882357
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001934215
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.037866347
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "forward-O2/aot",
+      "seconds": 0.002092687
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "native-C",
+      "seconds": 0.001186801
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "forward-O2/v8",
+      "seconds": 0.056509763
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "native-C",
+      "seconds": 0.001271502
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019769391
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.059498316
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "forward-O2/v8",
+      "seconds": 0.054617157
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.021476673
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002022282
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001964793
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.018963837
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "native-C",
+      "seconds": 0.000820263
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.050019759
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "forward-O2/v8",
+      "seconds": 0.047874562
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001680121
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001470811
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.025858661
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001822191
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.03442487
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "native-C",
+      "seconds": 0.001268577
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001765804
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.059163218
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034669777
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "forward-O2/v8",
+      "seconds": 0.05537467
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001934044
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.017885924
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "forward-O2/v8",
+      "seconds": 0.029355543
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.035637461
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001318391
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "native-C",
+      "seconds": 0.001234472
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.053977519
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.033289978
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "native-C",
+      "seconds": 0.001253819
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "forward-O2/v8",
+      "seconds": 0.055308274
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.027958792
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.023765144
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001130113
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001326146
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.018067339
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001481261
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "forward-O2/aot",
+      "seconds": 0.000959067
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "native-C",
+      "seconds": 0.000631924
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030224288
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "forward-O2/v8",
+      "seconds": 0.056622578
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018860019
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001832841
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.017635236
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019990643
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030624691
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.059421721
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "native-C",
+      "seconds": 0.001286311
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "forward-O2/aot",
+      "seconds": 0.00177963
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.032825303
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "native-C",
+      "seconds": 0.001296139
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.033193414
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.058884968
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001217991
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001759932
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "forward-O2/v8",
+      "seconds": 0.032111374
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.03276061
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "forward-O2/aot",
+      "seconds": 0.002906417
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "native-C",
+      "seconds": 0.001460131
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "forward-O2/v8",
+      "seconds": 0.035454071
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001232377
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031429414
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.025444462
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001875613
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "forward-O2/v8",
+      "seconds": 0.04847719
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "native-C",
+      "seconds": 0.000796647
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001734644
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.023162596
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.060902991
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.031631509
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001981184
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03057674
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001121767
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018054845
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "native-C",
+      "seconds": 0.000859157
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.021575081
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "forward-O2/v8",
+      "seconds": 0.057588368
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001142497
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.025151494
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001197622
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.060122686
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.034713821
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "forward-O2/v8",
+      "seconds": 0.04771078
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "native-C",
+      "seconds": 0.000934981
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.063079498
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.018276608
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "forward-O2/v8",
+      "seconds": 0.031330917
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.033472265
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001966026
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001792414
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "native-C",
+      "seconds": 0.001177343
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001693145
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001739354
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "native-C",
+      "seconds": 0.001153718
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "forward-O2/v8",
+      "seconds": 0.032437414
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034105231
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.064382059
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.0188712
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "native-C",
+      "seconds": 0.001255652
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001729856
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.019344512
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.057994461
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "forward-O2/v8",
+      "seconds": 0.064364365
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.031463979
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "forward-O2/aot",
+      "seconds": 0.00124892
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001783227
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "forward-O2/v8",
+      "seconds": 0.058270598
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001928884
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032235279
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.02391541
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "native-C",
+      "seconds": 0.000818769
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.017758651
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030521234
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.061146265
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.032079973
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.02629341
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001831689
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "native-C",
+      "seconds": 0.00117074
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001634694
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "forward-O2/v8",
+      "seconds": 0.033088385
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "native-C",
+      "seconds": 0.001255652
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001787194
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.055735959
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019363999
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001629555
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.024982612
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "forward-O2/v8",
+      "seconds": 0.038466149
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.023406951
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.037912274
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001902464
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.05669214
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "native-C",
+      "seconds": 0.001289256
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001801071
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.031475432
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001783417
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001772647
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "forward-O2/v8",
+      "seconds": 0.057556367
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.033151004
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.056426645
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "native-C",
+      "seconds": 0.001294306
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001090227
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "native-C",
+      "seconds": 0.001190097
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031681905
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001155261
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.017718124
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018285615
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030799835
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "native-C",
+      "seconds": 0.001010284
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.020337133
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002618028
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "forward-O2/v8",
+      "seconds": 0.028856333
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.0412384
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.020046549
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001226817
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.035834806
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.020530501
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.02837233
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "native-C",
+      "seconds": 0.001314765
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030039716
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001908175
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001200397
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.019337919
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "native-C",
+      "seconds": 0.001056112
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001862308
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.022994065
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.058531334
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "forward-O2/aot",
+      "seconds": 0.00183239
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "forward-O2/v8",
+      "seconds": 0.048513269
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.026914232
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "native-C",
+      "seconds": 0.001313393
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001278986
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.031783788
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001808175
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "forward-O2/v8",
+      "seconds": 0.057539945
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.062120501
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "native-C",
+      "seconds": 0.001214623
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.03398899
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00119731
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.018171036
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001092982
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "forward-O2/v8",
+      "seconds": 0.029964994
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.029713165
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001238189
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001019923
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.036854238
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019124943
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "forward-O2/v8",
+      "seconds": 0.03170025
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "native-C",
+      "seconds": 0.000852604
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.01876593
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001147756
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.021746208
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032285735
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "native-C",
+      "seconds": 0.0007927
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "forward-O2/v8",
+      "seconds": 0.040002235
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001912563
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.02117043
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.025709317
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031828805
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001547258
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.017379979
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "native-C",
+      "seconds": 0.000802639
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001040321
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "forward-O2/v8",
+      "seconds": 0.032249877
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "forward-O2/v8",
+      "seconds": 0.057560845
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.032780649
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "native-C",
+      "seconds": 0.00084563
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001902243
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.029803747
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001882757
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.032858186
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.030311184
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.042588382
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.021308774
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001887496
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "native-C",
+      "seconds": 0.001277283
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001055591
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "forward-O2/v8",
+      "seconds": 0.05511167
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001879149
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019013942
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "native-C",
+      "seconds": 0.000778222
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.022961993
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.039793649
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "forward-O2/aot",
+      "seconds": 0.00116507
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "forward-O2/v8",
+      "seconds": 0.05660759
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "native-C",
+      "seconds": 0.002282408
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001365591
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.019966467
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.01848797
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "forward-O2/v8",
+      "seconds": 0.030502438
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.056538167
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001932321
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.058295365
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.018905405
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.023572185
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001837119
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001260381
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "forward-O2/v8",
+      "seconds": 0.033103824
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "native-C",
+      "seconds": 0.000781749
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001797915
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.018358764
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03010991
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001172854
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "forward-O2/v8",
+      "seconds": 0.029712463
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "native-C",
+      "seconds": 0.001227809
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.022328377
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "forward-O2/aot",
+      "seconds": 0.00192065
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "native-C",
+      "seconds": 0.000815864
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.019087052
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001532289
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "forward-O2/v8",
+      "seconds": 0.033783409
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.028052241
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.057707344
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "native-C",
+      "seconds": 0.001160631
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.057975735
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.032858607
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001890752
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.018937317
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "forward-O2/aot",
+      "seconds": 0.002807448
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "forward-O2/v8",
+      "seconds": 0.02984198
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "native-C",
+      "seconds": 0.000774506
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.05859741
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "forward-O2/aot",
+      "seconds": 0.001913996
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.033769912
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001932993
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "forward-O2/ordinary",
+      "seconds": 0.03474489
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "forward-O2/v8",
+      "seconds": 0.059746159
+    }
+  ],
+  "phase_probes": [
+    {
+      "sample": 0,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034803792,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31645536,
+        "start_function_ns": 104108,
+        "engine_total_ns": 31749644
+      }
+    },
+    {
+      "sample": 0,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.060194873,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 504280,
+        "start_function_ns": 10285905,
+        "engine_total_ns": 10790185
+      }
+    },
+    {
+      "sample": 0,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03392063,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30398670,
+        "start_function_ns": 63632,
+        "engine_total_ns": 30462302
+      }
+    },
+    {
+      "sample": 0,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03069706,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 388650,
+        "start_function_ns": 5644934,
+        "engine_total_ns": 6033584
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.056005232,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 497277,
+        "start_function_ns": 9959173,
+        "engine_total_ns": 10456450
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033193645,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30386478,
+        "start_function_ns": 60284,
+        "engine_total_ns": 30446762
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03020443,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 287948,
+        "start_function_ns": 5663589,
+        "engine_total_ns": 5951537
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019007279,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17780873,
+        "start_function_ns": 60114,
+        "engine_total_ns": 17840987
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019769131,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 18060426,
+        "start_function_ns": 107625,
+        "engine_total_ns": 18168051
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030856172,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 286656,
+        "start_function_ns": 6045828,
+        "engine_total_ns": 6332484
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031614938,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 449356,
+        "start_function_ns": 4719350,
+        "engine_total_ns": 5168706
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033700731,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31182564,
+        "start_function_ns": 86224,
+        "engine_total_ns": 31268788
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.026569405,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 24754277,
+        "start_function_ns": 108768,
+        "engine_total_ns": 24863045
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.031010466,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 29404116,
+        "start_function_ns": 60936,
+        "engine_total_ns": 29465052
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.035733193,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 406885,
+        "start_function_ns": 4939129,
+        "engine_total_ns": 5346014
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.06193066,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 503870,
+        "start_function_ns": 10644027,
+        "engine_total_ns": 11147897
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019557688,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17855495,
+        "start_function_ns": 117754,
+        "engine_total_ns": 17973249
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.052882002,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 439568,
+        "start_function_ns": 5689759,
+        "engine_total_ns": 6129327
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.018698311,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17099726,
+        "start_function_ns": 64282,
+        "engine_total_ns": 17164008
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.044431194,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 333636,
+        "start_function_ns": 8263072,
+        "engine_total_ns": 8596708
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.035850927,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 317174,
+        "start_function_ns": 4737395,
+        "engine_total_ns": 5054569
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.027662157,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 24814874,
+        "start_function_ns": 62779,
+        "engine_total_ns": 24877653
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.02843548,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 26626745,
+        "start_function_ns": 120790,
+        "engine_total_ns": 26747535
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.040990749,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 485565,
+        "start_function_ns": 8098438,
+        "engine_total_ns": 8584003
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033074688,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31442559,
+        "start_function_ns": 61307,
+        "engine_total_ns": 31503866
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019381853,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17605980,
+        "start_function_ns": 59143,
+        "engine_total_ns": 17665123
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.029846018,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 285163,
+        "start_function_ns": 4924201,
+        "engine_total_ns": 5209364
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03052431,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 294050,
+        "start_function_ns": 5765444,
+        "engine_total_ns": 6059494
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.028961673,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 430430,
+        "start_function_ns": 4798982,
+        "engine_total_ns": 5229412
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03196271,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30727167,
+        "start_function_ns": 60234,
+        "engine_total_ns": 30787401
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.055420497,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 398279,
+        "start_function_ns": 10224608,
+        "engine_total_ns": 10622887
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033948303,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30969618,
+        "start_function_ns": 60936,
+        "engine_total_ns": 31030554
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.035875273,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 314349,
+        "start_function_ns": 5729956,
+        "engine_total_ns": 6044305
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033649354,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31777467,
+        "start_function_ns": 121601,
+        "engine_total_ns": 31899068
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.05472905,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 439096,
+        "start_function_ns": 10251570,
+        "engine_total_ns": 10690666
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.032306155,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30508991,
+        "start_function_ns": 108076,
+        "engine_total_ns": 30617067
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019351736,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17611270,
+        "start_function_ns": 107234,
+        "engine_total_ns": 17718504
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.034368554,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 414109,
+        "start_function_ns": 5599838,
+        "engine_total_ns": 6013947
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.031709919,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 28832045,
+        "start_function_ns": 105331,
+        "engine_total_ns": 28937376
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057953254,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 480035,
+        "start_function_ns": 10282699,
+        "engine_total_ns": 10762734
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.05649245,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 435750,
+        "start_function_ns": 10514391,
+        "engine_total_ns": 10950141
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.024857544,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 23085589,
+        "start_function_ns": 107915,
+        "engine_total_ns": 23193504
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03499177,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 404100,
+        "start_function_ns": 5648661,
+        "engine_total_ns": 6052761
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033987127,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30503300,
+        "start_function_ns": 82928,
+        "engine_total_ns": 30586228
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.036499462,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 376137,
+        "start_function_ns": 5658910,
+        "engine_total_ns": 6035047
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.063035716,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 499181,
+        "start_function_ns": 10104961,
+        "engine_total_ns": 10604142
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.032740231,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30911958,
+        "start_function_ns": 124216,
+        "engine_total_ns": 31036174
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.027300808,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 25637951,
+        "start_function_ns": 60696,
+        "engine_total_ns": 25698647
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030331053,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 347923,
+        "start_function_ns": 5762849,
+        "engine_total_ns": 6110772
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019755805,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 18392488,
+        "start_function_ns": 105201,
+        "engine_total_ns": 18497689
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.058821277,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 391346,
+        "start_function_ns": 10884345,
+        "engine_total_ns": 11275691
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.032809373,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31213222,
+        "start_function_ns": 59123,
+        "engine_total_ns": 31272345
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.02279259,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 21171853,
+        "start_function_ns": 61638,
+        "engine_total_ns": 21233491
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03070844,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 333124,
+        "start_function_ns": 4863145,
+        "engine_total_ns": 5196269
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.04271775,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 384703,
+        "start_function_ns": 8188630,
+        "engine_total_ns": 8573333
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033921302,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30268633,
+        "start_function_ns": 104138,
+        "engine_total_ns": 30372771
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034472331,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31158167,
+        "start_function_ns": 101985,
+        "engine_total_ns": 31260152
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057463831,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 495033,
+        "start_function_ns": 10628447,
+        "engine_total_ns": 11123480
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.032809653,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31009254,
+        "start_function_ns": 103177,
+        "engine_total_ns": 31112431
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.054982323,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 539047,
+        "start_function_ns": 10226002,
+        "engine_total_ns": 10765049
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019886454,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 18079583,
+        "start_function_ns": 111793,
+        "engine_total_ns": 18191376
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.056426805,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 482840,
+        "start_function_ns": 10550730,
+        "engine_total_ns": 11033570
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.062913502,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 490144,
+        "start_function_ns": 10236471,
+        "engine_total_ns": 10726615
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.026688282,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 24966081,
+        "start_function_ns": 110962,
+        "engine_total_ns": 25077043
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057439514,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 469935,
+        "start_function_ns": 10600284,
+        "engine_total_ns": 11070219
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.039025155,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 490504,
+        "start_function_ns": 8844148,
+        "engine_total_ns": 9334652
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034671982,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31487315,
+        "start_function_ns": 64503,
+        "engine_total_ns": 31551818
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034281988,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 32302117,
+        "start_function_ns": 99630,
+        "engine_total_ns": 32401747
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.020172028,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 18386397,
+        "start_function_ns": 107805,
+        "engine_total_ns": 18494202
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.032617237,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30848036,
+        "start_function_ns": 104379,
+        "engine_total_ns": 30952415
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057954375,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 487589,
+        "start_function_ns": 10442223,
+        "engine_total_ns": 10929812
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.056660029,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 488711,
+        "start_function_ns": 10070094,
+        "engine_total_ns": 10558805
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.059970516,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 489072,
+        "start_function_ns": 10433275,
+        "engine_total_ns": 10922347
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.054808251,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 486627,
+        "start_function_ns": 9965666,
+        "engine_total_ns": 10452293
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.027040243,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 24350158,
+        "start_function_ns": 102004,
+        "engine_total_ns": 24452162
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.026559056,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 24903613,
+        "start_function_ns": 116482,
+        "engine_total_ns": 25020095
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019140794,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17435766,
+        "start_function_ns": 84050,
+        "engine_total_ns": 17519816
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.024919603,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 23197833,
+        "start_function_ns": 122263,
+        "engine_total_ns": 23320096
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057828225,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 502748,
+        "start_function_ns": 10109328,
+        "engine_total_ns": 10612076
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.058436003,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 492849,
+        "start_function_ns": 10188389,
+        "engine_total_ns": 10681238
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.027732471,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 26030910,
+        "start_function_ns": 62559,
+        "engine_total_ns": 26093469
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.024315362,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 22539649,
+        "start_function_ns": 107084,
+        "engine_total_ns": 22646733
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.05019871,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 300332,
+        "start_function_ns": 5705139,
+        "engine_total_ns": 6005471
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03073928,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 413507,
+        "start_function_ns": 5830658,
+        "engine_total_ns": 6244165
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.035139211,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 328817,
+        "start_function_ns": 5539412,
+        "engine_total_ns": 5868229
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057025095,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 390744,
+        "start_function_ns": 10689835,
+        "engine_total_ns": 11080579
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.031756908,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 29537220,
+        "start_function_ns": 100671,
+        "engine_total_ns": 29637891
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.023979472,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 22190605,
+        "start_function_ns": 100551,
+        "engine_total_ns": 22291156
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03212043,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30356060,
+        "start_function_ns": 102986,
+        "engine_total_ns": 30459046
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057734166,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 501145,
+        "start_function_ns": 10339136,
+        "engine_total_ns": 10840281
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03474515,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31305979,
+        "start_function_ns": 107284,
+        "engine_total_ns": 31413263
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.037220947,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 398018,
+        "start_function_ns": 5650955,
+        "engine_total_ns": 6048973
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.034299232,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 317796,
+        "start_function_ns": 5606601,
+        "engine_total_ns": 5924397
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019477195,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17623444,
+        "start_function_ns": 109359,
+        "engine_total_ns": 17732803
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.021455654,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 20304281,
+        "start_function_ns": 59723,
+        "engine_total_ns": 20364004
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03099117,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 289963,
+        "start_function_ns": 5742660,
+        "engine_total_ns": 6032623
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.023960776,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 22399512,
+        "start_function_ns": 84962,
+        "engine_total_ns": 22484474
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.058547085,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 510603,
+        "start_function_ns": 10595755,
+        "engine_total_ns": 11106358
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.026525191,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 24749619,
+        "start_function_ns": 115821,
+        "engine_total_ns": 24865440
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.04199381,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 400192,
+        "start_function_ns": 4804132,
+        "engine_total_ns": 5204324
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.036232825,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 335940,
+        "start_function_ns": 5604277,
+        "engine_total_ns": 5940217
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.029371904,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 341050,
+        "start_function_ns": 5584929,
+        "engine_total_ns": 5925979
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.018610193,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17253779,
+        "start_function_ns": 117243,
+        "engine_total_ns": 17371022
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.031889711,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30671530,
+        "start_function_ns": 61788,
+        "engine_total_ns": 30733318
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.057193155,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 444317,
+        "start_function_ns": 10634859,
+        "engine_total_ns": 11079176
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.056499433,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 491757,
+        "start_function_ns": 9893928,
+        "engine_total_ns": 10385685
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019728343,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 18071197,
+        "start_function_ns": 68530,
+        "engine_total_ns": 18139727
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.023769081,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 22172871,
+        "start_function_ns": 61286,
+        "engine_total_ns": 22234157
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.025083766,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 23931461,
+        "start_function_ns": 58702,
+        "engine_total_ns": 23990163
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030018967,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 286937,
+        "start_function_ns": 5682856,
+        "engine_total_ns": 5969793
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.02053494,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 19328903,
+        "start_function_ns": 59373,
+        "engine_total_ns": 19388276
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.040938629,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 337934,
+        "start_function_ns": 7497473,
+        "engine_total_ns": 7835407
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035396411,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31900381,
+        "start_function_ns": 61828,
+        "engine_total_ns": 31962209
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.061130346,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 461830,
+        "start_function_ns": 10380585,
+        "engine_total_ns": 10842415
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.058489435,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 501375,
+        "start_function_ns": 10327705,
+        "engine_total_ns": 10829080
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033980113,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30775629,
+        "start_function_ns": 103737,
+        "engine_total_ns": 30879366
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032993474,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 462992,
+        "start_function_ns": 7006237,
+        "engine_total_ns": 7469229
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.020810445,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 19376433,
+        "start_function_ns": 60956,
+        "engine_total_ns": 19437389
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030362041,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 392598,
+        "start_function_ns": 5878058,
+        "engine_total_ns": 6270656
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.020049024,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 18845522,
+        "start_function_ns": 58160,
+        "engine_total_ns": 18903682
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.06131641,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 485966,
+        "start_function_ns": 10575357,
+        "engine_total_ns": 11061323
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.019717904,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 17888488,
+        "start_function_ns": 111573,
+        "engine_total_ns": 18000061
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "forward-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.032089381,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30502067,
+        "start_function_ns": 61096,
+        "engine_total_ns": 30563163
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "forward-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031209375,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 297858,
+        "start_function_ns": 5759983,
+        "engine_total_ns": 6057841
+      }
+    }
+  ],
+  "summary": {
+    "native-C": {
+      "n": 61,
+      "median": 0.001156323,
+      "min": 0.000631924,
+      "max": 0.002282408,
+      "mad": 0.00018289800000000013,
+      "p25": 0.000821174,
+      "p75": 0.001271502,
+      "samples": [
+        0.002201424,
+        0.001156323,
+        0.001112689,
+        0.001339221,
+        0.000882782,
+        0.000675668,
+        0.000835091,
+        0.000821174,
+        0.00086107,
+        0.000718619,
+        0.001272494,
+        0.000880407,
+        0.001320055,
+        0.001035934,
+        0.000735501,
+        0.000786629,
+        0.000799804,
+        0.00217333,
+        0.001379378,
+        0.001252876,
+        0.000845811,
+        0.001207771,
+        0.001186801,
+        0.001271502,
+        0.000820263,
+        0.001268577,
+        0.001234472,
+        0.001253819,
+        0.000631924,
+        0.001286311,
+        0.001296139,
+        0.001460131,
+        0.000796647,
+        0.000859157,
+        0.000934981,
+        0.001177343,
+        0.001153718,
+        0.001255652,
+        0.000818769,
+        0.00117074,
+        0.001255652,
+        0.001289256,
+        0.001294306,
+        0.001190097,
+        0.001010284,
+        0.001314765,
+        0.001056112,
+        0.001313393,
+        0.001214623,
+        0.000852604,
+        0.0007927,
+        0.000802639,
+        0.00084563,
+        0.001277283,
+        0.000778222,
+        0.002282408,
+        0.000781749,
+        0.001227809,
+        0.000815864,
+        0.001160631,
+        0.000774506
+      ]
+    },
+    "baseline-O2/ordinary": {
+      "n": 61,
+      "median": 0.025151494,
+      "min": 0.017635236,
+      "max": 0.037912274,
+      "mad": 0.00616821,
+      "p25": 0.019344512,
+      "p75": 0.032858607,
+      "samples": [
+        0.021994591,
+        0.034584314,
+        0.032915555,
+        0.032082949,
+        0.020146359,
+        0.033306309,
+        0.018868075,
+        0.022599061,
+        0.019361314,
+        0.028888653,
+        0.033075249,
+        0.03430416,
+        0.033775914,
+        0.032632416,
+        0.019235664,
+        0.018596577,
+        0.019603816,
+        0.029062886,
+        0.018983284,
+        0.026978384,
+        0.019125554,
+        0.034956874,
+        0.037866347,
+        0.021476673,
+        0.025858661,
+        0.034669777,
+        0.017885924,
+        0.027958792,
+        0.018860019,
+        0.017635236,
+        0.033193414,
+        0.025444462,
+        0.031631509,
+        0.018054845,
+        0.025151494,
+        0.033472265,
+        0.034105231,
+        0.019344512,
+        0.02391541,
+        0.02629341,
+        0.024982612,
+        0.037912274,
+        0.033151004,
+        0.018285615,
+        0.020337133,
+        0.02837233,
+        0.019337919,
+        0.026914232,
+        0.018171036,
+        0.01876593,
+        0.021746208,
+        0.025709317,
+        0.032780649,
+        0.021308774,
+        0.022961993,
+        0.01848797,
+        0.023572185,
+        0.022328377,
+        0.019087052,
+        0.032858607,
+        0.033769912
+      ]
+    },
+    "baseline-O2/aot": {
+      "n": 61,
+      "median": 0.001808175,
+      "min": 0.001019923,
+      "max": 0.002618028,
+      "mad": 0.00012496800000000004,
+      "p25": 0.001532289,
+      "p75": 0.001904699,
+      "samples": [
+        0.001709377,
+        0.001933143,
+        0.001524945,
+        0.002084371,
+        0.001889429,
+        0.001944594,
+        0.001606911,
+        0.001719055,
+        0.001855154,
+        0.001947911,
+        0.0019945,
+        0.001773539,
+        0.001935578,
+        0.001849934,
+        0.001904699,
+        0.001887155,
+        0.001852208,
+        0.001889349,
+        0.001841628,
+        0.001930989,
+        0.00193195,
+        0.001734495,
+        0.001934215,
+        0.002022282,
+        0.001470811,
+        0.001765804,
+        0.001934044,
+        0.001326146,
+        0.001481261,
+        0.001832841,
+        0.001217991,
+        0.001232377,
+        0.001734644,
+        0.001981184,
+        0.001197622,
+        0.001966026,
+        0.001693145,
+        0.001729856,
+        0.001783227,
+        0.001634694,
+        0.001787194,
+        0.001902464,
+        0.001783417,
+        0.001155261,
+        0.002618028,
+        0.001200397,
+        0.001862308,
+        0.001808175,
+        0.00119731,
+        0.001019923,
+        0.001147756,
+        0.001547258,
+        0.001902243,
+        0.001055591,
+        0.001879149,
+        0.001365591,
+        0.001837119,
+        0.001172854,
+        0.001532289,
+        0.001890752,
+        0.001932993
+      ]
+    },
+    "baseline-O2/v8": {
+      "n": 61,
+      "median": 0.055426679,
+      "min": 0.029713165,
+      "max": 0.064382059,
+      "mad": 0.005476311999999997,
+      "p25": 0.035861597,
+      "p75": 0.058677342,
+      "samples": [
+        0.053368919,
+        0.060750161,
+        0.055270982,
+        0.055426679,
+        0.039099846,
+        0.061552049,
+        0.058677342,
+        0.056642756,
+        0.059539534,
+        0.035861597,
+        0.060426765,
+        0.058117305,
+        0.055855987,
+        0.032045527,
+        0.055495721,
+        0.039089527,
+        0.064017535,
+        0.046737195,
+        0.054405074,
+        0.033966196,
+        0.055097332,
+        0.039969693,
+        0.031882357,
+        0.059498316,
+        0.050019759,
+        0.059163218,
+        0.053977519,
+        0.033289978,
+        0.030224288,
+        0.059421721,
+        0.058884968,
+        0.031429414,
+        0.060902991,
+        0.03057674,
+        0.060122686,
+        0.063079498,
+        0.064382059,
+        0.057994461,
+        0.032235279,
+        0.061146265,
+        0.055735959,
+        0.05669214,
+        0.056426645,
+        0.031681905,
+        0.0412384,
+        0.035834806,
+        0.058531334,
+        0.062120501,
+        0.029713165,
+        0.036854238,
+        0.032285735,
+        0.031828805,
+        0.029803747,
+        0.042588382,
+        0.039793649,
+        0.056538167,
+        0.058295365,
+        0.03010991,
+        0.057707344,
+        0.057975735,
+        0.05859741
+      ]
+    },
+    "forward-O2/ordinary": {
+      "n": 61,
+      "median": 0.023765144,
+      "min": 0.017379979,
+      "max": 0.035961778,
+      "mad": 0.005841479,
+      "p25": 0.019360261,
+      "p75": 0.032641292,
+      "samples": [
+        0.032685146,
+        0.032883113,
+        0.020120199,
+        0.024235089,
+        0.032641292,
+        0.019360261,
+        0.027221628,
+        0.035930167,
+        0.031797505,
+        0.027586062,
+        0.031248059,
+        0.019498576,
+        0.034663595,
+        0.025490159,
+        0.03382107,
+        0.03241973,
+        0.032094431,
+        0.035961778,
+        0.017860524,
+        0.017893759,
+        0.03399432,
+        0.02266652,
+        0.017923665,
+        0.019769391,
+        0.018963837,
+        0.03442487,
+        0.035637461,
+        0.023765144,
+        0.018067339,
+        0.019990643,
+        0.032825303,
+        0.03276061,
+        0.023162596,
+        0.021575081,
+        0.034713821,
+        0.018276608,
+        0.0188712,
+        0.031463979,
+        0.017758651,
+        0.032079973,
+        0.019363999,
+        0.023406951,
+        0.031475432,
+        0.017718124,
+        0.020046549,
+        0.020530501,
+        0.022994065,
+        0.031783788,
+        0.03398899,
+        0.019124943,
+        0.02117043,
+        0.017379979,
+        0.032858186,
+        0.030311184,
+        0.019013942,
+        0.019966467,
+        0.018905405,
+        0.018358764,
+        0.028052241,
+        0.018937317,
+        0.03474489
+      ]
+    },
+    "forward-O2/aot": {
+      "n": 61,
+      "median": 0.001772687,
+      "min": 0.000957865,
+      "max": 0.002906417,
+      "mad": 0.0001479630000000001,
+      "p25": 0.001198894,
+      "p75": 0.001894599,
+      "samples": [
+        0.001107299,
+        0.001866886,
+        0.001907564,
+        0.001871376,
+        0.001647518,
+        0.001933313,
+        0.001772687,
+        0.001928794,
+        0.001894599,
+        0.001862518,
+        0.001918565,
+        0.001198894,
+        0.00172687,
+        0.001070819,
+        0.001903196,
+        0.000957865,
+        0.001851687,
+        0.001721139,
+        0.000966211,
+        0.001121376,
+        0.001037346,
+        0.001179878,
+        0.002092687,
+        0.001964793,
+        0.001680121,
+        0.001822191,
+        0.001318391,
+        0.001130113,
+        0.000959067,
+        0.00177963,
+        0.001759932,
+        0.002906417,
+        0.001875613,
+        0.001121767,
+        0.001142497,
+        0.001792414,
+        0.001739354,
+        0.00124892,
+        0.001928884,
+        0.001831689,
+        0.001629555,
+        0.001801071,
+        0.001772647,
+        0.001090227,
+        0.001226817,
+        0.001908175,
+        0.00183239,
+        0.001278986,
+        0.001092982,
+        0.001238189,
+        0.001912563,
+        0.001040321,
+        0.001882757,
+        0.001887496,
+        0.00116507,
+        0.001932321,
+        0.001260381,
+        0.001797915,
+        0.00192065,
+        0.002807448,
+        0.001913996
+      ]
+    },
+    "forward-O2/v8": {
+      "n": 61,
+      "median": 0.039803456,
+      "min": 0.028856333,
+      "max": 0.064364365,
+      "mad": 0.009747128,
+      "p25": 0.031330917,
+      "p75": 0.056452643,
+      "samples": [
+        0.033963581,
+        0.039803456,
+        0.030056328,
+        0.05930656,
+        0.05557355,
+        0.030884907,
+        0.033478547,
+        0.059404787,
+        0.049360062,
+        0.051130094,
+        0.034743638,
+        0.056452643,
+        0.047460063,
+        0.053684912,
+        0.057545246,
+        0.029651246,
+        0.059797777,
+        0.035704648,
+        0.030145909,
+        0.030980399,
+        0.05657643,
+        0.034150548,
+        0.056509763,
+        0.054617157,
+        0.047874562,
+        0.05537467,
+        0.029355543,
+        0.055308274,
+        0.056622578,
+        0.030624691,
+        0.032111374,
+        0.035454071,
+        0.04847719,
+        0.057588368,
+        0.04771078,
+        0.031330917,
+        0.032437414,
+        0.064364365,
+        0.058270598,
+        0.030521234,
+        0.033088385,
+        0.038466149,
+        0.057556367,
+        0.030799835,
+        0.028856333,
+        0.030039716,
+        0.048513269,
+        0.057539945,
+        0.029964994,
+        0.03170025,
+        0.040002235,
+        0.032249877,
+        0.057560845,
+        0.05511167,
+        0.05660759,
+        0.030502438,
+        0.033103824,
+        0.029712463,
+        0.033783409,
+        0.02984198,
+        0.059746159
+      ]
+    }
+  },
+  "paired_speedups": {
+    "ordinary": {
+      "n": 61,
+      "median": 1.0271972746892717,
+      "min": 0.5018854738276669,
+      "max": 2.1126453211438623,
+      "mad": 0.2966249320292593,
+      "p25": 0.7766785172803559,
+      "p75": 1.323822206718531,
+      "samples": [
+        0.672923137623433,
+        1.051734791654306,
+        1.6359457975539904,
+        1.323822206718531,
+        0.6172047050098384,
+        1.7203440077589862,
+        0.6931280891796773,
+        0.6289717773925181,
+        0.6088941254982113,
+        1.0472191717686996,
+        1.0584737119191947,
+        1.7593161674985907,
+        0.9743915482511263,
+        1.2801966437321948,
+        0.5687479432200104,
+        0.573619120208589,
+        0.6108167488621312,
+        0.8081604307773659,
+        1.06286265733301,
+        1.507697963295471,
+        0.5626102831296522,
+        1.542225008514761,
+        2.1126453211438623,
+        1.0863598681416136,
+        1.3635774764358077,
+        1.0071142461830647,
+        0.5018854738276669,
+        1.1764621329456284,
+        1.0438736440380068,
+        0.8821745253516857,
+        1.0112142453033868,
+        0.7766785172803559,
+        1.3656288353861545,
+        0.8368378779203657,
+        0.7245383330172729,
+        1.8314265426057177,
+        1.807263502056043,
+        0.6148145471365843,
+        1.3466906917648194,
+        0.8196207022992196,
+        1.2901576786902333,
+        1.6197015151610308,
+        1.0532342812641937,
+        1.0320288423311634,
+        1.0144954625357212,
+        1.3819599434032321,
+        0.8409961005155024,
+        0.8467912005957251,
+        0.5346153563256808,
+        0.981228022483518,
+        1.0271972746892717,
+        1.479249025559812,
+        0.9976402531777014,
+        0.7030003842806007,
+        1.207639793999582,
+        0.9259509957370023,
+        1.2468489831347171,
+        1.2162244146719245,
+        0.6804109518380368,
+        1.7351247275419217,
+        0.9719389527495985
+      ]
+    },
+    "aot": {
+      "n": 61,
+      "median": 1.0354906512770465,
+      "min": 0.42401933377075623,
+      "max": 2.1340004254913323,
+      "mad": 0.14303893048820093,
+      "p25": 0.924273434106486,
+      "p75": 1.4137566791192397,
+      "samples": [
+        1.543735702822815,
+        1.0354906512770465,
+        0.7994200980936943,
+        1.1138173194483632,
+        1.1468336006040603,
+        1.0058350613687488,
+        0.9064832088236671,
+        0.8912589939620301,
+        0.97918029092172,
+        1.0458481475078363,
+        1.0395790603914907,
+        1.4793125997794634,
+        1.1208591266279455,
+        1.7275879490371389,
+        1.0007897242322914,
+        1.9701680299415887,
+        1.0002813650471165,
+        1.0977317927256312,
+        1.9060308773135475,
+        1.7219817438575462,
+        1.8623969244591487,
+        1.4700630065142326,
+        0.924273434106486,
+        1.0292595708555559,
+        0.8754196870344458,
+        0.9690553844245746,
+        1.4669729996639844,
+        1.173463184654986,
+        1.5444812510491968,
+        1.029900035400617,
+        0.6920670798644494,
+        0.42401933377075623,
+        0.9248411052813134,
+        1.7661279035664268,
+        1.048249579648787,
+        1.0968593193313598,
+        0.9734332401569779,
+        1.3850815104250074,
+        0.9244863869470636,
+        0.8924517207888456,
+        1.0967374528628981,
+        1.056295948355173,
+        1.0060756597337202,
+        1.0596517972862534,
+        2.1340004254913323,
+        0.6290811901424136,
+        1.016327310234175,
+        1.4137566791192397,
+        1.0954526241054292,
+        0.8237215804695407,
+        0.6001140877450835,
+        1.487289019446882,
+        1.010349715868803,
+        0.5592546951092877,
+        1.612906520638245,
+        0.7067102205068412,
+        1.4575902048666234,
+        0.6523411840937976,
+        0.7977970999401244,
+        0.6734771222832978,
+        1.0099253080988675
+      ]
+    },
+    "v8": {
+      "n": 61,
+      "median": 1.096376970483821,
+      "min": 0.5177781354669133,
+      "max": 2.0133307301538603,
+      "mad": 0.32361174671179604,
+      "p25": 0.9535049086195697,
+      "p75": 1.6844569174349249,
+      "samples": [
+        1.5713572429244136,
+        1.526253423823298,
+        1.8389133230113806,
+        0.9345792269860197,
+        0.7035693418901618,
+        1.9929491450306132,
+        1.7526848462091262,
+        0.9535049086195697,
+        1.2062289143802127,
+        0.7013794459286541,
+        1.739218126783384,
+        1.0294877602099162,
+        1.1769050327640738,
+        0.5969186835958676,
+        0.9643841126337351,
+        1.3183097600687674,
+        1.0705671383068303,
+        1.3089947000737832,
+        1.8047249462605357,
+        1.096376970483821,
+        0.9738566395935552,
+        1.170396826428671,
+        0.5641920140418922,
+        1.0893704335434378,
+        1.0448087023751778,
+        1.0684166244241273,
+        1.8387504874292395,
+        0.6018986960251191,
+        0.5337850918762477,
+        1.9403206713171408,
+        1.8337729179698137,
+        0.8864825142365176,
+        1.2563226333869597,
+        0.5309534036456807,
+        1.2601488803997756,
+        2.0133307301538603,
+        1.9848086225369264,
+        0.9010336853319378,
+        0.5531997286178528,
+        2.0034008126932217,
+        1.6844569174349249,
+        1.473818967425099,
+        0.9803719022084907,
+        1.0286387897857245,
+        1.4290935719379174,
+        1.1929142738899394,
+        1.2065015449690681,
+        1.0796065411602322,
+        0.9915958935282951,
+        1.1625850900229493,
+        0.8070982783836954,
+        0.98694345407891,
+        0.5177781354669133,
+        0.7727652237720251,
+        0.7029737355008401,
+        1.8535622300092864,
+        1.7609858305191572,
+        1.0133764407211883,
+        1.7081563320030848,
+        1.9427576521397039,
+        0.9807728393050339
+      ]
+    }
+  },
+  "finished_utc": "2026-11-03T08:44:42.382115+00:00"
+}

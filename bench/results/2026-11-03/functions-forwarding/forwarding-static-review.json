@@ -1,0 +1,75 @@
+{
+  "schema": "goose-functions-forwarding-static-review-v1",
+  "reviewed_at_utc": "2026-11-03T08:06:55.883312+00:00",
+  "reviewer": "Astra xhigh static review",
+  "status": "go-for-qualification",
+  "compiler_correctness_blockers": [],
+  "scope": "Identity-only tail function-value forwarding; no remaps, no borrowing of caller storage, no compiler or runtime execution performed by this reviewer.",
+  "inputs": [
+    {
+      "path": "build/functions-next/forward-v3/bin/goose",
+      "sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+      "bytes": 8184896
+    },
+    {
+      "path": "build/functions-next/forward-v3/compiler/after.h",
+      "sha256": "620c0bfc613ee751834216d12d12bc2bd0e3fd5dfe92a32d0431debf45c5c317",
+      "bytes": 12819
+    },
+    {
+      "path": "build/functions-next/forward-v3/toolchain.json",
+      "sha256": "92be5b554e9732b08ae3c06f9dd7e64c3d88c0d3c1dd46e26fa96a6f967dbb20",
+      "bytes": 4403
+    },
+    {
+      "path": "build/functions-next/forward-v3/source.json",
+      "sha256": "3c0b3b0306d9e9fba5fc884e87bfc416428ceb8c6cb54534efb385367e2d6ed8",
+      "bytes": 3527
+    },
+    {
+      "path": "build/functions-next/forward-v3/O2.wasm",
+      "sha256": "ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec",
+      "bytes": 42296
+    },
+    {
+      "path": "build/functions-next/forward-v3/shape.json",
+      "sha256": "1dbb0016767eaf622b6c5140afb3a64b2ae403b196bff1f0532840f17ee810db",
+      "bytes": 1916
+    },
+    {
+      "path": "build/functions-hill/compact/O2.wasm",
+      "sha256": "c9ad6eca9f1ed37230518b4c86f0a84b2342ecd2d2fc3bd22180686822d814c9",
+      "bytes": 45923
+    },
+    {
+      "path": "examples/functions.goose",
+      "sha256": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565",
+      "bytes": 4509
+    }
+  ],
+  "supporting_source": "Current direct_wasm.h, storage, expr, captures, temps and emit headers match the pinned v3 toolchain header map; their existing allocation, copy, cleanup and capture contracts were reviewed.",
+  "guards": [
+    "Wrapper has no statements; its tail is a checked function-value call. Both calls exclude builtins, default initialization, dispatch and fvremap.",
+    "Arguments are the same-position bare parent identifiers with exact representation and length contracts. Parent and child bindings are distinct, disjoint, unredirected, immutable, nonreusable, noncaptured and nonaddressed.",
+    "ClosedPrintable recursively excludes references and slices and requires fixed storage. Explicit RegionOwner rejection also excludes variable-mode enums whose payloads happen to be fixed.",
+    "Natural wrapper, natural terminal and both contextual results must have identical bool, fixed integer, float or void type; varints and aggregate, borrowed, owned or adapted results are excluded.",
+    "A bounded 512-node terminal-body walk rejects parent reads, remap edges and resolved parent captures in named callees or dispatch arms. Failure leaves existing lowering intact."
+  ],
+  "proof": {
+    "snapshot_order": "The original outer argument vector is retained while the selected body advances. Existing parameter construction evaluates each original argument once, left-to-right, and finishes its snapshot into the final private slot before evaluating the next argument. Later argument mutation cannot alter an earlier snapshot.",
+    "full_span_and_traps": "The first StoreCopy remains an exact-type full FixedLayout copy, including fields the terminal callback never reads. Source bounds/copy traps and original-argument effects retain their order. Removed copies transfer only those completed snapshots between valid private activation slots; forwarded bare identifiers introduce no calls or materialization between them. Existing activation reservation protects destination spans.",
+    "alias_and_reentry": "The optimization contracts private copy chains rather than reusing caller memory. Removed bindings cannot be addressed, captured, redirected or accessed independently by the terminal body. Terminal callbacks and their reentrant effects execute unchanged after the original snapshots are complete.",
+    "cleanup_and_returns": "Skipped wrappers have no statements, owning parameters or owning results; their forwarded identifier argument groups do not materialize resources. Original-argument group handling and the terminal BlockInto remain. Skipped cleanup watermarks enclose no additional acquisition, while terminal temporary cleanup and nonlocal-return cleanup retain all remaining ownership actions. Scalar or void result identity avoids removed aggregate result copies or adaptations.",
+    "abi_boundary": "Function signatures, public ABI and source values remain governed by existing lowering. Private frame size and scratch layout may shrink; identical private scratch bytes or resource usage are not claimed."
+  },
+  "observed_shape": {
+    "workload": "Unchanged examples/functions.goose, O2; Employee is a 26-byte fixed aggregate with two bounded byte-array fields and i32 salary.",
+    "baseline_module_bytes": 45923,
+    "candidate_module_bytes": 42296,
+    "removed_module_bytes": 3627,
+    "removed_memory_copy_instructions": 110,
+    "limits": "This is one workload shape result, not a universal size or speed claim. Some comparator bodies remain unchanged. Fresh qualification and paired runtime holdout remain separate requirements."
+  },
+  "focused_test_review": "In progress separately; this immutable implementation review does not pin an unfinished test source or claim test execution. A reference-compilation output-path overwrite in the positive copy-count assertion was reported to the test author.",
+  "future_work": "EnsureMemory slow-path outlining remains an unmeasured proposal; it has not been rejected by timing and is outside this candidate."
+}

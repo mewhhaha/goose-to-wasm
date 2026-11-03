@@ -27,8 +27,67 @@ inline bool SameFunctionValueType(TypeExpr *left, TypeExpr *right) {
     }
 }
 
+// A tail-only forwarding block has no use for its private argument snapshots
+// after the next callback starts. Construct those snapshots in the final
+// bindings instead. Keep the first copy and its left-to-right evaluation.
+inline Call *FunctionValueForwarder(Function &f, Call *node) {
+    if (node->builtin >= 0 || node->defaultinit || !node->dispatch.empty() ||
+        !node->fvremap.empty() || !node->fvbody->stmts.empty()) return nullptr;
+    auto tail = Is<Call>(node->fvbody->tail);
+    if (!tail || !tail->fvbody || tail->builtin >= 0 || tail->defaultinit ||
+        !tail->dispatch.empty() || !tail->fvremap.empty()) return nullptr;
+    auto args = tail->ValueArgNodes();
+    if (args.size() != node->fvparams.size() || args.size() != tail->fvparams.size()) return nullptr;
+    auto result = node->fvbody->exprtype;
+    if (!result || (result->kind != TY_VOID && result->kind != TY_BOOL &&
+        result->kind != TY_INT && result->kind != TY_FLT) || Compiler::Varint(result) ||
+        !SameFunctionValueType(result, tail->fvbody->exprtype) ||
+        !SameFunctionValueType(result, node->exprtype) ||
+        !SameFunctionValueType(result, tail->exprtype)) return nullptr;
+    unordered_set<VarDef *> parents;
+    unordered_set<VarDef *> children;
+    for (size_t i = 0; i < args.size(); i++) {
+        auto parent = node->fvparams[i], child = tail->fvparams[i];
+        auto id = Is<Ident>(args[i]);
+        if (!id || id->vdef != parent || f.Resolve(parent) != parent || f.Resolve(child) != child ||
+            parent->captured || child->captured || parent->reusable || child->reusable ||
+            parent->isvar || child->isvar || f.addressed.count(f.Resolve(parent)) ||
+            f.addressed.count(f.Resolve(child)) || !f.c.ClosedPrintable(parent->type) ||
+            Compiler::RegionOwner(parent->type) || Compiler::RegionOwner(child->type) ||
+            !SameFunctionValueType(parent->type, child->type) ||
+            !SameFunctionValueType(id->exprtype, parent->type)) return nullptr;
+        if (!parents.insert(parent).second || !children.insert(child).second) return nullptr;
+    }
+    for (auto child : children) if (parents.count(child)) return nullptr;
+    int budget = 512;
+    function<bool(Node *)> independent = [&](Node *part) {
+        if (!part) return true;
+        if (budget-- == 0) return false;
+        if (auto id = Is<Ident>(part); id && parents.count(f.Resolve(id->vdef))) return false;
+        if (auto call = Is<Call>(part)) {
+            for (auto [from, to] : call->fvremap)
+                if (parents.count(f.Resolve(from)) || parents.count(f.Resolve(to))) return false;
+            auto captures_parent = [&](FnSpec *spec) {
+                auto captures = f.c.captures.find(spec);
+                if (captures == f.c.captures.end()) return false;
+                for (auto capture : captures->second)
+                    if (parents.count(f.Resolve(call->FreeVarArg(capture)))) return true;
+                return false;
+            };
+            if (captures_parent(call->spec)) return false;
+            for (auto spec : call->dispatch) if (captures_parent(spec)) return false;
+        }
+        bool valid = true;
+        RunChildren(part, [&](Node *child) { if (valid) valid = independent(child); });
+        return valid;
+    };
+    if (!independent(tail->fvbody)) return nullptr;
+    return tail;
+}
+
 inline void Function::EmitFunctionValue(Call *node, bool adapt_result, const ResultDestinations &destinations, bool elements) {
     auto args = node->ValueArgNodes();
+    while (auto forwarded = FunctionValueForwarder(*this, node)) node = forwarded;
     if (args.size() != node->fvparams.size()) Fail(node->line, "function-value parameter mismatch");
     auto natural = NaturalResults(node);
     auto owns_parameters = false;

@@ -1,0 +1,76 @@
+{
+  "schema": "goose-functions-forwarding-final-archive-audit-v1",
+  "reviewed_at_utc": "2026-11-03T09:02:16.136771+00:00",
+  "reviewer": "Astra xhigh",
+  "status": "passed",
+  "blockers": [],
+  "compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+  "scope": "Current sealed forwarding package and its published offline verifier only. No historical archive/index loads, compiler builds, tests, guest execution or new measurements.",
+  "pins": {
+    "retention_sha256": "ed8735b8c46f5e0b0b4005e4d341991c9992c1b2b82b6e17617c03838ceb8e92",
+    "archive_index_sha256": "e73e971087742bd9a9ec285ae4199fdbf5c049c3acbe34585c0fa6e53741ef5a",
+    "verification_sha256": "729f3bf2f3f55030b6b807412df456cf606b09ed430e452ea660f5c68a089b1c",
+    "verification_log_sha256": "39a1fa704aad687aed7cfb82387856a58b1d674734dda3c3f80f35f158393744",
+    "published_verifier_sha256": "6262c606536d448be02dedae9bae31d1cd2a8a43de526468aa4f2939ef21711d",
+    "published_checks_sha256": "6e9a8f24fb80ff2818dcc1d73abb9681fbd0f35ade499c1aa23007958ed32b45",
+    "published_bundle_sha256": "c2513c99aabc1fcbad1710f865693c38a3e6d4080e7d7a7c4ca2d9469744cbb1",
+    "final_public_review_sha256": "64771d339ce7066b50aede32b14a0f00a239d498ba57059c55080095be015c17"
+  },
+  "independent_verification": {
+    "command": [
+      "python3",
+      "-B",
+      "bench/results/2026-11-03/functions-forwarding/reproduction/verify.py",
+      "--package",
+      "bench/results/2026-11-03/functions-forwarding"
+    ],
+    "result": "passed",
+    "result_matches_published_verification": true,
+    "archive_count": 8,
+    "member_count": 32468,
+    "aliases": 120342,
+    "required_guest_identities": 4294,
+    "retained_guest_objects": 4481,
+    "explicit_non_guest_omissions": 76,
+    "qualification": {
+      "focused": 67,
+      "cases": 978,
+      "observations": 9573,
+      "native_comparisons": 7656,
+      "host_observations": 11484,
+      "unique_modules": 1574
+    },
+    "measurements": {
+      "warmed": 550,
+      "v8": 200,
+      "paired_rounds": 9,
+      "examples": 1600,
+      "host": 1440,
+      "preparations": 200,
+      "cohort": 315
+    }
+  },
+  "bindings": [
+    "Every pre-audit public file has an exact SHA256 manifest entry, with no unlisted public files other than the manifest itself. Retention pins, archive/member hashes and safe complete member inventories passed the full verifier.",
+    "All 20 archived public document/chart/pointer bindings match the working checkout. All 48 inputs of the earlier final-public review resolve to exact retained aliases and still match their current bytes.",
+    "All four compiler stages retain 32 headers, two patches and source/toolchain metadata. Final headers still match current compiler sources; compiler executables are explicitly omitted with identities retained.",
+    "Both holdouts retain exact baseline/current Wasm and AOT bytes, 441 process observations each and 124 phase probes each. The verifier validates exact matrices, paired summaries, golden stdout/stderr and five delivery phase/report/output edges.",
+    "Every required guest identity resolves to retained bytes; guest omissions are forbidden. Current reports and explicit reference bytes resolve without reopening earlier campaign history.",
+    "Verification JSON/log and this final audit are post-assembly supplements. They are bound by the final public SHA manifest rather than inserted into their own archived evidence."
+  ],
+  "size_and_scope": {
+    "unique_objects": 32468,
+    "raw_object_bytes": 453501373,
+    "raw_guest_bytes": 387888613,
+    "raw_guest_fraction": 0.8553196001018502,
+    "compressed_archive_bytes": 150718528,
+    "largest_public_file_bytes_before_audit": 22884906,
+    "explanation": "Required Wasm, AOT and native guest programs dominate the payload. Indexed inventory contains no SDK libraries, compiler/node executables or retained hashes declared omitted as tools. Six small explicit reference barrier objects total 15,389 bytes; they are benchmark inputs, not a copied native build tree. No archive-size blocker found."
+  },
+  "manifest_boundary": {
+    "audited_manifest_sha256": "a110e5e6e5c7bcc46fc4b440dab74acd118d0363a90fede841d3cdc8d065a6cc",
+    "audited_manifest_entries": 39,
+    "audited_manifest_utf8": "{\n  \"qualification.json\": \"a5801b9dd3dc7f943c7bbd27a3418e488470d209aa08a90a2839613821fa6777\",\n  \"differential.json\": \"17256c80ce8bcef2421c7fd5442df1705b97cb773ef94b39538313ba2d7acce4\",\n  \"host-qualification.json\": \"704fab8bb1f68d778045ea71a4f6668f488fe6f93fa135c3ea34387032e40e49\",\n  \"final-warmed.json\": \"d8abbbca5b9226e5c60b0bfc1c92f32a9cb2ee849b733b82661389f98d8b53ad\",\n  \"final-v8.json\": \"55cd153d51b0221d57e997d788fd1f052afda41d74732300fc5810a5d2ef647d\",\n  \"examples.json\": \"536b3e4c30a89c84ac334a9f6c21c0a8ca9ac05e1be40db212d7a9fcebc43f9d\",\n  \"host.json\": \"1d4426630af05470f129d2249d417c094a1481d60ced709b5210a123dd19adf1\",\n  \"cohort.json\": \"3eefa88cfa98121b11fec2b275d3d5e585231765240bf25ee17e78cdd34233b8\",\n  \"holdout-cpu2.json\": \"2efbb55aefba95ceb7b74b69e9095ef8945f91ed86aa1cc855b6fa8ce7cf435f\",\n  \"holdout-default.json\": \"67230f22aa8cb45b2567df7a82fb6c36786b7334ff82f83334234640bae8eef4\",\n  \"references.json\": \"06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350\",\n  \"compiler-identity.json\": \"9b05cda71c3b937c43707dcb0c58e5c2465a62cac3822c985d537539be016c17\",\n  \"campaign.json\": \"a97db891f34719b2eca6902e25fb3ea8ea73f278492692618254f77fb4c6ba61\",\n  \"final-numbers.json\": \"1f296faf7c29b17a5f7e1144efbc00b33bed95fc2be29a6e64a1e439e8d6008a\",\n  \"module-analysis.json\": \"8575e14bb2e01aca94f1bd03690787b2f0e4cdb0ea3f2b7d690cc9fab96b53b8\",\n  \"forwarding-static-review.json\": \"d8271535d9d7881e4028143b43e118b1886e71371e996372f3d08c83f32f6791\",\n  \"forwarding-test-static-review.json\": \"37035cace1a3b0b0c4fe017069c66916c427557cba210d038ba72462d14470c3\",\n  \"readme.json\": \"47aff85ab8744ed1daeaf4a4b295dd9dc9c3aa7865e54e83c240619800a7c811\",\n  \"README.md\": \"5c5918d67331e942a21619f55ccf90802ecae2410830051877c3c60fb7ba357d\",\n  \"target-chart-verification.json\": \"5d1b79fa501c9d59ce3e8d6e0141389652dbd882992090b776ace0c0fa52ccd1\",\n  \"chart-verification.json\": \"99755265af17e2dcbad16e42a1e1fa1fa910bac23e36cc1b2e3c088078d0888f\",\n  \"chart-visual-review.json\": \"622260c03c4a0b0cccbbe18c0c2321e2cff6d4f5f79570374f32ceebde0d2de6\",\n  \"final-public-review.json\": \"64771d339ce7066b50aede32b14a0f00a239d498ba57059c55080095be015c17\",\n  \"evidence-000.tar.gz\": \"9b20ad36eae7bb7b084584e6fba4735982598b9d99b3910e16349814b0d1a9dd\",\n  \"evidence-001.tar.gz\": \"90d0e9d792723c1933e86b30c3f2fa7f6ebc082958ae986edd8ccf543e4e1b1b\",\n  \"evidence-002.tar.gz\": \"0895ba41cac5967838a50fb35cd74e0496e506e6a7e7efd1c43d085eabfbc283\",\n  \"evidence-003.tar.gz\": \"8873464668da87a3171f5853c90f957bb71450e1633e5b0205fec9d3b56e1ebb\",\n  \"evidence-004.tar.gz\": \"cecf25b5e247996b544012901b299402f17c2f0b78379967acd031089bad30f2\",\n  \"evidence-005.tar.gz\": \"ce814d01f5c3767469a6ff370cfe40cf0ca8ee87cd676417c7167acd5c09c802\",\n  \"evidence-006.tar.gz\": \"73612a40ac6ce10fb1a380cf7fd951889e898e8132a632d54951fb5afba53349\",\n  \"evidence-007.tar.gz\": \"bf6e5e57b5b9c5e03e76aad734143c421573b6059165ddcf8488d0af03d93955\",\n  \"archives.json.gz\": \"e73e971087742bd9a9ec285ae4199fdbf5c049c3acbe34585c0fa6e53741ef5a\",\n  \"reproduction/bundle.py\": \"c2513c99aabc1fcbad1710f865693c38a3e6d4080e7d7a7c4ca2d9469744cbb1\",\n  \"reproduction/verify.py\": \"6262c606536d448be02dedae9bae31d1cd2a8a43de526468aa4f2939ef21711d\",\n  \"reproduction/checks.py\": \"6e9a8f24fb80ff2818dcc1d73abb9681fbd0f35ade499c1aa23007958ed32b45\",\n  \"reproduction/spec.json\": \"cf3db6209aa2e4d69591591137dc260588728c29b5e56886409f6d88ba45633d\",\n  \"retention.json\": \"ed8735b8c46f5e0b0b4005e4d341991c9992c1b2b82b6e17617c03838ceb8e92\",\n  \"verification.json\": \"729f3bf2f3f55030b6b807412df456cf606b09ed430e452ea660f5c68a089b1c\",\n  \"verification.log\": \"39a1fa704aad687aed7cfb82387856a58b1d674734dda3c3f80f35f158393744\"\n}\n",
+    "finalization": "The only subsequent manifest change adds final-audit.json with its exact SHA. SHA256.json excludes itself. This audit does not claim a self-referential hash of the resulting manifest."
+  }
+}

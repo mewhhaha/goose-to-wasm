@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "charts": [
+    {
+      "chart": "examples-compilation.svg",
+      "labels_checked": 30,
+      "sha256": "d095ac1fa00fd507e5750ea124b116832fc433a6f9dfe318f43d3ce09ae1e0c0"
+    },
+    {
+      "chart": "examples-python-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "b55f7c4a542662f5fd887e481cb0a96218e6400404758707a6c29883ce02f0dd"
+    },
+    {
+      "chart": "examples-entry.svg",
+      "labels_checked": 40,
+      "sha256": "d88d5c5f0b0dabfe18855f602418e3d58445ea322d2a4fc6d587e5cd1541532e"
+    },
+    {
+      "chart": "examples-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "d33794a1ee4278ece81bbcb092c503b292a6aba73eb2625a2ea440055685d235"
+    },
+    {
+      "chart": "wasmtime-host-runtime.svg",
+      "labels_checked": 40,
+      "sha256": "f9a450410ca179ed69f1e5d7a95c92589a9230516825ff293ae8da61e8f68173"
+    },
+    {
+      "chart": "wasmtime-host-c-wasm.svg",
+      "labels_checked": 40,
+      "sha256": "2df3b18c298086f230250b425bada8e3882865f694a49523466139ed95191b8d"
+    },
+    {
+      "chart": "wasmtime-host-preparation.svg",
+      "labels_checked": 40,
+      "sha256": "78fc7fbe14fdc246d841b1d80a1bc8582f48f91ebe02f212bed6389ec9dfe94f"
+    },
+    {
+      "chart": "compilation.svg",
+      "labels_checked": 21,
+      "sha256": "2b8d0c602adc1078de4e13c6f8f1a20ae5fb3fab7c69803d0042532fa558342b"
+    },
+    {
+      "chart": "runtime.svg",
+      "labels_checked": 42,
+      "sha256": "a24c838c941d707351830db8135d00a889b0c0e5e58fb41d686debe9626d9f33"
+    },
+    {
+      "chart": "runtime-targets.svg",
+      "labels_checked": 30,
+      "sha256": "b99f07e51f41e5866c07e2a9ecc32edc86ae6ba2585ff9cfae79f8eb78e95c8c"
+    }
+  ],
+  "total_numeric_bar_labels": 403,
+  "method": "Exact SVG text order and rounded values matched to retained summary cells; chart generators validate their source fingerprints. Pointer hashes checked. Visual inspection recorded separately after rendering."
+}

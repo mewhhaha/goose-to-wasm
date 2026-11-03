@@ -1,0 +1,55 @@
+{
+  "schema": "goose-functions-forwarding-test-static-review-v1",
+  "reviewed_at_utc": "2026-11-03T08:09:32.623930+00:00",
+  "reviewer": "Astra xhigh static review",
+  "status": "pass",
+  "blockers": [],
+  "candidate_compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+  "candidate_header_sha256": "620c0bfc613ee751834216d12d12bc2bd0e3fd5dfe92a32d0431debf45c5c317",
+  "inputs": [
+    {
+      "path": "tests/test_function_value_forwarding.py",
+      "sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+      "bytes": 11979
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "3f143c2a20a1e75a48ad6ad44a71e5d35e14d36a3c48a1a22f5ef3fc4aecaa53",
+      "bytes": 10814
+    },
+    {
+      "path": "build/functions-next/test-development/forward-v3-attempt-3.test.py",
+      "sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+      "bytes": 11979
+    },
+    {
+      "path": "build/functions-next/test-development/forward-v3-attempt-3.log",
+      "sha256": "c32239e1e322f764e7de356d71c34389463e5470b495c10faa2cf68611e13c2f",
+      "bytes": 102
+    },
+    {
+      "path": "build/functions-next/forwarding-static-review.json",
+      "sha256": "d8271535d9d7881e4028143b43e118b1886e71371e996372f3d08c83f32f6791",
+      "bytes": 5834
+    }
+  ],
+  "coverage": [
+    "At O0 and O2, with debug off and on, nested Pair callbacks check immediate first-argument snapshots against later argument mutation, callback effects and nonlocal return; expected output is explicitly 13.",
+    "Unmodified Functions checks bounded fixed Employee values against its checked-in expected output and the native C backend, on both V8 and Wasmtime.",
+    "Negative fixtures cover statements, a captured outer value, permutation, duplicate arguments, mutable or addressed parameters, genuine i32-to-i64 conversion, references, slices, a variable-mode enum with entirely fixed payload, and a nested named callee capturing callback parameters.",
+    "All negative cases perform native/V8/Wasmtime semantic comparisons regardless of reference-compiler availability. With --reference-goose, selected callback-related function bodies must remain byte-identical.",
+    "With --reference-goose, the O2 Employee cases require fewer decoded memory.copy instructions. Candidate body bytes are now captured before the reference compile overwrites the shared output path; the previously reported comparison bug is fixed."
+  ],
+  "ci": "The normal workflow invokes this standalone test. Its default performs semantic checks; comparison against a historical compiler is explicitly optional and was requested for focused campaign qualification.",
+  "recorded_execution": {
+    "source_copy_matches_current": true,
+    "log_result": "3 tests passed in 29.878 seconds",
+    "provenance_boundary": "The coordinator reports this as candidate v3 versus frozen 5e3. The retained unittest log records the pass but does not itself embed the command or compiler hashes. This review did not rerun tests or engines; broad qualification records remain the execution authority."
+  },
+  "limits": [
+    "Fixtures exercise the intended positive behavior and several exclusion families; they do not establish that each internal guard is independently necessary or reached.",
+    "This focused suite has no dedicated forged-physical-span trap, float/void result or owned-temporary cleanup stress fixture. The first-copy trap and cleanup arguments remain part of the separately pinned implementation review, with broader qualification recorded independently.",
+    "The memory.copy counter is a focused decoder for these emitted fixtures, not a general Wasm validator; the test also executes the modules on both engines."
+  ],
+  "preservation": "No sealed compiler, test, CI, workload or earlier review was changed by this reviewer."
+}
