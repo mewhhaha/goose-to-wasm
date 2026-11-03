@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "charts": [
+    {
+      "chart": "examples-compilation.svg",
+      "labels_checked": 30,
+      "sha256": "1049150a38821592f632b985341789e4407568157614db0dfc20ef8bddd76692"
+    },
+    {
+      "chart": "examples-python-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "72265eb05d7c8439f3a1dc35292dca0dbe309fa07348c1df6b076aacf31f74d4"
+    },
+    {
+      "chart": "examples-entry.svg",
+      "labels_checked": 40,
+      "sha256": "39590184f4d08cd4f5ccf70df421b0fb4b86313553062d1b2dfb548db84a83fc"
+    },
+    {
+      "chart": "examples-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "5aad65690978dc66ca7a5f25e4f6c08f45775f8dd9e40b5d0b3e64d95dc88134"
+    },
+    {
+      "chart": "wasmtime-host-runtime.svg",
+      "labels_checked": 40,
+      "sha256": "21f9c4a5c959a69d9190ce6ff04d87c1e306d0f6d812a59c822faa93e996ed80"
+    },
+    {
+      "chart": "wasmtime-host-c-wasm.svg",
+      "labels_checked": 40,
+      "sha256": "f4c71d09e8bb57930d33d50215c70409c94e049c5842fde6d26da7d87d47c23f"
+    },
+    {
+      "chart": "wasmtime-host-preparation.svg",
+      "labels_checked": 40,
+      "sha256": "90373ed3f92f4f0ff6881030b65cf2a45e1be32dffbb2121487b43dd699f29fb"
+    },
+    {
+      "chart": "compilation.svg",
+      "labels_checked": 21,
+      "sha256": "2338e1cfd43cfdf1008b537dc1300b8a89547823c6cc68d508f9a4d399a15e9a"
+    },
+    {
+      "chart": "runtime.svg",
+      "labels_checked": 42,
+      "sha256": "45d6b3dea52c62f6c5b4fa587744abbfafe865b9bedaa4b98d94d027dab07334"
+    },
+    {
+      "chart": "runtime-targets.svg",
+      "labels_checked": 30,
+      "sha256": "43d23f56a3219e761969ba66f58d574d3b6ddc0a2a5013bbdad355f671bdfad2"
+    },
+    {
+      "chart": "runtime-lifecycle.svg",
+      "labels_checked": 50,
+      "sha256": "4a47943eef7426f1649a6ab1a157acbbb63d161e3b05d359723f32ceb1897dc4"
+    }
+  ],
+  "total_numeric_bar_labels": 453,
+  "method": "Exact SVG text order and rounded values matched to retained summary cells; chart generators validate their source fingerprints. Pointer hashes checked. Visual inspection recorded separately after rendering."
+}

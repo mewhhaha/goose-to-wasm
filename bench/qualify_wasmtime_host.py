@@ -156,7 +156,7 @@ def prepare(host, output, sha, item):
     log = output / "preparation" / sha
     source = Path(item["module"])
     require(digest(source) == sha, "Wasm changed before serialization: " + str(source))
-    result = execute([host, "--no-parallel-compilation", "--compile", source, aot], log, timeout=180)
+    result = execute([host, "--no-cache", "--no-parallel-compilation", "--compile", source, aot], log, timeout=180)
     row = {"module": str(source), "wasm_sha256": sha, "artifact": str(aot), "logs": str(log),
            "exit_code": result["exit_code"], "status": "fail", "error": result["error"]}
     if result["exit_code"] == 0 and not result["error"] and aot.is_file():
@@ -169,7 +169,7 @@ def prepare(host, output, sha, item):
 
 def replay(index, unit, mode, host, output, compiled):
     case, level, backend, module, sha, native, python = unit
-    command = [host, module]
+    command = [host, "--no-cache", module]
     if mode == "wasm-no-parallel":
         command += ["--no-parallel-compilation"]
     elif mode == "precompiled-no-parallel":

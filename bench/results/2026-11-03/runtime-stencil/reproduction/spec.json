@@ -1,0 +1,211 @@
+{
+  "schema": "goose-runtime-stencil-bundle-spec-v1",
+  "build": "build/next-levers",
+  "output": "bench/results/2026-11-03/runtime-stencil",
+  "compiler_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+  "reference": "build/runtime-reference/production/report.json",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "reports": {
+    "qualification.json": "qualification/attempt-2/focused/report.json",
+    "differential.json": "qualification/attempt-2/differential/report.json",
+    "host-qualification.json": "qualification/attempt-2/host/report.json",
+    "final-warmed.json": "delivered-warmed/report.json",
+    "final-v8.json": "delivered-v8/report.json",
+    "examples.json": "current/examples/report.json",
+    "host.json": "current/host/report.json",
+    "cohort.json": "current/langarena/report.json",
+    "lifecycle.json": "current/lifecycle/report.json"
+  },
+  "extra_reports": {
+    "worker-qualification.json": "qualification/attempt-2/worker-replay/report.json"
+  },
+  "trees": [
+    "qualification/attempt-1",
+    "qualification/attempt-2",
+    "qualification/sources",
+    "delivery-execution",
+    "delivered-warmed",
+    "delivered-v8",
+    "current/examples",
+    "current/host",
+    "current/langarena",
+    "current/lifecycle",
+    "abi-tests",
+    "control-builds",
+    "runtime-tests",
+    "life-wasmtime-screen",
+    "life-v8-screen",
+    "runtime-screen"
+  ],
+  "optional_trees": [
+    "chart-previews",
+    "reviews",
+    "packaging-attempts",
+    "stencil-initial",
+    "stencil-reviewed",
+    "stencil-widened",
+    "runtime-confirmation",
+    "cache-probe",
+    "runtime-host-control",
+    "runtime-harness-smoke",
+    "runtime-harness-smoke-2",
+    "runtime-harness-smoke-3",
+    "lifecycle-smoke",
+    "lifecycle-smoke-2",
+    "lifecycle-smoke-3",
+    "lifecycle-build-smoke",
+    "presentation",
+    "guide-validation"
+  ],
+  "evidence_documents": [
+    "qualification/attempt-2/selected.json",
+    "qualification/attempt-2/input-pins.json",
+    "delivery-execution/report.json",
+    "static-review.json",
+    "test-static-review.json",
+    "module-analysis.json",
+    "campaign.json",
+    "final-numbers.json",
+    "qualification/attempt-2/worker-replay/report.json",
+    "life-wasmtime-screen/report.json",
+    "life-v8-screen/report.json",
+    "runtime-screen/report.json",
+    "lifecycle-smoke-3/report.json",
+    "lifecycle-build-smoke/report.json",
+    "qualification/attempt-2/worker-case-inputs.json",
+    "presentation/followup.json",
+    "guide-validation/report.json"
+  ],
+  "optional_evidence_documents": [
+    "qualification/summary.json",
+    "reviews/final-public-review.json",
+    "table-verification.json"
+  ],
+  "source_stages": {
+    "baseline-a8c": "build/functions-init/final",
+    "development-21f": "build/next-levers/stencil-initial",
+    "development-c94": "build/next-levers/stencil-reviewed",
+    "final": "build/next-levers/final"
+  },
+  "direct_files": [
+    "build/functions-init/final/O2.wasm",
+    "build/native/CMakeCache.txt",
+    "build/squares.wasm",
+    "build/squares.cwasm"
+  ],
+  "public_files": [
+    "README.md",
+    "bench/examples.md",
+    "bench/wasmtime-host.md",
+    "docs/FUNCTIONS_PERFORMANCE.md",
+    "docs/PERFORMANCE_PLAN.md",
+    "docs/RUNTIME_TARGETS.md",
+    "bench/results/latest.json",
+    "bench/results/examples-latest.json",
+    "bench/results/wasmtime-host-latest.json",
+    "bench/results/runtime-targets-latest.json",
+    "bench/charts/compilation.svg",
+    "bench/charts/runtime.svg",
+    "bench/charts/runtime-targets.svg",
+    "bench/charts/examples-compilation.svg",
+    "bench/charts/examples-runtime.svg",
+    "bench/charts/examples-python-runtime.svg",
+    "bench/charts/examples-entry.svg",
+    "bench/charts/wasmtime-host-preparation.svg",
+    "bench/charts/wasmtime-host-runtime.svg",
+    "bench/charts/wasmtime-host-c-wasm.svg",
+    "docs/GUIDE.md",
+    "bench/results/runtime-lifecycle-latest.json",
+    "bench/charts/runtime-lifecycle.svg"
+  ],
+  "required_public_files": [
+    "README.md",
+    "campaign.json",
+    "readme.json",
+    "target-chart-verification.json",
+    "chart-verification.json",
+    "chart-visual-review.json",
+    "table-verification.json",
+    "presentation-followup.json",
+    "guide-verification.json"
+  ],
+  "max_raw_archive_bytes": 67108864,
+  "policy": "Current campaign aliases only. Byte storage may reuse explicit requested members in fourteen bounded physical files: two fresh-construction, four functions-calls and eight functions-forwarding archives. Read exactly one fresh-construction index; import zero prior aliases/documents and never recurse into older indexes/reports. All execution and lifecycle/worker evidence is fresh. Preserve failed coordinator-stop attempt1 and stale2871 worker preflight as opaque context; accepted worker coverage is actual3001 module/input cases over3828 aliases. Baseline declares32headers and selected/development/control sources33 as their manifests specify. Engine cache payloads and counter files are measured evidence, never omitted as tools. Old constructor8MiB reports/speedups are not imported into this campaign.",
+  "reuse": {
+    "index": "bench/results/2026-11-03/fresh-construction/archives.json.gz",
+    "manifest": "bench/results/2026-11-03/fresh-construction/SHA256.json",
+    "index_schema": "goose-fresh-construction-objects-v1",
+    "archives": {
+      "evidence-000.tar.gz": "../fresh-construction/evidence-000.tar.gz",
+      "evidence-001.tar.gz": "../fresh-construction/evidence-001.tar.gz",
+      "../functions-calls/evidence-000.tar.gz": "../functions-calls/evidence-000.tar.gz",
+      "../functions-calls/evidence-001.tar.gz": "../functions-calls/evidence-001.tar.gz",
+      "../functions-calls/evidence-002.tar.gz": "../functions-calls/evidence-002.tar.gz",
+      "../functions-calls/evidence-003.tar.gz": "../functions-calls/evidence-003.tar.gz",
+      "../functions-forwarding/evidence-000.tar.gz": "../functions-forwarding/evidence-000.tar.gz",
+      "../functions-forwarding/evidence-001.tar.gz": "../functions-forwarding/evidence-001.tar.gz",
+      "../functions-forwarding/evidence-002.tar.gz": "../functions-forwarding/evidence-002.tar.gz",
+      "../functions-forwarding/evidence-003.tar.gz": "../functions-forwarding/evidence-003.tar.gz",
+      "../functions-forwarding/evidence-004.tar.gz": "../functions-forwarding/evidence-004.tar.gz",
+      "../functions-forwarding/evidence-005.tar.gz": "../functions-forwarding/evidence-005.tar.gz",
+      "../functions-forwarding/evidence-006.tar.gz": "../functions-forwarding/evidence-006.tar.gz",
+      "../functions-forwarding/evidence-007.tar.gz": "../functions-forwarding/evidence-007.tar.gz"
+    }
+  },
+  "opaque_failed_attempts": [
+    "qualification/attempt-1",
+    "qualification/attempt-2/worker-preflight-expected-2871"
+  ],
+  "qualification": "qualification",
+  "qualification_controls": {
+    "qualification": [
+      "resource-control",
+      "named-control",
+      "private-control",
+      "stencil-control"
+    ]
+  },
+  "public_metadata": {
+    "campaign.json": "campaign.json",
+    "final-numbers.json": "final-numbers.json",
+    "module-analysis.json": "module-analysis.json",
+    "static-review.json": "static-review.json",
+    "test-static-review.json": "test-static-review.json"
+  },
+  "rejected_execution_roots": [],
+  "rejection_reason": "Development/failed preparation evidence is retained separately; no prior execution is a current cohort.",
+  "delivery_execution": "delivery-execution/report.json",
+  "optional_public_metadata": {
+    "final-public-review.json": "reviews/final-public-review.json",
+    "table-verification.json": "table-verification.json",
+    "presentation-followup.json": "presentation/followup.json",
+    "guide-verification.json": "guide-validation/report.json"
+  },
+  "final_review": "reviews/final-public-review.json",
+  "host_stages": {
+    "baseline-40bb": {
+      "metadata": "build/next-levers/baseline/host/goose-wasmtime.json",
+      "sources": [
+        "build/next-levers/baseline/host/wasmtime.cpp",
+        "build/next-levers/baseline/host/build_wasmtime_host.py",
+        "build/next-levers/baseline/host/wasmtime-sdk.json"
+      ]
+    },
+    "opt-in-prototype": {
+      "metadata": "build/next-levers/host-explicit-cache/goose-wasmtime.json",
+      "sources": [
+        "build/next-levers/host-explicit-cache/wasmtime.cpp"
+      ]
+    },
+    "final": {
+      "metadata": "build/bin/goose-wasmtime.json",
+      "sources": [
+        "host/wasmtime.cpp",
+        "scripts/build_wasmtime_host.py",
+        "host/wasmtime-sdk.json"
+      ]
+    }
+  },
+  "presentation_followup": "presentation/followup.json",
+  "qualified_input_pins": "qualification/attempt-2/input-pins.json"
+}

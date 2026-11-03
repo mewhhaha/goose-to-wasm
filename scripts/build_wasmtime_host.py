@@ -110,7 +110,7 @@ def main():
     assert hashes == {str(path):digest(path) for path in inputs}
     metadata = {'schema':'goose-native-wasmtime-host-v1', 'version':version, 'target':target,
                 'linkage':args.linkage, 'static_cxx_runtime':args.linkage == 'sdk-static',
-                'supported_modes':['ordinary', 'precompiled'],
+                'supported_modes':['ordinary', 'cached', 'precompiled', 'worker'],
                 'library':str(library),'library_sha256':digest(library),
                 'sdk_archive':str(archive), 'sdk_archive_sha256':archive_pin['sha256'], 'input_sha256':hashes,
                 'command':command,'host_sha256':digest(output),

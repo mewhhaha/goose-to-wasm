@@ -68,10 +68,32 @@ build/bin/goose-wasmtime --compile build/squares.wasm build/squares.cwasm
 build/bin/goose-wasmtime --precompiled build/squares.cwasm
 ```
 
-Normal execution compiles the module on every launch. Precompiled artifacts
+Normal execution enables Wasmtime's SDK compilation cache by default. Use
+`--no-cache` for an uncached run, or `--cache-config FILE` to select a cache
+configuration. If the default cache cannot be loaded, execution continues
+without it; an invalid explicit configuration is an error. Precompiled artifacts
 contain native code and depend on the Wasmtime version and CPU; load only
-trusted artifacts you produced for the target. [Wasmtime documents serialization](https://docs.wasmtime.dev/examples-serialize.html). See the [host measurements](../bench/wasmtime-host.md)
-for preparation costs and coverage.
+trusted artifacts you produced for the target. [Wasmtime documents serialization](https://docs.wasmtime.dev/examples-serialize.html).
+
+For repeated requests, keep a native runtime resident:
+
+```python
+from scripts.wasmtime_session import RuntimeSession
+
+with RuntimeSession() as session:
+    result = session.run("build/squares.wasm", stdin=b"")
+    print(result.stdout.decode(), end="")
+```
+
+Each request gets fresh guest state, store and instance. The session rereads the
+Wasm file and reuses a compiled module only for exactly matching bytes. Its LRU
+retains at most eight entries and 64 MiB of raw Wasm; this is not a bound on
+process RSS. `result` includes `returncode`, `stdout`, `stderr`,
+`module_cache_hit`, `prepare_ns` and `start_ns`. The session disables the SDK
+cache by default; use `RuntimeSession(cache=True)` to enable it, or pass
+`cache_config=...` for an explicit configuration. Session module reuse is
+separate from both the SDK disk cache and precompiled artifacts. See the
+[host measurements](../bench/wasmtime-host.md) for timing boundaries and coverage.
 
 ## The three compilation paths
 

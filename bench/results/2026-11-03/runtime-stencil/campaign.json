@@ -1,0 +1,53 @@
+{
+  "schema": "goose-runtime-stencil-campaign-v1",
+  "status": "passed",
+  "compiler_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+  "baseline_compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+  "scope": "Automatic Wasmtime compilation cache and bounded resident module reuse with fresh guest instances; guarded generic byte-stencil SIMD; transfer caller-private aggregate snapshots into selected callees.",
+  "qualification": {
+    "focused_commands": 73,
+    "cases": 978,
+    "differential_executions": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574,
+    "worker_observations": 3001,
+    "worker_aliases": 3828
+  },
+  "accepted_boundaries": "Fresh warmed paired compiler and frozen selected reference runs, all full-process current backends, and separate lifecycle boundaries. Worker IPC roundtrip excludes process startup; cold controls force --no-cache. Reference choices are frozen, not optimized anew.",
+  "development_contexts": [
+    {
+      "stage": "stencil-initial",
+      "reason": "Pre-engine static review required stronger overflow/dead-expression/type proof; this draft is not a qualified or measured Life claim."
+    },
+    {
+      "stage": "stencil-reviewed",
+      "reason": "Safe but overly strict contextual load types blocked vectorization of unchanged Life; widened only the checked u8 zero-extension context."
+    },
+    {
+      "stage": "host-explicit-cache",
+      "reason": "Initial opt-in prototype; final host enables SDK cache by default. Prototype lifecycle screens remain separate."
+    },
+    {
+      "stage": "qualification/attempt-1",
+      "reason": "Coordinator stopped before acceptance after source-level review fixes."
+    },
+    {
+      "stage": "qualification/attempt-2/worker-preflight-expected-2871",
+      "reason": "Stale expected-count preflight; actual exact corpus requires3001 distinct module/input executions, all replayed."
+    }
+  ],
+  "fallbacks": "Stencil debug/unsupported effects/types/aliasing/bounds preserve scalar execution. Private-snapshot ineligible params retain entry copies. Cache failures fall back uncached unless an explicit invalid config was requested.",
+  "numbers_sha256": "7d19b2df2157b26112edd7cc0336db99a7d412976114139818402f6de49ac640",
+  "evidence": {
+    "module-analysis.json": "0d349853124e239ffa17b17966cabd4e57c9b52b6bd92d53cf64ac4197b9628a",
+    "static-review.json": "ddf940afd18e92c36c98ca807ff05fbe56cc43bd88fa47b57bf8925a590a05ca",
+    "test-static-review.json": "aeb3d5f482c182f9474a0e77c64df90e53ea5776a10f58a38f0a9a46514f030d",
+    "delivery-execution/report.json": "3f50d4adc71d0c9657cde31283226cd128bd6ec082dea42746a714de71232867",
+    "abi-private-snapshots.md": "97c3e58c36e843eb447766dae15ccc8a426d26629d680bf0abf353adef31b0a6",
+    "life-wasmtime-screen/report.json": "65cc9651653310dbbdd88f6aadd5caa4ce1de7e16575cb24be6c72af7b953d93",
+    "life-v8-screen/report.json": "17800759b16c18d13779976b0a51616229b9d888f401acba8ac74ecc6c163b66",
+    "runtime-screen/report.json": "889ca7436d050899bba0ea9bc5d45a26047ea12cd6347dcb04d9bf42d430d51a",
+    "runtime-host-control/report.json": "2d965b97cda663ead2f32b24839ccf383a7a99f2788d4dda94e97c7247244413"
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "schema": "goose-next-levers-test-static-review-v1",
+  "reviewed_utc": "2026-11-03T16:17:43.287187+00:00",
+  "reviewer": "Astra static review",
+  "status": "GO-for-broad-qualification",
+  "method": "Source, existing artifacts and focused logs only; no reviewer build, test, engine or performance execution.",
+  "compiler": {
+    "path": "build/next-levers/final/bin/goose",
+    "sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+    "bytes": 8246856
+  },
+  "compiler_source": {
+    "path": "build/next-levers/final/source.json",
+    "sha256": "23c63fc9481bfbbd88fa10d38c2e03748497e0bef45d84d6ed64a2dda1ded5ba",
+    "bytes": 3624
+  },
+  "compiler_toolchain": {
+    "path": "build/next-levers/final/toolchain.json",
+    "sha256": "6172d9387527b48831b8eb729136a4a78a94fbde512e720697f0a7dcef6a4419",
+    "bytes": 4500
+  },
+  "compiler_header_count": 33,
+  "compiler_header_sha256": {
+    "compiler/checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "compiler/direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "compiler/direct_wasm.h": "35ec939ca431986b8e564e8b2cf04236de71914aaaca9a1d5dd95a5970bcdcce",
+    "compiler/direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "compiler/direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "compiler/direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "compiler/direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "compiler/direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "compiler/direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "compiler/direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "compiler/direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+    "compiler/direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "compiler/direct_wasm_expr.h": "9e2e643ffe73fece52d712234e8da4939fadb0b13658b6f56eb32db87a14db6f",
+    "compiler/direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "compiler/direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "compiler/direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "compiler/direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "compiler/direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "compiler/direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "compiler/direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "compiler/direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "compiler/direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "compiler/direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "compiler/direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+    "compiler/direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+    "compiler/direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "compiler/direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "compiler/direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "compiler/direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "compiler/lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "compiler/parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "compiler/parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "compiler/wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+  },
+  "compiler_patch_sha256": {
+    "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+  },
+  "host": {
+    "path": "build/bin/goose-wasmtime",
+    "sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "bytes": 22751120
+  },
+  "host_build_metadata": {
+    "path": "build/bin/goose-wasmtime.json",
+    "sha256": "3ce9f9e13b278ac68c30136381b448d1e550116d335066952974ccccadc03dd0",
+    "bytes": 11950
+  },
+  "reviewed_source_sha256": {
+    "host/wasmtime.cpp": "8573711cb0ae48a0cbcb6202b513af442ef06dbfdb1f1a4749c4145ed8a07d61",
+    "host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+    "scripts/wasmtime_session.py": "4bcaaa6967cfdd92acdac7470cbe3511be73290154c7a9e0f0bdddcafe379ac5",
+    "scripts/build_wasmtime_host.py": "dbfd6bacad0b018b94b7e62ce3f82e90fad3f44f0ab6e696724955982e315e50",
+    "bench/wasmtime_host.py": "fdf9ffae7cbf554f9c7f7fc801f13f59c6d6984f166e94cd8a9a0b6fc3142496",
+    "bench/qualify_wasmtime_host.py": "4a3361159e01245da700c3e73d4e6196ea6647cb85e6a05a29afa70a1961de0c",
+    "bench/runtime_lifecycle.py": "58661d7d3cdb7567909070b6d0d891664c28603d948e71dbb068f31a52f51154",
+    "bench/runtime_lifecycle_charts.py": "a01c02c3572e43093ea05839af51c9a9d2c88c3a47a05596e73ba8ec905ae4cb",
+    ".github/workflows/ci.yml": "9115bfdbc6d3bfc7b7a0052d5ff39c95439736ace69c2cb7cdf494b63e90122e",
+    "tests/test_runtime_session.py": "5fa1c37a41c92701ea5b005c771d22a741fec0ae63535c94d4d7a7d9a2e66629",
+    "tests/test_private_snapshot_parameters.py": "ae3fe97abdb3b691d20feea153a7e8ad049f116738072dcd1d74673974e75a14",
+    "tests/test_byte_stencil.py": "9cdfa825a60207a2a5df044a9bf3e05c0a275ecb65902fb21f3976382b94296e",
+    "tests/test_native_wasmtime.py": "e9f9d5d3458cf9fd768e14025dfd1324335af650655f939da7947677a2e36448"
+  },
+  "broad_qualification": {
+    "status": "pending",
+    "planned_focused_commands": 73,
+    "differential_and_native_host_replay": "pending"
+  },
+  "blockers": [],
+  "test_helper_sha256": {
+    "tests/test_function_value_forwarding.py": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+    "tests/test_prefix_resolution.py": "cd94ab35b66dfe5895325fe452245d8ea888c40865bb9487a6c42e5e2c70d980",
+    "tests/test_strip_loops.py": "605427962fc79df8be12cf333fe4ad6580e7f01d55dd6bef8ea47e6d9beb679a",
+    "tests/test_static_data.py": "6dabf806397a4a34eaf6f299e70da0596df3e77f04e351cad3d01ecb0d2dcbb0",
+    "tests/test_fill_loops.py": "da281a5602ba946e802071da49e529f507f03cf732d41e4234b1f216b71a99a8"
+  },
+  "focused_evidence": {
+    "stencil": {
+      "methods": 4,
+      "ordered_engine_checks": 2264,
+      "scenario_count": 188,
+      "status": "passed",
+      "qualification": {
+        "path": "build/next-levers/stencil-widened/qualification-final.json",
+        "sha256": "45e7319fffc46771edd58e8aa2ab6147c5d546baac8b292aa4faa01788b7643c",
+        "bytes": 865
+      },
+      "log": {
+        "path": "build/next-levers/stencil-widened/tests-final.log",
+        "sha256": "1885421d195466ac12ef701e2f8dbd06ff97183b01aca117b5fdcf8134f37a9b",
+        "bytes": 662
+      },
+      "coverage": "Independent ordered Python scalar torus oracle compares traps and memory windows with V8/Wasmtime. O0/O2, debug/release, arbitrary bytes, dimensions 0/1/2 and lane boundaries, overlap, unaligned/high pointers, logical/physical truncation, partial writes. Renamed rule tests sums >=256 and nonbinary outputs; inline helper and unchanged Life emit vectors.",
+      "limits": "Negative-effect/arithmetic fixtures primarily assert scalar code shape. Full unchanged Life stdout is recorded separately. Broad differential coverage remains pending."
+    },
+    "private_snapshot": {
+      "methods_covered": 7,
+      "status": "passed-across-recorded-attempts",
+      "attempt3": {
+        "path": "build/next-levers/abi-tests/attempt-3/execution.json",
+        "sha256": "65ead35ead96b4a40b8d04456d355546c950780fc09c5b23e99ee063dc244962",
+        "bytes": 510
+      },
+      "attempt3_log": {
+        "path": "build/next-levers/abi-tests/attempt-3/run.log",
+        "sha256": "5881697a1274b6019bb78351d115610b6379574256382bfc1b4c3fbeefd24a26",
+        "bytes": 8120
+      },
+      "attempt4": {
+        "path": "build/next-levers/abi-tests/attempt-4/execution.json",
+        "sha256": "0ca0739625c1924eb5747fcae211d7d0b37ec5a99d00420df0437b2137fd7c64",
+        "bytes": 608
+      },
+      "attempt4_log": {
+        "path": "build/next-levers/abi-tests/attempt-4/run.log",
+        "sha256": "3b49531879e4388ec1c469f6d16ee1810f60441cfcae8050ca7ac7aec55de3ab",
+        "bytes": 272
+      },
+      "boundary": "Six unchanged methods passed on compiler 1b1ec504 in attempt-3. The owner fallback fixture alone needed explicit copy(xs); the corrected fallback method passed attempt-4. This is not a single seven-test final-source pass; broad qualification will unify the final suite.",
+      "coverage": "O0/O2 debug/release native C/V8/Wasmtime checks; optional frozen comparator checks copy/frame shapes. Source-order mutation, duplicate arguments, recursion/mutable values, local slices, dispatch/capture/ref/owner/borrowed-result exclusions, host reentry, earlier argument conversion traps, and checker-rejected global slice escape."
+    },
+    "runtime_session": {
+      "methods": 8,
+      "status": "passed",
+      "log": {
+        "path": "build/next-levers/host-default-tests.log",
+        "sha256": "90f3a22dfff29921510e2812514c1882d6ef915d4e25dde97793f2acdca94d45",
+        "bytes": 106
+      },
+      "coverage": "Fresh globals/input, serialized concurrent clients, exact-byte/same-mtime invalidation, identical-path-content hits, LRU count eviction, request-local errors/exits/traps/binary output, configured cache population/corruption recovery, strict explicit config, automatic cache/default-unavailable fallback, --no-cache, worker death cleanup and truncated frames.",
+      "limit": "The eight-module cap is exercised; the 64 MiB source-byte cap is statically inspected, not stress-tested."
+    },
+    "native_host_abi": {
+      "methods": 12,
+      "status": "passed",
+      "log": {
+        "path": "build/next-levers/host-abi-tests.log",
+        "sha256": "025a374612246a2ce7dc9b3682869a58fa32cba947120dac07d1170cc6673af8",
+        "bytes": 111
+      },
+      "mode": "Explicit --no-cache."
+    },
+    "lifecycle_smoke": {
+      "status": "passed-smoke",
+      "observations": 48,
+      "report": {
+        "path": "build/next-levers/lifecycle-smoke-3/report.json",
+        "sha256": "a11d26c70d3badad5972488765611cc17fdba03fff176a248bfdeac2b8e3bf11",
+        "bytes": 102438
+      }
+    }
+  },
+  "ci": {
+    "status": "all-three-new-suites-wired",
+    "path": ".github/workflows/ci.yml",
+    "sha256": "9115bfdbc6d3bfc7b7a0052d5ff39c95439736ace69c2cb7cdf494b63e90122e",
+    "commands": [
+      "python tests/test_runtime_session.py",
+      "python tests/test_private_snapshot_parameters.py",
+      "python tests/test_byte_stencil.py"
+    ]
+  }
+}

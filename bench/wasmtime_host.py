@@ -110,7 +110,7 @@ def main():
     jobs=list(itertools.product(range(args.prepare_samples),examples,BACKENDS,['parallel','serial']));rng.shuffle(jobs)
     for sample,example,backend,configuration in jobs:
         name=example['name'];directory=out/'preparation'/name/backend/configuration/str(sample);directory.mkdir(parents=True,exist_ok=True)
-        target=directory/'program.cwasm';command=[host]
+        target=directory/'program.cwasm';command=[host,'--no-cache']
         if configuration=='serial':command.append('--no-parallel-compilation')
         command += ['--compile',artifacts[name,backend],target]
         result,seconds=run(command,directory=directory,name='prepare')
@@ -151,8 +151,8 @@ def main():
             if backend!='native':artifact=artifacts[name,backend]
             if mode=='native-C':command=[artifact]
             elif mode=='python':command=[sys.executable,ROOT/'scripts/run_wasmtime.py',artifact]
-            elif mode=='native':command=[host,artifact]
-            elif mode=='native-serial':command=[host,'--no-parallel-compilation',artifact]
+            elif mode=='native':command=[host,'--no-cache',artifact]
+            elif mode=='native-serial':command=[host,'--no-cache','--no-parallel-compilation',artifact]
             else:command=[host,'--precompiled',compiled[name,backend]['artifact']]
             directory=out/'runtime'/phase/name/backend/mode/str(sample)
             result,seconds=run(command,directory=directory,name='run')

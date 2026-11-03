@@ -393,10 +393,11 @@ static void call(wasmtime_context_t *context, const wasmtime_instance_t &instanc
     auto error = wasmtime_func_call(context, &item.value.of.func, args, nargs, results, nresults, &trap);
     check(error, trap);
 }
-struct Options { string module, timing, compiled; bool precompiled = false, no_parallel_compilation = false; };
-static int run(const Options &options, State &state) {
-    string data;
-    if (!options.precompiled) data = read_file(options.module);
+struct Options {
+    string module, timing, compiled, cache_config;
+    bool precompiled = false, no_parallel_compilation = false, cache = true, serve = false;
+};
+static Owned<wasm_engine_t, wasm_engine_delete> make_engine(const Options &options, bool &cache_enabled) {
     Owned<wasm_config_t, wasm_config_delete> config(wasm_config_new());
     if (!config) fail("cannot create Wasmtime configuration");
     wasmtime_config_cranelift_opt_level_set(config.get(), WASMTIME_OPT_LEVEL_SPEED);
@@ -409,35 +410,95 @@ static int run(const Options &options, State &state) {
     wasmtime_config_wasm_threads_set(config.get(), false);
     wasmtime_config_wasm_relaxed_simd_set(config.get(), false);
     if (options.no_parallel_compilation) wasmtime_config_parallel_compilation_set(config.get(), false);
-    uint64_t started = 0, instantiated = 0, ended = 0;
-    if (!options.timing.empty()) started = instantiated = monotonic_ns();
+    if (options.cache && !options.precompiled) {
+        const char *path = nullptr;
+        if (!options.cache_config.empty()) path = options.cache_config.c_str();
+        auto error = wasmtime_config_cache_config_load(config.get(), path);
+        if (error) {
+            if (path) check(error);
+            wasmtime_error_delete(error);
+        } else cache_enabled = true;
+    }
     Owned<wasm_engine_t, wasm_engine_delete> engine(wasm_engine_new_with_config(config.release()));
     if (!engine) fail("cannot create Wasmtime engine");
-    Owned<wasmtime_store_t, wasmtime_store_delete> store(wasmtime_store_new(engine.get(), &state, nullptr));
-    if (!store) fail("cannot create Wasmtime store");
-    auto context = wasmtime_store_context(store.get());
+    return engine;
+}
+struct Module {
+    string source;
     Owned<wasmtime_module_t, wasmtime_module_delete> module;
     Owned<wasmtime_linker_t, wasmtime_linker_delete> linker;
+    uint64_t used = 0;
+};
+struct Runtime {
+    bool cache_enabled = false;
+    Owned<wasm_engine_t, wasm_engine_delete> engine;
+    std::vector<std::unique_ptr<Module>> modules;
+    size_t source_bytes = 0;
+    uint64_t serial = 0;
+    static constexpr size_t max_modules = 8, max_source_bytes = 64 * 1024 * 1024;
+    explicit Runtime(const Options &options) : engine(make_engine(options, cache_enabled)) {}
+    Module *find(string_view source) {
+        for (auto &entry : modules) if (entry->source == source) {
+            entry->used = ++serial; return entry.get();
+        }
+        return nullptr;
+    }
+    Module *retain(std::unique_ptr<Module> entry) {
+        while (modules.size() >= max_modules || source_bytes + entry->source.size() > max_source_bytes) {
+            auto oldest = std::min_element(modules.begin(), modules.end(),
+                [](const auto &a, const auto &b) { return a->used < b->used; });
+            source_bytes -= (*oldest)->source.size(); modules.erase(oldest);
+        }
+        source_bytes += entry->source.size(); entry->used = ++serial;
+        modules.push_back(std::move(entry)); return modules.back().get();
+    }
+};
+struct Timing { uint64_t prepare = 0, start = 0; bool module_hit = false; };
+static int run(const Options &options, State &state, Runtime *shared = nullptr, Timing *observed = nullptr) {
+    string data;
+    if (!options.precompiled) data = read_file(options.module);
+    uint64_t started = 0, instantiated = 0, ended = 0;
+    bool timed = !options.timing.empty() || observed;
+    if (timed) started = instantiated = monotonic_ns();
+    std::unique_ptr<Runtime> local;
+    if (!shared) { local = std::make_unique<Runtime>(options); shared = local.get(); }
+    auto engine = shared->engine.get();
+    Owned<wasmtime_store_t, wasmtime_store_delete> store(wasmtime_store_new(engine, &state, nullptr));
+    if (!store) fail("cannot create Wasmtime store");
+    auto context = wasmtime_store_context(store.get());
+    std::unique_ptr<Module> owned;
+    Module *module = nullptr;
+    bool memoize = options.serve && !options.precompiled;
+    if (memoize) module = shared->find(data);
+    if (observed) observed->module_hit = bool(module);
     int exit_code = 0;
+    bool entered = false;
     try {
-        wasmtime_module_t *raw = nullptr;
-        wasmtime_error_t *error = nullptr;
-        if (options.precompiled) error = wasmtime_module_deserialize_file(engine.get(), options.module.c_str(), &raw);
-        else error = wasmtime_module_new(engine.get(), reinterpret_cast<const uint8_t *>(data.data()), data.size(), &raw);
-        module.reset(raw);
-        check(error);
+        if (!module) {
+            owned = std::make_unique<Module>();
+            wasmtime_module_t *raw = nullptr;
+            wasmtime_error_t *error = nullptr;
+            if (options.precompiled) error = wasmtime_module_deserialize_file(engine, options.module.c_str(), &raw);
+            else error = wasmtime_module_new(engine, reinterpret_cast<const uint8_t *>(data.data()), data.size(), &raw);
+            owned->module.reset(raw); check(error); module = owned.get();
+            if (memoize && data.size() <= Runtime::max_source_bytes) {
+                owned->source = std::move(data); module = shared->retain(std::move(owned));
+            }
+        }
         if (!options.compiled.empty()) {
-            Bytes serialized; check(wasmtime_module_serialize(module.get(), &serialized.value));
+            Bytes serialized; check(wasmtime_module_serialize(module->module.get(), &serialized.value));
             std::ofstream output(options.compiled, std::ios::binary);
             output.write(serialized.value.data, serialized.value.size); output.close();
             if (!output) fail("cannot write " + options.compiled);
             return 0;
         }
-        linker.reset(wasmtime_linker_new(engine.get()));
-        if (!linker) fail("cannot create Wasmtime linker");
-        link_imports(linker.get(), module.get());
+        if (!module->linker) {
+            Owned<wasmtime_linker_t, wasmtime_linker_delete> linker(wasmtime_linker_new(engine));
+            if (!linker) fail("cannot create Wasmtime linker");
+            link_imports(linker.get(), module->module.get()); module->linker = std::move(linker);
+        }
         wasmtime_instance_t instance; wasm_trap_t *trap = nullptr;
-        error = wasmtime_linker_instantiate(linker.get(), context, module.get(), &instance, &trap);
+        auto error = wasmtime_linker_instantiate(module->linker.get(), context, module->module.get(), &instance, &trap);
         check(error, trap);
         External limits;
         if (exported(context, instance, "__set_stack_limits", limits)) {
@@ -447,7 +508,8 @@ static int run(const Options &options, State &state) {
             call(context, instance, "emscripten_stack_get_end", nullptr, 0, bounds.values + 1, 1);
             call(context, instance, "__set_stack_limits", bounds.values, 2);
         }
-        if (!options.timing.empty()) instantiated = monotonic_ns();
+        if (timed) instantiated = monotonic_ns();
+        entered = true;
         call(context, instance, "_start");
     } catch (const std::exception &error) {
         if (state.exited) exit_code = state.exit_code;
@@ -457,8 +519,10 @@ static int run(const Options &options, State &state) {
             else state.failure = error_text(error);
         }
     }
+    if (timed) ended = monotonic_ns();
+    if (!entered) instantiated = ended;
+    if (observed) { observed->prepare = instantiated - started; observed->start = ended - instantiated; }
     if (!options.timing.empty()) {
-        ended = monotonic_ns();
         std::ofstream timing(options.timing);
         timing << "{\n  \"engine\": \"Wasmtime\",\n  \"wasmtime\": \"" WASMTIME_VERSION "\",\n"
                << "  \"host\": \"native C API\",\n  \"module_mode\": \"";
@@ -467,6 +531,9 @@ static int run(const Options &options, State &state) {
         timing << "\",\n  \"parallel_compilation\": ";
         if (options.no_parallel_compilation) timing << "false";
         else timing << "true";
+        timing << ",\n  \"compilation_cache_enabled\": ";
+        if (shared->cache_enabled) timing << "true";
+        else timing << "false";
         timing << ",\n  \"optimization\": \"cranelift speed\",\n  \"compile_instantiate_ns\": " << instantiated - started
                << ",\n  \"start_function_ns\": " << ended - instantiated
                << ",\n  \"engine_total_ns\": " << ended - started << "\n}\n";
@@ -474,6 +541,52 @@ static int run(const Options &options, State &state) {
         if (!timing) fail("cannot write " + options.timing);
     }
     return exit_code;
+}
+static bool read_word(uint32_t &value, bool eof = false) {
+    unsigned char bytes[4]; auto count = std::fread(bytes, 1, sizeof bytes, stdin);
+    if (!count && eof && std::feof(stdin)) return false;
+    if (count != sizeof bytes) fail("truncated runtime request header");
+    value = 0;
+    for (unsigned i = 0; i < sizeof bytes; i++) value |= uint32_t(bytes[i]) << (8 * i);
+    return true;
+}
+static string read_payload(uint32_t size) {
+    string value(size, '\0');
+    if (std::fread(value.data(), 1, size, stdin) != size) fail("truncated runtime request payload");
+    return value;
+}
+static void write_payload(string_view value) {
+    if (std::fwrite(value.data(), 1, value.size(), stdout) != value.size()) fail("cannot write runtime response");
+}
+static void write_word(uint64_t value, unsigned size) {
+    char bytes[8];
+    for (unsigned i = 0; i < size; i++) bytes[i] = char(value >> (8 * i));
+    write_payload(string_view(bytes, size));
+}
+static int serve(const Options &settings) {
+    Runtime runtime(settings);
+    write_payload(string_view("GWRT\1\0\0\0", 8)); std::fflush(stdout);
+    uint32_t path_size, input_size;
+    while (read_word(path_size, true)) {
+        read_word(input_size);
+        if (path_size > 65535) fail("runtime module path exceeds 65535 bytes");
+        Options options = settings; options.module = read_payload(path_size);
+        State state; state.input = read_payload(input_size); Timing timing; int code = 1;
+        try {
+            if (options.module.find('\0') != string::npos) fail("runtime module path contains NUL");
+            code = run(options, state, &runtime, &timing);
+        } catch (const std::exception &error) {
+            state.failure += string("direct Wasmtime host: ") + error_text(error);
+        }
+        string errors = utf8_replacement(state.errors) + state.failure;
+        if (!errors.empty()) errors += '\n';
+        write_word(timing.module_hit, 4); write_word(uint32_t(code) & 255, 4);
+        write_word(state.output.size(), 8); write_word(errors.size(), 8);
+        write_word(timing.prepare, 8); write_word(timing.start, 8);
+        write_payload(state.output); write_payload(errors);
+        if (std::fflush(stdout)) fail("cannot flush runtime response");
+    }
+    return 0;
 }
 int main(int argc, char **argv) {
     State state;
@@ -484,14 +597,25 @@ int main(int argc, char **argv) {
             string arg = argv[i];
             if (arg == "--version" && argc == 2) { std::puts("Wasmtime " WASMTIME_VERSION); return 0; }
             if (arg == "--no-parallel-compilation") options.no_parallel_compilation = true;
+            else if (arg == "--cache") options.cache = true;
+            else if (arg == "--cache-config" && i + 1 < argc) { options.cache_config = argv[++i]; options.cache = true; }
+            else if (arg == "--no-cache") { options.cache = false; options.cache_config.clear(); }
+            else if (arg == "--serve") options.serve = true;
             else if (arg == "--precompiled") options.precompiled = true;
             else if (arg == "--timing-json" && i + 1 < argc) options.timing = argv[++i];
             else if (arg == "--compile" && i + 2 < argc && options.module.empty()) {
                 options.module = argv[++i]; options.compiled = argv[++i];
             } else if (!arg.empty() && arg[0] != '-' && options.module.empty()) options.module = arg;
             else fail("usage: wasmtime-host module.wasm [--timing-json FILE] [--no-parallel-compilation]\n"
+                      "       wasmtime-host --cache module.wasm [--cache-config FILE]\n"
+                      "       wasmtime-host --serve [--cache] [--cache-config FILE]\n"
                       "       wasmtime-host --compile module.wasm output.cwasm\n"
                       "       wasmtime-host --precompiled trusted.cwasm [--timing-json FILE]");
+        }
+        if (options.serve) {
+            if (!options.module.empty() || options.precompiled || !options.compiled.empty() || !options.timing.empty())
+                fail("--serve takes Wasm requests on stdin, without a module or preparation/timing output");
+            return serve(options);
         }
         if (options.module.empty() || (options.precompiled && !options.compiled.empty())) fail("expected one module and one execution mode");
         if (!options.compiled.empty() && !options.timing.empty()) fail("--compile cannot be combined with --timing-json");

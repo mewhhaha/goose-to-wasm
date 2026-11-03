@@ -1,0 +1,138 @@
+{
+  "schema": "goose-next-levers-static-review-v1",
+  "reviewed_utc": "2026-11-03T16:17:43.287187+00:00",
+  "reviewer": "Astra static review",
+  "status": "GO-for-broad-qualification",
+  "method": "Source, existing artifacts and focused logs only; no reviewer build, test, engine or performance execution.",
+  "compiler": {
+    "path": "build/next-levers/final/bin/goose",
+    "sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+    "bytes": 8246856
+  },
+  "compiler_source": {
+    "path": "build/next-levers/final/source.json",
+    "sha256": "23c63fc9481bfbbd88fa10d38c2e03748497e0bef45d84d6ed64a2dda1ded5ba",
+    "bytes": 3624
+  },
+  "compiler_toolchain": {
+    "path": "build/next-levers/final/toolchain.json",
+    "sha256": "6172d9387527b48831b8eb729136a4a78a94fbde512e720697f0a7dcef6a4419",
+    "bytes": 4500
+  },
+  "compiler_header_count": 33,
+  "compiler_header_sha256": {
+    "compiler/checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "compiler/direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "compiler/direct_wasm.h": "35ec939ca431986b8e564e8b2cf04236de71914aaaca9a1d5dd95a5970bcdcce",
+    "compiler/direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "compiler/direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "compiler/direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "compiler/direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "compiler/direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "compiler/direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "compiler/direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "compiler/direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+    "compiler/direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "compiler/direct_wasm_expr.h": "9e2e643ffe73fece52d712234e8da4939fadb0b13658b6f56eb32db87a14db6f",
+    "compiler/direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "compiler/direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "compiler/direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "compiler/direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "compiler/direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "compiler/direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "compiler/direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "compiler/direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "compiler/direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "compiler/direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "compiler/direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+    "compiler/direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+    "compiler/direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "compiler/direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "compiler/direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "compiler/direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "compiler/lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "compiler/parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "compiler/parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "compiler/wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+  },
+  "compiler_patch_sha256": {
+    "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+  },
+  "host": {
+    "path": "build/bin/goose-wasmtime",
+    "sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "bytes": 22751120
+  },
+  "host_build_metadata": {
+    "path": "build/bin/goose-wasmtime.json",
+    "sha256": "3ce9f9e13b278ac68c30136381b448d1e550116d335066952974ccccadc03dd0",
+    "bytes": 11950
+  },
+  "reviewed_source_sha256": {
+    "host/wasmtime.cpp": "8573711cb0ae48a0cbcb6202b513af442ef06dbfdb1f1a4749c4145ed8a07d61",
+    "host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+    "scripts/wasmtime_session.py": "4bcaaa6967cfdd92acdac7470cbe3511be73290154c7a9e0f0bdddcafe379ac5",
+    "scripts/build_wasmtime_host.py": "dbfd6bacad0b018b94b7e62ce3f82e90fad3f44f0ab6e696724955982e315e50",
+    "bench/wasmtime_host.py": "fdf9ffae7cbf554f9c7f7fc801f13f59c6d6984f166e94cd8a9a0b6fc3142496",
+    "bench/qualify_wasmtime_host.py": "4a3361159e01245da700c3e73d4e6196ea6647cb85e6a05a29afa70a1961de0c",
+    "bench/runtime_lifecycle.py": "58661d7d3cdb7567909070b6d0d891664c28603d948e71dbb068f31a52f51154",
+    "bench/runtime_lifecycle_charts.py": "a01c02c3572e43093ea05839af51c9a9d2c88c3a47a05596e73ba8ec905ae4cb",
+    ".github/workflows/ci.yml": "9115bfdbc6d3bfc7b7a0052d5ff39c95439736ace69c2cb7cdf494b63e90122e",
+    "tests/test_runtime_session.py": "5fa1c37a41c92701ea5b005c771d22a741fec0ae63535c94d4d7a7d9a2e66629",
+    "tests/test_private_snapshot_parameters.py": "ae3fe97abdb3b691d20feea153a7e8ad049f116738072dcd1d74673974e75a14",
+    "tests/test_byte_stencil.py": "9cdfa825a60207a2a5df044a9bf3e05c0a275ecb65902fb21f3976382b94296e",
+    "tests/test_native_wasmtime.py": "e9f9d5d3458cf9fd768e14025dfd1324335af650655f939da7947677a2e36448"
+  },
+  "broad_qualification": {
+    "status": "pending",
+    "planned_focused_commands": 73,
+    "differential_and_native_host_replay": "pending"
+  },
+  "blockers": [],
+  "scope": [
+    "Private caller-snapshot aggregate entry",
+    "Guarded eight-lane byte-stencil SIMD",
+    "Automatic native disk cache and resident engine/module reuse"
+  ],
+  "private_snapshot_proof": [
+    "EmitCall still performs To and CopyCaptured in source argument order before later arguments. Only the second callee copy is removed; duplicate actual values retain distinct caller snapshots.",
+    "Only private ordinarily called internal specializations with closed non-owning parameters and scalar/void closed results qualify. Dispatch incoming edges, main/public/export/external/intrinsic entries, captures, region requirements, captured/reusable storage, explicit references and byref bindings are excluded. Addressed individual parameters retain their original entry copy.",
+    "Caller snapshots remain live through synchronous calls, recursion and host reentry. Callee mutation affects its private value. Local derived slices obey the existing checker lifetime contract; global parameter-slice escape is rejected. Public ABI and packed layouts are unchanged.",
+    "The observed Functions comparator removes a small number of copies. Static copy counts are not evidence of hot execution cost."
+  ],
+  "byte_stencil_proof": [
+    "Bounded temporary graph: 512 AST visits, one pure helper occurrence, and 512 expanded numeric/predicate validation visits. Exact plain scalar/u8-slice types; no ownership, callbacks, extra stores, unknown operations, index modes or possible prefix mappings.",
+    "Contextual plain i64 on a true u8 index is a lossless load/zero-extension in the scalar emitter. Other narrowing/signedness/index-mode conversions remain excluded. Literal dimensions and renamed rules match structurally, without workload-specific names.",
+    "Unsigned bytes widen to eight u16 lanes. Admitted positive additions/constants total at most 4080, keeping signed i16 comparisons exact. Selected results are 0..255 before narrowing. Arbitrary input bytes are preserved, without a binary-cell or saturating-sum assumption.",
+    "Debug arithmetic always retains scalar emission. All graph loads and modulo nodes, including dead declarations, are checked. Normal helper removal additionally requires the existing frame-free Leaf proof; release arithmetic wraps.",
+    "Before vector loads/stores/division: positive dimensions <=u32, valid row, u64 product <=u32, both logical lengths sufficient, widened pointer+span within memory, and actual source/destination prefixes disjoint. Each chunk also proves all horizontal offsets across eight lanes are within the row.",
+    "Pure nontrapping expressions over disjoint spans permit eager vector reads. Vertical wrapping retains duplicate neighbours at heights 1/2. Border lanes, overlap, invalid views or failed proof use the original ordered scalar loop, preserving first traps and partial writes.",
+    "Checked assignment saves its prior environment value before helper expansion can replace the map; helpers nested in actual arguments are rejected. The original scalar body and cleanup are emitted once. SIMD opcode selections agree with the focused codegen evidence."
+  ],
+  "runtime_proof": [
+    "Normal CLI attempts the SDK default disk compilation cache; default-load failure releases the SDK error and falls back uncached. Explicit --cache-config errors remain strict. --no-cache clears the explicit config; precompiled input skips cache. Timing records actual configured cache state.",
+    "Cold ordinary/serial benchmark and preparation commands explicitly pass --no-cache, as does the native ABI oracle. RuntimeSession defaults to --no-cache while retaining automatic in-memory reuse.",
+    "One fixed Engine per worker; exact Wasm bytes are reread and compared on each request. LRU retains at most eight modules and 64 MiB source bytes. This is not a bound on total JIT memory.",
+    "Each request creates fresh Store/instance/State. Reused linker callbacks obtain current Store data. A linker is published only after every import succeeds, so failed linkage cannot poison the next request.",
+    "Engine outlives cached modules/linkers. Python locks run/close, preserves binary output, kills/reaps/closes on terminal protocol or I/O failure, and uses a temporary diagnostic file to avoid stderr-pipe backpressure.",
+    "Fresh-process wall includes launch; engine phase starts after module file read. Worker startup and first request are separate from resident round trips; each reused request still creates a fresh instance."
+  ],
+  "lifecycle_harness": {
+    "status": "GO-after-smoke",
+    "report": {
+      "path": "build/next-levers/lifecycle-smoke-3/report.json",
+      "sha256": "a11d26c70d3badad5972488765611cc17fdba03fff176a248bfdeac2b8e3bf11",
+      "bytes": 102438
+    },
+    "coverage": "Two examples, six modes, one warmup and three measured samples = 48 observations; no delivered ten-example performance claim.",
+    "identity": "Actual adjacent host metadata must match selected binary; exact metadata dictionary/SHA and SDK identities are retained. Compiler, workload, artifact and inputs are pinned and checked again after collection.",
+    "sampling": "Randomized mode rounds; independent empty miss directories, prepared disk cache, explicit cold and AOT preparation, one resident worker per example. All outputs/status/stderr checked; startup, first request and preparation separately recorded.",
+    "labels": "Chart explicitly labels cold (--no-cache). Disk hit is expected from preparation, not a fabricated SDK hit counter; worker hit comes from the exact-byte module cache."
+  },
+  "performance_boundary": {
+    "status": "Pilot evidence only; fresh final cohorts pending.",
+    "earlier_runtime_host": "The opt-in-cache host under build/next-levers/host-explicit-cache remains a separate prototype identity; its nine-pair pilot does not measure final automatic-cache default.",
+    "required_next": "73-command broad qualification, differential/native replay and final paired/fresh performance cohorts."
+  }
+}

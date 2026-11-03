@@ -341,6 +341,7 @@ struct Function {
     void BlockInto(Block *, const vector<TypeExpr *> &, const vector<uint32_t> &, const ResultDestinations & = {}, size_t first_statement = 0);
     void CaptureResult(TypeExpr *, uint32_t);
     bool SelectAssignment(IfExpr *);
+    bool ByteStencilLoop(ForLoop *, const Slot &, TypeExpr *, uint32_t, uint32_t);
     bool FoldBitLoop(ForLoop *);
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
     bool UnrollRange(ForLoop *, const Slot &, TypeExpr *);
@@ -493,6 +494,8 @@ struct Compiler {
     bool Effects() const { return !effect_targets.empty() || region_cursors; }
     unordered_map<FnSpec *, uint32_t> function_index;
     unordered_map<FnSpec *, uint32_t> function_type;
+    unordered_set<FnSpec *> private_snapshot_entries;
+    void AnalyzePrivateSnapshots();
     unordered_map<FnSpec *, uint32_t> run_index;
     unordered_map<FnSpec *, uint8_t> intrinsic_opcode;
     unordered_map<VarDef *, Slot> globals;
@@ -1275,6 +1278,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_images.h"
 #include "direct_wasm_arrays.h"
 #include "direct_wasm_bits.h"
+#include "direct_wasm_stencil.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"
 

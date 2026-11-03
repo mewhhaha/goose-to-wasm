@@ -4,7 +4,7 @@ The [24-family performance campaign](FULL_PERFORMANCE_CAMPAIGN.md) tracks measur
 
 The [runtime targets](RUNTIME_TARGETS.md) compare the delivered compiler with fixed, separately built reference selections executed in fresh paired rounds. The selected native reference remains faster on several workloads; it is not a universal ceiling.
 
-The [Functions investigation](FUNCTIONS_PERFORMANCE.md) reduced staging for eligible fresh fixed-value construction; the broader local-record variant regressed warmed workloads and was rejected. Native-host process time still depends heavily on engine startup. The earlier campaign improved warmed Life, Sorting, Sudoku and hash. Remaining work includes generic Life stencil legality, physical layout under the exported-memory contract, and workload-specific native gaps. Binaryen O3 helped Life but regressed other workloads, so it remains a reference rather than a default pipeline. The [campaign tracker](FULL_PERFORMANCE_CAMPAIGN.md) retains measured tradeoffs and rejected experiments.
+The [Functions investigation](FUNCTIONS_PERFORMANCE.md) removes redundant private aggregate snapshots. A qualified stencil lowering improves the measured Life adapter, while native runtime caching and resident sessions target repeated launches. Remaining work includes physical layout under the exported-memory contract and workload-specific native gaps. Binaryen O3 helped Life but regressed other workloads, so it remains a reference rather than a default pipeline. The [campaign tracker](FULL_PERFORMANCE_CAMPAIGN.md) retains measured tradeoffs and rejected experiments.
 
 Freeze compiler and workload identities, qualify semantics, and collect interleaved confirmation pairs. Investigate regressions, module growth and compiler costs in both engines and unaffected controls.
 
@@ -14,8 +14,7 @@ The historical [audit](WASM_AUDIT.md) covers all ten examples. Leaf frames, bit 
 
 ## Native-host comparison
 
-The [native Wasmtime host comparison](../bench/wasmtime-host.md) now measures
-fresh compilation and explicit precompiled loading alongside the Python host.
+The [native Wasmtime host comparison](../bench/wasmtime-host.md) measures uncached compilation, SDK caching, precompiled loading and resident sessions alongside the Python host.
 Preparation and startup matter for one-off runs; the relative process times vary by workload. Host, callback and I/O differences also affect the comparison, which does not bound steady-state code generation. Serial compilation
 was generally slower and remains a control rather than the default.
 

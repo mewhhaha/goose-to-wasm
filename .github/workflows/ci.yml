@@ -65,6 +65,7 @@ jobs:
         run: |
           python scripts/build_wasmtime_host.py
           python tests/test_native_wasmtime.py
+          python tests/test_runtime_session.py
       - name: Oracle source and driver contracts
         run: |
           python oracle/tests/test_bootstrap.py
@@ -110,6 +111,7 @@ jobs:
           python tests/test_named_callback_forwarding.py
           python tests/test_memory_growth_helper.py
           python tests/test_fresh_initialization.py
+          python tests/test_private_snapshot_parameters.py
           python tests/test_loop_ordinals.py
           python tests/test_literal_ranges.py
           python tests/test_zero_stores.py
@@ -123,6 +125,7 @@ jobs:
           python tests/test_simd_only_writeback.py SimdOnlyWriteback.test_unsupported_ordinal_body_keeps_single_write_through_loop
           python tests/test_python_wasmtime.py
           python tests/test_descending_simd.py
+          python tests/test_byte_stencil.py
       - name: Stable regions, memory isolation and scoped owner cleanup
         run: |
           python tests/test_regions.py

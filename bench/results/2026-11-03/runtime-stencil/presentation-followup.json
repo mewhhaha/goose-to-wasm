@@ -1,0 +1,20 @@
+{
+  "schema": "goose-presentation-followup-v1",
+  "status": "passed",
+  "reason": "Visual review found panel-title/legend overlap and numeric labels crossing error bars. Shortened one title and positioned labels beyond their MAD error bars after timing. Numeric values, bars and data are unchanged; no compiler, runtime, workload or measurement harness changed. Exact original measured renderer is retained.",
+  "source": "/home/jacobt/src/goose-to-wasm/bench/runtime_lifecycle_charts.py",
+  "before_snapshot": "/home/jacobt/src/goose-to-wasm/build/next-levers/presentation/runtime_lifecycle_charts-measured.py",
+  "before_sha256": "a01c02c3572e43093ea05839af51c9a9d2c88c3a47a05596e73ba8ec905ae4cb",
+  "after_sha256": "c332aac1541443c76c08852f5cbc308901aacbcaa12bd015818191094b9ad592",
+  "old_title": "Fresh processes \u00b7 cold (--no-cache), disk cache hit, precompiled, native C",
+  "new_title": "Fresh processes \u00b7 one launch per sample",
+  "changes": {
+    "title_strings": 1,
+    "label_loops": 2,
+    "label_anchor_expressions": 2
+  },
+  "unified_diff": "--- measured/bench/runtime_lifecycle_charts.py\n+++ final/bench/runtime_lifecycle_charts.py\n@@ -59,16 +59,16 @@\n         bars = ax.barh(y_base + offset, medians, height=0.13, color=COLORS[mode],\n                        label=MODE_LABELS[mode],\n                        xerr=mads, error_kw={\"elinewidth\": 0.8, \"capsize\": 2, \"ecolor\": \"#334155\"})\n-        for bar, value in zip(bars, medians):\n+        for bar, value, mad in zip(bars, medians, mads):\n             label = f\"{value:.2f}\"\n             numeric_labels.append(label)\n-            ax.text(value * 1.08, bar.get_y() + bar.get_height() / 2, label,\n+            ax.text((value + mad) * 1.08, bar.get_y() + bar.get_height() / 2, label,\n                     va=\"center\", ha=\"left\", fontsize=7, color=\"#334155\")\n     ax.set_yticks(y_base, names)\n     ax.invert_yaxis()\n     ax.set_xscale(\"log\")\n     ax.set_xlabel(\"Fresh-process wall time (ms)\")\n-    ax.set_title(\"Fresh processes \u00b7 cold (--no-cache), disk cache hit, precompiled, native C\",\n+    ax.set_title(\"Fresh processes \u00b7 one launch per sample\",\n                  loc=\"left\", fontsize=12, weight=\"bold\", pad=12)\n     ax.grid(axis=\"x\", color=\"#e2e8f0\", linewidth=0.8)\n     ax.set_axisbelow(True)\n@@ -80,10 +80,10 @@\n     mads = [item[\"modes\"][\"worker-hit\"][\"mad_seconds\"] * 1000 for item in examples]\n     bars = ax.barh(y_base, medians, height=0.48, color=COLORS[\"worker-hit\"],\n                    xerr=mads, error_kw={\"elinewidth\": 0.8, \"capsize\": 2, \"ecolor\": \"#334155\"})\n-    for bar, value in zip(bars, medians):\n+    for bar, value, mad in zip(bars, medians, mads):\n         label = f\"{value:.2f}\"\n         numeric_labels.append(label)\n-        ax.text(value * 1.08, bar.get_y() + bar.get_height() / 2, label,\n+        ax.text((value + mad) * 1.08, bar.get_y() + bar.get_height() / 2, label,\n                 va=\"center\", ha=\"left\", fontsize=8, color=\"#334155\")\n     ax.set_yticks(y_base, names)\n     ax.invert_yaxis()\n",
+  "original_chart_sha256": "fd87b1a250f1d804a62938f04563805ba838f4a41daf2ebb3fdf3604e5f1aefe",
+  "final_chart_sha256": "4a47943eef7426f1649a6ab1a157acbbb63d161e3b05d359723f32ceb1897dc4",
+  "numeric_labels_verified": 453
+}

@@ -1366,6 +1366,7 @@ inline void Function::For(ForLoop *n) {
         sequence(); view = Save(I64);
         code.I64Const(0); lo = Save(I64); Get(view); code.I64Const(32); code.Op(0x88); hi = Save(I64);
     }
+    if (numeric && ByteStencilLoop(n, binding, ct, lo, hi)) return;
     optional<uint32_t> encoded_cursor, encoded_base;
     if (!numeric && Compiler::Varint(elem)) {
         Get(view); code.Op(0xa7); encoded_cursor = Save(I32);

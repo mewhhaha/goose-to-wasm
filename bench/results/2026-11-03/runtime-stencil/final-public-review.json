@@ -1,0 +1,455 @@
+{
+  "schema": "goose-runtime-stencil-final-public-review-v1",
+  "status": "passed",
+  "decision": "GO for evidence assembly; final archive audit remains separate",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T17:14:25.441758+00:00",
+  "scope": "Current public claims, arithmetic, qualification linkage, frozen source identities, documentation, plots, GUIDE validation and the explicit presentation-only source variant. No compiler, guest, engine, test or performance executions were performed by this review.",
+  "blockers": [],
+  "identities": {
+    "compiler_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+    "baseline_compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+    "native_host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "frozen_reference_report_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "compiler_headers": 33,
+    "compiler_patches": 2,
+    "current_and_frozen_headers_and_patches_match": true,
+    "host_build_metadata": {
+      "path": "build/bin/goose-wasmtime.json",
+      "sha256": "3ce9f9e13b278ac68c30136381b448d1e550116d335066952974ccccadc03dd0",
+      "bytes": 11950
+    },
+    "compiler_identity": {
+      "path": "bench/results/2026-11-03/runtime-stencil/compiler-identity.json",
+      "sha256": "59ad6e85b7666e077d678ddd34e1c84ab1a0bb15f34f20388dd9543b0cc59d66",
+      "bytes": 8721
+    }
+  },
+  "qualification": {
+    "focused_commands": 73,
+    "cases": 978,
+    "differential_executions": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574,
+    "worker_observations": 3001,
+    "worker_aliases": 3828
+  },
+  "cohorts": {
+    "ordered_completed_phases": [
+      {
+        "phase": "delivered-warmed",
+        "private_report": "build/next-levers/delivered-warmed/report.json",
+        "public_report": "bench/results/2026-11-03/runtime-stencil/final-warmed.json",
+        "sha256": "87ade1bd2f3f970eee24d27af80f8ef41a4236059478fe278be3fce672100f32"
+      },
+      {
+        "phase": "delivered-v8",
+        "private_report": "build/next-levers/delivered-v8/report.json",
+        "public_report": "bench/results/2026-11-03/runtime-stencil/final-v8.json",
+        "sha256": "d1383b317f8fa553f99ccf1b2fe12727874a8bbe3ffd3ad06e8502d9cc304fc7"
+      },
+      {
+        "phase": "examples",
+        "private_report": "build/next-levers/current/examples/report.json",
+        "public_report": "bench/results/2026-11-03/runtime-stencil/examples.json",
+        "sha256": "6e9c8d0b3dc2fda690762431b7b8495fede18cd878c12a8c14e955915fb30626"
+      },
+      {
+        "phase": "host",
+        "private_report": "build/next-levers/current/host/report.json",
+        "public_report": "bench/results/2026-11-03/runtime-stencil/host.json",
+        "sha256": "404e5e11432034e606d8846f2b84c5269ae584a4967cfea610aeff6c0be9a378"
+      },
+      {
+        "phase": "langarena",
+        "private_report": "build/next-levers/current/langarena/report.json",
+        "public_report": "bench/results/2026-11-03/runtime-stencil/cohort.json",
+        "sha256": "be50b354088c88135ae4e3c5033eb41e9f3a28d03cfa92a37aec0b6d38be9ded"
+      },
+      {
+        "phase": "lifecycle",
+        "private_report": "build/next-levers/current/lifecycle/report.json",
+        "public_report": "bench/results/2026-11-03/runtime-stencil/lifecycle.json",
+        "sha256": "ff1451d312c99e0bbbc8bb910c742faa7968bb92c8984a5218113c905b46dd9d"
+      }
+    ],
+    "delivery_input_pins_unchanged": true,
+    "observations": {
+      "warmed_wasmtime": 550,
+      "warmed_v8": 200,
+      "examples": 1600,
+      "native_host": 1440,
+      "langarena": 315,
+      "runtime_lifecycle": 960
+    },
+    "total_observations": 5065,
+    "separate_host_preparations": 200
+  },
+  "independent_checks": [
+    "Recomputed every warmed task/variant median, MAD, sample count, paired ratio and per-round geometric mean from retained observations; checked 750 raw timer/checksum outputs.",
+    "Recomputed host runtime/preparation summaries and paired ratios; checked all 960 unique lifecycle rows and their summaries.",
+    "Recomputed 433 additional example/LangArena median and MAD cells, including compile and entry phase metrics.",
+    "Checked differential/native comparison counts and output matches, worker 3001 distinct module/input identities over 3828 aliases, and final compiler/host bindings.",
+    "Verified all six passed exit-zero delivery phases, report hashes and exact public copies; delivery before/after input maps are identical.",
+    "Checked measured example/port artifacts, unchanged example source hashes and baseline/final module-analysis byte/disassembly bindings; current 33 headers and two patches match the frozen final source.",
+    "Checked all eleven chart hashes, preview hashes, 453 numeric-label proof, 46 table-cell proof and current document inputs, five latest pointers and frozen reference identity.",
+    "Independently viewed three contact sheets and the final full-size lifecycle plot; no unresolved clipping or title/legend/label collisions observed."
+  ],
+  "accepted_claims": {
+    "life_adapter": {
+      "wasmtime_baseline_ms": 239.705237,
+      "wasmtime_final_ms": 46.372471,
+      "wasmtime_paired_speedup": 5.145064952412389,
+      "wasmtime_paired_mad": 0.03866673031283163,
+      "v8_baseline_ms": 274.327107,
+      "v8_final_ms": 74.806483,
+      "v8_paired_speedup": 3.6691333423601806,
+      "v8_paired_mad": 0.0610095991374231,
+      "selected_native_ms_same_cohort": 60.828608,
+      "pairs": 9
+    },
+    "functions_static": {
+      "module_before_bytes": 39363,
+      "module_after_bytes": 39322,
+      "memory_copy_instructions_before": 256,
+      "memory_copy_instructions_after": 254,
+      "by_name_body_before_bytes": 776,
+      "by_name_body_after_bytes": 735,
+      "by_name_frame_before_bytes": 64,
+      "by_name_frame_after_bytes": 16,
+      "timing_claim": "No isolated process-time gain is established by these static counts."
+    },
+    "full_life_static": {
+      "module_before_bytes": 17426,
+      "module_after_bytes": 19829,
+      "widening_load_instructions": 36,
+      "tradeoff": "13.8% module growth, disclosed separately from warmed adapter speed."
+    },
+    "functions_lifecycle_median_ms": {
+      "cold_no_cache": 30.370177,
+      "empty_sdk_cache": 32.00348,
+      "populated_sdk_cache": 2.68943,
+      "precompiled": 1.957669,
+      "native_c": 1.252199,
+      "resident_request": 0.315079
+    },
+    "life_lifecycle_median_ms": {
+      "cold_no_cache": 21.813869,
+      "empty_sdk_cache": 24.028127,
+      "populated_sdk_cache": 4.318576,
+      "precompiled": 3.676836,
+      "native_c": 33.476559,
+      "resident_request": 2.019747
+    }
+  },
+  "comparison_boundaries": [
+    "The warmed Life adapter and full unchanged Life example are separate workloads and timing boundaries.",
+    "The other nine warmed guest modules are byte-identical baseline/final; their near-neutral or noisy ratios are controls, not nine additional compiler speedups.",
+    "Cold host measurements explicitly use --no-cache despite the final normal CLI enabling the SDK cache by default. Empty-cache runs include population; precompiled runs exclude preparation.",
+    "Resident measurements cover IPC/request work with a fresh Store, instance and state; they exclude worker process startup. RuntimeSession disk caching defaults off while in-memory module reuse remains enabled.",
+    "The lifecycle and host process cohorts use the same guest/native artifact bytes but were collected separately. Life native medians 33.477 and 18.189 ms reflect disclosed bimodal normal-pool samples, not a paired compiler comparison.",
+    "Native SDK host, Python Wasmtime engine and warmed reference host identities are retained separately; matching version numbers do not establish identical host binaries.",
+    "Selected reference artifacts were built earlier and executed freshly. They are measured references, not universal native ceilings."
+  ],
+  "semantic_review_linkage": {
+    "static_review": {
+      "path": "build/next-levers/static-review.json",
+      "sha256": "ddf940afd18e92c36c98ca807ff05fbe56cc43bd88fa47b57bf8925a590a05ca",
+      "bytes": 12548
+    },
+    "test_review": {
+      "path": "build/next-levers/test-static-review.json",
+      "sha256": "aeb3d5f482c182f9474a0e77c64df90e53ea5776a10f58a38f0a9a46514f030d",
+      "bytes": 11534
+    },
+    "result": "The earlier pending broad qualification is now completed; the earlier review files remain unchanged. Generic stencil proof, scalar debug/alias/bounds fallbacks, caller snapshot order and runtime fresh-state/cache lifecycle restrictions remain as reviewed."
+  },
+  "presentation_followup": {
+    "status": "accepted presentation-only variant",
+    "before_sha256": "a01c02c3572e43093ea05839af51c9a9d2c88c3a47a05596e73ba8ec905ae4cb",
+    "after_sha256": "c332aac1541443c76c08852f5cbc308901aacbcaa12bd015818191094b9ad592",
+    "exact_unified_diff_verified": true,
+    "changes": {
+      "title_strings": 1,
+      "label_loops": 2,
+      "label_anchor_expressions": 2
+    },
+    "measured_source_retained": {
+      "path": "build/next-levers/presentation/runtime_lifecycle_charts-measured.py",
+      "sha256": "a01c02c3572e43093ea05839af51c9a9d2c88c3a47a05596e73ba8ec905ae4cb",
+      "bytes": 7301
+    },
+    "final_source": {
+      "path": "bench/runtime_lifecycle_charts.py",
+      "sha256": "c332aac1541443c76c08852f5cbc308901aacbcaa12bd015818191094b9ad592",
+      "bytes": 7304
+    },
+    "boundary": "Title plus two label-loop and two label-anchor substitutions only; values, bar geometry, reports, runtime/compiler/workload and measurement harness unchanged. Packaging must retain both source identities and the source-ledger exception."
+  },
+  "guide_validation": {
+    "status": "passed",
+    "checks": 15,
+    "guide_sha256": "fd0485188f3975cdce23b6f2d7efde138bdb4093307c7b442c16223a0e05652f",
+    "boundary": "Reviewed the recorded CLI/session smoke checks against the qualified compiler and host. Existing installer/setup was not rerun. The initial private validator incorrectly required quiet compiler stdout; its corrected expectation and failed context are retained, with no GUIDE source defect."
+  },
+  "public_pins": {
+    "documents": [
+      {
+        "path": "README.md",
+        "sha256": "76ff70f1af0e4e6a3859a8b652f3fe20c89795d029bc22ed0a99364b19eae54b",
+        "bytes": 3027
+      },
+      {
+        "path": "bench/examples.md",
+        "sha256": "7b45d9ad2ade88f87311cdb462d98f49604204f31472fbbcd9e6654162a6cdbe",
+        "bytes": 3875
+      },
+      {
+        "path": "bench/wasmtime-host.md",
+        "sha256": "a1c369137d3959fa68cb0a0aaf1b4e10b14d516b7f38fbd79cb061e6eb24d323",
+        "bytes": 4034
+      },
+      {
+        "path": "docs/FUNCTIONS_PERFORMANCE.md",
+        "sha256": "2860dfaf2b173d1bfbc5b89a3054ea52a7e3741bfc9de335a558ee5f02179bb9",
+        "bytes": 1057
+      },
+      {
+        "path": "docs/GUIDE.md",
+        "sha256": "fd0485188f3975cdce23b6f2d7efde138bdb4093307c7b442c16223a0e05652f",
+        "bytes": 22941
+      },
+      {
+        "path": "docs/PERFORMANCE_PLAN.md",
+        "sha256": "786c2724e8f4d804be40b9142c6f3eab33ec01d59e52a0eceae190f0e5e6bfac",
+        "bytes": 2867
+      },
+      {
+        "path": "docs/RUNTIME_TARGETS.md",
+        "sha256": "ab5fcc73c2350727f29b71aa4ec0946e1d0c487f1aab2b8c3523df614a88ffac",
+        "bytes": 3072
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/README.md",
+        "sha256": "872726c67ff2f4c4fe33bce4718d20ba2a2c317fdedc2b3270cc89768182a988",
+        "bytes": 4133
+      }
+    ],
+    "reports_and_proofs": [
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/campaign.json",
+        "sha256": "26f76e280b42a78a625a971636e4457516c929aab2f5a008b5579c668d2c4c5e",
+        "bytes": 3281
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/chart-verification.json",
+        "sha256": "9d153e194fdd616cc5847fd756d499c7efb5ae35dbe44937fe88fa74ca2c9ff5",
+        "bytes": 2106
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/chart-visual-review.json",
+        "sha256": "f6a58fc7b8f17cfe2600b39d16f0caca58492cc0497d68989126f9c5513bb00d",
+        "bytes": 4871
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/cohort.json",
+        "sha256": "be50b354088c88135ae4e3c5033eb41e9f3a28d03cfa92a37aec0b6d38be9ded",
+        "bytes": 861289
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/compiler-identity.json",
+        "sha256": "59ad6e85b7666e077d678ddd34e1c84ab1a0bb15f34f20388dd9543b0cc59d66",
+        "bytes": 8721
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/differential.json",
+        "sha256": "a29d81e4c457b923100c060b69cca22a07e162fbe1105a5f98914fe4d33ffc3a",
+        "bytes": 6001093
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/examples.json",
+        "sha256": "6e9c8d0b3dc2fda690762431b7b8495fede18cd878c12a8c14e955915fb30626",
+        "bytes": 1788777
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/final-numbers.json",
+        "sha256": "7d19b2df2157b26112edd7cc0336db99a7d412976114139818402f6de49ac640",
+        "bytes": 709049
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/final-v8.json",
+        "sha256": "d1383b317f8fa553f99ccf1b2fe12727874a8bbe3ffd3ad06e8502d9cc304fc7",
+        "bytes": 793499
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/final-warmed.json",
+        "sha256": "87ade1bd2f3f970eee24d27af80f8ef41a4236059478fe278be3fce672100f32",
+        "bytes": 1507163
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/guide-verification.json",
+        "sha256": "51e1eb38923944e3c7d47e005f5454184233386e8e0fbcd4503d08b21daabaa7",
+        "bytes": 5196
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/host-qualification.json",
+        "sha256": "1d4d1f62c2eff0f1fb7c38ce29163fa11c02bdba79b48bcfb6c8857383a4f4cb",
+        "bytes": 20380521
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/host.json",
+        "sha256": "404e5e11432034e606d8846f2b84c5269ae584a4967cfea610aeff6c0be9a378",
+        "bytes": 1113046
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/lifecycle.json",
+        "sha256": "ff1451d312c99e0bbbc8bb910c742faa7968bb92c8984a5218113c905b46dd9d",
+        "bytes": 1722755
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/module-analysis.json",
+        "sha256": "0d349853124e239ffa17b17966cabd4e57c9b52b6bd92d53cf64ac4197b9628a",
+        "bytes": 13356
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/presentation-followup.json",
+        "sha256": "dde9354d3dd4aeda65995c03580b03bfc2088e08c5f03e5f32cdfb57d813e0a1",
+        "bytes": 3325
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/qualification.json",
+        "sha256": "4230516b8ab0ca92a86cf0410f0215799387d158b6a5d47f7c807b6fba0d814b",
+        "bytes": 32310
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/readme.json",
+        "sha256": "d80c6be857eb942e624f88a86ce3928cac15da7b4dd94ff44f06f5446cc5ceb2",
+        "bytes": 108951
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/references.json",
+        "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+        "bytes": 1939980
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/static-review.json",
+        "sha256": "ddf940afd18e92c36c98ca807ff05fbe56cc43bd88fa47b57bf8925a590a05ca",
+        "bytes": 12548
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/table-verification.json",
+        "sha256": "49b2e5669d1109e3ffdfff507c8b07948a555fb5fdd6001b954852fb25445e04",
+        "bytes": 2997
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/target-chart-verification.json",
+        "sha256": "3f0a284d82e16a70ab4853d1de603c4759f308122b565d239950822c82f5ad82",
+        "bytes": 75438
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/test-static-review.json",
+        "sha256": "aeb3d5f482c182f9474a0e77c64df90e53ea5776a10f58a38f0a9a46514f030d",
+        "bytes": 11534
+      },
+      {
+        "path": "bench/results/2026-11-03/runtime-stencil/worker-qualification.json",
+        "sha256": "32bc6cfdb0619f59f430cc08a01454f3a01067e78165ae029de0414611e4c939",
+        "bytes": 7748951
+      }
+    ],
+    "charts": [
+      {
+        "path": "bench/charts/examples-compilation.svg",
+        "sha256": "1049150a38821592f632b985341789e4407568157614db0dfc20ef8bddd76692",
+        "bytes": 51279
+      },
+      {
+        "path": "bench/charts/examples-python-runtime.svg",
+        "sha256": "72265eb05d7c8439f3a1dc35292dca0dbe309fa07348c1df6b076aacf31f74d4",
+        "bytes": 94160
+      },
+      {
+        "path": "bench/charts/examples-entry.svg",
+        "sha256": "39590184f4d08cd4f5ccf70df421b0fb4b86313553062d1b2dfb548db84a83fc",
+        "bytes": 80932
+      },
+      {
+        "path": "bench/charts/examples-runtime.svg",
+        "sha256": "5aad65690978dc66ca7a5f25e4f6c08f45775f8dd9e40b5d0b3e64d95dc88134",
+        "bytes": 114541
+      },
+      {
+        "path": "bench/charts/wasmtime-host-runtime.svg",
+        "sha256": "21f9c4a5c959a69d9190ce6ff04d87c1e306d0f6d812a59c822faa93e996ed80",
+        "bytes": 86685
+      },
+      {
+        "path": "bench/charts/wasmtime-host-c-wasm.svg",
+        "sha256": "f4c71d09e8bb57930d33d50215c70409c94e049c5842fde6d26da7d87d47c23f",
+        "bytes": 87323
+      },
+      {
+        "path": "bench/charts/wasmtime-host-preparation.svg",
+        "sha256": "90373ed3f92f4f0ff6881030b65cf2a45e1be32dffbb2121487b43dd699f29fb",
+        "bytes": 93496
+      },
+      {
+        "path": "bench/charts/compilation.svg",
+        "sha256": "2338e1cfd43cfdf1008b537dc1300b8a89547823c6cc68d508f9a4d399a15e9a",
+        "bytes": 25581
+      },
+      {
+        "path": "bench/charts/runtime.svg",
+        "sha256": "45d6b3dea52c62f6c5b4fa587744abbfafe865b9bedaa4b98d94d027dab07334",
+        "bytes": 47328
+      },
+      {
+        "path": "bench/charts/runtime-targets.svg",
+        "sha256": "43d23f56a3219e761969ba66f58d574d3b6ddc0a2a5013bbdad355f671bdfad2",
+        "bytes": 37743
+      },
+      {
+        "path": "bench/charts/runtime-lifecycle.svg",
+        "sha256": "4a47943eef7426f1649a6ab1a157acbbb63d161e3b05d359723f32ceb1897dc4",
+        "bytes": 68485
+      }
+    ],
+    "latest_pointers": [
+      {
+        "path": "bench/results/latest.json",
+        "sha256": "f49aed185ac66d4e6477825ee374002844dcac249d6c893dee7fac37da4673e1",
+        "bytes": 175
+      },
+      {
+        "path": "bench/results/examples-latest.json",
+        "sha256": "d7819eb5067b954ed1383cc3ecf5f91430c32a7f7e3462e861a0470c5b5a6540",
+        "bytes": 189
+      },
+      {
+        "path": "bench/results/wasmtime-host-latest.json",
+        "sha256": "f57d14981096da70d7cef5e161ba9d273de19b0794b5e18dc0c6fc34e72b5c6e",
+        "bytes": 180
+      },
+      {
+        "path": "bench/results/runtime-targets-latest.json",
+        "sha256": "e4315917b4a897c38692841a1163ed14a046ff3ddc9e3d5c56b0294a2f9584c7",
+        "bytes": 568
+      },
+      {
+        "path": "bench/results/runtime-lifecycle-latest.json",
+        "sha256": "004f01fa239c250be5550d269849b52e463559b4aa90bc52c5c14f64c84bb8e9",
+        "bytes": 189
+      }
+    ],
+    "delivery_execution": {
+      "path": "build/next-levers/delivery-execution/report.json",
+      "sha256": "3f50d4adc71d0c9657cde31283226cd128bd6ec082dea42746a714de71232867",
+      "bytes": 1001895
+    }
+  },
+  "archive_audit": {
+    "status": "pending separate post-assembly audit",
+    "requirements": "Verify exact current evidence/guest/source closure, bounded prior physical-object reuse, rejected/stopped development context, old/new presentation source identities, GUIDE artifacts, the documented no-argument reproduction/verify.py command, and final public SHA manifest coverage. No archive assembly or offline verifier execution is claimed by this public review."
+  }
+}

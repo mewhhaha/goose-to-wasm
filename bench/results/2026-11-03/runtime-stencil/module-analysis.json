@@ -1,0 +1,259 @@
+{
+  "schema": "goose-runtime-stencil-module-analysis-v1",
+  "status": "passed",
+  "compilers": {
+    "baseline": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+    "final": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874"
+  },
+  "method": "Existing unchanged-source O2 example modules. Baseline is prior delivered a8c compiler; final artifacts are this campaign actual measured direct modules. Static instructions are not dynamic operation counts. No additional compilations.",
+  "source_reports": {
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/shapes/report.json": "4429318b0c335d0db7ebdf0a1b9141e1fcdd6f86c76be806da89834cdc863ead",
+    "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/report.json": "6e9c8d0b3dc2fda690762431b7b8495fede18cd878c12a8c14e955915fb30626"
+  },
+  "source_sha256": {
+    "/home/jacobt/src/goose-to-wasm/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca",
+    "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565",
+    "/home/jacobt/src/goose-to-wasm/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97",
+    "/home/jacobt/src/goose-to-wasm/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781",
+    "/home/jacobt/src/goose-to-wasm/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a",
+    "/home/jacobt/src/goose-to-wasm/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e",
+    "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14",
+    "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555",
+    "/home/jacobt/src/goose-to-wasm/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834",
+    "/home/jacobt/src/goose-to-wasm/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498"
+  },
+  "examples": [
+    {
+      "task": "squares",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/squares-candidate.wasm",
+        "sha256": "6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc",
+        "bytes": 1375,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/squares-baseline.disassembly",
+        "disassembly_sha256": "15b4a3ac6b228845ae3f4fbb197cae6f34fa99f0d20ee30438fdbe5309e56672"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/squares/direct/0/program.wasm",
+        "sha256": "6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc",
+        "bytes": 1375,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/squares-final.disassembly",
+        "disassembly_sha256": "6130e28e52e05b895b0438c20a6c73c40bf09eed3c27967243b72518392c25ae"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "tour",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/tour-candidate.wasm",
+        "sha256": "f7d6ede315a3e57039c02d18f94024499d3ba2af1ea9901f06b341293e7deb06",
+        "bytes": 35592,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/tour-baseline.disassembly",
+        "disassembly_sha256": "f63dbb87e7b58d4a9ad0457d20a85a607df4a71dfea683271d7a6bed91a82226"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/tour/direct/0/program.wasm",
+        "sha256": "f7d6ede315a3e57039c02d18f94024499d3ba2af1ea9901f06b341293e7deb06",
+        "bytes": 35592,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/tour-final.disassembly",
+        "disassembly_sha256": "c49142ef4a2e34a31a48e323512df68c1476b7632035c618a146fc83adb8277f"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "functions",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/functions-candidate.wasm",
+        "sha256": "3ed6439cec1457ee7e37dbb7c1ea34ae3702126bebbc4ca95af24b59d55ba572",
+        "bytes": 39363,
+        "static_memory_copy": 256,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/functions-baseline.disassembly",
+        "disassembly_sha256": "de788d5b39c10e69980a2c11552953dffa45cb62c060acd2376948ed5e9e909e",
+        "by_name": {
+          "index": 13,
+          "body_bytes": 776,
+          "static_memory_copy": 2,
+          "frame_bytes": 64
+        }
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/functions/direct/0/program.wasm",
+        "sha256": "048eb4b49710c64615529758ce76944ae591ebd63325b3c6ae5deb580da2a762",
+        "bytes": 39322,
+        "static_memory_copy": 254,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/functions-final.disassembly",
+        "disassembly_sha256": "fd1b085d2002ed1b2764b704aae4930dd9de998515cd10833749991acc8b30a6",
+        "by_name": {
+          "index": 13,
+          "body_bytes": 735,
+          "static_memory_copy": 0,
+          "frame_bytes": 16
+        }
+      },
+      "bytes_delta": -41
+    },
+    {
+      "task": "errors",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/errors-candidate.wasm",
+        "sha256": "d40d973ab789778c163789104f0a3f9e132df441e95d2abd93c96ace95e5662d",
+        "bytes": 23415,
+        "static_memory_copy": 76,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/errors-baseline.disassembly",
+        "disassembly_sha256": "9a690231bb4f39268968268f53a3e40446bd4b7a05cc5c14d9638fb6001e41aa"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/errors/direct/0/program.wasm",
+        "sha256": "d40d973ab789778c163789104f0a3f9e132df441e95d2abd93c96ace95e5662d",
+        "bytes": 23415,
+        "static_memory_copy": 76,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/errors-final.disassembly",
+        "disassembly_sha256": "dbc2c4aad01611def12f590979e92a14f5ee87f63f73462bb64cc376cec9e47a"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "sieve",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/sieve-candidate.wasm",
+        "sha256": "35abf28f6a859b46db0ed2ce2d21c504240bdf5776c48cf3db34475d4828fc7e",
+        "bytes": 6390,
+        "static_memory_copy": 8,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/sieve-baseline.disassembly",
+        "disassembly_sha256": "19a11c7e43f3f644991ecd6c0bd3a41e0ccb54a19d307a79a9e09ca819735376"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/sieve/direct/0/program.wasm",
+        "sha256": "35abf28f6a859b46db0ed2ce2d21c504240bdf5776c48cf3db34475d4828fc7e",
+        "bytes": 6390,
+        "static_memory_copy": 8,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/sieve-final.disassembly",
+        "disassembly_sha256": "c8e0dc28d399c37dae1d0e3dc7dd49cfdcee7e148ad6230ebc7e7ba1f931b119"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "sorting",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/sorting-candidate.wasm",
+        "sha256": "139e40c34c1f1c94e4fa5877a8917c7d6fd1ef18f35cd0cc1a81e09bdba0b1bb",
+        "bytes": 48269,
+        "static_memory_copy": 172,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/sorting-baseline.disassembly",
+        "disassembly_sha256": "8b8f3b03bcba7da3610f9c17e7c47a467bdfad15ba5623fc841afee43c84664e"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/sorting/direct/0/program.wasm",
+        "sha256": "139e40c34c1f1c94e4fa5877a8917c7d6fd1ef18f35cd0cc1a81e09bdba0b1bb",
+        "bytes": 48269,
+        "static_memory_copy": 172,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/sorting-final.disassembly",
+        "disassembly_sha256": "14db5eb6f6e5bd61a4dcbc11bbe8f0f2bd0b0806d2878146cf2ed702284b98a2"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "sudoku",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/sudoku-candidate.wasm",
+        "sha256": "6a42be1c36beb1b620311cf4c136d2d419f9dcda124f5db3c6564b2176d7d0ca",
+        "bytes": 9231,
+        "static_memory_copy": 16,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/sudoku-baseline.disassembly",
+        "disassembly_sha256": "bf122753e1c1527e696851bcac3b969954938abb79bb7d5e96b6ef110d36ce82"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/sudoku/direct/0/program.wasm",
+        "sha256": "6a42be1c36beb1b620311cf4c136d2d419f9dcda124f5db3c6564b2176d7d0ca",
+        "bytes": 9231,
+        "static_memory_copy": 16,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/sudoku-final.disassembly",
+        "disassembly_sha256": "f5c2cebd39ef6a1e58b9506eccd1649be6c034fbb0ac31f6d4590c0b6697b524"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "maze",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/maze-candidate.wasm",
+        "sha256": "1515f6f2c6d4dc3ede3c382f486e20094cf2ce1b57bccbe950d48ffdd7655a0f",
+        "bytes": 18251,
+        "static_memory_copy": 42,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/maze-baseline.disassembly",
+        "disassembly_sha256": "525ecb2b9492ee28d4e13e867300ae11602bed09a1602ea2bf29a8ba6667c826"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/maze/direct/0/program.wasm",
+        "sha256": "1515f6f2c6d4dc3ede3c382f486e20094cf2ce1b57bccbe950d48ffdd7655a0f",
+        "bytes": 18251,
+        "static_memory_copy": 42,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/maze-final.disassembly",
+        "disassembly_sha256": "8c75b3b46ade8a206394ab8ffd4e834630f333d919877cfe18ac7562452db81d"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "vm",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/vm-candidate.wasm",
+        "sha256": "6a55b471e4e085d0cdcf5b9b44641ee1c03f5abe09dd89281e5933db440ef10a",
+        "bytes": 25238,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/vm-baseline.disassembly",
+        "disassembly_sha256": "7276adc58992cc652ba6d435c821304b9cd40fcae75a6caad7e5e09cf56f0d25"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/vm/direct/0/program.wasm",
+        "sha256": "6a55b471e4e085d0cdcf5b9b44641ee1c03f5abe09dd89281e5933db440ef10a",
+        "bytes": 25238,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/vm-final.disassembly",
+        "disassembly_sha256": "664f018dc7cef16874e97087ebe857024b7bffb0390407f3fd0c63aa6d432694"
+      },
+      "bytes_delta": 0
+    },
+    {
+      "task": "life",
+      "baseline": {
+        "wasm": "build/functions-init/shapes/life-candidate.wasm",
+        "sha256": "b951c90259a26337013a7b61e0c51e055a96e35b85c8e0b5fcafcea3f498db13",
+        "bytes": 17426,
+        "static_memory_copy": 17,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/life-baseline.disassembly",
+        "disassembly_sha256": "c23fba6244619b408c3f222a3c40d81817284101e2e7b95ee7e9f257fc99e888"
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-levers/current/examples/compile/life/direct/0/program.wasm",
+        "sha256": "b4c10b0f1aba17c1d4d83ce9e64b087ff24eae172b38ade7db3f78719ce1c649",
+        "bytes": 19829,
+        "static_memory_copy": 17,
+        "static_widened_loads": 36,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-levers/module-analysis/life-final.disassembly",
+        "disassembly_sha256": "4cacc618b9f17b73851aca64506c523911f3cda3453bc0ddf6288662383e1f24"
+      },
+      "bytes_delta": 2403
+    }
+  ]
+}

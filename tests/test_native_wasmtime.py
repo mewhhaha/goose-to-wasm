@@ -31,6 +31,8 @@ class NativeHost(unittest.TestCase):
         return path
 
     def execute(self,command,data=b''):
+        if Path(command[0]).resolve() == HOST:
+            command = [command[0], '--no-cache', *command[1:]]
         return subprocess.run(list(map(str,command)),input=data,capture_output=True,timeout=30)
 
     def compare(self,path,data=b'',diagnostic=None):

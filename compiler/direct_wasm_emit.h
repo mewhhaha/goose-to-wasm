@@ -33,6 +33,69 @@ inline void Function::Dynamic(uint32_t bytes, Line line) {
     EnsureMemory(aligned, line); Get(aligned); code.OpU(0x24, 0); Get(base);
 }
 
+inline void Compiler::AnalyzePrivateSnapshots() {
+    // EmitCall snapshots every fixed value before evaluating the next argument.
+    // Dispatch also calls specialization indices directly; keep its ABI intact.
+    unordered_set<FnSpec *> ordinary, dispatched;
+    function<void(Node *)> scan = [&](Node *node) {
+        if (!node || Is<FnDecl>(node) || Is<FunVal>(node) || Is<StructDecl>(node) ||
+            Is<EnumDecl>(node) || Is<AliasDecl>(node)) return;
+        if (auto call = Is<Call>(node)) {
+            if (!call->dispatch.empty()) {
+                for (auto arm : call->dispatch) dispatched.insert(arm);
+            } else if (call->builtin < 0 && !call->fvbody && call->spec) ordinary.insert(call->spec);
+            if (call->fvbody) scan(call->fvbody);
+            if (call->defaultinit) scan(call->defaultinit);
+            for (auto argument : call->ValueArgNodes()) scan(argument);
+            return;
+        }
+        node->Children([&](Node *child) { scan(child); });
+    };
+    for (auto global : ast.globals) for (auto init : global->inits) scan(init);
+    for (auto spec : specs) scan(spec->body);
+    for (auto spec : specs) {
+        if (!ordinary.count(spec) || dispatched.count(spec) || spec->sf == ast.MainFunction() ||
+            spec->sf->isextern || spec->sf->isexport || intrinsic_opcode.count(spec) ||
+            !captures[spec].empty() || !spec->needs.empty()) continue;
+        bool aggregate = false, closed = true;
+        for (auto parameter : spec->params) {
+            aggregate |= Aggregate(parameter->type);
+            closed &= ClosedPrintable(parameter->type) && !RegionOwner(parameter->type) &&
+                      !parameter->captured && !parameter->reusable && !captured_storage.count(parameter);
+        }
+        for (auto result : spec->rets)
+            closed &= result->kind == TY_VOID || (ClosedPrintable(result) && !Aggregate(result));
+        if (!aggregate || !closed) continue;
+        // Local slices remain live for the call under the checker's lifetime
+        // contract. Explicit reference exposure and byref iteration stay staged.
+        function<bool(Node *)> unexposed = [&](Node *node) {
+            if (!node || Is<FnDecl>(node) || Is<FunVal>(node) || Is<StructDecl>(node) ||
+                Is<EnumDecl>(node) || Is<AliasDecl>(node)) return true;
+            if (node->exprtype && node->exprtype->kind == TY_REF) return false;
+            if (auto unary = Is<Unary>(node); unary && unary->op == T_BITAND) return false;
+            if (auto declaration = Is<VarDecl>(node); declaration && declaration->byref) return false;
+            if (auto loop = Is<ForLoop>(node); loop && loop->byref) return false;
+            if (auto call = Is<Call>(node)) {
+                auto references = [](FnSpec *target) {
+                    if (!target) return false;
+                    for (auto parameter : target->params) if (parameter->type->kind == TY_REF) return true;
+                    return false;
+                };
+                if (references(call->spec)) return false;
+                for (auto arm : call->dispatch) if (references(arm)) return false;
+                if (call->fvbody && !unexposed(call->fvbody)) return false;
+                if (call->defaultinit && !unexposed(call->defaultinit)) return false;
+                for (auto argument : call->ValueArgNodes()) if (!unexposed(argument)) return false;
+                return true;
+            }
+            bool valid = true;
+            node->Children([&](Node *child) { if (valid) valid = unexposed(child); });
+            return valid;
+        };
+        if (unexposed(spec->body)) private_snapshot_entries.insert(spec);
+    }
+}
+
 inline string Function::Finish() {
     auto line = spec ? spec->sf->line : Line{};
     auto done = Begin();
@@ -52,6 +115,9 @@ inline string Function::Finish() {
                 RegisterEffectOwner({ p->type, vars.at(p) }, false); continue;
             }
             auto old = vars.at(p);
+            if (c.Aggregate(p->type) && c.private_snapshot_entries.count(spec) && !addressed.count(p)) {
+                vars[p] = { Slot::ADDRESS, old.index, p->type }; continue;
+            }
             if (c.Aggregate(p->type) || addressed.count(p)) {
                 Slot slot { Slot::FRAME, Frame(p->type), p->type };
                 StoreCopy({ p->type, slot }, { p->type, old.index,
@@ -225,6 +291,7 @@ inline DirectWasmResult Compiler::Compile() {
         FunctionSig(sp); // establish region requirements before assigning globals
     }
     AnalyzeEffects();
+    AnalyzePrivateSnapshots();
     raw_array_images = RawArrayImages();
     // Only frame-record result construction can map a nonempty prefix.
     // Checker-owned instantiations are complete and stable before emission;
