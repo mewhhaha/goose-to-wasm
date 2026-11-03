@@ -1,5 +1,13 @@
 # Runtime performance work
 
+## Guarded merge loops
+
+Eligible merge loops over 32- or 64-bit integer slices with stable local views and cursors check complete logical and physical source and destination spans before entering a branchless loop. The loop retains the original comparison, loads both candidates, selects the value to store and advances the corresponding cursor. The fast path preserves overlap behavior and access order. Failed guards and debug builds retain the scalar loop, including partial effects on traps.
+
+Nine paired warmed Wasmtime rounds measured Merge from 2,114.235 to 1,544.564 ms, a 1.369× paired speedup (MAD 0.059). V8 measured 1,911.894 to 1,463.426 ms, a 1.308× paired speedup (MAD 0.009). The separately built selected native reference took 1,104.079 ms in the Wasmtime paired cohort; it remains faster on this workload. The insertion-sort adapter is a byte-identical control. V8 Life was also byte-identical and measured 0.965× (MAD 0.044), illustrating control variation. The full Sorting module grows from 48,269 to 48,582 bytes; its merge body grows from 995 to 1,308 bytes. The Merge port grows from 5,214 to 5,527 bytes. These timings measure warmed kernels, not full Sorting process launches.
+
+A guard-only variant was rejected after V8 elapsed time rose 19%. A minimum span of 16 gained about 1.5% on Wasmtime over the selected variant but raised V8 elapsed time 3.9%; neither mechanism was isolated. A resident-host InstancePre experiment saved about 2 µs of preparation, but 201 paired Functions round trips showed only 1.005× (MAD 0.029), so it was rejected. The retained branchless strategy resembles the selected native Clang output. [Measurements and retained experiments](../bench/results/2026-11-03/merge-bounds/README.md) record the comparisons.
+
 ## Resource-free calls
 
 Proven resource-free recursive and fixed-reference calls omit frames, including numeric inline occurrences. In full-example entry probes, Sudoku's separate medians fell from 12.137 to 6.009 ms on V8 and 3.757 to 2.992 ms on Wasmtime. Median paired speedups were 1.642× (ratio MAD 0.326) and 1.259× (MAD 0.032); V8 varied more. Its module shrank from 11,953 to 10,966 bytes. The other nine modules were byte-identical, so timing changes there are noise. Nine fresh warmed reference rounds measured the Sudoku adapter at 1.066× baseline/current (MAD 0.002). The first SCC-only experiment (`f0d`) changed none of the ten modules; numeric inline support was needed. [Evidence](../bench/results/2026-11-02/resource-free-calls/README.md) records both.

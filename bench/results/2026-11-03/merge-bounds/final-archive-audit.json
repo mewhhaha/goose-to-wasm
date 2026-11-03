@@ -1,0 +1,166 @@
+{
+  "schema": "goose-merge-final-archive-audit-v1",
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T20:27:14.052791+00:00",
+  "decision": "GO for stage/commit/push of the frozen qualified batch; no archive, source, measurement or public-claim blocker remains.",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "native_host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+  "scope": "Supplemental postassembly review outside its own archives. Only this audit and the existing SHA256.json receive final writes. Existing public files, archives/index/retention, qualified code, raw reports, prose, charts and prior reviews remain unchanged.",
+  "bindings": {
+    "archives.json.gz": "ff3ff7bd9df332505c76b7a0f97b37503ffc35f2ce68fd670ae1ae0a5860838d",
+    "retention.json": "7af9e8bd2cd8cc9ba7e6b4315eecd71a7fbc181a7bc3ffa13785976fe5e6e56c",
+    "verification.json": "aa98c72bcc256acb072097f49f4c4a4dfb7c2f74668e83061a462afe20cbf026",
+    "verification.log": "f9cdda93f229bfd20ed6b38c343de5230cbf8b141e837a3175bc66d46705e6bd",
+    "retention-metrics.json": "4e80881b03e5ee220b3c0a66cf985ce7eabc2cc79fde900f65e96df604c3afec",
+    "final-public-review.json": "2d14a6dc77e452800a8a8fadf7b64b1cba4035b088e16b9abaf6acd4d8e07cf4",
+    "static-review.json": "42b89f5d80e2829d71430827f9323146772f96ca113d83cf89f46614add1090c",
+    "test-static-review.json": "e1b0f6bce0b31acf4e698ad3c46c57b1f98207f0a36b97145d9e05b655fa4eac"
+  },
+  "documented_command": {
+    "command": [
+      "python",
+      "bench/results/2026-11-03/merge-bounds/reproduction/verify.py"
+    ],
+    "working_directory": "repository root",
+    "exit_status": 0,
+    "stdout_matches_published_log_exactly": true,
+    "stdout_sha256": "f9cdda93f229bfd20ed6b38c343de5230cbf8b141e837a3175bc66d46705e6bd",
+    "stderr_bytes": 0,
+    "generated_bytecode_cache_directories": 0,
+    "timing_boundary": "Executed against the exact pre-audit manifest recorded below. Final manifest coverage is checked after adding this audit; no compiler, test, engine or benchmark was executed."
+  },
+  "independent_payload_audit": {
+    "status": "passed",
+    "method": "Independent streaming of only indexed current-package members from18 physically bound archives; no prior index, old alias namespace or historical report closure read. Every requested member hashed; selected source/review/catalog bytes decoded independently of the published verifier.",
+    "elapsed_seconds": 8.240657288988587,
+    "archives": {
+      "../fresh-construction/evidence-000.tar.gz": 120,
+      "../fresh-construction/evidence-001.tar.gz": 40,
+      "../functions-calls/evidence-000.tar.gz": 279,
+      "../functions-calls/evidence-001.tar.gz": 385,
+      "../functions-calls/evidence-002.tar.gz": 235,
+      "../functions-calls/evidence-003.tar.gz": 287,
+      "../functions-forwarding/evidence-000.tar.gz": 667,
+      "../functions-forwarding/evidence-001.tar.gz": 751,
+      "../functions-forwarding/evidence-002.tar.gz": 773,
+      "../functions-forwarding/evidence-003.tar.gz": 540,
+      "../functions-forwarding/evidence-004.tar.gz": 766,
+      "../functions-forwarding/evidence-005.tar.gz": 741,
+      "../functions-forwarding/evidence-006.tar.gz": 674,
+      "../functions-forwarding/evidence-007.tar.gz": 86,
+      "../runtime-stencil/evidence-000.tar.gz": 134,
+      "../runtime-stencil/evidence-001.tar.gz": 128,
+      "evidence-000.tar.gz": 18904,
+      "evidence-001.tar.gz": 16143
+    },
+    "requested_members_streamed": 41653,
+    "requested_raw_bytes": 475307607,
+    "payloads_materialized": 139,
+    "aliases": 136349,
+    "evidence_documents": 33,
+    "omissions": 84,
+    "required_guests": 4298,
+    "retained_guest_objects": 4486,
+    "engine_cache_files": 675,
+    "source_stages": {
+      "accepted-b53-prototype": {
+        "headers": 34,
+        "patches": 2,
+        "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d"
+      },
+      "baseline-1b": {
+        "headers": 33,
+        "patches": 2,
+        "compiler_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874"
+      },
+      "final": {
+        "headers": 34,
+        "patches": 2,
+        "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d"
+      },
+      "rejected-cutoff82": {
+        "headers": 34,
+        "patches": 2,
+        "compiler_sha256": "82c9ba340560c9ec1c9b104628f77cd9defa056913b647ebc560e99e63bb81d9"
+      },
+      "rejected-guard-control-c4": {
+        "headers": 34,
+        "patches": 2,
+        "compiler_sha256": "c4f9135cb3bf1e552a943a992c0eadeb8e8c8506c5712cb50f1cb012301577c7"
+      },
+      "rejected-guard-only13e": {
+        "headers": 34,
+        "patches": 2,
+        "compiler_sha256": "13e1e509e2fda3d6ef5094f9d391ca12c796096ea4d0583ad65b27855f7b3f20"
+      }
+    },
+    "matched_controls": 5,
+    "qualified_source_bindings": 492,
+    "qualification_pins": 1144,
+    "catalog_paths": 4982,
+    "catalog_unique_objects": 4217,
+    "public_documents": 9,
+    "latest_pointers": 5,
+    "new_archive_bytes": 13012302,
+    "bounded_prior_archives": 16,
+    "tool_binary_scope_leaks": [],
+    "preaudit_public_files": 37,
+    "preaudit_manifest_entries": 36,
+    "preaudit_public_bytes": 65239220,
+    "largest_public_file_bytes": 20542834
+  },
+  "verified_coverage": {
+    "qualification": {
+      "focused": 74,
+      "cases": 978,
+      "observations": 9573,
+      "native_comparisons": 7656,
+      "host_observations": 11484,
+      "unique_modules": 1574
+    },
+    "measurements": {
+      "warmed": 550,
+      "v8": 200,
+      "paired_rounds": 9,
+      "examples": 1600,
+      "host": 1440,
+      "preparations": 200,
+      "cohort": 315,
+      "lifecycle": 960,
+      "worker_effective": 3001,
+      "worker_aliases": 3828
+    },
+    "chart_numeric_labels": 453,
+    "charts": 11,
+    "documentation_table_cells": 46,
+    "guide_checks": 15,
+    "independent_arithmetic_cells": 843,
+    "reviewed_documents": 9,
+    "latest_pointers": 5
+  },
+  "findings": [
+    "All41653 requested byte objects across two new and16 bounded prior archives streamed and independently hashed. Prior archive/member catalogs are addressed only through the current index; no historical alias namespace or report/index closure is imported.",
+    "All136349 aliases resolve,4298 required guest identities and4486 retained guest objects are available;675 cache/config/counter files are retained. No measured guest is omitted and no compiler/SDK/tool executable leak was found.",
+    "All six declared compiler stages retain their exact source inventories: baseline33 headers; B, guard-only, guard-control and cutoff stages34 headers; each has both patches. Final b53 source identity and all five controls were checked from archived bytes, including the exact one-predicate edits and matching flags.",
+    "All1144 qualification pins resolve through retained objects or explicit tool/dependency omissions;492 qualified project sources, including unchanged c332 lifecycle renderer, retain their exact bytes. The fresh catalog resolves4982 paths and4217 unique guest objects.",
+    "Authoritative v2 qualification reviews42b89/e1b0, independent843-cell arithmetic review, cmov/setcc machine review and its exact AOT disassemblies, all nine reviewed documents and five latest pointers are retained at their reviewed identities.",
+    "Published verifier independently rechecks exact74/9573/7656/11484 matrices and3001 effective worker requests over3828 aliases, raw protocol frames, six cohort boundaries, roundwise warmed ratios/geomeans, guide15 and table46. Final-public review independently checked453 SVG numeric labels; root visual review remains separately attributed.",
+    "The retained machine proof establishes the Wasmtime fast-path shape without claiming a branch-miss measurement, V8 machine shape, or a dynamic three-to-two-load reduction; baseline already had two loads.",
+    "The frozen public prose accurately separates warmed kernels, full programs, cold processes, precompiled launches and fresh-instance worker requests. Byte-identical controls,313-byte code growth, rejected variants and unpaired cohort variation remain disclosed."
+  ],
+  "pre_audit_manifest": {
+    "name": "SHA256.json",
+    "sha256": "368c80c7205758909770af2dd86114306d3ee4c8f024f510381e4ec4ef26e7d6",
+    "bytes": 3334,
+    "exact_utf8": "{\n  \"README.md\": \"049a7ba6396a72d0df6f899947f311e2e139a296ba41ab1d291e399fb3ed3415\",\n  \"archives.json.gz\": \"ff3ff7bd9df332505c76b7a0f97b37503ffc35f2ce68fd670ae1ae0a5860838d\",\n  \"campaign.json\": \"9f5b6c7b7346b55752a0a5b36cc940c7c0f78f772a135523d191c06a647cbcf5\",\n  \"chart-verification.json\": \"e46ecb7038bc29f85869e20edd59f566a3d862b93e33016882424f63b282c4d8\",\n  \"chart-visual-review.json\": \"fb81a765424752fcccd7dbf02c9116c4564b9471cf4b3d9e59f58dc928c340e6\",\n  \"cohort.json\": \"e4ebc6a688bc6156b1651d8585b9e9225601ffb37ef2aac3a8fd95245ec0081a\",\n  \"compiler-identity.json\": \"c5c60355d275bd29b225ba9a2c13f3aee0b529851aa58aedc8927a19bff3cdfe\",\n  \"differential.json\": \"7f8ed5f890a826829f1006a245f2a2a2bbfeef184d4e41b2e38c38a799c1fc75\",\n  \"evidence-000.tar.gz\": \"4b26d21de116c187390cf990c13ac8ed3018d3a244bfcc3ecc37c7536968a6e6\",\n  \"evidence-001.tar.gz\": \"9c1d5bd8057c9014a38f335252037aa3a3b1a84d4ff87af28f7192e63267d753\",\n  \"examples.json\": \"96fd5fbc3d8434ed52faa1766e20dce70395f8041729f4edf405a8672834ae98\",\n  \"final-numbers.json\": \"e87e6050ad041e130d69ede3012665a88e2d5c69638778c3e6db084a056bcfd5\",\n  \"final-public-review.json\": \"2d14a6dc77e452800a8a8fadf7b64b1cba4035b088e16b9abaf6acd4d8e07cf4\",\n  \"final-v8.json\": \"d96bd9d1e214db461eeabdc014be23dc3948b760981a6bf74ecb19b02fef5e5e\",\n  \"final-warmed.json\": \"0295a6c534a0fc7f2bc63c5d70065c1ed21e79115cd12508f6ead5b22a5021b8\",\n  \"guide-verification.json\": \"c9b38c0d976f69edb3041e86e8efc4aa998da843fde5ab16198137bdfe06a815\",\n  \"host-qualification.json\": \"14ef61834b5d9cc40d15c7e37ca3d62db7e0c3291ccacbf90529a8478b931a6f\",\n  \"host.json\": \"bbed2b0fabad1b4fcbf4f51b6467559a6a498eed4bff8b8a3bded755315c648a\",\n  \"lifecycle.json\": \"1b7c842bd84a8ad00c337392d354c36b8eb464699d4849da5dc59d8f73b65a05\",\n  \"module-analysis.json\": \"a7d108ba7d583e52eff0436b2870c0431a25fd28d63a631df5ed5abc0952e064\",\n  \"qualification.json\": \"d6b4b0c2125f319b6cc9c2055195da32744940e33f967d599f70c10f2f49902c\",\n  \"readme.json\": \"0c097cac4ff999b02d634c1229b0525ce8c56927b617218dc4ef80343a0b1cd0\",\n  \"references.json\": \"06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350\",\n  \"reproduction/bundle.py\": \"bc1f1a9c7c658591a744a69244bfb048f573c34c0c1edea2277f7606b41fad97\",\n  \"reproduction/checks.py\": \"90e7fc3570ba1c662fd2701d4ad72c57b5c5d2e037a17e8a3db45ddd8bcef4c7\",\n  \"reproduction/spec.json\": \"83ddc91152d73cb4609b18056c0e214bb5ebf90989ed3074cbbb1bbe8141c823\",\n  \"reproduction/verify.py\": \"238aae1c2cca895a734e4cb4192ec138b4d1eb9275e0a4fec3b7e3933e33b5bb\",\n  \"retention-metrics.json\": \"4e80881b03e5ee220b3c0a66cf985ce7eabc2cc79fde900f65e96df604c3afec\",\n  \"retention.json\": \"7af9e8bd2cd8cc9ba7e6b4315eecd71a7fbc181a7bc3ffa13785976fe5e6e56c\",\n  \"static-review.json\": \"42b89f5d80e2829d71430827f9323146772f96ca113d83cf89f46614add1090c\",\n  \"table-verification.json\": \"a6a96bb66f800bf78971c68ad4988815baa5002e4e4b8927c8c09ca75311db16\",\n  \"target-chart-verification.json\": \"6c24920bbf28e9b396077d3c8399573f8393c6960d8b384a1d275d4919ba7889\",\n  \"test-static-review.json\": \"e1b0f6bce0b31acf4e698ad3c46c57b1f98207f0a36b97145d9e05b655fa4eac\",\n  \"verification.json\": \"aa98c72bcc256acb072097f49f4c4a4dfb7c2f74668e83061a462afe20cbf026\",\n  \"verification.log\": \"f9cdda93f229bfd20ed6b38c343de5230cbf8b141e837a3175bc66d46705e6bd\",\n  \"worker-qualification.json\": \"d0efb24575dcd81ff9174aec946f062c19dd4728c61a3915890680101e4ec091\"\n}\n"
+  },
+  "final_manifest_contract": {
+    "name": "SHA256.json",
+    "operation": "Preserve every pre-audit entry and append exactly final-archive-audit.json with this file SHA-256. The manifest excludes itself; the audit is outside its own archives, preventing a hash cycle.",
+    "expected_public_files": 38,
+    "expected_manifest_entries": 37,
+    "all_other_public_bytes_unchanged": true
+  },
+  "blockers": []
+}

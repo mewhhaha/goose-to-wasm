@@ -1,0 +1,208 @@
+{
+  "schema": "goose-merge-bounds-bundle-spec-v1",
+  "build": "build/next-hills",
+  "output": "bench/results/2026-11-03/merge-bounds",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "reference": "build/runtime-reference/production/report.json",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "reports": {
+    "qualification.json": "qualification-new/attempt-1/focused/report.json",
+    "differential.json": "qualification-new/attempt-1/differential/report.json",
+    "host-qualification.json": "qualification-new/attempt-1/host/report.json",
+    "final-warmed.json": "delivered-warmed/report.json",
+    "final-v8.json": "delivered-v8/report.json",
+    "examples.json": "current/examples/report.json",
+    "host.json": "current/host/report.json",
+    "cohort.json": "current/langarena/report.json",
+    "lifecycle.json": "current/lifecycle/report.json"
+  },
+  "extra_reports": {
+    "worker-qualification.json": "qualification-new/attempt-1/worker-replay/report.json"
+  },
+  "trees": [
+    "qualification-new/attempt-1",
+    "qualification-new/sources",
+    "delivery-execution",
+    "delivered-warmed",
+    "delivered-v8",
+    "current/examples",
+    "current/host",
+    "current/langarena",
+    "current/lifecycle",
+    "merge-tests",
+    "worker-pre-screen",
+    "merge-screen-wasmtime",
+    "merge-screen-v8",
+    "merge-select-screen-wasmtime",
+    "merge-select-screen-v8",
+    "host-pre"
+  ],
+  "optional_trees": [
+    "chart-previews",
+    "reviews",
+    "packaging-attempts",
+    "guide-validation",
+    "qualification-new/preparation-history",
+    "merge-control/shadow",
+    "source-before",
+    "qualification"
+  ],
+  "evidence_documents": [
+    "qualification-new/attempt-1/selected.json",
+    "qualification-new/attempt-1/input-pins.json",
+    "delivery-execution/report.json",
+    "qualification-new/static-review.json",
+    "qualification-new/test-static-review.json",
+    "module-analysis.json",
+    "campaign.json",
+    "final-numbers.json",
+    "qualification-new/attempt-1/worker-replay/report.json",
+    "qualification-new/attempt-1/worker-case-inputs.json",
+    "campaign-selection.json",
+    "worker-pre-screen/report.json",
+    "merge-screen-wasmtime/report.json",
+    "merge-screen-v8/report.json",
+    "merge-select-screen-wasmtime/report.json",
+    "merge-select-screen-v8/report.json",
+    "guide-validation/report.json",
+    "reviews/independent-arithmetic.json",
+    "reviews/merge-machine/review.json"
+  ],
+  "optional_evidence_documents": [
+    "qualification-new/summary.json",
+    "reviews/final-public-review.json",
+    "table-verification.json"
+  ],
+  "source_stages": {
+    "baseline-1b": "build/next-levers/final",
+    "rejected-guard-only13e": "build/next-hills/merge",
+    "rejected-guard-control-c4": "build/next-hills/merge-control/build",
+    "accepted-b53-prototype": "build/next-hills/merge-select",
+    "rejected-cutoff82": "build/next-hills/merge-select-min",
+    "final": "build/next-hills/final"
+  },
+  "direct_files": [
+    "build/next-levers/final/O2.wasm",
+    "build/native/CMakeCache.txt",
+    "build/squares.wasm",
+    "build/squares.cwasm",
+    "build/next-hills/merge-control/before.h",
+    "build/next-hills/merge-control/disable.patch",
+    "build/next-hills/merge-control/preparation.json",
+    "build/next-hills/merge-control/build-execution.json",
+    "build/next-hills/merge-control/build.log",
+    "build/next-hills/merge-control/build/control-toolchain-match.json",
+    "build/next-hills/merge-control/build/native/CMakeCache.txt"
+  ],
+  "public_files": [
+    "README.md",
+    "bench/examples.md",
+    "bench/wasmtime-host.md",
+    "docs/FUNCTIONS_PERFORMANCE.md",
+    "docs/PERFORMANCE_PLAN.md",
+    "docs/RUNTIME_TARGETS.md",
+    "bench/results/latest.json",
+    "bench/results/examples-latest.json",
+    "bench/results/wasmtime-host-latest.json",
+    "bench/results/runtime-targets-latest.json",
+    "bench/charts/compilation.svg",
+    "bench/charts/runtime.svg",
+    "bench/charts/runtime-targets.svg",
+    "bench/charts/examples-compilation.svg",
+    "bench/charts/examples-runtime.svg",
+    "bench/charts/examples-python-runtime.svg",
+    "bench/charts/examples-entry.svg",
+    "bench/charts/wasmtime-host-preparation.svg",
+    "bench/charts/wasmtime-host-runtime.svg",
+    "bench/charts/wasmtime-host-c-wasm.svg",
+    "docs/GUIDE.md",
+    "bench/results/runtime-lifecycle-latest.json",
+    "bench/charts/runtime-lifecycle.svg"
+  ],
+  "required_public_files": [
+    "README.md",
+    "campaign.json",
+    "readme.json",
+    "target-chart-verification.json",
+    "chart-verification.json",
+    "chart-visual-review.json",
+    "table-verification.json",
+    "guide-verification.json"
+  ],
+  "max_raw_archive_bytes": 67108864,
+  "policy": "Only this campaign aliases and fresh execution evidence. Reuse exact byte objects from one runtime-stencil index and sixteen explicitly named physical archives: two runtime-stencil, two fresh-construction, four functions-calls, eight functions-forwarding. Import no prior namespaces/documents or recursive indexes. Retain rejected runtime instance_pre, guard-only13e and cutoff82 source/screens, failed fixture context, all five matched34-header controls and dynamic worker module/input groups over3828 aliases. Baseline declares33headers; final/prototypes/controls34 as source manifests specify. Engine cache payloads/counters and all measured native/Wasm guests are retained. Renderer source must match its qualification pin without a presentation variant. Earlier qualification/controls.py and source-before headers are opaque development context, without claiming execution or a complete measured producer stage.",
+  "reuse": {
+    "index": "bench/results/2026-11-03/runtime-stencil/archives.json.gz",
+    "manifest": "bench/results/2026-11-03/runtime-stencil/SHA256.json",
+    "index_schema": "goose-runtime-stencil-objects-v1",
+    "archives": {
+      "../fresh-construction/evidence-000.tar.gz": "../fresh-construction/evidence-000.tar.gz",
+      "../fresh-construction/evidence-001.tar.gz": "../fresh-construction/evidence-001.tar.gz",
+      "../functions-calls/evidence-000.tar.gz": "../functions-calls/evidence-000.tar.gz",
+      "../functions-calls/evidence-001.tar.gz": "../functions-calls/evidence-001.tar.gz",
+      "../functions-calls/evidence-002.tar.gz": "../functions-calls/evidence-002.tar.gz",
+      "../functions-calls/evidence-003.tar.gz": "../functions-calls/evidence-003.tar.gz",
+      "../functions-forwarding/evidence-000.tar.gz": "../functions-forwarding/evidence-000.tar.gz",
+      "../functions-forwarding/evidence-001.tar.gz": "../functions-forwarding/evidence-001.tar.gz",
+      "../functions-forwarding/evidence-002.tar.gz": "../functions-forwarding/evidence-002.tar.gz",
+      "../functions-forwarding/evidence-003.tar.gz": "../functions-forwarding/evidence-003.tar.gz",
+      "../functions-forwarding/evidence-004.tar.gz": "../functions-forwarding/evidence-004.tar.gz",
+      "../functions-forwarding/evidence-005.tar.gz": "../functions-forwarding/evidence-005.tar.gz",
+      "../functions-forwarding/evidence-006.tar.gz": "../functions-forwarding/evidence-006.tar.gz",
+      "../functions-forwarding/evidence-007.tar.gz": "../functions-forwarding/evidence-007.tar.gz",
+      "evidence-000.tar.gz": "../runtime-stencil/evidence-000.tar.gz",
+      "evidence-001.tar.gz": "../runtime-stencil/evidence-001.tar.gz"
+    }
+  },
+  "opaque_failed_attempts": [
+    "merge-tests/attempt-1",
+    "merge-tests/body-proof"
+  ],
+  "qualification": "qualification-new",
+  "qualification_controls": {
+    "qualification-new": [
+      "merge-control",
+      "resource-control",
+      "named-control",
+      "private-control",
+      "stencil-control"
+    ]
+  },
+  "public_metadata": {
+    "campaign.json": "campaign.json",
+    "final-numbers.json": "final-numbers.json",
+    "module-analysis.json": "module-analysis.json",
+    "static-review.json": "qualification-new/static-review.json",
+    "test-static-review.json": "qualification-new/test-static-review.json"
+  },
+  "rejected_execution_roots": [
+    "worker-pre-screen",
+    "merge-screen-wasmtime",
+    "merge-screen-v8"
+  ],
+  "rejection_reason": "Rejected instance_pre runtime and guard-only bounds candidates. Retain raw evidence and source identities; accepted primary cohorts are independently collected for B.",
+  "delivery_execution": "delivery-execution/report.json",
+  "optional_public_metadata": {
+    "final-public-review.json": "reviews/final-public-review.json",
+    "table-verification.json": "table-verification.json",
+    "guide-verification.json": "guide-validation/report.json"
+  },
+  "final_review": "reviews/final-public-review.json",
+  "host_stages": {
+    "final": {
+      "metadata": "build/bin/goose-wasmtime.json",
+      "sources": [
+        "host/wasmtime.cpp",
+        "scripts/build_wasmtime_host.py",
+        "host/wasmtime-sdk.json"
+      ]
+    },
+    "rejected-instance-pre": {
+      "metadata": "build/next-hills/host-pre/goose-wasmtime.json",
+      "sources": [
+        "build/next-hills/host-pre/wasmtime.cpp"
+      ]
+    }
+  },
+  "qualified_input_pins": "qualification-new/attempt-1/input-pins.json"
+}

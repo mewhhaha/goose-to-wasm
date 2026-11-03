@@ -1,0 +1,300 @@
+{
+  "schema": "goose-merge-final-public-review-v1",
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T20:18:22.961984+00:00",
+  "decision": "GO for bounded archive assembly; final archive closure and documented offline-command execution remain a separate subsequent audit.",
+  "scope": "Frozen current public claims, six completed measurement cohorts, source/qualification identities, nine documents, five latest pointers,453 chart labels,46 table cells and15 GUIDE checks. No compiler/test/engine/benchmark execution by this reviewer.",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "baseline_compiler_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+  "source_manifest": {
+    "path": "build/next-hills/final/source.json",
+    "sha256": "14d0b11ce1398ded5c0d76bdff586e80ba0da245df5842e03432c60a4b0a0510"
+  },
+  "headers": {
+    "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "direct_wasm.h": "592cf148809e76036f0f7395014c10bd56eb73105a7f335b5056815e2f22e4e4",
+    "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+    "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "direct_wasm_expr.h": "baac3d5d65966587a9b9ae86024c85ef50b0fc7536c716621d5fcd7a4127059a",
+    "direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "direct_wasm_merge.h": "a971754f944e85cb9fea8319318866965210899e618e72dfce8c200e89a95480",
+    "direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+    "direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+    "direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+  },
+  "patches": {
+    "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+  },
+  "source_pin_checks": {
+    "qualification_inputs": 1144,
+    "unchanged_project_sources_verified": 492,
+    "runtime_host_source": {
+      "path": "host/wasmtime.cpp",
+      "sha256": "8573711cb0ae48a0cbcb6202b513af442ef06dbfdb1f1a4749c4145ed8a07d61"
+    },
+    "runtime_client_source": {
+      "path": "scripts/wasmtime_session.py",
+      "sha256": "4bcaaa6967cfdd92acdac7470cbe3511be73290154c7a9e0f0bdddcafe379ac5"
+    },
+    "lifecycle_renderer": {
+      "path": "bench/runtime_lifecycle_charts.py",
+      "sha256": "c332aac1541443c76c08852f5cbc308901aacbcaa12bd015818191094b9ad592"
+    },
+    "posttiming_renderer_change": false
+  },
+  "engine_boundaries": {
+    "canonical_host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "canonical_sdk_library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648",
+    "frozen_warmed_host_sha256": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "frozen_warmed_library_sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "python_engine": {
+      "version": "50.0.1",
+      "library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so",
+      "library_sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178"
+    },
+    "meaning": "Distinct pinned host builds at Wasmtime50.0.1. Normal cold launches explicitly disable disk cache; warmed reference intervals exclude preparation; resident-worker request timings exclude process startup but retain fresh Store/instance."
+  },
+  "qualification": {
+    "focused_commands": 74,
+    "cases": 978,
+    "differential_observations": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "host_unique_wasm": 1574,
+    "worker_effective_cases": 3001,
+    "worker_underlying_aliases": 3828,
+    "worker_unique_wasm": 1574
+  },
+  "qualification_summary": {
+    "path": "build/next-hills/qualification-new/summary.json",
+    "sha256": "1d0c3447ad7760dff02f47789a410696a2b070d5385961205386f4eb8b89df45"
+  },
+  "qualification_reviews": [
+    {
+      "path": "build/next-hills/qualification-new/static-review.json",
+      "sha256": "42b89f5d80e2829d71430827f9323146772f96ca113d83cf89f46614add1090c"
+    },
+    {
+      "path": "build/next-hills/qualification-new/test-static-review.json",
+      "sha256": "e1b0f6bce0b31acf4e698ad3c46c57b1f98207f0a36b97145d9e05b655fa4eac"
+    }
+  ],
+  "measurements": {
+    "cohorts": {
+      "wasmtime": 550,
+      "v8": 200,
+      "examples": 1600,
+      "host": 1440,
+      "langarena": 315,
+      "lifecycle": 960
+    },
+    "total_observations": 5065,
+    "additional_host_preparations": 200,
+    "independent_summary_cells_recomputed": 843,
+    "arithmetic_review": {
+      "path": "build/next-hills/reviews/independent-arithmetic.json",
+      "sha256": "10c889dab1c53a181945bb9b0086e1f7c4f8e8b44683bdb1b440967c1649a5e8"
+    },
+    "machine_review": {
+      "path": "build/next-hills/reviews/merge-machine/review.json",
+      "sha256": "cb183950a56bbb548bb504455c9b92298c55a40dc02bc351408cf27b06b63400"
+    }
+  },
+  "claims_reviewed": [
+    "Merge nine-pair speedups1.3688227019(MAD.058633729)Wasmtime and1.3075647154(MAD.008728543)V8 match raw observations. Selected native1104.079ms is from the same Wasmtime confirmation cohort, using a previously built fixed reference.",
+    "Other nine warmed guests are byte-identical; noisy V8Life.965(MAD.044) is disclosed as control variation. Only full Sorting changes among ten direct examples. Its module48269\u219248582 and merge body995\u21921308, and Mergeport5214\u21925527, each grow313bytes; insertionadapter11184 stays unchanged.",
+    "Fastpath explicitly allows overlap and preserves ordered reads/store with stable local views/cursors and exact integer types. Unsupported shapes, failed guards and debug retain scalar partial-effect/trap behavior.",
+    "Wasmtime fastpath uses cmov/setcc; baseline already had two native loads. No dynamic three-to-two-load benefit or V8 machine-code shape is claimed.",
+    "Guard-only, minimum-span16 and InstancePre rejections are retained with their measured tradeoffs; the docs do not assert an unproven tiering explanation or a universal native ceiling.",
+    "Full-process examples and lifecycle results remain separate cohorts. NativeSorting47.726ms versus70.111ms uses the same binary and is explicitly disclosed as unpaired cohort variation; no cross-cohort speedup is inferred.",
+    "README cold-build ranges, Functions host/lifecycle medians and all46 workload-keyed table cells match the current raw reports. Earlier Functions/private-ABI numbers are clearly labeled prior evidence.",
+    "All453 plotted numeric labels independently match current retained summaries, including30 raw-round native-normalized target ratios. Root visual-review status and exact SVG/PNG identities verified; visual inspection is attributed to root.",
+    "GUIDE15 successful CLI/session checks bind the final GUIDE, compiler and host. Setup/install instructions were not rerun. Exact offline package command is correctly documented but awaits archive assembly and final audit."
+  ],
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "bc593639a21cb7debeee3cd105f59e4580e576b918e4e3f75a7afa08660533fa"
+    },
+    {
+      "path": "bench/examples.md",
+      "sha256": "c39af4904c8d616cc67a2da4317413d70376222d01591370455899ab96d7b14d"
+    },
+    {
+      "path": "bench/wasmtime-host.md",
+      "sha256": "cc79a16478c279e61676fd64f1ecc65d06800d938c17ff93c26687505f9c8097"
+    },
+    {
+      "path": "docs/FUNCTIONS_PERFORMANCE.md",
+      "sha256": "fb4c6eb3fc7aa507f2d3d09d3f31b46837c1baab59935df394e7aab66c19fb51"
+    },
+    {
+      "path": "docs/RUNTIME_PERFORMANCE.md",
+      "sha256": "470f262b2ef2c1645d69cd33ec1951b67639bb814071a0f2a1981c7fd54dab83"
+    },
+    {
+      "path": "docs/PERFORMANCE_PLAN.md",
+      "sha256": "51b1a5617158b2b4d989c8e021008405ce0e9187fd3782a1ff9b78c3df2d6be0"
+    },
+    {
+      "path": "docs/RUNTIME_TARGETS.md",
+      "sha256": "d92019e9f8945b7f3cdd4be1f249cef881cf1f68888bf1a253c2238069de1647"
+    },
+    {
+      "path": "docs/GUIDE.md",
+      "sha256": "008367f0cf0d32bcc4ff48d5fe8b23c86d0f203444df52107352caa22a0dead4"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/README.md",
+      "sha256": "049a7ba6396a72d0df6f899947f311e2e139a296ba41ab1d291e399fb3ed3415"
+    }
+  ],
+  "latest_pointers": [
+    {
+      "path": "bench/results/latest.json",
+      "sha256": "f33231943a061d8ddff3f0329c2b4ffb06c0b6e699b4650e846960d5c0084105"
+    },
+    {
+      "path": "bench/results/examples-latest.json",
+      "sha256": "c8b244dd385923e1f03defc77529c5377dd59c3f8819792c422d967d7948c901"
+    },
+    {
+      "path": "bench/results/wasmtime-host-latest.json",
+      "sha256": "9586a033b3f7b1ab6857fc26cc0b07fdc68504aa76e6114de1db1a4155c0a0ef"
+    },
+    {
+      "path": "bench/results/runtime-targets-latest.json",
+      "sha256": "b67d4cf8cb3a5de2780284324c725401bac9f2b4d1ff0887718bf6c1827d318c"
+    },
+    {
+      "path": "bench/results/runtime-lifecycle-latest.json",
+      "sha256": "5ecbd635f56a65288a8aa519b4f1a3a2dbfe853d6154aaa888716c3f2ec81c02"
+    }
+  ],
+  "public_reports": [
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/final-warmed.json",
+      "sha256": "0295a6c534a0fc7f2bc63c5d70065c1ed21e79115cd12508f6ead5b22a5021b8"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/final-v8.json",
+      "sha256": "d96bd9d1e214db461eeabdc014be23dc3948b760981a6bf74ecb19b02fef5e5e"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/examples.json",
+      "sha256": "96fd5fbc3d8434ed52faa1766e20dce70395f8041729f4edf405a8672834ae98"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/host.json",
+      "sha256": "bbed2b0fabad1b4fcbf4f51b6467559a6a498eed4bff8b8a3bded755315c648a"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/cohort.json",
+      "sha256": "e4ebc6a688bc6156b1651d8585b9e9225601ffb37ef2aac3a8fd95245ec0081a"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/lifecycle.json",
+      "sha256": "1b7c842bd84a8ad00c337392d354c36b8eb464699d4849da5dc59d8f73b65a05"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/qualification.json",
+      "sha256": "d6b4b0c2125f319b6cc9c2055195da32744940e33f967d599f70c10f2f49902c"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/differential.json",
+      "sha256": "7f8ed5f890a826829f1006a245f2a2a2bbfeef184d4e41b2e38c38a799c1fc75"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/host-qualification.json",
+      "sha256": "14ef61834b5d9cc40d15c7e37ca3d62db7e0c3291ccacbf90529a8478b931a6f"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/worker-qualification.json",
+      "sha256": "d0efb24575dcd81ff9174aec946f062c19dd4728c61a3915890680101e4ec091"
+    }
+  ],
+  "public_metadata": [
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/campaign.json",
+      "sha256": "9f5b6c7b7346b55752a0a5b36cc940c7c0f78f772a135523d191c06a647cbcf5"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/final-numbers.json",
+      "sha256": "e87e6050ad041e130d69ede3012665a88e2d5c69638778c3e6db084a056bcfd5"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/module-analysis.json",
+      "sha256": "a7d108ba7d583e52eff0436b2870c0431a25fd28d63a631df5ed5abc0952e064"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/compiler-identity.json",
+      "sha256": "c5c60355d275bd29b225ba9a2c13f3aee0b529851aa58aedc8927a19bff3cdfe"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/readme.json",
+      "sha256": "0c097cac4ff999b02d634c1229b0525ce8c56927b617218dc4ef80343a0b1cd0"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/references.json",
+      "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/static-review.json",
+      "sha256": "42b89f5d80e2829d71430827f9323146772f96ca113d83cf89f46614add1090c"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/test-static-review.json",
+      "sha256": "e1b0f6bce0b31acf4e698ad3c46c57b1f98207f0a36b97145d9e05b655fa4eac"
+    }
+  ],
+  "proofs": [
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/chart-verification.json",
+      "sha256": "e46ecb7038bc29f85869e20edd59f566a3d862b93e33016882424f63b282c4d8"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/target-chart-verification.json",
+      "sha256": "6c24920bbf28e9b396077d3c8399573f8393c6960d8b384a1d275d4919ba7889"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/chart-visual-review.json",
+      "sha256": "fb81a765424752fcccd7dbf02c9116c4564b9471cf4b3d9e59f58dc928c340e6"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/table-verification.json",
+      "sha256": "a6a96bb66f800bf78971c68ad4988815baa5002e4e4b8927c8c09ca75311db16"
+    },
+    {
+      "path": "bench/results/2026-11-03/merge-bounds/guide-verification.json",
+      "sha256": "c9b38c0d976f69edb3041e86e8efc4aa998da843fde5ab16198137bdfe06a815"
+    }
+  ],
+  "archive_boundary_pending": "Exact current-campaign aliases and measured guest/source bytes; only byte-object reuse from16 explicitly bounded prior physical archives, with no prior report/alias namespace import. Assembly, payload streaming, final manifest and exact documented verifier command are not yet claimed complete.",
+  "blockers": []
+}

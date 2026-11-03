@@ -4,18 +4,18 @@ These are qualified empirical references for this source, workload, toolchain an
 
 | Workload | Direct Wasm | Selected Wasm | Selected native |
 | --- | ---: | ---: | ---: |
-| Fannkuch | 1,365 | 1,359 | 1,059 |
-| Mandelbrot | 1,000 | 1,005 | 925 |
-| Sieve | 1,367 | 1,441 | 858 |
-| CRC32 | 431 | 407 | 198 |
-| Custom hash | 327 | 369 | 219 |
-| Merge sort | 2,098 | 2,030 | 1,070 |
-| Quicksort | 1,739 | 1,379 | 1,197 |
-| Life adapter | 46 | 158 | 61 |
-| Insertion-sort adapter | 411 | 2,221 | 311 |
-| Sudoku adapter | 161 | 170 | 101 |
+| Fannkuch | 1,409 | 1,413 | 1,087 |
+| Mandelbrot | 1,031 | 1,034 | 949 |
+| Sieve | 1,428 | 1,497 | 889 |
+| CRC32 | 453 | 416 | 204 |
+| Custom hash | 344 | 384 | 226 |
+| Merge sort | 1,545 | 2,084 | 1,104 |
+| Quicksort | 1,812 | 1,436 | 1,233 |
+| Life adapter | 49 | 167 | 64 |
+| Insertion-sort adapter | 441 | 2,339 | 335 |
+| Sudoku adapter | 167 | 175 | 104 |
 
-The fixed selections were built earlier; all executions above were freshly paired in nine rounds on November 3 UTC. The selected Wasm can be an older direct module or a separately built C-to-Wasm or Binaryen artifact. See the [fresh evidence](../bench/results/2026-11-03/runtime-stencil/README.md) and [original selection](../bench/results/2026-11-02/runtime-targets/README.md). A selected native profile is a workload reference, not a ceiling. For CRC, the native reference uses AVX2 across 32 benchmark repetitions; that difference does not quantify the full gap.
+The fixed selections were built earlier; all executions above were freshly paired in nine rounds on November 3 UTC. The selected Wasm can be an older direct module or a separately built C-to-Wasm or Binaryen artifact. See the [fresh evidence](../bench/results/2026-11-03/merge-bounds/README.md) and [original selection](../bench/results/2026-11-02/runtime-targets/README.md). A selected native profile is a workload reference, not a ceiling. For CRC, the native reference uses AVX2 across 32 benchmark repetitions; that difference does not quantify the full gap.
 
 Seven unchanged adapted LangArena ports use their official test and run inputs and warmed timing boundary. Three separate adapters retain original example helper bodies: Life uses a runtime seed on a fixed 64×32 grid for 200 generations; Sorting inserts 20,000 values; Sudoku alternates puzzles. One-time preparation is outside the clock; reset, perturbation, validation and checksum are timed. An opaque iteration barrier prevents dead-code elimination. Nonintrinsic adapter imports disable the direct compiler's closed raw-array proof; only Life and Sorting emit ULEB helpers, and the Sudoku adapter has no resource region versus one in the full program. These are not the full example binaries or their process timings.
 

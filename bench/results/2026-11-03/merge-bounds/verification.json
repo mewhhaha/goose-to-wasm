@@ -1,0 +1,268 @@
+{
+  "status": "passed",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "archives": {
+    "../fresh-construction/evidence-000.tar.gz": 120,
+    "../fresh-construction/evidence-001.tar.gz": 40,
+    "../functions-calls/evidence-000.tar.gz": 279,
+    "../functions-calls/evidence-001.tar.gz": 385,
+    "../functions-calls/evidence-002.tar.gz": 235,
+    "../functions-calls/evidence-003.tar.gz": 287,
+    "../functions-forwarding/evidence-000.tar.gz": 667,
+    "../functions-forwarding/evidence-001.tar.gz": 751,
+    "../functions-forwarding/evidence-002.tar.gz": 773,
+    "../functions-forwarding/evidence-003.tar.gz": 540,
+    "../functions-forwarding/evidence-004.tar.gz": 766,
+    "../functions-forwarding/evidence-005.tar.gz": 741,
+    "../functions-forwarding/evidence-006.tar.gz": 674,
+    "../functions-forwarding/evidence-007.tar.gz": 86,
+    "../runtime-stencil/evidence-000.tar.gz": 134,
+    "../runtime-stencil/evidence-001.tar.gz": 128,
+    "evidence-000.tar.gz": 18904,
+    "evidence-001.tar.gz": 16143
+  },
+  "aliases": 136349,
+  "omissions": 84,
+  "required_guests": 4298,
+  "retained_guest_objects": 4486,
+  "qualification": {
+    "focused": 74,
+    "cases": 978,
+    "observations": 9573,
+    "native_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_modules": 1574
+  },
+  "measurements": {
+    "warmed": 550,
+    "v8": 200,
+    "paired_rounds": 9,
+    "examples": 1600,
+    "host": 1440,
+    "preparations": 200,
+    "cohort": 315,
+    "lifecycle": 960,
+    "worker_effective": 3001,
+    "worker_aliases": 3828
+  },
+  "documentation_table_cells": 46,
+  "retention_sha256": "7af9e8bd2cd8cc9ba7e6b4315eecd71a7fbc181a7bc3ffa13785976fe5e6e56c",
+  "index_sha256": "ff3ff7bd9df332505c76b7a0f97b37503ffc35f2ce68fd670ae1ae0a5860838d",
+  "storage": {
+    "by_suffix": {
+      "new": {
+        ".bin": {
+          "bytes": 270840,
+          "objects": 11
+        },
+        ".cpp": {
+          "bytes": 31853,
+          "objects": 1
+        },
+        ".cwasm": {
+          "bytes": 556888,
+          "objects": 7
+        },
+        ".h": {
+          "bytes": 452731,
+          "objects": 12
+        },
+        ".json": {
+          "bytes": 69468478,
+          "objects": 23866
+        },
+        ".log": {
+          "bytes": 1955670,
+          "objects": 6109
+        },
+        ".md": {
+          "bytes": 90103,
+          "objects": 12
+        },
+        ".patch": {
+          "bytes": 848,
+          "objects": 2
+        },
+        ".png": {
+          "bytes": 2335476,
+          "objects": 14
+        },
+        ".py": {
+          "bytes": 302059,
+          "objects": 24
+        },
+        ".stats": {
+          "bytes": 37,
+          "objects": 1
+        },
+        ".stderr": {
+          "bytes": 216,
+          "objects": 1
+        },
+        ".stdout": {
+          "bytes": 866672,
+          "objects": 3566
+        },
+        ".svg": {
+          "bytes": 787718,
+          "objects": 11
+        },
+        ".toml": {
+          "bytes": 21880,
+          "objects": 171
+        },
+        ".txt": {
+          "bytes": 470672,
+          "objects": 1219
+        },
+        ".wasm": {
+          "bytes": 634774,
+          "objects": 16
+        },
+        ".wip-atomic-write-stats": {
+          "bytes": 75,
+          "objects": 2
+        },
+        ".yml": {
+          "bytes": 11169,
+          "objects": 1
+        },
+        "[no suffix]": {
+          "bytes": 38957,
+          "objects": 1
+        }
+      },
+      "reused": {
+        ".bin": {
+          "bytes": 156219096,
+          "objects": 1110
+        },
+        ".c": {
+          "bytes": 3963363,
+          "objects": 22
+        },
+        ".cpp": {
+          "bytes": 77264,
+          "objects": 5
+        },
+        ".cwasm": {
+          "bytes": 177579624,
+          "objects": 1660
+        },
+        ".goose": {
+          "bytes": 675154,
+          "objects": 423
+        },
+        ".h": {
+          "bytes": 912978,
+          "objects": 48
+        },
+        ".json": {
+          "bytes": 4057739,
+          "objects": 645
+        },
+        ".log": {
+          "bytes": 8170,
+          "objects": 13
+        },
+        ".md": {
+          "bytes": 40718,
+          "objects": 5
+        },
+        ".mjs": {
+          "bytes": 9911,
+          "objects": 1
+        },
+        ".o": {
+          "bytes": 15389,
+          "objects": 6
+        },
+        ".patch": {
+          "bytes": 72691,
+          "objects": 6
+        },
+        ".py": {
+          "bytes": 1297981,
+          "objects": 119
+        },
+        ".sh": {
+          "bytes": 430,
+          "objects": 1
+        },
+        ".stats": {
+          "bytes": 113,
+          "objects": 3
+        },
+        ".stderr": {
+          "bytes": 18554,
+          "objects": 175
+        },
+        ".stdout": {
+          "bytes": 68354,
+          "objects": 465
+        },
+        ".svg": {
+          "bytes": 68485,
+          "objects": 1
+        },
+        ".txt": {
+          "bytes": 20060,
+          "objects": 29
+        },
+        ".wasm": {
+          "bytes": 51709728,
+          "objects": 1682
+        },
+        ".wip-atomic-write-stats": {
+          "bytes": 75,
+          "objects": 2
+        },
+        "[no suffix]": {
+          "bytes": 194614,
+          "objects": 185
+        }
+      }
+    },
+    "current_aliases": 136349,
+    "largest_new_objects": [
+      {
+        "bytes": 20542834,
+        "member": "objects/14ef61834b5d9cc40d15c7e37ca3d62db7e0c3291ccacbf90529a8478b931a6f/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/host/report.json",
+        "sha256": "14ef61834b5d9cc40d15c7e37ca3d62db7e0c3291ccacbf90529a8478b931a6f"
+      },
+      {
+        "bytes": 7841860,
+        "member": "objects/d0efb24575dcd81ff9174aec946f062c19dd4728c61a3915890680101e4ec091/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/worker-replay/report.json",
+        "sha256": "d0efb24575dcd81ff9174aec946f062c19dd4728c61a3915890680101e4ec091"
+      },
+      {
+        "bytes": 6022679,
+        "member": "objects/7f8ed5f890a826829f1006a245f2a2a2bbfeef184d4e41b2e38c38a799c1fc75/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/differential/report.json",
+        "sha256": "7f8ed5f890a826829f1006a245f2a2a2bbfeef184d4e41b2e38c38a799c1fc75"
+      },
+      {
+        "bytes": 1947348,
+        "member": "objects/15902ad391ead7555b3ab4930adff5b983a46710c9f52bb8ac63289da992e1ff/artifact-catalog.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/artifact-catalog.json",
+        "sha256": "15902ad391ead7555b3ab4930adff5b983a46710c9f52bb8ac63289da992e1ff"
+      },
+      {
+        "bytes": 1786012,
+        "member": "objects/96fd5fbc3d8434ed52faa1766e20dce70395f8041729f4edf405a8672834ae98/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/current/examples/report.json",
+        "sha256": "96fd5fbc3d8434ed52faa1766e20dce70395f8041729f4edf405a8672834ae98"
+      }
+    ],
+    "new_objects": 35047,
+    "new_raw_bytes": 78297116,
+    "prior_aliases_imported": 0,
+    "prior_documents_opened": 0,
+    "reused_archives": 16,
+    "reused_objects": 6606,
+    "reused_raw_bytes": 397010491
+  },
+  "scope": "Verification needs the current publication and the bounded runtime-stencil, fresh-construction, calls and forwarding archives named in its index. Reuse is byte storage only; execution rows remain fresh. No recursive report/index closure, source checkout scan, compiler, test or guest engine execution."
+}

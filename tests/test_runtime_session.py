@@ -79,6 +79,34 @@ class RuntimeReuse(unittest.TestCase):
             self.assertTrue(restored.module_cache_hit)
             self.assertEqual(restored.stdout, b'1')
 
+    def test_instantiation_callbacks_and_start_traps_use_the_current_store(self):
+        module = self.module('instantiate', '''(module
+          (import "env" "bench_input" (func $input (result i64)))
+          (import "goose" "print_i64" (func $print (param i64)))
+          (memory (export "memory") 1) (data (i32.const 0) "\\07")
+          (func $initialize
+            (call $print (call $input))
+            (call $print (i64.extend_i32_u (i32.load8_u (i32.const 0))))
+            (i32.store8 (i32.const 0) (i32.const 9))
+            (if (i64.eqz (call $input)) (then unreachable)))
+          (start $initialize)
+          (func (export "_start")
+            (call $print (i64.extend_i32_u (i32.load8_u (i32.const 0))))))''')
+        with RuntimeSession(HOST) as session:
+            trapped = session.run(module, '4 0')
+            self.assertEqual((trapped.returncode, trapped.stdout, trapped.module_cache_hit), (1, b'47', False))
+            self.assertIn(b'unreachable', trapped.stderr)
+            for value in (5, 6):
+                result = session.run(module, f'{value} 1')
+                self.assertEqual((result.returncode, result.stdout, result.stderr, result.module_cache_hit),
+                                 (0, f'{value}79'.encode(), b'', True))
+            failed_callback = session.run(module, 'bad')
+            self.assertEqual((failed_callback.returncode, failed_callback.stdout), (1, b''))
+            self.assertIn(b'invalid integer host input', failed_callback.stderr)
+            recovered = session.run(module, '7 1')
+            self.assertEqual((recovered.returncode, recovered.stdout, recovered.stderr, recovered.module_cache_hit),
+                             (0, b'779', b'', True))
+
     def test_lru_evicts_old_modules(self):
         modules = [self.module(str(i), f'(module (func (export "_start") (drop (i32.const {i}))))')
                    for i in range(9)]

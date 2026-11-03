@@ -1,0 +1,265 @@
+{
+  "status": "passed",
+  "new_archive_count": 2,
+  "new_archive_bytes": 13012302,
+  "bounded_prior_archive_count": 16,
+  "bounded_prior_archive_bytes": 223522766,
+  "storage_reuse_only": true,
+  "archive_sha256": {
+    "../fresh-construction/evidence-000.tar.gz": "6e7eb36ddaaa02eb8a8ea4e62c04b311760f56b26c8eee7de52ef3e79feb077c",
+    "../fresh-construction/evidence-001.tar.gz": "1d83679ca406da1ed23716bcb3b7e311018e710a44dd0452da3c369159f9b81c",
+    "../functions-calls/evidence-000.tar.gz": "014654995aab81e8422e6e35f3cd4bda8361db1e6b0726258541ccef8cb8f953",
+    "../functions-calls/evidence-001.tar.gz": "37cfec86e277eac9e53d3bd43a82ad6dd833ea375da438744f68c40a1ecb0932",
+    "../functions-calls/evidence-002.tar.gz": "40a5d4a918abfcab3c6b3df14b241bb5c4bc490b79bbea03da43115e9af5e76f",
+    "../functions-calls/evidence-003.tar.gz": "f37c7a7b4ebd999aea8a98a10b12daa3ff83aad8af3395b0632ccb8852de90e6",
+    "../functions-forwarding/evidence-000.tar.gz": "9b20ad36eae7bb7b084584e6fba4735982598b9d99b3910e16349814b0d1a9dd",
+    "../functions-forwarding/evidence-001.tar.gz": "90d0e9d792723c1933e86b30c3f2fa7f6ebc082958ae986edd8ccf543e4e1b1b",
+    "../functions-forwarding/evidence-002.tar.gz": "0895ba41cac5967838a50fb35cd74e0496e506e6a7e7efd1c43d085eabfbc283",
+    "../functions-forwarding/evidence-003.tar.gz": "8873464668da87a3171f5853c90f957bb71450e1633e5b0205fec9d3b56e1ebb",
+    "../functions-forwarding/evidence-004.tar.gz": "cecf25b5e247996b544012901b299402f17c2f0b78379967acd031089bad30f2",
+    "../functions-forwarding/evidence-005.tar.gz": "ce814d01f5c3767469a6ff370cfe40cf0ca8ee87cd676417c7167acd5c09c802",
+    "../functions-forwarding/evidence-006.tar.gz": "73612a40ac6ce10fb1a380cf7fd951889e898e8132a632d54951fb5afba53349",
+    "../functions-forwarding/evidence-007.tar.gz": "bf6e5e57b5b9c5e03e76aad734143c421573b6059165ddcf8488d0af03d93955",
+    "../runtime-stencil/evidence-000.tar.gz": "cb59eb291406f70bdccb10b604a8deb97507425c1feda65c5e1e3e7d33715ac7",
+    "../runtime-stencil/evidence-001.tar.gz": "f5a9450e58b5a28a4aba50bc772cd64058ceb23941baa3748319cc817e900bd0",
+    "evidence-000.tar.gz": "4b26d21de116c187390cf990c13ac8ed3018d3a244bfcc3ecc37c7536968a6e6",
+    "evidence-001.tar.gz": "9c1d5bd8057c9014a38f335252037aa3a3b1a84d4ff87af28f7192e63267d753"
+  },
+  "storage": {
+    "by_suffix": {
+      "new": {
+        ".bin": {
+          "bytes": 270840,
+          "objects": 11
+        },
+        ".cpp": {
+          "bytes": 31853,
+          "objects": 1
+        },
+        ".cwasm": {
+          "bytes": 556888,
+          "objects": 7
+        },
+        ".h": {
+          "bytes": 452731,
+          "objects": 12
+        },
+        ".json": {
+          "bytes": 69468478,
+          "objects": 23866
+        },
+        ".log": {
+          "bytes": 1955670,
+          "objects": 6109
+        },
+        ".md": {
+          "bytes": 90103,
+          "objects": 12
+        },
+        ".patch": {
+          "bytes": 848,
+          "objects": 2
+        },
+        ".png": {
+          "bytes": 2335476,
+          "objects": 14
+        },
+        ".py": {
+          "bytes": 302059,
+          "objects": 24
+        },
+        ".stats": {
+          "bytes": 37,
+          "objects": 1
+        },
+        ".stderr": {
+          "bytes": 216,
+          "objects": 1
+        },
+        ".stdout": {
+          "bytes": 866672,
+          "objects": 3566
+        },
+        ".svg": {
+          "bytes": 787718,
+          "objects": 11
+        },
+        ".toml": {
+          "bytes": 21880,
+          "objects": 171
+        },
+        ".txt": {
+          "bytes": 470672,
+          "objects": 1219
+        },
+        ".wasm": {
+          "bytes": 634774,
+          "objects": 16
+        },
+        ".wip-atomic-write-stats": {
+          "bytes": 75,
+          "objects": 2
+        },
+        ".yml": {
+          "bytes": 11169,
+          "objects": 1
+        },
+        "[no suffix]": {
+          "bytes": 38957,
+          "objects": 1
+        }
+      },
+      "reused": {
+        ".bin": {
+          "bytes": 156219096,
+          "objects": 1110
+        },
+        ".c": {
+          "bytes": 3963363,
+          "objects": 22
+        },
+        ".cpp": {
+          "bytes": 77264,
+          "objects": 5
+        },
+        ".cwasm": {
+          "bytes": 177579624,
+          "objects": 1660
+        },
+        ".goose": {
+          "bytes": 675154,
+          "objects": 423
+        },
+        ".h": {
+          "bytes": 912978,
+          "objects": 48
+        },
+        ".json": {
+          "bytes": 4057739,
+          "objects": 645
+        },
+        ".log": {
+          "bytes": 8170,
+          "objects": 13
+        },
+        ".md": {
+          "bytes": 40718,
+          "objects": 5
+        },
+        ".mjs": {
+          "bytes": 9911,
+          "objects": 1
+        },
+        ".o": {
+          "bytes": 15389,
+          "objects": 6
+        },
+        ".patch": {
+          "bytes": 72691,
+          "objects": 6
+        },
+        ".py": {
+          "bytes": 1297981,
+          "objects": 119
+        },
+        ".sh": {
+          "bytes": 430,
+          "objects": 1
+        },
+        ".stats": {
+          "bytes": 113,
+          "objects": 3
+        },
+        ".stderr": {
+          "bytes": 18554,
+          "objects": 175
+        },
+        ".stdout": {
+          "bytes": 68354,
+          "objects": 465
+        },
+        ".svg": {
+          "bytes": 68485,
+          "objects": 1
+        },
+        ".txt": {
+          "bytes": 20060,
+          "objects": 29
+        },
+        ".wasm": {
+          "bytes": 51709728,
+          "objects": 1682
+        },
+        ".wip-atomic-write-stats": {
+          "bytes": 75,
+          "objects": 2
+        },
+        "[no suffix]": {
+          "bytes": 194614,
+          "objects": 185
+        }
+      }
+    },
+    "current_aliases": 136349,
+    "largest_new_objects": [
+      {
+        "bytes": 20542834,
+        "member": "objects/14ef61834b5d9cc40d15c7e37ca3d62db7e0c3291ccacbf90529a8478b931a6f/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/host/report.json",
+        "sha256": "14ef61834b5d9cc40d15c7e37ca3d62db7e0c3291ccacbf90529a8478b931a6f"
+      },
+      {
+        "bytes": 7841860,
+        "member": "objects/d0efb24575dcd81ff9174aec946f062c19dd4728c61a3915890680101e4ec091/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/worker-replay/report.json",
+        "sha256": "d0efb24575dcd81ff9174aec946f062c19dd4728c61a3915890680101e4ec091"
+      },
+      {
+        "bytes": 6022679,
+        "member": "objects/7f8ed5f890a826829f1006a245f2a2a2bbfeef184d4e41b2e38c38a799c1fc75/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/differential/report.json",
+        "sha256": "7f8ed5f890a826829f1006a245f2a2a2bbfeef184d4e41b2e38c38a799c1fc75"
+      },
+      {
+        "bytes": 1947348,
+        "member": "objects/15902ad391ead7555b3ab4930adff5b983a46710c9f52bb8ac63289da992e1ff/artifact-catalog.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/qualification-new/attempt-1/artifact-catalog.json",
+        "sha256": "15902ad391ead7555b3ab4930adff5b983a46710c9f52bb8ac63289da992e1ff"
+      },
+      {
+        "bytes": 1786012,
+        "member": "objects/96fd5fbc3d8434ed52faa1766e20dce70395f8041729f4edf405a8672834ae98/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/next-hills/current/examples/report.json",
+        "sha256": "96fd5fbc3d8434ed52faa1766e20dce70395f8041729f4edf405a8672834ae98"
+      }
+    ],
+    "new_objects": 35047,
+    "new_raw_bytes": 78297116,
+    "prior_aliases_imported": 0,
+    "prior_documents_opened": 0,
+    "reused_archives": 16,
+    "reused_objects": 6606,
+    "reused_raw_bytes": 397010491
+  },
+  "closed_alias_links": 136349,
+  "current_evidence_documents": 33,
+  "retained_guest_objects": 4486,
+  "cache_files": 675,
+  "source_stages": {
+    "accepted-b53-prototype": 34,
+    "baseline-1b": 33,
+    "final": 34,
+    "rejected-cutoff82": 34,
+    "rejected-guard-control-c4": 34,
+    "rejected-guard-only13e": 34
+  },
+  "matched_controls": {
+    "qualification-new/merge-control": 34,
+    "qualification-new/named-control": 34,
+    "qualification-new/private-control": 34,
+    "qualification-new/resource-control": 34,
+    "qualification-new/stencil-control": 34
+  },
+  "verification_command": "python bench/results/2026-11-03/merge-bounds/reproduction/verify.py",
+  "verification_sha256": "aa98c72bcc256acb072097f49f4c4a4dfb7c2f74668e83061a462afe20cbf026"
+}

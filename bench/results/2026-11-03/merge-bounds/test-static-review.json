@@ -1,0 +1,100 @@
+{
+  "schema": "goose-branchless-merge-preseal-test-static-review-v2",
+  "status": "passed",
+  "decision": "GO for broad qualification with matched merge control wired",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T19:31:18.317882+00:00",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "pins": [
+    {
+      "path": "tests/test_merge_bounds.py",
+      "sha256": "8ff21e85880b296e8a0760ac0e187b02e55f2eadaf4a5a40c7dfb635f8f0b8dd"
+    },
+    {
+      "path": "tests/test_runtime_session.py",
+      "sha256": "4923980d444ab5fe2c4576bcc414e5de9518fa0d3763ada5c166a38a83fd7549"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "d3bad7bb730cf8ee756fa2de0e533808e105bf0edab0f271bbd67e0d540bd13c"
+    },
+    {
+      "path": "build/next-hills/merge-tests/attempt-6-select-long/execution.json",
+      "sha256": "5b513042c6833bc8f1df4882ab8579e83e55309ceb33699d215f5f19e0197c81"
+    },
+    {
+      "path": "build/next-hills/merge-tests/attempt-6-select-long/tests.log",
+      "sha256": "8613c1affb5fc14c95d6cb9d37def0eeaf50ffde741d3eb881a0dff77fddbaf1"
+    }
+  ],
+  "completed_focused_precheck": {
+    "methods": 5,
+    "configurations": 56,
+    "native_runs": 56,
+    "ordinary_candidate_engine_runs": 112,
+    "scenario_configurations_per_compiler_engine": {
+      "numeric": 416,
+      "invalid_guards": 248,
+      "greater_comparisons": 192,
+      "renamed_exclusive": 104,
+      "fallback": 36
+    },
+    "dynamic_scenario_configurations_per_compiler_engine": 996,
+    "dynamic_candidate_reference_v8_wasmtime_runs": 3984,
+    "long_left_remaining_controls": [
+      15,
+      16,
+      17,
+      32
+    ],
+    "long_right_short_span": 1
+  },
+  "completed_precheck_reference_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+  "review_findings": [
+    "Five test methods cover O0/O2 and debug/nondebug; integer widths/signs, duplicate values and high unsigned bits,32+32 spans,15/16/17 left-span boundaries, a one-element right span, comparator>/>= and renamed/right-first exclusive comparisons.",
+    "Fresh V8 and Python Wasmtime instances receive forged public slice headers. An independent ordered scalar memory model checks return/trap and observed memory windows; optional frozen-reference execution compares complete engine records including abort callbacks. The dynamic cases include overlapping sources/destination, short logical bounds, negative cursors, huge endpoints, high and wrapping pointers, and partial physical writes.",
+    "Address-exposed/captured views and extra side effects are negative matcher cases. With the reference option, negative/debug function bodies must remain byte-identical and eligible O2 bodies must change.",
+    "Ordinary fixture output also matches native Goose; native runs do not receive the forged-memory scenarios. Final source cursor values are not directly exported by this fixture; output cursor, memory and subsequent comparisons exercise cursor behavior indirectly.",
+    "The retained runtime regression exercises a Wasm start function with current-request input, initialized memory, start traps, invalid-input callback failure and recovery on reused module/fresh instances. It changes no production host behavior."
+  ],
+  "ci": {
+    "merge_test_wired": true,
+    "runtime_test_existing_entrypoint": true
+  },
+  "pending": "Focused B3984 dynamic scenarios and canonical9 runtime methods are completed prechecks. Full74 commands,9573 differential,11484 standard host and derived worker replay are pending; these reviews authorize qualification, not delivery.",
+  "blockers": [],
+  "prior_review": {
+    "path": "build/next-hills/reviews/test-static-review.json",
+    "sha256": "2d29e195b8212e4ea97e0fb6cd1be11668651c21c74b8ee63be293698bfa6ee5"
+  },
+  "canonical_runtime_focused_precheck": {
+    "methods": 9,
+    "status": "passed",
+    "host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "execution": {
+      "path": "build/next-hills/host-pre/baseline-runtime-execution.json",
+      "sha256": "e2d37dc9179fdd1278738eea8483e06243716936abcdf8c4258edb129e7f033f"
+    },
+    "log": {
+      "path": "build/next-hills/host-pre/baseline-runtime-session.log",
+      "sha256": "ad6e703352a169718902de92e30b0580189521dbfeb0df6f815b1d6d6673816f"
+    }
+  },
+  "other_host_precheck_boundary": "The retained twelve-native-ABI-test execution in host-pre/test-execution.json used rejected prototypea9f. It is not relabeled as a fresh e303 execution; the coming74-command suite includes native ABI tests on canonicale303.",
+  "matched_reference": {
+    "merge_compiler_sha256": "8ac48d1ae480f1b8e0e4e08859832ffc212f6bb2be1555cdae364b9c527a12c3",
+    "plan": {
+      "path": "build/next-hills/qualification-new/plan.json",
+      "sha256": "a5ef27ad04eb8c7dc94159e3185a8673cfc6b249040f818c135ea8ea541146bc"
+    },
+    "runner": {
+      "path": "build/next-hills/qualification-new/run.py",
+      "sha256": "35305339bb24d73fe13981a2721af639fc1ef6cf2e9a7a485c0798eb1c4bc5b0"
+    },
+    "command": [
+      "tests/test_merge_bounds.py",
+      "--reference-compiler",
+      "{merge_reference}"
+    ]
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "schema": "goose-merge-bounds-retention-v1",
+  "specification": {
+    "schema": "goose-merge-bounds-bundle-spec-v1",
+    "build": "build/next-hills",
+    "output": "bench/results/2026-11-03/merge-bounds",
+    "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+    "reference": "build/runtime-reference/production/report.json",
+    "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "reports": {
+      "qualification.json": "qualification-new/attempt-1/focused/report.json",
+      "differential.json": "qualification-new/attempt-1/differential/report.json",
+      "host-qualification.json": "qualification-new/attempt-1/host/report.json",
+      "final-warmed.json": "delivered-warmed/report.json",
+      "final-v8.json": "delivered-v8/report.json",
+      "examples.json": "current/examples/report.json",
+      "host.json": "current/host/report.json",
+      "cohort.json": "current/langarena/report.json",
+      "lifecycle.json": "current/lifecycle/report.json"
+    },
+    "extra_reports": {
+      "worker-qualification.json": "qualification-new/attempt-1/worker-replay/report.json"
+    },
+    "trees": [
+      "qualification-new/attempt-1",
+      "qualification-new/sources",
+      "delivery-execution",
+      "delivered-warmed",
+      "delivered-v8",
+      "current/examples",
+      "current/host",
+      "current/langarena",
+      "current/lifecycle",
+      "merge-tests",
+      "worker-pre-screen",
+      "merge-screen-wasmtime",
+      "merge-screen-v8",
+      "merge-select-screen-wasmtime",
+      "merge-select-screen-v8",
+      "host-pre"
+    ],
+    "optional_trees": [
+      "chart-previews",
+      "reviews",
+      "packaging-attempts",
+      "guide-validation",
+      "qualification-new/preparation-history",
+      "merge-control/shadow",
+      "source-before",
+      "qualification"
+    ],
+    "evidence_documents": [
+      "qualification-new/attempt-1/selected.json",
+      "qualification-new/attempt-1/input-pins.json",
+      "delivery-execution/report.json",
+      "qualification-new/static-review.json",
+      "qualification-new/test-static-review.json",
+      "module-analysis.json",
+      "campaign.json",
+      "final-numbers.json",
+      "qualification-new/attempt-1/worker-replay/report.json",
+      "qualification-new/attempt-1/worker-case-inputs.json",
+      "campaign-selection.json",
+      "worker-pre-screen/report.json",
+      "merge-screen-wasmtime/report.json",
+      "merge-screen-v8/report.json",
+      "merge-select-screen-wasmtime/report.json",
+      "merge-select-screen-v8/report.json",
+      "guide-validation/report.json",
+      "reviews/independent-arithmetic.json",
+      "reviews/merge-machine/review.json"
+    ],
+    "optional_evidence_documents": [
+      "qualification-new/summary.json",
+      "reviews/final-public-review.json",
+      "table-verification.json"
+    ],
+    "source_stages": {
+      "baseline-1b": "build/next-levers/final",
+      "rejected-guard-only13e": "build/next-hills/merge",
+      "rejected-guard-control-c4": "build/next-hills/merge-control/build",
+      "accepted-b53-prototype": "build/next-hills/merge-select",
+      "rejected-cutoff82": "build/next-hills/merge-select-min",
+      "final": "build/next-hills/final"
+    },
+    "direct_files": [
+      "build/next-levers/final/O2.wasm",
+      "build/native/CMakeCache.txt",
+      "build/squares.wasm",
+      "build/squares.cwasm",
+      "build/next-hills/merge-control/before.h",
+      "build/next-hills/merge-control/disable.patch",
+      "build/next-hills/merge-control/preparation.json",
+      "build/next-hills/merge-control/build-execution.json",
+      "build/next-hills/merge-control/build.log",
+      "build/next-hills/merge-control/build/control-toolchain-match.json",
+      "build/next-hills/merge-control/build/native/CMakeCache.txt"
+    ],
+    "public_files": [
+      "README.md",
+      "bench/examples.md",
+      "bench/wasmtime-host.md",
+      "docs/FUNCTIONS_PERFORMANCE.md",
+      "docs/PERFORMANCE_PLAN.md",
+      "docs/RUNTIME_TARGETS.md",
+      "bench/results/latest.json",
+      "bench/results/examples-latest.json",
+      "bench/results/wasmtime-host-latest.json",
+      "bench/results/runtime-targets-latest.json",
+      "bench/charts/compilation.svg",
+      "bench/charts/runtime.svg",
+      "bench/charts/runtime-targets.svg",
+      "bench/charts/examples-compilation.svg",
+      "bench/charts/examples-runtime.svg",
+      "bench/charts/examples-python-runtime.svg",
+      "bench/charts/examples-entry.svg",
+      "bench/charts/wasmtime-host-preparation.svg",
+      "bench/charts/wasmtime-host-runtime.svg",
+      "bench/charts/wasmtime-host-c-wasm.svg",
+      "docs/GUIDE.md",
+      "bench/results/runtime-lifecycle-latest.json",
+      "bench/charts/runtime-lifecycle.svg"
+    ],
+    "required_public_files": [
+      "README.md",
+      "campaign.json",
+      "readme.json",
+      "target-chart-verification.json",
+      "chart-verification.json",
+      "chart-visual-review.json",
+      "table-verification.json",
+      "guide-verification.json"
+    ],
+    "max_raw_archive_bytes": 67108864,
+    "policy": "Only this campaign aliases and fresh execution evidence. Reuse exact byte objects from one runtime-stencil index and sixteen explicitly named physical archives: two runtime-stencil, two fresh-construction, four functions-calls, eight functions-forwarding. Import no prior namespaces/documents or recursive indexes. Retain rejected runtime instance_pre, guard-only13e and cutoff82 source/screens, failed fixture context, all five matched34-header controls and dynamic worker module/input groups over3828 aliases. Baseline declares33headers; final/prototypes/controls34 as source manifests specify. Engine cache payloads/counters and all measured native/Wasm guests are retained. Renderer source must match its qualification pin without a presentation variant. Earlier qualification/controls.py and source-before headers are opaque development context, without claiming execution or a complete measured producer stage.",
+    "reuse": {
+      "index": "bench/results/2026-11-03/runtime-stencil/archives.json.gz",
+      "manifest": "bench/results/2026-11-03/runtime-stencil/SHA256.json",
+      "index_schema": "goose-runtime-stencil-objects-v1",
+      "archives": {
+        "../fresh-construction/evidence-000.tar.gz": "../fresh-construction/evidence-000.tar.gz",
+        "../fresh-construction/evidence-001.tar.gz": "../fresh-construction/evidence-001.tar.gz",
+        "../functions-calls/evidence-000.tar.gz": "../functions-calls/evidence-000.tar.gz",
+        "../functions-calls/evidence-001.tar.gz": "../functions-calls/evidence-001.tar.gz",
+        "../functions-calls/evidence-002.tar.gz": "../functions-calls/evidence-002.tar.gz",
+        "../functions-calls/evidence-003.tar.gz": "../functions-calls/evidence-003.tar.gz",
+        "../functions-forwarding/evidence-000.tar.gz": "../functions-forwarding/evidence-000.tar.gz",
+        "../functions-forwarding/evidence-001.tar.gz": "../functions-forwarding/evidence-001.tar.gz",
+        "../functions-forwarding/evidence-002.tar.gz": "../functions-forwarding/evidence-002.tar.gz",
+        "../functions-forwarding/evidence-003.tar.gz": "../functions-forwarding/evidence-003.tar.gz",
+        "../functions-forwarding/evidence-004.tar.gz": "../functions-forwarding/evidence-004.tar.gz",
+        "../functions-forwarding/evidence-005.tar.gz": "../functions-forwarding/evidence-005.tar.gz",
+        "../functions-forwarding/evidence-006.tar.gz": "../functions-forwarding/evidence-006.tar.gz",
+        "../functions-forwarding/evidence-007.tar.gz": "../functions-forwarding/evidence-007.tar.gz",
+        "evidence-000.tar.gz": "../runtime-stencil/evidence-000.tar.gz",
+        "evidence-001.tar.gz": "../runtime-stencil/evidence-001.tar.gz"
+      }
+    },
+    "opaque_failed_attempts": [
+      "merge-tests/attempt-1",
+      "merge-tests/body-proof"
+    ],
+    "qualification": "qualification-new",
+    "qualification_controls": {
+      "qualification-new": [
+        "merge-control",
+        "resource-control",
+        "named-control",
+        "private-control",
+        "stencil-control"
+      ]
+    },
+    "public_metadata": {
+      "campaign.json": "campaign.json",
+      "final-numbers.json": "final-numbers.json",
+      "module-analysis.json": "module-analysis.json",
+      "static-review.json": "qualification-new/static-review.json",
+      "test-static-review.json": "qualification-new/test-static-review.json"
+    },
+    "rejected_execution_roots": [
+      "worker-pre-screen",
+      "merge-screen-wasmtime",
+      "merge-screen-v8"
+    ],
+    "rejection_reason": "Rejected instance_pre runtime and guard-only bounds candidates. Retain raw evidence and source identities; accepted primary cohorts are independently collected for B.",
+    "delivery_execution": "delivery-execution/report.json",
+    "optional_public_metadata": {
+      "final-public-review.json": "reviews/final-public-review.json",
+      "table-verification.json": "table-verification.json",
+      "guide-verification.json": "guide-validation/report.json"
+    },
+    "final_review": "reviews/final-public-review.json",
+    "host_stages": {
+      "final": {
+        "metadata": "build/bin/goose-wasmtime.json",
+        "sources": [
+          "host/wasmtime.cpp",
+          "scripts/build_wasmtime_host.py",
+          "host/wasmtime-sdk.json"
+        ]
+      },
+      "rejected-instance-pre": {
+        "metadata": "build/next-hills/host-pre/goose-wasmtime.json",
+        "sources": [
+          "build/next-hills/host-pre/wasmtime.cpp"
+        ]
+      }
+    },
+    "qualified_input_pins": "qualification-new/attempt-1/input-pins.json"
+  },
+  "archive_index": "archives.json.gz",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "public_file_sha256": {
+    "qualification.json": "d6b4b0c2125f319b6cc9c2055195da32744940e33f967d599f70c10f2f49902c",
+    "differential.json": "7f8ed5f890a826829f1006a245f2a2a2bbfeef184d4e41b2e38c38a799c1fc75",
+    "host-qualification.json": "14ef61834b5d9cc40d15c7e37ca3d62db7e0c3291ccacbf90529a8478b931a6f",
+    "final-warmed.json": "0295a6c534a0fc7f2bc63c5d70065c1ed21e79115cd12508f6ead5b22a5021b8",
+    "final-v8.json": "d96bd9d1e214db461eeabdc014be23dc3948b760981a6bf74ecb19b02fef5e5e",
+    "examples.json": "96fd5fbc3d8434ed52faa1766e20dce70395f8041729f4edf405a8672834ae98",
+    "host.json": "bbed2b0fabad1b4fcbf4f51b6467559a6a498eed4bff8b8a3bded755315c648a",
+    "cohort.json": "e4ebc6a688bc6156b1651d8585b9e9225601ffb37ef2aac3a8fd95245ec0081a",
+    "lifecycle.json": "1b7c842bd84a8ad00c337392d354c36b8eb464699d4849da5dc59d8f73b65a05",
+    "worker-qualification.json": "d0efb24575dcd81ff9174aec946f062c19dd4728c61a3915890680101e4ec091",
+    "campaign.json": "9f5b6c7b7346b55752a0a5b36cc940c7c0f78f772a135523d191c06a647cbcf5",
+    "final-numbers.json": "e87e6050ad041e130d69ede3012665a88e2d5c69638778c3e6db084a056bcfd5",
+    "module-analysis.json": "a7d108ba7d583e52eff0436b2870c0431a25fd28d63a631df5ed5abc0952e064",
+    "static-review.json": "42b89f5d80e2829d71430827f9323146772f96ca113d83cf89f46614add1090c",
+    "test-static-review.json": "e1b0f6bce0b31acf4e698ad3c46c57b1f98207f0a36b97145d9e05b655fa4eac",
+    "references.json": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "compiler-identity.json": "c5c60355d275bd29b225ba9a2c13f3aee0b529851aa58aedc8927a19bff3cdfe",
+    "readme.json": "0c097cac4ff999b02d634c1229b0525ce8c56927b617218dc4ef80343a0b1cd0",
+    "README.md": "049a7ba6396a72d0df6f899947f311e2e139a296ba41ab1d291e399fb3ed3415",
+    "target-chart-verification.json": "6c24920bbf28e9b396077d3c8399573f8393c6960d8b384a1d275d4919ba7889",
+    "chart-verification.json": "e46ecb7038bc29f85869e20edd59f566a3d862b93e33016882424f63b282c4d8",
+    "table-verification.json": "a6a96bb66f800bf78971c68ad4988815baa5002e4e4b8927c8c09ca75311db16",
+    "chart-visual-review.json": "fb81a765424752fcccd7dbf02c9116c4564b9471cf4b3d9e59f58dc928c340e6",
+    "guide-verification.json": "c9b38c0d976f69edb3041e86e8efc4aa998da843fde5ab16198137bdfe06a815",
+    "final-public-review.json": "2d14a6dc77e452800a8a8fadf7b64b1cba4035b088e16b9abaf6acd4d8e07cf4",
+    "evidence-000.tar.gz": "4b26d21de116c187390cf990c13ac8ed3018d3a244bfcc3ecc37c7536968a6e6",
+    "evidence-001.tar.gz": "9c1d5bd8057c9014a38f335252037aa3a3b1a84d4ff87af28f7192e63267d753",
+    "archives.json.gz": "ff3ff7bd9df332505c76b7a0f97b37503ffc35f2ce68fd670ae1ae0a5860838d",
+    "reproduction/bundle.py": "bc1f1a9c7c658591a744a69244bfb048f573c34c0c1edea2277f7606b41fad97",
+    "reproduction/verify.py": "238aae1c2cca895a734e4cb4192ec138b4d1eb9275e0a4fec3b7e3933e33b5bb",
+    "reproduction/checks.py": "90e7fc3570ba1c662fd2701d4ad72c57b5c5d2e037a17e8a3db45ddd8bcef4c7",
+    "reproduction/spec.json": "83ddc91152d73cb4609b18056c0e214bb5ebf90989ed3074cbbb1bbe8141c823"
+  }
+}

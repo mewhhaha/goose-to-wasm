@@ -1,0 +1,295 @@
+{
+  "schema": "goose-branchless-merge-preseal-static-review-v2",
+  "status": "passed",
+  "decision": "GO for broad qualification of selected B; not a completed delivery qualification",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T19:31:18.317882+00:00",
+  "scope": "Read-only source review and independent arithmetic of retained selection screens. This reviewer ran no compiler, engine, test or benchmark.",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "baseline_compiler_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+  "candidate_root": "build/next-hills/final",
+  "candidate_source": {
+    "path": "build/next-hills/final/source.json",
+    "sha256": "14d0b11ce1398ded5c0d76bdff586e80ba0da245df5842e03432c60a4b0a0510"
+  },
+  "candidate_toolchain": {
+    "path": "build/next-hills/final/toolchain.json",
+    "sha256": "e733d6d4587c8332821f7f0cf7e38c1d3b4ba934f88f8bbd674bc9f316ae3e4d"
+  },
+  "headers": {
+    "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "direct_wasm.h": "592cf148809e76036f0f7395014c10bd56eb73105a7f335b5056815e2f22e4e4",
+    "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+    "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "direct_wasm_expr.h": "baac3d5d65966587a9b9ae86024c85ef50b0fc7536c716621d5fcd7a4127059a",
+    "direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "direct_wasm_merge.h": "a971754f944e85cb9fea8319318866965210899e618e72dfce8c200e89a95480",
+    "direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+    "direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+    "direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+  },
+  "patches": {
+    "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+  },
+  "current_source_matches_frozen_candidate": true,
+  "proof": [
+    "The bounded matcher accepts exactly a conjunction of two ascending i64 cursor bounds, a two-arm integer selection/store/increment, and one output increment. Four integer element types (i32/u32/i64/u64), exact contextual element types and distinct private unaddressed/uncaptured/nonreusable local cursors are required. Bound endpoints cannot alias a modified cursor.",
+    "A successful source guard forces 0<=begin<exclusive_end<=packed_u32_length. Thus valid differences are positive u32-bounded, their sum fits u64, and all successful width multiplications and physical endpoint additions are exact. Raw arithmetic for invalid ranges may wrap but cannot authorize the fast path because the full conjunction rejects them.",
+    "Destination position and total remaining counts must fit its logical suffix, then its widened complete physical span. This overestimates the actual writes before one source exhausts. Successful guards prove all admitted loads/stores and cursor increments nontrapping and nonwrapping; failed guards perform no payload access or write and retain scalar execution.",
+    "The fast loop preserves original Truth(loop->cond), reads A then B, applies BinaryOp with the original comparator and exact signedness, stores select(A,B,predicate), then increments A by predicate, B by its inverse and output by one. Source and destination may overlap: no write or callback intervenes between original comparison loads and its redundant selected RHS reload.",
+    "Captured pointers/views and bounds stay in private Wasm locals. No prefix-resolution call is possible under the mapping exclusion. The accepted body cannot allocate, call user code, materialize owners, exit nonlocally or expose cursor addresses; omitted block bookkeeping has no intervening observer or allocation.",
+    "The original scalar fallback remains intact, with the rematch-suppression flag active throughout emission and reset afterward. The former global proven-index set and Address hook were removed. Debug and unsupported shapes retain scalar code."
+  ],
+  "selection_screen": {
+    "status": "independent medians/MADs/paired ratios verified; five paired selection rounds only",
+    "reports": [
+      {
+        "path": "build/next-hills/merge-select-screen-wasmtime/report.json",
+        "sha256": "f5d3414a53adf97082bdb5126380717df325e45d35189d1dd7598515fa09b747"
+      },
+      {
+        "path": "build/next-hills/merge-select-screen-v8/report.json",
+        "sha256": "b25e37f632f5c91d629fae3cb925433faf8d1a866cbc6788dc3334d52c82bb7c"
+      }
+    ],
+    "baseline_over_B": {
+      "wasmtime": {
+        "median": 1.340349888183824,
+        "mad": 0.04677535962720003
+      },
+      "v8": {
+        "median": 1.3067930442169542,
+        "mad": 0.0009353356819445935
+      }
+    },
+    "B_over_cutoff_C": {
+      "wasmtime": {
+        "median": 1.0151871288430145,
+        "mad": 0.00458640087648976
+      },
+      "v8": {
+        "median": 0.9628323881998816,
+        "mad": 0.0006708984108666494
+      }
+    },
+    "decision": "Choose simpler B without cutoff: C trades a small Wasmtime gain for slower V8. Insertion-control guest bytes are identical across all three variants and ratios remain near one. Fresh broader measurements are still required.",
+    "prior_rejections": "Keep guard-only13e, cutoff82c and InstancePre host prototype as rejected experiment evidence. No runtime host improvement is included in B; canonical host source is restored."
+  },
+  "native_comparison": {
+    "disassembly": {
+      "path": "build/runtime-reference/disassembly/sort_merge-native-clang-O2-generic.txt",
+      "sha256": "2afb9beb90caa5d6962e931bc607fe58838a90fca42830031254160d780e88dc"
+    },
+    "finding": "Selected native merge_sort_helper_g uses cmp/setle/setg/cmov at0x366f..0x367a and conditional cursor increments. This supports the branchless strategy, without asserting that the entire native gap is explained or that native performance is a universal ceiling."
+  },
+  "runtime_unchanged": {
+    "host_source": {
+      "path": "host/wasmtime.cpp",
+      "sha256": "8573711cb0ae48a0cbcb6202b513af442ef06dbfdb1f1a4749c4145ed8a07d61"
+    },
+    "client_source": {
+      "path": "scripts/wasmtime_session.py",
+      "sha256": "4bcaaa6967cfdd92acdac7470cbe3511be73290154c7a9e0f0bdddcafe379ac5"
+    },
+    "kept_test_only_change": "Fresh instantiation/start-function callback and trap recovery regression in tests/test_runtime_session.py."
+  },
+  "qualification_pending": {
+    "focused_commands": 74,
+    "differential_cases": 978,
+    "differential_observations": 9573,
+    "native_stdout_comparisons": 7656,
+    "standard_host_observations": 11484,
+    "worker_count": "Derive verified distinct module/input groups over3828 aliases.",
+    "status": "All five matched control builds/source proofs are complete; full qualification and fresh delivery measurements remain pending."
+  },
+  "blockers": [],
+  "prior_review": {
+    "path": "build/next-hills/reviews/static-review.json",
+    "sha256": "a847959f3d225a077e957782d073ed93b7d4e3bf3a938ade45b9a64256a76d8e"
+  },
+  "canonical_rebuild": {
+    "status": "independently verified exact bytes",
+    "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+    "paths": [
+      "build/bin/goose",
+      "build/next-hills/final/bin/goose"
+    ],
+    "source_inventory": "All 34 current and frozen headers plus both patches match the selected B source."
+  },
+  "qualified_control_builds": [
+    {
+      "name": "merge",
+      "compiler_sha256": "8ac48d1ae480f1b8e0e4e08859832ffc212f6bb2be1555cdae364b9c527a12c3",
+      "proof": {
+        "path": "build/next-hills/qualification-new/merge-control/build/control-toolchain-match.json",
+        "sha256": "2cef4d58232bfc2e8f528d600eb7d66a9239c0c5dc75e696568d2bd5cd1ee216"
+      },
+      "preparation": {
+        "path": "build/next-hills/qualification-new/merge-control/preparation.json",
+        "sha256": "72bff85ad4f56bcb8deac437ad47561e0ab7d15bb3e5df5fef520f74a73d102d"
+      },
+      "build_execution": {
+        "path": "build/next-hills/qualification-new/merge-control/build-execution.json",
+        "sha256": "dbff27560abb32912f70dd8fccdd6f56707482c8a0991e26780abe259199533b"
+      },
+      "changed_header": "direct_wasm_merge.h",
+      "headers": 34,
+      "patches": 2,
+      "binary_source_and_toolchain_verified": true
+    },
+    {
+      "name": "resource",
+      "compiler_sha256": "3d5e91c2e6baac838461bad57dac082ee60218e4bb5c7c41576ba1fd744b2a54",
+      "proof": {
+        "path": "build/next-hills/qualification-new/resource-control/build/control-toolchain-match.json",
+        "sha256": "cc727c2fc258245812059a86c0d3ddc606e7e06207a5dfc613c6f35e15854900"
+      },
+      "preparation": {
+        "path": "build/next-hills/qualification-new/resource-control/preparation.json",
+        "sha256": "6134a3eda0ea30bce31dd7dc946d918e014b86105ca50314841985ac97974ac4"
+      },
+      "build_execution": {
+        "path": "build/next-hills/qualification-new/resource-control/build-execution.json",
+        "sha256": "bf7271817083cc873d00435ed7ad3fd4c960da84232a5581eb6b8cf67fddd7d7"
+      },
+      "changed_header": "direct_wasm_temps.h",
+      "headers": 34,
+      "patches": 2,
+      "binary_source_and_toolchain_verified": true
+    },
+    {
+      "name": "named",
+      "compiler_sha256": "9a4b8e49f37b59ca1bfe757c64b01b0c9098f8d9e494b81fc3bced0b1babe108",
+      "proof": {
+        "path": "build/next-hills/qualification-new/named-control/build/control-toolchain-match.json",
+        "sha256": "bd8202da4d9c388726a55f4c6c109ac444eeacdbb5b5d18b342328339f44c44b"
+      },
+      "preparation": {
+        "path": "build/next-hills/qualification-new/named-control/preparation.json",
+        "sha256": "38b57a23cbb623486f9d0fed625c41308288e4cb40eb8c2efbbcf4298c9e07c5"
+      },
+      "build_execution": {
+        "path": "build/next-hills/qualification-new/named-control/build-execution.json",
+        "sha256": "daa452a2b6d3c12002fdf9682a54a1974d7202ea4a436e3efd2e205250932811"
+      },
+      "changed_header": "direct_wasm_funvals.h",
+      "headers": 34,
+      "patches": 2,
+      "binary_source_and_toolchain_verified": true
+    },
+    {
+      "name": "private",
+      "compiler_sha256": "6b1fa8601064311a3cd991646479c6cf9cc299577c6a2c8ece49dff34b08ac1c",
+      "proof": {
+        "path": "build/next-hills/qualification-new/private-control/build/control-toolchain-match.json",
+        "sha256": "04f24cf6a796e1f5e086b46fbbc3a6bedec93645da49c47848d338e134d66e11"
+      },
+      "preparation": {
+        "path": "build/next-hills/qualification-new/private-control/preparation.json",
+        "sha256": "28cfbf38f3e5a714f7a5789c44e3681567df52108e152044b022addfcdc6fec2"
+      },
+      "build_execution": {
+        "path": "build/next-hills/qualification-new/private-control/build-execution.json",
+        "sha256": "8285de460e7553c10dde76c73354752da5600e1ab53d1d644dee979419387e52"
+      },
+      "changed_header": "direct_wasm_emit.h",
+      "headers": 34,
+      "patches": 2,
+      "binary_source_and_toolchain_verified": true
+    },
+    {
+      "name": "stencil",
+      "compiler_sha256": "be2f163fa7279f0be0995252ae05f47896147b42160b21bb18b6aed70fcf75dc",
+      "proof": {
+        "path": "build/next-hills/qualification-new/stencil-control/build/control-toolchain-match.json",
+        "sha256": "f0daaf1f0aa06c5b7e4468ddf877e8e18beb7ec36c20209d33a7980c1765a52b"
+      },
+      "preparation": {
+        "path": "build/next-hills/qualification-new/stencil-control/preparation.json",
+        "sha256": "c7e33cb553c1699e574a47fbc765d1ba8b1c53d85afbd77fa18f342e99868cb2"
+      },
+      "build_execution": {
+        "path": "build/next-hills/qualification-new/stencil-control/build-execution.json",
+        "sha256": "0baba001072ffc603a2ba2375e9d1255aca9e23a38a644337397893b350f5173"
+      },
+      "changed_header": "direct_wasm_stencil.h",
+      "headers": 34,
+      "patches": 2,
+      "binary_source_and_toolchain_verified": true
+    }
+  ],
+  "qualification_harness": {
+    "status": "source review passed; not executed by reviewer",
+    "pins": [
+      {
+        "path": "build/next-hills/qualification-new/run.py",
+        "sha256": "35305339bb24d73fe13981a2721af639fc1ef6cf2e9a7a485c0798eb1c4bc5b0"
+      },
+      {
+        "path": "build/next-hills/qualification-new/plan.json",
+        "sha256": "a5ef27ad04eb8c7dc94159e3185a8673cfc6b249040f818c135ea8ea541146bc"
+      },
+      {
+        "path": "build/next-hills/qualification-new/controls.py",
+        "sha256": "d2451e0c78b15a10504bb9ce830776dee611afab5dd1ea172f854fffcb615623"
+      },
+      {
+        "path": "build/next-hills/qualification-new/build-controls.py",
+        "sha256": "3891180ca2feb90f08b8369493bfff966860d3715f1598345490ee8b1bcf9edb"
+      },
+      {
+        "path": "build/next-hills/qualification-new/worker-replay.py",
+        "sha256": "7ada8a3c88314888aa05f24c016a3e87716f6138cd31b9e5dcf2bc394e08baa0"
+      },
+      {
+        "path": "build/next-hills/qualification-new/environment-preflight.py",
+        "sha256": "94f7a1ee2ddb226f5064ea76805599358163a316308f0e95ea5cc1eded4d5a8d"
+      },
+      {
+        "path": "build/next-hills/qualification-new/environment-preflight.json",
+        "sha256": "acb69edcb556c5919fe402052f071b32b2c86b1d2664fafc16d4957e7eff0925"
+      },
+      {
+        "path": "build/next-hills/qualification-new/control-source-audit.json",
+        "sha256": "9fda902a342ea5911ccceb604c61a707ddf5b1b30f22427b6b5470d8d3970324"
+      },
+      {
+        "path": "build/next-hills/qualification-new/controls-execution.json",
+        "sha256": "c16f74e2e87a06d585391dad0599dec3793e28529f206c3d8dec51db23909141"
+      }
+    ],
+    "checks": [
+      "Approved plan retains the prior 73 commands exactly and adds merge with its matched --reference-compiler. selected.merge_reference and focused formatting carry the control path.",
+      "Seal requires each control binary, exact 34-header inventory, upstream revision, both patches, one declared predicate edit and matching selected/control toolchain proof. Baselines are explicit accepted1b, memory19d and fresh353.",
+      "Pins include project sources, nested oracle tests, all control sources/proofs/build logs, environment preflight, copied source reviews and measurement orchestration source; input identities and selected compiler are checked before and after completed phases.",
+      "Gates require74 focused commands,978 cases,9573 differential observations and7656 native comparisons. Standard host requires11484 passing observations. At most4 jobs run, with internal qualification pools capped1.",
+      "Worker verifies corpus/host/compiler and raw guests, derives distinct (module SHA,input SHA) groups over3828 unique aliases, uses fresh Store/instance requests with disk cache disabled, and retains request/response/stdout/stderr evidence. Effective count is not copied from an old campaign.",
+      "Failed/existing attempt outputs are refused or preserved. Controls used at most two concurrent Ninja jobs2 builds. This qualification audit does not substitute for later delivery measurement/provenance review."
+    ]
+  }
+}

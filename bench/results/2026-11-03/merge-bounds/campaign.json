@@ -1,0 +1,48 @@
+{
+  "schema": "goose-merge-campaign-v1",
+  "status": "passed",
+  "compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "baseline_compiler_sha256": "1b1ec504894d387ae0bbed287d2d3214e250e6dc9bbff2ffd2893a69c06a8874",
+  "scope": "Generic guarded two-cursor integer merge loops use ordered loads and branchless selection after complete logical/physical range validation. Debug and ineligible/failed guards retain scalar lowering.",
+  "qualification": {
+    "focused_commands": 74,
+    "cases": 978,
+    "differential_executions": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574,
+    "worker_observations": 3001,
+    "worker_aliases": 3828
+  },
+  "accepted_boundaries": "Fresh paired warmed compiler comparisons and frozen selected references, separately collected full-process backends and lifecycle modes. No algorithm/input/engine-flag changes. Insertion adapter remains a separate unchanged workload.",
+  "rejected": [
+    {
+      "stage": "host-pre",
+      "report": "worker-pre-screen/report.json",
+      "reason": "InstancePre saved about2microseconds preparation but full Functions roundtrip1.00535pairedMAD.02915; below5percent workload criterion. Canonical e303 source restored."
+    },
+    {
+      "stage": "merge",
+      "report": "merge-screen-v8/report.json",
+      "reason": "Bounds removal alone slowed defaultV8 about19percent; Wasmtime gain uncertain."
+    },
+    {
+      "stage": "merge-select-min",
+      "report": "merge-select-screen-v8/report.json",
+      "reason": "Left-span cutoff16 added about1.5percent Wasmtime speedup over selected B but cost about3.9percent V8 elapsed time. Simpler unfiltered B selected."
+    }
+  ],
+  "fallbacks": "Exact private-local slices/cursors, numeric32/64 operands and pure two-arm stores are required. Invalid/empty/logically short/physically short spans, extra effects, reference exposure/captures and debug preserve original scalar semantics, partial writes and traps. Overlap is allowed without speculative payload reads.",
+  "numbers_sha256": "e87e6050ad041e130d69ede3012665a88e2d5c69638778c3e6db084a056bcfd5",
+  "evidence": {
+    "module-analysis.json": "a7d108ba7d583e52eff0436b2870c0431a25fd28d63a631df5ed5abc0952e064",
+    "qualification-new/static-review.json": "42b89f5d80e2829d71430827f9323146772f96ca113d83cf89f46614add1090c",
+    "qualification-new/test-static-review.json": "e1b0f6bce0b31acf4e698ad3c46c57b1f98207f0a36b97145d9e05b655fa4eac",
+    "delivery-execution/report.json": "cdd6be7143d70343f164eaa25508f3e84f4acde699a14b4ae1ec11338c438f99",
+    "worker-pre-screen/report.json": "306f451c7d29706879a09974b3012a48de582cd5621be011280d2852c4f0e853",
+    "merge-screen-wasmtime/report.json": "3f1a30c0ce738f33d77e95bf1c718ca3eba3158e35a52455025cb5d65306479b",
+    "merge-screen-v8/report.json": "286c7aa62de5da5e540f192401c123e6957be7c2fb2962da45ac3b39a0b693f9",
+    "merge-select-screen-wasmtime/report.json": "f5d3414a53adf97082bdb5126380717df325e45d35189d1dd7598515fa09b747",
+    "merge-select-screen-v8/report.json": "b25e37f632f5c91d629fae3cb925433faf8d1a866cbc6788dc3334d52c82bb7c"
+  }
+}

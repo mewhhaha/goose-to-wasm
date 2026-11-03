@@ -93,6 +93,7 @@ struct Function {
     unordered_map<const VarDef *, uint32_t> named_image_prefixes;
     unordered_set<const VarDef *> inline_named_regions;
     unordered_set<VarDef *> addressed;
+    bool emitting_bounded_merge = false;
     vector<unordered_map<VarDef *, VarDef *>> aliases;
     unordered_map<uint32_t, int64_t> constant_slots;
     uint32_t framebase = 0, framebytes = 0;
@@ -346,6 +347,7 @@ struct Function {
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
     bool UnrollRange(ForLoop *, const Slot &, TypeExpr *);
     bool UnrollWhile(While *);
+    bool BoundedMerge(While *);
     bool FoldPopcount(While *, VarDecl *, VarDecl *);
     bool FillLoop(ForLoop *);
     bool CopyLoop(ForLoop *);
@@ -1279,6 +1281,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_arrays.h"
 #include "direct_wasm_bits.h"
 #include "direct_wasm_stencil.h"
+#include "direct_wasm_merge.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"
 
