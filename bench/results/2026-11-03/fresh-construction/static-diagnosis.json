@@ -1,0 +1,340 @@
+{
+  "schema": "goose-fresh-construction-hotcode-static-v1",
+  "status": "static-diagnosis-complete",
+  "scope": "Existing source, Wasm and compiled AOT ELF bytes only. No compiler builds, engine execution or measurements performed by reviewer. Screen numbers are parent-collected three-pair results, not final qualification.",
+  "inputs": {
+    "measurement_report": {
+      "path": "build/functions-init/screen-warmed/report.json",
+      "sha256": "621ebcda9719bfd2ac8a14bbf39d091cbda662264f38c2faba6c66e6104c021d",
+      "bytes": 641315
+    },
+    "sources": [
+      {
+        "path": "bench/langarena/ports/fannkuch.goose",
+        "sha256": "13fe4b2630a22e717ba583e9c9b255cc3ccc6c605351a652bb73e07d636ee004",
+        "bytes": 2191
+      },
+      {
+        "path": "build/runtime-reference/inputs/sudoku.goose",
+        "sha256": "4af5475e8b7b65b32362db874fa0a993cb9e3642acc1e10c2a6c78900964cfd7",
+        "bytes": 4879
+      },
+      {
+        "path": "bench/langarena/ports/hash_sha256.goose",
+        "sha256": "e530813993a835ec10b4e8978d3d5d82d585a1a55b0291045e2afe046c8ebf1e",
+        "bytes": 1958
+      }
+    ],
+    "artifacts": {
+      "CLBG::Fannkuchredux": {
+        "baseline": {
+          "wasm": {
+            "path": "build/functions-init/screen-warmed/build/clbg_fannkuchredux/baseline/program.wasm",
+            "sha256": "4a416cda55e53175910f971ba1a202f442a88b8d18641b7fe00cf07e3d1fc708",
+            "bytes": 4067
+          },
+          "aot": {
+            "path": "build/functions-init/screen-warmed/build/clbg_fannkuchredux/baseline/program.cwasm",
+            "sha256": "0ded0ab2023ef477ec18772267e6ea783b2357fed3a606d30431465a4a69d818",
+            "bytes": 23608
+          },
+          "stats": {
+            "path": "build/functions-init/screen-warmed/build/clbg_fannkuchredux/baseline/stats.json",
+            "sha256": "3813599323bba68fc039fd827e4d76871b6843a17aa838aa222fa48d6e810c74",
+            "bytes": 663
+          },
+          "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e"
+        },
+        "final": {
+          "wasm": {
+            "path": "build/functions-init/screen-warmed/build/clbg_fannkuchredux/final/program.wasm",
+            "sha256": "db8e3dd27867b922b3f8c816d4d3f05e3120fc1ba52c229a81c5f6c2e1580cb3",
+            "bytes": 3848
+          },
+          "aot": {
+            "path": "build/functions-init/screen-warmed/build/clbg_fannkuchredux/final/program.cwasm",
+            "sha256": "c7252cc8ad9037e9258f877383ec063a496e4ded1a62a9136ab1afa695d8b295",
+            "bytes": 23608
+          },
+          "stats": {
+            "path": "build/functions-init/screen-warmed/build/clbg_fannkuchredux/final/stats.json",
+            "sha256": "f35aa6373cb81efda6a5b3d7fe32cc48d17d86ff25a9b2fb1cd838daa5ec36be",
+            "bytes": 662
+          },
+          "compiler_sha256": "00a86d4a066edc81cb1fdd77dbe7215fc0ce419576b998c8a1e772d5a114ade5"
+        }
+      },
+      "Example::Sudoku": {
+        "baseline": {
+          "wasm": {
+            "path": "build/functions-init/screen-warmed/build/example_sudoku/baseline/program.wasm",
+            "sha256": "be83073a96c91efcad4b205db41a0fc80236dfdb23bebfe56e4dac2fddd91a3f",
+            "bytes": 5618
+          },
+          "aot": {
+            "path": "build/functions-init/screen-warmed/build/example_sudoku/baseline/program.cwasm",
+            "sha256": "a7a995a976f209fb29c12334c1cdf0bc88359f54b0c0da5b386860fdba2ab219",
+            "bytes": 24440
+          },
+          "stats": {
+            "path": "build/functions-init/screen-warmed/build/example_sudoku/baseline/stats.json",
+            "sha256": "511b3ddd5d634035d034b6fce040dff1e48a06cefa4339c64871e5a057ea280d",
+            "bytes": 1291
+          },
+          "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e"
+        },
+        "final": {
+          "wasm": {
+            "path": "build/functions-init/screen-warmed/build/example_sudoku/final/program.wasm",
+            "sha256": "aec85f3498588d243721c1eb443ca6c84eba51c2825ed6d4e76dba4a97d173b9",
+            "bytes": 5352
+          },
+          "aot": {
+            "path": "build/functions-init/screen-warmed/build/example_sudoku/final/program.cwasm",
+            "sha256": "276c62d68e70c47b1277eb1241bc742cc59ccfb89da0b44bdb32f992a5415b99",
+            "bytes": 24440
+          },
+          "stats": {
+            "path": "build/functions-init/screen-warmed/build/example_sudoku/final/stats.json",
+            "sha256": "930c2def9a7ee5e45129ef63a5bac68a328425d0b5b19c2df312e5b8c8cbbdfa",
+            "bytes": 1289
+          },
+          "compiler_sha256": "00a86d4a066edc81cb1fdd77dbe7215fc0ce419576b998c8a1e772d5a114ade5"
+        }
+      },
+      "Hash::SHA256": {
+        "baseline": {
+          "wasm": {
+            "path": "build/functions-init/screen-warmed/build/hash_sha256/baseline/program.wasm",
+            "sha256": "dbb796ecd8967341ccc14117fd92743ef48f3aa368a0b41b859d83bfc593de95",
+            "bytes": 6788
+          },
+          "aot": {
+            "path": "build/functions-init/screen-warmed/build/hash_sha256/baseline/program.cwasm",
+            "sha256": "c09868fe6046a221193d30c457d9cfc7a2701c4afe412dcc4300460efd61e81f",
+            "bytes": 27888
+          },
+          "stats": {
+            "path": "build/functions-init/screen-warmed/build/hash_sha256/baseline/stats.json",
+            "sha256": "3a025d4bfc5297d1721a30190ec563df9564b2851cfd03e96a268bc7e70ccaad",
+            "bytes": 767
+          },
+          "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e"
+        },
+        "final": {
+          "wasm": {
+            "path": "build/functions-init/screen-warmed/build/hash_sha256/final/program.wasm",
+            "sha256": "76e72d2a07dee54b9a1a7edf7abb76abc41aab86421634ef24338e854bf9f6aa",
+            "bytes": 6567
+          },
+          "aot": {
+            "path": "build/functions-init/screen-warmed/build/hash_sha256/final/program.cwasm",
+            "sha256": "74870a1d44218d6a76657acef66dafec2cacf472e489e1ee505ff1ccb2941035",
+            "bytes": 23792
+          },
+          "stats": {
+            "path": "build/functions-init/screen-warmed/build/hash_sha256/final/stats.json",
+            "sha256": "cd9a1fb8ae93152b01186b9d4fc51252bd7b0a1176ea4e3047a8f8f4181c6bd4",
+            "bytes": 766
+          },
+          "compiler_sha256": "00a86d4a066edc81cb1fdd77dbe7215fc0ce419576b998c8a1e772d5a114ade5"
+        }
+      }
+    }
+  },
+  "findings": {
+    "sudoku": {
+      "wasm": "main and six solver/helper bodies byte-identical; measured_run shrinks1349 to1233 Wasm bytes; _start631 to481.",
+      "aot": "All six solver/helper ELF symbol byte ranges are identical. measured_run1792 to1432 native bytes shifts subsequent solver/helper starts by-352 bytes.",
+      "scan_loop": {
+        "baseline_start": 2638,
+        "baseline_last_byte": 2731,
+        "candidate_start": 2286,
+        "candidate_last_byte": 2379,
+        "bytes": 94,
+        "baseline_64byte_lines": 2,
+        "candidate_64byte_lines": 3
+      },
+      "interpretation": "Code placement changes while hot instruction bytes do not. Boundary change is a plausible mechanism, not proof of full measured regression."
+    },
+    "fannkuch": {
+      "wasm": "fannkuchredux1587 to1518 bytes; main546 bytes identical; _start700 to550.",
+      "aot": "fannkuchredux starts at0x420 in both; size2448 to2016, linear-memory frame0x300 to0x180. Three128-byte staging copies disappear. Register allocation and portions of loop control change.",
+      "swap_loop": {
+        "baseline_start": 2624,
+        "baseline_last_byte": 2701,
+        "candidate_start": 2211,
+        "candidate_last_byte": 2293,
+        "baseline_bytes": 78,
+        "candidate_bytes": 83,
+        "detail": "Same swap/bounds operation sequence, different registers. Four memory accesses use r13 as base instead of r12, each requiring a zero displacement byte. One LEA also gains a REX prefix."
+      },
+      "interpretation": "Not merely interfunction placement. Smaller initialization alters downstream native register allocation and loop encoding; no single cause of full measured slowdown established."
+    },
+    "sha256": {
+      "wasm": "run3487 to3443 bytes; main978 and read_u32le298 bytes unchanged.",
+      "aot": "run3560 to3272 bytes at unchanged0x620, frame0xc0 to0x80; register allocation changes. read_u32le379 bytes identical and relocated.",
+      "interpretation": "Three-pair minor difference insufficient for a final claim; retain as control for narrowed policy."
+    }
+  },
+  "small_generic_trial": {
+    "policy": "Allow direct fresh construction for GLOBAL slots and statically limited inline-array destinations. Preserve staging for local record roots and local fixed arrays. Nested limited/string fields remain eligible in ordinary fresh aggregate temporaries.",
+    "reason": "Keep large startup-copy savings and inline bounded-array construction savings; defer local fixed-array/record transformations that perturb existing hot functions despite cheaper initialization. No workload names, padding, CPU-specific choices, or new traversal.",
+    "proof": "Stricter subset of previously reviewed safety matcher; exact type, closed fixed payload, bounded literal scan, and recursive default natural/context checks remain required.",
+    "expected_controls": "Fann/Sudoku hot Wasm bodies and native starts should recover; whole modules may still differ because global _start copies are removed. Native helper call displacement changes remain possible. Verify rather than assume.",
+    "status": "unmeasured-at-review-time"
+  },
+  "aot_symbols": {
+    "example_sudoku": [
+      {
+        "name": "wasm[0]::function[14]::measured_run#2",
+        "baseline": {
+          "offset": 768,
+          "size": 1792,
+          "sha256": "28c071dfd8cb04b7dc7289e8b0677442c5a9cea38b696426ef986f7bf693393b"
+        },
+        "candidate": {
+          "offset": 768,
+          "size": 1432,
+          "sha256": "c8fe908f49755c5a08f22494823e72855e1e12e9545fbf6cfabbc702b50107b2"
+        },
+        "byte_identical": false
+      },
+      {
+        "name": "wasm[0]::function[15]::solve#8",
+        "baseline": {
+          "offset": 2560,
+          "size": 448,
+          "sha256": "3a0e6bd1b5ef7425a0f14508745271eaa28d12707646d9c18018ce3923d645d7"
+        },
+        "candidate": {
+          "offset": 2208,
+          "size": 448,
+          "sha256": "3a0e6bd1b5ef7425a0f14508745271eaa28d12707646d9c18018ce3923d645d7"
+        },
+        "byte_identical": true
+      },
+      {
+        "name": "wasm[0]::function[16]::count_bits#10",
+        "baseline": {
+          "offset": 3008,
+          "size": 21,
+          "sha256": "b6388ff54dc4d0d29aed9da938db69a4b04a8c26022793c4fe7805b5fc494140"
+        },
+        "candidate": {
+          "offset": 2656,
+          "size": 21,
+          "sha256": "b6388ff54dc4d0d29aed9da938db69a4b04a8c26022793c4fe7805b5fc494140"
+        },
+        "byte_identical": true
+      },
+      {
+        "name": "wasm[0]::function[17]::candidates#9",
+        "baseline": {
+          "offset": 3040,
+          "size": 264,
+          "sha256": "3f842b4b5db1d8e27ff10361cea1011e4adc9c96e05fcb1a441cabafda6bd8c2"
+        },
+        "candidate": {
+          "offset": 2688,
+          "size": 264,
+          "sha256": "3f842b4b5db1d8e27ff10361cea1011e4adc9c96e05fcb1a441cabafda6bd8c2"
+        },
+        "byte_identical": true
+      },
+      {
+        "name": "wasm[0]::function[18]::bit#6",
+        "baseline": {
+          "offset": 3328,
+          "size": 30,
+          "sha256": "6d0f27bc712a598733a7937d53d2b2cd892ca747165b21e8f085d0c83c025c6e"
+        },
+        "candidate": {
+          "offset": 2976,
+          "size": 30,
+          "sha256": "6d0f27bc712a598733a7937d53d2b2cd892ca747165b21e8f085d0c83c025c6e"
+        },
+        "byte_identical": true
+      },
+      {
+        "name": "wasm[0]::function[19]::place#5",
+        "baseline": {
+          "offset": 3360,
+          "size": 320,
+          "sha256": "d3a0d02ff8dc18f32169ebbda86589e4b75b71fa93cb43351491707bdc90c801"
+        },
+        "candidate": {
+          "offset": 3008,
+          "size": 320,
+          "sha256": "d3a0d02ff8dc18f32169ebbda86589e4b75b71fa93cb43351491707bdc90c801"
+        },
+        "byte_identical": true
+      },
+      {
+        "name": "wasm[0]::function[20]::unplace#11",
+        "baseline": {
+          "offset": 3680,
+          "size": 312,
+          "sha256": "a11e0cd492068b75486cd9a8d2321ae512c1cfdc89c0029dcb32c290a6e7c09f"
+        },
+        "candidate": {
+          "offset": 3328,
+          "size": 312,
+          "sha256": "a11e0cd492068b75486cd9a8d2321ae512c1cfdc89c0029dcb32c290a6e7c09f"
+        },
+        "byte_identical": true
+      }
+    ],
+    "clbg_fannkuchredux": [
+      {
+        "name": "wasm[0]::function[14]::fannkuchredux#4",
+        "baseline": {
+          "offset": 1056,
+          "size": 2448,
+          "sha256": "7eca277dcbaedfd6095cd9888f732336fbd95aca344ad5b2fc41aaf6a0cfe08b"
+        },
+        "candidate": {
+          "offset": 1056,
+          "size": 2016,
+          "sha256": "336a7de2558170ab4361785fde4cb13f5ec9ed2f704797e8a75488e84aaabee0"
+        },
+        "byte_identical": false
+      }
+    ],
+    "hash_sha256": [
+      {
+        "name": "wasm[0]::function[14]::run#6",
+        "baseline": {
+          "offset": 1568,
+          "size": 3560,
+          "sha256": "d889e35afdef7d42ed39aeab48a26855fb66b8866197c94fe4c24c1f9d41e14d"
+        },
+        "candidate": {
+          "offset": 1568,
+          "size": 3272,
+          "sha256": "ad36fdf1342f61f885d65a2518c42ea5100512f5c15356e92fee14c822080dcb"
+        },
+        "byte_identical": false
+      },
+      {
+        "name": "wasm[0]::function[15]::binary::read_u32le#8",
+        "baseline": {
+          "offset": 5152,
+          "size": 379,
+          "sha256": "4a63f2cb35a862a59ad82498803c82163c7b05a74f2deed11a6397638f73df2e"
+        },
+        "candidate": {
+          "offset": 4864,
+          "size": 379,
+          "sha256": "4a63f2cb35a862a59ad82498803c82163c7b05a74f2deed11a6397638f73df2e"
+        },
+        "byte_identical": true
+      }
+    ]
+  },
+  "detailed_evidence": {
+    "path": "build/functions-init/static-hotcode/diagnosis.json",
+    "sha256": "bfc8568b9f3f458119700db66098770b1f6aa080569386dab24587fe1e3c5514",
+    "bytes": 21219
+  }
+}

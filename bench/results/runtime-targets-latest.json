@@ -1,14 +1,14 @@
 {
   "schema": "goose-runtime-reference-latest-v1",
-  "report": "2026-11-03/functions-calls/references.json",
+  "report": "2026-11-03/fresh-construction/references.json",
   "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
   "comparison": {
-    "report": "2026-11-03/functions-calls/final-warmed.json",
-    "sha256": "17930b21e604f7fd0184da404ad69b78b85bc9e1ece439ea921249e6dc52f914",
+    "report": "2026-11-03/fresh-construction/final-warmed.json",
+    "sha256": "a9b17568efbd0cb1c3cfd80edb27b5d37268717b9d2d5e48d887a9f90c4106bd",
     "compiler": "final"
   },
   "chart_verification": {
-    "report": "2026-11-03/functions-calls/target-chart-verification.json",
-    "sha256": "ef56fc39609d045147d6e14a6276817e065078ced8dd1923dba4e067ba03c56c"
+    "report": "2026-11-03/fresh-construction/target-chart-verification.json",
+    "sha256": "007014dfc3aa9eef15d92f248965bdc124211da0eb241320d91d166711a2b9a7"
   }
 }

@@ -1,0 +1,98 @@
+{
+  "schema": "goose-fresh-initialization-static-review-v1",
+  "status": "go-for-qualification",
+  "scope": "Read-only static source review; reviewer ran no builds, tests, engines or timing. This review does not claim completion of the ongoing broad qualification or establish a performance result.",
+  "inputs": {
+    "compiler": {
+      "path": "build/functions-init/final/bin/goose",
+      "sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+      "bytes": 8199176
+    },
+    "active_compiler_matches": true,
+    "source_manifest": {
+      "path": "build/functions-init/final/source.json",
+      "sha256": "f1bb1dad5374659d83f56feed04658fd42d07acd820c69a0a10457edc50de288",
+      "bytes": 3527
+    },
+    "all_managed_headers": {
+      "count": 32,
+      "current_equals_frozen_equals_manifest": true
+    },
+    "changed_headers": [
+      {
+        "path": "compiler/direct_wasm.h",
+        "sha256": "7a5c1f4f25bbe6d2932b8a9831552509ebce64d641fea8cb6421c13ea89f547f",
+        "bytes": 67232
+      },
+      {
+        "path": "compiler/direct_wasm_expr.h",
+        "sha256": "715b3c094a4f7bbaca82946156f0398e4e61ac5ca625d7367d66e87a472bbf93",
+        "bytes": 125911
+      },
+      {
+        "path": "compiler/direct_wasm_storage.h",
+        "sha256": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+        "bytes": 7389
+      }
+    ],
+    "test": {
+      "path": "tests/test_fresh_initialization.py",
+      "sha256": "649343c570828b158fd7b351c3d799191f197745395c660087a9eb2c88ef763b",
+      "bytes": 14287
+    },
+    "ci": {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "63672abaccee11cd85eb17f12d81a75775db9e861afe6289ae590d9e6c0c8fb4",
+      "bytes": 10975
+    },
+    "qualification_selection": {
+      "path": "build/functions-init/qualification/attempt-2/selected.json",
+      "sha256": "18356e88721b2064d2da15255011a386de2d38f70386a2ea12fce6757d45e06f",
+      "bytes": 1689
+    },
+    "qualification_input_manifest": {
+      "path": "build/functions-init/qualification/attempt-2/input-pins.json",
+      "sha256": "e3eca2974822d9fb095b932ef01d1b0b5c9f2b824f3ab14e7a8b2613178f3fdc",
+      "bytes": 134059
+    },
+    "qualification_input_count": 835
+  },
+  "review": [
+    "Eligibility requires an aggregate with closed SC_FIXED payload, no RegionOwner, and equal concrete representation/length contract at expression and destination. Profitability admits GLOBAL slots or statically limited inline-array destinations; local fixed-array and local record roots retain staging.",
+    "The literal-tree scan visits at most512 nonnull nodes per attempt and rejects unknown nodes, identifiers, references, SelfRef, casts, callbacks, dynamic capacities and nonliteral fill counts. Type/layout helper traversal is separate from that AST budget. No emission happens before a failed match returns.",
+    "Every nested default call must have exactly one natural result matching its checked contextual expression type. This rejects fixed-to-limited capacity adaptation inside an otherwise literal record before any direct outer write; fallback retains its Abort and prior global contents.",
+    "InitializeDecl calls the helper only for by-value FRAME/GLOBAL slots after owner handling. Other uses are fields of fresh aggregate construction. Ordinary ConstructInto and assignment snapshot order remain unchanged; nested pure fields can improve within the existing RHS temporary without publishing that RHS early.",
+    "AggregateLiteral, DefaultInto and StringInto retain full destination zero-fill, padding, array lengths, enum tags, declaration field order, fill-value evaluation once, and the existing per-element default loop/temporary scope. Exact destination types avoid removing runtime conversions.",
+    "Globals still initialize at every _start in original order. Admitted constructors have no observable call or fallible adaptation between their writes. Global static spans are in initial memory; frame spans remain covered by the existing reservation/check prologue. Less scratch storage may reduce resource demand; identical memory-exhaustion thresholds are not claimed.",
+    "CanonicalAddress is retained. Positive mappings originate only from separate FrameStruct result stages; current eligible globals/fresh fixed-frame destinations do not overlap those source ranges. Mapping receiving targets do not reverse-map. Text and globals have separate Data ranges, and frames start above data_end. Valid mappings/reentry therefore cannot alias StringInto destination with its static text source.",
+    "The broad all-fixed experiment is preserved separately with its measured regressions and static diagnosis. The final narrower policy contains no benchmark names, CPU-specific padding or engine-dependent behavior."
+  ],
+  "proof_source_files": [
+    {
+      "path": "compiler/direct_wasm_funvals.h",
+      "sha256": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "bytes": 13685
+    },
+    {
+      "path": "compiler/direct_wasm_emit.h",
+      "sha256": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+      "bytes": 23744
+    },
+    {
+      "path": "compiler/direct_wasm_effects.h",
+      "sha256": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+      "bytes": 16032
+    },
+    {
+      "path": "compiler/direct_wasm_landing.h",
+      "sha256": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+      "bytes": 23950
+    },
+    {
+      "path": "compiler/direct_wasm_publication.h",
+      "sha256": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+      "bytes": 4239
+    }
+  ],
+  "blockers": []
+}

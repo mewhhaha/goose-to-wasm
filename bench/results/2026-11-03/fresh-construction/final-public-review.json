@@ -1,0 +1,356 @@
+{
+  "schema": "goose-fresh-construction-public-review-v1",
+  "status": "passed",
+  "decision": "GO for packaging; archive closure audit remains separate and pending",
+  "reviewer": "Astra static review",
+  "created_utc": "2026-11-03T14:21:12.295419+00:00",
+  "scope": "Read-only review of final prose, exact report copies, retained raw arithmetic, compiler/source identities and chart/pointer bindings. No compiler, test, engine or benchmark execution.",
+  "compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+  "baseline_compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+  "performance_decision": {
+    "accepted": "Keep the narrow pure-global/local-limited construction policy for static code/copy reductions and independently confirmed repeated large-global initialization gains. No general process-time or warmed-kernel speedup claim.",
+    "functions": {
+      "wasm_bytes_before": 39702,
+      "wasm_bytes_after": 39363,
+      "reduction_percent": 0.8538612664349403,
+      "static_memory_copy_before": 267,
+      "static_memory_copy_after": 256,
+      "examples_smaller": 9,
+      "unchanged_example": "squares"
+    },
+    "independent_raw_recomputation": {
+      "final-warmed.json": {
+        "primary_observations_checked": 180,
+        "tasks": 10,
+        "paired_rounds": 9,
+        "geometric_speedup": {
+          "median": 0.9973581739197946,
+          "mad": 0.004086347231030962
+        },
+        "fannkuch_speedup": {
+          "median": 0.9958533949894157,
+          "mad": 0.005880135032021894
+        }
+      },
+      "final-v8.json": {
+        "primary_observations_checked": 180,
+        "tasks": 10,
+        "paired_rounds": 9,
+        "geometric_speedup": {
+          "median": 0.998051547891324,
+          "mad": 0.001416751558174889
+        },
+        "fannkuch_speedup": {
+          "median": 0.9836044118783469,
+          "mad": 0.0027356730008243346
+        },
+        "fannkuch_elapsed_increase_percent": 1.6668884282801333
+      }
+    },
+    "repeated_global_confirmation": {
+      "paired_blocks": 9,
+      "calls_per_compiler_per_block": 100,
+      "warmup_calls": 50,
+      "global_bytes": 8388608,
+      "wasmtime_baseline_ms": 0.54676305,
+      "wasmtime_final_ms": 0.11513285,
+      "wasmtime_paired_speedup": 4.717358166322619,
+      "wasmtime_ratio_mad": 0.2431896722666007,
+      "v8_baseline_ms": 0.45324925,
+      "v8_final_ms": 0.10263767,
+      "v8_paired_speedup": 4.3962003070779305,
+      "v8_ratio_mad": 0.07420070015514657,
+      "initial_memory_bytes_both": 8454144,
+      "post_warmup_memory_bytes_before": 16842752,
+      "post_warmup_memory_bytes_after": 8454144,
+      "validation": "Previously independently recomputed screen and confirmation from retained worker results; both report hashes remain unchanged. Per-call times include host call overhead, exclude compile/instantiate/process startup; memory is linear-memory size, not RSS. Separate screen and confirmation are not pooled."
+    },
+    "tradeoffs": [
+      "V8 Fannkuch is about 1.7% slower; all nine paired speedups below one. Public prose explicitly discloses it.",
+      "Broader all-fixed-local experiment remains rejected: about 4% Fannkuch and 6.7% Sudoku elapsed cost on Wasmtime. Static placement/register observations do not establish causation.",
+      "Final Fannkuch main and kernel Wasm bodies match baseline; _start changes. No V8 machine-code cause is established.",
+      "Fresh ordinary/AOT/native-C process cohorts are not paired against previous publication values. Shared-host observations are not exclusive-host guarantees."
+    ]
+  },
+  "qualification": {
+    "focused_commands": 70,
+    "cases": 978,
+    "differential_observations": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574,
+    "failures": 0,
+    "accepted_attempt": 2,
+    "sealed_input_count": 835,
+    "note": "Earlier static reviews correctly recorded ongoing qualification. The accepted second attempt now passed; the missing-emcc initial setup failure remains separate evidence."
+  },
+  "delivery_checks": {
+    "exact_public_source_pairs": 18,
+    "sequential_delivery_phases": 5,
+    "unchanged_delivery_input_pins": 1589,
+    "current_and_frozen_headers_checked": 32,
+    "public_latest_pointers": 4,
+    "pointer_hash_edges": 6,
+    "svg_count": 10,
+    "numeric_labels": 403,
+    "table_cells": 46,
+    "visual_review": "Root visual QA is recorded separately; all ten SVG and preview hashes verified here. No claim of a second independent visual inspection."
+  },
+  "claim_boundaries": [
+    "Compiler binary a8c5 is the measured and qualified candidate; baseline353 is explicit. Source/upstream/toolchain identities remain distinct.",
+    "Full static native host, warmed reference host, and Python bindings are different pinned builds at Wasmtime50.0.1. V8 is Node24.22.1/V813.6.233.17-node.58.",
+    "Selected references were built earlier but executed freshly; their selection samples are not the current comparison samples.",
+    "Full-process, preparation, warmed configured-iteration and repeated-entry timing boundaries remain separate. Static memory.copy counts are not dynamic operation counts.",
+    "Initial linear memory is identical in the focused fixture; only post-warmup footprint falls from16.0625 to8.0625MiB.",
+    "Planned bounded reuse of four functions-calls plus eight functions-forwarding archives and complete retained guest/source closure must be checked in the later archive audit."
+  ],
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "759ff78ed400f6f01c4bd91287b8d869b2372a9185efefcc69fe7c6753fcaf99"
+    },
+    {
+      "path": "docs/FUNCTIONS_PERFORMANCE.md",
+      "sha256": "255bec9d50f82aa0a5ad15ac799d5a294d47fc0cc4353d805961f6c38a0bebc6"
+    },
+    {
+      "path": "bench/examples.md",
+      "sha256": "3864a51afc4fc111f27c53f0750e341a407f3896479d1fa79c4b40f12e9dd83f"
+    },
+    {
+      "path": "bench/wasmtime-host.md",
+      "sha256": "668271e19a5b123356971191275fcee5dc903c846da01cabf029103b85df3217"
+    },
+    {
+      "path": "docs/PERFORMANCE_PLAN.md",
+      "sha256": "805e352726ab8e3e7ae931d0b79383165d4416ca48cac1f071f87e6eba53b4ff"
+    },
+    {
+      "path": "docs/RUNTIME_TARGETS.md",
+      "sha256": "83cdb9998f5ffc79d110a0e52a0c40b1dbd6aae1a391c668bedcd1ce1748627e"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/README.md",
+      "sha256": "3165ab6dbfb2f5e8930ee4d857a05372c573f9ad2aca0c3b4413fc5eb69356bc"
+    }
+  ],
+  "public_inputs": [
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/campaign.json",
+      "sha256": "941e48eaa7cb2c4052546a883e1670b4da8912cef3f5991c1b45ca0eb058a6fd"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/chart-verification.json",
+      "sha256": "359de7bec265e2a398469802f708a24a3be6d66d5c02a179335480749f831dc0"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/chart-visual-review.json",
+      "sha256": "4622e26c96548b56291dd12b1f91c760dceff820cb8debf72a87f3c6a71a8193"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/cohort.json",
+      "sha256": "a82106fbd40002f219e95da35204b91bbfb0a7fe3e5015a1dfa2504a2b794821"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/compiler-identity.json",
+      "sha256": "d6a6adb16ef5bb652827c5fc1325562fa7b81da344d4b2909a910c72cf8683f2"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/differential.json",
+      "sha256": "c3b1b4f7a00f00a6d813c43620ee78e72511931cae2ea343d417e6df97304777"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/examples.json",
+      "sha256": "673fcc44cc9f745c4917d2e584e461dd275f7dbd4fccdfb11e2b341e58918c43"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/final-numbers.json",
+      "sha256": "9a09e2bf544c8a5041688a1cc8c0f0bbe8a381862bc28f33230dc68f46305c5d"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/final-v8.json",
+      "sha256": "1424be2fa337d5c30255a09c3153a4c4eb6180604b24a466bb23887623a451d5"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/final-warmed.json",
+      "sha256": "a9b17568efbd0cb1c3cfd80edb27b5d37268717b9d2d5e48d887a9f90c4106bd"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/host-qualification.json",
+      "sha256": "1c4d26022d3efff2c228ca5e5c26bfde062448a04d4478be29d4cfd14b72f092"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/host.json",
+      "sha256": "24f0b493168006e5b704dea7474287855f318400605fb9bbb19c5ab756db3f59"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/initialization-confirmation.json",
+      "sha256": "e03ce644f3fbaf8adb3e1f8745bc26a4f9019bed423dae7e61c728a7ee6dfd84"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/initialization-screen.json",
+      "sha256": "8513446288f83ef7c8261b44b9103a50c27c4fa9a632930cc209555fa60b0616"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/module-analysis.json",
+      "sha256": "09f262b805bce72e955257df9aac91c4bee88fff2f21f92cf389bc29cfa0963c"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/qualification.json",
+      "sha256": "6c3d4470d3012d22476207629ab597dab1b2074904dc2072d87f193006bd4f48"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/readme.json",
+      "sha256": "28dde0ee03a6006c7bfbd022a50e9bba755a7942e9349988f70d459617da325f"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/references.json",
+      "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/rejected-warmed.json",
+      "sha256": "621ebcda9719bfd2ac8a14bbf39d091cbda662264f38c2faba6c66e6104c021d"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/static-diagnosis.json",
+      "sha256": "11b50569ad4122bfd5f7f36ccbfa173a6da6a16b00cc9a8bec48aaf1afc61928"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/static-review.json",
+      "sha256": "1ce300bc89794c9c69542a53ec4feb484caf852adc6ba261005a656a88af502d"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/table-verification.json",
+      "sha256": "8ca00508d7688219602317ef49ed5aaeb7dcfd30fad38b8c99c6c43eebee68d3"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/target-chart-verification.json",
+      "sha256": "007014dfc3aa9eef15d92f248965bdc124211da0eb241320d91d166711a2b9a7"
+    },
+    {
+      "path": "bench/results/2026-11-03/fresh-construction/test-static-review.json",
+      "sha256": "cdbc45f871ce28e30cf8b53680e484df34306a5d072f427a9d71631dc7b2310c"
+    }
+  ],
+  "latest_pointers": [
+    {
+      "path": "bench/results/examples-latest.json",
+      "sha256": "1f7f2ea344f671b93d04c9a3037481afb424b85473bb827e5526f457fad26ef3"
+    },
+    {
+      "path": "bench/results/latest.json",
+      "sha256": "ab0f699a76cafbc890244f86a4d9a21f9bff080fbdbd9191e25824cf17b85074"
+    },
+    {
+      "path": "bench/results/runtime-targets-latest.json",
+      "sha256": "e4d2ba049a4481f22525af7e722d2e403d4428a6bf98446578218ad309d5c20a"
+    },
+    {
+      "path": "bench/results/wasmtime-host-latest.json",
+      "sha256": "0a0b854411054844e18f32e6838ae42fe7d53ca748850a46ba88de505a5659e3"
+    }
+  ],
+  "charts": [
+    {
+      "path": "bench/charts/examples-compilation.svg",
+      "sha256": "8bbc6afad5e53519b32d4fce6689e903a609647a6f7fecaaf9e2682e67caa7e7"
+    },
+    {
+      "path": "bench/charts/examples-python-runtime.svg",
+      "sha256": "fbfcdf8a191531df7224871c5a98f6588bbf3fad3be515f93c48748f5a567820"
+    },
+    {
+      "path": "bench/charts/examples-entry.svg",
+      "sha256": "45612cbc4b27ca84995225e538e9576debda6dd751f237d9565fc0d6d2364436"
+    },
+    {
+      "path": "bench/charts/examples-runtime.svg",
+      "sha256": "4fd57a39be051e2dda1e438c7087b07a20b68706ab7ededc1f4e7595ff2b1ca0"
+    },
+    {
+      "path": "bench/charts/wasmtime-host-runtime.svg",
+      "sha256": "cbdef3a4c64073e836ff2f824201c0ace6a2258e6835ce66d5a5ac017620a78b"
+    },
+    {
+      "path": "bench/charts/wasmtime-host-c-wasm.svg",
+      "sha256": "2d1266deb87790e9a05d621490de8a1a6ae588b162cc3a8a017d937f1024b25e"
+    },
+    {
+      "path": "bench/charts/wasmtime-host-preparation.svg",
+      "sha256": "44a5ba722cea2f753b582fe9c6d1ff135045a62a39b12628cf0e1b19cb5d8e6e"
+    },
+    {
+      "path": "bench/charts/compilation.svg",
+      "sha256": "ff34cd11fc9cf62d2167dfe4434ea8b29149ae78bb3fce7757ab0fa4459425e1"
+    },
+    {
+      "path": "bench/charts/runtime.svg",
+      "sha256": "7acf5c8d05dbd792ab9b83b7dd0aa38eab2b34577c094f9535e246ce7dc1c1bb"
+    },
+    {
+      "path": "bench/charts/runtime-targets.svg",
+      "sha256": "d0c3abc0691377e9669ad63958dd95d6b4dc8e45d1036b28e9f161e0b2724692"
+    }
+  ],
+  "review_and_execution_inputs": [
+    {
+      "path": "build/functions-init/static-review.json",
+      "sha256": "1ce300bc89794c9c69542a53ec4feb484caf852adc6ba261005a656a88af502d"
+    },
+    {
+      "path": "build/functions-init/test-static-review.json",
+      "sha256": "cdbc45f871ce28e30cf8b53680e484df34306a5d072f427a9d71631dc7b2310c"
+    },
+    {
+      "path": "build/functions-init/static-diagnosis.json",
+      "sha256": "11b50569ad4122bfd5f7f36ccbfa173a6da6a16b00cc9a8bec48aaf1afc61928"
+    },
+    {
+      "path": "build/functions-init/delivery-execution/report.json",
+      "sha256": "8992065b9fbc6b101cb722aa74a45a64398f267e8df6ddbb307b46d39dd6b31c"
+    },
+    {
+      "path": "build/functions-init/qualification/attempt-2/execution.json",
+      "sha256": "55e9a47f656a20ae121c0817b0d4c601b490199f20cb734817e3d401d5c5878e"
+    },
+    {
+      "path": "build/functions-init/qualification/attempt-2/selected.json",
+      "sha256": "18356e88721b2064d2da15255011a386de2d38f70386a2ea12fce6757d45e06f"
+    },
+    {
+      "path": "build/functions-init/qualification/attempt-2/input-pins.json",
+      "sha256": "e3eca2974822d9fb095b932ef01d1b0b5c9f2b824f3ab14e7a8b2613178f3fdc"
+    },
+    {
+      "path": "build/functions-init/final/source.json",
+      "sha256": "f1bb1dad5374659d83f56feed04658fd42d07acd820c69a0a10457edc50de288"
+    },
+    {
+      "path": "build/functions-init/final/toolchain.json",
+      "sha256": "ed1241c348be4dfbf417fc241ebe62df70d351ef701863995460fc26f87457c1"
+    }
+  ],
+  "source_inputs": [
+    {
+      "path": "compiler/direct_wasm.h",
+      "sha256": "7a5c1f4f25bbe6d2932b8a9831552509ebce64d641fea8cb6421c13ea89f547f"
+    },
+    {
+      "path": "compiler/direct_wasm_expr.h",
+      "sha256": "715b3c094a4f7bbaca82946156f0398e4e61ac5ca625d7367d66e87a472bbf93"
+    },
+    {
+      "path": "compiler/direct_wasm_storage.h",
+      "sha256": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae"
+    },
+    {
+      "path": "tests/test_fresh_initialization.py",
+      "sha256": "649343c570828b158fd7b351c3d799191f197745395c660087a9eb2c88ef763b"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "63672abaccee11cd85eb17f12d81a75775db9e861afe6289ae590d9e6c0c8fb4"
+    }
+  ],
+  "blockers": []
+}

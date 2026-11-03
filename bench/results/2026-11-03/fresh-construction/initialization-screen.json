@@ -1,0 +1,1385 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/fixtures/global-copy-screen.goose",
+        "--offline",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-initial-pages",
+        "1",
+        "--wasm-max-pages",
+        "1024",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm"
+      ],
+      "cpu_affinity": [
+        2
+      ],
+      "elapsed_ns": 5239072,
+      "name": "compile-baseline",
+      "returncode": 0,
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-baseline.stderr",
+      "stderr_sha256": "7fa65b566338d3397fc6cca9c2e1af7e65c27afb74df3d390ac239190653dd63",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-baseline.stdout",
+      "stdout_sha256": "4c0862d1c5d142aa72c2eeaa02fc6cbe242bd753a4fcf159887d4315603762df"
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/fixtures/global-copy-screen.goose",
+        "--offline",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-initial-pages",
+        "1",
+        "--wasm-max-pages",
+        "1024",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm"
+      ],
+      "cpu_affinity": [
+        2
+      ],
+      "elapsed_ns": 3307255,
+      "name": "compile-final",
+      "returncode": 0,
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-final.stderr",
+      "stderr_sha256": "7fa65b566338d3397fc6cca9c2e1af7e65c27afb74df3d390ac239190653dd63",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-final.stdout",
+      "stdout_sha256": "fcaff270f140149291d30e7b6dbec04faaed961aa80df2e51016416cfc9e0fb8"
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_wasmtime.py",
+        "--module",
+        "baseline=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm",
+        "--module",
+        "final=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm",
+        "--warmups",
+        "50",
+        "--rounds",
+        "9",
+        "--calls",
+        "100",
+        "--seed",
+        "20261103"
+      ],
+      "cpu_affinity": [
+        2
+      ],
+      "elapsed_ns": 849219882,
+      "name": "engine-wasmtime",
+      "returncode": 0,
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-wasmtime.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-wasmtime.stdout",
+      "stdout_sha256": "2a01ed0c7d70edb690820a62f835ba441a83734d1ed310a40f7f099633be19c5"
+    },
+    {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_v8.mjs",
+        "--module",
+        "baseline=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm",
+        "--module",
+        "final=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm",
+        "--warmups",
+        "50",
+        "--rounds",
+        "9",
+        "--calls",
+        "100",
+        "--seed",
+        "20261104"
+      ],
+      "cpu_affinity": [
+        2
+      ],
+      "elapsed_ns": 836082545,
+      "name": "engine-v8",
+      "returncode": 0,
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-v8.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-v8.stdout",
+      "stdout_sha256": "9f10d963bf244a3dbd1e85baafd761f47becd0a9477d1bbeb9b955a214d2e192"
+    }
+  ],
+  "compile_phases": [
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/fixtures/global-copy-screen.goose",
+        "--offline",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-initial-pages",
+        "1",
+        "--wasm-max-pages",
+        "1024",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm"
+      ],
+      "compiler": "baseline",
+      "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+      "elapsed_ns": 5239072,
+      "module_bytes": 1271,
+      "module_sha256": "8cecb8538a48aab395645b893aac226679ceb79fe6572165e248056246b10fe2",
+      "output": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm",
+      "returncode": 0,
+      "started_unix_ns": 1793713776487192928,
+      "status": "passed",
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-baseline.stderr",
+      "stderr_sha256": "7fa65b566338d3397fc6cca9c2e1af7e65c27afb74df3d390ac239190653dd63",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-baseline.stdout",
+      "stdout_sha256": "4c0862d1c5d142aa72c2eeaa02fc6cbe242bd753a4fcf159887d4315603762df"
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/fixtures/global-copy-screen.goose",
+        "--offline",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "--wasm-initial-pages",
+        "1",
+        "--wasm-max-pages",
+        "1024",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm"
+      ],
+      "compiler": "final",
+      "compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+      "elapsed_ns": 3307255,
+      "module_bytes": 1118,
+      "module_sha256": "9f603f546f5fa2997acc0f4004dea6fee54aef582614a92bfbcdd7581539da27",
+      "output": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm",
+      "returncode": 0,
+      "started_unix_ns": 1793713776494756946,
+      "status": "passed",
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-final.stderr",
+      "stderr_sha256": "7fa65b566338d3397fc6cca9c2e1af7e65c27afb74df3d390ac239190653dd63",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/compile-final.stdout",
+      "stdout_sha256": "fcaff270f140149291d30e7b6dbec04faaed961aa80df2e51016416cfc9e0fb8"
+    }
+  ],
+  "compiler_identities": {
+    "baseline": {
+      "binary": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose",
+      "name": "baseline",
+      "root": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth",
+      "sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+      "source_sha256": "d85f9df915a734c2569f22aab58707791700c3ef85dbdab130915b48df1b026b",
+      "toolchain_sha256": "86385abb24762fc5e6650395e494d2ab71d9b4ae67eea737d8918e2d34fdf955"
+    },
+    "final": {
+      "binary": "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/goose",
+      "name": "final",
+      "root": "/home/jacobt/src/goose-to-wasm/build/functions-init/final",
+      "sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+      "source_sha256": "f1bb1dad5374659d83f56feed04658fd42d07acd820c69a0a10457edc50de288",
+      "toolchain_sha256": "ed1241c348be4dfbf417fc241ebe62df70d351ef701863995460fc26f87457c1"
+    }
+  },
+  "configuration": {
+    "calls_per_block": 100,
+    "cpu": 2,
+    "initial_pages": 1,
+    "maximum_pages": 1024,
+    "offline": true,
+    "optimization": "O2",
+    "paired_rounds": 9,
+    "scope": "Repeated _start calls inside one warm engine instance; excludes process startup and native comparison.",
+    "seed": 20261103,
+    "warmups_per_module_per_engine": 50
+  },
+  "engine_runs": {
+    "engine-v8": {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_v8.mjs",
+        "--module",
+        "baseline=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm",
+        "--module",
+        "final=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm",
+        "--warmups",
+        "50",
+        "--rounds",
+        "9",
+        "--calls",
+        "100",
+        "--seed",
+        "20261104"
+      ],
+      "result": {
+        "calls_per_round": 100,
+        "engine": {
+          "binary": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+          "binary_sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+          "name": "V8",
+          "node": "v24.22.1",
+          "v8": "13.6.233.17-node.58"
+        },
+        "modules": {
+          "baseline": {
+            "instantiate_ns": 43813,
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 16842752,
+            "memory_bytes_after_warmup": 16842752,
+            "module_bytes": 1271,
+            "module_compile_ns": 132542,
+            "module_sha256": "8cecb8538a48aab395645b893aac226679ceb79fe6572165e248056246b10fe2"
+          },
+          "final": {
+            "instantiate_ns": 26971,
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 8454144,
+            "memory_bytes_after_warmup": 8454144,
+            "module_bytes": 1118,
+            "module_compile_ns": 44355,
+            "module_sha256": "9f603f546f5fa2997acc0f4004dea6fee54aef582614a92bfbcdd7581539da27"
+          }
+        },
+        "observations": [
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 10392302,
+            "ns_per_call": 103923.02,
+            "round": 0
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 62468337,
+            "ns_per_call": 624683.37,
+            "round": 0
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 10354951,
+            "ns_per_call": 103549.51,
+            "round": 1
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 51243571,
+            "ns_per_call": 512435.71,
+            "round": 1
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 10280408,
+            "ns_per_call": 102804.08,
+            "round": 2
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 56955824,
+            "ns_per_call": 569558.24,
+            "round": 2
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 48830077,
+            "ns_per_call": 488300.77,
+            "round": 3
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 10275449,
+            "ns_per_call": 102754.49,
+            "round": 3
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 9800615,
+            "ns_per_call": 98006.15,
+            "round": 4
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 51461847,
+            "ns_per_call": 514618.47,
+            "round": 4
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 10316217,
+            "ns_per_call": 103162.17,
+            "round": 5
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 61976501,
+            "ns_per_call": 619765.01,
+            "round": 5
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 10338409,
+            "ns_per_call": 103384.09,
+            "round": 6
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 52516293,
+            "ns_per_call": 525162.93,
+            "round": 6
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 10270489,
+            "ns_per_call": 102704.89,
+            "round": 7
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 93722989,
+            "ns_per_call": 937229.89,
+            "round": 7
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "baseline",
+            "elapsed_ns": 65295368,
+            "ns_per_call": 652953.68,
+            "round": 8
+          },
+          {
+            "calls": 100,
+            "checksum": "0",
+            "compiler": "final",
+            "elapsed_ns": 9878644,
+            "ns_per_call": 98786.44,
+            "round": 8
+          }
+        ],
+        "round_order": [
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ]
+        ],
+        "rounds": 9,
+        "seed": 20261104,
+        "warmup_order": [
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ]
+        ],
+        "warmups": 50
+      },
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-v8.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-v8.stdout",
+      "stdout_sha256": "9f10d963bf244a3dbd1e85baafd761f47becd0a9477d1bbeb9b955a214d2e192"
+    },
+    "engine-wasmtime": {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_wasmtime.py",
+        "--module",
+        "baseline=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm",
+        "--module",
+        "final=/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm",
+        "--warmups",
+        "50",
+        "--rounds",
+        "9",
+        "--calls",
+        "100",
+        "--seed",
+        "20261103"
+      ],
+      "result": {
+        "calls_per_round": 100,
+        "engine": {
+          "engine_binaries": [
+            {
+              "path": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so",
+              "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178"
+            }
+          ],
+          "name": "Wasmtime Python",
+          "package_path": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/__init__.py",
+          "package_sha256": "bd4d388a475a422e70f8ddbb93ba628741d5fb359639e1035f0fe2ea032c62ba",
+          "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+          "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]",
+          "version": "50.0.1"
+        },
+        "engine_config": {
+          "cranelift_opt_level": "speed"
+        },
+        "modules": {
+          "baseline": {
+            "instantiate_ns": 136079,
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 16842752,
+            "memory_bytes_after_warmup": 16842752,
+            "module_bytes": 1271,
+            "module_compile_ns": 2369381,
+            "module_sha256": "8cecb8538a48aab395645b893aac226679ceb79fe6572165e248056246b10fe2"
+          },
+          "final": {
+            "instantiate_ns": 67158,
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 8454144,
+            "memory_bytes_after_warmup": 8454144,
+            "module_bytes": 1118,
+            "module_compile_ns": 1118819,
+            "module_sha256": "9f603f546f5fa2997acc0f4004dea6fee54aef582614a92bfbcdd7581539da27"
+          }
+        },
+        "observations": [
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 52175335,
+            "ns_per_call": 521753.35,
+            "round": 0
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11617584,
+            "ns_per_call": 116175.84,
+            "round": 0
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 51100088,
+            "ns_per_call": 511000.88,
+            "round": 1
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11477517,
+            "ns_per_call": 114775.17,
+            "round": 1
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11039604,
+            "ns_per_call": 110396.04,
+            "round": 2
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 69915262,
+            "ns_per_call": 699152.62,
+            "round": 2
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 51171614,
+            "ns_per_call": 511716.14,
+            "round": 3
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11481214,
+            "ns_per_call": 114812.14,
+            "round": 3
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 51178857,
+            "ns_per_call": 511788.57,
+            "round": 4
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11636881,
+            "ns_per_call": 116368.81,
+            "round": 4
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11132660,
+            "ns_per_call": 111326.6,
+            "round": 5
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 53822350,
+            "ns_per_call": 538223.5,
+            "round": 5
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 54035586,
+            "ns_per_call": 540355.86,
+            "round": 6
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11477457,
+            "ns_per_call": 114774.57,
+            "round": 6
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 79684658,
+            "ns_per_call": 796846.58,
+            "round": 7
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 11444435,
+            "ns_per_call": 114444.35,
+            "round": 7
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "final",
+            "elapsed_ns": 10989639,
+            "ns_per_call": 109896.39,
+            "round": 8
+          },
+          {
+            "calls": 100,
+            "checksum": 0,
+            "compiler": "baseline",
+            "elapsed_ns": 62560762,
+            "ns_per_call": 625607.62,
+            "round": 8
+          }
+        ],
+        "round_order": [
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ]
+        ],
+        "rounds": 9,
+        "seed": 20261103,
+        "warmup_order": [
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "final"
+          ],
+          [
+            "final",
+            "baseline"
+          ]
+        ],
+        "warmups": 50
+      },
+      "stderr_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-wasmtime.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/logs/engine-wasmtime.stdout",
+      "stdout_sha256": "2a01ed0c7d70edb690820a62f835ba441a83734d1ed310a40f7f099633be19c5"
+    }
+  },
+  "engine_versions_expected": {
+    "emscripten": "6.0.13",
+    "emsdk_repository": "https://github.com/emscripten-core/emsdk.git",
+    "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154",
+    "minimum_cmake": "3.27",
+    "minimum_python": "3.10",
+    "node": "24.22.1",
+    "patches": [
+      "oracle/patches/0001-webassembly-target.patch",
+      "patches/direct-target.patch"
+    ],
+    "repository": "https://github.com/aardappel/goose.git",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "schema": "goose-to-wasm-toolchain-v1",
+    "v8": "13.6.233.17-node.58",
+    "wasmtime_python": "50.0.1"
+  },
+  "environment": {
+    "controls": {
+      "BINARYEN_CORES": null,
+      "GOOSE_STDLIB": null,
+      "LD_LIBRARY_PATH": null,
+      "LD_PRELOAD": null,
+      "OMP_NUM_THREADS": null,
+      "RAYON_NUM_THREADS": null
+    },
+    "cpu_affinity_before": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44",
+    "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]"
+  },
+  "finished_unix_ns": 1793713778429016476,
+  "input_sha256": {
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/__init__.py": "bd4d388a475a422e70f8ddbb93ba628741d5fb359639e1035f0fe2ea032c62ba",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/include/goose.h": "197478d1694847146f714ea3df1372e3d710644580b72603de8273d3c59d00a9",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm.h": "4e6ec6cb352bcac249eed3531ba56c86132bbc53af3b83db8ce3e4fc23ff1932",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_emit.h": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_expr.h": "cf706bbae7c164b37b3eef859c68796d63eb8dc4ff2a893559cc79d8b99ee886",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_storage.h": "04e51f7170a31cc440f791cabe428223468b62f7f8f13c17c7321e0e97d34356",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/source.json": "d85f9df915a734c2569f22aab58707791700c3ef85dbdab130915b48df1b026b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/toolchain.json": "86385abb24762fc5e6650395e494d2ab71d9b4ae67eea737d8918e2d34fdf955",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/goose": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/include/goose.h": "197478d1694847146f714ea3df1372e3d710644580b72603de8273d3c59d00a9",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm.h": "7a5c1f4f25bbe6d2932b8a9831552509ebce64d641fea8cb6421c13ea89f547f",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_emit.h": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_expr.h": "715b3c094a4f7bbaca82946156f0398e4e61ac5ca625d7367d66e87a472bbf93",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/source.json": "f1bb1dad5374659d83f56feed04658fd42d07acd820c69a0a10457edc50de288",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/toolchain.json": "ed1241c348be4dfbf417fc241ebe62df70d351ef701863995460fc26f87457c1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/fixtures/global-copy-screen.goose": "f946a60779b56b8283f5763f0771407c03f43abaa2a8ded047d18ff14b961eab",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm": "8cecb8538a48aab395645b893aac226679ceb79fe6572165e248056246b10fe2",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm": "9f603f546f5fa2997acc0f4004dea6fee54aef582614a92bfbcdd7581539da27",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_v8.mjs": "490cdc634f819c324fcc7accffd39e62060cd4235be07c56276cec7f4e074231",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_wasmtime.py": "6f377d6764716d919483b96b3c234d81a724dafeb54a8de6502711a1dd1e4b4e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/measure_initialization.py": "276b1b6e66c43c8ae47768ca2bab04c5f4a491b9c5c31034d4dcf6438f892ffb",
+    "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5"
+  },
+  "input_sha256_after": {
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/__init__.py": "bd4d388a475a422e70f8ddbb93ba628741d5fb359639e1035f0fe2ea032c62ba",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/include/goose.h": "197478d1694847146f714ea3df1372e3d710644580b72603de8273d3c59d00a9",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm.h": "4e6ec6cb352bcac249eed3531ba56c86132bbc53af3b83db8ce3e4fc23ff1932",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_emit.h": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_expr.h": "cf706bbae7c164b37b3eef859c68796d63eb8dc4ff2a893559cc79d8b99ee886",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_storage.h": "04e51f7170a31cc440f791cabe428223468b62f7f8f13c17c7321e0e97d34356",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/compiler/wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/source.json": "d85f9df915a734c2569f22aab58707791700c3ef85dbdab130915b48df1b026b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/toolchain.json": "86385abb24762fc5e6650395e494d2ab71d9b4ae67eea737d8918e2d34fdf955",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/goose": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/include/goose.h": "197478d1694847146f714ea3df1372e3d710644580b72603de8273d3c59d00a9",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm.h": "7a5c1f4f25bbe6d2932b8a9831552509ebce64d641fea8cb6421c13ea89f547f",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_emit.h": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_expr.h": "715b3c094a4f7bbaca82946156f0398e4e61ac5ca625d7367d66e87a472bbf93",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/compiler/wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/source.json": "f1bb1dad5374659d83f56feed04658fd42d07acd820c69a0a10457edc50de288",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/final/toolchain.json": "ed1241c348be4dfbf417fc241ebe62df70d351ef701863995460fc26f87457c1",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/fixtures/global-copy-screen.goose": "f946a60779b56b8283f5763f0771407c03f43abaa2a8ded047d18ff14b961eab",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/baseline.wasm": "8cecb8538a48aab395645b893aac226679ceb79fe6572165e248056246b10fe2",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization-screen/final.wasm": "9f603f546f5fa2997acc0f4004dea6fee54aef582614a92bfbcdd7581539da27",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_v8.mjs": "490cdc634f819c324fcc7accffd39e62060cd4235be07c56276cec7f4e074231",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_wasmtime.py": "6f377d6764716d919483b96b3c234d81a724dafeb54a8de6502711a1dd1e4b4e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/measure_initialization.py": "276b1b6e66c43c8ae47768ca2bab04c5f4a491b9c5c31034d4dcf6438f892ffb",
+    "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5"
+  },
+  "measurement_script": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/functions-init/measure_initialization.py",
+    "sha256": "276b1b6e66c43c8ae47768ca2bab04c5f4a491b9c5c31034d4dcf6438f892ffb"
+  },
+  "schema": "goose-initialization-screen-v1",
+  "source": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/functions-init/fixtures/global-copy-screen.goose",
+    "sha256": "f946a60779b56b8283f5763f0771407c03f43abaa2a8ded047d18ff14b961eab"
+  },
+  "started_unix_ns": 1793713776354749826,
+  "status": "passed",
+  "workers": {
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_v8.mjs": "490cdc634f819c324fcc7accffd39e62060cd4235be07c56276cec7f4e074231",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/initialization_wasmtime.py": "6f377d6764716d919483b96b3c234d81a724dafeb54a8de6502711a1dd1e4b4e"
+  }
+}

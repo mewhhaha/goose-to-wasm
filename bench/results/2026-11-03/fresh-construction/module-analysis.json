@@ -1,0 +1,233 @@
+{
+  "schema": "goose-fresh-module-analysis-v1",
+  "status": "passed",
+  "method": "Same unchanged example source and O2 compilation. Static memory.copy counts from LLVM objdump; counts are instructions, not dynamic copies. activation_bytes is configured activation partition and is not an individual frame-size measurement.",
+  "source_report": "build/functions-init/shapes/report.json",
+  "source_report_sha256": "4429318b0c335d0db7ebdf0a1b9141e1fcdd6f86c76be806da89834cdc863ead",
+  "compilers": {
+    "baseline": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+    "candidate": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352"
+  },
+  "examples": [
+    {
+      "task": "errors",
+      "baseline": {
+        "bytes": 23597,
+        "sha256": "452d36fbea81bae0649bb5f460c6a73c350cea2d76055f6969cbe7409c5b565f",
+        "copies": 81,
+        "activation_bytes": 5591760,
+        "stats": "build/functions-init/shapes/errors-baseline.json",
+        "wasm": "build/functions-init/shapes/errors-baseline.wasm"
+      },
+      "final": {
+        "bytes": 23415,
+        "sha256": "d40d973ab789778c163789104f0a3f9e132df441e95d2abd93c96ace95e5662d",
+        "copies": 76,
+        "activation_bytes": 5591760,
+        "stats": "build/functions-init/shapes/errors-candidate.json",
+        "wasm": "build/functions-init/shapes/errors-candidate.wasm"
+      },
+      "bytes_saved": 182,
+      "percent_smaller": 0.7712844853159262,
+      "copies_removed": 5
+    },
+    {
+      "task": "functions",
+      "baseline": {
+        "bytes": 39702,
+        "sha256": "89ae88e0c71b8d6ce9f3f56abcfec7a6001db087e364f36bff36ff1fd74e6e72",
+        "copies": 267,
+        "activation_bytes": 2795928,
+        "stats": "build/functions-init/shapes/functions-baseline.json",
+        "wasm": "build/functions-init/shapes/functions-baseline.wasm"
+      },
+      "final": {
+        "bytes": 39363,
+        "sha256": "3ed6439cec1457ee7e37dbb7c1ea34ae3702126bebbc4ca95af24b59d55ba572",
+        "copies": 256,
+        "activation_bytes": 2795928,
+        "stats": "build/functions-init/shapes/functions-candidate.json",
+        "wasm": "build/functions-init/shapes/functions-candidate.wasm"
+      },
+      "bytes_saved": 339,
+      "percent_smaller": 0.853861266434941,
+      "copies_removed": 11
+    },
+    {
+      "task": "life",
+      "baseline": {
+        "bytes": 17511,
+        "sha256": "af06e91d661188923b4009d5784ea16960fae5cf447f5f9f5271ccfbaf6821c9",
+        "copies": 18,
+        "activation_bytes": 2795968,
+        "stats": "build/functions-init/shapes/life-baseline.json",
+        "wasm": "build/functions-init/shapes/life-baseline.wasm"
+      },
+      "final": {
+        "bytes": 17426,
+        "sha256": "b951c90259a26337013a7b61e0c51e055a96e35b85c8e0b5fcafcea3f498db13",
+        "copies": 17,
+        "activation_bytes": 2795968,
+        "stats": "build/functions-init/shapes/life-candidate.json",
+        "wasm": "build/functions-init/shapes/life-candidate.wasm"
+      },
+      "bytes_saved": 85,
+      "percent_smaller": 0.4854091713779929,
+      "copies_removed": 1
+    },
+    {
+      "task": "maze",
+      "baseline": {
+        "bytes": 18339,
+        "sha256": "dd48118b406f3904d8edb1a02edebeeba0785cd3430d7fb29adb185a67ebfc48",
+        "copies": 43,
+        "activation_bytes": 3355056,
+        "stats": "build/functions-init/shapes/maze-baseline.json",
+        "wasm": "build/functions-init/shapes/maze-baseline.wasm"
+      },
+      "final": {
+        "bytes": 18251,
+        "sha256": "1515f6f2c6d4dc3ede3c382f486e20094cf2ce1b57bccbe950d48ffdd7655a0f",
+        "copies": 42,
+        "activation_bytes": 3355056,
+        "stats": "build/functions-init/shapes/maze-candidate.json",
+        "wasm": "build/functions-init/shapes/maze-candidate.wasm"
+      },
+      "bytes_saved": 88,
+      "percent_smaller": 0.4798516822073218,
+      "copies_removed": 1
+    },
+    {
+      "task": "sieve",
+      "baseline": {
+        "bytes": 6477,
+        "sha256": "c7fa6420f1634263197567b262a415f7fa89a556da535c0d2651065f0f8d75e8",
+        "copies": 9,
+        "activation_bytes": 5591888,
+        "stats": "build/functions-init/shapes/sieve-baseline.json",
+        "wasm": "build/functions-init/shapes/sieve-baseline.wasm"
+      },
+      "final": {
+        "bytes": 6390,
+        "sha256": "35abf28f6a859b46db0ed2ce2d21c504240bdf5776c48cf3db34475d4828fc7e",
+        "copies": 8,
+        "activation_bytes": 5591888,
+        "stats": "build/functions-init/shapes/sieve-candidate.json",
+        "wasm": "build/functions-init/shapes/sieve-candidate.wasm"
+      },
+      "bytes_saved": 87,
+      "percent_smaller": 1.3432144511347888,
+      "copies_removed": 1
+    },
+    {
+      "task": "sorting",
+      "baseline": {
+        "bytes": 48533,
+        "sha256": "ea1232c5abeb93fbbf2baecf171bebc417ee74deadaed856beede2ea568adb5e",
+        "copies": 180,
+        "activation_bytes": 1677552,
+        "stats": "build/functions-init/shapes/sorting-baseline.json",
+        "wasm": "build/functions-init/shapes/sorting-baseline.wasm"
+      },
+      "final": {
+        "bytes": 48269,
+        "sha256": "139e40c34c1f1c94e4fa5877a8917c7d6fd1ef18f35cd0cc1a81e09bdba0b1bb",
+        "copies": 172,
+        "activation_bytes": 1677552,
+        "stats": "build/functions-init/shapes/sorting-candidate.json",
+        "wasm": "build/functions-init/shapes/sorting-candidate.wasm"
+      },
+      "bytes_saved": 264,
+      "percent_smaller": 0.543959779943548,
+      "copies_removed": 8
+    },
+    {
+      "task": "squares",
+      "baseline": {
+        "bytes": 1375,
+        "sha256": "6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc",
+        "copies": 1,
+        "activation_bytes": 16776128,
+        "stats": "build/functions-init/shapes/squares-baseline.json",
+        "wasm": "build/functions-init/shapes/squares-baseline.wasm"
+      },
+      "final": {
+        "bytes": 1375,
+        "sha256": "6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc",
+        "copies": 1,
+        "activation_bytes": 16776128,
+        "stats": "build/functions-init/shapes/squares-candidate.json",
+        "wasm": "build/functions-init/shapes/squares-candidate.wasm"
+      },
+      "bytes_saved": 0,
+      "percent_smaller": 0.0,
+      "copies_removed": 0
+    },
+    {
+      "task": "sudoku",
+      "baseline": {
+        "bytes": 9318,
+        "sha256": "1f8b9fad87366f937db0ef062c455499c8cf5e502757456b1a1803064a04c3d0",
+        "copies": 17,
+        "activation_bytes": 8387768,
+        "stats": "build/functions-init/shapes/sudoku-baseline.json",
+        "wasm": "build/functions-init/shapes/sudoku-baseline.wasm"
+      },
+      "final": {
+        "bytes": 9231,
+        "sha256": "6a42be1c36beb1b620311cf4c136d2d419f9dcda124f5db3c6564b2176d7d0ca",
+        "copies": 16,
+        "activation_bytes": 8387768,
+        "stats": "build/functions-init/shapes/sudoku-candidate.json",
+        "wasm": "build/functions-init/shapes/sudoku-candidate.wasm"
+      },
+      "bytes_saved": 87,
+      "percent_smaller": 0.9336767546683888,
+      "copies_removed": 1
+    },
+    {
+      "task": "tour",
+      "baseline": {
+        "bytes": 35640,
+        "sha256": "abcdbfb262f0c8cb481aa9fc4430a3bbdde518081d6639d38d06710ec5e314a2",
+        "copies": 64,
+        "activation_bytes": 3355104,
+        "stats": "build/functions-init/shapes/tour-baseline.json",
+        "wasm": "build/functions-init/shapes/tour-baseline.wasm"
+      },
+      "final": {
+        "bytes": 35592,
+        "sha256": "f7d6ede315a3e57039c02d18f94024499d3ba2af1ea9901f06b341293e7deb06",
+        "copies": 62,
+        "activation_bytes": 3355104,
+        "stats": "build/functions-init/shapes/tour-candidate.json",
+        "wasm": "build/functions-init/shapes/tour-candidate.wasm"
+      },
+      "bytes_saved": 48,
+      "percent_smaller": 0.13468013468013185,
+      "copies_removed": 2
+    },
+    {
+      "task": "vm",
+      "baseline": {
+        "bytes": 25421,
+        "sha256": "57e837325fcbb456f996b278a87c750a6e635a4cd77dca2e6d7323365ed65995",
+        "copies": 65,
+        "activation_bytes": 4193888,
+        "stats": "build/functions-init/shapes/vm-baseline.json",
+        "wasm": "build/functions-init/shapes/vm-baseline.wasm"
+      },
+      "final": {
+        "bytes": 25238,
+        "sha256": "6a55b471e4e085d0cdcf5b9b44641ee1c03f5abe09dd89281e5933db440ef10a",
+        "copies": 62,
+        "activation_bytes": 4193888,
+        "stats": "build/functions-init/shapes/vm-candidate.json",
+        "wasm": "build/functions-init/shapes/vm-candidate.wasm"
+      },
+      "bytes_saved": 183,
+      "percent_smaller": 0.7198772668266407,
+      "copies_removed": 3
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "documented_command_and_explicit_package_results_byte_equal": true,
+  "checks": [
+    {
+      "name": "documented-no-arguments",
+      "command": [
+        "python",
+        "-B",
+        "bench/results/2026-11-03/fresh-construction/reproduction/verify.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 13.580881459027296,
+      "log": "/home/jacobt/src/goose-to-wasm/build/functions-init/documented-no-arguments-verification.log"
+    },
+    {
+      "name": "explicit-package",
+      "command": [
+        "python",
+        "-B",
+        "bench/results/2026-11-03/fresh-construction/reproduction/verify.py",
+        "--package",
+        "bench/results/2026-11-03/fresh-construction",
+        "--report",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/package-verification.json"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 13.90647302599973,
+      "log": "/home/jacobt/src/goose-to-wasm/build/functions-init/explicit-package-verification.log"
+    }
+  ],
+  "verifier_sha256": "8c14704587e9432c2740cf42d9b191c2fc2c200a3c5003b65820d37fb97f360c",
+  "verification_sha256": "2b8c5ee46f1c52b684eeb6b264f52df89660803a1df0dba5556a129cccd0147b"
+}

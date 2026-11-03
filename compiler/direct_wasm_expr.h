@@ -280,6 +280,8 @@ inline void Function::InitializeDecl(VarDecl *n, const PreparedDecl &prepared) {
             continue;
         }
         if (!init) continue;
+        if (!n->byref && (slots[i].kind == Slot::FRAME || slots[i].kind == Slot::GLOBAL) &&
+            ConstructFreshInto(init, { slots[i].type, slots[i] })) continue;
         if (n->byref && init->exprtype->kind != TY_REF) Address(init);
         else To(init, slots[i].type);
         StoreCopy({ slots[i].type, slots[i] }, CaptureStack(slots[i].type));
@@ -410,14 +412,16 @@ inline bool Function::SelectAssignment(IfExpr *node) {
     return true;
 }
 
-inline void Function::AggregateLiteral(Node *n) {
+inline void Function::AggregateLiteral(Node *n, const ConstructionDestination *receiving) {
     auto t = n->exprtype;
     if (!c.Aggregate(t)) Fail(n->line, "this array/struct literal requires unsupported variable-size storage");
     auto integer_literal = [](Node *node, TypeExpr *type) {
         return Is<IntLit>(node) && IsIntT(type) && !Compiler::Varint(type) &&
             IsIntT(node->exprtype) && node->exprtype->intstorage == type->intstorage;
     };
-    auto destination = FreshDestination(t, ConstructionDestination::Statement);
+    ConstructionDestination destination;
+    if (receiving) destination = *receiving;
+    else destination = FreshDestination(t, ConstructionDestination::Statement);
     auto place = destination.location;
     LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
     if (auto a = Is<ArrayLit>(n)) {
@@ -432,7 +436,9 @@ inline void Function::AggregateLiteral(Node *n) {
             // Goose evaluates a fill value once, then copies it into each slot.
             To(a->fillval, elem);
             if (integer_literal(a->fillval, elem) && static_cast<IntLit *>(a->fillval)->val == 0) {
-                code.Op(0x1a); LocationAddress(place); return;
+                code.Op(0x1a);
+                if (!receiving) LocationAddress(place);
+                return;
             }
             auto value = Save(elem);
             auto i = Local(I32); code.I32Const(0); Set(i);
@@ -446,7 +452,9 @@ inline void Function::AggregateLiteral(Node *n) {
             for (size_t i = 0; i < a->elems.size(); i++) {
                 bool literal = integer_literal(a->elems[i], elem);
                 if (can_skip_zero && literal && static_cast<IntLit *>(a->elems[i])->val == 0) continue;
-                ConstructInto(a->elems[i], { OffsetLocation(place, start + uint32_t(i) * stride, elem), ConstructionDestination::Statement });
+                auto field = OffsetLocation(place, start + uint32_t(i) * stride, elem);
+                if (!ConstructFreshInto(a->elems[i], field))
+                    ConstructInto(a->elems[i], { field, ConstructionDestination::Statement });
                 if (!literal) can_skip_zero = false;
             }
         }
@@ -470,11 +478,42 @@ inline void Function::AggregateLiteral(Node *n) {
             if (!ft) continue; // Padding retains a declaration index, not an initializer.
             bool literal = integer_literal(init, ft);
             if (can_skip_zero && literal && static_cast<IntLit *>(init)->val == 0) continue;
-            ConstructInto(init, { OffsetLocation(place, payload + layout.fields[fi], ft), ConstructionDestination::Statement });
+            auto field = OffsetLocation(place, payload + layout.fields[fi], ft);
+            if (!ConstructFreshInto(init, field)) ConstructInto(init, { field, ConstructionDestination::Statement });
             if (!literal) can_skip_zero = false;
         }
     }
-    LocationAddress(place);
+    if (!receiving) LocationAddress(place);
+}
+
+inline void Function::DefaultInto(Call *n, const ConstructionDestination &destination) {
+    auto t = n->rettypes[0];
+    auto place = destination.location;
+    LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
+    if (!n->defaultinit) return;
+    if (t->kind == TY_ARRAY && t->arr->akind == A_FIXED) {
+        auto i = Local(I32); code.I32Const(0); Set(i);
+        auto done = Begin(), loop = Begin(0x03);
+        Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
+        auto scope = BeginTempScope(n->defaultinit);
+        LocationAddress(place); Get(i); code.I32Const(int32_t(c.Size(t->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
+        To(n->defaultinit, t->arr->sub); Store(t->arr->sub);
+        EndTempScope(scope);
+        Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
+    } else if (t->kind != TY_ARRAY && !ConstructFreshInto(n->defaultinit, place))
+        ConstructInto(n->defaultinit, destination);
+}
+
+inline void Function::StringInto(StrLit *n, const Location &place) {
+    auto type = place.storage_type;
+    auto off = c.Text(n->val);
+    if (n->val.size() > uint64_t(type->arr->size)) Fail(n->line, "string exceeds its fixed-array destination");
+    LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(type).size)); code.Fill();
+    if (type->arr->akind == A_LIMITED) {
+        LocationAddress(place); code.I32Const(int32_t(n->val.size())); WriteStaticArrayLength(type);
+    }
+    LocationAddress(OffsetLocation(place, c.Size(type).payload, type->arr->sub));
+    code.I32Const(int32_t(off)); code.I32Const(int32_t(n->val.size())); code.Copy();
 }
 
 inline void Function::Slice(SliceExpr *n) {
@@ -1671,21 +1710,8 @@ inline void Function::Builtin(Call *n, bool adapt_result) {
                 Zero(W(t)); if (adapt_result) Convert(t, n->exprtype, n->line); return;
             }
             auto destination = FreshDestination(t, ConstructionDestination::Statement);
-            auto place = destination.location;
-            LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
-            if (n->defaultinit) {
-                if (t->kind == TY_ARRAY && t->arr->akind == A_FIXED) {
-                    auto i = Local(I32); code.I32Const(0); Set(i);
-                    auto done = Begin(), loop = Begin(0x03);
-                    Get(i); code.I32Const(int32_t(t->arr->size)); code.Op(0x4f); Br(done, true);
-                    auto scope = BeginTempScope(n->defaultinit);
-                    LocationAddress(place); Get(i); code.I32Const(int32_t(c.Size(t->arr->sub).size)); code.Op(0x6c); code.Op(0x6a);
-                    To(n->defaultinit, t->arr->sub); Store(t->arr->sub);
-                    EndTempScope(scope);
-                    Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
-                } else if (t->kind != TY_ARRAY) ConstructInto(n->defaultinit, destination);
-            }
-            LocationAddress(place); if (adapt_result) Convert(t, n->exprtype, n->line); return;
+            DefaultInto(n, destination);
+            LocationAddress(destination.location); if (adapt_result) Convert(t, n->exprtype, n->line); return;
         }
         default: Fail(n->line, "builtin '" + string(BuiltinByKind(n->builtin).name) + "' is not supported by the direct backend");
     }
@@ -1868,18 +1894,14 @@ inline void Function::Expr(Node *n) {
         case NK_BoolLit: code.I32Const(static_cast<BoolLit *>(n)->val ? 1 : 0); return;
         case NK_NullLit: W(n->exprtype); code.I32Const(0); return;
         case NK_StrLit: {
-            auto x = static_cast<StrLit *>(n); auto off = c.Text(x->val);
-            if (n->exprtype->kind == TY_SLICE) code.I64Const(int64_t((uint64_t(x->val.size()) << 32) | off));
+            auto x = static_cast<StrLit *>(n);
+            if (n->exprtype->kind == TY_SLICE) {
+                auto off = c.Text(x->val);
+                code.I64Const(int64_t((uint64_t(x->val.size()) << 32) | off));
+            }
             else if (n->exprtype->kind == TY_ARRAY) {
-                auto size = c.Size(n->exprtype).size;
-                if (x->val.size() > uint64_t(n->exprtype->arr->size)) Fail(n->line, "string exceeds its fixed-array destination");
                 auto dest = FreshDestination(n->exprtype, ConstructionDestination::Statement).location;
-                LocationAddress(dest); code.I32Const(0); code.I32Const(int32_t(size)); code.Fill();
-                if (n->exprtype->arr->akind == A_LIMITED) {
-                    LocationAddress(dest); code.I32Const(int32_t(x->val.size())); WriteStaticArrayLength(n->exprtype);
-                }
-                LocationAddress(OffsetLocation(dest, c.Size(n->exprtype).payload, n->exprtype->arr->sub));
-                code.I32Const(int32_t(off)); code.I32Const(int32_t(x->val.size())); code.Copy();
+                StringInto(x, dest);
                 LocationAddress(dest);
             }
             else Fail(n->line, "unsupported string representation");

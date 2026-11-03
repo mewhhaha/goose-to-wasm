@@ -87,6 +87,42 @@ inline void Function::ConstructInto(Node *node, const ConstructionDestination &d
     StoreCopy(destination.location, CaptureBorrowed(node, destination.location.storage_type));
 }
 
+inline bool Function::ConstructFreshInto(Node *node, const Location &place) {
+    auto type = place.storage_type;
+    if (!node || !c.Aggregate(type) || Compiler::RegionOwner(type) || !c.ClosedPrintable(type) ||
+        !SameFunctionValueType(node->exprtype, type)) return false;
+    auto slot = get_if<Slot>(&place.storage);
+    if ((!slot || slot->kind != Slot::GLOBAL) &&
+        (type->kind != TY_ARRAY || type->arr->akind != A_LIMITED)) return false;
+    // Only literal trees can bypass the snapshot. They cannot read the new
+    // binding, publish its address, call user code or observe partial writes.
+    int budget = 512;
+    function<bool(Node *)> literal = [&](Node *value) {
+        if (!value) return true;
+        if (budget-- == 0) return false;
+        if (Is<IntLit>(value) || Is<FltLit>(value) || Is<BoolLit>(value) || Is<StrLit>(value)) return true;
+        if (auto call = Is<Call>(value))
+            return call->builtin == B_DEFAULT && call->rettypes.size() == 1 &&
+                SameFunctionValueType(call->rettypes[0], call->exprtype) && literal(call->defaultinit);
+        if (auto array = Is<ArrayLit>(value)) {
+            if (array->capexpr || (array->fillval && !Is<IntLit>(array->fillcount)) ||
+                !literal(array->fillval)) return false;
+            return all_of(array->elems.begin(), array->elems.end(), literal);
+        }
+        if (auto record = Is<StructLit>(value))
+            return all_of(record->inits.begin(), record->inits.end(), [&](const auto &init) { return literal(init.val); });
+        return false;
+    };
+    if (!literal(node)) return false;
+    ConstructionDestination destination { place, ConstructionDestination::Statement };
+    if (Is<ArrayLit>(node) || Is<StructLit>(node)) AggregateLiteral(node, &destination);
+    else if (auto text = Is<StrLit>(node)) StringInto(text, place);
+    else if (auto call = Is<Call>(node); call && call->builtin == B_DEFAULT &&
+        call->rettypes.size() == 1 && SameFunctionValueType(call->rettypes[0], type)) DefaultInto(call, destination);
+    else return false;
+    return true;
+}
+
 inline CapturedValue Function::CopyCaptured(CapturedValue value) {
     if (!c.Aggregate(value.type)) return value;
     auto destination = FreshDestination(value.type, ConstructionDestination::Activation);

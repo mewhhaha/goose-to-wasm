@@ -1,0 +1,214 @@
+{
+  "status": "verified",
+  "retention_sha256": "cdfddc67d22c299bb50ba2aebc97342fea228b7d6ca12072bd49e06f31ab0b66",
+  "index_sha256": "ad98929832cbada866b2c3b16e8299374c37076a7ea85eb882c61b71001da6a0",
+  "verification_sha256": "2b8c5ee46f1c52b684eeb6b264f52df89660803a1df0dba5556a129cccd0147b",
+  "storage": {
+    "by_suffix": {
+      "new": {
+        ".bin": {
+          "bytes": 270840,
+          "objects": 11
+        },
+        ".c": {
+          "bytes": 192324,
+          "objects": 1
+        },
+        ".cwasm": {
+          "bytes": 3747040,
+          "objects": 87
+        },
+        ".goose": {
+          "bytes": 135,
+          "objects": 1
+        },
+        ".h": {
+          "bytes": 407660,
+          "objects": 7
+        },
+        ".json": {
+          "bytes": 52313110,
+          "objects": 21154
+        },
+        ".log": {
+          "bytes": 550159,
+          "objects": 98
+        },
+        ".md": {
+          "bytes": 40610,
+          "objects": 11
+        },
+        ".mjs": {
+          "bytes": 5548,
+          "objects": 1
+        },
+        ".png": {
+          "bytes": 2113636,
+          "objects": 13
+        },
+        ".py": {
+          "bytes": 278519,
+          "objects": 24
+        },
+        ".sh": {
+          "bytes": 1077,
+          "objects": 2
+        },
+        ".stderr": {
+          "bytes": 230,
+          "objects": 2
+        },
+        ".stdout": {
+          "bytes": 884069,
+          "objects": 3567
+        },
+        ".svg": {
+          "bytes": 721072,
+          "objects": 10
+        },
+        ".txt": {
+          "bytes": 1199032,
+          "objects": 1330
+        },
+        ".wasm": {
+          "bytes": 1696822,
+          "objects": 105
+        },
+        ".yml": {
+          "bytes": 10975,
+          "objects": 1
+        }
+      },
+      "reused": {
+        ".bin": {
+          "bytes": 156219096,
+          "objects": 1110
+        },
+        ".c": {
+          "bytes": 3963363,
+          "objects": 22
+        },
+        ".cpp": {
+          "bytes": 45615,
+          "objects": 4
+        },
+        ".cwasm": {
+          "bytes": 174701816,
+          "objects": 1591
+        },
+        ".goose": {
+          "bytes": 675154,
+          "objects": 423
+        },
+        ".h": {
+          "bytes": 823266,
+          "objects": 44
+        },
+        ".json": {
+          "bytes": 2260810,
+          "objects": 642
+        },
+        ".log": {
+          "bytes": 6477,
+          "objects": 8
+        },
+        ".md": {
+          "bytes": 40718,
+          "objects": 5
+        },
+        ".mjs": {
+          "bytes": 9911,
+          "objects": 1
+        },
+        ".o": {
+          "bytes": 15389,
+          "objects": 6
+        },
+        ".patch": {
+          "bytes": 71729,
+          "objects": 4
+        },
+        ".py": {
+          "bytes": 1216930,
+          "objects": 111
+        },
+        ".stderr": {
+          "bytes": 18554,
+          "objects": 175
+        },
+        ".stdout": {
+          "bytes": 68354,
+          "objects": 465
+        },
+        ".txt": {
+          "bytes": 20164,
+          "objects": 36
+        },
+        ".wasm": {
+          "bytes": 50882408,
+          "objects": 1614
+        },
+        "[no suffix]": {
+          "bytes": 1662,
+          "objects": 3
+        }
+      }
+    },
+    "current_aliases": 118021,
+    "largest_new_objects": [
+      {
+        "bytes": 20425966,
+        "member": "objects/1c4d26022d3efff2c228ca5e5c26bfde062448a04d4478be29d4cfd14b72f092/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-init/qualification/attempt-2/host/report.json",
+        "sha256": "1c4d26022d3efff2c228ca5e5c26bfde062448a04d4478be29d4cfd14b72f092"
+      },
+      {
+        "bytes": 5963479,
+        "member": "objects/c3b1b4f7a00f00a6d813c43620ee78e72511931cae2ea343d417e6df97304777/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-init/qualification/attempt-2/differential/report.json",
+        "sha256": "c3b1b4f7a00f00a6d813c43620ee78e72511931cae2ea343d417e6df97304777"
+      },
+      {
+        "bytes": 1947350,
+        "member": "objects/de80424a2b8cc68e27462ac56e67d314fbbd2126835f2b4779580d5a3dc52ca1/artifact-catalog.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-init/qualification/attempt-2/artifact-catalog.json",
+        "sha256": "de80424a2b8cc68e27462ac56e67d314fbbd2126835f2b4779580d5a3dc52ca1"
+      },
+      {
+        "bytes": 1797550,
+        "member": "objects/673fcc44cc9f745c4917d2e584e461dd275f7dbd4fccdfb11e2b341e58918c43/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-init/current/examples/report.json",
+        "sha256": "673fcc44cc9f745c4917d2e584e461dd275f7dbd4fccdfb11e2b341e58918c43"
+      },
+      {
+        "bytes": 1512996,
+        "member": "objects/a9b17568efbd0cb1c3cfd80edb27b5d37268717b9d2d5e48d887a9f90c4106bd/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-init/delivered-warmed/report.json",
+        "sha256": "a9b17568efbd0cb1c3cfd80edb27b5d37268717b9d2d5e48d887a9f90c4106bd"
+      }
+    ],
+    "new_objects": 26425,
+    "new_raw_bytes": 64432858,
+    "prior_aliases_imported": 0,
+    "prior_documents_opened": 0,
+    "reused_archives": 12,
+    "reused_objects": 6264,
+    "reused_raw_bytes": 391041416
+  },
+  "new_archives": {
+    "evidence-000.tar.gz": {
+      "sha256": "6e7eb36ddaaa02eb8a8ea4e62c04b311760f56b26c8eee7de52ef3e79feb077c",
+      "bytes": 8293865,
+      "members": 20264
+    },
+    "evidence-001.tar.gz": {
+      "sha256": "1d83679ca406da1ed23716bcb3b7e311018e710a44dd0452da3c369159f9b81c",
+      "bytes": 2869636,
+      "members": 6161
+    }
+  },
+  "new_archive_compressed_bytes": 11163501,
+  "bounded_prior_archives": 12,
+  "prior_namespace_imported": false,
+  "policy": "Exact byte-storage reuse only; all current execution records and cohorts are fresh. Current publication plus explicitly named calls/forwarding archive files form the verification closure."
+}

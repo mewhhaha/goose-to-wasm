@@ -291,6 +291,7 @@ struct Function {
     void StoreCopy(const Location &, CapturedValue);
     ConstructionDestination FreshDestination(TypeExpr *, ConstructionDestination::Lifetime);
     void ConstructInto(Node *, const ConstructionDestination &);
+    bool ConstructFreshInto(Node *, const Location &);
     void Address(Node *);
     TypeExpr *Object(Node *);
     void PackArrayView(TypeExpr *);
@@ -441,7 +442,9 @@ struct Function {
     void IncNode(IncDec *);
     void For(ForLoop *);
     void ScanAddresses(Node *);
-    void AggregateLiteral(Node *);
+    void AggregateLiteral(Node *, const ConstructionDestination * = nullptr);
+    void DefaultInto(Call *, const ConstructionDestination &);
+    void StringInto(StrLit *, const Location &);
     void Slice(SliceExpr *);
     void SliceView(SliceExpr *);
     void EnsureMemory(uint32_t, Line, bool share = true);

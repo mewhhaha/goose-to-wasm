@@ -1,0 +1,169 @@
+{
+  "schema": "goose-fresh-initialization-test-static-review-v1",
+  "status": "go-test-protocols-reviewed",
+  "scope": "Static test/CI review and reading existing execution evidence only; no test or engine execution by reviewer.",
+  "inputs": {
+    "compiler": {
+      "path": "build/functions-init/final/bin/goose",
+      "sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+      "bytes": 8199176
+    },
+    "active_compiler_matches": true,
+    "source_manifest": {
+      "path": "build/functions-init/final/source.json",
+      "sha256": "f1bb1dad5374659d83f56feed04658fd42d07acd820c69a0a10457edc50de288",
+      "bytes": 3527
+    },
+    "all_managed_headers": {
+      "count": 32,
+      "current_equals_frozen_equals_manifest": true
+    },
+    "changed_headers": [
+      {
+        "path": "compiler/direct_wasm.h",
+        "sha256": "7a5c1f4f25bbe6d2932b8a9831552509ebce64d641fea8cb6421c13ea89f547f",
+        "bytes": 67232
+      },
+      {
+        "path": "compiler/direct_wasm_expr.h",
+        "sha256": "715b3c094a4f7bbaca82946156f0398e4e61ac5ca625d7367d66e87a472bbf93",
+        "bytes": 125911
+      },
+      {
+        "path": "compiler/direct_wasm_storage.h",
+        "sha256": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+        "bytes": 7389
+      }
+    ],
+    "test": {
+      "path": "tests/test_fresh_initialization.py",
+      "sha256": "649343c570828b158fd7b351c3d799191f197745395c660087a9eb2c88ef763b",
+      "bytes": 14287
+    },
+    "ci": {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "63672abaccee11cd85eb17f12d81a75775db9e861afe6289ae590d9e6c0c8fb4",
+      "bytes": 10975
+    },
+    "qualification_selection": {
+      "path": "build/functions-init/qualification/attempt-2/selected.json",
+      "sha256": "18356e88721b2064d2da15255011a386de2d38f70386a2ea12fce6757d45e06f",
+      "bytes": 1689
+    },
+    "qualification_input_manifest": {
+      "path": "build/functions-init/qualification/attempt-2/input-pins.json",
+      "sha256": "e3eca2974822d9fb095b932ef01d1b0b5c9f2b824f3ab14e7a8b2613178f3fdc",
+      "bytes": 134059
+    },
+    "qualification_input_count": 835
+  },
+  "protocols": [
+    {
+      "test": "test_nested_literals_padding_lengths_and_nonzero_defaults",
+      "checks": "Native-C oracle, V8 and Wasmtime output for nested fixed/limited layouts, declared padding, zero/nonzero defaults, enum tag behavior, strings, empty capacity and signed values."
+    },
+    {
+      "test": "test_fill_runs_once_in_order_including_zero_length",
+      "checks": "Side-effect counter proves once-only fill evaluation even at count0 and ordered field effects; optional reference asserts selected run bodies unchanged."
+    },
+    {
+      "test": "test_observable_construction_and_assignment_keep_snapshots",
+      "checks": "Four cases cover self-aliasing assignment, observing nested closure, reference/slice fields and effectful per-element defaults; native oracle and both engines, plus optional reference byte equality."
+    },
+    {
+      "test": "test_pure_limited_default_and_literal_remove_copy_and_frame_staging",
+      "checks": "Empty default and128-element nonzero limited-array semantics; optional reference requires fewer memory.copy instructions and a smaller parsed activation reservation."
+    },
+    {
+      "test": "test_local_fixed_arrays_and_records_keep_reference_staging",
+      "checks": "Zero-default/nonzero fixed arrays and a fixed record preserve semantics and, with reference compiler, exact selected run bodies."
+    },
+    {
+      "test": "test_global_initializers_clear_dirty_storage_on_every_start",
+      "checks": "Both engines repeat start/typed mutation three times; zero array checksum and record/string values reset correctly."
+    },
+    {
+      "test": "test_contextual_default_capacity_abort_preserves_old_global_and_reentry",
+      "checks": "Both engines repeat dirty-global/start-trap three times; Abort callback reenters read export, checks state107, capacity message and line2. Optional baseline comparison checks complete observations."
+    }
+  ],
+  "matrix": "Every protocol runs O0/O2 with debug off/on. First five use a native-C output oracle and both V8/Wasmtime; last two use custom dual-engine state/reentry harnesses.",
+  "harness_review": [
+    "Current function bytes are captured before optional baseline compilation reuses temporary output paths. Compiler selection is restored in finally blocks.",
+    "Byte identity, memory.copy reduction and frame-size assertions require --reference-goose; semantic checks remain active without it. CI invokes the new test directly without a historical compiler, so CI alone does not enforce historical code-shape comparisons.",
+    "frame_size is a narrow parser for these small known prologue fixtures, not a general signed-LEB/prologue decoder. Padding is exercised by typed layout behavior; this suite does not compare every raw padding byte.",
+    "The seven tests are meaningful bounded fixtures, not exhaustive coverage of all layouts, prefix-map states or the512-node proof boundary. Broader existing qualification remains necessary."
+  ],
+  "existing_execution": {
+    "development_execution": {
+      "path": "build/functions-init/test-development/attempt-3/execution.json",
+      "sha256": "29b17863686d0405ee061ed3c8a5e52703a7c76f779ec3e72ccbec86eefb79d1",
+      "bytes": 4263
+    },
+    "development_enclosing_status": "failed",
+    "development_fresh_step": {
+      "exit_status": 0,
+      "wall_seconds": 25.808426569012227,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "-B",
+        "/home/jacobt/src/goose-to-wasm/tests/test_fresh_initialization.py",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/functions-init/final/bin/goose",
+        "--reference-goose",
+        "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose",
+        "-v"
+      ],
+      "log": {
+        "path": "build/functions-init/test-development/attempt-3/fresh-tests.log",
+        "sha256": "0a1b383b0035e52a64dc33d644552f6c618c2bc63fec5ccd1cd36f6936142f2e",
+        "bytes": 1219
+      }
+    },
+    "development_note": "The seven-test step passed; enclosing orchestration later failed starting its first gate run. It is not relabeled as an overall pass.",
+    "restarted_focused_step": {
+      "exit_status": 0,
+      "wall_seconds": 27.55825672802166,
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_fresh_initialization.py",
+        "--reference-goose",
+        "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose"
+      ],
+      "log": {
+        "path": "build/functions-init/qualification/attempt-2/focused/01-test_fresh_initialization.log",
+        "sha256": "b7e344609454d0c3f2791ec69c96b6251e7be53ee1564022a02ac81db5dcba81",
+        "bytes": 106
+      }
+    },
+    "broad_qualification": "ongoing; no completion claim"
+  },
+  "helper_sources": [
+    {
+      "path": "tests/test_function_value_forwarding.py",
+      "sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+      "bytes": 11979
+    },
+    {
+      "path": "tests/test_prefix_resolution.py",
+      "sha256": "cd94ab35b66dfe5895325fe452245d8ea888c40865bb9487a6c42e5e2c70d980",
+      "bytes": 8081
+    },
+    {
+      "path": "tests/test_strip_loops.py",
+      "sha256": "605427962fc79df8be12cf333fe4ad6580e7f01d55dd6bef8ea47e6d9beb679a",
+      "bytes": 18003
+    },
+    {
+      "path": "tests/test_static_data.py",
+      "sha256": "6dabf806397a4a34eaf6f299e70da0596df3e77f04e351cad3d01ecb0d2dcbb0",
+      "bytes": 9380
+    },
+    {
+      "path": "tests/test_fill_loops.py",
+      "sha256": "da281a5602ba946e802071da49e529f507f03cf732d41e4234b1f216b71a99a8",
+      "bytes": 8587
+    }
+  ],
+  "blockers": []
+}

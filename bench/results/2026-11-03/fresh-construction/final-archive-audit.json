@@ -1,0 +1,309 @@
+{
+  "schema": "goose-fresh-construction-final-archive-audit-v1",
+  "status": "passed",
+  "created_utc": "2026-11-03T14:31:58.854209+00:00",
+  "reviewer": "Astra independent final audit",
+  "decision": "Ready for commit and push; no unresolved public delivery blocker.",
+  "scope": "Current publication and exactly twelve explicitly indexed physical prior archives. No historical namespace import, recursive old-report closure, compiler/test/engine execution, new measurement, or changes to archived source/prose/report bytes.",
+  "compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+  "retention_sha256": "cdfddc67d22c299bb50ba2aebc97342fea228b7d6ca12072bd49e06f31ab0b66",
+  "index_sha256": "ad98929832cbada866b2c3b16e8299374c37076a7ea85eb882c61b71001da6a0",
+  "verification_sha256": "2b8c5ee46f1c52b684eeb6b264f52df89660803a1df0dba5556a129cccd0147b",
+  "public_review_sha256": "4960946c41474f80753b5cbb39cc57095b3fa18f5020bd2d06a37a0189c27cea",
+  "independent_documented_command": {
+    "command": [
+      "python",
+      "-B",
+      "bench/results/2026-11-03/fresh-construction/reproduction/verify.py"
+    ],
+    "started_utc": "2026-11-03T14:31:44.752375+00:00",
+    "exit_status": 0,
+    "wall_seconds": 14.044747273990652,
+    "timing_boundary": "Offline evidence validation only; not a performance observation.",
+    "stdout_sha256": "f0a9a24909ccdac362761195d607bbbe74ad72820ef385f1bb14dc9ba09ef2d6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_matches_published_documented_command_log": true,
+    "result_matches_published_verification": true,
+    "verifier_sha256": "8c14704587e9432c2740cf42d9b191c2fc2c200a3c5003b65820d37fb97f360c"
+  },
+  "corrected_delivery_issue": {
+    "before": "Exact README command initially exited2 because --package was required.",
+    "after": "Only verifier CLI default changed to the publication directory; exact README no-argument invocation now passes independently.",
+    "retained_failure": {
+      "path": "build/functions-init/packaging-attempts/documented-command-failure",
+      "files": {
+        "failure.json": "73b9df2b068d53727a7f2d67f76b69d46e589af707a9ca98989302760d07f68c",
+        "stderr.log": "e56eff7824f65afb8dc2504487b7b34fb824098ee2338fa8d9520505d2953d0c",
+        "stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "verify.py": "f2a2ef75b6433d94583e45ee41baca7261223e724b1e113e1a3b10cc6c2a145d"
+      }
+    },
+    "prose_raw_compiler_changes": false
+  },
+  "closure": {
+    "archives": 14,
+    "new_archives": 2,
+    "bounded_prior_archives": 12,
+    "aliases": 118021,
+    "unique_retained_objects": 32689,
+    "retained_raw_bytes": 455474274,
+    "required_guest_identities": 4322,
+    "retained_guest_objects": 4518,
+    "explicit_non_guest_omissions": 82,
+    "guest_omissions": 0,
+    "imported_prior_aliases": 0,
+    "opened_prior_documents": 0,
+    "sdk_compiler_engine_binary_objects": 0,
+    "extensionless_objects": [
+      {
+        "name": "LICENSE",
+        "bytes": 1079
+      },
+      {
+        "name": "stdout",
+        "bytes": 16
+      },
+      {
+        "name": "Makefile",
+        "bytes": 567
+      }
+    ],
+    "source_stages": {
+      "baseline-353": {
+        "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+        "headers": 32,
+        "patches": 2
+      },
+      "final": {
+        "compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+        "headers": 32,
+        "patches": 2
+      },
+      "rejected-all-fixed": {
+        "compiler_sha256": "00a86d4a066edc81cb1fdd77dbe7215fc0ce419576b998c8a1e772d5a114ade5",
+        "headers": 32,
+        "patches": 2
+      },
+      "unmeasured-literal-v1": {
+        "compiler_sha256": "23052b6eb45b902c824e4223e6611f704d1d988118d1f72bc31140b1165fb363",
+        "headers": 32,
+        "patches": 2
+      }
+    },
+    "matched_controls": {
+      "qualification/named-control": "fc12f64a0773f317bbe37a9fedd21555df18377961ff05b07c711f3cb332e1c9",
+      "qualification/resource-control": "ab4de27712941ad2320db4db93b0fb5de9cf75bce2571f699b7a3ec3b4a597f2"
+    },
+    "current_final_headers_and_patches_exact": true,
+    "review_pins_retained_and_current": 59,
+    "public_bindings_retained_and_current": 20,
+    "failed_setup_and_rejected_experiment": "First missing-emcc qualification setup remains opaque failed evidence; broader all-fixed screen remains rejected. Accepted attempt2 and final a8c5 identities are separate."
+  },
+  "qualification": {
+    "focused": 70,
+    "cases": 978,
+    "observations": 9573,
+    "native_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_modules": 1574
+  },
+  "measurements": {
+    "warmed": 550,
+    "v8": 200,
+    "paired_rounds": 9,
+    "examples": 1600,
+    "host": 1440,
+    "preparations": 200,
+    "cohort": 315
+  },
+  "initialization_independent_arithmetic": {
+    "initialization-screen.json": {
+      "engine-v8": {
+        "paired_speedup_median": 5.540229920835826,
+        "paired_speedup_mad": 0.4707902554446548,
+        "baseline_ms": 0.56955824,
+        "final_ms": 0.10280408,
+        "memory_bytes": {
+          "baseline": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 16842752,
+            "memory_bytes_after_warmup": 16842752
+          },
+          "final": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 8454144,
+            "memory_bytes_after_warmup": 8454144
+          }
+        }
+      },
+      "engine-wasmtime": {
+        "paired_speedup_median": 4.707975468781978,
+        "paired_speedup_mad": 0.2557853304445654,
+        "baseline_ms": 0.5382235,
+        "final_ms": 0.11477457,
+        "memory_bytes": {
+          "baseline": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 16842752,
+            "memory_bytes_after_warmup": 16842752
+          },
+          "final": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 8454144,
+            "memory_bytes_after_warmup": 8454144
+          }
+        }
+      }
+    },
+    "initialization-confirmation.json": {
+      "engine-v8": {
+        "paired_speedup_median": 4.3962003070779305,
+        "paired_speedup_mad": 0.07420070015514657,
+        "baseline_ms": 0.45324925,
+        "final_ms": 0.10263767,
+        "memory_bytes": {
+          "baseline": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 16842752,
+            "memory_bytes_after_warmup": 16842752
+          },
+          "final": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 8454144,
+            "memory_bytes_after_warmup": 8454144
+          }
+        }
+      },
+      "engine-wasmtime": {
+        "paired_speedup_median": 4.717358166322619,
+        "paired_speedup_mad": 0.2431896722666007,
+        "baseline_ms": 0.54676305,
+        "final_ms": 0.11513285000000001,
+        "memory_bytes": {
+          "baseline": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 16842752,
+            "memory_bytes_after_warmup": 16842752
+          },
+          "final": {
+            "memory_bytes": 8454144,
+            "memory_bytes_after_measurement": 8454144,
+            "memory_bytes_after_warmup": 8454144
+          }
+        }
+      }
+    }
+  },
+  "charts_and_docs": {
+    "numeric_chart_labels": 403,
+    "svg_count": 10,
+    "table_cells": 46,
+    "chart_proof_status": "passed",
+    "visual_proof_status": "passed",
+    "table_proof_status": "passed",
+    "visual_review_attribution": "Root performed the recorded visual inspection; this audit verifies exact SVG/PNG bindings.",
+    "latest_pointers": 4
+  },
+  "performance_limits": "Public review remains binding: narrowly scoped repeated large-global gains and static reduction; warmed geomeans broadly flat, V8 Fannkuch about1.7% slower, broader all-fixed rejected, no cross-cohort process speedup or causal placement claim.",
+  "archives": {
+    "../functions-calls/evidence-000.tar.gz": {
+      "sha256": "014654995aab81e8422e6e35f3cd4bda8361db1e6b0726258541ccef8cb8f953",
+      "bytes": 10905110,
+      "requested_members": 281,
+      "external": true
+    },
+    "../functions-calls/evidence-001.tar.gz": {
+      "sha256": "37cfec86e277eac9e53d3bd43a82ad6dd833ea375da438744f68c40a1ecb0932",
+      "bytes": 14488614,
+      "requested_members": 405,
+      "external": true
+    },
+    "../functions-calls/evidence-002.tar.gz": {
+      "sha256": "40a5d4a918abfcab3c6b3df14b241bb5c4bc490b79bbea03da43115e9af5e76f",
+      "bytes": 11266669,
+      "requested_members": 246,
+      "external": true
+    },
+    "../functions-calls/evidence-003.tar.gz": {
+      "sha256": "f37c7a7b4ebd999aea8a98a10b12daa3ff83aad8af3395b0632ccb8852de90e6",
+      "bytes": 11471131,
+      "requested_members": 304,
+      "external": true
+    },
+    "../functions-forwarding/evidence-000.tar.gz": {
+      "sha256": "9b20ad36eae7bb7b084584e6fba4735982598b9d99b3910e16349814b0d1a9dd",
+      "bytes": 20196881,
+      "requested_members": 674,
+      "external": true
+    },
+    "../functions-forwarding/evidence-001.tar.gz": {
+      "sha256": "90d0e9d792723c1933e86b30c3f2fa7f6ebc082958ae986edd8ccf543e4e1b1b",
+      "bytes": 22019827,
+      "requested_members": 754,
+      "external": true
+    },
+    "../functions-forwarding/evidence-002.tar.gz": {
+      "sha256": "0895ba41cac5967838a50fb35cd74e0496e506e6a7e7efd1c43d085eabfbc283",
+      "bytes": 21162483,
+      "requested_members": 777,
+      "external": true
+    },
+    "../functions-forwarding/evidence-003.tar.gz": {
+      "sha256": "8873464668da87a3171f5853c90f957bb71450e1633e5b0205fec9d3b56e1ebb",
+      "bytes": 17289095,
+      "requested_members": 541,
+      "external": true
+    },
+    "../functions-forwarding/evidence-004.tar.gz": {
+      "sha256": "cecf25b5e247996b544012901b299402f17c2f0b78379967acd031089bad30f2",
+      "bytes": 22884906,
+      "requested_members": 769,
+      "external": true
+    },
+    "../functions-forwarding/evidence-005.tar.gz": {
+      "sha256": "ce814d01f5c3767469a6ff370cfe40cf0ca8ee87cd676417c7167acd5c09c802",
+      "bytes": 21782920,
+      "requested_members": 748,
+      "external": true
+    },
+    "../functions-forwarding/evidence-006.tar.gz": {
+      "sha256": "73612a40ac6ce10fb1a380cf7fd951889e898e8132a632d54951fb5afba53349",
+      "bytes": 21362271,
+      "requested_members": 678,
+      "external": true
+    },
+    "../functions-forwarding/evidence-007.tar.gz": {
+      "sha256": "bf6e5e57b5b9c5e03e76aad734143c421573b6059165ddcf8488d0af03d93955",
+      "bytes": 4020145,
+      "requested_members": 87,
+      "external": true
+    },
+    "evidence-000.tar.gz": {
+      "sha256": "6e7eb36ddaaa02eb8a8ea4e62c04b311760f56b26c8eee7de52ef3e79feb077c",
+      "bytes": 8293865,
+      "requested_members": 20264,
+      "external": false
+    },
+    "evidence-001.tar.gz": {
+      "sha256": "1d83679ca406da1ed23716bcb3b7e311018e710a44dd0452da3c369159f9b81c",
+      "bytes": 2869636,
+      "requested_members": 6161,
+      "external": false
+    }
+  },
+  "pre_audit_manifest": {
+    "sha256": "90ceb8cb6fd6fd54a3294f790f6cd601737a6183c4829674e171a7796a24d1fa",
+    "utf8": "{\n  \"qualification.json\": \"6c3d4470d3012d22476207629ab597dab1b2074904dc2072d87f193006bd4f48\",\n  \"differential.json\": \"c3b1b4f7a00f00a6d813c43620ee78e72511931cae2ea343d417e6df97304777\",\n  \"host-qualification.json\": \"1c4d26022d3efff2c228ca5e5c26bfde062448a04d4478be29d4cfd14b72f092\",\n  \"final-warmed.json\": \"a9b17568efbd0cb1c3cfd80edb27b5d37268717b9d2d5e48d887a9f90c4106bd\",\n  \"final-v8.json\": \"1424be2fa337d5c30255a09c3153a4c4eb6180604b24a466bb23887623a451d5\",\n  \"examples.json\": \"673fcc44cc9f745c4917d2e584e461dd275f7dbd4fccdfb11e2b341e58918c43\",\n  \"host.json\": \"24f0b493168006e5b704dea7474287855f318400605fb9bbb19c5ab756db3f59\",\n  \"cohort.json\": \"a82106fbd40002f219e95da35204b91bbfb0a7fe3e5015a1dfa2504a2b794821\",\n  \"initialization-screen.json\": \"8513446288f83ef7c8261b44b9103a50c27c4fa9a632930cc209555fa60b0616\",\n  \"initialization-confirmation.json\": \"e03ce644f3fbaf8adb3e1f8745bc26a4f9019bed423dae7e61c728a7ee6dfd84\",\n  \"campaign.json\": \"941e48eaa7cb2c4052546a883e1670b4da8912cef3f5991c1b45ca0eb058a6fd\",\n  \"final-numbers.json\": \"9a09e2bf544c8a5041688a1cc8c0f0bbe8a381862bc28f33230dc68f46305c5d\",\n  \"module-analysis.json\": \"09f262b805bce72e955257df9aac91c4bee88fff2f21f92cf389bc29cfa0963c\",\n  \"static-review.json\": \"1ce300bc89794c9c69542a53ec4feb484caf852adc6ba261005a656a88af502d\",\n  \"test-static-review.json\": \"cdbc45f871ce28e30cf8b53680e484df34306a5d072f427a9d71631dc7b2310c\",\n  \"rejected-warmed.json\": \"621ebcda9719bfd2ac8a14bbf39d091cbda662264f38c2faba6c66e6104c021d\",\n  \"static-diagnosis.json\": \"11b50569ad4122bfd5f7f36ccbfa173a6da6a16b00cc9a8bec48aaf1afc61928\",\n  \"references.json\": \"06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350\",\n  \"compiler-identity.json\": \"d6a6adb16ef5bb652827c5fc1325562fa7b81da344d4b2909a910c72cf8683f2\",\n  \"readme.json\": \"28dde0ee03a6006c7bfbd022a50e9bba755a7942e9349988f70d459617da325f\",\n  \"target-chart-verification.json\": \"007014dfc3aa9eef15d92f248965bdc124211da0eb241320d91d166711a2b9a7\",\n  \"chart-verification.json\": \"359de7bec265e2a398469802f708a24a3be6d66d5c02a179335480749f831dc0\",\n  \"chart-visual-review.json\": \"4622e26c96548b56291dd12b1f91c760dceff820cb8debf72a87f3c6a71a8193\",\n  \"README.md\": \"3165ab6dbfb2f5e8930ee4d857a05372c573f9ad2aca0c3b4413fc5eb69356bc\",\n  \"table-verification.json\": \"8ca00508d7688219602317ef49ed5aaeb7dcfd30fad38b8c99c6c43eebee68d3\",\n  \"final-public-review.json\": \"4960946c41474f80753b5cbb39cc57095b3fa18f5020bd2d06a37a0189c27cea\",\n  \"evidence-000.tar.gz\": \"6e7eb36ddaaa02eb8a8ea4e62c04b311760f56b26c8eee7de52ef3e79feb077c\",\n  \"evidence-001.tar.gz\": \"1d83679ca406da1ed23716bcb3b7e311018e710a44dd0452da3c369159f9b81c\",\n  \"archives.json.gz\": \"ad98929832cbada866b2c3b16e8299374c37076a7ea85eb882c61b71001da6a0\",\n  \"reproduction/bundle.py\": \"1352919e3232a9264c2bc984e5d3e80c179bfd0ea1996ff1c1069bc69da3b600\",\n  \"reproduction/verify.py\": \"8c14704587e9432c2740cf42d9b191c2fc2c200a3c5003b65820d37fb97f360c\",\n  \"reproduction/checks.py\": \"99f4837e808a485abaaf1369f414284365be1a78c775c9ded1ef000bf2d4a9fa\",\n  \"reproduction/spec.json\": \"de5862d296c97b739e2bc5e381b5979dcb8263ca55bd14fe6da8c7c7579917d9\",\n  \"retention.json\": \"cdfddc67d22c299bb50ba2aebc97342fea228b7d6ca12072bd49e06f31ab0b66\",\n  \"verification.json\": \"2b8c5ee46f1c52b684eeb6b264f52df89660803a1df0dba5556a129cccd0147b\",\n  \"verification.log\": \"f0a9a24909ccdac362761195d607bbbe74ad72820ef385f1bb14dc9ba09ef2d6\",\n  \"documented-command-verification.log\": \"f0a9a24909ccdac362761195d607bbbe74ad72820ef385f1bb14dc9ba09ef2d6\",\n  \"reproduction-checks.json\": \"a4e00db9aab66a2304cde1ebbbe67c83973b41b3caf84bd990f68f985daf6a82\",\n  \"retention-metrics.json\": \"4db4379de68d47f88b0c7836edf9968e58976a9b115bda07468b11e53ffb2e77\"\n}\n",
+    "files_including_manifest": 40,
+    "entries": 39,
+    "validation": "Exact recursive public file inventory and every digest verified before addition."
+  },
+  "final_manifest_rule": {
+    "audit_file": "final-archive-audit.json",
+    "operation": "Add only this audit digest to the preceding manifest; retain all existing entries and bytes.",
+    "expected_files_including_manifest": 41,
+    "expected_manifest_entries": 40,
+    "self_reference": "The SHA manifest excludes itself. This audit embeds exact preceding manifest bytes and does not embed its own digest or the later manifest digest."
+  },
+  "blockers": []
+}

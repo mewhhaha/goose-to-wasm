@@ -1,0 +1,77 @@
+{
+  "status": "passed",
+  "method": "All ten SVGs rendered at1600px. Root inspected all three contact sheets and the full-size example-runtime plot with view_image. Titles, legends, labels, axes and footnotes are visible with no clipping or overlap.403 numeric labels and30target cells independently checked against raw reports.",
+  "charts": [
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/compilation.svg",
+      "sha256": "ff34cd11fc9cf62d2167dfe4434ea8b29149ae78bb3fce7757ab0fa4459425e1",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/compilation.png",
+      "preview_sha256": "517771c8e4a3ddbeb3084af8f62ef81ab979850eb90080d2b2db15d3087d7cec"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime.svg",
+      "sha256": "7acf5c8d05dbd792ab9b83b7dd0aa38eab2b34577c094f9535e246ce7dc1c1bb",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/runtime.png",
+      "preview_sha256": "a49878994394bca5d07f7ae7960f5ecf0f94ff6b0cda7fcc6884b6fb4eb89e23"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime-targets.svg",
+      "sha256": "d0c3abc0691377e9669ad63958dd95d6b4dc8e45d1036b28e9f161e0b2724692",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/runtime-targets.png",
+      "preview_sha256": "6b2cd93ef537f726f02db5809f48f48e833719d1d0098c3c64577b10a444f416"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-compilation.svg",
+      "sha256": "8bbc6afad5e53519b32d4fce6689e903a609647a6f7fecaaf9e2682e67caa7e7",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/examples-compilation.png",
+      "preview_sha256": "1f16ee42146c9c3b0a4ad3a3fd245902a37cf6fb06f15c0da2cfea2756170954"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-runtime.svg",
+      "sha256": "4fd57a39be051e2dda1e438c7087b07a20b68706ab7ededc1f4e7595ff2b1ca0",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/examples-runtime.png",
+      "preview_sha256": "f03b3b4ba28faa685a04d60526c2063b16f745560ec68ca2d20211411a34908b"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-python-runtime.svg",
+      "sha256": "fbfcdf8a191531df7224871c5a98f6588bbf3fad3be515f93c48748f5a567820",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/examples-python-runtime.png",
+      "preview_sha256": "a2e49d9304a4854da1775f97a94f13a0b01c622788e0b787da92c0c627a1c76a"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-entry.svg",
+      "sha256": "45612cbc4b27ca84995225e538e9576debda6dd751f237d9565fc0d6d2364436",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/examples-entry.png",
+      "preview_sha256": "24efe11ec6d34b1d66096009a044dd7ea3865dbcb3589c5e1aa9df0647677364"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-preparation.svg",
+      "sha256": "44a5ba722cea2f753b582fe9c6d1ff135045a62a39b12628cf0e1b19cb5d8e6e",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/wasmtime-host-preparation.png",
+      "preview_sha256": "ec9564cfa758fb705b68503dae09275a53e811ee58a70cd2d0277cd0f4326e4c"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-runtime.svg",
+      "sha256": "cbdef3a4c64073e836ff2f824201c0ace6a2258e6835ce66d5a5ac017620a78b",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/wasmtime-host-runtime.png",
+      "preview_sha256": "6459b27b0ec58877c15b29b55040b85ca398f755e25ca4598e7c52767fa61e22"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-c-wasm.svg",
+      "sha256": "2d1266deb87790e9a05d621490de8a1a6ae588b162cc3a8a017d937f1024b25e",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/wasmtime-host-c-wasm.png",
+      "preview_sha256": "8bef5a461f7f16d7302681b938f7c8571c831c1b3ca69d9d5ff19b5d4ccbae1c"
+    }
+  ],
+  "contact_sheets": [
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/contact-1.png",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/contact-2.png",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/contact-3.png"
+  ],
+  "inspected_images": [
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/contact-1.png",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/contact-2.png",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/contact-3.png",
+    "/home/jacobt/src/goose-to-wasm/build/functions-init/chart-previews/examples-runtime.png"
+  ]
+}

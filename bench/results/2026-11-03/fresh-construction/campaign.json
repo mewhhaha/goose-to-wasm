@@ -1,0 +1,33 @@
+{
+  "schema": "goose-fresh-construction-campaign-v1",
+  "status": "passed",
+  "compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+  "baseline_compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+  "scope": "Pure fixed global literal trees and local limited-array/string literal trees write into fresh destinations. Plain local fixed arrays/records retain staging.",
+  "qualification": {
+    "focused_commands": 70,
+    "cases": 978,
+    "differential_executions": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574
+  },
+  "accepted_boundaries": "Static module/copy reductions and focused repeated large-global initialization; warmed and ordinary whole-process results are separately collected and disclosed.",
+  "rejected": [
+    {
+      "stage": "all-fixed",
+      "report": "screen-warmed/report.json",
+      "reason": "Stable Wasmtime Fannkuch and Sudoku regressions. Static diagnosis records register allocation and placement changes; full causation is not established."
+    }
+  ],
+  "numbers_sha256": "9a09e2bf544c8a5041688a1cc8c0f0bbe8a381862bc28f33230dc68f46305c5d",
+  "evidence": {
+    "module-analysis.json": "09f262b805bce72e955257df9aac91c4bee88fff2f21f92cf389bc29cfa0963c",
+    "static-review.json": "1ce300bc89794c9c69542a53ec4feb484caf852adc6ba261005a656a88af502d",
+    "test-static-review.json": "cdbc45f871ce28e30cf8b53680e484df34306a5d072f427a9d71631dc7b2310c",
+    "static-diagnosis.json": "11b50569ad4122bfd5f7f36ccbfa173a6da6a16b00cc9a8bec48aaf1afc61928",
+    "delivery-execution/report.json": "8992065b9fbc6b101cb722aa74a45a64398f267e8df6ddbb307b46d39dd6b31c",
+    "initialization-screen/report.json": "8513446288f83ef7c8261b44b9103a50c27c4fa9a632930cc209555fa60b0616",
+    "initialization-confirmation/report.json": "e03ce644f3fbaf8adb3e1f8745bc26a4f9019bed423dae7e61c728a7ee6dfd84"
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "schema": "goose-fresh-construction-retention-v1",
+  "specification": {
+    "schema": "goose-fresh-construction-bundle-spec-v1",
+    "build": "build/functions-init",
+    "output": "bench/results/2026-11-03/fresh-construction",
+    "compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+    "reference": "build/runtime-reference/production/report.json",
+    "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "reports": {
+      "qualification.json": "qualification/attempt-2/focused/report.json",
+      "differential.json": "qualification/attempt-2/differential/report.json",
+      "host-qualification.json": "qualification/attempt-2/host/report.json",
+      "final-warmed.json": "delivered-warmed/report.json",
+      "final-v8.json": "delivered-v8/report.json",
+      "examples.json": "current/examples/report.json",
+      "host.json": "current/host/report.json",
+      "cohort.json": "current/langarena/report.json"
+    },
+    "extra_reports": {
+      "initialization-screen.json": "initialization-screen/report.json",
+      "initialization-confirmation.json": "initialization-confirmation/report.json"
+    },
+    "trees": [
+      "qualification/attempt-1",
+      "qualification/attempt-2",
+      "qualification/sources",
+      "delivery-execution",
+      "delivered-warmed",
+      "delivered-v8",
+      "current/examples",
+      "current/host",
+      "current/langarena",
+      "all-fixed",
+      "final",
+      "test-development",
+      "screen-warmed",
+      "limited-screen-warmed",
+      "limited-screen-v8",
+      "shapes",
+      "static-hotcode",
+      "initialization-screen",
+      "initialization-confirmation",
+      "fixtures"
+    ],
+    "optional_trees": [
+      "chart-previews",
+      "reviews",
+      "packaging-attempts"
+    ],
+    "evidence_documents": [
+      "qualification/attempt-2/selected.json",
+      "qualification/attempt-2/input-pins.json",
+      "delivery-execution/report.json",
+      "static-review.json",
+      "module-analysis.json",
+      "campaign.json",
+      "final-numbers.json",
+      "screen-warmed/report.json",
+      "limited-screen-warmed/report.json",
+      "limited-screen-v8/report.json",
+      "static-diagnosis.json",
+      "test-static-review.json",
+      "initialization-screen/report.json",
+      "initialization-confirmation/report.json",
+      "table-verification.json"
+    ],
+    "optional_evidence_documents": [
+      "qualification/summary.json",
+      "reviews/final-public-review.json"
+    ],
+    "source_stages": {
+      "baseline-353": "build/functions-grow/body-growth",
+      "rejected-all-fixed": "build/functions-init/all-fixed",
+      "unmeasured-literal-v1": "build/functions-init/literal-v1",
+      "final": "build/functions-init/final"
+    },
+    "direct_files": [
+      "build/functions-grow/body-growth/O2.wasm",
+      "build/native/CMakeCache.txt"
+    ],
+    "public_files": [
+      "README.md",
+      "bench/examples.md",
+      "bench/wasmtime-host.md",
+      "docs/FUNCTIONS_PERFORMANCE.md",
+      "docs/PERFORMANCE_PLAN.md",
+      "docs/RUNTIME_TARGETS.md",
+      "bench/results/latest.json",
+      "bench/results/examples-latest.json",
+      "bench/results/wasmtime-host-latest.json",
+      "bench/results/runtime-targets-latest.json",
+      "bench/charts/compilation.svg",
+      "bench/charts/runtime.svg",
+      "bench/charts/runtime-targets.svg",
+      "bench/charts/examples-compilation.svg",
+      "bench/charts/examples-runtime.svg",
+      "bench/charts/examples-python-runtime.svg",
+      "bench/charts/examples-entry.svg",
+      "bench/charts/wasmtime-host-preparation.svg",
+      "bench/charts/wasmtime-host-runtime.svg",
+      "bench/charts/wasmtime-host-c-wasm.svg"
+    ],
+    "required_public_files": [
+      "README.md",
+      "campaign.json",
+      "readme.json",
+      "target-chart-verification.json",
+      "chart-verification.json",
+      "chart-visual-review.json",
+      "table-verification.json"
+    ],
+    "max_raw_archive_bytes": 67108864,
+    "policy": "Closure is current archives plus explicitly referenced members in twelve bounded physical prior archives: four functions-calls archives and eight functions-forwarding archives. Verification needs all three published folders. One calls index supplies archive/member byte identities only; zero previous aliases or documents are imported and no index or report is recursively opened. Reuse is byte storage only; every current execution and cohort is fresh. Baseline353, rejected all-fixed and final sources are retained; literal-v1 is unmeasured development source. Local fixed arrays/records remain staged; pure globals and local limited arrays/strings may construct fresh. All-fixed three-pair screening and hot-code diagnosis remain rejected investigation evidence. Known compiler/engine/tool binaries are omitted with explicit identities; measured native executables remain guests. Qualification attempt-1 is opaque failed setup evidence (missing emcc PATH), never selected qualification; final reports use attempt-2 after the pinned performance environment preflight. The first archive capture passed its explicit verifier but failed the README no-argument invocation; exact old code/command/hash context is retained as opaque packaging evidence, while the final verifier defaults to its own publication directory.",
+    "reuse": {
+      "index": "bench/results/2026-11-03/functions-calls/archives.json.gz",
+      "manifest": "bench/results/2026-11-03/functions-calls/SHA256.json",
+      "index_schema": "goose-calls-objects-v1",
+      "archives": {
+        "evidence-000.tar.gz": "../functions-calls/evidence-000.tar.gz",
+        "evidence-001.tar.gz": "../functions-calls/evidence-001.tar.gz",
+        "evidence-002.tar.gz": "../functions-calls/evidence-002.tar.gz",
+        "evidence-003.tar.gz": "../functions-calls/evidence-003.tar.gz",
+        "../functions-forwarding/evidence-000.tar.gz": "../functions-forwarding/evidence-000.tar.gz",
+        "../functions-forwarding/evidence-001.tar.gz": "../functions-forwarding/evidence-001.tar.gz",
+        "../functions-forwarding/evidence-002.tar.gz": "../functions-forwarding/evidence-002.tar.gz",
+        "../functions-forwarding/evidence-003.tar.gz": "../functions-forwarding/evidence-003.tar.gz",
+        "../functions-forwarding/evidence-004.tar.gz": "../functions-forwarding/evidence-004.tar.gz",
+        "../functions-forwarding/evidence-005.tar.gz": "../functions-forwarding/evidence-005.tar.gz",
+        "../functions-forwarding/evidence-006.tar.gz": "../functions-forwarding/evidence-006.tar.gz",
+        "../functions-forwarding/evidence-007.tar.gz": "../functions-forwarding/evidence-007.tar.gz"
+      }
+    },
+    "opaque_failed_attempts": [
+      "qualification/attempt-1",
+      "packaging-attempts/package-1",
+      "packaging-attempts/documented-command-failure"
+    ],
+    "qualification": "qualification",
+    "qualification_controls": {
+      "qualification": [
+        "resource-control",
+        "named-control"
+      ]
+    },
+    "public_metadata": {
+      "campaign.json": "campaign.json",
+      "final-numbers.json": "final-numbers.json",
+      "module-analysis.json": "module-analysis.json",
+      "static-review.json": "static-review.json",
+      "test-static-review.json": "test-static-review.json",
+      "rejected-warmed.json": "screen-warmed/report.json",
+      "static-diagnosis.json": "static-diagnosis.json",
+      "table-verification.json": "table-verification.json"
+    },
+    "rejected_execution_roots": [
+      "screen-warmed"
+    ],
+    "rejection_reason": "Broad fresh construction of local fixed arrays and records was rejected after stable three-pair Wasmtime regressions; immutable diagnostic evidence, never final accepted measurements.",
+    "delivery_execution": "delivery-execution/report.json",
+    "optional_public_metadata": {
+      "final-public-review.json": "reviews/final-public-review.json"
+    },
+    "final_review": "reviews/final-public-review.json"
+  },
+  "archive_index": "archives.json.gz",
+  "compiler_sha256": "a8c5ba4b4838eea0ae747d495394e6fe77dbdc34e476e8d0cadcb7f225c78352",
+  "public_file_sha256": {
+    "qualification.json": "6c3d4470d3012d22476207629ab597dab1b2074904dc2072d87f193006bd4f48",
+    "differential.json": "c3b1b4f7a00f00a6d813c43620ee78e72511931cae2ea343d417e6df97304777",
+    "host-qualification.json": "1c4d26022d3efff2c228ca5e5c26bfde062448a04d4478be29d4cfd14b72f092",
+    "final-warmed.json": "a9b17568efbd0cb1c3cfd80edb27b5d37268717b9d2d5e48d887a9f90c4106bd",
+    "final-v8.json": "1424be2fa337d5c30255a09c3153a4c4eb6180604b24a466bb23887623a451d5",
+    "examples.json": "673fcc44cc9f745c4917d2e584e461dd275f7dbd4fccdfb11e2b341e58918c43",
+    "host.json": "24f0b493168006e5b704dea7474287855f318400605fb9bbb19c5ab756db3f59",
+    "cohort.json": "a82106fbd40002f219e95da35204b91bbfb0a7fe3e5015a1dfa2504a2b794821",
+    "initialization-screen.json": "8513446288f83ef7c8261b44b9103a50c27c4fa9a632930cc209555fa60b0616",
+    "initialization-confirmation.json": "e03ce644f3fbaf8adb3e1f8745bc26a4f9019bed423dae7e61c728a7ee6dfd84",
+    "campaign.json": "941e48eaa7cb2c4052546a883e1670b4da8912cef3f5991c1b45ca0eb058a6fd",
+    "final-numbers.json": "9a09e2bf544c8a5041688a1cc8c0f0bbe8a381862bc28f33230dc68f46305c5d",
+    "module-analysis.json": "09f262b805bce72e955257df9aac91c4bee88fff2f21f92cf389bc29cfa0963c",
+    "static-review.json": "1ce300bc89794c9c69542a53ec4feb484caf852adc6ba261005a656a88af502d",
+    "test-static-review.json": "cdbc45f871ce28e30cf8b53680e484df34306a5d072f427a9d71631dc7b2310c",
+    "rejected-warmed.json": "621ebcda9719bfd2ac8a14bbf39d091cbda662264f38c2faba6c66e6104c021d",
+    "static-diagnosis.json": "11b50569ad4122bfd5f7f36ccbfa173a6da6a16b00cc9a8bec48aaf1afc61928",
+    "references.json": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "compiler-identity.json": "d6a6adb16ef5bb652827c5fc1325562fa7b81da344d4b2909a910c72cf8683f2",
+    "readme.json": "28dde0ee03a6006c7bfbd022a50e9bba755a7942e9349988f70d459617da325f",
+    "target-chart-verification.json": "007014dfc3aa9eef15d92f248965bdc124211da0eb241320d91d166711a2b9a7",
+    "chart-verification.json": "359de7bec265e2a398469802f708a24a3be6d66d5c02a179335480749f831dc0",
+    "chart-visual-review.json": "4622e26c96548b56291dd12b1f91c760dceff820cb8debf72a87f3c6a71a8193",
+    "README.md": "3165ab6dbfb2f5e8930ee4d857a05372c573f9ad2aca0c3b4413fc5eb69356bc",
+    "table-verification.json": "8ca00508d7688219602317ef49ed5aaeb7dcfd30fad38b8c99c6c43eebee68d3",
+    "final-public-review.json": "4960946c41474f80753b5cbb39cc57095b3fa18f5020bd2d06a37a0189c27cea",
+    "evidence-000.tar.gz": "6e7eb36ddaaa02eb8a8ea4e62c04b311760f56b26c8eee7de52ef3e79feb077c",
+    "evidence-001.tar.gz": "1d83679ca406da1ed23716bcb3b7e311018e710a44dd0452da3c369159f9b81c",
+    "archives.json.gz": "ad98929832cbada866b2c3b16e8299374c37076a7ea85eb882c61b71001da6a0",
+    "reproduction/bundle.py": "1352919e3232a9264c2bc984e5d3e80c179bfd0ea1996ff1c1069bc69da3b600",
+    "reproduction/verify.py": "8c14704587e9432c2740cf42d9b191c2fc2c200a3c5003b65820d37fb97f360c",
+    "reproduction/checks.py": "99f4837e808a485abaaf1369f414284365be1a78c775c9ded1ef000bf2d4a9fa",
+    "reproduction/spec.json": "de5862d296c97b739e2bc5e381b5979dcb8263ca55bd14fe6da8c7c7579917d9"
+  }
+}
