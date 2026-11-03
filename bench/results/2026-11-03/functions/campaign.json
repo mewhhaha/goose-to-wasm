@@ -1,0 +1,122 @@
+{
+  "baseline_commit": "61e054870df02e6d57c094a16faba6640b595559",
+  "selected_compiler_sha256": "5e3b87720d24f3285a5f9df57989c200bf7152a28f296cfd3af0220db1cc2edf",
+  "status": "measured-and-qualified",
+  "exploratory_reports": [
+    {
+      "name": "screen",
+      "path": "build/functions-hill/screen/report.json",
+      "sha256": "d8da19dcacaaf93357d660ea2a32c404c1fba2d4015bb2e8c5ba0a7a2a46a252",
+      "status": "passed",
+      "note": "Initial O0/O1/O2 and tee screen; no reliable full-process gain selected."
+    },
+    {
+      "name": "screen-dead",
+      "path": "build/functions-hill/screen-dead/report.json",
+      "sha256": "31cda00e9b9cadba37f37702c2c63a074851de2302e702afe29169e5fe42a14e",
+      "status": "passed",
+      "note": "Dead tees only. Default pools; full-process samples noisy."
+    },
+    {
+      "name": "screen-cpu2",
+      "path": "build/functions-hill/screen-cpu2/report.json",
+      "sha256": "ba9bbf1e5756dc109eeb04fb869b7cdd15c806f129081fb9d688e2e68c35e2c9",
+      "status": "passed",
+      "note": "Dead tees only, diagnostic CPU2 affinity inherited by engine workers."
+    },
+    {
+      "name": "screen-none",
+      "path": "build/functions-hill/screen-none/report.json",
+      "sha256": "1ad8f60b86d3bf2ca4c1a86127257962f79d96f04eb8db7902b4e1ed31483ec0",
+      "status": "passed",
+      "note": "Rejected Cranelift NONE prototype: no robust full-process win. Prototype timing JSON optimization label remains hardcoded speed; actual source sets NONE. No claim uses that label."
+    },
+    {
+      "name": "screen-pools",
+      "path": "build/functions-hill/screen-pools/report.json",
+      "sha256": "1bcbc537913a4bcc072508440b08ae3169b844710ca7da678197d9e3ef66ea2b",
+      "status": "passed",
+      "note": "Rejected compiler-pool cap sweep; no broad robust improvement."
+    },
+    {
+      "name": "screen-compact",
+      "path": "build/functions-hill/screen-compact/report.json",
+      "sha256": "a79d0ebe29b2dcabbc8a7f63778f4d0efe3b5a5c7a3977947843863d9b3b5de4",
+      "status": "passed",
+      "note": "Final local compaction, normal pool exploratory samples; do not infer gain from separate medians."
+    },
+    {
+      "name": "screen-compact-cpu2",
+      "path": "build/functions-hill/screen-compact-cpu2/report.json",
+      "sha256": "3ed99bffad988341e60fffe64a8eae743db0af01a4d156af19ee074599557897",
+      "status": "passed",
+      "note": "Final local compaction, CPU2 diagnostics; first-call includes V8 lazy compilation, not warmed kernel time."
+    }
+  ],
+  "rejected_winch": [
+    {
+      "prototype": "host",
+      "host_sha256": "870316cc7a232e51eb6917e7467655605041c9d53d3078ce92cd02383b80de6f",
+      "source": "build/functions-hill/winch-screen/host.cpp",
+      "source_sha256": "2e022a3704082512872e2129f39658be0cd7498ea5706a9006f59a3793151886",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "build/functions-hill/winch-screen/compat.stderr",
+      "stderr_sha256": "23e13af8076729eb3512031dc53741a2e837b7773c3302bcd33cb6d244a3fed9",
+      "outcome": "unsupported SDK/compiler feature; rejected before performance sampling"
+    },
+    {
+      "prototype": "host-gc",
+      "host_sha256": "0a4d5aa330cb7b3e2ce52162bf6ef608e33de0e0234502ed8512d92f53457330",
+      "source": "build/functions-hill/winch-screen/host-gc.cpp",
+      "source_sha256": "1887b90671f1b6bbec78fa013a68f72f3d4d2659e2eae92f22c58e00956c99eb",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "build/functions-hill/winch-screen/gc-compat.stderr",
+      "stderr_sha256": "e7a068e08425baba479c77e30faa97f7372a84fcd3f1f3f49094f6720b2eae20",
+      "outcome": "unsupported SDK/compiler feature; rejected before performance sampling"
+    }
+  ],
+  "decisions": [
+    "Keep generic instruction-aware local normalization, subject to full qualification and final measurements.",
+    "Keep source programs, ABI parameters, physical memory, and non-code section payloads unchanged.",
+    "No new compiler strategy, runtime flag or thread-pool default.",
+    "Do not claim a default Wasmtime process-time gain from noisy screening medians."
+  ],
+  "shape": {
+    "functions_baseline_module_bytes": 54716,
+    "functions_final_module_bytes": 45923,
+    "baseline_declared_locals": 3479,
+    "final_declared_locals": 2239
+  },
+  "qualification": {
+    "report": "/home/jacobt/src/goose-to-wasm/build/functions-hill/qualification/summary.json",
+    "sha256": "fa9fb0f0855df217c84e47667488818085fb1b25fc458045328fc4d22c7001eb",
+    "focused_commands": 66,
+    "differential_observations": 9573,
+    "native_stdout_comparisons": 7656,
+    "cases": 978,
+    "host_replay_observations": 11484,
+    "host_unique_modules": 1574,
+    "failures": 0
+  },
+  "delivery_measurements": {
+    "report": "/home/jacobt/src/goose-to-wasm/build/functions-hill/delivery-execution/report.json",
+    "sha256": "7a14899e201a8fcd6345cf9a5638ac748623153ddf31b561c4af70c05f4eb808",
+    "cohorts": 5,
+    "status": "passed"
+  },
+  "holdout": {
+    "report": "/home/jacobt/src/goose-to-wasm/build/functions-hill/functions-holdout/report.json",
+    "sha256": "d685e070f286ff5bfdd0c905a6648cca0f16d3c09252118869236bfbfc4e7a83",
+    "timing": "CPU2 process affinity;31 phase pairs; V8 first entry includes lazy JIT",
+    "v8_paired_speedup": 1.2200022746021768,
+    "v8_speedup_mad": 0.04512084047251941,
+    "wasmtime_compile_paired_speedup": 1.0179439150047689,
+    "wasmtime_compile_speedup_mad": 0.006925079537281276
+  },
+  "warmed_geomean_speedups": {
+    "wasmtime": 1.012010192965234,
+    "v8": 1.0052037022690827,
+    "baseline_compiler_sha256": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+    "samples": 9
+  }
+}

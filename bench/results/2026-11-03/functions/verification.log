@@ -1,0 +1,66 @@
+verified ../../2026-11-02/full-hills/experiments-001.tar.gz 106 members
+verified ../../2026-11-02/full-hills/experiments-002.tar.gz 12 members
+verified ../../2026-11-02/full-hills/guests-001.tar.gz 528 members
+verified ../../2026-11-02/full-hills/guests-002.tar.gz 515 members
+verified ../../2026-11-02/full-hills/guests-003.tar.gz 520 members
+verified ../../2026-11-02/full-hills/guests-004.tar.gz 516 members
+verified ../../2026-11-02/full-hills/guests-005.tar.gz 497 members
+verified ../../2026-11-02/full-hills/guests-006.tar.gz 285 members
+verified ../../2026-11-02/full-hills/qualification.tar.gz 1178 members
+verified ../../2026-11-02/full-hills/sources-001.tar.gz 466 members
+verified ../../2026-11-02/full-hills/sources-002.tar.gz 122 members
+verified ../../2026-11-02/resource-free-calls/guest-artifacts.tar.gz 7 members
+verified ../../2026-11-02/resource-free-calls/inputs.tar.gz 77 members
+verified ../../2026-11-02/runtime-targets/guest-artifacts.tar.gz 182 members
+verified evidence-000.tar.gz 10155 members
+verified evidence-001.tar.gz 16822 members
+verified evidence-002.tar.gz 1381 members
+verified evidence-delivery-execution.tar.gz 9 members
+verified evidence-packaging-followup.tar.gz 6 members
+{
+  "status": "passed",
+  "compiler_sha256": "5e3b87720d24f3285a5f9df57989c200bf7152a28f296cfd3af0220db1cc2edf",
+  "archives": {
+    "../../2026-11-02/full-hills/experiments-001.tar.gz": 106,
+    "../../2026-11-02/full-hills/experiments-002.tar.gz": 12,
+    "../../2026-11-02/full-hills/guests-001.tar.gz": 528,
+    "../../2026-11-02/full-hills/guests-002.tar.gz": 515,
+    "../../2026-11-02/full-hills/guests-003.tar.gz": 520,
+    "../../2026-11-02/full-hills/guests-004.tar.gz": 516,
+    "../../2026-11-02/full-hills/guests-005.tar.gz": 497,
+    "../../2026-11-02/full-hills/guests-006.tar.gz": 285,
+    "../../2026-11-02/full-hills/qualification.tar.gz": 1178,
+    "../../2026-11-02/full-hills/sources-001.tar.gz": 466,
+    "../../2026-11-02/full-hills/sources-002.tar.gz": 122,
+    "../../2026-11-02/resource-free-calls/guest-artifacts.tar.gz": 7,
+    "../../2026-11-02/resource-free-calls/inputs.tar.gz": 77,
+    "../../2026-11-02/runtime-targets/guest-artifacts.tar.gz": 182,
+    "evidence-000.tar.gz": 10155,
+    "evidence-001.tar.gz": 16822,
+    "evidence-002.tar.gz": 1381,
+    "evidence-delivery-execution.tar.gz": 9,
+    "evidence-packaging-followup.tar.gz": 6
+  },
+  "aliases": 128762,
+  "explicit_omissions": 34,
+  "measured_guest_identities": 4317,
+  "qualification": {
+    "focused": 66,
+    "differential": 9573,
+    "native_comparisons": 7656,
+    "cases": 978,
+    "host": 11484,
+    "unique_modules": 1574
+  },
+  "measurements": {
+    "warmed": 550,
+    "v8": 200,
+    "pairs": 9,
+    "examples": 1600,
+    "host": 1440,
+    "preparations": 200,
+    "cohort": 315
+  },
+  "retention_sha256": "1be7ed25075991e9acb126377b52969eee2640c543d49a0bc298793a8796120e",
+  "index_sha256": "6b96a0b6582682cba16ea1c8210f2f3082c37292a1a455c038f1b14a9084b9ff"
+}

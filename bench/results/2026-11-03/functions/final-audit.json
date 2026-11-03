@@ -1,0 +1,75 @@
+{
+  "schema": "goose-functions-final-audit-v1",
+  "date": "2026-11-03",
+  "reviewer": "astra_campaign",
+  "status": "passed",
+  "blockers": [],
+  "compiler_sha256": "5e3b87720d24f3285a5f9df57989c200bf7152a28f296cfd3af0220db1cc2edf",
+  "input_sha256": {
+    "archives.json.gz": "6b96a0b6582682cba16ea1c8210f2f3082c37292a1a455c038f1b14a9084b9ff",
+    "retention.json": "1be7ed25075991e9acb126377b52969eee2640c543d49a0bc298793a8796120e",
+    "verification.json": "2a1685775499c3b6e4dd6f894a44ea504c830bbc2a5fbdfe5c6050f34036ab63",
+    "verification.log": "e8aa06673e2d156c1ee82d3616fe8a58e4a1574ce8171760bba96a633c31ea66",
+    "reproduction/package.py": "cc5a49fe66af3195421eeab1648dcaa1a975411f57760c12dd9d5a80518c717a",
+    "reproduction/verify_package.py": "6dd085b3dbc652ddaacae0864a9faa160d89fc84b8cde55bfd5dac36eeaa32fb",
+    "reproduction/checks.py": "dde025eb2358af8db556d42c80f2ce20866415a6ff101d9603687420087741ad",
+    "reproduction/spec.json": "fa9d76d17c0a36455c2f937fc225f4767a7abc17f6a2bab97d4ddb810c34e6f4",
+    "reproduction/seal_followup.py": "4ee5838f9785fade8194bc756db0714887bd42bfaa79064c5495880c1501213e",
+    "reproduction/seal_delivery_execution.py": "b5cabb0aa5d3507c40a7fa9ff4129e6a8706492746889f5fde0c5cc017e7d425"
+  },
+  "earlier_public_review": {
+    "path": "build/functions-hill/reviews/final-public-review.json",
+    "sha256": "c96b0c7ca2c3fad52925e8e3563c6c7ae631fbd11987991ebbc539a0873f43ad",
+    "all_47_input_pins_unchanged": true
+  },
+  "package": {
+    "archives": 19,
+    "new_archives": 5,
+    "historical_archive_dependencies": 14,
+    "aliases": 128762,
+    "retained_measured_guest_identities": 4317,
+    "explicit_omissions": 34,
+    "measured_guest_omissions": 0,
+    "public_bindings": 20,
+    "pre_audit_manifest_entries": 34,
+    "maximum_public_file_bytes": 20366736
+  },
+  "qualification": {
+    "focused": 66,
+    "differential": 9573,
+    "native_comparisons": 7656,
+    "cases": 978,
+    "host": 11484,
+    "unique_modules": 1574
+  },
+  "measurement_counts": {
+    "warmed": 550,
+    "v8": 200,
+    "pairs": 9,
+    "examples": 1600,
+    "host": 1440,
+    "preparations": 200,
+    "cohort": 315
+  },
+  "checks": [
+    "Independently hashed every file in the pre-audit public manifest and all 19 named archive dependencies. Archive compressed lengths and fingerprints match the index and published full-verifier result. Public file inventory exactly equals manifest entries plus the manifest itself.",
+    "Independently checked all 128,762 alias-to-member metadata links, all 4,317 required measured-guest identities, retained/omitted disjointness and explicit omission reasons. No measured guest is omitted or classified as a tool.",
+    "All 47 prior public-review inputs remain unchanged and resolve either to an exact archived identity or the standalone public manifest. All three prior review artifacts are archived. The finite digest dependencies of those reviews, campaign links and qualification/delivery summaries now resolve.",
+    "All 20 source-repository public bindings still match their archived fingerprints. The three source stages contain 32 headers and two patches each; the final stage remains tied to the qualified compiler through the published verifier.",
+    "Read the standalone verifier and matrix checks: exact focused/differential/native/host/example/port coverage, engine/source identities, authoritative warmed stdout timers and checksum comparisons are checked. Its full decompression/member verification PASS is retained in verification.json/log; this reviewer did not rerun the whole verifier.",
+    "Independently decoded and hashed every member of the two small supplemental archives. The recovered historical test has the exact 10eed059... review hash and original-path alias; its bounded recovery metadata is retained. The final qualified test is unchanged.",
+    "Delivery orchestration is retained as current evidence with five passed phases, exact report/stdout/stderr links and 1,432 unchanged before/after input fingerprints. The earlier verifier failures and finite source corrections remain retained without rewriting raw timing reports.",
+    "The historical retention boundary is explicit: prior archives supply selected exact byte objects; unrelated historical report claims are not recursively adopted. Compiler/host/tool executables and redundant build products have explicit omission records. All current claim reports, declared evidence and measured guests are checked.",
+    "The supplemental final audit is outside the immutable archives. The exact pre-audit manifest bytes are embedded below; SHA256.json is extended only with this audit digest and excludes its own digest, avoiding a hash cycle."
+  ],
+  "resolved_findings": [
+    "Removed generated unmanifested reproduction/__pycache__ bytes; no evidence bytes changed.",
+    "Added exact delivery-execution report, finite frozen inputs and five phase output logs.",
+    "Recovered and retained the exact historical dead-tee test pinned by the earlier static review, without relabeling the current test or rewriting the review."
+  ],
+  "audited_pre_audit_manifest": {
+    "sha256": "390ab65a5eacedc751092883b3acdeaaad5377fb4b2a1191a26078634aeda2e0",
+    "contents_utf8": "{\n  \"README.md\": \"b4bed255ab5f7111ed79e98a931cbe19c09caf80548a94dd82f46e46748e5750\",\n  \"archives.json.gz\": \"6b96a0b6582682cba16ea1c8210f2f3082c37292a1a455c038f1b14a9084b9ff\",\n  \"campaign.json\": \"0cc587a72e53d27f2d25483a69ff36c75835a56e689dc122be384e28eeb80e01\",\n  \"chart-verification.json\": \"fa0e54ccf4687cd696e99fba59d8a04b3f53938483694f40d105f33b6a035ad8\",\n  \"chart-visual-review.json\": \"5a967aac6672abd25baaa30397575afb45eb7b2a1d5f3b404ad2e00467d49277\",\n  \"cohort.json\": \"6866f215ba816ede40d093ef212df3d7a748bb30d98e0cf87cdaa59c24c1f19e\",\n  \"compiler-identity.json\": \"b3a2382cf937c827a1b18f0e9318195c5afecd2979ec0aed9002fcaad43c27b2\",\n  \"differential.json\": \"11282fd242f4e2987a3608010470ada7a1ee7eddd8397b043978d267e199fc38\",\n  \"evidence-000.tar.gz\": \"19704df51bba54dc50c6cf0b7a8d8e36aa7bb462a5b10e717dbc785d0f98082a\",\n  \"evidence-001.tar.gz\": \"5257957d6a3f3876a760a975acf3e490f682f1ff77933941edd9ef19506522ea\",\n  \"evidence-002.tar.gz\": \"41611a2f7a6d207217220afdd1f7e298e27d99a07fec5d6e30444d70f5298364\",\n  \"examples.json\": \"cc58e640ec6e5604565dbf30f538c9c63d428eedafb28c03a5a27fd661a3efef\",\n  \"final-v8.json\": \"94fb7c806c80365c2085fb744003e7a7ac926359ee56b9ec4ef82c7f47f374dd\",\n  \"final-warmed.json\": \"09abb0351546a29d8c0922223f7d1d4eebbf88652d3dcae95efe5239be17e0d9\",\n  \"functions-holdout.json\": \"d685e070f286ff5bfdd0c905a6648cca0f16d3c09252118869236bfbfc4e7a83\",\n  \"host-qualification.json\": \"26013aa69c27e568bad9511a73a911265d0ea99c06f2b4273d1b940a92eb31ee\",\n  \"host.json\": \"7c14a2d6d9c3a13237f43fed149d77a38c677603b91b668eada4d2a12b7a78f1\",\n  \"qualification.json\": \"4988f23a9ed16e9f4f14d290317bf79cbd40937b290c72fd8155667ccf5e3d18\",\n  \"readme.json\": \"2d2eea619d8d1bd27db86cb5a17f3c094d0f55a7f838db60a6d173f8e1a5f947\",\n  \"references.json\": \"06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350\",\n  \"target-chart-verification.json\": \"58c9a3b686e4b65b74bec3eb1fb6df3b612edd83e0809c1a8564b71e92f5c530\",\n  \"retention.json\": \"1be7ed25075991e9acb126377b52969eee2640c543d49a0bc298793a8796120e\",\n  \"reproduction/package.py\": \"cc5a49fe66af3195421eeab1648dcaa1a975411f57760c12dd9d5a80518c717a\",\n  \"reproduction/verify_package.py\": \"6dd085b3dbc652ddaacae0864a9faa160d89fc84b8cde55bfd5dac36eeaa32fb\",\n  \"reproduction/checks.py\": \"dde025eb2358af8db556d42c80f2ce20866415a6ff101d9603687420087741ad\",\n  \"reproduction/spec.json\": \"fa9d76d17c0a36455c2f937fc225f4767a7abc17f6a2bab97d4ddb810c34e6f4\",\n  \"evidence-packaging-followup.tar.gz\": \"c4e873f2ccdb94824b2b56eb7b34fd8935c059809f191e6fe1fb93ab3a19de26\",\n  \"reproduction/seal_followup.py\": \"4ee5838f9785fade8194bc756db0714887bd42bfaa79064c5495880c1501213e\",\n  \"verification.json\": \"2a1685775499c3b6e4dd6f894a44ea504c830bbc2a5fbdfe5c6050f34036ab63\",\n  \"verification.log\": \"e8aa06673e2d156c1ee82d3616fe8a58e4a1574ce8171760bba96a633c31ea66\",\n  \"evidence-delivery-execution.tar.gz\": \"02e4265e0429541acb42fa14c2a38116961ac25e6450f12193fcc93097d6476d\",\n  \"reproduction/seal_delivery_execution.py\": \"b5cabb0aa5d3507c40a7fa9ff4129e6a8706492746889f5fde0c5cc017e7d425\",\n  \"verification-before-delivery.json\": \"18aad54055f51ffbd3a1fbb67a6e539eda182a5bf5264132601d1c996867dc94\",\n  \"verification-before-delivery.log\": \"2f71f9cfeee0af46cf2fb6bd0965be389a432b3879ca05c169fde5d7d8a3428a\"\n}\n"
+  },
+  "scope": "Offline source, hash, metadata and bounded archive inspection only. No compiler builds, unit tests, engine/guest execution or performance sampling. No new retrospective closure beyond the explicit campaign and review dependencies. Source/prose/charts/raw measurements and compiler identity remain unchanged."
+}

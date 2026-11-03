@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "inspector": "root",
+  "rendered_width": 1500,
+  "charts": [
+    {
+      "path": "build/functions-hill/chart-previews/compilation.png",
+      "sha256": "1fe74d1bb92d007112ba1e65b61fcf2fcfe466ac22625ca7f817f24f63e0001b"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/examples-compilation.png",
+      "sha256": "56ea27f4d83fb55d4d0bc834529c8bf8f1ccbc5a2a5eea5342c976d6dd71517e"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/examples-entry.png",
+      "sha256": "de5bc9f2695bd0d549fc59f583c7f44fd215895364c377722ef4984999dc121f"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/examples-python-runtime.png",
+      "sha256": "1771891560021c88229909df705110941c06ac912d19c4e00c11c7689740abc1"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/examples-runtime.png",
+      "sha256": "660ec037bdedae4c8e1a712f7224aae4f811719a760f1a34275f8a8a3aeb4e71"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/runtime-targets.png",
+      "sha256": "5e03436adb6f9327754abee2c1eb128d5938f1d189ddeea2ab5c656e3a491216"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/runtime.png",
+      "sha256": "f895563e71538513a5fdef2275a8b33e6d7985df393df8a64bc974ff4b61a00a"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/wasmtime-host-c-wasm.png",
+      "sha256": "cc54ad31c757a3659eff569f14c8e56a0433da6476d0fe6a415ee35f8a0e2046"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/wasmtime-host-preparation.png",
+      "sha256": "afccbc81491cfcba81c2fb8b8776589aef9702835f307fbf62f7e239185bfaee"
+    },
+    {
+      "path": "build/functions-hill/chart-previews/wasmtime-host-runtime.png",
+      "sha256": "cdcba68aea798b34f8f06c0fe96285e4de6c2f2c351ea3b77cc1f6eabb2b4498"
+    }
+  ],
+  "checks": [
+    "All ten chart PNGs inspected through three contact sheets",
+    "Full-size example runtime and warmed targets inspected separately",
+    "Titles, legends, numeric labels, dates, workload names and timing boundaries readable",
+    "No clipping or label overlap observed"
+  ],
+  "contact_sheets": [
+    "build/functions-hill/chart-previews/contact-1.png",
+    "build/functions-hill/chart-previews/contact-2.png",
+    "build/functions-hill/chart-previews/contact-3.png"
+  ]
+}

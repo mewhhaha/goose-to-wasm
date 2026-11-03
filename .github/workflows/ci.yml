@@ -105,6 +105,7 @@ jobs:
         run: python tests/test_leaf_frames.py
       - name: Qualified loop, SIMD and runtime regressions
         run: |
+          python tests/test_local_tee.py
           python tests/test_loop_ordinals.py
           python tests/test_literal_ranges.py
           python tests/test_zero_stores.py

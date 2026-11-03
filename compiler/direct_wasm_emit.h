@@ -72,7 +72,7 @@ inline string Function::Finish() {
     }
     if (!frame_free) { Get(framebase); code.OpU(0x24, 0); }
     for (auto r : resultlocals) Get(r);
-    auto body = std::move(code.data); code.data.clear();
+    auto body = std::move(code); code = Bytes{};
     // The fixed frame size is now known. Prepend reservation/checks before
     // any initializer or store; recursive calls get independent frames.
     if (!frame_free) { code.OpU(0x23, 0); Set(framebase); }
@@ -85,11 +85,12 @@ inline string Function::Finish() {
         ActivationLimit(top, line);
         EnsureMemory(top, line); Get(top); code.OpU(0x24, 0);
     }
-    EnterEffectFrame(); code.Raw(body); code.Op(0x0b);
+    EnterEffectFrame(); code.Append(body); code.Op(0x0b);
     return EncodeBody();
 }
 
 inline string Function::EncodeBody() {
+    if (!code.CompactLocals(params.size(), locals)) Fail({}, "internal: invalid Wasm local index");
     Bytes out;
     vector<pair<uint32_t, uint8_t>> groups;
     for (auto t : locals) {

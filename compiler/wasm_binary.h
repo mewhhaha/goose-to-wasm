@@ -8,7 +8,12 @@ enum : uint8_t { I32 = 0x7f, I64 = 0x7e, F32 = 0x7d, F64 = 0x7c, V128 = 0x7b, VO
 
 struct Bytes {
     string data;
-    void Byte(uint8_t x) { data.push_back(static_cast<char>(x)); }
+    struct LocalOp { size_t start, end; uint32_t index; uint8_t op; };
+    vector<LocalOp> local_ops;
+    bool opaque = false;
+    size_t local_set_at = 0, local_set_end = 0;
+    uint32_t local_set_index = 0;
+    void Byte(uint8_t x) { local_set_end = 0; data.push_back(static_cast<char>(x)); }
     void U(uint64_t x) {
         do { auto b = uint8_t(x & 127); x >>= 7; Byte(b | (x ? 128 : 0)); } while (x);
     }
@@ -21,14 +26,79 @@ struct Bytes {
             if (done) return;
         }
     }
-    void Raw(string_view s) { data.append(s); }
+    void Raw(string_view s) { local_set_end = 0; opaque = true; data.append(s); }
+    void Append(const Bytes &other) {
+        local_set_end = 0;
+        auto offset = data.size();
+        data.append(other.data);
+        opaque |= other.opaque;
+        for (auto op : other.local_ops)
+            local_ops.push_back({ offset + op.start, offset + op.end, op.index, op.op });
+    }
     void Name(string_view s) { U(s.size()); Raw(s); }
     void Section(uint8_t id, const Bytes &payload) {
         if (payload.data.empty()) return;
         Byte(id); U(payload.data.size()); Raw(payload.data);
     }
     void Op(uint8_t op) { Byte(op); }
-    void OpU(uint8_t op, uint32_t arg) { Byte(op); U(arg); }
+    void OpU(uint8_t op, uint32_t arg) {
+        // Only complete instructions qualify: raw data and immediates can
+        // contain the same bytes as local.set. Moving/clearing data is a barrier.
+        if (op == 0x20 && local_set_end && local_set_end == data.size() && local_set_index == arg) {
+            data[local_set_at] = 0x22;
+            local_ops.back().op = 0x22;
+            local_set_end = 0;
+            return;
+        }
+        auto start = data.size();
+        Byte(op); U(arg);
+        if (op == 0x21) {
+            local_set_at = start;
+            local_set_end = data.size();
+            local_set_index = arg;
+        }
+        if (op >= 0x20 && op <= 0x22) local_ops.push_back({ start, data.size(), arg, op });
+    }
+    // Called only after the whole function, including prologue and results,
+    // is assembled. Unread tees disappear and unread sets become consuming drops;
+    // only declared locals with ordinary reads need storage. Parameters stay put.
+    bool CompactLocals(size_t parameter_count, vector<uint8_t> &locals) {
+        if (opaque) return true;
+        if (parameter_count > UINT32_MAX || locals.size() > UINT32_MAX - parameter_count) return false;
+        auto count = parameter_count + locals.size();
+        size_t end = 0;
+        for (auto op : local_ops) {
+            if (op.start < end || op.start >= op.end || op.end > data.size() ||
+                op.end - op.start < 2 || op.index >= count || op.op < 0x20 || op.op > 0x22 ||
+                uint8_t(data[op.start]) != op.op) return false;
+            end = op.end;
+        }
+        vector<bool> read(count);
+        for (auto op : local_ops) if (op.op == 0x20) read[op.index] = true;
+        vector<uint32_t> remap(count);
+        for (size_t i = 0; i < parameter_count; i++) remap[i] = uint32_t(i);
+        vector<uint8_t> kept_locals;
+        for (size_t i = 0; i < locals.size(); i++) if (read[parameter_count + i]) {
+            remap[parameter_count + i] = uint32_t(parameter_count + kept_locals.size());
+            kept_locals.push_back(locals[i]);
+        }
+        Bytes kept;
+        kept.data.reserve(data.size());
+        size_t start = 0;
+        for (auto op : local_ops) {
+            kept.data.append(data, start, op.start - start);
+            if (read[op.index]) {
+                auto at = kept.data.size();
+                kept.Byte(op.op); kept.U(remap[op.index]);
+                kept.local_ops.push_back({ at, kept.data.size(), remap[op.index], op.op });
+            } else if (op.op == 0x21) kept.Op(0x1a);
+            start = op.end;
+        }
+        kept.data.append(data, start, string::npos);
+        *this = std::move(kept);
+        locals = std::move(kept_locals);
+        return true;
+    }
     void I32Const(int32_t x) { Byte(0x41); S(x); }
     void I64Const(int64_t x) { Byte(0x42); S(x); }
     void F32Const(float x) {
