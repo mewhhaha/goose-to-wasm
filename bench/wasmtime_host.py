@@ -60,14 +60,18 @@ def main():
     assert host_metadata['host_sha256']==common.digest(host)
     import wasmtime._ffi as ffi
     active_library=Path(ffi.dll._name).resolve()
-    assert str(active_library)==host_metadata['library']
-    assert common.digest(active_library)==host_metadata['library_sha256']
+    native_library=Path(host_metadata['library']).resolve()
+    assert common.digest(native_library)==host_metadata['library_sha256']
+    python_library_sha256=common.digest(active_library)
+    assert baseline['environment']['input_sha256'][str(active_library)]==python_library_sha256
+    if host_metadata.get('linkage','python-shared')=='python-shared':
+        assert active_library==native_library and python_library_sha256==host_metadata['library_sha256']
     assert importlib.metadata.version('wasmtime')==host_metadata['version']==baseline['environment']['wasmtime']
     assert common.digest(Path(baseline['configuration']['goose']))==baseline['environment']['compiler_sha256']
     out=args.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
     paths=[Path(__file__).resolve(),args.example_report.resolve(),host,host.with_suffix('.json'),
            ROOT/'examples/manifest.json',ROOT/'bench/benchmark.py',ROOT/'scripts/run_wasmtime.py',
-           Path(sys.executable).resolve()]
+           Path(sys.executable).resolve(),active_library,native_library]
     paths += [Path(p)for p in host_metadata['input_sha256']]
     paths += [Path(p)for p in baseline['environment']['input_sha256']]
     for path,expected in host_metadata['input_sha256'].items():assert common.digest(Path(path))==expected,path
@@ -85,10 +89,13 @@ def main():
     args.goose=Path(baseline['configuration']['goose']);args.node='node';args.cc='gcc';args.emcc='emcc'
     report={'schema':'goose-wasmtime-host-benchmarks-v1','status':'running',
             'started_utc':datetime.now(timezone.utc).isoformat(),'configuration':vars(args),
-            'environment':common.metadata(args),'host_build':host_metadata,'input_sha256':fingerprints,
+            'environment':common.metadata(args),'host_build':host_metadata,
+            'python_engine':{'version':importlib.metadata.version('wasmtime'),'library':str(active_library),
+                             'library_sha256':python_library_sha256},'input_sha256':fingerprints,
             'examples':examples,'seed':352471,'preparation':[],'observations':[],
             'preparation_summary':[],'runtime_summary':[],'amortization':[],'artifact_qualification':[],
-            'method':'Fresh ordinary launch-to-exit samples with checked golden bytes; Python and native host use identical Wasmtime library bytes. '
+            'method':'Fresh ordinary launch-to-exit samples with checked golden bytes. Python and native Wasmtime share the pinned version; '
+                     'their library bytes and build/linkage identities are recorded separately and may differ. '
                      'Native serial changes only compiler parallelism, not Wasm threads. Precompiled uses the native default configuration and an explicitly prepared, trusted local artifact. '
                      'Preparation includes fresh host launch, Wasm compilation, serialization and file writing. Guest source, Wasm and native-C artifact bytes are unchanged. '
                      'Phases run sequentially; runtime modes are shuffled within each example/round block. Separate preparation commands never overlap runtime sampling. No headline runner writes a timing file.'}

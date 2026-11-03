@@ -215,6 +215,19 @@ def metadata(args, manifest) -> dict:
         wasmtime = importlib.metadata.version("wasmtime")
     except importlib.metadata.PackageNotFoundError:
         wasmtime = "not installed"
+    fingerprints = {str(p.relative_to(ROOT)): sha256(p) for p in inputs}
+    python_engine = None
+    if wasmtime != "not installed":
+        try:
+            import wasmtime._ffi as ffi
+            library = Path(ffi.dll._name).resolve()
+            if library.is_file():
+                library_sha256 = sha256(library)
+                python_engine = {"version": wasmtime, "library": str(library),
+                                 "library_sha256": library_sha256}
+                fingerprints[str(library)] = library_sha256
+        except (ImportError, OSError):
+            pass
     cpu = "unknown"
     try:
         for line in Path("/proc/cpuinfo").read_text().splitlines():
@@ -228,9 +241,9 @@ def metadata(args, manifest) -> dict:
             "logical_cpu_count": os.cpu_count(), "supplied_machine_label": args.machine_label,
             "node": tool_version([args.node, "-p", "JSON.stringify(process.versions)"]),
             "native_cc": tool_version([args.cc, "--version"]), "emcc": tool_version([args.emcc, "--version"]),
-            "wasmtime": wasmtime, "compiler_sha256": sha256(args.goose),
+            "wasmtime": wasmtime, "python_engine": python_engine, "compiler_sha256": sha256(args.goose),
             "installed_stdlib_sha256": {str(p): sha256(p) for p in sorted(stdlib.rglob("*.goose"))},
-            "input_sha256": {str(p.relative_to(ROOT)): sha256(p) for p in inputs},
+            "input_sha256": fingerprints,
             "upstream_revision": manifest["upstream"]["revision"],
             "toolchain": json.loads((ROOT / "toolchain.json").read_text()),
             "environment_overrides": {key: os.environ.get(key) for key in

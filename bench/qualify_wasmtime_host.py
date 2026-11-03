@@ -218,10 +218,20 @@ def qualify(args, output, report):
     verify_pins(manifest["input_sha256"])
     require(digest(host) == manifest["host_sha256"], "host differs from its build manifest")
     import wasmtime._ffi as ffi
-    library = Path(ffi.dll._name).resolve()
+    python_library = Path(ffi.dll._name).resolve()
+    library = Path(manifest["library"]).resolve()
     version = importlib.metadata.version("wasmtime")
-    require(str(library) == manifest["library"] and digest(library) == manifest["library_sha256"],
-            "native host and Python do not use the same pinned Wasmtime library")
+    require(digest(library) == manifest["library_sha256"], "native host library differs from its build manifest")
+    python_library_sha256 = digest(python_library)
+    baseline_library_sha256 = old_pins.get(str(python_library))
+    if baseline_library_sha256 is not None:
+        require(baseline_library_sha256 == python_library_sha256,
+                "Python reference library differs from the pinned baseline")
+    linkage = manifest.get("linkage", "python-shared")
+    require(linkage in ("python-shared", "sdk-static"), "unrecognized native host linkage")
+    if linkage == "python-shared":
+        require(library == python_library and manifest["library_sha256"] == python_library_sha256,
+                "python-shared host uses a different library")
     require(version == manifest["version"] == old["toolchain"]["wasmtime_python"], "Wasmtime version mismatch")
     sdk_pin_path = ROOT / "host/wasmtime-sdk.json"
     sdk_pin = json.loads(sdk_pin_path.read_text())
@@ -244,7 +254,10 @@ def qualify(args, output, report):
                   case_inputs_sha256=bytes_digest(json_bytes(case_data)), compiler_sha256=old["compiler_sha256"],
                   reference_method="Retained native and Python Wasmtime rows; separately collected by the pinned baseline compiler.",
                   compile_refusals="Not rerun: compiler and all baseline input pins are unchanged.",
-                  wasmtime=version, host_build=manifest, engine_configuration=CONFIG,
+                  wasmtime=version, host_build=manifest,
+                  python_engine={"version": version, "library": str(python_library),
+                                 "library_sha256": python_library_sha256,
+                                 "baseline_library_sha256": baseline_library_sha256}, engine_configuration=CONFIG,
                   mode_configuration={
                       "wasm": {"module_mode": "wasm", "parallel_compilation": True},
                       "wasm-no-parallel": {"module_mode": "wasm", "parallel_compilation": False},
@@ -270,7 +283,7 @@ def qualify(args, output, report):
     require(bool(units), "selected cases have no O0/O2 runtime observations")
     report.update(expected_observations=len(units) * len(MODES), modules=list(modules.values()), unique_wasm=len(unique))
     inputs = set(old_pins) | set(manifest["input_sha256"])
-    inputs.update(str(path) for path in (host, manifest_path, library, sdk_pin_path, archive,
+    inputs.update(str(path) for path in (host, manifest_path, library, python_library, sdk_pin_path, archive,
                                         baseline_path, Path(__file__).resolve()))
     inputs.update(str(baseline / "shards" / shard / "report.json") for shard in old["qualification_execution"]["shards"])
     inputs.update(modules)

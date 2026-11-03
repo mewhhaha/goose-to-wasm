@@ -109,6 +109,7 @@ struct Function {
     const vector<Binary *> *lane_mods = nullptr;
     int lane_value = 0;
     unordered_map<Index *, vector<Slot>> cached_lanes;
+    bool defer_lane_stores = false;
     struct Exit {
         uint32_t label;
         SFunction *sf = nullptr;
@@ -136,6 +137,7 @@ struct Function {
         bool active;
     };
     bool MayMaterialize(Node *);
+    bool ResourceFreeBlock(Block *);
     TempScope BeginTempScope(Node *, bool force = false);
     void EndTempScope(const TempScope &);
     ArgumentGroup BeginArgumentGroup(bool);
@@ -340,9 +342,11 @@ struct Function {
     bool SelectAssignment(IfExpr *);
     bool FoldBitLoop(ForLoop *);
     bool UnrollCount(ForLoop *, const Slot &, TypeExpr *);
+    bool UnrollRange(ForLoop *, const Slot &, TypeExpr *);
     bool UnrollWhile(While *);
     bool FoldPopcount(While *, VarDecl *, VarDecl *);
     bool FillLoop(ForLoop *);
+    bool CopyLoop(ForLoop *);
     optional<Slot> CachedLane(Node *);
     void CacheLanes(ForLoop *);
     bool StripSequence(ForLoop *, const Slot &, const Slot &, uint32_t, uint32_t, uint32_t, TypeExpr *);
@@ -499,8 +503,8 @@ struct Compiler {
     unordered_map<EnumInst *, Layout> enum_image_layouts;
     map<pair<EnumInst *, int>, TypeExpr *> enum_variant_types;
     map<string, uint32_t> strings;
-    string data;
     static constexpr uint32_t data_base = 1024;
+    uint64_t data_end = data_base;
     enum Host : uint32_t { WRITE, PRINT_I64, PRINT_U64, PRINT_F64, PRINT_F32, PRINT_BOOL, NEWLINE, ABORT, EXIT };
 
     Compiler(Ast &a, const DirectWasmOptions &o) : ast(a), opts(o) {}
@@ -938,16 +942,16 @@ struct Compiler {
         return layouts.emplace(t, std::move(r)).first->second;
     }
     uint32_t Data(uint32_t size, uint32_t align = 1) {
-        auto off = Align(data_base + uint32_t(data.size()), align);
-        if (uint64_t(off) + size > uint64_t(opts.maximum_pages) * 65536)
+        auto off = (data_end + align - 1) & ~uint64_t(align - 1);
+        if (off + size > uint64_t(opts.maximum_pages) * 65536)
             Fail({}, "static data exceeds the configured linear-memory limit");
-        data.resize(size_t(off - data_base) + size, '\0');
-        return off;
+        data_end = off + size;
+        return uint32_t(off);
     }
     uint32_t Text(string_view s) {
         auto it = strings.find(string(s)); if (it != strings.end()) return it->second;
+        if (s.size() > UINT32_MAX) Fail({}, "static text exceeds the linear-memory address space");
         auto off = Data(uint32_t(max<size_t>(s.size(), 1)));
-        data.replace(off - data_base, s.size(), s);
         strings.emplace(s, off); return off;
     }
     uint32_t Sig(Signature s) {

@@ -1,0 +1,197 @@
+{
+  "compiler_sha256_before": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+  "optimizer": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/bin/wasm-opt",
+    "sha256": "36dbedfdbea6141751e0263825231f715fe293fa5ee6ae6b8747bab13e3b2230"
+  },
+  "source_changes": {
+    "/home/jacobt/src/goose-to-wasm/bench/runtime_reference.py": {
+      "before_sha256": "94f67b878962c5476a9e5be744cf93c30ae5687b6e79379c21c9877f842453a6",
+      "preserved_before": "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/before/bench/runtime_reference.py",
+      "after_sha256": "0581357526227028437955e455b36caa108b963913b1e535d56ea76b3a5b4efe"
+    },
+    "/home/jacobt/src/goose-to-wasm/tests/test_runtime_reference.py": {
+      "before_sha256": "ac5c15c1c4adcdcf90a364b7c5ec5f8e312ad32f01a56c6d334ae889a07a1a28",
+      "preserved_before": "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/before/tests/test_runtime_reference.py",
+      "after_sha256": "2256f4eecf1b66ad443291d68b2b5efc8f91077887072eeef94cdaa62f6ef06f"
+    }
+  },
+  "input_sha256_before": {
+    "/home/jacobt/src/goose-to-wasm/bench/runtime_reference.py": "94f67b878962c5476a9e5be744cf93c30ae5687b6e79379c21c9877f842453a6",
+    "/home/jacobt/src/goose-to-wasm/tests/test_runtime_reference.py": "ac5c15c1c4adcdcf90a364b7c5ec5f8e312ad32f01a56c6d334ae889a07a1a28"
+  },
+  "guest": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/full-hills/delivered-warmed/build/hash_sha256/final/program.wasm",
+    "sha256": "3ffb817989168ba326a93fecefeb112a06a9fcc0cba8ae505bdabfb67a44ac37"
+  },
+  "case": {
+    "name": "Hash::SHA256",
+    "source": "/home/jacobt/src/goose-to-wasm/bench/langarena/ports/hash_sha256.goose",
+    "test": {
+      "stdin": "1000 3 1\n",
+      "checksum": 1036619072
+    },
+    "run": {
+      "stdin": "1000000 1200 240\n",
+      "checksum": 2844672256
+    },
+    "metadata": {
+      "track": "LangArena adapted",
+      "catalog": {
+        "name": "Hash::SHA256",
+        "upstream_module": "goose/src/buffer_hash.goose",
+        "test": {
+          "name": "Hash::SHA256",
+          "checksum": 1036619072,
+          "size": 1000,
+          "iterations": 3
+        },
+        "run": {
+          "name": "Hash::SHA256",
+          "checksum": 2844672256,
+          "size": 1000000,
+          "iterations": 1200
+        },
+        "port": {
+          "file": "ports/hash_sha256.goose",
+          "fields": [
+            "size"
+          ],
+          "bounds": {
+            "size": [
+              1,
+              1000000
+            ]
+          },
+          "classification": "bounded-storage adaptation",
+          "revision_marker": "let ARENA_REVISION = 0;",
+          "edited_exit_code": 1
+        },
+        "notes": "Upstream task name; this is LangArena's custom hash, not standard cryptographic SHA-256."
+      }
+    },
+    "source_files": [],
+    "id": "hash_sha256"
+  },
+  "commands": [
+    {
+      "name": "old-flags-reproduction",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/bin/wasm-opt",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/delivered-warmed/build/hash_sha256/final/program.wasm",
+        "-O3",
+        "--enable-bulk-memory",
+        "--enable-sign-ext",
+        "--enable-multivalue",
+        "--enable-nontrapping-float-to-int",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/without-simd.wasm"
+      ],
+      "exit_status": 1,
+      "wall_seconds": 0.004263546987203881,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6e19a63f304b6117bd23a80c200c5f75beec09796983fd0445e5a7a2a1f43203",
+      "expected": "reject frozenSIMD guest without explicit SIMD feature"
+    },
+    {
+      "name": "runtime-reference-unit",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/tests/test_runtime_reference.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.1823609929997474,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/logs/runtime-reference-unit",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6e0330017bfaee78956b7d20766fa9f65ca3d928869dc1abb516cd5b6f9425f8"
+    },
+    {
+      "name": "new-flags-optimization",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/bin/wasm-opt",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/delivered-warmed/build/hash_sha256/final/program.wasm",
+        "-O3",
+        "--enable-bulk-memory",
+        "--enable-sign-ext",
+        "--enable-multivalue",
+        "--enable-nontrapping-float-to-int",
+        "--enable-simd",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/program.wasm"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.022568650980247185,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/logs/new-flags-optimization",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "v8-smoke",
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/program.wasm"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.026904705999186262,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/logs/v8-smoke",
+      "stdout_sha256": "17fceee3f52c4294c6db83d98343da974a14c781f74d107e6d944f9f1f9626c0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "wasmtime-smoke",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/baseline/bin/goose-wasmtime",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/program.wasm"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.010182772995904088,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/logs/wasmtime-smoke",
+      "stdout_sha256": "a6137c953de88f70ccf232696a34c20586c765dfa2fee893306ff152d064e61c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "measurement": "Correctness reproduction only; no latency/performance claim.",
+  "status": "passed",
+  "tool_sha256_before": {
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+    "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/home/jacobt/src/goose-to-wasm/build/full-hills/baseline/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/bin/wasm-opt": "36dbedfdbea6141751e0263825231f715fe293fa5ee6ae6b8747bab13e3b2230"
+  },
+  "optimized_guest": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/full-hills/optimizer-followup/program.wasm",
+    "sha256": "fb325f7c049dbef18203e574d2bfecfc463eb5c2f74d06d67662283c97e33dba"
+  },
+  "smoke_results": [
+    {
+      "engine": "v8",
+      "status": "passed",
+      "checksum": 1036619072,
+      "expected_checksum": 1036619072,
+      "timed_region_seconds": 2.545e-06,
+      "revision_exit": 0
+    },
+    {
+      "engine": "wasmtime",
+      "status": "passed",
+      "checksum": 1036619072,
+      "expected_checksum": 1036619072,
+      "timed_region_seconds": 1.202e-06,
+      "revision_exit": 0
+    }
+  ],
+  "compiler_sha256_after": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+  "tool_sha256_after": {
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+    "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/home/jacobt/src/goose-to-wasm/build/full-hills/baseline/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3",
+    "/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/bin/wasm-opt": "36dbedfdbea6141751e0263825231f715fe293fa5ee6ae6b8747bab13e3b2230"
+  },
+  "input_sha256_after": {
+    "/home/jacobt/src/goose-to-wasm/bench/runtime_reference.py": "0581357526227028437955e455b36caa108b963913b1e535d56ea76b3a5b4efe",
+    "/home/jacobt/src/goose-to-wasm/tests/test_runtime_reference.py": "2256f4eecf1b66ad443291d68b2b5efc8f91077887072eeef94cdaa62f6ef06f"
+  }
+}

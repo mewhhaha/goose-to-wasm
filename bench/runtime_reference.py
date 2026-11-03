@@ -403,7 +403,8 @@ class Harness:
                     source = self.report["artifacts"].get(case["id"]+"/direct-O2", {})
                     if source.get("status") == "built":
                         command = [self.tools["wasm_opt"], source["path"], "-O3", "--enable-bulk-memory",
-                                   "--enable-sign-ext", "--enable-multivalue", "--enable-nontrapping-float-to-int", "-o", path]
+                                   "--enable-sign-ext", "--enable-multivalue", "--enable-nontrapping-float-to-int",
+                                   "--enable-simd", "-o", path]
                         row.update(input_wasm=source["path"], input_wasm_sha256=source["sha256"])
                 elif variant["family"] == "native" and "native" in generated and host_objects[variant["id"]]:
                     command = [self.tools[variant["compiler"]], generated["native"], *self.flags(variant), "-I", headers,

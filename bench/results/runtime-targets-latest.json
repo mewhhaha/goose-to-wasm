@@ -1,13 +1,14 @@
 {
   "schema": "goose-runtime-reference-latest-v1",
-  "report": "2026-11-02/runtime-targets/references.json",
+  "report": "2026-11-02/full-hills/references.json",
   "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
   "comparison": {
-    "report": "2026-11-02/resource-free-calls/warmed-paired.json",
-    "sha256": "f93ab56bba1fefa53ba3fd5d307f2c995f70b529da9c56efab385aac899887fc"
+    "report": "2026-11-02/full-hills/final-warmed.json",
+    "sha256": "18468ba474ae691d971b689e5a369e73572302f423c95f40afd705ab58e7ce49",
+    "compiler": "final"
   },
   "chart_verification": {
-    "report": "2026-11-02/resource-free-calls/target-chart-verification.json",
-    "sha256": "bfc752c2ce7723c70ec40879d92e94238985da6bbb01627512a51ca915dfd37d"
+    "report": "2026-11-02/full-hills/target-chart-verification.json",
+    "sha256": "811a06486b2cb7b9d8e8b2c93154c71183a116b800ee9065930e3907aea3e1ee"
   }
 }

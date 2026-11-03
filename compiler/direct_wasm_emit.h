@@ -297,9 +297,10 @@ inline DirectWasmResult Compiler::Compile() {
         if (uint64_t(result.region_count) * 4 > UINT32_MAX) Fail({}, "region cursor table is too large");
         cursor_table = Data(result.region_count * 4, 4);
     }
-    auto stackbase = Align(data_base + uint32_t(data.size()), 16);
+    auto stackend = (data_end + 15) & ~UINT64_C(15);
     auto maximum_bytes = uint64_t(opts.maximum_pages) * 65536;
-    if (stackbase > maximum_bytes) Fail({}, "static data exceeds linear memory");
+    if (stackend > maximum_bytes) Fail({}, "static data exceeds linear memory");
+    auto stackbase = uint32_t(stackend);
     if (result.region_count) {
         result.region_bytes = uint32_t(((maximum_bytes - stackbase) / (uint64_t(result.region_count) + 1)) & ~UINT64_C(7));
         if (result.region_bytes < 8) Fail({}, "linear memory has no space for stable data regions");
@@ -353,7 +354,11 @@ inline DirectWasmResult Compiler::Compile() {
     for (auto &[name, idx] : exported) { ex.Name(name); ex.Byte(0); ex.U(idx); }
     module.Section(7, ex);
     Bytes codes; codes.U(bodies.size()); for (auto &b : bodies) { codes.U(b.size()); codes.Raw(b); } module.Section(10, codes);
-    auto segments = SparseDataSegments(data, data_base);
+    vector<DataSegment> initialized;
+    initialized.reserve(strings.size());
+    for (auto &[text, offset] : strings) initialized.push_back({ offset, text });
+    sort(initialized.begin(), initialized.end(), [](auto &a, auto &b) { return a.offset < b.offset; });
+    auto segments = SparseDataSegments(initialized);
     Bytes ds; ds.U(segments.size());
     for (auto &s : segments) {
         ds.U(0); ds.I32Const(int32_t(s.offset)); ds.Op(0x0b); ds.U(s.bytes.size()); ds.Raw(s.bytes);

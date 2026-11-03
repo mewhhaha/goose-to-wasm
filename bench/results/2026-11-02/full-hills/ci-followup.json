@@ -1,0 +1,154 @@
+{
+  "compiler_sha256_before": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+  "input_sha256_before": {
+    "/home/jacobt/src/goose-to-wasm/tests/test_lane_writeback.py": "700cc2bc74c940f2028401d2171968e51fd157b416b61a365223bd12c2a73b46",
+    "/home/jacobt/src/goose-to-wasm/tests/test_simd_only_writeback.py": "864304ee6a1ad50d16cc9fbd20df93ffaedc04ec66672fb6a30ae7fafa6f0ebf",
+    "/home/jacobt/src/goose-to-wasm/.github/workflows/ci.yml": "63516446c3a62775cc721af5445e1427ed9512b9f9235036fe28abc86ff77e21",
+    "/home/jacobt/src/goose-to-wasm/tests/test_fill_loops.py": "da281a5602ba946e802071da49e529f507f03cf732d41e4234b1f216b71a99a8",
+    "/home/jacobt/src/goose-to-wasm/tests/test_static_data.py": "6dabf806397a4a34eaf6f299e70da0596df3e77f04e351cad3d01ecb0d2dcbb0",
+    "/home/jacobt/src/goose-to-wasm/tests/test_strip_loops.py": "605427962fc79df8be12cf333fe4ad6580e7f01d55dd6bef8ea47e6d9beb679a",
+    "/home/jacobt/src/goose-to-wasm/tests/test_loop_ordinals.py": "514e0f9ea28992c5067236d4970724c06fbf3f7d644a12ab8a0e69baf163ad39",
+    "/home/jacobt/src/goose-to-wasm/tests/test_prefix_resolution.py": "cd94ab35b66dfe5895325fe452245d8ea888c40865bb9487a6c42e5e2c70d980",
+    "/home/jacobt/src/goose-to-wasm/tests/test_resource_free_blocks.py": "ac89092ab7cac6863751690bf20a01c574170e95897bc5267e6df2fe6d09671f",
+    "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "fb6319f181316f9d33cc6a6dfe58259cb234046861aa97c5e3ad09269824977d",
+    "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "439bd31e947ed48c9630ab4a9a95a24d5d4634181ef6ee8dd6370d3858fcb230"
+  },
+  "tool_sha256_before": {
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb",
+    "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178"
+  },
+  "source_changes": {
+    "/home/jacobt/src/goose-to-wasm/tests/test_lane_writeback.py": {
+      "before_sha256": "700cc2bc74c940f2028401d2171968e51fd157b416b61a365223bd12c2a73b46",
+      "preserved_before": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/before/tests/test_lane_writeback.py",
+      "after_sha256": "5c387e468603210d3028c68f86abaf34358bcb67ceab9f5a567eed9de7b1b7f5"
+    },
+    "/home/jacobt/src/goose-to-wasm/tests/test_simd_only_writeback.py": {
+      "before_sha256": "864304ee6a1ad50d16cc9fbd20df93ffaedc04ec66672fb6a30ae7fafa6f0ebf",
+      "preserved_before": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/before/tests/test_simd_only_writeback.py",
+      "after_sha256": "b7df2564b28642ee49ffb5da1f50671577f20cbe4b977ca5dc33437e18777268"
+    },
+    "/home/jacobt/src/goose-to-wasm/.github/workflows/ci.yml": {
+      "before_sha256": "63516446c3a62775cc721af5445e1427ed9512b9f9235036fe28abc86ff77e21",
+      "preserved_before": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/before/.github/workflows/ci.yml",
+      "after_sha256": "617569ecacdbbcb3393b881e56a8ec600a275b7df4ebf9e8496ab761c5bbf5f6"
+    }
+  },
+  "host_unique_wasm": 1574,
+  "scope": "Production test defaults and CI invocation coverage only; compiler unchanged. Frozen-reference ResourceFreeBlocks comparisons remain in the original65 campaign gates, while fresh CI runs its self-contained behavior cases.",
+  "status": "passed",
+  "commands": [
+    {
+      "name": "lane-default",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_lane_writeback.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 7.924358184012817,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/logs/lane-default",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "3da58c141c61ef009d28d3b5a6ac3f7cb619c5b69b33841e65663b8b1dd24f9a"
+    },
+    {
+      "name": "lane-wrapper",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_simd_only_writeback.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 7.534456839988707,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/logs/lane-wrapper",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "2ff655c58f12371100f3ef1173d54d34e552b6678fc4e655db44dff6ef030968"
+    },
+    {
+      "name": "lane-discovery",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_simd_only_writeback.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 7.498331873008283,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/logs/lane-discovery",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "599952133fe2e90917662d3fe575ffd8d0560c7a0b99b5a0f2e29b871b650bdf"
+    },
+    {
+      "name": "resource-free-ci-default",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "tests/test_resource_free_blocks.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 2.3253746460250113,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/logs/resource-free-ci-default",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7f04c1f1ff1532e6f53cbae873a634b8ba2a1e6855baea775b682b163423e48c"
+    },
+    {
+      "name": "ci-invocations",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/validate_ci.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.01942824199795723,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/logs/ci-invocations",
+      "stdout_sha256": "896d8da1fb30f3650749adab57af83fcddc140d7965411c57b99da306279fec0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "delivery-parser-preflight",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "-m",
+        "py_compile",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/package.py",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/verify_package.py",
+        "/home/jacobt/src/goose-to-wasm/build/full-hills/measure_delivered.py"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 0.048634912993293256,
+      "log_directory": "/home/jacobt/src/goose-to-wasm/build/full-hills/ci-followup/logs/delivery-parser-preflight",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "compiler_sha256_after": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+  "tool_sha256_after": {
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb",
+    "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e",
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178"
+  },
+  "input_sha256_after": {
+    "/home/jacobt/src/goose-to-wasm/tests/test_lane_writeback.py": "5c387e468603210d3028c68f86abaf34358bcb67ceab9f5a567eed9de7b1b7f5",
+    "/home/jacobt/src/goose-to-wasm/tests/test_simd_only_writeback.py": "b7df2564b28642ee49ffb5da1f50671577f20cbe4b977ca5dc33437e18777268",
+    "/home/jacobt/src/goose-to-wasm/.github/workflows/ci.yml": "617569ecacdbbcb3393b881e56a8ec600a275b7df4ebf9e8496ab761c5bbf5f6",
+    "/home/jacobt/src/goose-to-wasm/tests/test_fill_loops.py": "da281a5602ba946e802071da49e529f507f03cf732d41e4234b1f216b71a99a8",
+    "/home/jacobt/src/goose-to-wasm/tests/test_static_data.py": "6dabf806397a4a34eaf6f299e70da0596df3e77f04e351cad3d01ecb0d2dcbb0",
+    "/home/jacobt/src/goose-to-wasm/tests/test_strip_loops.py": "605427962fc79df8be12cf333fe4ad6580e7f01d55dd6bef8ea47e6d9beb679a",
+    "/home/jacobt/src/goose-to-wasm/tests/test_loop_ordinals.py": "514e0f9ea28992c5067236d4970724c06fbf3f7d644a12ab8a0e69baf163ad39",
+    "/home/jacobt/src/goose-to-wasm/tests/test_prefix_resolution.py": "cd94ab35b66dfe5895325fe452245d8ea888c40865bb9487a6c42e5e2c70d980",
+    "/home/jacobt/src/goose-to-wasm/tests/test_resource_free_blocks.py": "ac89092ab7cac6863751690bf20a01c574170e95897bc5267e6df2fe6d09671f",
+    "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "fb6319f181316f9d33cc6a6dfe58259cb234046861aa97c5e3ad09269824977d",
+    "/home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "439bd31e947ed48c9630ab4a9a95a24d5d4634181ef6ee8dd6370d3858fcb230"
+  }
+}

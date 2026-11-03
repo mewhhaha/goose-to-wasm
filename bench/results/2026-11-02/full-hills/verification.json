@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "archives": {
+    "../resource-free-calls/inputs.tar.gz": 5292,
+    "../resource-free-calls/guest-artifacts.tar.gz": 67,
+    "../runtime-targets/guest-artifacts.tar.gz": 200,
+    "assets.tar.gz": 44,
+    "experiments-001.tar.gz": 17218,
+    "experiments-002.tar.gz": 2097,
+    "guests-001.tar.gz": 824,
+    "guests-002.tar.gz": 784,
+    "guests-003.tar.gz": 802,
+    "guests-004.tar.gz": 798,
+    "guests-005.tar.gz": 755,
+    "guests-006.tar.gz": 454,
+    "qualification.tar.gz": 21154,
+    "sources-001.tar.gz": 872,
+    "sources-002.tar.gz": 237
+  },
+  "alias_count": 192599,
+  "omitted_inputs": 7565,
+  "opaque_historical_context_files": 2800,
+  "retained_json_documents": 68453,
+  "guest_identities_checked": 95713,
+  "compiler_sha256": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "original_focused_commands": 65,
+  "followup_commands": 6,
+  "optimizer_followup_commands": 5,
+  "retention_sha256": "e5b3c7f04b9c37043bcf8155b2a2558724f891d46b556db42a138537fdfd4f4e",
+  "index_sha256": "e6e7c91b834dd335c00880eec6d875fd71481923256060152ccc36bea14c67c7",
+  "claims": "Exact primary matrices, raw warmed protocol/timers, final compiler and frozen source/engine choices verified. Failed experiments remain unmodified evidence, not passing claims."
+}

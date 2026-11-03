@@ -4,7 +4,7 @@
 
 namespace goose::direct_wasm {
 
-enum : uint8_t { I32 = 0x7f, I64 = 0x7e, F32 = 0x7d, F64 = 0x7c, VOID = 0x40 };
+enum : uint8_t { I32 = 0x7f, I64 = 0x7e, F32 = 0x7d, F64 = 0x7c, V128 = 0x7b, VOID = 0x40 };
 
 struct Bytes {
     string data;
@@ -72,6 +72,30 @@ inline vector<DataSegment> SparseDataSegments(string_view data, uint32_t base) {
             else if (pos - end >= 16) break;
         }
         segments.push_back({ base + uint32_t(start), data.substr(start, end - start) });
+    }
+    return segments;
+}
+
+struct OwnedDataSegment { uint32_t offset; string bytes; };
+
+// Fragments borrow interned text. Reservations between them consume no host
+// memory; materialize zero gaps only when serialization joins two spans.
+inline vector<OwnedDataSegment> SparseDataSegments(const vector<DataSegment> &fragments) {
+    vector<OwnedDataSegment> segments;
+    for (auto &fragment : fragments) {
+        for (auto &span : SparseDataSegments(fragment.bytes, fragment.offset)) {
+            if (!segments.empty()) {
+                auto &last = segments.back();
+                auto end = uint64_t(last.offset) + last.bytes.size();
+                auto gap = uint64_t(span.offset) - end;
+                if (gap <= 16 || segments.size() == 1024) {
+                    last.bytes.append(size_t(gap), '\0');
+                    last.bytes.append(span.bytes);
+                    continue;
+                }
+            }
+            segments.push_back({ span.offset, string(span.bytes) });
+        }
     }
     return segments;
 }

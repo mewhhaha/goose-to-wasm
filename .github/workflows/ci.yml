@@ -103,6 +103,21 @@ jobs:
         run: python tests/test_constant_divisors.py
       - name: Frame-free leaves and resource fallbacks
         run: python tests/test_leaf_frames.py
+      - name: Qualified loop, SIMD and runtime regressions
+        run: |
+          python tests/test_loop_ordinals.py
+          python tests/test_literal_ranges.py
+          python tests/test_zero_stores.py
+          python tests/test_descending_while.py
+          python tests/test_popcount_wrapper.py
+          python tests/test_print_reentry.py
+          python tests/test_bulk_integer_loops.py
+          python tests/test_resource_free_blocks.py
+          python tests/test_literal_select.py
+          python tests/test_lane_writeback.py
+          python tests/test_simd_only_writeback.py SimdOnlyWriteback.test_unsupported_ordinal_body_keeps_single_write_through_loop
+          python tests/test_python_wasmtime.py
+          python tests/test_descending_simd.py
       - name: Stable regions, memory isolation and scoped owner cleanup
         run: |
           python tests/test_regions.py

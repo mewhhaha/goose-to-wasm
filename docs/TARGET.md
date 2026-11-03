@@ -3,8 +3,10 @@
 ## Engines and features
 
 The qualified engines are V8 13.6.233.17-node.58 through Node 24.22.1, and Wasmtime
-through Python package 50.0.1. An optional native C API host links the same
-Wasmtime library; both hosts implement the known direct and standalone C ABI.
+through Python package 50.0.1. The optional native C API host links the pinned
+full static SDK by default; an explicit Python-shared-library fallback is available.
+Both use Wasmtime 50.0.1 but the default libraries have different bytes. Both hosts
+implement the known direct and standalone C ABI.
 `scripts/check_engines.py` assembles and executes
 feature probes in both engines. It checks numeric operations, sign extension,
 multi-value, bulk memory, SIMD, tail calls, memory64, multi-memory, and standard
@@ -12,7 +14,9 @@ exception handling (`try_table`). Engine support does not imply that every Goose
 construct has a corresponding lowering in this backend.
 
 The direct emitter currently uses numeric wasm32, sign extension, multi-value,
-and bulk-memory operations. The C oracle's standalone profile uses memory64.
+bulk-memory operations, and guarded standard SIMD128 integer lowerings. SIMD is
+internal; the public Goose ABI remains numeric and boolean, with no user-facing
+vector API implied. The C oracle's standalone profile uses memory64.
 The compiler has no need to preserve compatibility with older browser engines.
 
 ## Representations and host ABI

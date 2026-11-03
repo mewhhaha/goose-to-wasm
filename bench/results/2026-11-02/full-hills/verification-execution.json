@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "bench/results/2026-11-02/full-hills/reproduction/verify_package.py",
+    "--report",
+    "bench/results/2026-11-02/full-hills/verification.json"
+  ],
+  "exit_status": 0,
+  "wall_seconds": 14.521997767005814,
+  "log": "/tmp/goose-full-hills-final-verification.log"
+}

@@ -1,63 +1,23 @@
 # More levers
 
-The [runtime targets](RUNTIME_TARGETS.md) rank the next measured work: Life and insertion sort remain about 7.1× and 6.9× selected native, with custom hash at 4.1×. Sudoku improved 1.066× in the fresh paired warmed adapter and remains 1.8× selected native. These workload-specific references use frozen confirmation selections.
+The [24-family performance campaign](FULL_PERFORMANCE_CAMPAIGN.md) tracks measured experiments and their qualification.
 
-There is substantial headroom in code generation, compilation work and language
-coverage. The current evidence covers seven adapted LangArena workloads and ten
-example programs on one machine; it does not establish a Goose or WebAssembly
-ceiling. V8 first-call behavior and generated code size remain hills.
+The [runtime targets](RUNTIME_TARGETS.md) compare the delivered compiler with fixed, separately built reference selections executed in fresh paired rounds. The selected native reference remains faster on several workloads; it is not a universal ceiling.
 
-At compiler commit `f3b6117`, CRC32 takes about 10–12% longer than C-Wasm.
-Custom hash takes about 1.6× native C time. Merge sort takes 2.165 seconds on
-V8 versus C-Wasm's 1.458, while direct Wasm is faster on Wasmtime. These are
-configured iteration counts from the same [measured cohort](../bench/results/2026-11-01/lanes/README.md),
-with memory32 direct modules and memory64 C-Wasm modules.
+The campaign improved warmed Life, Sorting, Sudoku and hash. Remaining work includes generic Life stencil legality, physical layout under the exported-memory contract, and workload-specific native gaps. Binaryen O3 helped Life but regressed other workloads, so it remains a reference rather than a default pipeline. The [campaign tracker](FULL_PERFORMANCE_CAMPAIGN.md) retains measured tradeoffs and rejected experiments.
 
-## Ranked implementation hills
-
-Astra reviewed these source paths at xhigh effort. These are proposed
-experiments; none has a claimed speedup yet.
-
-| Order | Lever | Existing work to remove | First measurement and safety gate |
-| --- | --- | --- | --- |
-| 1 | Zero-filled array construction | `AggregateLiteral` zeroes a fresh frame image, writes each zero again, then declaration initialization copies the image. | First remove only the redundant element stores for exact integer-zero literals. Preserve frame reservation, fill-value evaluation and copy order. Measure startup separately from timed kernels, module size and emission. Direct construction into the destination needs a later alias/lifetime proof. |
-| 2 | Wider bulk fills and copies | `FillLoop` handles bytes; merge sort clears an integer buffer and copies slices repeatedly. | Start with integer-zero fills using widened byte counts and the existing scalar fallback for invalid physical ranges. Later try disjoint copy loops. Test overlap, empty slices, partial traps and overflow; preserve forward-copy behavior when buffers overlap. |
-| 3 | Sparse compiler storage | `Compiler::Data` allocates and zeroes dense storage for large globals; `SparseDataSegments` scans it again. | Separate logical extent from initialized bytes. Require identical addresses, memory checks and module bytes. Measure emitter time and allocation against increasing static sizes. This is not an established explanation for the latest 0.23 ms CRC emitter regression. |
-| 4 | Hash lane write-back | The current cache still performs every memory store. | A fast path needs valid input ranges, disjointness from cached arrays, no other aliasing effects and a nontrapping body, including debug arithmetic and conversions. Keep today's write-through path otherwise. Measure register pressure and duplicated code as costs. |
-| 5 | Packed CRC basis terms | Eight independent selections remain. | Try two adjacent bits packed into instruction immediates for u32, retaining today's u64 path and exact recurrence matcher. Check arbitrary polynomials. Larger constants and register pressure may erase the gain. |
-| 6 | Build invocation overhead | Complete driver builds take 73–82 ms; actual compiler phases are much shorter. | Compare the native CLI, Python driver and persistent worker on identical sources and artifacts. Separate launch, dependency publication and compilation. Improve the integration before adding another optimization pass. |
-
-The relevant implementation is in [expression lowering](../compiler/direct_wasm_expr.h),
-[static allocation](../compiler/direct_wasm.h) and
-[data-segment emission](../compiler/wasm_binary.h). Scratch-local pooling is
-deferred: persistent bindings, cleanup values and results need a stronger
-lifetime analysis before slots can be reused safely.
-
-Freeze each compiler and workload, inspect the changed artifacts, then collect
-at least five interleaved pairs. Look for repeatable gains of at least 5%;
-investigate regressions above 3%, module growth and compiler-phase costs.
-Run both engines and unaffected controls. A kept compiler change must pass the
-full differential and boundary gates, refresh the README cohort and retain its
-experiments, including rejected ones.
+Freeze compiler and workload identities, qualify semantics, and collect interleaved confirmation pairs. Investigate regressions, module growth and compiler costs in both engines and unaffected controls.
 
 ## Example Wasm audit
 
-The current [audit](WASM_AUDIT.md) covers all ten examples. Leaf frames, bit counts, remainder and call specialization improved measured examples; [tuned native controls](NATIVE_PERFORMANCE.md) show further work remains.
+The historical [audit](WASM_AUDIT.md) covers all ten examples. Leaf frames, bit counts, remainder and call specialization improved measured examples; [tuned native controls](NATIVE_PERFORMANCE.md) show further work remains.
 
 ## Native-host comparison
 
 The [native Wasmtime host comparison](../bench/wasmtime-host.md) now measures
 fresh compilation and explicit precompiled loading alongside the Python host.
-Preparation matters for one-off runs, and ordinary direct Wasm still trails native C. Host, callback
-and I/O differences contribute to the observed gap; it is not a bound on
-steady-state code generation, which remains a separate hill. Serial compilation
+Preparation and startup matter for one-off runs; the relative process times vary by workload. Host, callback and I/O differences also affect the comparison, which does not bound steady-state code generation. Serial compilation
 was generally slower and remains a control rather than the default.
-
-Four-way unrolling improved Sorting's Wasmtime entry time while preserving V8
-performance within measurement noise. Continue comparing generated code with
-native C to investigate the remaining entry-time gap; refreshed full-process
-measurements put precompiled Sorting at 68.899 ms versus 46.512 ms native,
-excluding preparation. See the [current measurements](../bench/results/2026-11-02/resource-free-calls/README.md).
 
 ## Language and host coverage
 

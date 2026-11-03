@@ -29,7 +29,8 @@ class SnapshotObservations(unittest.TestCase):
                           {"path": str(config), "kind": "build", "exists": False, "complete": True},
                           {"path": str(probe), "kind": "probe", "exists": False}]
             with mock.patch.object(driver, "valid_input", side_effect=AssertionError("disk validation")), \
-                 mock.patch.object(driver, "search_directories", side_effect=AssertionError("namespace scan")):
+                 mock.patch.object(driver, "search_directories", side_effect=AssertionError("namespace scan")), \
+                 mock.patch.object(driver, "sha256", side_effect=AssertionError("source hashing")):
                 snapshot, coherent = driver.dependency_snapshot(transcript, [work], validate=False)
                 self.assertFalse(coherent)
                 self.assertFalse(driver.valid_dependencies(snapshot))

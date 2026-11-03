@@ -6,17 +6,17 @@ Compile [Goose](https://github.com/aardappel/goose) directly to WebAssembly for 
 
 ## Benchmarks
 
-**2026-11-02 · AMD Ryzen 7 3800X · lower is better.** Medians from five samples per cell, using seven adapted LangArena workloads. Six replace growable storage with bounded arrays; each backend compiles the same adapted source. These are not results for the full 50-task suite. Direct Wasm uses memory32; C-to-Wasm uses memory64.
+**2026-11-03 · AMD Ryzen 7 3800X · lower is better.** Medians from five samples per cell, using seven adapted LangArena workloads. Six replace growable storage with bounded arrays; each backend compiles the same adapted source. These are not results for the full 50-task suite. Direct Wasm uses memory32; C-to-Wasm uses memory64.
 
 ![Cold build times by workload and backend](bench/charts/compilation.svg)
 
-Complete uncached builds include Python driver startup. Direct builds took 73–85 ms, 7.6–9.5× faster than C-to-Wasm on these inputs.
+Complete uncached builds include Python driver startup. Direct builds took 67.8–74.0 ms versus 629.7–691.6 ms for C-to-Wasm on these inputs.
 
 ![Runtime by workload, backend, and engine](bench/charts/runtime.svg)
 
 Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine.
 
-[Full results and raw samples](bench/results/2026-11-02/resource-free-calls/README.md) · [Benchmark method](bench/langarena/README.md)
+[Full results and raw samples](bench/results/2026-11-02/full-hills/README.md) · [Benchmark method](bench/langarena/README.md)
 
 ### Runtime targets
 

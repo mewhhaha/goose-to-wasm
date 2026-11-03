@@ -55,9 +55,11 @@ C-compiler paths.
 
 ## Optional native Wasmtime host
 
-On Linux x86_64, install the pinned Python requirements and build with C++20
-`clang++`. The builder downloads and checks the pinned official SDK headers and
-links the same Wasmtime 50.0.1 library used by the Python runner.
+On Linux x86_64, build with C++20 `clang++`. The builder checks the official
+Wasmtime 50.0.1 SDK archive and links its full static library, with section
+collection and static C++ runtimes. Both ordinary execution and AOT preparation
+remain available. `--linkage python-shared` instead links the installed pinned
+Python package's library; benchmark reports record both library identities.
 
 ```sh
 python scripts/build_wasmtime_host.py

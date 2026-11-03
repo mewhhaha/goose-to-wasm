@@ -8,7 +8,6 @@ The computational kernels execute entirely in compiled WebAssembly.
 from __future__ import annotations
 
 import argparse
-import importlib.metadata
 import json
 import math
 from pathlib import Path
@@ -69,7 +68,7 @@ class ProgramExit(Exception):
         self.code = code
 
 
-def run_module(data: bytes, stdin: str) -> dict:
+def run_module(data: bytes, stdin: str, *, timing: bool = True) -> dict:
     import wasmtime
 
     tokens = iter(stdin.split())
@@ -245,14 +244,18 @@ def run_module(data: bytes, stdin: str) -> dict:
         exit_code = 1
         error = str(failure)
     ended = time.perf_counter_ns()
-    return {
+    result = {
         "stdout": b"".join(chunks), "stderr": b"".join(errors).decode(errors="replace") + error, "exit_code": exit_code,
-        "timing": {
-            "engine": "Wasmtime", "wasmtime": importlib.metadata.version("wasmtime"),
+    }
+    if timing:
+        from importlib.metadata import version
+
+        result["timing"] = {
+            "engine": "Wasmtime", "wasmtime": version("wasmtime"),
             "optimization": "cranelift speed", "compile_instantiate_ns": instantiated - started,
             "start_function_ns": ended - instantiated, "engine_total_ns": ended - started,
-        },
-    }
+        }
+    return result
 
 
 def main() -> int:
@@ -261,7 +264,7 @@ def main() -> int:
     parser.add_argument("--timing-json", type=Path)
     args = parser.parse_args()
     try:
-        result = run_module(args.module.read_bytes(), sys.stdin.read())
+        result = run_module(args.module.read_bytes(), sys.stdin.read(), timing=args.timing_json is not None)
         sys.stdout.buffer.write(result["stdout"])
         if result["stderr"]:
             print(result["stderr"], file=sys.stderr)

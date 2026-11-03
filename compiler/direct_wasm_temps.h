@@ -31,6 +31,97 @@ inline bool Function::MayMaterialize(Node *node) {
     return found;
 }
 
+inline bool Function::ResourceFreeBlock(Block *block) {
+    auto scalar = [](TypeExpr *type) {
+        return type && ((IsIntT(type) && !Compiler::Varint(type)) || type->kind == TY_FLT || type->kind == TY_BOOL);
+    };
+    auto plain = [&](TypeExpr *type) {
+        return !type || type->kind == TY_VOID || scalar(type) || (type->kind == TY_SLICE && scalar(type->sub));
+    };
+    auto binding = [&](VarDef *variable) {
+        return !variable || (plain(variable->type) && !variable->captured && !variable->reusable &&
+            !addressed.count(Resolve(variable)));
+    };
+    auto borrowed_array = [&](Node *node) -> TypeExpr * {
+        auto id = Is<Ident>(node);
+        if (!id || !id->vdef) return nullptr;
+        auto variable = Resolve(id->vdef);
+        auto type = variable->type;
+        if (type->kind != TY_ARRAY || !scalar(type->arr->sub) || variable->captured || variable->reusable) return nullptr;
+        if (type == node->exprtype || (node->exprtype->kind == TY_SLICE && node->exprtype->sub == type->arr->sub)) return type;
+        return nullptr;
+    };
+    int budget = 128;
+    function<bool(Node *)> safe;
+    auto view = [&](Node *node) {
+        return borrowed_array(node) || (node && node->exprtype->kind == TY_SLICE && safe(node));
+    };
+    safe = [&](Node *node) {
+        if (!node) return true;
+        if (budget-- == 0 || !plain(node->exprtype)) return false;
+        switch (node->nkind) {
+            case NK_Call: {
+                auto call = static_cast<Call *>(node);
+                if (call->builtin >= 0 || call->fvbody || call->defaultinit || !call->dispatch.empty() || !call->spec ||
+                    (!c.intrinsic_opcode.count(call->spec) && !c.Leaf(call->spec))) return false;
+                auto arguments = call->ValueArgNodes();
+                if (arguments.size() != call->spec->params.size()) return false;
+                for (size_t i = 0; i < arguments.size(); i++) {
+                    auto type = call->spec->params[i]->type;
+                    auto argument = arguments[i];
+                    if (!plain(type)) return false;
+                    if (auto array = borrowed_array(argument); type->kind == TY_SLICE && array && array->arr->sub == type->sub) {
+                        if (budget-- == 0) return false;
+                        continue;
+                    }
+                    if (!safe(argument)) return false;
+                }
+                return true;
+            }
+            case NK_VarDecl: {
+                auto decl = static_cast<VarDecl *>(node);
+                if (decl->byref || decl->isglobal) return false;
+                for (auto variable : decl->defs) if (!binding(variable)) return false;
+                break;
+            }
+            case NK_Ident:
+                return static_cast<Ident *>(node)->vdef && binding(static_cast<Ident *>(node)->vdef);
+            case NK_ForLoop: {
+                auto loop = static_cast<ForLoop *>(node);
+                if (loop->byref || !binding(loop->vdef) || !binding(loop->idxdef)) return false;
+                break;
+            }
+            case NK_Dot: {
+                auto dot = static_cast<Dot *>(node);
+                return dot->member == B_LEN && view(dot->obj);
+            }
+            case NK_Index: {
+                auto index = static_cast<Index *>(node);
+                return scalar(node->exprtype) && view(index->obj) && safe(index->idx);
+            }
+            case NK_Assign: {
+                auto assign = static_cast<Assign *>(node);
+                if (!plain(assign->lval->exprtype) || assign->op == T_DOTASSIGN || assign->pointee) return false;
+                break;
+            }
+            case NK_Unary:
+                if (static_cast<Unary *>(node)->op == T_BITAND) return false;
+                break;
+            case NK_AsCast:
+                if (!scalar(node->exprtype) || !scalar(static_cast<AsCast *>(node)->totype) ||
+                    (IsIntT(static_cast<AsCast *>(node)->totype) && static_cast<AsCast *>(node)->totype->ix)) return false;
+                break;
+            case NK_Block: case NK_IfExpr: case NK_While: case NK_RangeExpr:
+            case NK_IntLit: case NK_FltLit: case NK_BoolLit: case NK_Binary: case NK_IncDec: break;
+            default: return false;
+        }
+        bool valid = true;
+        node->Children([&](Node *child) { if (valid) valid = safe(child); });
+        return valid;
+    };
+    return safe(block);
+}
+
 inline Function::TempScope Function::BeginTempScope(Node *node, bool force) {
     TempScope scope { cleanups.size(), private_headers.size(), region_live, c.needs_regions && (force || MayMaterialize(node)) };
     if (scope.restores_regions) {

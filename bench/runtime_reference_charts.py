@@ -152,6 +152,116 @@ def apply_climb(table, report, reference, reference_sha256):
     return samples
 
 
+def validate_kernels(report, reference, reference_sha256, compiler):
+    """Use fresh named-compiler rounds while preserving historical byte paths."""
+    assert reference["schema"] == "goose-runtime-reference-v1"
+    assert reference["status"] == "passed" and not reference["failures"]
+    assert reference["configuration"]["pilot_samples"] >= 3
+    assert reference["configuration"]["engines"] == ["wasmtime"]
+    assert reference["configuration"]["wasmtime_mode"] == "precompiled"
+    assert report["schema"] == "goose-frozen-kernel-pairs-v1"
+    assert report["status"] == "passed" and not report["failures"] and report["coverage_exact"]
+    config = report["configuration"]
+    samples = config["samples"]
+    assert type(samples) is int and samples >= 9 and config["references"]
+    assert config["cpu"] == reference["configuration"]["cpu"] == 2
+    assert compiler in config["compilers"] and set(config["compilers"]) == set(report["compilers"])
+    assert report["workloads"] == reference["workloads"] and report["selection"] == reference["selection"]
+    cases = {case["name"]: case for case in report["workloads"]}
+    assert len(cases) == 10 and set(cases) == {task for _, group in GROUPS for task, _ in group}
+    assert set(report["artifacts"]) == set(report["reference_roles"]) == set(cases)
+    pins = report["input_sha256"]
+    assert pins == report["input_sha256_after"]
+    assert pins[config["reference"]] == reference_sha256
+    for path, expected in pins.items():
+        assert digest(path) == expected, path
+    # Historical scripts may have changed in the workspace. Only matched old
+    # bytes in the recorded resolution map stand in for their original paths.
+    for path, expected in reference["inputs"].items():
+        checked = report["historical_input_resolution"][path + "@" + expected]
+        assert pins[checked] == expected, path
+    assert report["host_build"] == reference["host_build"]
+    host = report["host_build"]
+    assert pins[config["host"]] == host["host_sha256"]
+    assert pins[host["library"]] == host["library_sha256"]
+    for name, build in report["compilers"].items():
+        assert config["compilers"][name] == build["binary"]
+        assert pins[build["binary"]] == build["sha256"]
+        for category in ("headers", "patches"):
+            for path, expected in build["source"][category].items():
+                assert pins[build["resolved_source_inputs"][category + "/" + path]] == expected
+    assert report["commands"] and all(row["returncode"] == 0 and not row["error"] for row in report["commands"])
+    expected_rows = set()
+    for task, case in cases.items():
+        selected = reference["selection"][task]
+        roles = {"original_direct": "direct-O2", "gcc_O2_anchor": "native-gcc-O2-generic",
+                 "selected_native": selected["native"]["variant"],
+                 "selected_wasm": selected["wasm"]["wasmtime"]["variant"]}
+        assert report["reference_roles"][task] == {role: "ref--" + variant for role, variant in roles.items()}
+        artifacts = report["artifacts"][task]
+        assert set(artifacts) == set(config["compilers"]) | set(report["reference_roles"][task].values())
+        for variant in set(roles.values()):
+            artifact = artifacts["ref--" + variant]
+            original = reference["artifacts"][case["id"] + "/" + variant]
+            for field in ("variant", "family", "sha256"):
+                assert artifact[field] == original[field]
+            if artifact["family"] != "native":
+                assert artifact["aot_sha256"] == original["aot_sha256"]
+        for name in config["compilers"]:
+            assert artifacts[name]["family"] == "direct" and artifacts[name]["variant"] == name
+            assert artifacts[name]["compiler_sha256"] == report["compilers"][name]["sha256"]
+        for artifact in artifacts.values():
+            assert pins[artifact["path"]] == artifact["sha256"]
+            if artifact["family"] != "native":
+                assert pins[artifact["aot_path"]] == artifact["aot_sha256"]
+        expected_rows.update((task, variant, "qualify", 0) for variant in artifacts)
+        expected_rows.update((task, variant, "measure", i) for variant in artifacts for i in range(samples))
+    indexed = {}
+    observed = set()
+    for row in report["observations"]:
+        task, variant, phase, round_ = row["task"], row["variant"], row["phase"], row["round"]
+        identity = task, variant, phase, round_
+        assert type(round_) is int and identity in expected_rows and identity not in observed
+        observed.add(identity)
+        artifact = report["artifacts"][task][variant]
+        engine = "wasmtime"
+        if artifact["family"] == "native":
+            engine = "native"
+        profile = "run"
+        if phase == "qualify":
+            profile = "test"
+        assert row["profile"] == profile and row["engine"] == engine and row["runtime_affinity"] == [2]
+        assert row["checksum"] == row["expected_checksum"] == cases[task][profile]["checksum"]
+        assert row["revision_exit"] == 0 and row["artifact_sha256"] == artifact["sha256"]
+        assert row["aot_sha256"] == artifact.get("aot_sha256")
+        elapsed, wall = row["timed_region_seconds"], row["process_wall_seconds"]
+        assert math.isfinite(elapsed) and math.isfinite(wall) and 0 < elapsed <= wall
+        if phase == "measure":
+            indexed[task, variant, round_] = elapsed
+    assert observed == expected_rows and report["observations_expected"] == len(expected_rows)
+    table = []
+    for _, group in GROUPS:
+        for task, label in group:
+            roles = report["reference_roles"][task]
+            variants = {"anchor": roles["gcc_O2_anchor"], "native": roles["selected_native"],
+                        "direct": compiler, "wasm": roles["selected_wasm"], "baseline": roles["original_direct"]}
+            row = {"task": task, "label": label, "native_reference": roles["selected_native"],
+                   "wasm_reference": roles["selected_wasm"], "direct_compiler": compiler,
+                   "baseline_reference": roles["original_direct"],
+                   "wasm_reference_is_baseline": roles["selected_wasm"] == roles["original_direct"],
+                   "times": {}, "relative_to_native": {}}
+            for name, variant in variants.items():
+                row["times"][name] = arena.summarize([indexed[task, variant, i] for i in range(samples)])
+                row["relative_to_native"][name] = arena.summarize([
+                    indexed[task, variant, i] / indexed[task, roles["selected_native"], i] for i in range(samples)])
+            for name, numerator, denominator in [("direct_over_selected_wasm", compiler, roles["selected_wasm"]),
+                                                   ("baseline_over_current", roles["original_direct"], compiler)]:
+                row[name] = arena.summarize([indexed[task, numerator, i] / indexed[task, denominator, i]
+                                           for i in range(samples)])
+            table.append(row)
+    return table
+
+
 def render(report, table, destination):
     import matplotlib
     matplotlib.use("Agg")
@@ -229,16 +339,28 @@ def render(report, table, destination):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report", type=Path)
-    parser.add_argument("--climb", type=Path, help="fresh candidate comparisons using the prior frozen references")
+    parser.add_argument("--climb", "--climb-report", type=Path, help="fresh candidate comparisons using the prior frozen references")
+    parser.add_argument("--compiler", help="named compiler to show from a frozen kernel-pairs report")
     parser.add_argument("--output", type=Path, default=Path("bench/charts/runtime-targets.svg"))
     parser.add_argument("--verification", type=Path, required=True)
     args = parser.parse_args()
     report = json.loads(args.report.read_text())
-    table = validate(report)
     climb = None
     if args.climb:
         climb = json.loads(args.climb.read_text())
-        report["configuration"]["samples"] = apply_climb(table, climb, report, digest(args.report))
+    named = climb is not None and climb["schema"] == "goose-frozen-kernel-pairs-v1"
+    if named:
+        if not args.compiler:
+            parser.error("--compiler is required for a named kernel-pairs report")
+        table = validate_kernels(climb, report, digest(args.report), args.compiler)
+        report["configuration"]["samples"] = climb["configuration"]["samples"]
+    else:
+        if args.compiler:
+            parser.error("--compiler requires a named kernel-pairs report")
+        table = validate(report)
+        if climb:
+            report["configuration"]["samples"] = apply_climb(table, climb, report, digest(args.report))
+    if climb:
         report["started_utc"] = climb["started_utc"]
         report["climb_comparison"] = True
     labels = render(report, table, args.output)
@@ -252,9 +374,14 @@ def main():
                     "chart_sha256": digest(args.output), "numeric_labels": labels, "table": table,
                     "method": "Raw confirmation samples only. Each series uses per-round ratios to the frozen selected native reference. Source fingerprints and positive timing intervals verified."}
     if climb:
+        compiler_sha256 = climb.get("candidate_compiler_sha256")
+        if named:
+            compiler_sha256 = climb["compilers"][args.compiler]["sha256"]
         verification.update(climb_sha256=digest(args.climb),
-                            current_compiler_sha256=climb["candidate_compiler_sha256"],
+                            current_compiler_sha256=compiler_sha256,
                             method="Fresh paired candidate comparisons against previously frozen references; no selection on the new measurements. Current direct Wasm, native anchor and selected references share the same rounds. Source fingerprints, workload checksums and timing intervals verified.")
+        if named:
+            verification.update(current_compiler_name=args.compiler, reference_roles=climb["reference_roles"])
     args.verification.parent.mkdir(parents=True, exist_ok=True)
     args.verification.write_text(json.dumps(verification, indent=2) + "\n")
     print(f"Verified {len(labels)} labels; wrote {args.output}")

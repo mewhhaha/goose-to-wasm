@@ -36,7 +36,8 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
     auto cleanup_depth = cleanups.size();
     auto private_depth = private_headers.size();
     auto live = region_live;
-    if (c.needs_regions && !frame_free) {
+    bool restore_regions = c.needs_regions && !frame_free && !ResourceFreeBlock(b);
+    if (restore_regions) {
         code.OpU(0x23, G_REGION_NEXT);
         cleanups.push_back({ CleanupAction::RestoreRegionNext, Save(I32) });
     }
@@ -61,7 +62,11 @@ inline void Function::BlockInto(Block *b, const vector<TypeExpr *> &types, const
         else SetResults({ b->tail }, types, slots, b->line, destinations);
         EndTempScope(scope);
     }
-    if (c.needs_regions && !frame_free) { CloseCleanups(cleanup_depth); region_live = live; }
+    if (c.needs_regions && !frame_free) {
+        if (!restore_regions && (cleanups.size() != cleanup_depth || private_headers.size() != private_depth || region_live != live))
+            Fail(b->line, "internal: resource-free block changed ownership state");
+        CloseCleanups(cleanup_depth); region_live = live;
+    }
     private_headers.resize(private_depth);
 }
 inline void Function::CaptureResult(TypeExpr *type, uint32_t slot) {
@@ -320,7 +325,10 @@ inline void Function::AssignNode(Assign *n) {
     } else To(n->rhs, t);
     if (c.Aggregate(t)) StoreCopy(place, CaptureStack(t));
     else {
-        if (auto cached = CachedLane(n->lval)) Tee(cached->index);
+        if (auto cached = CachedLane(n->lval)) {
+            if (defer_lane_stores) { Write(*cached); return; }
+            Tee(cached->index);
+        }
         WriteLocation(place);
     }
 }
@@ -332,7 +340,10 @@ inline void Function::IncNode(IncDec *n) {
     if (t->kind == TY_FLT) { if (IsF32(t)) code.F32Const(1); else code.F64Const(1); }
     else Const(t, 1);
     BinaryOp(n->op == T_INC ? T_PLUS : T_MINUS, t, n->line);
-    if (auto cached = CachedLane(n->lval)) Tee(cached->index);
+    if (auto cached = CachedLane(n->lval)) {
+        if (defer_lane_stores) { Write(*cached); return; }
+        Tee(cached->index);
+    }
     WriteLocation(place);
 }
 
@@ -402,6 +413,10 @@ inline bool Function::SelectAssignment(IfExpr *node) {
 inline void Function::AggregateLiteral(Node *n) {
     auto t = n->exprtype;
     if (!c.Aggregate(t)) Fail(n->line, "this array/struct literal requires unsupported variable-size storage");
+    auto integer_literal = [](Node *node, TypeExpr *type) {
+        return Is<IntLit>(node) && IsIntT(type) && !Compiler::Varint(type) &&
+            IsIntT(node->exprtype) && node->exprtype->intstorage == type->intstorage;
+    };
     auto destination = FreshDestination(t, ConstructionDestination::Statement);
     auto place = destination.location;
     LocationAddress(place); code.I32Const(0); code.I32Const(int32_t(c.Size(t).size)); code.Fill();
@@ -415,7 +430,11 @@ inline void Function::AggregateLiteral(Node *n) {
         }
         if (a->fillval) {
             // Goose evaluates a fill value once, then copies it into each slot.
-            To(a->fillval, elem); auto value = Save(elem);
+            To(a->fillval, elem);
+            if (integer_literal(a->fillval, elem) && static_cast<IntLit *>(a->fillval)->val == 0) {
+                code.Op(0x1a); LocationAddress(place); return;
+            }
+            auto value = Save(elem);
             auto i = Local(I32); code.I32Const(0); Set(i);
             auto done = Begin(), loop = Begin(0x03);
             Get(i); code.I32Const(int32_t(count)); code.Op(0x4f); Br(done, true);
@@ -423,8 +442,12 @@ inline void Function::AggregateLiteral(Node *n) {
             Get(value); Store(elem);
             Get(i); code.I32Const(1); code.Op(0x6a); Set(i); Br(loop); End(); End();
         } else {
+            bool can_skip_zero = true;
             for (size_t i = 0; i < a->elems.size(); i++) {
+                bool literal = integer_literal(a->elems[i], elem);
+                if (can_skip_zero && literal && static_cast<IntLit *>(a->elems[i])->val == 0) continue;
                 ConstructInto(a->elems[i], { OffsetLocation(place, start + uint32_t(i) * stride, elem), ConstructionDestination::Statement });
+                if (!literal) can_skip_zero = false;
             }
         }
     } else if (auto s = Is<StructLit>(n)) {
@@ -438,13 +461,17 @@ inline void Function::AggregateLiteral(Node *n) {
             } else if (t->kind != TY_VARIANT) Fail(n->line, "unsupported variant construction");
             layout = c.Payload(s->einst, vi);
         } else if (!s->sinst) Fail(n->line, "struct type was not resolved");
+        bool can_skip_zero = true;
         for (size_t fi = 0; fi < layout.fields.size(); fi++) {
             auto init = s->InitFor(int(fi));
             if (!init) continue;
             auto ft = s->einst ? s->einst->vftypes[size_t(s->einst->en->VariantIndex(s->variant))][size_t(fi)]
                                : s->sinst->ftypes[size_t(fi)];
             if (!ft) continue; // Padding retains a declaration index, not an initializer.
+            bool literal = integer_literal(init, ft);
+            if (can_skip_zero && literal && static_cast<IntLit *>(init)->val == 0) continue;
             ConstructInto(init, { OffsetLocation(place, payload + layout.fields[fi], ft), ConstructionDestination::Statement });
+            if (!literal) can_skip_zero = false;
         }
     }
     LocationAddress(place);
@@ -628,6 +655,113 @@ inline bool Function::UnrollCount(ForLoop *node, const Slot &binding, TypeExpr *
     return true;
 }
 
+inline bool Function::UnrollRange(ForLoop *node, const Slot &binding, TypeExpr *counter_type) {
+    if (node->iterkind != IK_RANGE || !IsIntT(counter_type) || counter_type->intstorage != IS_I64 ||
+        binding.kind != Slot::LOCAL || !IsIntT(binding.type) || binding.type->intstorage != IS_I64 ||
+        node->vdef->isvar || MayMaterialize(node->body)) return false;
+    auto literal = [](Node *value) -> optional<int64_t> {
+        if (!value || !IsIntT(value->exprtype) || value->exprtype->intstorage != IS_I64) return {};
+        if (auto number = Is<IntLit>(value); number && !number->uns) return number->val;
+        if (auto unary = Is<Unary>(value); unary && unary->op == T_MINUS) {
+            auto number = Is<IntLit>(unary->child);
+            if (number && !number->uns && number->val != INT64_MIN && IsIntT(number->exprtype) &&
+                number->exprtype->intstorage == IS_I64) return -number->val;
+        }
+        return {};
+    };
+    auto bounds = [&](ForLoop *loop, int64_t &first, int64_t &count) {
+        auto range = Is<RangeExpr>(loop->iter);
+        if (loop->iterkind != IK_RANGE || !range || loop->byref || loop->vdef->isvar ||
+            loop->vdef->captured || addressed.count(Resolve(loop->vdef)) ||
+            !IsIntT(loop->vdef->type) || loop->vdef->type->intstorage != IS_I64 ||
+            !IsIntT(range->exprtype) || range->exprtype->intstorage != IS_I64) return false;
+        if (loop->idxdef && (loop->idxdef->isvar || loop->idxdef->captured ||
+            addressed.count(Resolve(loop->idxdef)) || !IsIntT(loop->idxdef->type) ||
+            loop->idxdef->type->intstorage != IS_I64)) return false;
+        auto lo = literal(range->lo), hi = literal(range->hi);
+        if (!lo || !hi || *hi <= *lo || uint64_t(*hi) - uint64_t(*lo) > 8) return false;
+        first = *lo; count = int64_t(uint64_t(*hi) - uint64_t(*lo)); return true;
+    };
+    int64_t first, count;
+    if (!bounds(node, first, count)) return false;
+    auto scalar = [](TypeExpr *type) { return type && (IsIntT(type) || type->kind == TY_BOOL); };
+    auto local = [&](VarDef *variable) {
+        auto resolved = Resolve(variable);
+        return !resolved->isglobal && !resolved->captured && !resolved->reusable && !addressed.count(resolved);
+    };
+    // Charge nested copies, not just the original tree. Calls, addresses and
+    // owners stay on the normal path; indexed accesses retain their checks.
+    int budget = 384;
+    function<bool(Node *, int)> simple = [&](Node *value, int copies) {
+        if (!value) return true;
+        budget -= copies; if (budget < 0) return false;
+        switch (value->nkind) {
+            case NK_Block: case NK_IfExpr: case NK_Continue: break;
+            case NK_ForLoop: {
+                auto loop = static_cast<ForLoop *>(value); int64_t start, trips;
+                if (!bounds(loop, start, trips)) return false;
+                return simple(loop->body, copies * int(trips));
+            }
+            case NK_VarDecl: {
+                auto decl = static_cast<VarDecl *>(value);
+                if (decl->byref || decl->isglobal || decl->defs.size() != 1 ||
+                    !local(decl->defs[0]) || !scalar(decl->defs[0]->type)) return false;
+                break;
+            }
+            case NK_Ident: {
+                auto id = static_cast<Ident *>(value);
+                if (!id->vdef || !local(id->vdef)) return false;
+                auto type = Resolve(id->vdef)->type;
+                if (!scalar(type) && type->kind != TY_SLICE) return false;
+                break;
+            }
+            case NK_Assign: {
+                auto assign = static_cast<Assign *>(value);
+                if (assign->pointee || assign->op == T_DOTASSIGN || !scalar(assign->lval->exprtype)) return false;
+                break;
+            }
+            case NK_IncDec:
+                if (!scalar(static_cast<IncDec *>(value)->lval->exprtype)) return false;
+                break;
+            case NK_Unary:
+                if (static_cast<Unary *>(value)->op == T_BITAND || !scalar(value->exprtype)) return false;
+                break;
+            case NK_Break:
+                if (static_cast<Break *>(value)->val) return false;
+                break;
+            case NK_Return:
+                if (!spec || static_cast<Return *>(value)->target != spec->sf) return false;
+                break;
+            case NK_IntLit: case NK_BoolLit: case NK_Binary: case NK_AsCast: case NK_Index:
+                if (!scalar(value->exprtype)) return false;
+                break;
+            default: return false;
+        }
+        bool valid = true;
+        value->Children([&](Node *child) { if (valid) valid = simple(child, copies); });
+        return valid;
+    };
+    if (!simple(node->body, int(count))) return false;
+    optional<Slot> index;
+    if (node->idxdef) { index = Bind(node->idxdef); if (index->kind != Slot::LOCAL) return false; }
+    auto done = Begin();
+    auto label_depth = labels.size(), exit_depth = exits.size(), cleanup_depth = cleanups.size();
+    auto private_depth = private_headers.size(), temp_depth = temp_scopes.size();
+    auto live = region_live;
+    for (int64_t iteration = 0; iteration < count; iteration++) {
+        constant_slots.emplace(binding.index, first + iteration);
+        if (index) constant_slots.emplace(index->index, iteration);
+        auto step = Begin(); PushExit({ done, nullptr, {}, {}, true, step });
+        BlockInto(node->body, {}, {}); exits.pop_back(); End();
+        if (labels.size() != label_depth || exits.size() != exit_depth || cleanups.size() != cleanup_depth ||
+            private_headers.size() != private_depth || temp_scopes.size() != temp_depth || region_live != live)
+            Fail(node->line, "internal: unrolled range iteration changed control or cleanup state");
+        constant_slots.erase(binding.index);
+        if (index) constant_slots.erase(index->index);
+    }
+    End(); return true;
+}
+
 inline bool Function::UnrollWhile(While *node) {
     if (node->body->tail || node->body->stmts.size() != 2 ||
         MayMaterialize(node->cond) || MayMaterialize(node->body)) return false;
@@ -692,7 +826,9 @@ inline bool Function::FillLoop(ForLoop *node) {
     auto view = Lookup(source->vdef, source->line);
     if (view.kind != Slot::LOCAL || view.type->kind != TY_SLICE) return false;
     auto elem = view.type->sub;
-    if (!IsIntT(elem) || IntBits(elem->intstorage) != 8) return false;
+    if (!IsIntT(elem) || Compiler::Varint(elem) || elem->ix) return false;
+    auto width = IntBits(elem->intstorage) / 8;
+    if (width != 1 && width != 2 && width != 4 && width != 8) return false;
     auto assign = Is<Assign>(node->body->stmts[0]);
     if (!assign || assign->pointee || (assign->op != T_ASSIGN && assign->op != T_DOTASSIGN)) return false;
     auto index = Is<Index>(assign->lval);
@@ -704,6 +840,10 @@ inline bool Function::FillLoop(ForLoop *node) {
     if (target.kind != Slot::LOCAL || target.index != view.index || target.type != view.type) return false;
     auto value = assign->rhs;
     if (!IsIntT(value->exprtype) || value->exprtype->intstorage != elem->intstorage) return false;
+    if (width != 1) {
+        auto zero = Is<IntLit>(value);
+        if (!zero || zero->val != 0) return false;
+    }
     if (auto id = Is<Ident>(value)) {
         if (!id->vdef) return false;
         auto slot = Lookup(id->vdef, id->line);
@@ -713,14 +853,82 @@ inline bool Function::FillLoop(ForLoop *node) {
     Read(view); auto packed = Save(I64);
     Get(packed); code.Op(0xa7); auto pointer = Save(I32);
     Get(packed); code.I64Const(32); code.Op(0x88); auto count = Save(I64);
+    // Packed lengths are u32, so widening before multiplying by at most eight
+    // cannot overflow. The physical guard also proves the final i32 byte cast.
+    Get(count); code.I64Const(width); code.Op(0x7e); auto bytes = Save(I64);
     // A bulk operation checks its whole range before writing. Keep the original
     // loop for invalid physical ranges so partial writes and traps stay ordered.
-    Get(pointer); code.Op(0xad); Get(count); code.Op(0x7c);
+    Get(pointer); code.Op(0xad); Get(bytes); code.Op(0x7c);
     code.OpU(0x3f, 0); code.Op(0xad); code.I64Const(16); code.Op(0x86); code.Op(0x58);
     Begin(0x04);
-    Get(pointer); To(value, elem); Get(count); code.Op(0xa7); code.Fill();
+    Get(pointer); To(value, elem); if (W(elem) == I64) code.Op(0xa7);
+    Get(bytes); code.Op(0xa7); code.Fill();
     code.Op(0x05);
     return true;
+}
+
+inline bool Function::CopyLoop(ForLoop *node) {
+    if (!spec || (spec->sf == c.ast.MainFunction() &&
+        none_of(exits.begin(), exits.end(), [](const Exit &exit) { return exit.continue_label.has_value(); }))) return false;
+    if (c.region_cursors || node->iterkind != IK_COUNT || node->byref || node->idxdef || node->vdef->isvar ||
+        !IsIntT(node->vdef->type) || node->vdef->type->intstorage != IS_I64 ||
+        !IsIntT(node->iter->exprtype) || node->iter->exprtype->intstorage != IS_I64 ||
+        node->body->tail || node->body->stmts.size() != 1) return false;
+    auto assign = Is<Assign>(node->body->stmts[0]);
+    if (!assign || assign->pointee || assign->op != T_ASSIGN) return false;
+    auto destination = Is<Index>(assign->lval), source = Is<Index>(assign->rhs);
+    auto view = [&](Index *index) -> optional<Slot> {
+        if (!index || !IsIntT(index->exprtype)) return {};
+        auto object = Is<Ident>(index->obj), position = Is<Ident>(index->idx);
+        if (!object || !object->vdef || object->exprtype->kind != TY_SLICE || !position || !position->vdef ||
+            !IsIntT(position->exprtype) || position->exprtype->intstorage != IS_I64 ||
+            Resolve(position->vdef) != Resolve(node->vdef)) return {};
+        auto slot = Lookup(object->vdef, object->line);
+        if (slot.kind != Slot::LOCAL || slot.type->kind != TY_SLICE || !IsIntT(slot.type->sub) ||
+            Compiler::Varint(slot.type->sub) || slot.type->sub->ix || slot.type->sub->intstorage != index->exprtype->intstorage) return {};
+        return slot;
+    };
+    auto target = view(destination), input = view(source);
+    if (!target || !input || target->type->sub->intstorage != input->type->sub->intstorage) return false;
+    auto width = IntBits(target->type->sub->intstorage) / 8;
+    if (width != 1 && width != 2 && width != 4 && width != 8) return false;
+    auto count_node = node->iter;
+    if (auto length = Is<Dot>(count_node)) {
+        if (length->member != B_LEN) return false;
+        auto object = Is<Ident>(length->obj);
+        if (!object || !object->vdef || object->exprtype->kind != TY_SLICE) return false;
+        auto slot = Lookup(object->vdef, object->line);
+        if (slot.kind != Slot::LOCAL || slot.type->kind != TY_SLICE) return false;
+    } else {
+        auto id = Is<Ident>(count_node);
+        if (!id || !id->vdef) return false;
+        auto slot = Lookup(id->vdef, id->line);
+        if (slot.kind != Slot::LOCAL || !IsIntT(slot.type) || slot.type->intstorage != IS_I64) return false;
+    }
+    if (Bind(node->vdef).kind != Slot::LOCAL) return false;
+    To(count_node, c.ast.inttypes[IS_I64]); auto count = Save(I64);
+    Read(*target); auto dst_view = Save(I64); Read(*input); auto src_view = Save(I64);
+    Get(dst_view); code.Op(0xa7); code.Op(0xad); auto dst = Save(I64);
+    Get(src_view); code.Op(0xa7); code.Op(0xad); auto src = Save(I64);
+    // Trial policy: keep short copies on the scalar path to avoid runtime
+    // memory.copy overhead. Confirm the 64-byte minimum in both engines.
+    Get(count); code.I64Const(64 / width); code.Op(0x5a);
+    Get(count); Get(dst_view); code.I64Const(32); code.Op(0x88); code.Op(0x58); code.Op(0x71);
+    Get(count); Get(src_view); code.I64Const(32); code.Op(0x88); code.Op(0x58); code.Op(0x71);
+    auto bytes = Local(I64);
+    // Only bounded nonnegative counts enter the physical-span proof.
+    Begin(0x04, I32);
+    Get(count); code.I64Const(width); code.Op(0x7e); Set(bytes);
+    code.OpU(0x3f, 0); code.Op(0xad); code.I64Const(16); code.Op(0x86); auto end = Save(I64);
+    Get(dst); Get(bytes); code.Op(0x7c); Get(end); code.Op(0x58);
+    Get(src); Get(bytes); code.Op(0x7c); Get(end); code.Op(0x58); code.Op(0x71);
+    // memory.copy is memmove; forward scalar copies agree only before the
+    // source or after its whole span. Other overlaps retain scalar propagation.
+    Get(dst); Get(src); code.Op(0x58);
+    Get(dst); Get(src); Get(bytes); code.Op(0x7c); code.Op(0x5a); code.Op(0x72); code.Op(0x71);
+    Else(); code.I32Const(0); End(); Begin(0x04);
+    Get(dst); code.Op(0xa7); Get(src); code.Op(0xa7); Get(bytes); code.Op(0xa7); code.Copy();
+    Else(); return true;
 }
 
 inline optional<Slot> Function::CachedLane(Node *node) {
@@ -880,6 +1088,86 @@ inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Sl
     decltype(cached_lanes) previous_cache;
     previous_cache.swap(cached_lanes);
     CacheLanes(node);
+    // Defer only private u32 lanes in a nontrapping body. Other memory
+    // accesses could observe intermediate writes, including through aliases.
+    bool deferred = !c.opts.debug && elem->intstorage == IS_U8 &&
+        (width == 4 || width == 8) && !cached_lanes.empty();
+    vector<pair<Slot, vector<Slot>>> arrays;
+    for (auto &[use, values] : cached_lanes) {
+        auto object = static_cast<Ident *>(use->obj);
+        auto array = Lookup(object->vdef, object->line);
+        deferred &= values[0].type->intstorage == IS_U32;
+        if (none_of(arrays.begin(), arrays.end(), [&](auto &entry) { return entry.first.index == array.index; }))
+            arrays.push_back({ array, values });
+    }
+    sort(arrays.begin(), arrays.end(), [](auto &a, auto &b) { return a.first.index < b.first.index; });
+    function<void(Node *)> nontrapping = [&](Node *value) {
+        if (!value || !deferred) return;
+        if (auto use = Is<Index>(value)) deferred = cached_lanes.count(use);
+        if (auto binary = Is<Binary>(value)) {
+            if (binary->op == T_DIV || binary->op == T_MOD)
+                deferred = find(node->lanemods.begin(), node->lanemods.end(), binary) != node->lanemods.end();
+        }
+        if (auto assign = Is<Assign>(value))
+            deferred &= assign->op != T_DIVEQ && assign->op != T_MODEQ;
+        if (auto cast = Is<AsCast>(value)) deferred &= !cast->totype->ix;
+        if (auto unary = Is<Unary>(value))
+            deferred &= unary->op == T_MINUS || unary->op == T_BITNOT || unary->op == T_NOT;
+        value->Children(nontrapping);
+    };
+    nontrapping(node->body);
+    // A straight-line u32 recurrence may update one private lane array. All
+    // temporaries belong to this iteration; no ordinal or cross-lane values
+    // escape. Match the checked AST directly, with no intermediate program.
+    bool vectorized = deferred && arrays.size() == 1;
+    vector<VarDef *> vector_ids;
+    auto vector_id = [&](VarDef *id) { return find(vector_ids.begin(), vector_ids.end(), Resolve(id)) != vector_ids.end(); };
+    unordered_set<Node *> lane_declarations;
+    auto u32 = [](TypeExpr *type) { return IsIntT(type) && type->intstorage == IS_U32 && !type->ix; };
+    function<bool(Node *)> vector_value = [&](Node *value) {
+        if (auto id = Is<Ident>(value))
+            return Resolve(id->vdef) == Resolve(node->vdef) || vector_id(id->vdef);
+        if (!u32(value->exprtype)) return false;
+        if (Is<IntLit>(value)) return true;
+        if (auto index = Is<Index>(value)) return cached_lanes.count(index) != 0;
+        if (auto cast = Is<AsCast>(value)) {
+            auto from = cast->child->exprtype;
+            return u32(cast->totype) && (u32(from) ||
+                (IsIntT(from) && from->intstorage == IS_U8 && !from->ix)) && vector_value(cast->child);
+        }
+        auto binary = Is<Binary>(value);
+        if (!binary || !u32(binary->left->exprtype) || !vector_value(binary->left)) return false;
+        switch (binary->op) {
+            case T_SHL: case T_SHR: return Is<IntLit>(binary->right) != nullptr;
+            case T_PLUS: case T_MINUS: case T_MUL: case T_XOR: case T_BITAND: case T_BITOR:
+                return vector_value(binary->right);
+            default: return false;
+        }
+    };
+    Assign *final_store = nullptr;
+    if (!node->body->stmts.empty()) final_store = Is<Assign>(node->body->stmts.back());
+    vectorized &= final_store && final_store->op == T_ASSIGN && cached_lanes.count(Is<Index>(final_store->lval));
+    for (auto statement : node->body->stmts) {
+        if (!vectorized) break;
+        if (auto decl = Is<VarDecl>(statement)) {
+            if (decl->inits.size() != 1) { vectorized = false; break; }
+            auto variable = Resolve(decl->defs[0]);
+            if (find(node->lanemods.begin(), node->lanemods.end(), Is<Binary>(decl->inits[0])) != node->lanemods.end()) {
+                lane_declarations.insert(statement); continue;
+            }
+            vectorized = u32(variable->type) && vector_value(decl->inits[0]);
+            vector_ids.push_back(variable);
+        } else if (auto assign = Is<Assign>(statement)) {
+            if (assign == final_store) vectorized = vector_value(assign->rhs);
+            else {
+                auto id = Is<Ident>(assign->lval);
+                vectorized = assign->op == T_ASSIGN && id && vector_id(id->vdef) && vector_value(assign->rhs);
+            }
+        } else vectorized = false;
+    }
+    // Defer stores only when the complete SIMD proof succeeds. Other bodies
+    // keep one ordered scalar loop with the existing write-through cache.
+    deferred = vectorized;
     lane_mods = &node->lanemods;
     auto emit_lane = [&](int lane) {
         lane_value = lane;
@@ -891,16 +1179,117 @@ inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Sl
         BlockInto(node->body, {}, {});
         Get(position); code.I64Const(1); code.Op(0x7c); Set(position);
     };
-    auto done = Begin(), again = Begin(0x03);
-    Get(limit); Get(position); code.Op(0x7d); code.I64Const(width); code.Op(0x54); Br(done, true);
-    for (int lane = 0; lane < width; lane++) emit_lane(lane);
-    Br(again); End(); End();
-    done = Begin();
-    for (int lane = 0; lane < width; lane++) {
-        Get(position); Get(limit); code.Op(0x5a); Br(done, true);
-        emit_lane(lane);
+    auto emit_tail = [&]() {
+        auto done = Begin();
+        for (int lane = 0; lane < width; lane++) {
+            Get(position); Get(limit); code.Op(0x5a); Br(done, true);
+            emit_lane(lane);
+        }
+        End();
+    };
+    auto emit_loop = [&]() {
+        auto done = Begin(), again = Begin(0x03);
+        Get(limit); Get(position); code.Op(0x7d); code.I64Const(width); code.Op(0x54); Br(done, true);
+        for (int lane = 0; lane < width; lane++) emit_lane(lane);
+        Br(again); End(); End(); emit_tail();
+    };
+    auto emit_vectors = [&]() {
+        vector<uint32_t> states;
+        auto &array = arrays[0].first;
+        for (int group = 0; group < width / 4; group++) {
+            SlotAddress(array); code.OpU(0xfd, 0); code.U(0); code.U(group * 16);
+            states.push_back(Save(V128));
+        }
+        unordered_map<VarDef *, uint32_t> temporaries;
+        for (auto id : vector_ids) temporaries.emplace(id, Local(V128));
+        auto bytes = Local(V128);
+        auto done = Begin(), again = Begin(0x03);
+        Get(limit); Get(position); code.Op(0x7d); code.I64Const(width); code.Op(0x54); Br(done, true);
+        for (int group = 0; group < width / 4; group++) {
+            Get(view); code.Op(0xa7); Get(position); code.Op(0xa7); code.Op(0x6a);
+            code.OpU(0xfd, 0x5c); code.U(0); code.U(group * 4); // v128.load32_zero
+            code.OpU(0xfd, 0x89); code.OpU(0xfd, 0xa9); Set(bytes); // unsigned byte -> word -> dword
+            function<void(Node *)> emit_value = [&](Node *value) {
+                if (auto id = Is<Ident>(value)) {
+                    if (Resolve(id->vdef) == Resolve(node->vdef)) Get(bytes);
+                    else Get(temporaries.at(Resolve(id->vdef)));
+                } else if (auto literal = Is<IntLit>(value)) {
+                    code.I32Const(int32_t(literal->val)); code.OpU(0xfd, 0x11);
+                } else if (Is<Index>(value)) Get(states[group]);
+                else if (auto cast = Is<AsCast>(value)) emit_value(cast->child);
+                else {
+                    auto binary = static_cast<Binary *>(value);
+                    emit_value(binary->left);
+                    if (binary->op == T_SHL || binary->op == T_SHR) {
+                        code.I32Const(int32_t(static_cast<IntLit *>(binary->right)->val) & 31);
+                        if (binary->op == T_SHL) code.OpU(0xfd, 0xab);
+                        else code.OpU(0xfd, 0xad);
+                    } else {
+                        emit_value(binary->right);
+                        switch (binary->op) {
+                            case T_PLUS: code.OpU(0xfd, 0xae); break;
+                            case T_MINUS: code.OpU(0xfd, 0xb1); break;
+                            case T_MUL: code.OpU(0xfd, 0xb5); break;
+                            case T_XOR: code.OpU(0xfd, 0x51); break;
+                            case T_BITAND: code.OpU(0xfd, 0x4e); break;
+                            case T_BITOR: code.OpU(0xfd, 0x50); break;
+                            default: break;
+                        }
+                    }
+                }
+            };
+            for (auto statement : node->body->stmts) {
+                if (lane_declarations.count(statement)) continue;
+                if (auto decl = Is<VarDecl>(statement)) {
+                    emit_value(decl->inits[0]); Set(temporaries.at(Resolve(decl->defs[0])));
+                } else {
+                    auto assign = static_cast<Assign *>(statement); emit_value(assign->rhs);
+                    if (assign == final_store) Set(states[group]);
+                    else Set(temporaries.at(Resolve(static_cast<Ident *>(assign->lval)->vdef)));
+                }
+            }
+        }
+        Get(position); code.I64Const(width); code.Op(0x7c); Set(position);
+        Br(again); End(); End();
+        // Scalar tails reuse the existing lane cache. Extract after the vector
+        // loop, then flush through the same deferred-store path as scalar code.
+        for (int lane = 0; lane < width; lane++) {
+            Get(states[lane / 4]); code.OpU(0xfd, 0x1b); code.Byte(lane % 4);
+            Write(arrays[0].second[lane]);
+        }
+        emit_tail();
+    };
+    if (deferred) {
+        // Compute in i64 before narrowing addresses. Invalid or overlapping
+        // views keep the original ordered loads and write-through stores.
+        Get(view); code.Op(0xa7); code.Op(0xad); auto start = Save(I64);
+        Get(start); Get(limit); code.I64Const(c.Size(elem).size); code.Op(0x7e); code.Op(0x7c);
+        auto end = Save(I64);
+        Get(end); code.OpU(0x3f, 0); code.Op(0xad); code.I64Const(16); code.Op(0x86); code.Op(0x58);
+        for (auto &[array, values] : arrays) {
+            SlotAddress(array); code.Op(0xad); auto address = Save(I64);
+            Get(end); Get(address); code.Op(0x58);
+            Get(start); Get(address); code.I64Const(c.Size(array.type).size); code.Op(0x7c); code.Op(0x5a);
+            code.Op(0x72); code.Op(0x71);
+        }
+        if (vectorized) {
+            Get(limit); code.I64Const(width); code.Op(0x5a); code.Op(0x71);
+        }
+        Begin(0x04);
+        defer_lane_stores = true;
+        if (vectorized) emit_vectors();
+        else emit_loop();
+        defer_lane_stores = false;
+        for (auto &[array, values] : arrays) {
+            for (int lane = 0; lane < width; lane++) {
+                Read(values[lane]);
+                Write({ Slot::FRAME, array.index + uint32_t(lane) * 4, values[lane].type });
+            }
+        }
+        Else(); emit_loop(); End();
+    } else {
+        emit_loop();
     }
-    End();
     lane_mods = previous_mods;
     lane_value = previous_lane;
     cached_lanes.swap(previous_cache);
@@ -909,7 +1298,8 @@ inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Sl
 
 inline void Function::For(ForLoop *n) {
     if (FoldBitLoop(n)) return;
-    auto fill = FillLoop(n);
+    auto bulk = FillLoop(n);
+    if (!bulk) bulk = CopyLoop(n);
     auto binding = Bind(n->vdef);
     optional<Slot> indexbinding;
     if (n->idxdef) indexbinding = Bind(n->idxdef);
@@ -917,6 +1307,7 @@ inline void Function::For(ForLoop *n) {
     bool numeric = n->iterkind == IK_RANGE || n->iterkind == IK_COUNT;
     auto ct = numeric ? (range ? range->exprtype : n->iter->exprtype) : c.ast.inttypes[IS_I64];
     if (numeric && UnrollCount(n, binding, ct)) return;
+    if (numeric && UnrollRange(n, binding, ct)) return;
     uint32_t lo, hi, view = 0;
     TypeExpr *elem = nullptr;
     function<void()> sequence;
@@ -942,7 +1333,8 @@ inline void Function::For(ForLoop *n) {
         Get(*encoded_cursor); encoded_base = Save(I32);
     }
     if (!numeric && indexbinding && StripSequence(n, binding, *indexbinding, view, lo, hi, elem)) return;
-    uint32_t ordinal = Local(I64); code.I64Const(0); Set(ordinal);
+    optional<uint32_t> ordinal;
+    if (indexbinding) { ordinal = Local(I64); code.I64Const(0); Set(*ordinal); }
     auto done = Begin(), again = Begin(0x03);
     if (!numeric && !n->fixedlen) {
         sequence(); Set(view); Get(view); code.I64Const(32); code.Op(0x88); Set(hi);
@@ -968,7 +1360,7 @@ inline void Function::For(ForLoop *n) {
         if (!n->byref || elem->kind == TY_REF) { Load(elem); Convert(elem, binding.type, n->line); }
         Write(binding);
     }
-    if (indexbinding) { Get(ordinal); Convert(c.ast.inttypes[IS_I64], indexbinding->type, n->line); Write(*indexbinding); }
+    if (indexbinding) { Get(*ordinal); Convert(c.ast.inttypes[IS_I64], indexbinding->type, n->line); Write(*indexbinding); }
     auto step = Begin(); PushExit({ done, nullptr, {}, {}, true, step });
     BlockInto(n->body, {}, {}); exits.pop_back(); End();
     if (encoded_cursor) {
@@ -977,9 +1369,9 @@ inline void Function::For(ForLoop *n) {
     }
     // The counter's type is the range's type, not a narrowed loop binding.
     Get(lo); Const(ct, 1); code.Op(W(ct) == I64 ? 0x7c : 0x6a); Normalize(ct); Set(lo);
-    Get(ordinal); code.I64Const(1); code.Op(0x7c); Set(ordinal);
+    if (ordinal) { Get(*ordinal); code.I64Const(1); code.Op(0x7c); Set(*ordinal); }
     Br(again); End(); End();
-    if (fill) End();
+    if (bulk) End();
 }
 
 inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinations &destinations, bool elements) {
@@ -993,6 +1385,22 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     auto sp = n->spec;
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
+    if (!elements && !n->defaultinit && !c.intrinsic_opcode.count(sp) && args.size() == 1 &&
+        none_of(destinations.begin(), destinations.end(), [](const auto &destination) { return bool(destination); }) &&
+        PopcountWrapper(sp) && c.Leaf(sp)) {
+        auto parameter = sp->params[0]->type, result = sp->rets[0];
+        // To includes the original formal-width normalization and evaluates
+        // the argument once before replacing the complete private wrapper.
+        To(args[0], parameter);
+        if (W(parameter) == I64) code.Op(0x7b);
+        else code.Op(0x69);
+        Convert(parameter, result, n->line);
+        if (adapt_result) {
+            if (n->exprtype->kind == TY_VOID) code.Op(0x1a);
+            else Convert(result, n->exprtype, n->line);
+        }
+        return;
+    }
     auto receiving = destinations;
     if (receiving.empty() && adapt_result && sp->rets.size() == 1 && Compiler::VariantSource(sp->rets[0]) && Compiler::RegionEnum(n->exprtype))
         receiving = { TemporaryDestination(n->exprtype, n->line) };
@@ -1586,6 +1994,23 @@ inline void Function::Expr(Node *n) {
         }
         case NK_IfExpr: {
             auto i = static_cast<IfExpr *>(n);
+            auto integer = n->exprtype;
+            auto literal = [&](Node *arm) -> IntLit * {
+                if (auto block = Is<Block>(arm)) {
+                    if (!block->stmts.empty()) return nullptr;
+                    arm = block->tail;
+                }
+                auto value = Is<IntLit>(arm);
+                if (!value || value->exprtype != integer) return nullptr;
+                return value;
+            };
+            if (IsIntT(integer) && !integer->ix && !Compiler::Varint(integer)) {
+                auto yes = literal(i->thenb), no = literal(i->elseb);
+                if (yes && no) {
+                    Const(integer, yes->val); Const(integer, no->val);
+                    Truth(i->cond); code.Op(0x1b); Normalize(integer); return;
+                }
+            }
             if (SelectAssignment(i)) return;
             auto ts = Values(n); vector<uint32_t> vs;
             for (auto t : ts) vs.push_back(Local(t));
@@ -1606,9 +2031,143 @@ inline void Function::Expr(Node *n) {
             for (auto v : vs) Get(v); return;
         }
         case NK_While: {
-            auto w = static_cast<While *>(n); auto done = Begin(), again = Begin(0x03);
-            PushExit({ done, nullptr, {}, {}, true, again });
+            auto w = static_cast<While *>(n);
             auto unroll = UnrollWhile(w);
+            auto descending = [&]() -> Binary * {
+                if (!unroll) return nullptr;
+                auto both = Is<Binary>(w->cond);
+                if (!both || both->op != T_ANDAND) return nullptr;
+                auto guard = Is<Binary>(both->left), compare = Is<Binary>(both->right);
+                auto assignment = static_cast<Assign *>(w->body->stmts[0]);
+                auto decrement = static_cast<IncDec *>(w->body->stmts[1]);
+                auto counter = Is<Ident>(decrement->lval);
+                if (!guard || guard->op != T_GT || !compare || compare->op != T_GT ||
+                    decrement->op != T_DEC || !counter || !IsIntT(counter->exprtype) ||
+                    counter->exprtype->intstorage != IS_I64) return nullptr;
+                auto slot = Lookup(counter->vdef, counter->line);
+                if (!IsIntT(slot.type) || slot.type->intstorage != IS_I64) return nullptr;
+                auto literal = [](Node *value, int64_t expected) {
+                    auto number = Is<IntLit>(value);
+                    return number && IsIntT(value->exprtype) && number->val == expected;
+                };
+                auto same = [&](Node *left, Node *right) {
+                    auto a = Is<Ident>(left), b = Is<Ident>(right);
+                    return a && b && a->vdef && b->vdef && Resolve(a->vdef) == Resolve(b->vdef);
+                };
+                auto index_counter = [&](Node *value) {
+                    return same(value, counter) && IsIntT(value->exprtype) && value->exprtype->intstorage == IS_I64;
+                };
+                auto target = static_cast<Index *>(assignment->lval), source = static_cast<Index *>(assignment->rhs);
+                auto read = Is<Index>(compare->left);
+                auto previous = [&](Index *index) {
+                    if (!index) return false;
+                    auto subtract = Is<Binary>(index->idx);
+                    return subtract && subtract->op == T_MINUS && index_counter(subtract->left) && literal(subtract->right, 1);
+                };
+                if (!index_counter(guard->left) || !literal(guard->right, 0) || !index_counter(target->idx) ||
+                    !previous(source) || !previous(read) || !same(target->obj, source->obj) || !same(source->obj, read->obj)) return nullptr;
+                if (!Is<Ident>(compare->right) && !Is<IntLit>(compare->right)) return nullptr;
+                return both;
+            }();
+            if (descending) {
+                auto vectors = [&]() -> optional<pair<Slot, Slot>> {
+                    if (c.region_cursors && c.may_have_prefix_mappings) return {};
+                    auto assignment = static_cast<Assign *>(w->body->stmts[0]);
+                    auto target = static_cast<Index *>(assignment->lval), source = static_cast<Index *>(assignment->rhs);
+                    auto compare = static_cast<Binary *>(descending->right);
+                    auto read = static_cast<Index *>(compare->left);
+                    auto object = static_cast<Ident *>(source->obj), key = Is<Ident>(compare->right);
+                    auto counter = static_cast<Ident *>(static_cast<IncDec *>(w->body->stmts[1])->lval);
+                    auto private_id = [&](Ident *id) {
+                        if (!id || !id->vdef) return false;
+                        auto variable = Resolve(id->vdef);
+                        return !variable->captured && !variable->reusable && !addressed.count(variable) && !addressed.count(id->vdef);
+                    };
+                    if (!private_id(object) || !private_id(key) || !private_id(counter)) return {};
+                    auto view = Lookup(object->vdef, object->line), value = Lookup(key->vdef, key->line);
+                    auto position = Lookup(counter->vdef, counter->line);
+                    if (view.kind != Slot::LOCAL || view.type->kind != TY_SLICE || value.kind != Slot::LOCAL || position.kind != Slot::LOCAL) return {};
+                    auto elem = view.type->sub;
+                    if (!IsIntT(elem) || elem->ix || (elem->intstorage != IS_I32 && elem->intstorage != IS_U32) ||
+                        target->exprtype != elem || source->exprtype != elem || read->exprtype != elem ||
+                        key->exprtype != elem || value.type != elem) return {};
+                    for (auto index : { target, source, read })
+                        if (index->obj->exprtype->kind != TY_SLICE || index->obj->exprtype->sub != elem) return {};
+                    auto i64 = [](TypeExpr *type) { return IsIntT(type) && !type->ix && type->intstorage == IS_I64; };
+                    auto guard = static_cast<Binary *>(descending->left);
+                    if (!i64(position.type) || !i64(counter->exprtype) || !i64(target->idx->exprtype) ||
+                        !i64(guard->left->exprtype) || !i64(guard->right->exprtype)) return {};
+                    for (auto index : { source, read }) {
+                        auto subtract = static_cast<Binary *>(index->idx);
+                        if (!i64(subtract->exprtype) || !i64(subtract->left->exprtype) || !i64(subtract->right->exprtype)) return {};
+                    }
+                    return pair { view, value };
+                }();
+                auto emit_vectors = [&]() {
+                    if (!vectors) return;
+                    constexpr int lanes = 8;
+                    auto counter = static_cast<IncDec *>(w->body->stmts[1])->lval;
+                    Expr(counter); code.I64Const(lanes); code.Op(0x59);
+                    Expr(counter); Read(vectors->first); code.I64Const(32); code.Op(0x88); code.Op(0x54); code.Op(0x71); Begin(0x04);
+                    // The logical proof bounds j before widening the complete
+                    // initial span. Later chunks only move towards its base.
+                    Read(vectors->first); code.Op(0xa7); code.Op(0xad); auto base = Save(I64);
+                    Get(base); Expr(counter); code.I64Const(1); code.Op(0x7c); code.I64Const(4); code.Op(0x7e); code.Op(0x7c);
+                    code.OpU(0x3f, 0); code.Op(0xad); code.I64Const(16); code.Op(0x86); code.Op(0x58); Begin(0x04);
+                    Read(vectors->second); code.OpU(0xfd, 0x11); auto key = Save(V128);
+                    auto stop = Begin(), repeat = Begin(0x03);
+                    Expr(counter); code.I64Const(lanes); code.Op(0x53); Br(stop, true);
+                    Get(base); Expr(counter); code.I64Const(lanes); code.Op(0x7d); code.I64Const(4); code.Op(0x7e); code.Op(0x7c); code.Op(0xa7);
+                    auto chunk = Save(I32);
+                    uint32_t values[lanes / 4];
+                    for (int group = 0; group < lanes / 4; group++) {
+                        Get(chunk); code.OpU(0xfd, 0x00); code.U(0); code.U(group * 16); values[group] = Save(V128);
+                    }
+                    for (int group = 0; group < lanes / 4; group++) {
+                        Get(values[group]); Get(key);
+                        if (vectors->second.type->intstorage == IS_I32) code.OpU(0xfd, 0x3b);
+                        else code.OpU(0xfd, 0x3c);
+                        if (group) code.OpU(0xfd, 0x4e);
+                    }
+                    code.OpU(0xfd, 0xa3); code.Op(0x45); Br(stop, true);
+                    // Every lane will shift. The guarded source/destination span
+                    // makes this overlapping store nontrapping and ordered-equivalent.
+                    for (int group = lanes / 4 - 1; group >= 0; group--) {
+                        Get(chunk); code.I32Const(4); code.Op(0x6a); Get(values[group]); code.OpU(0xfd, 0x0b); code.U(0); code.U(group * 16);
+                    }
+                    Expr(counter); code.I64Const(lanes); code.Op(0x7d); Write(Lookup(static_cast<Ident *>(counter)->vdef, counter->line)); Br(repeat);
+                    End(); End(); End(); End();
+                };
+                auto done = Begin(), tail = Begin(), again = Begin(0x03);
+                PushExit({ done, nullptr, {}, {}, true, again });
+                auto counter = static_cast<IncDec *>(w->body->stmts[1])->lval;
+                Expr(counter); code.I64Const(4); code.Op(0x53); Br(tail, true);
+                auto label_depth = labels.size(), exit_depth = exits.size(), cleanup_depth = cleanups.size();
+                auto private_depth = private_headers.size(), temp_depth = temp_scopes.size();
+                auto live = region_live;
+                auto iteration_start = code.data.size();
+                Truth(descending->right); code.Op(0x45); Br(done, true);
+                BlockInto(w->body, {}, {});
+                if (labels.size() != label_depth || exits.size() != exit_depth || cleanups.size() != cleanup_depth ||
+                    private_headers.size() != private_depth || temp_scopes.size() != temp_depth || region_live != live)
+                    Fail(w->line, "internal: descending while iteration changed control or cleanup state");
+                // The group guard proves j > 0 four times. Keep every read,
+                // comparison, checked store and decrement in source order.
+                auto iteration = code.data.substr(iteration_start);
+                for (int copy = 1; copy < 4; copy++) code.Raw(iteration);
+                emit_vectors();
+                if (labels.size() != label_depth || exits.size() != exit_depth || cleanups.size() != cleanup_depth ||
+                    private_headers.size() != private_depth || temp_scopes.size() != temp_depth || region_live != live)
+                    Fail(w->line, "internal: descending SIMD changed control or cleanup state");
+                exits.pop_back(); Br(again); End(); End();
+                again = Begin(0x03); PushExit({ done, nullptr, {}, {}, true, again });
+                Truth(descending->left); code.Op(0x45); Br(done, true);
+                Truth(descending->right); code.Op(0x45); Br(done, true);
+                BlockInto(w->body, {}, {});
+                exits.pop_back(); Br(again); End(); End(); return;
+            }
+            auto done = Begin(), again = Begin(0x03);
+            PushExit({ done, nullptr, {}, {}, true, again });
             auto label_depth = labels.size(), exit_depth = exits.size(), cleanup_depth = cleanups.size();
             auto private_depth = private_headers.size(), temp_depth = temp_scopes.size();
             auto live = region_live;

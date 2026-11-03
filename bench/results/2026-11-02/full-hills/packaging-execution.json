@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "build/full-hills/package.py",
+    "--compiler",
+    "peeled-eight"
+  ],
+  "exit_status": 0,
+  "wall_seconds": 78.24145194099401,
+  "log": "/tmp/goose-full-hills-package-attempt-8.log"
+}

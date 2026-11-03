@@ -1,0 +1,60 @@
+{
+  "schema": "goose-full-hills-retention-v1",
+  "recorded_utc": "2026-11-03T00:50:24.692056+00:00",
+  "compiler_sha256": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "report_origins": {
+    "cohort.json": "current/langarena/report.json",
+    "examples.json": "current/examples/report.json",
+    "host.json": "current/host/report.json",
+    "final-warmed.json": "delivered-warmed/report.json",
+    "final-v8.json": "delivered-v8/report.json",
+    "qualification.json": "final-qualification/report.json",
+    "differential.json": "differential/report.json",
+    "host-qualification.json": "host-qualification/report.json",
+    "ci-followup.json": "ci-followup/qualification.json",
+    "optimizer-followup.json": "optimizer-followup/qualification.json"
+  },
+  "public_file_sha256": {
+    "README.md": "c9e36245372ad556025d8f85a4705f506245f0c479e4ff5a2a0aeeb46aba2f4c",
+    "archives.json.gz": "e6e7c91b834dd335c00880eec6d875fd71481923256060152ccc36bea14c67c7",
+    "campaign.json": "1bbcaca4df23c57e2e1d2aa019d532f9d9eb52770279bc3d9937c3251472d937",
+    "chart-verification.json": "1c8e4a69a363bc592c3b6162321313bc462ed17af28b6d7d681d291807cff943",
+    "chart-visual-review.json": "044ed04f65d4a54080fb11f53a4cd01a4bde4cfd7a6dc98fcc438cd723bc8d93",
+    "ci-followup.json": "11d68de1c45a25281cc57584069b909b8967c69d465a31604c6890eab560fd5f",
+    "cohort.json": "fc0b0ae98f1caacc421f5edfc6aa7385827285ec4da58399fdd1bec426fabdcd",
+    "compiler-identity.json": "adfd1b2c84e4a50f7b95dc378b3f1075e5835d62ad45943f802f8bc0c8d7932c",
+    "differential.json": "69634b07169e52e292129451013191e0fca8056ac353c3678a275f4eda7d99a0",
+    "examples.json": "22ef366c0b433ffc269ec9eda2ef5f625eb38270a4ed27815d9e0b29373436ce",
+    "final-v8.json": "02c95771482e8a5cdcf742e84a4aa80f4b5976155a58d03a12254375c0b26c88",
+    "final-warmed.json": "18468ba474ae691d971b689e5a369e73572302f423c95f40afd705ab58e7ce49",
+    "host-qualification.json": "e3e5fc062d2e81ec59089bd7b2895cc9412af941da53a6fc89d8496dc62b3fef",
+    "host.json": "81c9e087f324c025ff9700cfdbaf49756337544414c0dfb7c51f0a7d5acc3fb1",
+    "optimizer-followup.json": "6e18d58d6374668aa23d68be674379082d349c0ccc44b5ce558b88ece317690a",
+    "qualification.json": "9a902e2a0b65624dc55aceebca5881da765dbca30006e4f89d3bacff81573454",
+    "readme.json": "3c4417fa3b4405522d88d685d0131bf6d557dd5acc5709ae53a8862022769688",
+    "references.json": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "reproduction/package.py": "52c6de92ffb170b08b248951599fd1c55ac08aec3c746caeb51856f0bc2688c5",
+    "reproduction/verify_package.py": "980e750d6732eb7057c3f0fd776705768daa61a35f992006641910902f47ac24",
+    "target-chart-verification.json": "811a06486b2cb7b9d8e8b2c93154c71183a116b800ee9065930e3907aea3e1ee"
+  },
+  "expected_counts": {
+    "focused_commands": 65,
+    "differential_observations": 9573,
+    "native_comparisons": 7656,
+    "cases": 978,
+    "host_observations": 11484,
+    "host_modules": 1574
+  },
+  "archive_index": "archives.json.gz",
+  "reference_alias": "/home/jacobt/src/goose-to-wasm/build/runtime-reference/production/report.json@06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "notes": [
+    "Reports are immutable copies. All campaign reports, failed attempts, proofs and available guest bytes are retained.",
+    "Only compressed archives.json.gz stores the expanded machine index; aliases identify original path AND SHA.",
+    "Historical archive references include archive and member digests and remain separately collected evidence.",
+    "Older bench/results copied inside frozen source snapshots are retained and hashed as opaque historical context; their unrelated old claims/dependencies are not recursively validated.",
+    "Tool/compiler/host/library binaries and the Rust source/target/cache trees are omitted, never described as retained bytes.",
+    "Rust source archive identity, lockfile, CMake/generated configuration, build commands, feature proofs and tools are retained.",
+    "Packaging, hashing, compression and verification are correctness work and must not overlap performance sampling."
+  ]
+}

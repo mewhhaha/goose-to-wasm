@@ -4,18 +4,18 @@ These are qualified empirical references for this source, workload, toolchain an
 
 | Workload | Direct Wasm | Selected Wasm | Selected native |
 | --- | ---: | ---: | ---: |
-| Fannkuch | 1,343 | 1,347 | 1,048 |
-| Mandelbrot | 995 | 996 | 920 |
-| Sieve | 1,430 | 1,427 | 851 |
-| CRC32 | 417 | 401 | 197 |
-| Custom hash | 901 | 362 | 216 |
-| Merge sort | 2,012 | 2,016 | 1,059 |
-| Quicksort | 1,773 | 1,368 | 1,182 |
-| Life adapter | 435 | 156 | 60 |
-| Insertion-sort adapter | 2,147 | 2,111 | 308 |
-| Sudoku adapter | 180 | 169 | 100 |
+| Fannkuch | 1,358 | 1,362 | 1,070 |
+| Mandelbrot | 1,004 | 1,002 | 923 |
+| Sieve | 1,360 | 1,436 | 853 |
+| CRC32 | 428 | 404 | 199 |
+| Custom hash | 325 | 365 | 218 |
+| Merge sort | 2,073 | 2,020 | 1,066 |
+| Quicksort | 1,759 | 1,371 | 1,197 |
+| Life adapter | 239 | 157 | 61 |
+| Insertion-sort adapter | 411 | 2,185 | 314 |
+| Sudoku adapter | 162 | 171 | 101 |
 
-Selected flags are in the [original evidence](../bench/results/2026-11-02/runtime-targets/README.md); [fresh paired samples](../bench/results/2026-11-02/resource-free-calls/README.md) use the same selections. The warmed Sudoku adapter improved 1.066× (paired ratio MAD 0.002); nine other modules were unchanged. Raw direct Wasm itself was selected for Fannkuch, Mandelbrot, Sieve, Merge sort and insertion sort; a self-reference does not prove that no faster Wasm exists. Pilot-selected native is not necessarily fastest in confirmation: in the original cohort, Sieve's generic GCC `-O2` anchor was slightly faster than the selected native profile. Confirmation did not reselect.
+The fixed selections were built earlier; all executions above were freshly paired in nine rounds on November 2 UTC. The selected Wasm can be an older direct module or a separately built C-to-Wasm or Binaryen artifact. See the [campaign evidence](../bench/results/2026-11-02/full-hills/README.md) and [original selection](../bench/results/2026-11-02/runtime-targets/README.md). A selected native profile is a workload reference, not a ceiling. For CRC, the native reference uses AVX2 across 32 benchmark repetitions; that difference does not quantify the full gap.
 
 Seven unchanged adapted LangArena ports use their official test and run inputs and warmed timing boundary. Three separate adapters retain original example helper bodies: Life uses a runtime seed on a fixed 64×32 grid for 200 generations; Sorting inserts 20,000 values; Sudoku alternates puzzles. One-time preparation is outside the clock; reset, perturbation, validation and checksum are timed. An opaque iteration barrier prevents dead-code elimination. Nonintrinsic adapter imports disable the direct compiler's closed raw-array proof; only Life and Sorting emit ULEB helpers, and the Sudoku adapter has no resource region versus one in the full program. These are not the full example binaries or their process timings.
 

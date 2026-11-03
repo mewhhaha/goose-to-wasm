@@ -1,0 +1,278 @@
+{
+  "status": "complete",
+  "baseline_commit": "5706abfd2c083f7e158b8f8c3f1adfcc4871acf3",
+  "planner": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "intent": "Climb each identified hill family through a measured, semantically qualified experiment; finish each as kept, rejected, or limited by an explicit proof/API constraint. No universal performance ceiling claim.",
+  "acceptance": "Build and qualify before timing; serialize timing against our builds/tests/rendering/packaging. Fresh confirmation pairs for promising screens; investigate >3% regressions and preserve rejected variants. Refresh all README plots and dated provenance for delivered batches.",
+  "baseline_evidence": [
+    "baseline.json",
+    "baseline-phases/report.json",
+    "profile-sorting/analysis.json",
+    "profile-life/analysis.json",
+    "profile-sudoku/analysis.json"
+  ],
+  "items": [
+    {
+      "id": "H01",
+      "status": "kept",
+      "title": "Minimal AOT runtime and static full linking",
+      "conclusion": "Official full SDK static linking with section collection and static C++ runtimes reproduces measured host40bb4d. Ordinary and AOT retained; no Rust build required. Runtime-only shared source build and AOT-only static variants retained as rejected alternatives. Minimal SDK failed GC/EH compatibility.",
+      "evidence": [
+        "host-static-final/report.json",
+        "hosts/production-static/qualification.json",
+        "hosts/h01-runtime/complete.json",
+        "runtime-only-confirm/report.json",
+        "hosts/runtime-only/compatibility.json"
+      ]
+    },
+    {
+      "id": "H02",
+      "status": "rejected",
+      "title": "Direct import binding",
+      "conclusion": "Direct binding did not establish a useful broad process-time gain in the representative10-example screens/combined holdout. Linker cost is a small part of measured startup.",
+      "evidence": [
+        "host-pilot/report.json",
+        "host-confirm/report.json",
+        "host-phases/report.json"
+      ]
+    },
+    {
+      "id": "H03",
+      "status": "rejected",
+      "title": "Callback copies and memory-handle lookup",
+      "conclusion": "Copy-free callbacks and memory-handle caching did not earn extra code in the cold-process workload screens. Callback-heavy throughput remains a different workload, not a claimed limit.",
+      "evidence": [
+        "host-confirm/report.json",
+        "host-next-pilot/report.json"
+      ]
+    },
+    {
+      "id": "H04",
+      "status": "rejected",
+      "title": "Typed unchecked callback trampolines",
+      "conclusion": "Exact-signature raw callbacks passed ABI tests but the9-round process screen showed only1.018 geometric AOT speedup. Added ABI maintenance is unjustified by this workload.",
+      "evidence": [
+        "hosts/next-candidates.json",
+        "host-next-pilot/report.json"
+      ]
+    },
+    {
+      "id": "H05",
+      "status": "rejected",
+      "title": "Host optimization flags and LTO",
+      "conclusion": "O3/LTO/native host flag screen did not show a compelling broad gain. Keep the measured portable O2 host command.",
+      "evidence": [
+        "hosts/candidates.json",
+        "host-pilot/report.json"
+      ]
+    },
+    {
+      "id": "H06",
+      "status": "rejected",
+      "title": "Engine initialization controls",
+      "conclusion": "No-COW ordinary screen was unchanged and unchanged AOT artifacts reject its altered tunable. No-growth reservation screen was weak. Bounds checks and proposal support retained.",
+      "evidence": [
+        "hosts/next-candidates.json",
+        "host-next-pilot/report.json"
+      ]
+    },
+    {
+      "id": "H07",
+      "status": "kept",
+      "title": "Unused loop ordinals",
+      "conclusion": "Remove unused ordinal locals and arithmetic. Nine example modules shrink; noisy process timings do not establish a runtime speedup.",
+      "evidence": [
+        "compiler-experiments/ordinal/candidate.json",
+        "ordinal-pairs/report.json"
+      ]
+    },
+    {
+      "id": "H08",
+      "status": "kept",
+      "title": "Redundant zero stores",
+      "conclusion": "Elide duplicate exact integer-zero stores only before any effectful initializer; full zero fill and initializer evaluation remain. Foreign initializer memory edits retain ordered stores.",
+      "evidence": [
+        "compiler-experiments/zero-stores/candidate.json"
+      ]
+    },
+    {
+      "id": "H09",
+      "status": "proof-limited",
+      "title": "Print snapshots and scratch bookkeeping",
+      "conclusion": "Print watermarks preserve callback reentry after a caught trap; mutable Text snapshots also prevent unsafe pooling. Unsafe proposal was not applied or benchmarked. Permanent reentry regression retained.",
+      "evidence": [
+        "compiler-experiments/scalar-print/proof.md"
+      ]
+    },
+    {
+      "id": "H10",
+      "status": "kept",
+      "title": "Wider fills and bounded copies",
+      "conclusion": "Checked wider zero fills and bounded forward-equivalent copies preserve scalar fallbacks for overlap, partial writes, invalid logical/physical spans. Synthetic u32 repeat probes improve about11x on Wasmtime; examples remain separately measured.",
+      "evidence": [
+        "compiler-experiments/bulk-integer-loops/proof.md",
+        "compiler-experiments/bulk-crc/candidate.json",
+        "bulk-mechanism/report.json"
+      ]
+    },
+    {
+      "id": "H11",
+      "status": "kept",
+      "title": "Bounded literal-range unrolling",
+      "conclusion": "Bounded signed literal ranges use exact unrolling under a small expansion budget. Nine paired warmed Life rounds confirm1.747x speedup, MAD.0206; native gap remains.",
+      "evidence": [
+        "compiler-experiments/literal-range/candidate.json",
+        "life-warmed/report.json"
+      ]
+    },
+    {
+      "id": "H12",
+      "status": "kept",
+      "title": "Grouped descending-loop lower-bound guard",
+      "conclusion": "Grouped descending lower-bound guard retains ordered comparisons and scalar tail.15 warmed Sorting pairs confirm1.332x(MAD.007); Sudoku also improves.",
+      "evidence": [
+        "compiler-experiments/descending-while/candidate.json",
+        "sorting-warmed/report.json",
+        "sort-sudoku-warmed/report.json"
+      ]
+    },
+    {
+      "id": "H13",
+      "status": "kept",
+      "title": "Tiny popcount and expression calls",
+      "conclusion": "Recognize complete pure unsigned-popcount wrappers, preserving formal truncation/debug behavior. Adds1.086x(MAD.006) warmed Sudoku gain; wrapper body remains emitted.",
+      "evidence": [
+        "compiler-experiments/popcount-wrapper/candidate.json",
+        "sort-sudoku-warmed/report.json"
+      ]
+    },
+    {
+      "id": "H14",
+      "status": "rejected",
+      "title": "Deferred hash lane write-back",
+      "conclusion": "Standalone deferred scalar lane stores regressed hash about6.9%. Retain only as the guarded SIMD foundation; unsupported bodies keep the original write-through loop.",
+      "evidence": [
+        "hash-warmed/report.json",
+        "compiler-experiments/simd-only-writeback/proof.md"
+      ]
+    },
+    {
+      "id": "H15",
+      "status": "kept",
+      "title": "Blocked hash SIMD",
+      "conclusion": "Generic blocked u32 recurrence SIMD passed lane/alias/trap/cast/tail checks and complete qualification. Earlier Wasmtime hash9-pair confirmation was2.890x overH13; fresh delivered baseline/final9-pair ratios are2.78650x Wasmtime and3.63675x defaultV8. These are batch results, not a universal ceiling.",
+      "evidence": [
+        "compiler-experiments/hash-simd/candidate.json",
+        "hash-warmed/report.json",
+        "hash-v8-screen/report.json",
+        "delivered-warmed/report.json",
+        "delivered-v8/report.json"
+      ]
+    },
+    {
+      "id": "H16",
+      "status": "proof-limited",
+      "title": "Affine Life stencil SIMD",
+      "conclusion": "Safe affine stencil extraction is absent: toroidal boundaries, arbitrary byte sums up to2040, tiny dimensions, aliasing and exact partial-write semantics need a larger legality analysis. This is an open engineering hill, not a Wasmtime ceiling.",
+      "evidence": [
+        "reviews/astra-static-review.json"
+      ]
+    },
+    {
+      "id": "H17",
+      "status": "rejected",
+      "title": "Packed CRC basis terms",
+      "conclusion": "Packed immutable CRC basis lookup is correct but15pairs regress on both engines: baseline/candidate .682 Wasmtime and .712 V8. Reverted; source/tests/compiler/results retained.",
+      "evidence": [
+        "compiler-experiments/packed-crc-pairs/decision.json",
+        "crc-warmed/report.json",
+        "crc-v8/report.json"
+      ]
+    },
+    {
+      "id": "H18",
+      "status": "reference-only",
+      "title": "Binaryen pass isolation and emitter simplification",
+      "conclusion": "Normal-semantics Binaryen local-pass/O3 sweep completed without adding a default tier. The earlier9-round all-workload sweep retained gains and regressions; delivered15-pair Life raw/O3 was1.83981x. Standard SIMD feature permission in the optional reference helper was separately corrected and qualified without changing compiler or raw measurements.",
+      "evidence": [
+        "measure_postprocess.py",
+        "reviews/astra-static-review.json",
+        "postprocess/report.json",
+        "peeled-life-postprocess/report.json",
+        "optimizer-followup/qualification.json"
+      ]
+    },
+    {
+      "id": "H19",
+      "status": "kept",
+      "title": "Conditional block resource bookkeeping",
+      "conclusion": "Conservative per-block RegionNext omission passed65focused gates and the full differential/host replay. Borrowed typed numeric views are recognized; allocating, addressed, captured, nonlocal and unknown-call scopes retain their protections. No independent speedup is attributed.",
+      "evidence": [
+        "compiler-experiments/resource-free-blocks/proof.md",
+        "compiler-experiments/resource-select/diagnosis/probes.json",
+        "final-qualification/report.json",
+        "differential/report.json",
+        "host-qualification/report.json"
+      ]
+    },
+    {
+      "id": "H20",
+      "status": "proof-limited",
+      "title": "Private binding array-layout specialization",
+      "conclusion": "Private binding alone does not prove physical relayout unobservable through byte aliases or host memory inspection. No new representation optimizer; H15 specializes computation under explicit guards.",
+      "evidence": [
+        "reviews/astra-static-review.json"
+      ]
+    },
+    {
+      "id": "H21",
+      "status": "kept",
+      "title": "Sparse static reservations",
+      "conclusion": "Logical static extent plus owned text fragments eliminates dense compiler zero images.34modules byte-identical. Synthetic256MiB logical global184.862->2.599ms; wait4 peak childRSS519.62->26.27MiB includes Python pre-exec floor.",
+      "evidence": [
+        "compiler-experiments/sparse/candidate.json",
+        "sparse-scaling/report.json"
+      ]
+    },
+    {
+      "id": "H22",
+      "status": "kept",
+      "title": "Build invocation and existing worker overhead",
+      "conclusion": "Avoid unused dependency content hashes when artifact validation/cache is disabled. No headline timing win claimed. Existing nativeCLI/worker avoid Python startup; no new daemon/cache added.",
+      "evidence": [
+        "compiler-experiments/driver/qualification.json",
+        "driver-measure/report.json"
+      ]
+    },
+    {
+      "id": "H23",
+      "status": "kept",
+      "title": "Qualification iteration costs",
+      "conclusion": "Collect Python host package/timing metadata only when requested; public API default remains compatible.15 CPU2 pairs show1.184x without timing(MAD.012),1.0x with timing; ordinary affinity screen was noisy. Preserve fresh-process qualification.",
+      "evidence": [
+        "python-metadata/report.json",
+        "python-metadata-cpu2/report.json",
+        "compiler-experiments/driver/qualification.json"
+      ]
+    },
+    {
+      "id": "H24",
+      "status": "kept",
+      "title": "Default V8 first-call code shape",
+      "conclusion": "Exact integer-literal-arm selects passed correctness and were retained within the measured batch. Fresh defaultV8 all10 paired confirmation completed; no independent speedup is attributed to this change. Diagnostic tier traces never change engine budgets or supply headline timing.",
+      "evidence": [
+        "compiler-experiments/literal-select/proof.md",
+        "v8-trace/report.json",
+        "delivered-v8/report.json",
+        "final-qualification/report.json"
+      ]
+    }
+  ],
+  "notes": [
+    "Finite measured campaign; not a universal optimum or native-parity promise.",
+    "All raw observations retained; rejected variants are not default code.",
+    "Final reporting/qualification and immutable evidence packaging pending."
+  ],
+  "delivered_compiler_sha256": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46"
+}

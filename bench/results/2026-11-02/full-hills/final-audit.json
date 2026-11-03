@@ -1,0 +1,78 @@
+{
+  "kind": "postassembly-final-audit",
+  "date": "2026-11-03",
+  "reviewer": "astra_campaign",
+  "status": "passed",
+  "blockers": [],
+  "compiler_sha256": "9bfbd591fe0785bfa5d9eedaabf04d1620cc9d23fcf5b3b36539e68858456d46",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "public_review": {
+    "original": "build/full-hills/reviews/final-public-review.json",
+    "sha256": "75416440de3722137917076b81ffc821e9a1b15e09478e45eb1b379b34de75e4",
+    "retained_in_archive": true,
+    "result": "Public claims, 403 numeric chart labels, ten chart previews, four latest pointers and all 24 dispositions passed the earlier pinned review."
+  },
+  "archive_verification": {
+    "performed_by": "execution_sampler using the retained reproduction verifier",
+    "exit_status": 0,
+    "wall_seconds": 14.521997767005814,
+    "archive_count": 15,
+    "local_archive_count": 12,
+    "historical_archive_count": 3,
+    "alias_count": 192599,
+    "retained_json_documents": 68453,
+    "guest_identity_checks": 95713,
+    "original_focused_commands": 65,
+    "ci_followup_commands": 6,
+    "optimizer_followup_commands": 5,
+    "largest_local_file_bytes": 24540328
+  },
+  "independent_audit_checks": [
+    "Verification result matches retained index and retention digests; actual execution exit is zero and its retained log equals the result.",
+    "All retention-pinned public bytes match; primary reports match their immutable raw origins; retained reproduction scripts match the final reviewed source.",
+    "Every indexed alias has the correct SHA, indexed archive/member size and identity, with no retained/omitted overlap. All 15 archive sizes and member counts agree with the completed verifier result.",
+    "Every hill evidence location resolves. All 13 prior review artifacts and their pinned public-source versions remain available; recovered historical source copies are indexed with exact matching bytes.",
+    "All four latest pointers still match their reports. Generated Python bytecode was removed before the final manifest."
+  ],
+  "opaque_historical_context": {
+    "files": 2800,
+    "snapshot_roots": {
+      "build/full-hills/compiler-experiments/bulk-crc": 400,
+      "build/full-hills/compiler-experiments/hash-simd": 400,
+      "build/full-hills/compiler-experiments/lane-writeback": 400,
+      "build/full-hills/compiler-experiments/peeled-eight": 400,
+      "build/full-hills/compiler-experiments/resource-select": 400,
+      "build/full-hills/compiler-experiments/resource-select-initial": 400,
+      "build/full-hills/compiler-experiments/vector-shift": 400
+    },
+    "boundary": "Only copied frozen source/bench/results context is exempt from recursive validation of unrelated old claims. Exact bytes remain retained and verified. Actual campaign reports, proofs, explicit runtime reference and measured guests remain subject to resolution and verification.",
+    "verified_boundary_and_aliases": true
+  },
+  "post_public_review_changes": [
+    "Campaign H01 corrected only its evidence path from hosts/min/compatibility.json to hosts/runtime-only/compatibility.json. Dispositions and conclusions are unchanged; prior campaign bytes remain retained.",
+    "Evidence README adds the explicit opaque historical-context disclosure; prior bytes remain retained.",
+    "Collector/verifier gained the bounded context list and deterministic archive partitioning; prior reviewed source versions remain retained."
+  ],
+  "final_dispositions": {
+    "kept": 13,
+    "rejected": 7,
+    "proof-limited": 3,
+    "reference-only": 1
+  },
+  "completion_clarification": "The immutable campaign notes still contain an earlier statement that final reporting/qualification and packaging were pending. That note is superseded by the passed qualification, delivered measurements, completed retention and verification records linked here. It does not describe current campaign status.",
+  "scope_and_limits": [
+    "This audit checked metadata, indexed links, selected recovered bytes and public-file hashes. It did not rerun full archive decompression/member hashing, builds, tests, guests or benchmarks; the separately pinned verifier performed full archive/member verification.",
+    "This supplemental audit is intentionally outside its own archive. The delivery coordinator must include it with the verification records in the final SHA256.json manifest before commit/push. Git remote verification remains a separate delivery step."
+  ],
+  "input_sha256": {
+    "retention.json": "e5b3c7f04b9c37043bcf8155b2a2558724f891d46b556db42a138537fdfd4f4e",
+    "archives.json.gz": "e6e7c91b834dd335c00880eec6d875fd71481923256060152ccc36bea14c67c7",
+    "verification.json": "85867a662e181b8c10a17f1cd97b477a9358c8921e8b991091650af7a37d8179",
+    "verification.log": "85867a662e181b8c10a17f1cd97b477a9358c8921e8b991091650af7a37d8179",
+    "verification-execution.json": "feb3af8a2fc70e46689bd6747ae8e9412e8ccf3eecda14b3f2e26d12623cabd4",
+    "reproduction/package.py": "52c6de92ffb170b08b248951599fd1c55ac08aec3c746caeb51856f0bc2688c5",
+    "reproduction/verify_package.py": "980e750d6732eb7057c3f0fd776705768daa61a35f992006641910902f47ac24",
+    "README.md": "c9e36245372ad556025d8f85a4705f506245f0c479e4ff5a2a0aeeb46aba2f4c",
+    "campaign.json": "1bbcaca4df23c57e2e1d2aa019d532f9d9eb52770279bc3d9937c3251472d937"
+  }
+}

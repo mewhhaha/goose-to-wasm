@@ -76,9 +76,37 @@ void check(const string &data) {
         previous = start + s.bytes.size();
     }
     assert(restored == data);
+    // Reservations may separate text fragments, and literal boundaries may
+    // split both a short gap and the segment selected by the global cap.
+    for (size_t width : { 1, 17, 257 }) {
+        vector<DataSegment> fragments;
+        for (size_t start = 0; start < data.size(); start += width) {
+            auto text = string_view(data).substr(start, width);
+            if (text.find_first_not_of('\0') != string_view::npos)
+                fragments.push_back({ 1024 + uint32_t(start), text });
+        }
+        fragments.push_back({ 1024 + uint32_t(data.size()), "" });
+        auto sparse = SparseDataSegments(fragments);
+        assert(sparse.size() == segments.size());
+        for (size_t i = 0; i < sparse.size(); i++) {
+            assert(sparse[i].offset == segments[i].offset);
+            assert(sparse[i].bytes == segments[i].bytes);
+        }
+    }
+    vector<DataSegment> whole { { 1024, data } };
+    auto sparse = SparseDataSegments(whole);
+    assert(sparse.size() == segments.size());
+    for (size_t i = 0; i < sparse.size(); i++) {
+        assert(sparse[i].offset == segments[i].offset);
+        assert(sparse[i].bytes == segments[i].bytes);
+    }
 }
 int main() {
     assert(SparseDataSegments("", 1024).empty());
+    assert(SparseDataSegments(vector<DataSegment>{}).empty());
+    assert(SparseDataSegments(vector<DataSegment>{ { 1024, "" }, { 4096, "\0\0"sv } }).empty());
+    auto high = SparseDataSegments(vector<DataSegment>{ { UINT32_MAX - 3, "a" }, { UINT32_MAX - 1, "b" } });
+    assert(high.size() == 1 && high[0].bytes == "a\0b"sv);
     assert(SparseDataSegments(string(1000000, '\0'), 1024).empty());
     check(""); check(string(1000000, '\0')); check(string(10000, 'x'));
     string sparse(1000000, '\0'); sparse[31] = 'a'; sparse[900000] = 'b';
@@ -129,6 +157,26 @@ int main() {
                 count, _ = uleb(payloads[11], 0)
                 self.assertGreater(count, 0)
                 self.assertIn(b"A\0B", payloads[11])
+
+    def test_large_zero_reservations_use_logical_extent(self):
+        size = 32 * 1024 * 1024
+        source = (f"var a: u8[{size}] = [0; {size}];\n"
+                  f"var b: u8[{size}] = [0; {size}];\n"
+                  f'fn main() {{ print(a[0], "A\\0B", b[{size - 1}]); }}\n')
+        for level in ("-O0", "-O2"):
+            with self.subTest(level=level):
+                result, out = self.compile(source, level, "--wasm-max-pages", "1024")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("static data exceeds", result.stderr)
+                self.assertFalse(out.exists())
+                result, out = self.compile(source, level, "--wasm-max-pages", "1025")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertLess(out.stat().st_size, 20000)
+                payloads = dict(sections(out.read_bytes()))
+                minimum, _ = uleb(payloads[5], 2)
+                self.assertEqual(minimum, 1025)
+                self.assertIn(b"A\0B", payloads[11])
+                out.unlink()
 
     def test_all_zero_data_needs_no_segments(self):
         result, out = self.compile("fn main() {}\n")

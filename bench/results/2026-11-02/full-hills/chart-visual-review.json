@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "inspector": "root",
+  "rendered_width": 1500,
+  "charts": [
+    {
+      "path": "build/full-hills/chart-previews/compilation.png",
+      "sha256": "b0f76f803031cbfe40f9bd096a581ada16afd02fb6ef170aacbad7ab8f0bd004"
+    },
+    {
+      "path": "build/full-hills/chart-previews/examples-compilation.png",
+      "sha256": "afd9615c8219087a8ef1cc226bcd696bc86ab288f164f2e73f00f20ad8aa44e6"
+    },
+    {
+      "path": "build/full-hills/chart-previews/examples-entry.png",
+      "sha256": "369bf4cd04a051a01c1b43d4df2ed1503a6c09af3a6d4e220165c66a948b574e"
+    },
+    {
+      "path": "build/full-hills/chart-previews/examples-python-runtime.png",
+      "sha256": "184f9e780a291cf88484c62cb95779fee0d2f757d9e36dca20eadab3b5b194b6"
+    },
+    {
+      "path": "build/full-hills/chart-previews/examples-runtime.png",
+      "sha256": "94f55f68da6bfa74ffc17cc43d2dccad3b072e2958e265d072200046edc6d431"
+    },
+    {
+      "path": "build/full-hills/chart-previews/runtime-targets.png",
+      "sha256": "d264f0c957543defbd639b8a3e17d79c546b1b569c5b0b40e974f75a824478ef"
+    },
+    {
+      "path": "build/full-hills/chart-previews/runtime.png",
+      "sha256": "8bcdae00057af83dd83ee46aed4675cbae7ca63af0fb59c5bb7f43096f009adb"
+    },
+    {
+      "path": "build/full-hills/chart-previews/wasmtime-host-c-wasm.png",
+      "sha256": "638b76d9922e7fd009cbaf96d5d9f72ffbdfd14a79528aa36e8110a3f00e6004"
+    },
+    {
+      "path": "build/full-hills/chart-previews/wasmtime-host-preparation.png",
+      "sha256": "c0d6dbe3c84a24e878eafb01cdad0b438831ff885c88a3766879a246dbc4f4d9"
+    },
+    {
+      "path": "build/full-hills/chart-previews/wasmtime-host-runtime.png",
+      "sha256": "b40765067c4b1eff0c4cc053a101a0614f879b33b24bcc2c921e605f46b30411"
+    }
+  ],
+  "checks": [
+    "All ten chart PNGs inspected through three contact sheets",
+    "Full-size catalog runtime and warmed targets inspected separately",
+    "Titles, legends, numerical labels, workload names, dates and timing boundaries readable",
+    "No label clipping or overlap observed"
+  ],
+  "contact_sheets": [
+    "build/full-hills/chart-previews/contact-1.png",
+    "build/full-hills/chart-previews/contact-2.png",
+    "build/full-hills/chart-previews/contact-3.png"
+  ]
+}

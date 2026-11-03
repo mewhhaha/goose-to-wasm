@@ -14,6 +14,7 @@ import wasmtime
 
 ROOT=Path(__file__).resolve().parents[1]
 HOST=ROOT/'build/bin/goose-wasmtime'
+PRECOMPILED_HOST=None
 
 
 class NativeHost(unittest.TestCase):
@@ -39,6 +40,9 @@ class NativeHost(unittest.TestCase):
         self.assertEqual(prep.returncode,0,prep.stderr)
         modes=[[HOST,path],[HOST,'--no-parallel-compilation',path],[HOST,'--precompiled',compiled],
                [HOST,'--no-parallel-compilation','--precompiled',compiled]]
+        if PRECOMPILED_HOST is not None:
+            modes += [[PRECOMPILED_HOST,'--precompiled',compiled],
+                      [PRECOMPILED_HOST,'--no-parallel-compilation','--precompiled',compiled]]
         for command in modes:
             with self.subTest(command=command):
                 actual=self.execute(command,data)
@@ -108,6 +112,13 @@ class NativeHost(unittest.TestCase):
           (import "goose" "print_i64" (func $b (param i64)))
           (func (export "_start") (call $a (i64.const 12)) (call $b (i64.const 34))))''')
         self.assertEqual(self.compare(path).stdout,b'1234')
+        path=self.module('''(module
+          (import "env" "emscripten_notify_memory_growth" (func (param i32)))
+          (import "env" "emscripten_notify_memory_growth" (func (param i64)))
+          (func (export "_start")))''')
+        actual=self.execute([HOST,path])
+        self.assertEqual(actual.returncode,1)
+        self.assertIn(b'import signature',actual.stderr)
         for imports in ['(import "goose" "print_i64" (func (param f64)))',
                         '(import "env" "bench_input" (func (result i32)))',
                         '(import "goose" "unknown" (func))',
@@ -116,6 +127,27 @@ class NativeHost(unittest.TestCase):
             actual=self.execute([HOST,path])
             self.assertEqual(actual.returncode,1)
             self.assertIn(b'host import',actual.stderr)
+
+    def test_imports_during_instantiation_and_memory_growth(self):
+        path=self.module('''(module
+          (import "goose" "write" (func $write (param i32 i32)))
+          (memory (export "memory") 1 2) (data (i32.const 0) "before")
+          (func $init (call $write (i32.const 0) (i32.const 6))) (start $init)
+          (func (export "_start")
+            (drop (memory.grow (i32.const 1)))
+            (i32.store (i32.const 65536) (i32.const 1919251553))
+            (call $write (i32.const 65536) (i32.const 4))))''')
+        self.assertEqual(self.compare(path).stdout,b'beforeater')
+
+    def test_iovec_output_before_invalid_later_range(self):
+        path=self.module('''(module
+          (import "wasi_snapshot_preview1" "fd_write" (func $write (param i32 i64 i64 i64) (result i32)))
+          (memory (export "memory") i64 1) (data (i64.const 100) "kept")
+          (func (export "_start")
+            (i64.store (i64.const 0) (i64.const 100)) (i64.store (i64.const 8) (i64.const 4))
+            (i64.store (i64.const 16) (i64.const 65535)) (i64.store (i64.const 24) (i64.const 2))
+            (drop (call $write (i32.const 1) (i64.const 0) (i64.const 2) (i64.const 64)))))''')
+        self.assertEqual(self.compare(path,diagnostic=b'outside exported memory').stdout,b'kept')
 
     def test_memory_growth_notifications_in_both_memory_models(self):
         for kind in ['i32','i64']:
@@ -206,5 +238,7 @@ class NativeHost(unittest.TestCase):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--host',type=Path,default=HOST)
+    parser.add_argument('--precompiled-host',type=Path)
     args,remaining=parser.parse_known_args();HOST=args.host.resolve()
+    if args.precompiled_host is not None:PRECOMPILED_HOST=args.precompiled_host.resolve()
     unittest.main(argv=[sys.argv[0],*remaining])

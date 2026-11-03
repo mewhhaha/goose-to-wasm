@@ -291,7 +291,7 @@ def dependency_snapshot(transcript: list[dict], roots: list[Path], *, validate: 
             except (OSError, RuntimeError):
                 coherent = False
         observation = {"exists": exists, "resolved": resolved}
-        if kind != "probe" and exists:
+        if validate and kind != "probe" and exists:
             observation["sha256"] = sha256(item["text"].encode("utf-8"))
         table = probes if kind == "probe" else inputs
         # Validate every read before collapsing duplicates. Last-write-wins
