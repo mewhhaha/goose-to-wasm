@@ -1,0 +1,234 @@
+verified ../functions-forwarding/evidence-000.tar.gz 680 members
+verified ../functions-forwarding/evidence-001.tar.gz 759 members
+verified ../functions-forwarding/evidence-002.tar.gz 782 members
+verified ../functions-forwarding/evidence-003.tar.gz 543 members
+verified ../functions-forwarding/evidence-004.tar.gz 777 members
+verified ../functions-forwarding/evidence-005.tar.gz 751 members
+verified ../functions-forwarding/evidence-006.tar.gz 682 members
+verified ../functions-forwarding/evidence-007.tar.gz 87 members
+verified evidence-000.tar.gz 12711 members
+verified evidence-001.tar.gz 17007 members
+verified evidence-002.tar.gz 12038 members
+verified evidence-003.tar.gz 13689 members
+{
+  "status": "passed",
+  "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+  "archives": {
+    "../functions-forwarding/evidence-000.tar.gz": 680,
+    "../functions-forwarding/evidence-001.tar.gz": 759,
+    "../functions-forwarding/evidence-002.tar.gz": 782,
+    "../functions-forwarding/evidence-003.tar.gz": 543,
+    "../functions-forwarding/evidence-004.tar.gz": 777,
+    "../functions-forwarding/evidence-005.tar.gz": 751,
+    "../functions-forwarding/evidence-006.tar.gz": 682,
+    "../functions-forwarding/evidence-007.tar.gz": 87,
+    "evidence-000.tar.gz": 12711,
+    "evidence-001.tar.gz": 17007,
+    "evidence-002.tar.gz": 12038,
+    "evidence-003.tar.gz": 13689
+  },
+  "aliases": 244875,
+  "omissions": 80,
+  "required_guests": 4303,
+  "retained_guest_objects": 5849,
+  "qualification": {
+    "focused": 69,
+    "cases": 978,
+    "observations": 9573,
+    "native_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_modules": 1574
+  },
+  "measurements": {
+    "warmed": 550,
+    "v8": 200,
+    "paired_rounds": 9,
+    "examples": 1600,
+    "host": 1440,
+    "preparations": 200,
+    "cohort": 315
+  },
+  "retention_sha256": "dfed7d98ece4246b035f85e44e67a91adb1e505ca609112db918414549ba4482",
+  "index_sha256": "103e4d44455d0640400a5d243dd499b3003ec9f9307871c242b831393231b343",
+  "storage": {
+    "by_suffix": {
+      "new": {
+        ".bin": {
+          "bytes": 541680,
+          "objects": 22
+        },
+        ".cwasm": {
+          "bytes": 74991208,
+          "objects": 1342
+        },
+        ".goose": {
+          "bytes": 391,
+          "objects": 1
+        },
+        ".h": {
+          "bytes": 377225,
+          "objects": 7
+        },
+        ".json": {
+          "bytes": 101206909,
+          "objects": 43146
+        },
+        ".log": {
+          "bytes": 1106382,
+          "objects": 173
+        },
+        ".md": {
+          "bytes": 61679,
+          "objects": 12
+        },
+        ".patch": {
+          "bytes": 486,
+          "objects": 1
+        },
+        ".png": {
+          "bytes": 2109498,
+          "objects": 13
+        },
+        ".py": {
+          "bytes": 381290,
+          "objects": 35
+        },
+        ".stdout": {
+          "bytes": 1749401,
+          "objects": 7122
+        },
+        ".svg": {
+          "bytes": 720287,
+          "objects": 10
+        },
+        ".txt": {
+          "bytes": 131207,
+          "objects": 2187
+        },
+        ".wasm": {
+          "bytes": 25541525,
+          "objects": 1373
+        },
+        ".yml": {
+          "bytes": 10923,
+          "objects": 1
+        }
+      },
+      "reused": {
+        ".bin": {
+          "bytes": 156246016,
+          "objects": 1111
+        },
+        ".c": {
+          "bytes": 3963363,
+          "objects": 22
+        },
+        ".cpp": {
+          "bytes": 45615,
+          "objects": 4
+        },
+        ".cwasm": {
+          "bytes": 140749720,
+          "objects": 994
+        },
+        ".goose": {
+          "bytes": 675154,
+          "objects": 423
+        },
+        ".h": {
+          "bytes": 897756,
+          "objects": 45
+        },
+        ".json": {
+          "bytes": 2253792,
+          "objects": 645
+        },
+        ".log": {
+          "bytes": 6786,
+          "objects": 11
+        },
+        ".md": {
+          "bytes": 40718,
+          "objects": 5
+        },
+        ".mjs": {
+          "bytes": 9911,
+          "objects": 1
+        },
+        ".o": {
+          "bytes": 15389,
+          "objects": 6
+        },
+        ".patch": {
+          "bytes": 71243,
+          "objects": 3
+        },
+        ".py": {
+          "bytes": 1189233,
+          "objects": 108
+        },
+        ".stderr": {
+          "bytes": 18554,
+          "objects": 175
+        },
+        ".stdout": {
+          "bytes": 68354,
+          "objects": 465
+        },
+        ".txt": {
+          "bytes": 20114,
+          "objects": 33
+        },
+        ".wasm": {
+          "bytes": 39549877,
+          "objects": 1007
+        },
+        "[no suffix]": {
+          "bytes": 1662,
+          "objects": 3
+        }
+      }
+    },
+    "current_aliases": 244875,
+    "largest_new_objects": [
+      {
+        "bytes": 20623751,
+        "member": "objects/ad4a4f96e956fcea829bca562fdc1a4dc7769e575106d546eab8165bd5b3a616/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification-body/attempt-1/host/report.json",
+        "sha256": "ad4a4f96e956fcea829bca562fdc1a4dc7769e575106d546eab8165bd5b3a616"
+      },
+      {
+        "bytes": 20388369,
+        "member": "objects/3070a0e189e7da60517519f590aef3b1b6a09e3116969e25fb5a2d0fbd8fc901/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification/attempt-1/host/report.json",
+        "sha256": "3070a0e189e7da60517519f590aef3b1b6a09e3116969e25fb5a2d0fbd8fc901"
+      },
+      {
+        "bytes": 5963172,
+        "member": "objects/b6c5f0b736d8f7f1a1f9c0cc4ee66f330175a290341b72b078868c0afa8c9900/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification-body/attempt-1/differential/report.json",
+        "sha256": "b6c5f0b736d8f7f1a1f9c0cc4ee66f330175a290341b72b078868c0afa8c9900"
+      },
+      {
+        "bytes": 5944535,
+        "member": "objects/7ebb5e993ab4d6d7d0645031134c76966d74c30aebb266fe633b761dae912698/report.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification/attempt-1/differential/report.json",
+        "sha256": "7ebb5e993ab4d6d7d0645031134c76966d74c30aebb266fe633b761dae912698"
+      },
+      {
+        "bytes": 1972260,
+        "member": "objects/32aa3d65b2ee9cf1e89e493b5fdc5af5979bc54b998cdd35d2ac57b165cffba3/artifact-catalog.json",
+        "path": "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification-body/attempt-1/artifact-catalog.json",
+        "sha256": "32aa3d65b2ee9cf1e89e493b5fdc5af5979bc54b998cdd35d2ac57b165cffba3"
+      }
+    ],
+    "new_objects": 55445,
+    "new_raw_bytes": 208930091,
+    "prior_aliases_imported": 0,
+    "prior_documents_opened": 0,
+    "reused_archives": 8,
+    "reused_objects": 5061,
+    "reused_raw_bytes": 345823257
+  },
+  "scope": "Verification needs the current publication and immediate functions-forwarding archives named in its index. Reuse is byte storage only; execution rows remain fresh. No recursive report/index closure, source checkout scan, compiler, test or guest engine execution."
+}

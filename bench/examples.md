@@ -6,11 +6,11 @@ Ten [example programs](../examples/README.md) compare direct Wasm, C-to-Wasm and
 
 ![Example process times with the native Wasmtime host and native C](charts/examples-runtime.svg)
 
-The runtime chart includes ordinary native-host launches and precompiled launches; preparation is excluded from the latter. Native C was freshly measured in the same runtime blocks. Functions direct Wasm took 19.306 ms ordinary (MAD 1.020) and 1.777 ms precompiled (MAD 0.558), versus 0.899 ms native C (MAD 0.126). [Preparation costs and host qualification](wasmtime-host.md) give the full accounting.
+The runtime chart includes ordinary native-host launches and precompiled launches; preparation is excluded from the latter. Native C was freshly measured in the same runtime blocks. Functions direct Wasm took 18.464 ms ordinary (MAD 1.164) and 1.523 ms precompiled (MAD 0.155), versus 1.223 ms native C (MAD 0.130). [Preparation costs and host qualification](wasmtime-host.md) give the full accounting.
 
-[Results and raw samples](results/2026-11-03/functions-forwarding/README.md)
+[Results and raw samples](results/2026-11-03/functions-calls/README.md)
 
-The separate cold-build cohort measured direct builds at 60.2–95.5 ms and C-to-Wasm at 483.8–954.8 ms. Its [V8 and Python-host chart](charts/examples-python-runtime.svg) is a separate control.
+The separate cold-build cohort measured direct builds at 61.8–85.7 ms and C-to-Wasm at 500.8–921.6 ms. Its [V8 and Python-host chart](charts/examples-python-runtime.svg) is a separate control.
 
 ## Method
 
@@ -18,7 +18,7 @@ The build cohort has five complete `--no-cache` Python-driver builds per backend
 
 The headline runtime measures launch to exit, including startup, Wasm instantiation, initialization, computation, output delivery and teardown. Ordinary launches also include Wasm compilation; precompiled launches exclude preparation. The build cohort's separate entry probes use the Python host and a different timing boundary.
 
-Inputs remain constant and ordinary constant folding is allowed. Direct Wasm uses memory32; C-to-Wasm uses memory64. OS page and installed Emscripten library caches remain warm. The runs use a shared AMD Ryzen 7 3800X desktop, Goose revision `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, compiler SHA-256 `19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b`, Wasmtime 50.0.1, Emscripten 6.0.13 and GCC 16.2.1. The V8 control uses Node 24.22.1 / V8 13.6.233.17-node.58.
+Inputs remain constant and ordinary constant folding is allowed. Direct Wasm uses memory32; C-to-Wasm uses memory64. OS page and installed Emscripten library caches remain warm. The runs use a shared AMD Ryzen 7 3800X desktop, Goose revision `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, compiler SHA-256 `353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e`, Wasmtime 50.0.1, Emscripten 6.0.13 and GCC 16.2.1. The V8 control uses Node 24.22.1 / V8 13.6.233.17-node.58.
 
 ## Native gap
 

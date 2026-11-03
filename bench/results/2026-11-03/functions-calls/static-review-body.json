@@ -1,0 +1,309 @@
+{
+  "schema": "goose-functions-grow-body-policy-static-review-v1",
+  "status": "passed",
+  "reviewed_utc": "2026-11-03T11:51:41.454255+00:00",
+  "method": "Read-only source comparison and hashing/static decoding of existing compiler and Wasm artifacts. No build, test, engine or performance execution by this reviewer.",
+  "decision": "GO for focused tests, matched controls, complete qualification and fresh measurements of candidate353. This is compiler static clearance, not final performance acceptance.",
+  "candidate": {
+    "path": "build/functions-grow/body-growth/bin/goose",
+    "sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+    "bytes": 8189152
+  },
+  "active_reproduction": {
+    "compiler": {
+      "path": "build/bin/goose",
+      "sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+      "bytes": 8189152
+    },
+    "matches_frozen": true,
+    "current_and_frozen_header_count": 32,
+    "header_mismatches": []
+  },
+  "source_manifest": {
+    "path": "build/functions-grow/body-growth/source.json",
+    "sha256": "d85f9df915a734c2569f22aab58707791700c3ef85dbdab130915b48df1b026b",
+    "bytes": 3527
+  },
+  "toolchain_manifest": {
+    "path": "build/functions-grow/body-growth/toolchain.json",
+    "sha256": "86385abb24762fc5e6650395e494d2ab71d9b4ae67eea737d8918e2d34fdf955",
+    "bytes": 4403
+  },
+  "changed_from_all_site_outline": [
+    {
+      "path": "compiler/direct_wasm.h",
+      "sha256": "4e6ec6cb352bcac249eed3531ba56c86132bbc53af3b83db8ce3e4fc23ff1932",
+      "bytes": 67022
+    },
+    {
+      "path": "compiler/direct_wasm_emit.h",
+      "sha256": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+      "bytes": 23744
+    }
+  ],
+  "prior_evidence": [
+    {
+      "path": "build/functions-grow/static-review.json",
+      "sha256": "1c73ec6c2d9df17f5b55bdcbc3445eb0f5c8dc7b7cffe4c1f72db003eeb18cbb",
+      "bytes": 8179
+    },
+    {
+      "path": "build/functions-grow/test-static-review.json",
+      "sha256": "a55c4eb324eae6de1fe7337962003cba706053a27da082381c3023cd683687dd",
+      "bytes": 6744
+    },
+    {
+      "path": "build/functions-grow/sieve-static-diagnosis.json",
+      "sha256": "078bdc31ad8bba91473f859d6e039384c2d4affbe4f3db004d6132ae16b1e924",
+      "bytes": 6170
+    }
+  ],
+  "policy": {
+    "scope": "Fixed-frame prologue growth stays inline. Other EnsureMemory callers retain a shared body slow path. There is no workload-name, source-loop or engine-specific alignment test.",
+    "selection": "EnsureMemory defaults share=true; Function::Finish is the sole explicit share=false call, at the existing fixed-frame reservation. Dynamic and other body growth callers are unchanged.",
+    "arithmetic": "GrowMemory(top) emits the identical unsigned ceil/subtract/memory.grow/failure-boolean sequence for both inline callers and the helper parameter0. There is one source definition of the arithmetic.",
+    "ordering_and_traps": "The existing unsigned capacity guard, activation-overflow checks, caller TrapIf, Abort source line/message, cursor update and body order are preserved. Inline prologues exactly recover the former slow sequence. Shared body calls return before caller Abort and reentry.",
+    "writer_state": "The prologue still emits before code.Append(body); no raw byte rewrite or metadata bypass was introduced. Get/CallIndex continue using the ordinary writer and dependency tracking.",
+    "helper_emission": "Only shared calls mark needs_grow_memory_helper. The existing needs_uleb_helpers condition still reserves/emits the helper before both accessors, which may themselves request body growth. Modules needing only inline prologue growth have no new helper.",
+    "unchanged_scope": "Named-call forwarding and the bootstrap correction are byte-identical to their previously reviewed candidate sources. Their snapshot, alias, capture, result and build-freshness guards remain applicable."
+  },
+  "functions_shape": {
+    "module": {
+      "path": "build/functions-grow/body-growth/O2.wasm",
+      "sha256": "89ae88e0c71b8d6ce9f3f56abcfec7a6001db087e364f36bff36ff1fd74e6e72",
+      "bytes": 39702
+    },
+    "stats": {
+      "path": "build/functions-grow/body-growth/O2.json",
+      "sha256": "c877dba6f465be63c5cae33c388d036c38535fba0043593f41cec3b1f06370e2",
+      "bytes": 1414
+    },
+    "baseline_module_bytes": 42296,
+    "all_site_outline_module_bytes": 39564,
+    "body_policy_module_bytes": 39702,
+    "additional_bytes_over_all_site_outline": 138,
+    "shared_body_sites": 44,
+    "inline_prologues": 7,
+    "per_function_growth": [
+      {
+        "name": "main#0",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 44
+      },
+      {
+        "name": "sort#19",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "sort_pivot#25",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "sort#39",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "by_name#41",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "sort_pivot#45",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "resolve_prefix",
+        "inline_memory_grow": 0,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "publish_header",
+        "inline_memory_grow": 0,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "_start",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 0
+      },
+      {
+        "name": "grow_memory",
+        "inline_memory_grow": 1,
+        "shared_grow_calls": 0
+      }
+    ],
+    "interpretation": "Static size/site counts only. The138-byte tradeoff does not establish runtime improvement."
+  },
+  "warmed_shape_evidence": {
+    "report": {
+      "path": "build/functions-grow/body-growth/warmed-shapes/report.json",
+      "sha256": "26e292cda5036b06a3392be345559dcad45318b6e952fdc1c2acf5b5b5ce4080",
+      "bytes": 3991
+    },
+    "baseline_artifact_report": {
+      "path": "build/functions-grow/delivered-warmed/report.json",
+      "sha256": "66f56fbcc9cf86e75b5e3118f69d100bc6ccfeb75151fd6c11f1d9ca6c4c2ddb",
+      "bytes": 1514309
+    },
+    "all_comparisons_independently_verified": true,
+    "identical_count": 8,
+    "changed_tasks": [
+      "Example::Life",
+      "Example::Sorting"
+    ],
+    "comparisons": [
+      {
+        "task": "Etc::Sieve",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/etc_sieve/program.wasm",
+          "sha256": "5cdbbfb7a9ae4cdce809a575aeb2a12e7c3569e05dbec1a263d18aa86bf5110a",
+          "bytes": 3281
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/etc_sieve/baseline/program.wasm",
+          "sha256": "5cdbbfb7a9ae4cdce809a575aeb2a12e7c3569e05dbec1a263d18aa86bf5110a",
+          "bytes": 3281
+        }
+      },
+      {
+        "task": "Sort::Quick",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/sort_quick/program.wasm",
+          "sha256": "2003bdfb6391dee63fa32a8f2c3f29e0a86c40274838cba05679b588842228bf",
+          "bytes": 4566
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/sort_quick/baseline/program.wasm",
+          "sha256": "2003bdfb6391dee63fa32a8f2c3f29e0a86c40274838cba05679b588842228bf",
+          "bytes": 4566
+        }
+      },
+      {
+        "task": "Sort::Merge",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/sort_merge/program.wasm",
+          "sha256": "a35ea3fc4e298b4527cb76a434ec08eae9350a916560832ad623c6929d55bcb3",
+          "bytes": 5453
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/sort_merge/baseline/program.wasm",
+          "sha256": "a35ea3fc4e298b4527cb76a434ec08eae9350a916560832ad623c6929d55bcb3",
+          "bytes": 5453
+        }
+      },
+      {
+        "task": "Hash::SHA256",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/hash_sha256/program.wasm",
+          "sha256": "dbb796ecd8967341ccc14117fd92743ef48f3aa368a0b41b859d83bfc593de95",
+          "bytes": 6788
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/hash_sha256/baseline/program.wasm",
+          "sha256": "dbb796ecd8967341ccc14117fd92743ef48f3aa368a0b41b859d83bfc593de95",
+          "bytes": 6788
+        }
+      },
+      {
+        "task": "Hash::CRC32",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/hash_crc32/program.wasm",
+          "sha256": "d63f80bcf5527bd0f97ca9724cfc860fabd5556dd69744e3c6622823675dc09e",
+          "bytes": 3309
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/hash_crc32/baseline/program.wasm",
+          "sha256": "d63f80bcf5527bd0f97ca9724cfc860fabd5556dd69744e3c6622823675dc09e",
+          "bytes": 3309
+        }
+      },
+      {
+        "task": "CLBG::Fannkuchredux",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/clbg_fannkuchredux/program.wasm",
+          "sha256": "4a416cda55e53175910f971ba1a202f442a88b8d18641b7fe00cf07e3d1fc708",
+          "bytes": 4067
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/clbg_fannkuchredux/baseline/program.wasm",
+          "sha256": "4a416cda55e53175910f971ba1a202f442a88b8d18641b7fe00cf07e3d1fc708",
+          "bytes": 4067
+        }
+      },
+      {
+        "task": "CLBG::Mandelbrot",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/clbg_mandelbrot/program.wasm",
+          "sha256": "fad969b59cfd0ab3d5e2af3f55cf15e2c940a954d90391400a8c98812182d7f6",
+          "bytes": 4650
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/clbg_mandelbrot/baseline/program.wasm",
+          "sha256": "fad969b59cfd0ab3d5e2af3f55cf15e2c940a954d90391400a8c98812182d7f6",
+          "bytes": 4650
+        }
+      },
+      {
+        "task": "Example::Life",
+        "same_bytes": false,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/example_life/program.wasm",
+          "sha256": "cd62ac5e2ef6edc48bcc741d6dc6fc2839c0ad837859883f5c5e3bab1c71255a",
+          "bytes": 17448
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/example_life/baseline/program.wasm",
+          "sha256": "cc21afb1aaed81f5248e030842204a46303cebd794ad62786b1cb901b9f5cc4f",
+          "bytes": 17674
+        }
+      },
+      {
+        "task": "Example::Sorting",
+        "same_bytes": false,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/example_sorting/program.wasm",
+          "sha256": "6f322cb36bd0d733ad47661fe0a759a0743bc593710a05a63379f3fa1df83438",
+          "bytes": 11269
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/example_sorting/baseline/program.wasm",
+          "sha256": "12a3c9fed4ea4cadc23c66bc6dba2678b3c860a0bda093c8359fe2e2dcba5723",
+          "bytes": 11416
+        }
+      },
+      {
+        "task": "Example::Sudoku",
+        "same_bytes": true,
+        "candidate": {
+          "path": "build/functions-grow/body-growth/warmed-shapes/example_sudoku/program.wasm",
+          "sha256": "be83073a96c91efcad4b205db41a0fc80236dfdb23bebfe56e4dac2fddd91a3f",
+          "bytes": 5618
+        },
+        "baseline": {
+          "path": "build/functions-grow/delivered-warmed/build/example_sudoku/baseline/program.wasm",
+          "sha256": "be83073a96c91efcad4b205db41a0fc80236dfdb23bebfe56e4dac2fddd91a3f",
+          "bytes": 5618
+        }
+      }
+    ]
+  },
+  "disposition_and_limits": {
+    "all_site_outline864": "Earlier semantic/static clearance is preserved. Its measured Sieve regression rejects that candidate for delivery; no old review or report is rewritten.",
+    "sieve353": "The complete module exactly matches baseline19d, removing the specific changed-code placement mechanism. This is stronger than merely matching the hot function, but it is not a new timing observation.",
+    "remaining_measurements": "Life and Sorting modules changed and require fresh control measurements. Functions cold/entry and full delivery cohorts must use353 rather than borrowing864 results.",
+    "test_boundary": "Updated memory-helper tests are being adapted separately; this review does not approve their unfinished source or transfer old864 test runs to353.",
+    "generality": "This is a small code-size and placement policy, not a universal alignment or runtime-performance guarantee."
+  },
+  "must_fix": []
+}

@@ -1,0 +1,126 @@
+{
+  "schema": "goose-functions-grow-sieve-static-diagnosis-v1",
+  "status": "diagnosed-code-placement-change",
+  "scope": "Existing Wasm/statistics/AOT ELF bytes and read-only disassembly only; no build, engine execution or timing by this reviewer. This does not establish hardware causality.",
+  "inputs": {
+    "source": {
+      "path": "bench/langarena/ports/sieve.goose",
+      "sha256": "849b68f2113209776b638f22d5c1500b38138ee211ed269c6e8be351a6b17b70",
+      "bytes": 1550
+    },
+    "delivered_report": {
+      "path": "build/functions-grow/delivered-warmed/report.json",
+      "sha256": "66f56fbcc9cf86e75b5e3118f69d100bc6ccfeb75151fd6c11f1d9ca6c4c2ddb",
+      "bytes": 1514309
+    },
+    "variants": {
+      "baseline": {
+        "wasm": {
+          "path": "build/functions-grow/delivered-warmed/build/etc_sieve/baseline/program.wasm",
+          "sha256": "5cdbbfb7a9ae4cdce809a575aeb2a12e7c3569e05dbec1a263d18aa86bf5110a",
+          "bytes": 3281
+        },
+        "aot": {
+          "path": "build/functions-grow/delivered-warmed/build/etc_sieve/baseline/program.cwasm",
+          "sha256": "198e54e4a648f6da4220aaa4bc4d9bb8611f8dbc4bd0430ff264b6f499e19e12",
+          "bytes": 23680
+        },
+        "stats": {
+          "path": "build/functions-grow/delivered-warmed/build/etc_sieve/baseline/stats.json",
+          "sha256": "ca5032d1d7dc04208835248e1cc44f88cdc7a8a7cdf8e260f4a24605151daa33",
+          "bytes": 654
+        },
+        "text_alignment": 4096,
+        "run_offset": 992,
+        "run_bytes": 776,
+        "run_sha256": "ed5049d4c6ef1a2828abb1027ccd6ccb02c4ab1f8681dda73b00d3530e6fe3f9",
+        "run_normalized_only_fill_call_displacement_sha256": "7bb20a73837fc13d42e9f471877d6e90ec59e4931ecc4dfa1272c921fdf83720",
+        "memory_fill_stub_offset": 4471,
+        "memory_fill_stub_sha256": "dcc69c0a62c342af085f9031c51edba998a1241e9efc152a58d1314602dafb5b"
+      },
+      "final": {
+        "wasm": {
+          "path": "build/functions-grow/delivered-warmed/build/etc_sieve/final/program.wasm",
+          "sha256": "aa4e13fcf30a31396d674ab7c7b570f2a733b655d256ec29ade1c8a51dceb134",
+          "bytes": 3288
+        },
+        "aot": {
+          "path": "build/functions-grow/delivered-warmed/build/etc_sieve/final/program.cwasm",
+          "sha256": "38821a0b24a3ef5cf643b56b524ac0f501d05655a688b5f276ef7587adfcbe30",
+          "bytes": 23856
+        },
+        "stats": {
+          "path": "build/functions-grow/delivered-warmed/build/etc_sieve/final/stats.json",
+          "sha256": "1c2d95eeae0d573fe48296d71321ea8219e4effb7a4940d421115816ba14ff9d",
+          "bytes": 761
+        },
+        "text_alignment": 4096,
+        "run_offset": 960,
+        "run_bytes": 776,
+        "run_sha256": "ae14e6e0e4f215ea2c3735d8beb11fb27a0e4e6ea4760f8adfbaf767b4a37c99",
+        "run_normalized_only_fill_call_displacement_sha256": "7bb20a73837fc13d42e9f471877d6e90ec59e4931ecc4dfa1272c921fdf83720",
+        "memory_fill_stub_offset": 4629,
+        "memory_fill_stub_sha256": "dcc69c0a62c342af085f9031c51edba998a1241e9efc152a58d1314602dafb5b"
+      }
+    }
+  },
+  "wasm_facts": {
+    "run_name": "run#3",
+    "run_index": 14,
+    "run_body_bytes": 804,
+    "run_body_sha256_both": "b290b53de52e37a211caea95421eb585c89fee29ca8f27f23618a18b25037127",
+    "run_growth_sites": 0,
+    "run_direct_calls": [
+      7,
+      7
+    ],
+    "run_call_target": "Abort only",
+    "baseline_growth_sites": {
+      "main#0": 1,
+      "_start": 1
+    },
+    "placement": "Both growth sites are fixed-frame reservation prologues, outside the timed benchmark loops.",
+    "module_bytes": {
+      "baseline": 3281,
+      "combined": 3288
+    }
+  },
+  "aot_facts": {
+    "raw_run_byte_differences": [
+      {
+        "offset": 235,
+        "baseline": 168,
+        "final": 102
+      },
+      {
+        "offset": 236,
+        "baseline": 12,
+        "final": 13
+      }
+    ],
+    "only_changed_instruction": "Relative call to the same wasmtime_builtin_memory_fill stub at function offset0xea. The four-byte displacement begins at offset0xeb. The memory-fill stub itself is byte-identical.",
+    "hot_loop_instructions": "Identical registers, instruction bytes, loads/stores, branch displacements, stack spills and bounds checks.",
+    "marking_loop": {
+      "baseline_first_instruction": "0x5da",
+      "baseline_last_instruction_byte": "0x5f6",
+      "final_first_instruction": "0x5ba",
+      "final_last_instruction_byte": "0x5d6",
+      "baseline_64_byte_lines": 1,
+      "final_64_byte_lines": 2
+    },
+    "placement_delta_bytes": -32
+  },
+  "conclusions": [
+    "The proposed lost-SSA/hoisting/bounds-effect hypothesis does not explain these artifacts: the hot run machine code is unchanged apart from call relocation.",
+    "A native code-placement effect is plausible: the main-body shrink moves run by32 bytes and the marking loop crosses a64-byte boundary in the candidate. This is a hypothesis requiring a controlled placement/policy comparison, not proof that a cache-line split accounts for the full measured slowdown.",
+    "Outlining only prologues or excluding source loops would retain both changed Sieve sites, so that proposed policy would not restore this case."
+  ],
+  "small_generic_trial": {
+    "policy": "Keep fixed-frame reservation growth inline; outline growth checks emitted inside function bodies.",
+    "implementation_point": "Function::Finish already emits fixed-frame reservation separately; an explicit inline choice at that EnsureMemory call avoids a new analysis pass or byte rewrite.",
+    "profitability_reason": "One prologue per activation has little repeated slow-code benefit. Body sites account for44 of51 growth checks in frozen Functions; Sieve has no body growth checks and its current two-site outline makes the module7 bytes larger.",
+    "expected_control": "Sieve should regain baseline bytes if named-tail contraction does not apply; verify rather than assume.",
+    "alternative": "Retain named-only and reject shared growth if a bounded placement policy fails controls.",
+    "excluded": "No workload names, forced padding, benchmark-source changes or engine-specific magic alignment in the compiler."
+  }
+}

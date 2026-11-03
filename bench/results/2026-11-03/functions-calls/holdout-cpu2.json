@@ -1,0 +1,5457 @@
+{
+  "status": "passed",
+  "started_utc": "2026-11-03T12:32:36.240059+00:00",
+  "method": "Fresh process launch-to-exit. Randomized variant/mode blocks; CPU2 process affinity (including inherited engine workers); diagnostic, not normal-pool headline. Native C built previously, executed freshly. Engine phase probes are separately instrumented diagnostics.",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "environment": {
+    "RAYON_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "BINARYEN_CORES": null
+  },
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/holdout_body_cpu2.py": "495e38135277bf1bc1d87bf8a8c1161407db3c63cbd0462d5f9dc97b58a4af87",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb",
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json": "64c9a495d77916bfc86c1698511330586ffc780e0c48e9ce84832221c68d8020",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/functions/native/3/program.bin": "e070d0eb8d296047ae4a7f69ace7b2b6514561bf4821b9e2961267f954a08cfd",
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44",
+    "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565",
+    "/home/jacobt/src/goose-to-wasm/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/O2.wasm": "ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/O2.wasm": "89ae88e0c71b8d6ce9f3f56abcfec7a6001db087e364f36bff36ff1fd74e6e72",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/goose": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/toolchain.json": "86385abb24762fc5e6650395e494d2ab71d9b4ae67eea737d8918e2d34fdf955",
+    "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/toolchain.json": "92be5b554e9732b08ae3c06f9dd7e64c3d88c0d3c1dd46e26fa96a6f967dbb20",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification-body/attempt-1/focused/report.json": "ee31300663a46a896e0c849e9b4cb074dde95eba099911ce0745560547604e8e",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification-body/attempt-1/differential/report.json": "b6c5f0b736d8f7f1a1f9c0cc4ee66f330175a290341b72b078868c0afa8c9900",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/qualification-body/attempt-1/host/report.json": "ad4a4f96e956fcea829bca562fdc1a4dc7769e575106d546eab8165bd5b3a616",
+    "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/report.json": "6152728bcc9f30667d035a4dad5cbb5526f5b30c976401ead57e143810d87e8b"
+  },
+  "variants": {
+    "baseline-O2": {
+      "wasm": "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/O2.wasm",
+      "sha256": "ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec",
+      "aot": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-holdout-cpu2/baseline-O2.cwasm",
+      "aot_sha256": "5b2d899fe7325a82cfc2633fdb2e5d0c241b827816a0e48684b02f3c7076b763",
+      "preparation_seconds": 0.03564949
+    },
+    "body-O2": {
+      "wasm": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/O2.wasm",
+      "sha256": "89ae88e0c71b8d6ce9f3f56abcfec7a6001db087e364f36bff36ff1fd74e6e72",
+      "aot": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-holdout-cpu2/body-O2.cwasm",
+      "aot_sha256": "09e0a85d2d25ce6c3fd9e5af898075799293c5a233e76e73ab72a7a6af990266",
+      "preparation_seconds": 0.032660158
+    }
+  },
+  "host": {
+    "schema": "goose-native-wasmtime-host-v1",
+    "version": "50.0.1",
+    "target": "linux-x86_64",
+    "linkage": "sdk-static",
+    "static_cxx_runtime": true,
+    "supported_modes": [
+      "ordinary",
+      "precompiled"
+    ],
+    "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a",
+    "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648",
+    "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz",
+    "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d",
+    "input_sha256": {
+      "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09",
+      "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110",
+      "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5",
+      "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "263acca3771c73dcc9a84d8e235ef71d7cc0af5936b85ae308383481aadec507",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648",
+      "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h": "025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b",
+      "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2",
+      "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212",
+      "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb"
+    },
+    "command": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include",
+      "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp",
+      "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a",
+      "-Wl,--gc-sections",
+      "-static-libstdc++",
+      "-static-libgcc",
+      "-lpthread",
+      "-ldl",
+      "-lm",
+      "-o",
+      "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"
+    ],
+    "host_sha256": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb",
+    "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n"
+  },
+  "observations": [
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "body-O2/aot",
+      "seconds": 0.001666919
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "native-C",
+      "seconds": 0.001104981
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034736344
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002225982
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "body-O2/v8",
+      "seconds": 0.031947052
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033644668
+    },
+    {
+      "phase": "warmup",
+      "sample": 0,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031440028
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.03570743
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03252477
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "body-O2/aot",
+      "seconds": 0.002599581
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "body-O2/v8",
+      "seconds": 0.031284352
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001951079
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033370759
+    },
+    {
+      "phase": "warmup",
+      "sample": 1,
+      "cell": "native-C",
+      "seconds": 0.002115592
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001917525
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035085528
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "native-C",
+      "seconds": 0.002005192
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033116084
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "body-O2/aot",
+      "seconds": 0.001798919
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "body-O2/v8",
+      "seconds": 0.030887948
+    },
+    {
+      "phase": "measure",
+      "sample": 0,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032697077
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "native-C",
+      "seconds": 0.001766027
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "body-O2/v8",
+      "seconds": 0.031513387
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.03364509
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035923842
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.035974639
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002312536
+    },
+    {
+      "phase": "measure",
+      "sample": 1,
+      "cell": "body-O2/aot",
+      "seconds": 0.00151529
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035011357
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "body-O2/v8",
+      "seconds": 0.032079874
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033812097
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002095043
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "native-C",
+      "seconds": 0.0014835
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031319458
+    },
+    {
+      "phase": "measure",
+      "sample": 2,
+      "cell": "body-O2/aot",
+      "seconds": 0.002149296
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "native-C",
+      "seconds": 0.001086907
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033043506
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00177846
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "body-O2/aot",
+      "seconds": 0.001489251
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034822017
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "body-O2/v8",
+      "seconds": 0.03227207
+    },
+    {
+      "phase": "measure",
+      "sample": 3,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03116739
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "body-O2/aot",
+      "seconds": 0.002313558
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030475193
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "body-O2/v8",
+      "seconds": 0.030581626
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "native-C",
+      "seconds": 0.00179939
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033532486
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035197711
+    },
+    {
+      "phase": "measure",
+      "sample": 4,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002781337
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035126246
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "body-O2/v8",
+      "seconds": 0.031507215
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031379072
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "body-O2/aot",
+      "seconds": 0.002174774
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002052993
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033706306
+    },
+    {
+      "phase": "measure",
+      "sample": 5,
+      "cell": "native-C",
+      "seconds": 0.001724488
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033208219
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "native-C",
+      "seconds": 0.001730029
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "body-O2/v8",
+      "seconds": 0.032277169
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "body-O2/aot",
+      "seconds": 0.002319129
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.03515511
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030908167
+    },
+    {
+      "phase": "measure",
+      "sample": 6,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002320882
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001571468
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "body-O2/aot",
+      "seconds": 0.001554706
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035190467
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033270087
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031991646
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "body-O2/v8",
+      "seconds": 0.032138766
+    },
+    {
+      "phase": "measure",
+      "sample": 7,
+      "cell": "native-C",
+      "seconds": 0.001689692
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "body-O2/aot",
+      "seconds": 0.002022265
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031739808
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033594794
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "body-O2/v8",
+      "seconds": 0.03328761
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035450533
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "native-C",
+      "seconds": 0.00177302
+    },
+    {
+      "phase": "measure",
+      "sample": 8,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001977309
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001909189
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030975475
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "body-O2/aot",
+      "seconds": 0.003397439
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.03543345
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "body-O2/v8",
+      "seconds": 0.032346161
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "native-C",
+      "seconds": 0.001724668
+    },
+    {
+      "phase": "measure",
+      "sample": 9,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.032992329
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033326495
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "native-C",
+      "seconds": 0.001693308
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "body-O2/v8",
+      "seconds": 0.029917814
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "body-O2/aot",
+      "seconds": 0.003159566
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001543224
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032324319
+    },
+    {
+      "phase": "measure",
+      "sample": 10,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035599896
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035341845
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032792679
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002238366
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "native-C",
+      "seconds": 0.001100141
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.0330459
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "body-O2/v8",
+      "seconds": 0.031871578
+    },
+    {
+      "phase": "measure",
+      "sample": 11,
+      "cell": "body-O2/aot",
+      "seconds": 0.0023254
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "native-C",
+      "seconds": 0.001563883
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "body-O2/aot",
+      "seconds": 0.001576306
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "body-O2/v8",
+      "seconds": 0.029494489
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.035516047
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002176107
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.033795946
+    },
+    {
+      "phase": "measure",
+      "sample": 12,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035709454
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "native-C",
+      "seconds": 0.001749887
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03424508
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.0356178
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "body-O2/aot",
+      "seconds": 0.001965917
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033428417
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "body-O2/v8",
+      "seconds": 0.031340038
+    },
+    {
+      "phase": "measure",
+      "sample": 13,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002225782
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032449747
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "native-C",
+      "seconds": 0.00177815
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "body-O2/aot",
+      "seconds": 0.002037734
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033074154
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002144116
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034879576
+    },
+    {
+      "phase": "measure",
+      "sample": 14,
+      "cell": "body-O2/v8",
+      "seconds": 0.032897218
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "body-O2/aot",
+      "seconds": 0.00221472
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033087911
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002415061
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032723958
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "native-C",
+      "seconds": 0.00174668
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035658497
+    },
+    {
+      "phase": "measure",
+      "sample": 15,
+      "cell": "body-O2/v8",
+      "seconds": 0.032164706
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "body-O2/aot",
+      "seconds": 0.002248093
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "native-C",
+      "seconds": 0.001098478
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "body-O2/v8",
+      "seconds": 0.031525
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035321887
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033294924
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001809008
+    },
+    {
+      "phase": "measure",
+      "sample": 16,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031566118
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.034149158
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033657022
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "body-O2/aot",
+      "seconds": 0.002107997
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001512105
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "native-C",
+      "seconds": 0.001118216
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034815144
+    },
+    {
+      "phase": "measure",
+      "sample": 17,
+      "cell": "body-O2/v8",
+      "seconds": 0.032086076
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "body-O2/v8",
+      "seconds": 0.031783931
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "body-O2/aot",
+      "seconds": 0.002233145
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033078252
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002076628
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "native-C",
+      "seconds": 0.00111543
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03323545
+    },
+    {
+      "phase": "measure",
+      "sample": 18,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035571402
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035742958
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "body-O2/v8",
+      "seconds": 0.032524069
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033685566
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "body-O2/aot",
+      "seconds": 0.002108909
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031703709
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "native-C",
+      "seconds": 0.001703729
+    },
+    {
+      "phase": "measure",
+      "sample": 19,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001838345
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.035390528
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "body-O2/v8",
+      "seconds": 0.035455501
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "native-C",
+      "seconds": 0.001362431
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001630199
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033008389
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "body-O2/aot",
+      "seconds": 0.00254082
+    },
+    {
+      "phase": "measure",
+      "sample": 20,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035623711
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "native-C",
+      "seconds": 0.001653814
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034863235
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "body-O2/v8",
+      "seconds": 0.03067332
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002084563
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031790914
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033752223
+    },
+    {
+      "phase": "measure",
+      "sample": 21,
+      "cell": "body-O2/aot",
+      "seconds": 0.001868282
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034834932
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "body-O2/v8",
+      "seconds": 0.032016854
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032300504
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "body-O2/aot",
+      "seconds": 0.002354576
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002600594
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033243126
+    },
+    {
+      "phase": "measure",
+      "sample": 22,
+      "cell": "native-C",
+      "seconds": 0.001446781
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034972954
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "native-C",
+      "seconds": 0.001450768
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032491667
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033407858
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002600333
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "body-O2/v8",
+      "seconds": 0.032077419
+    },
+    {
+      "phase": "measure",
+      "sample": 23,
+      "cell": "body-O2/aot",
+      "seconds": 0.002333496
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033030521
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "body-O2/v8",
+      "seconds": 0.031796426
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031158904
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.036813292
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00219872
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "body-O2/aot",
+      "seconds": 0.001761819
+    },
+    {
+      "phase": "measure",
+      "sample": 24,
+      "cell": "native-C",
+      "seconds": 0.001609009
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "native-C",
+      "seconds": 0.001065316
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "body-O2/aot",
+      "seconds": 0.001473271
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031271808
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033572441
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002210262
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034972383
+    },
+    {
+      "phase": "measure",
+      "sample": 25,
+      "cell": "body-O2/v8",
+      "seconds": 0.031266948
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035637196
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "native-C",
+      "seconds": 0.001431562
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002123657
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.032893761
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "body-O2/v8",
+      "seconds": 0.030865747
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.029786094
+    },
+    {
+      "phase": "measure",
+      "sample": 26,
+      "cell": "body-O2/aot",
+      "seconds": 0.002328727
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "body-O2/v8",
+      "seconds": 0.032210523
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "body-O2/aot",
+      "seconds": 0.002340189
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "native-C",
+      "seconds": 0.001176657
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030192837
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002020941
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.034209854
+    },
+    {
+      "phase": "measure",
+      "sample": 27,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035173034
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031086105
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.034483744
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "native-C",
+      "seconds": 0.002116815
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034870279
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "body-O2/aot",
+      "seconds": 0.002149877
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "body-O2/v8",
+      "seconds": 0.031845218
+    },
+    {
+      "phase": "measure",
+      "sample": 28,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002347252
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "body-O2/aot",
+      "seconds": 0.002605242
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001614509
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035050471
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "native-C",
+      "seconds": 0.001631292
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.032840951
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03108874
+    },
+    {
+      "phase": "measure",
+      "sample": 29,
+      "cell": "body-O2/v8",
+      "seconds": 0.031981026
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "native-C",
+      "seconds": 0.001789593
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "body-O2/aot",
+      "seconds": 0.002732705
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033079564
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031321382
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002044517
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "body-O2/v8",
+      "seconds": 0.031043394
+    },
+    {
+      "phase": "measure",
+      "sample": 30,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.037216418
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033223248
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "body-O2/v8",
+      "seconds": 0.032053364
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "native-C",
+      "seconds": 0.001399891
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030994561
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035628049
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00224611
+    },
+    {
+      "phase": "measure",
+      "sample": 31,
+      "cell": "body-O2/aot",
+      "seconds": 0.001571758
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034783083
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "native-C",
+      "seconds": 0.001758252
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031696485
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "body-O2/aot",
+      "seconds": 0.001992658
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "body-O2/v8",
+      "seconds": 0.031345728
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002303338
+    },
+    {
+      "phase": "measure",
+      "sample": 32,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033122166
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033335871
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "native-C",
+      "seconds": 0.001448103
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "body-O2/aot",
+      "seconds": 0.001655808
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001575915
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "body-O2/v8",
+      "seconds": 0.033278593
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032240829
+    },
+    {
+      "phase": "measure",
+      "sample": 33,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035376972
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035262344
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "body-O2/aot",
+      "seconds": 0.001929538
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001934528
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "native-C",
+      "seconds": 0.001564313
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "body-O2/v8",
+      "seconds": 0.03117806
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033575528
+    },
+    {
+      "phase": "measure",
+      "sample": 34,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031621232
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "native-C",
+      "seconds": 0.001485164
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "body-O2/v8",
+      "seconds": 0.030826812
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033696447
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.033222566
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "body-O2/aot",
+      "seconds": 0.002005643
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001889762
+    },
+    {
+      "phase": "measure",
+      "sample": 35,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035200556
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035390728
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "native-C",
+      "seconds": 0.001729227
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.03310895
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "body-O2/aot",
+      "seconds": 0.001845489
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032684183
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002293059
+    },
+    {
+      "phase": "measure",
+      "sample": 36,
+      "cell": "body-O2/v8",
+      "seconds": 0.031504661
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "body-O2/v8",
+      "seconds": 0.033113168
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "body-O2/aot",
+      "seconds": 0.00209893
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031153172
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002297889
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.034147314
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "native-C",
+      "seconds": 0.001442433
+    },
+    {
+      "phase": "measure",
+      "sample": 37,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034837336
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031218717
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.036531286
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "body-O2/aot",
+      "seconds": 0.002216594
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.032970847
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "body-O2/v8",
+      "seconds": 0.030842192
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "native-C",
+      "seconds": 0.002648634
+    },
+    {
+      "phase": "measure",
+      "sample": 38,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001766899
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "body-O2/v8",
+      "seconds": 0.028801051
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.034998892
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002206775
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030943573
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "body-O2/aot",
+      "seconds": 0.003123348
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035237376
+    },
+    {
+      "phase": "measure",
+      "sample": 39,
+      "cell": "native-C",
+      "seconds": 0.001471477
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "body-O2/aot",
+      "seconds": 0.001663503
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030823686
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "body-O2/v8",
+      "seconds": 0.030200802
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.036884958
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002197878
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "native-C",
+      "seconds": 0.001194841
+    },
+    {
+      "phase": "measure",
+      "sample": 40,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.032945439
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.032905743
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "body-O2/aot",
+      "seconds": 0.002187669
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "native-C",
+      "seconds": 0.001200603
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "body-O2/v8",
+      "seconds": 0.031525249
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002320251
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035374317
+    },
+    {
+      "phase": "measure",
+      "sample": 41,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031702668
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.036967776
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "native-C",
+      "seconds": 0.00177296
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "body-O2/v8",
+      "seconds": 0.03179907
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "body-O2/aot",
+      "seconds": 0.001946239
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001639126
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.03310928
+    },
+    {
+      "phase": "measure",
+      "sample": 42,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032051239
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "native-C",
+      "seconds": 0.001740529
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00169883
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031452321
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "body-O2/aot",
+      "seconds": 0.002292839
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033085566
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035072533
+    },
+    {
+      "phase": "measure",
+      "sample": 43,
+      "cell": "body-O2/v8",
+      "seconds": 0.032972941
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "body-O2/aot",
+      "seconds": 0.002042503
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "body-O2/v8",
+      "seconds": 0.030604259
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031583971
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.03493444
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "native-C",
+      "seconds": 0.001460437
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001633746
+    },
+    {
+      "phase": "measure",
+      "sample": 44,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034856252
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030787186
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "body-O2/v8",
+      "seconds": 0.031388891
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033810414
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001894662
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "body-O2/aot",
+      "seconds": 0.001979604
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035066361
+    },
+    {
+      "phase": "measure",
+      "sample": 45,
+      "cell": "native-C",
+      "seconds": 0.001445127
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "body-O2/aot",
+      "seconds": 0.001633456
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001597807
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030076646
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "body-O2/v8",
+      "seconds": 0.034798943
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "native-C",
+      "seconds": 0.002028757
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035666502
+    },
+    {
+      "phase": "measure",
+      "sample": 46,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033365217
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030571547
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "body-O2/v8",
+      "seconds": 0.031582078
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002305754
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "body-O2/aot",
+      "seconds": 0.001569103
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035058516
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "native-C",
+      "seconds": 0.001407075
+    },
+    {
+      "phase": "measure",
+      "sample": 47,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033010944
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002863414
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "native-C",
+      "seconds": 0.001219889
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "body-O2/v8",
+      "seconds": 0.029791183
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "body-O2/aot",
+      "seconds": 0.002007336
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032112637
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.034762955
+    },
+    {
+      "phase": "measure",
+      "sample": 48,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.03518135
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "body-O2/v8",
+      "seconds": 0.03612847
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.037006209
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "body-O2/aot",
+      "seconds": 0.001835179
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "native-C",
+      "seconds": 0.001603698
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001590684
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030634696
+    },
+    {
+      "phase": "measure",
+      "sample": 49,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.035095948
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "body-O2/v8",
+      "seconds": 0.032418127
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033967812
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "native-C",
+      "seconds": 0.001736351
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001590383
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.034989766
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.031277518
+    },
+    {
+      "phase": "measure",
+      "sample": 50,
+      "cell": "body-O2/aot",
+      "seconds": 0.002031943
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.03459749
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "body-O2/aot",
+      "seconds": 0.002199491
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "body-O2/v8",
+      "seconds": 0.031128015
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.03588032
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.032740951
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001963132
+    },
+    {
+      "phase": "measure",
+      "sample": 51,
+      "cell": "native-C",
+      "seconds": 0.001568602
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "body-O2/aot",
+      "seconds": 0.001840949
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.00183063
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.033387491
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "body-O2/v8",
+      "seconds": 0.031492648
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.03630186
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "native-C",
+      "seconds": 0.001812455
+    },
+    {
+      "phase": "measure",
+      "sample": 52,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033349938
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "body-O2/aot",
+      "seconds": 0.002116173
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030703388
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "native-C",
+      "seconds": 0.001698238
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "body-O2/v8",
+      "seconds": 0.03098862
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.036884317
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.03330897
+    },
+    {
+      "phase": "measure",
+      "sample": 53,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002499382
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001506554
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.029020548
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.037439713
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "body-O2/aot",
+      "seconds": 0.002109069
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "native-C",
+      "seconds": 0.001534537
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "body-O2/v8",
+      "seconds": 0.031988791
+    },
+    {
+      "phase": "measure",
+      "sample": 54,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033819731
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.034016746
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002006334
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "native-C",
+      "seconds": 0.001118777
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "body-O2/aot",
+      "seconds": 0.001499972
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "body-O2/v8",
+      "seconds": 0.02994277
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033730482
+    },
+    {
+      "phase": "measure",
+      "sample": 55,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035456283
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "body-O2/aot",
+      "seconds": 0.001817705
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035116668
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002850949
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "body-O2/v8",
+      "seconds": 0.030952351
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030798187
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.035261141
+    },
+    {
+      "phase": "measure",
+      "sample": 56,
+      "cell": "native-C",
+      "seconds": 0.001748314
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.002121573
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "native-C",
+      "seconds": 0.001584061
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "body-O2/v8",
+      "seconds": 0.031731161
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035478394
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "body-O2/aot",
+      "seconds": 0.002286937
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030831141
+    },
+    {
+      "phase": "measure",
+      "sample": 57,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033344718
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "body-O2/aot",
+      "seconds": 0.001937834
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035035473
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.029859042
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "native-C",
+      "seconds": 0.001419168
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.034415634
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "body-O2/v8",
+      "seconds": 0.032292579
+    },
+    {
+      "phase": "measure",
+      "sample": 58,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001950809
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035219021
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "body-O2/aot",
+      "seconds": 0.001806905
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.030487045
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "body-O2/v8",
+      "seconds": 0.032475636
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "native-C",
+      "seconds": 0.001408557
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001746541
+    },
+    {
+      "phase": "measure",
+      "sample": 59,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033383723
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "baseline-O2/aot",
+      "seconds": 0.001840539
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "body-O2/aot",
+      "seconds": 0.001574644
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "native-C",
+      "seconds": 0.001193739
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "baseline-O2/v8",
+      "seconds": 0.03123608
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "body-O2/ordinary",
+      "seconds": 0.033467943
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "body-O2/v8",
+      "seconds": 0.031016061
+    },
+    {
+      "phase": "measure",
+      "sample": 60,
+      "cell": "baseline-O2/ordinary",
+      "seconds": 0.035623972
+    }
+  ],
+  "phase_probes": [
+    {
+      "sample": 0,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033894925,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30970195,
+        "start_function_ns": 61156,
+        "engine_total_ns": 31031351
+      }
+    },
+    {
+      "sample": 0,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030793479,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 834446,
+        "start_function_ns": 4894684,
+        "engine_total_ns": 5729130
+      }
+    },
+    {
+      "sample": 0,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.037547698,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34718620,
+        "start_function_ns": 73489,
+        "engine_total_ns": 34792109
+      }
+    },
+    {
+      "sample": 0,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032126442,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 808317,
+        "start_function_ns": 5533500,
+        "engine_total_ns": 6341817
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030919448,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 822423,
+        "start_function_ns": 4794254,
+        "engine_total_ns": 5616677
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.037429233,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34658736,
+        "start_function_ns": 73249,
+        "engine_total_ns": 34731985
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031678771,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 778400,
+        "start_function_ns": 5597571,
+        "engine_total_ns": 6375971
+      }
+    },
+    {
+      "sample": 1,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033406356,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31114079,
+        "start_function_ns": 71866,
+        "engine_total_ns": 31185945
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033162042,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 30898810,
+        "start_function_ns": 70163,
+        "engine_total_ns": 30968973
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032720322,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 831321,
+        "start_function_ns": 5510805,
+        "engine_total_ns": 6342126
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032309941,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 837713,
+        "start_function_ns": 5454049,
+        "engine_total_ns": 6291762
+      }
+    },
+    {
+      "sample": 2,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035445002,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33195095,
+        "start_function_ns": 63500,
+        "engine_total_ns": 33258595
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031429878,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 806513,
+        "start_function_ns": 4915564,
+        "engine_total_ns": 5722077
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033554247,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31273070,
+        "start_function_ns": 72367,
+        "engine_total_ns": 31345437
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035530534,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 32890194,
+        "start_function_ns": 74832,
+        "engine_total_ns": 32965026
+      }
+    },
+    {
+      "sample": 3,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031996927,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 777929,
+        "start_function_ns": 5426025,
+        "engine_total_ns": 6203954
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033544067,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31224618,
+        "start_function_ns": 74262,
+        "engine_total_ns": 31298880
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.034949158,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 812846,
+        "start_function_ns": 5792451,
+        "engine_total_ns": 6605297
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033331653,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 850857,
+        "start_function_ns": 5720776,
+        "engine_total_ns": 6571633
+      }
+    },
+    {
+      "sample": 4,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036634192,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33881589,
+        "start_function_ns": 70334,
+        "engine_total_ns": 33951923
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034877994,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31906836,
+        "start_function_ns": 88648,
+        "engine_total_ns": 31995484
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03264019,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 849515,
+        "start_function_ns": 5133899,
+        "engine_total_ns": 5983414
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036583966,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33768043,
+        "start_function_ns": 78048,
+        "engine_total_ns": 33846091
+      }
+    },
+    {
+      "sample": 5,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033852553,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 833344,
+        "start_function_ns": 5784987,
+        "engine_total_ns": 6618331
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034500235,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31959235,
+        "start_function_ns": 70975,
+        "engine_total_ns": 32030210
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033773994,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 878941,
+        "start_function_ns": 5165711,
+        "engine_total_ns": 6044652
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036882374,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34331765,
+        "start_function_ns": 88028,
+        "engine_total_ns": 34419793
+      }
+    },
+    {
+      "sample": 6,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.034777783,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 890223,
+        "start_function_ns": 5972082,
+        "engine_total_ns": 6862305
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032722496,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 407735,
+        "start_function_ns": 5702560,
+        "engine_total_ns": 6110295
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035729421,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33113078,
+        "start_function_ns": 88809,
+        "engine_total_ns": 33201887
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.037697544,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 35020595,
+        "start_function_ns": 80122,
+        "engine_total_ns": 35100717
+      }
+    },
+    {
+      "sample": 7,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03430792,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 873431,
+        "start_function_ns": 6215415,
+        "engine_total_ns": 7088846
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036208352,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33539779,
+        "start_function_ns": 75995,
+        "engine_total_ns": 33615774
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033562362,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 787858,
+        "start_function_ns": 5744250,
+        "engine_total_ns": 6532108
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.037076012,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 547931,
+        "start_function_ns": 5395407,
+        "engine_total_ns": 5943338
+      }
+    },
+    {
+      "sample": 8,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.046240735,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 42894273,
+        "start_function_ns": 94169,
+        "engine_total_ns": 42988442
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.043439378,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 890022,
+        "start_function_ns": 5050852,
+        "engine_total_ns": 5940874
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036902913,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34046733,
+        "start_function_ns": 68320,
+        "engine_total_ns": 34115053
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.034201487,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 424707,
+        "start_function_ns": 5914945,
+        "engine_total_ns": 6339652
+      }
+    },
+    {
+      "sample": 9,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03422913,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31673392,
+        "start_function_ns": 63911,
+        "engine_total_ns": 31737303
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035539491,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33303090,
+        "start_function_ns": 63250,
+        "engine_total_ns": 33366340
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031883531,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 767580,
+        "start_function_ns": 5616256,
+        "engine_total_ns": 6383836
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031867219,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 400051,
+        "start_function_ns": 4831505,
+        "engine_total_ns": 5231556
+      }
+    },
+    {
+      "sample": 10,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.0356552,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33152163,
+        "start_function_ns": 74211,
+        "engine_total_ns": 33226374
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035611007,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33247103,
+        "start_function_ns": 62699,
+        "engine_total_ns": 33309802
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031065125,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 792276,
+        "start_function_ns": 5634541,
+        "engine_total_ns": 6426817
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035228971,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 32837423,
+        "start_function_ns": 67048,
+        "engine_total_ns": 32904471
+      }
+    },
+    {
+      "sample": 11,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032017405,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 825329,
+        "start_function_ns": 4870509,
+        "engine_total_ns": 5695838
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031140519,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 794080,
+        "start_function_ns": 4818279,
+        "engine_total_ns": 5612359
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035943769,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33597449,
+        "start_function_ns": 75443,
+        "engine_total_ns": 33672892
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031990724,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 765916,
+        "start_function_ns": 5736736,
+        "engine_total_ns": 6502652
+      }
+    },
+    {
+      "sample": 12,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034130533,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31566900,
+        "start_function_ns": 75102,
+        "engine_total_ns": 31642002
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03386069,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31229969,
+        "start_function_ns": 60826,
+        "engine_total_ns": 31290795
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035650682,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33061320,
+        "start_function_ns": 79781,
+        "engine_total_ns": 33141101
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033797098,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 799270,
+        "start_function_ns": 5796538,
+        "engine_total_ns": 6595808
+      }
+    },
+    {
+      "sample": 13,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.035156973,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 814859,
+        "start_function_ns": 5974127,
+        "engine_total_ns": 6788986
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032439518,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 783940,
+        "start_function_ns": 5794346,
+        "engine_total_ns": 6578286
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034417167,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31841341,
+        "start_function_ns": 64963,
+        "engine_total_ns": 31906304
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032076638,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 402475,
+        "start_function_ns": 5708833,
+        "engine_total_ns": 6111308
+      }
+    },
+    {
+      "sample": 14,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036268327,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33919302,
+        "start_function_ns": 75053,
+        "engine_total_ns": 33994355
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036220195,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33579035,
+        "start_function_ns": 81044,
+        "engine_total_ns": 33660079
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033198009,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 845928,
+        "start_function_ns": 4941213,
+        "engine_total_ns": 5787141
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032391416,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 767950,
+        "start_function_ns": 5800547,
+        "engine_total_ns": 6568497
+      }
+    },
+    {
+      "sample": 15,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03440783,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31668292,
+        "start_function_ns": 76936,
+        "engine_total_ns": 31745228
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032980076,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 863421,
+        "start_function_ns": 5694937,
+        "engine_total_ns": 6558358
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032374033,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 842672,
+        "start_function_ns": 4800496,
+        "engine_total_ns": 5643168
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035089595,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 32847824,
+        "start_function_ns": 76054,
+        "engine_total_ns": 32923878
+      }
+    },
+    {
+      "sample": 16,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035946054,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33684274,
+        "start_function_ns": 65043,
+        "engine_total_ns": 33749317
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034206046,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31570906,
+        "start_function_ns": 63331,
+        "engine_total_ns": 31634237
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03349828,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 393619,
+        "start_function_ns": 5824892,
+        "engine_total_ns": 6218511
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03651233,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33842344,
+        "start_function_ns": 74953,
+        "engine_total_ns": 33917297
+      }
+    },
+    {
+      "sample": 17,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031891636,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 829707,
+        "start_function_ns": 4859659,
+        "engine_total_ns": 5689366
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032284623,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 832402,
+        "start_function_ns": 5745462,
+        "engine_total_ns": 6577864
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031949867,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 793148,
+        "start_function_ns": 5294194,
+        "engine_total_ns": 6087342
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.037362416,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33753536,
+        "start_function_ns": 69262,
+        "engine_total_ns": 33822798
+      }
+    },
+    {
+      "sample": 18,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033415954,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31282387,
+        "start_function_ns": 62439,
+        "engine_total_ns": 31344826
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035707019,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33535701,
+        "start_function_ns": 67618,
+        "engine_total_ns": 33603319
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033205454,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 798017,
+        "start_function_ns": 5757725,
+        "engine_total_ns": 6555742
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035461543,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 32836332,
+        "start_function_ns": 83188,
+        "engine_total_ns": 32919520
+      }
+    },
+    {
+      "sample": 19,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031792127,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 779732,
+        "start_function_ns": 5931786,
+        "engine_total_ns": 6711518
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032671278,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 852451,
+        "start_function_ns": 4907338,
+        "engine_total_ns": 5759789
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034278944,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31987508,
+        "start_function_ns": 74923,
+        "engine_total_ns": 32062431
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03151494,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 845938,
+        "start_function_ns": 5674308,
+        "engine_total_ns": 6520246
+      }
+    },
+    {
+      "sample": 20,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036103033,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33406496,
+        "start_function_ns": 63641,
+        "engine_total_ns": 33470137
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035818582,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33410914,
+        "start_function_ns": 63762,
+        "engine_total_ns": 33474676
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033925753,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31609901,
+        "start_function_ns": 71987,
+        "engine_total_ns": 31681888
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030880623,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 835989,
+        "start_function_ns": 4871941,
+        "engine_total_ns": 5707930
+      }
+    },
+    {
+      "sample": 21,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033134108,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 806734,
+        "start_function_ns": 5706508,
+        "engine_total_ns": 6513242
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031306543,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 794210,
+        "start_function_ns": 5650432,
+        "engine_total_ns": 6444642
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.037068798,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34698021,
+        "start_function_ns": 65314,
+        "engine_total_ns": 34763335
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033836323,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31601946,
+        "start_function_ns": 64913,
+        "engine_total_ns": 31666859
+      }
+    },
+    {
+      "sample": 22,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031484473,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 816963,
+        "start_function_ns": 4927567,
+        "engine_total_ns": 5744530
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033810604,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 849595,
+        "start_function_ns": 4874927,
+        "engine_total_ns": 5724522
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034526785,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 32048744,
+        "start_function_ns": 66537,
+        "engine_total_ns": 32115281
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036227258,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33632876,
+        "start_function_ns": 66296,
+        "engine_total_ns": 33699172
+      }
+    },
+    {
+      "sample": 23,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033243215,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 808587,
+        "start_function_ns": 5938921,
+        "engine_total_ns": 6747508
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031247382,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 843424,
+        "start_function_ns": 5731335,
+        "engine_total_ns": 6574759
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032803961,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 804730,
+        "start_function_ns": 5800026,
+        "engine_total_ns": 6604756
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.03439755,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 32137173,
+        "start_function_ns": 75954,
+        "engine_total_ns": 32213127
+      }
+    },
+    {
+      "sample": 24,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035988965,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33758114,
+        "start_function_ns": 73410,
+        "engine_total_ns": 33831524
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033599473,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 414869,
+        "start_function_ns": 5782102,
+        "engine_total_ns": 6196971
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036957576,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34272774,
+        "start_function_ns": 87646,
+        "engine_total_ns": 34360420
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034442856,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31867240,
+        "start_function_ns": 68780,
+        "engine_total_ns": 31936020
+      }
+    },
+    {
+      "sample": 25,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033015362,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 899971,
+        "start_function_ns": 4958947,
+        "engine_total_ns": 5858918
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.033992812,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 864714,
+        "start_function_ns": 4958486,
+        "engine_total_ns": 5823200
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.048489238,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 1217916,
+        "start_function_ns": 7828001,
+        "engine_total_ns": 9045917
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.037035164,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34242385,
+        "start_function_ns": 80854,
+        "engine_total_ns": 34323239
+      }
+    },
+    {
+      "sample": 26,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.038284589,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 35044560,
+        "start_function_ns": 109799,
+        "engine_total_ns": 35154359
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.034432848,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 841940,
+        "start_function_ns": 6072855,
+        "engine_total_ns": 6914795
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.037197743,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34583735,
+        "start_function_ns": 73770,
+        "engine_total_ns": 34657505
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.030875855,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 803077,
+        "start_function_ns": 4845420,
+        "engine_total_ns": 5648497
+      }
+    },
+    {
+      "sample": 27,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.033711847,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31529277,
+        "start_function_ns": 63952,
+        "engine_total_ns": 31593229
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032062521,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 788339,
+        "start_function_ns": 5750291,
+        "engine_total_ns": 6538630
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.034278063,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31739457,
+        "start_function_ns": 73400,
+        "engine_total_ns": 31812857
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035514984,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33096005,
+        "start_function_ns": 62739,
+        "engine_total_ns": 33158744
+      }
+    },
+    {
+      "sample": 28,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032385976,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 772599,
+        "start_function_ns": 5892171,
+        "engine_total_ns": 6664770
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.031379502,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 784090,
+        "start_function_ns": 5636415,
+        "engine_total_ns": 6420505
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.03095681,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 817394,
+        "start_function_ns": 5072463,
+        "engine_total_ns": 5889857
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.035763988,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33416434,
+        "start_function_ns": 66988,
+        "engine_total_ns": 33483422
+      }
+    },
+    {
+      "sample": 29,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036005496,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 33624661,
+        "start_function_ns": 72177,
+        "engine_total_ns": 33696838
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "baseline-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032789153,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 799990,
+        "start_function_ns": 5781791,
+        "engine_total_ns": 6581781
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "body-O2",
+      "engine": "v8",
+      "wall_seconds": 0.032878352,
+      "timing": {
+        "engine": "V8",
+        "node": "v24.22.1",
+        "v8": "13.6.233.17-node.58",
+        "compile_instantiate_ns": 385793,
+        "start_function_ns": 4891328,
+        "engine_total_ns": 5277121
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "baseline-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.036715185,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 34010474,
+        "start_function_ns": 66236,
+        "engine_total_ns": 34076710
+      }
+    },
+    {
+      "sample": 30,
+      "variant": "body-O2",
+      "engine": "native-host",
+      "wall_seconds": 0.0343925,
+      "timing": {
+        "engine": "Wasmtime",
+        "wasmtime": "50.0.1",
+        "host": "native C API",
+        "module_mode": "wasm",
+        "parallel_compilation": true,
+        "optimization": "cranelift speed",
+        "compile_instantiate_ns": 31683150,
+        "start_function_ns": 75955,
+        "engine_total_ns": 31759105
+      }
+    }
+  ],
+  "summary": {
+    "native-C": {
+      "n": 61,
+      "median": 0.001568602,
+      "min": 0.001065316,
+      "max": 0.002648634,
+      "mad": 0.0001677489999999998,
+      "p25": 0.001408557,
+      "p75": 0.001740529,
+      "samples": [
+        0.002005192,
+        0.001766027,
+        0.0014835,
+        0.001086907,
+        0.00179939,
+        0.001724488,
+        0.001730029,
+        0.001689692,
+        0.00177302,
+        0.001724668,
+        0.001693308,
+        0.001100141,
+        0.001563883,
+        0.001749887,
+        0.00177815,
+        0.00174668,
+        0.001098478,
+        0.001118216,
+        0.00111543,
+        0.001703729,
+        0.001362431,
+        0.001653814,
+        0.001446781,
+        0.001450768,
+        0.001609009,
+        0.001065316,
+        0.001431562,
+        0.001176657,
+        0.002116815,
+        0.001631292,
+        0.001789593,
+        0.001399891,
+        0.001758252,
+        0.001448103,
+        0.001564313,
+        0.001485164,
+        0.001729227,
+        0.001442433,
+        0.002648634,
+        0.001471477,
+        0.001194841,
+        0.001200603,
+        0.00177296,
+        0.001740529,
+        0.001460437,
+        0.001445127,
+        0.002028757,
+        0.001407075,
+        0.001219889,
+        0.001603698,
+        0.001736351,
+        0.001568602,
+        0.001812455,
+        0.001698238,
+        0.001534537,
+        0.001118777,
+        0.001748314,
+        0.001584061,
+        0.001419168,
+        0.001408557,
+        0.001193739
+      ]
+    },
+    "baseline-O2/ordinary": {
+      "n": 61,
+      "median": 0.035321887,
+      "min": 0.034783083,
+      "max": 0.037439713,
+      "mad": 0.0003020849999999936,
+      "p25": 0.035058516,
+      "p75": 0.035637196,
+      "samples": [
+        0.035085528,
+        0.035923842,
+        0.035011357,
+        0.034822017,
+        0.035197711,
+        0.035126246,
+        0.03515511,
+        0.035190467,
+        0.035450533,
+        0.03543345,
+        0.035599896,
+        0.035341845,
+        0.035709454,
+        0.0356178,
+        0.034879576,
+        0.035658497,
+        0.035321887,
+        0.034815144,
+        0.035571402,
+        0.035742958,
+        0.035623711,
+        0.034863235,
+        0.034834932,
+        0.034972954,
+        0.036813292,
+        0.034972383,
+        0.035637196,
+        0.035173034,
+        0.034870279,
+        0.035050471,
+        0.037216418,
+        0.035628049,
+        0.034783083,
+        0.035376972,
+        0.035262344,
+        0.035200556,
+        0.035390728,
+        0.034837336,
+        0.036531286,
+        0.035237376,
+        0.036884958,
+        0.035374317,
+        0.036967776,
+        0.035072533,
+        0.034856252,
+        0.035066361,
+        0.035666502,
+        0.035058516,
+        0.03518135,
+        0.037006209,
+        0.034989766,
+        0.03588032,
+        0.03630186,
+        0.036884317,
+        0.037439713,
+        0.035456283,
+        0.035116668,
+        0.035478394,
+        0.035035473,
+        0.035219021,
+        0.035623972
+      ]
+    },
+    "baseline-O2/aot": {
+      "n": 61,
+      "median": 0.002044517,
+      "min": 0.001506554,
+      "max": 0.002863414,
+      "mad": 0.00024854200000000003,
+      "p25": 0.00177846,
+      "p75": 0.00224611,
+      "samples": [
+        0.001917525,
+        0.002312536,
+        0.002095043,
+        0.00177846,
+        0.002781337,
+        0.002052993,
+        0.002320882,
+        0.001571468,
+        0.001977309,
+        0.001909189,
+        0.001543224,
+        0.002238366,
+        0.002176107,
+        0.002225782,
+        0.002144116,
+        0.002415061,
+        0.001809008,
+        0.001512105,
+        0.002076628,
+        0.001838345,
+        0.001630199,
+        0.002084563,
+        0.002600594,
+        0.002600333,
+        0.00219872,
+        0.002210262,
+        0.002123657,
+        0.002020941,
+        0.002347252,
+        0.001614509,
+        0.002044517,
+        0.00224611,
+        0.002303338,
+        0.001575915,
+        0.001934528,
+        0.001889762,
+        0.002293059,
+        0.002297889,
+        0.001766899,
+        0.002206775,
+        0.002197878,
+        0.002320251,
+        0.001639126,
+        0.00169883,
+        0.001633746,
+        0.001894662,
+        0.001597807,
+        0.002305754,
+        0.002863414,
+        0.001590684,
+        0.001590383,
+        0.001963132,
+        0.00183063,
+        0.002499382,
+        0.001506554,
+        0.002006334,
+        0.002850949,
+        0.002121573,
+        0.001950809,
+        0.001746541,
+        0.001840539
+      ]
+    },
+    "baseline-O2/v8": {
+      "n": 61,
+      "median": 0.031452321,
+      "min": 0.029020548,
+      "max": 0.035974639,
+      "mad": 0.0006603160000000011,
+      "p25": 0.030943573,
+      "p75": 0.032449747,
+      "samples": [
+        0.032697077,
+        0.035974639,
+        0.031319458,
+        0.03116739,
+        0.030475193,
+        0.031379072,
+        0.030908167,
+        0.031991646,
+        0.031739808,
+        0.030975475,
+        0.032324319,
+        0.032792679,
+        0.033795946,
+        0.03424508,
+        0.032449747,
+        0.032723958,
+        0.031566118,
+        0.034149158,
+        0.03323545,
+        0.031703709,
+        0.035390528,
+        0.031790914,
+        0.032300504,
+        0.032491667,
+        0.031158904,
+        0.031271808,
+        0.029786094,
+        0.030192837,
+        0.031086105,
+        0.03108874,
+        0.031321382,
+        0.030994561,
+        0.031696485,
+        0.032240829,
+        0.031621232,
+        0.033222566,
+        0.032684183,
+        0.031153172,
+        0.031218717,
+        0.030943573,
+        0.030823686,
+        0.031702668,
+        0.032051239,
+        0.031452321,
+        0.031583971,
+        0.030787186,
+        0.030076646,
+        0.030571547,
+        0.032112637,
+        0.030634696,
+        0.031277518,
+        0.032740951,
+        0.033387491,
+        0.030703388,
+        0.029020548,
+        0.034016746,
+        0.030798187,
+        0.030831141,
+        0.029859042,
+        0.030487045,
+        0.03123608
+      ]
+    },
+    "body-O2/ordinary": {
+      "n": 61,
+      "median": 0.033365217,
+      "min": 0.032840951,
+      "max": 0.035516047,
+      "mad": 0.0003193169999999995,
+      "p25": 0.033087911,
+      "p75": 0.033752223,
+      "samples": [
+        0.033116084,
+        0.03364509,
+        0.033812097,
+        0.033043506,
+        0.033532486,
+        0.033706306,
+        0.033208219,
+        0.033270087,
+        0.033594794,
+        0.032992329,
+        0.033326495,
+        0.0330459,
+        0.035516047,
+        0.033428417,
+        0.033074154,
+        0.033087911,
+        0.033294924,
+        0.033657022,
+        0.033078252,
+        0.033685566,
+        0.033008389,
+        0.033752223,
+        0.033243126,
+        0.033407858,
+        0.033030521,
+        0.033572441,
+        0.032893761,
+        0.034209854,
+        0.034483744,
+        0.032840951,
+        0.033079564,
+        0.033223248,
+        0.033122166,
+        0.033335871,
+        0.033575528,
+        0.033696447,
+        0.03310895,
+        0.034147314,
+        0.032970847,
+        0.034998892,
+        0.032945439,
+        0.032905743,
+        0.03310928,
+        0.033085566,
+        0.03493444,
+        0.033810414,
+        0.033365217,
+        0.033010944,
+        0.034762955,
+        0.035095948,
+        0.033967812,
+        0.03459749,
+        0.033349938,
+        0.03330897,
+        0.033819731,
+        0.033730482,
+        0.035261141,
+        0.033344718,
+        0.034415634,
+        0.033383723,
+        0.033467943
+      ]
+    },
+    "body-O2/aot": {
+      "n": 61,
+      "median": 0.002037734,
+      "min": 0.001473271,
+      "max": 0.003397439,
+      "mad": 0.00022002899999999984,
+      "p25": 0.001817705,
+      "p75": 0.002248093,
+      "samples": [
+        0.001798919,
+        0.00151529,
+        0.002149296,
+        0.001489251,
+        0.002313558,
+        0.002174774,
+        0.002319129,
+        0.001554706,
+        0.002022265,
+        0.003397439,
+        0.003159566,
+        0.0023254,
+        0.001576306,
+        0.001965917,
+        0.002037734,
+        0.00221472,
+        0.002248093,
+        0.002107997,
+        0.002233145,
+        0.002108909,
+        0.00254082,
+        0.001868282,
+        0.002354576,
+        0.002333496,
+        0.001761819,
+        0.001473271,
+        0.002328727,
+        0.002340189,
+        0.002149877,
+        0.002605242,
+        0.002732705,
+        0.001571758,
+        0.001992658,
+        0.001655808,
+        0.001929538,
+        0.002005643,
+        0.001845489,
+        0.00209893,
+        0.002216594,
+        0.003123348,
+        0.001663503,
+        0.002187669,
+        0.001946239,
+        0.002292839,
+        0.002042503,
+        0.001979604,
+        0.001633456,
+        0.001569103,
+        0.002007336,
+        0.001835179,
+        0.002031943,
+        0.002199491,
+        0.001840949,
+        0.002116173,
+        0.002109069,
+        0.001499972,
+        0.001817705,
+        0.002286937,
+        0.001937834,
+        0.001806905,
+        0.001574644
+      ]
+    },
+    "body-O2/v8": {
+      "n": 61,
+      "median": 0.031731161,
+      "min": 0.028801051,
+      "max": 0.03612847,
+      "mad": 0.000561418000000001,
+      "p25": 0.031016061,
+      "p75": 0.032210523,
+      "samples": [
+        0.030887948,
+        0.031513387,
+        0.032079874,
+        0.03227207,
+        0.030581626,
+        0.031507215,
+        0.032277169,
+        0.032138766,
+        0.03328761,
+        0.032346161,
+        0.029917814,
+        0.031871578,
+        0.029494489,
+        0.031340038,
+        0.032897218,
+        0.032164706,
+        0.031525,
+        0.032086076,
+        0.031783931,
+        0.032524069,
+        0.035455501,
+        0.03067332,
+        0.032016854,
+        0.032077419,
+        0.031796426,
+        0.031266948,
+        0.030865747,
+        0.032210523,
+        0.031845218,
+        0.031981026,
+        0.031043394,
+        0.032053364,
+        0.031345728,
+        0.033278593,
+        0.03117806,
+        0.030826812,
+        0.031504661,
+        0.033113168,
+        0.030842192,
+        0.028801051,
+        0.030200802,
+        0.031525249,
+        0.03179907,
+        0.032972941,
+        0.030604259,
+        0.031388891,
+        0.034798943,
+        0.031582078,
+        0.029791183,
+        0.03612847,
+        0.032418127,
+        0.031128015,
+        0.031492648,
+        0.03098862,
+        0.031988791,
+        0.02994277,
+        0.030952351,
+        0.031731161,
+        0.032292579,
+        0.032475636,
+        0.031016061
+      ]
+    }
+  },
+  "paired_speedups": {
+    "ordinary": {
+      "n": 61,
+      "median": 1.058626781520563,
+      "min": 0.9959027701344093,
+      "max": 1.1250576942307946,
+      "mad": 0.015363781558509038,
+      "p25": 1.0416991424603292,
+      "p75": 1.0694774540865886,
+      "samples": [
+        1.0594709205351696,
+        1.0677291099533393,
+        1.035468370979771,
+        1.0538233140272706,
+        1.0496600520462456,
+        1.0421268352574737,
+        1.058626781520563,
+        1.0577209190946812,
+        1.0552388861202722,
+        1.073990563079072,
+        1.0682160245174297,
+        1.0694774540865886,
+        1.0054456229320792,
+        1.0654946658108277,
+        1.0545870954099084,
+        1.0776895827603017,
+        1.0608790396998655,
+        1.0344095208423372,
+        1.0753712741531807,
+        1.061076367248809,
+        1.079232040073207,
+        1.0329167059603748,
+        1.0478837639998115,
+        1.0468481397400575,
+        1.1145235038829693,
+        1.0416991424603292,
+        1.0834028981970167,
+        1.028155045619312,
+        1.0112091946860526,
+        1.0672794158731884,
+        1.1250576942307946,
+        1.0723830794629112,
+        1.0501451807227824,
+        1.061228368684292,
+        1.0502394482076352,
+        1.0446370206330657,
+        1.068917256512212,
+        1.020207211612603,
+        1.1079874896753488,
+        1.006814044284602,
+        1.1195770680123582,
+        1.0750195490191485,
+        1.1165382031865387,
+        1.0600554030116942,
+        0.9977618647958862,
+        1.0371467501107794,
+        1.068972577040335,
+        1.0620270659330433,
+        1.0120356569227213,
+        1.0544296737617687,
+        1.0300859531370463,
+        1.0370787013740013,
+        1.0885135678513105,
+        1.1073388639756798,
+        1.1070375751953794,
+        1.051164433404776,
+        0.9959027701344093,
+        1.0639884253931913,
+        1.0180103902778603,
+        1.0549758335821324,
+        1.0644207204488187
+      ]
+    },
+    "aot": {
+      "n": 61,
+      "median": 0.9943947388004774,
+      "min": 0.4884291070355865,
+      "max": 1.5684332716254838,
+      "mad": 0.13779039414257144,
+      "p25": 0.8667732139480672,
+      "p75": 1.1559123542524607,
+      "samples": [
+        1.0659318179417752,
+        1.5261342713276005,
+        0.9747577811525261,
+        1.1941976201459659,
+        1.2021903060135084,
+        0.9440029170847177,
+        1.0007558872318012,
+        1.0107814596457465,
+        0.9777694812499845,
+        0.5619494566348359,
+        0.4884291070355865,
+        0.9625724606519308,
+        1.3805105100151875,
+        1.1321851329430488,
+        1.052206028853619,
+        1.0904588390406011,
+        0.8046855712819709,
+        0.7173183832804316,
+        0.9299118507754758,
+        0.8717042793216777,
+        0.6416034980832959,
+        1.1157646436672837,
+        1.1044850537846302,
+        1.1143507424053865,
+        1.2479829085734686,
+        1.5002412998015981,
+        0.9119390121727451,
+        0.8635802492875576,
+        1.0918075778288712,
+        0.6197155580940275,
+        0.748166011333093,
+        1.4290431478637298,
+        1.1559123542524607,
+        0.9517498405612246,
+        1.0025861112867434,
+        0.9422225191621838,
+        1.2425210879067825,
+        1.094790679060283,
+        0.7971234244972241,
+        0.7065415061017856,
+        1.3212347678363068,
+        1.0606042321758913,
+        0.8422018056364096,
+        0.7409286042325692,
+        0.7998744677486397,
+        0.9570914182836568,
+        0.9781757206805692,
+        1.4694726859868346,
+        1.4264746908340207,
+        0.8667732139480672,
+        0.7826907546127031,
+        0.8925392283942056,
+        0.9943947388004774,
+        1.1810858564020996,
+        0.7143218168774943,
+        1.3375809681780726,
+        1.5684332716254838,
+        0.9276919302980361,
+        1.0066956199550632,
+        0.9665925989468179,
+        1.1688603900310164
+      ]
+    },
+    "v8": {
+      "n": 61,
+      "median": 0.9981674775939564,
+      "min": 0.8479378174608556,
+      "max": 1.145839346462317,
+      "mad": 0.031199985507946337,
+      "p25": 0.9680030237402365,
+      "p75": 1.0320122764612598,
+      "samples": [
+        1.0585707085494964,
+        1.1415668839404665,
+        0.9762961662505283,
+        0.9657697817338646,
+        0.996519707617901,
+        0.9959328998135825,
+        0.9575860571910751,
+        0.9954223506901292,
+        0.9535021589113787,
+        0.9576244612150419,
+        1.0804371937067325,
+        1.0289003889295973,
+        1.145839346462317,
+        1.092694271781036,
+        0.9863979075677464,
+        1.017387132343134,
+        1.0013042981760507,
+        1.0642983579543974,
+        1.0456683284392985,
+        0.9747768337350408,
+        0.9981674775939564,
+        1.0364353777158783,
+        1.0088593963666763,
+        1.012914006578896,
+        0.9799498849336086,
+        1.0001554357016231,
+        0.9650209988437992,
+        0.937359415120332,
+        0.9761624178550136,
+        0.9720995192587004,
+        1.008954819824147,
+        0.9669674920860101,
+        1.0111899458835347,
+        0.9688158691084084,
+        1.0142142262860485,
+        1.077716566993694,
+        1.03743960298446,
+        0.9408091669151076,
+        1.012208114131447,
+        1.0743904102666253,
+        1.0206247502963663,
+        1.0056278381813892,
+        1.0079300746845743,
+        0.9538827913470017,
+        1.0320122764612598,
+        0.9808306384574084,
+        0.8642976885820929,
+        0.9680030237402365,
+        1.077924196565138,
+        0.8479378174608556,
+        0.9648157032637943,
+        1.0518162176418895,
+        1.0601677890026904,
+        0.9907955888322875,
+        0.907209903619052,
+        1.136058754751147,
+        0.9950193121033036,
+        0.9716360835331552,
+        0.9246409833045542,
+        0.9387666803507713,
+        1.0070937118675385
+      ]
+    }
+  },
+  "finished_utc": "2026-11-03T12:32:49.614421+00:00"
+}

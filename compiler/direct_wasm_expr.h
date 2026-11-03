@@ -1374,9 +1374,11 @@ inline void Function::For(ForLoop *n) {
     if (bulk) End();
 }
 
-inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinations &destinations, bool elements) {
+inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinations &destinations, bool elements,
+                               const vector<Node *> *arguments) {
     if (n->builtin >= 0) { Builtin(n, adapt_result); return; }
     auto args = n->ValueArgNodes();
+    if (arguments) args = *arguments;
     if (n->fvbody) {
         EmitFunctionValue(n, adapt_result, destinations, elements);
         return;

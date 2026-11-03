@@ -1,15 +1,26 @@
 #pragma once
 namespace goose::direct_wasm {
 
-inline void Function::EnsureMemory(uint32_t top, Line line) {
+inline void Function::EnsureMemory(uint32_t top, Line line, bool share) {
     Get(top); code.OpU(0x3f, 0); code.I32Const(16); code.Op(0x74); code.Op(0x4b);
     Begin(0x04);
+    if (share) {
+        c.needs_grow_memory_helper = true;
+        Get(top); CallIndex(c.grow_memory_helper);
+    } else GrowMemory(top);
+    TrapIf(line, "linear memory exhausted");
+    End();
+}
+inline void Function::GrowMemory(uint32_t top) {
     // ceil(top / 65536), without overflowing a 32-bit address near 4 GiB.
     Get(top); code.I32Const(16); code.Op(0x76);
     Get(top); code.I32Const(65535); code.Op(0x71); code.Op(0x45); code.Op(0x45); code.Op(0x6a);
     code.OpU(0x3f, 0); code.Op(0x6b); code.OpU(0x40, 0);
-    code.I32Const(-1); code.Op(0x46); TrapIf(line, "linear memory exhausted");
-    End();
+    code.I32Const(-1); code.Op(0x46);
+}
+inline string Function::GrowMemoryHelper() {
+    GrowMemory(0);
+    code.Op(0x0b); return EncodeBody();
 }
 inline void Function::Dynamic(uint32_t bytes, Line line) {
     if (frame_free) Fail(line, "internal: frame-free leaf requested scratch storage");
@@ -83,7 +94,8 @@ inline string Function::Finish() {
         Get(framebase); code.I32Const(int32_t(framebytes)); code.Op(0x6a); auto top = Save(I32);
         Get(top); Get(framebase); code.Op(0x49); TrapIf(line, "activation frame overflow");
         ActivationLimit(top, line);
-        EnsureMemory(top, line); Get(top); code.OpU(0x24, 0);
+        // Reserve the fixed frame once; share repeated body allocation checks.
+        EnsureMemory(top, line, false); Get(top); code.OpU(0x24, 0);
     }
     EnterEffectFrame(); code.Append(body); code.Op(0x0b);
     return EncodeBody();
@@ -234,7 +246,8 @@ inline DirectWasmResult Compiler::Compile() {
     if (region_cursors) {
         prefix_helper = startindex++; header_helper = startindex++;
     }
-    uleb_read_helper = startindex + 1; uleb_patch_helper = startindex + 2;
+    grow_memory_helper = startindex + 1;
+    uleb_read_helper = startindex + 2; uleb_patch_helper = startindex + 3;
     auto startsig = Sig({ {}, {} });
     DirectWasmResult result;
     vector<string> bodies;
@@ -278,6 +291,15 @@ inline DirectWasmResult Compiler::Compile() {
     result.function_info.push_back({ "_start", start.index, startbody.size(), BodyHash(startbody),
                                     vector<uint32_t>(start.dependencies.begin(), start.dependencies.end()) });
     result.code_bytes += startbody.size(); bodies.push_back(std::move(startbody)); ftypes.push_back(startsig);
+    // ULEB readers emitted below also call EnsureMemory. Keep their shared
+    // grow path before both accessors so all reserved function indices agree.
+    if (needs_grow_memory_helper || needs_uleb_helpers) {
+        auto type = Sig({ { I32 }, { I32 } });
+        Function helper(*this, nullptr, grow_memory_helper, type, false, true);
+        auto body = helper.GrowMemoryHelper();
+        result.function_info.push_back({ "grow_memory", helper.index, body.size(), BodyHash(body), {} });
+        result.code_bytes += body.size(); bodies.push_back(std::move(body)); ftypes.push_back(type);
+    }
     if (needs_uleb_helpers) for (bool patch : { false, true }) {
         auto index = uleb_read_helper;
         Signature signature { { I32 }, { I32, I32 } };

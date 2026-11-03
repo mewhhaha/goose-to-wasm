@@ -34,20 +34,33 @@ inline Call *FunctionValueForwarder(Function &f, Call *node) {
     if (node->builtin >= 0 || node->defaultinit || !node->dispatch.empty() ||
         !node->fvremap.empty() || !node->fvbody->stmts.empty()) return nullptr;
     auto tail = Is<Call>(node->fvbody->tail);
-    if (!tail || !tail->fvbody || tail->builtin >= 0 || tail->defaultinit ||
+    if (!tail || tail->builtin >= 0 || tail->defaultinit ||
         !tail->dispatch.empty() || !tail->fvremap.empty()) return nullptr;
+    auto parameters = tail->fvparams;
+    if (!tail->fvbody) {
+        auto spec = tail->spec;
+        if (!spec || spec->sf->isextern || spec->sf->isexport || !f.c.function_index.count(spec) ||
+            f.c.intrinsic_opcode.count(spec) || !f.c.captures[spec].empty()) return nullptr;
+        parameters = spec->params;
+    }
     auto args = tail->ValueArgNodes();
-    if (args.size() != node->fvparams.size() || args.size() != tail->fvparams.size()) return nullptr;
+    if (args.size() != node->fvparams.size() || args.size() != parameters.size()) return nullptr;
+    auto natural = f.NaturalResults(tail);
+    if (natural.size() > 1) return nullptr;
+    auto tail_result = tail->exprtype;
+    if (natural.empty()) {
+        if (!tail_result || tail_result->kind != TY_VOID) return nullptr;
+    } else tail_result = natural[0];
     auto result = node->fvbody->exprtype;
     if (!result || (result->kind != TY_VOID && result->kind != TY_BOOL &&
         result->kind != TY_INT && result->kind != TY_FLT) || Compiler::Varint(result) ||
-        !SameFunctionValueType(result, tail->fvbody->exprtype) ||
+        !SameFunctionValueType(result, tail_result) ||
         !SameFunctionValueType(result, node->exprtype) ||
         !SameFunctionValueType(result, tail->exprtype)) return nullptr;
     unordered_set<VarDef *> parents;
     unordered_set<VarDef *> children;
     for (size_t i = 0; i < args.size(); i++) {
-        auto parent = node->fvparams[i], child = tail->fvparams[i];
+        auto parent = node->fvparams[i], child = parameters[i];
         auto id = Is<Ident>(args[i]);
         if (!id || id->vdef != parent || f.Resolve(parent) != parent || f.Resolve(child) != child ||
             parent->captured || child->captured || parent->reusable || child->reusable ||
@@ -81,13 +94,21 @@ inline Call *FunctionValueForwarder(Function &f, Call *node) {
         RunChildren(part, [&](Node *child) { if (valid) valid = independent(child); });
         return valid;
     };
-    if (!independent(tail->fvbody)) return nullptr;
+    if (tail->fvbody && !independent(tail->fvbody)) return nullptr;
     return tail;
 }
 
 inline void Function::EmitFunctionValue(Call *node, bool adapt_result, const ResultDestinations &destinations, bool elements) {
     auto args = node->ValueArgNodes();
-    while (auto forwarded = FunctionValueForwarder(*this, node)) node = forwarded;
+    while (auto forwarded = FunctionValueForwarder(*this, node)) {
+        if (!forwarded->fvbody) {
+            bool materializes = false;
+            for (auto arg : args) materializes |= MayMaterialize(arg);
+            if (materializes) break;
+            EmitCall(forwarded, adapt_result, destinations, elements, &args); return;
+        }
+        node = forwarded;
+    }
     if (args.size() != node->fvparams.size()) Fail(node->line, "function-value parameter mismatch");
     auto natural = NaturalResults(node);
     auto owns_parameters = false;

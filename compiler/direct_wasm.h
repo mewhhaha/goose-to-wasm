@@ -353,7 +353,8 @@ struct Function {
     void SetResults(const vector<Node *> &, const vector<TypeExpr *> &, const vector<uint32_t> &, Line, const ResultDestinations & = {});
     vector<TypeExpr *> Values(Node *);
     vector<TypeExpr *> NaturalResults(Node *);
-    void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false);
+    void EmitCall(Call *, bool adapt_result = true, const ResultDestinations & = {}, bool elements = false,
+                  const vector<Node *> *arguments = nullptr);
     void EmitFunctionValue(Call *, bool, const ResultDestinations &, bool elements);
     void EmitDispatch(Call *, bool, const ResultDestinations &);
     void EnterEffectFrame();
@@ -443,7 +444,9 @@ struct Function {
     void AggregateLiteral(Node *);
     void Slice(SliceExpr *);
     void SliceView(SliceExpr *);
-    void EnsureMemory(uint32_t, Line);
+    void EnsureMemory(uint32_t, Line, bool share = true);
+    void GrowMemory(uint32_t);
+    string GrowMemoryHelper();
     void Dynamic(uint32_t, Line);
     string Finish();
 };
@@ -465,6 +468,8 @@ struct Compiler {
     uint32_t cursor_global = 0, cursor_table = 0;
     uint32_t prefix_helper = 0, header_helper = 0;
     uint32_t uleb_read_helper = 0, uleb_patch_helper = 0;
+    uint32_t grow_memory_helper = 0;
+    bool needs_grow_memory_helper = false;
     bool needs_uleb_helpers = false, inline_uleb_images = false;
     bool raw_array_images = false;
     unordered_map<FnSpec *, bool> leaf_cache;

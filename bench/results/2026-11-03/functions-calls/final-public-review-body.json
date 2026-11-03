@@ -1,0 +1,409 @@
+{
+  "schema": "goose-functions-grow-final-public-review-v1",
+  "status": "passed",
+  "reviewed_utc": "2026-11-03T12:40:36.828629+00:00",
+  "reviewer": "Astra independent static/public-evidence review",
+  "scope": "Accepted body-growth353 public source/prose, measurements, report identities, latest pointers and chart evidence. No compiler build, engine run or performance sampling. Archive assembly/closure is a separate later review.",
+  "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+  "baseline_compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+  "decision": "Public claims are ready for bounded packaging. No remaining source, measurement-claim or chart blocker found.",
+  "checked_claims": {
+    "implementation_and_shape": {
+      "module_bytes": [
+        42296,
+        39702
+      ],
+      "static_memory_copy": [
+        317,
+        267
+      ],
+      "declared_locals": [
+        2019,
+        1919
+      ],
+      "shared_body_growth_sites": 44,
+      "inline_frame_prologues": 7,
+      "public_sections": "Imports, memory, globals, exports and data unchanged; private type/function/code sections changed. Exact source and module evidence support the stated scope."
+    },
+    "cpu2_diagnostic": {
+      "phase_pairs": 31,
+      "process_pairs": 61,
+      "wasmtime_compile_instantiate_ms": [
+        33.758114,
+        31.739457
+      ],
+      "paired_speedup": 1.060336155798993,
+      "paired_mad": 0.015149954701947799,
+      "ordinary_process_speedup": 1.058626781520563,
+      "ordinary_process_mad": 0.015363781558509038,
+      "native_first_entry": "1.0061775 with MAD0.1257515: inconclusive",
+      "v8_first_entry": "1.0246735 with MAD0.1401187: inconclusive",
+      "verification": "Recomputed medians, paired ratios and MADs from all raw process observations and separately instrumented phase probes; CPU2 remains explicitly diagnostic."
+    },
+    "normal_pool_holdout": {
+      "process_pairs": 61,
+      "ordinary": [
+        1.039427851240162,
+        0.15035785484924058
+      ],
+      "precompiled": [
+        0.9432330199564267,
+        0.15643006787647096
+      ],
+      "v8": [
+        1.0205554961763084,
+        0.15850161464487522
+      ],
+      "interpretation": "Recomputed paired values support the documented high variation and absence of a reliable general process-speed claim."
+    },
+    "fresh_example_process_cohort": {
+      "samples": 15,
+      "functions_ordinary_ms": 18.463812,
+      "functions_precompiled_ms": 1.523386,
+      "functions_native_c_ms": 1.2234559999999999,
+      "boundary": "Launch to exit; ordinary includes compilation, precompiled excludes preparation. Fresh cohort figures are not paired with an older publication. Host summary cells were checked against the raw host report."
+    },
+    "warmed_controls": {
+      "rounds": 9,
+      "tasks": 10,
+      "wasmtime_geomean": [
+        0.9965243061635736,
+        0.008582709037696201
+      ],
+      "v8_geomean": [
+        0.9987912347661877,
+        0.0014840758830088063
+      ],
+      "byte_identical_modules": 8,
+      "changed_modules": [
+        "Example::Life",
+        "Example::Sorting"
+      ],
+      "life_wasmtime": [
+        0.999054234146281,
+        0.0031872693245258432
+      ],
+      "sorting_wasmtime": [
+        0.9999579782720562,
+        0.004751425446252067
+      ],
+      "verification": "Recomputed per-task paired medians/MADs and per-round ten-task geometric means from raw observations. Hashed actual baseline/current modules for both engines and confirmed eight exact controls. No established warmed gain is claimed."
+    },
+    "qualification": {
+      "focused_commands": 69,
+      "differential_observations": 9573,
+      "native_comparisons": 7656,
+      "source_cases": 978,
+      "host_observations": 11484,
+      "unique_host_modules": 1574,
+      "failures": 0,
+      "verification": "Checked report status/counts; independently joined native rows with corresponding Wasm results and compared all7656 exit-code/stdout pairs."
+    },
+    "fresh_delivery_counts": {
+      "example_observations": 1600,
+      "host_process_observations": 1440,
+      "host_preparations": 200,
+      "langarena_observations": 315
+    },
+    "rejected_experiment": "All-site864 is plainly rejected for its roughly20percent Sieve elapsed-time regression. Identical hot instructions and changed placement are documented; cache-line causality remains a hypothesis. Its timing cohort is not substituted for accepted353 results.",
+    "bootstrap": "The stale old-mtime build was caught before qualification. Changed managed-header bytes now obtain fresh mtimes, unchanged files retain mtimes, and the real-Ninja regression test is retained. Timed artifacts are the correct separately frozen versions.",
+    "engine_and_source_boundaries": "Upstream revision, compiler identities, Wasmtime50.0.1 and Node24.22.1/V813.6 are disclosed. Full native host, warmed reference host and Python binding builds remain distinguished. Runtime-target selections were built previously and executed freshly; they are empirical references, not universal ceilings."
+  },
+  "verification": {
+    "exact_campaign_report_copies": 13,
+    "all_current_compiler_headers_match_identity": 32,
+    "patch_bindings_verified": 2,
+    "latest_pointers": 4,
+    "target_table_numeric_cells": 30,
+    "charts": {
+      "svg_count": 10,
+      "numeric_bar_labels_in_pinned_validation": 403,
+      "method": "Read and verified the existing complete numeric-label proof against all10 exact SVG hashes; independently checked30 documentation table cells. All10 preview and three contact-sheet hashes match the visual proof. Reviewer also viewed all three contact sheets; no clipping/overlap found. Rendering/numeric-check executions belong to the coordinator."
+    },
+    "resolved_before_seal": "The dated README now says exact byte objects are reused from the immediate prior publication, without claiming an unsealed archive count. Fresh execution records and the two-folder verification boundary remain explicit.",
+    "deferred": "Archive member/index/retention/manifest closure awaits the bounded package; no archive PASS is asserted by this public review."
+  },
+  "inputs": {
+    "documentation": [
+      {
+        "path": "README.md",
+        "sha256": "ed82084172f58b778b3b90554aec067b6bb33d54bb2af069a74f2878523c727f",
+        "bytes": 2854
+      },
+      {
+        "path": "docs/FUNCTIONS_PERFORMANCE.md",
+        "sha256": "f3e4dd6bd8c2d2fb21f0a6856b0d04ecddb24ff3389f800f09ea9b88e3a53bc1",
+        "bytes": 3109
+      },
+      {
+        "path": "bench/examples.md",
+        "sha256": "4d0520e4f568ba9efeb1ac2d9f0706b74bbcef5f30ed0b38a1a3c57acb344fe1",
+        "bytes": 3845
+      },
+      {
+        "path": "bench/wasmtime-host.md",
+        "sha256": "4aab3b085d5175873d700d931dd54c9cdbec76a7a5f2f29e1facb17ed180d6f7",
+        "bytes": 2752
+      },
+      {
+        "path": "docs/PERFORMANCE_PLAN.md",
+        "sha256": "61a1b71725846518ddf4e9647f441a0a1904333bd74c7151e88a02d63e3f62b9",
+        "bytes": 2990
+      },
+      {
+        "path": "docs/RUNTIME_TARGETS.md",
+        "sha256": "b74b813ced265b7a0a5cf4705ffa6b2bbbebdd66730f4838d3022f4b3b872fb5",
+        "bytes": 3071
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/README.md",
+        "sha256": "52dd403cabc2bacbad50552ce6b0537517e83e7d207b08f86a0f47441767e758",
+        "bytes": 3459
+      }
+    ],
+    "public_reports": [
+      {
+        "path": "bench/results/2026-11-03/functions-calls/campaign.json",
+        "sha256": "f2b1a3f61e7972437115484f6072b628e1e981e4d1be1daf688583ed570cdee2",
+        "bytes": 110748
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/chart-verification.json",
+        "sha256": "9beda869500b75d4af603d06acb15d1e535be1892a01f6fd42cac95db2058d9a",
+        "bytes": 1942
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/chart-visual-review.json",
+        "sha256": "20f0fd2c5c5d2a1c01bcf120f18961ba0bd5e5b37baad9520bcd40db8550a46f",
+        "bytes": 5226
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/cohort.json",
+        "sha256": "c530f341bbebc1380c13db51e7ad990105650a104c363688a2a79b87e8eccb7f",
+        "bytes": 872851
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/compiler-identity.json",
+        "sha256": "77d4354745fe487bffc462338a2baa0b543ff09d7f8a723c08c67a68af7addbe",
+        "bytes": 8514
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/differential.json",
+        "sha256": "b6c5f0b736d8f7f1a1f9c0cc4ee66f330175a290341b72b078868c0afa8c9900",
+        "bytes": 5963172
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/examples.json",
+        "sha256": "6152728bcc9f30667d035a4dad5cbb5526f5b30c976401ead57e143810d87e8b",
+        "bytes": 1812672
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/final-numbers.json",
+        "sha256": "ea470c61c224d47b3ab98816c1d05b09792d48c8c9f001c8d7b7c5df8576689a",
+        "bytes": 95158
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/final-v8.json",
+        "sha256": "1119f99d29c18f134b95fc1b0cf188141f9d3e458a7a1ae28220d3811b9a6881",
+        "bytes": 804826
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/final-warmed.json",
+        "sha256": "17930b21e604f7fd0184da404ad69b78b85bc9e1ece439ea921249e6dc52f914",
+        "bytes": 1523877
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/holdout-cpu2.json",
+        "sha256": "37910bcf0473475c14dfecacb816536f5e2f030ef251e9bd972a8a3022ce9434",
+        "bytes": 136624
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/holdout-default.json",
+        "sha256": "818b5daf60da55aa5f1c46491c5e4b619dbde13830485389f1e10e7e8b8c71d2",
+        "bytes": 136701
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/host-qualification.json",
+        "sha256": "ad4a4f96e956fcea829bca562fdc1a4dc7769e575106d546eab8165bd5b3a616",
+        "bytes": 20623751
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/host.json",
+        "sha256": "dfeaf36b72f9c197cc05b3b858c70caec24bbc3fd7ff647ed83ac8f56be90dbc",
+        "bytes": 1111103
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/module-analysis.json",
+        "sha256": "88b2e56c27a70c4091a5faa7e4e1eceb0b9ccef8e714f23205a20b90b1a8fcf6",
+        "bytes": 3560
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/qualification.json",
+        "sha256": "ee31300663a46a896e0c849e9b4cb074dde95eba099911ce0745560547604e8e",
+        "bytes": 30860
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/readme.json",
+        "sha256": "351f337c91a50ad019da1d451bf1da89c2f875c7c13d78ee6e371f233ab10bbe",
+        "bytes": 108944
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/references.json",
+        "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+        "bytes": 1939980
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/rejected-warmed.json",
+        "sha256": "66f56fbcc9cf86e75b5e3118f69d100bc6ccfeb75151fd6c11f1d9ca6c4c2ddb",
+        "bytes": 1514309
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/sieve-diagnosis.json",
+        "sha256": "078bdc31ad8bba91473f859d6e039384c2d4affbe4f3db004d6132ae16b1e924",
+        "bytes": 6170
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/static-review-body.json",
+        "sha256": "509f8062e087b7dac2d5202b1593af6d7d4d0e1733720c5fd4498d35ac5be9dd",
+        "bytes": 13047
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/target-chart-verification.json",
+        "sha256": "ef56fc39609d045147d6e14a6276817e065078ced8dd1923dba4e067ba03c56c",
+        "bytes": 75492
+      },
+      {
+        "path": "bench/results/2026-11-03/functions-calls/test-static-review-body.json",
+        "sha256": "0134bb47cdd6d5e7755970dd66530c6b1c0a2e7cf02578b0ba29f7d5657d2fb3",
+        "bytes": 8357
+      }
+    ],
+    "charts": [
+      {
+        "path": "bench/charts/examples-compilation.svg",
+        "sha256": "e6cc201516543aa152a82c6de5d386ba1c78941b56146f15a8f9d230fb54f1bf",
+        "bytes": 51418
+      },
+      {
+        "path": "bench/charts/examples-python-runtime.svg",
+        "sha256": "eb632141ec2f183f4883e22c6af9610fac8987b9969739ae8805539350f1334a",
+        "bytes": 94095
+      },
+      {
+        "path": "bench/charts/examples-entry.svg",
+        "sha256": "7a5697c9f6b6d1d03b17a0a4d8af9049f4e6226c976263328ee4c39cf31eb3a1",
+        "bytes": 81049
+      },
+      {
+        "path": "bench/charts/examples-runtime.svg",
+        "sha256": "a91680f1aa78a730c835210f18d39ec556caf93461403ed15ecba90d2cabd685",
+        "bytes": 114684
+      },
+      {
+        "path": "bench/charts/wasmtime-host-runtime.svg",
+        "sha256": "7be07eeb721d2a009f357457aae1d8685ae549eff0f1129eac3d12692936b302",
+        "bytes": 87067
+      },
+      {
+        "path": "bench/charts/wasmtime-host-c-wasm.svg",
+        "sha256": "f9a84e59e4d6639381b9d94cc260320e251a6621079b6e10bcbf0c6c6abefbbb",
+        "bytes": 87464
+      },
+      {
+        "path": "bench/charts/wasmtime-host-preparation.svg",
+        "sha256": "8bcade0216860144eb803ad875ab06deeedca9e74dcceb69444c2d50780900ce",
+        "bytes": 93848
+      },
+      {
+        "path": "bench/charts/compilation.svg",
+        "sha256": "61cd92110222a14318061418de2f648cfbd8f813f174b0c238d37673a8fbbdaf",
+        "bytes": 25587
+      },
+      {
+        "path": "bench/charts/runtime.svg",
+        "sha256": "c86aec0d6c714875b3124b06e8e6ac6ad288a2e80621f368c302ea6477edda0f",
+        "bytes": 47322
+      },
+      {
+        "path": "bench/charts/runtime-targets.svg",
+        "sha256": "1b9ba905f247ad81e2cc1e654904e8152462cce406f6b41c47a36a5ccd5455e4",
+        "bytes": 37753
+      }
+    ],
+    "latest_pointers": [
+      {
+        "path": "bench/results/latest.json",
+        "sha256": "4345585824038f9a4f4c82ede2b12035ad36bc2da15095bdf4a58e4593339c56",
+        "bytes": 175
+      },
+      {
+        "path": "bench/results/examples-latest.json",
+        "sha256": "d3ae1e34d286d358bb05c430f70d6477ae5e8e1a3866b75b854615574f6ca9e9",
+        "bytes": 189
+      },
+      {
+        "path": "bench/results/wasmtime-host-latest.json",
+        "sha256": "a0ea50cd9341aefad55c34f47103af9fe02397434e4ce96791a047088b4d3f5d",
+        "bytes": 180
+      },
+      {
+        "path": "bench/results/runtime-targets-latest.json",
+        "sha256": "eedbf336edfd682849ba347c4325f432c390ee489c92a572e3fbe7c9a81d36a1",
+        "bytes": 568
+      }
+    ],
+    "current_source_tests_ci": [
+      {
+        "path": "compiler/direct_wasm.h",
+        "sha256": "4e6ec6cb352bcac249eed3531ba56c86132bbc53af3b83db8ce3e4fc23ff1932",
+        "bytes": 67022
+      },
+      {
+        "path": "compiler/direct_wasm_emit.h",
+        "sha256": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+        "bytes": 23744
+      },
+      {
+        "path": "compiler/direct_wasm_expr.h",
+        "sha256": "cf706bbae7c164b37b3eef859c68796d63eb8dc4ff2a893559cc79d8b99ee886",
+        "bytes": 125232
+      },
+      {
+        "path": "compiler/direct_wasm_funvals.h",
+        "sha256": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+        "bytes": 13685
+      },
+      {
+        "path": "tests/test_memory_growth_helper.py",
+        "sha256": "73be08b9870d5340517316b9b8f2a25188b3c15c086690be6b70235964bc0980",
+        "bytes": 13549
+      },
+      {
+        "path": "tests/test_named_callback_forwarding.py",
+        "sha256": "bb46d7a2dda6f4aa64a758dca8d293095b6a57958a51d4f1680bd868380d4f76",
+        "bytes": 7138
+      },
+      {
+        "path": "tests/test_function_value_forwarding.py",
+        "sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+        "bytes": 11979
+      },
+      {
+        "path": "scripts/bootstrap.py",
+        "sha256": "22a7562f6975a12932c029e2c4e5548f7fb670b09bff84dfb85a332dd326d1bf",
+        "bytes": 13124
+      },
+      {
+        "path": "oracle/tests/test_bootstrap.py",
+        "sha256": "eff89da6d999c03189dd31e44589882ec0a7a3249bd62ec73b732589b0747413",
+        "bytes": 6857
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "91a05dbcf91e4869c3e926d038a85295c25c6f6457f94e8194a1850461470ace",
+        "bytes": 10923
+      }
+    ]
+  },
+  "must_fix": []
+}

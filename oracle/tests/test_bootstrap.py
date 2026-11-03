@@ -6,8 +6,12 @@ from contextlib import redirect_stdout
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
+import shlex
+import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -89,6 +93,30 @@ class ManagedSource(unittest.TestCase):
         self.assertEqual((updated / "src" / "direct_wasm.h").read_text(), self.header.read_text())
         self.assertEqual((updated / "src" / "main.cpp").stat().st_mtime_ns, old_time)
         self.assertEqual(identity["headers"]["direct_wasm.h"], BOOTSTRAP.digest(self.header))
+
+    @unittest.skipUnless(shutil.which("ninja"), "Ninja is required for incremental build coverage")
+    def test_restoring_an_older_header_rebuilds_the_artifact(self):
+        source, _ = self.prepare()
+        header = source / "src" / "direct_wasm.h"
+        artifact = self.root / "artifact.txt"
+        compiler = self.root / "compile.py"
+        compiler.write_text("from pathlib import Path\nimport sys\nPath(sys.argv[2]).write_bytes(Path(sys.argv[1]).read_bytes())\n")
+        command = shlex.join([sys.executable, str(compiler), str(header), str(artifact)]).replace("$", "$$")
+        def escaped(path):
+            return str(path).replace("$", "$$").replace(" ", "$ ").replace(":", "$:")
+        graph = self.root / "build.ninja"
+        graph.write_text("rule compile\n  command = " + command + "\nbuild " + escaped(artifact) +
+                         ": compile " + escaped(header) + "\n")
+        def build():
+            subprocess.run([shutil.which("ninja"), "-f", str(graph)], cwd=self.root,
+                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        build()
+        self.assertEqual(artifact.read_bytes(), self.header.read_bytes())
+        self.header.write_text("// restored backend\n")
+        os.utime(self.header, ns=(1_000_000_000, 1_000_000_000))
+        self.prepare()
+        build()
+        self.assertEqual(artifact.read_bytes(), self.header.read_bytes())
 
     def test_manual_tracked_edit_is_preserved(self):
         source, _ = self.prepare()

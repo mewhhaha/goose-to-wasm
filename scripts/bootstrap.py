@@ -131,7 +131,9 @@ def prepare_source(args: argparse.Namespace, build: Path) -> tuple[Path, dict]:
             destination = staged / "src" / header.name
             if destination.exists():
                 raise RuntimeError(f"backend header collides with upstream source: {header.name}")
-            shutil.copy2(header, destination)
+            # Changed bytes need a fresh timestamp even when restoring an old
+            # header. Unchanged files recover their prior mtimes below.
+            shutil.copyfile(header, destination)
         regenerate_runtime(staged)
         if identity["patches"] != {name: digest(ROOT / name) for name in patch_names}:
             raise RuntimeError("compiler patches changed while preparing source; run bootstrap again")

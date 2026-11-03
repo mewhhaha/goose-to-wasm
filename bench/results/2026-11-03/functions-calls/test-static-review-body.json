@@ -1,0 +1,149 @@
+{
+  "schema": "goose-functions-grow-body-test-static-review-v1",
+  "status": "passed",
+  "reviewed_utc": "2026-11-03T12:02:29.260482+00:00",
+  "method": "Read actual final tests, compiler print/growth paths, matched-control source and sealed reference selection. Existing test logs inspected; no builds, tests or engines executed by this reviewer.",
+  "decision": "No static blocker in the updated five-test memory suite or matched forwarding comparison. Proceed with already-sealed full qualification; this review does not assert that the complete matrices have passed.",
+  "candidate": {
+    "path": "build/functions-grow/body-growth/bin/goose",
+    "sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+    "bytes": 8189152
+  },
+  "source": [
+    {
+      "path": "build/functions-grow/body-growth/source.json",
+      "sha256": "d85f9df915a734c2569f22aab58707791700c3ef85dbdab130915b48df1b026b",
+      "bytes": 3527
+    },
+    {
+      "path": "build/functions-grow/body-growth/toolchain.json",
+      "sha256": "86385abb24762fc5e6650395e494d2ab71d9b4ae67eea737d8918e2d34fdf955",
+      "bytes": 4403
+    },
+    {
+      "path": "compiler/direct_wasm.h",
+      "sha256": "4e6ec6cb352bcac249eed3531ba56c86132bbc53af3b83db8ce3e4fc23ff1932",
+      "bytes": 67022
+    },
+    {
+      "path": "compiler/direct_wasm_emit.h",
+      "sha256": "ffacbf0e6fd21a9036d0df324a5ad271e0da420b1551af9e9b808c32d52f394e",
+      "bytes": 23744
+    },
+    {
+      "path": "compiler/direct_wasm_expr.h",
+      "sha256": "cf706bbae7c164b37b3eef859c68796d63eb8dc4ff2a893559cc79d8b99ee886",
+      "bytes": 125232
+    },
+    {
+      "path": "compiler/direct_wasm_funvals.h",
+      "sha256": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "bytes": 13685
+    }
+  ],
+  "tests": [
+    {
+      "path": "tests/test_memory_growth_helper.py",
+      "sha256": "73be08b9870d5340517316b9b8f2a25188b3c15c086690be6b70235964bc0980",
+      "bytes": 13549
+    },
+    {
+      "path": "tests/test_named_callback_forwarding.py",
+      "sha256": "bb46d7a2dda6f4aa64a758dca8d293095b6a57958a51d4f1680bd868380d4f76",
+      "bytes": 7138
+    },
+    {
+      "path": "tests/test_function_value_forwarding.py",
+      "sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+      "bytes": 11979
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "91a05dbcf91e4869c3e926d038a85295c25c6f6457f94e8194a1850461470ace",
+      "bytes": 10923
+    }
+  ],
+  "previous_reviews_preserved": [
+    {
+      "path": "build/functions-grow/test-static-review.json",
+      "sha256": "a55c4eb324eae6de1fe7337962003cba706053a27da082381c3023cd683687dd",
+      "bytes": 6744
+    },
+    {
+      "path": "build/functions-grow/static-review-body.json",
+      "sha256": "509f8062e087b7dac2d5202b1593af6d7d4d0e1733720c5fd4498d35ac5be9dd",
+      "bytes": 13047
+    }
+  ],
+  "memory_suite": {
+    "shape_coverage": "Empty and fixed-frame-only modules require no shared helper; a private slice-print body requires it; a ULEB case checks coexistence with the read helper. Both engines instantiate and run these module shapes.",
+    "inline_frames": "Real frame sizes 64000,65536,131072 produce values 10 and pages 1,1,2,3. Candidate and old 19d are checked at O0/O2 with debug both off and on.",
+    "body_fixture": "A retained recursive private attempt(xs:u8[:])->i64 stores observed=7 and prints the slice. Print snapshots the slice through Dynamic before memory.copy, so a sufficiently long packed view reaches body growth before copying or output.",
+    "test_only_export": "expose_attempt adds exactly one function export entry in section 7 using the already-emitted attempt index. Its prefix/suffix splice leaves every other section, function index, signature and body unchanged. The private packed-i64 ABI is used only by the test. Production public-slice ABI validation is unchanged.",
+    "failure": "The same expected Abort message, source line 4, state 7, reentrant peek 8, one-page memory and final trap are required for both inline-frame and shared-body fixtures. Wasmtime store limiting and exact max16-to-max1 rewriting force growth failure; V8 and Wasmtime exercise the rewritten module. The helper must have returned before the caller Abort/trap stack.",
+    "success": "The body fixture also runs with ordinary max16 memory, checking return 7, state 7, peek 8, two pages and no Abort in both engines and both compilers. Printing imports are stubs: this test covers growth/copy completion and state, not printed payload bytes.",
+    "unsigned_arithmetic": "The actual body-generated helper is extracted. Only its single two-byte memory.grow0 becomes a two-byte imported call0; both engines compare recorded deltas for 65537,131072,0x7fffffff,0x80000000,0xffffffff against unbounded-integer ceil division. The remaining emitted arithmetic and failure-result comparison are preserved.",
+    "limits": "The high-u32 probe does not allocate 4 GiB. The raw packed view is a test-only low-level invocation, not a claim that public source exports accept slices. Failure/inline tests cover all four O0/O2/debug combinations; body success and arithmetic use the default O2/nondebug shape."
+  },
+  "forwarding_control": {
+    "compiler": {
+      "path": "build/functions-grow/qualification-body/named-control/build/bin/goose",
+      "sha256": "2cffc0cdea2d5f8c6fcaaddc99b6a846a816604755f3e64cdb46ad57abed3e52",
+      "bytes": 8189152
+    },
+    "source_manifest": {
+      "path": "build/functions-grow/qualification-body/named-control/build/source.json",
+      "sha256": "be35b1e09b1ed9acf4201cc70cc8ea3f3789dab97e1d4054bf58cbbd699276c4",
+      "bytes": 3527
+    },
+    "toolchain_match": {
+      "path": "build/functions-grow/qualification-body/named-control/build/control-toolchain-match.json",
+      "sha256": "de034e1419626e63105d593e6b4f658641f7135febc919c4c71b6c913827dce0",
+      "bytes": 1367
+    },
+    "patch": {
+      "path": "build/functions-grow/qualification-body/named-control/disable-named-tail-forwarding.patch",
+      "sha256": "aa8f964153f9f55b14cb1b951e9b97b8149b5e1174e4ba2875c39dbd0f4bc869",
+      "bytes": 486
+    },
+    "verified_scope": "All 32 header bindings and both patches were checked. Only direct_wasm_funvals.h differs, by inserting return nullptr at the ordinary named-tail branch. The body-growth writer and prior function-value forwarding are unchanged.",
+    "test_role": "This matched control isolates named-tail contraction for negative byte-identity checks. Old19d remains the observable memory-growth reference, rather than serving as a byte-identity reference for changed growth lowering."
+  },
+  "sealed_reference_selection": {
+    "path": "build/functions-grow/qualification-body/attempt-1/selected.json",
+    "sha256": "51ed9211cfbd743e096193e583849bd4a3d1bd9358e6c0fab1f5e82bcccac587",
+    "bytes": 1510
+  },
+  "existing_execution_evidence": {
+    "logs": [
+      {
+        "path": "build/functions-grow/test-development/memory-body-attempt-1.log",
+        "sha256": "b6645e5046ef1edf3a5f76e5c722cb6fb9440fb594aef75df4856f0b162f40d4",
+        "bytes": 103
+      },
+      {
+        "path": "build/functions-grow/test-development/named-body-control.log",
+        "sha256": "6682a80de42f40f8fa1b8bf700d9289f36323806645900f4e78279ce99922dc5",
+        "bytes": 103
+      },
+      {
+        "path": "build/functions-grow/test-development/fv-body-control.log",
+        "sha256": "acef440245126019869260c50b6974721e3ef83a72ddf6a98f918f9cdadd8dcb",
+        "bytes": 102
+      }
+    ],
+    "saved_memory_test": {
+      "path": "build/functions-grow/test-development/memory-body-attempt-1.py",
+      "sha256": "73be08b9870d5340517316b9b8f2a25188b3c15c086690be6b70235964bc0980",
+      "bytes": 13549
+    },
+    "results": {
+      "memory": "5 tests passed in 1.207s",
+      "named_forwarding": "4 tests passed in 23.575s",
+      "prior_function_value_forwarding": "3 tests passed in 30.648s"
+    },
+    "attribution": "Coordinator-owned existing executions only. Plain unittest logs do not independently encode the command lines; the sealed selection separately binds the matched compiler references."
+  },
+  "measurement_boundary": "All-site 864 measurements and qualification remain separate rejected-candidate evidence. This static test review makes no runtime performance claim for 353.",
+  "must_fix": []
+}

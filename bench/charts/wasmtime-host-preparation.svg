@@ -8,9 +8,9 @@
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>Wasmtime preparation</dc:title>
-    <dc:description>{"configuration": {"cc": "gcc", "emcc": "emcc", "example_report": "/home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/report.json", "examples": [], "goose": "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/goose", "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime", "machine_label": "AMD Ryzen 7 3800X, shared desktop host", "node": "node", "output_dir": "/home/jacobt/src/goose-to-wasm/build/functions-next/current/host", "prepare_samples": 5, "samples": 15, "smoke": false, "warmups": 1}, "environment": {"compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "cpu_flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es", "emcc": {"command": ["emcc", "--version"], "exit_code": 0, "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "host_controls": {"LD_LIBRARY_PATH": null, "LD_PRELOAD": null, "OMP_NUM_THREADS": null, "RAYON_NUM_THREADS": null, "WASMTIME_BACKTRACE_DETAILS": null}, "input_sha256": {"bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f", "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d", "oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086", "scripts/goose_wasm.py": "fb6319f181316f9d33cc6a6dfe58259cb234046861aa97c5e3ad09269824977d", "scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44", "scripts/run_wasmtime.py": "439bd31e947ed48c9630ab4a9a95a24d5d4634181ef6ee8dd6370d3858fcb230"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "AMD Ryzen 7 3800X, shared desktop host", "toolchain_pin": {"emscripten": "6.0.13", "emsdk_repository": "https://github.com/emscripten-core/emsdk.git", "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154", "minimum_cmake": "3.27", "minimum_python": "3.10", "node": "24.22.1", "patches": ["oracle/patches/0001-webassembly-target.patch", "patches/direct-target.patch"], "repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569", "schema": "goose-to-wasm-toolchain-v1", "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}, "host_build": {"command": ["/usr/bin/clang++", "-std=c++20", "-O2", "-Wall", "-Wextra", "-Werror", "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "-Wl,--gc-sections", "-static-libstdc++", "-static-libgcc", "-lpthread", "-ldl", "-lm", "-o", "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"], "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n", "host_sha256": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb", "input_sha256": {"/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h": "025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09", "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "263acca3771c73dcc9a84d8e235ef71d7cc0af5936b85ae308383481aadec507", "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5", "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2"}, "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "linkage": "sdk-static", "schema": "goose-native-wasmtime-host-v1", "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz", "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "static_cxx_runtime": true, "supported_modes": ["ordinary", "precompiled"], "target": "linux-x86_64", "version": "50.0.1"}, "method": "Fresh ordinary launch-to-exit samples with checked golden bytes. Python and native Wasmtime share the pinned version; their library bytes and build/linkage identities are recorded separately and may differ. Native serial changes only compiler parallelism, not Wasm threads. Precompiled uses the native default configuration and an explicitly prepared, trusted local artifact. Preparation includes fresh host launch, Wasm compilation, serialization and file writing. Guest source, Wasm and native-C artifact bytes are unchanged. Phases run sequentially; runtime modes are shuffled within each example/round block. Separate preparation commands never overlap runtime sampling. No headline runner writes a timing file.", "note": "Complete preparation cost for trusted native artifacts; guest execution is separate. Goose compilation is unchanged and separate. Wasmtime 50.0.1 \u00b7 same library bytes as runtime \u00b7 parallelism changes Wasm compilation only."}</dc:description>
+    <dc:description>{"configuration": {"cc": "gcc", "emcc": "emcc", "example_report": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/report.json", "examples": [], "goose": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose", "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime", "machine_label": "AMD Ryzen 7 3800X, shared desktop host", "node": "node", "output_dir": "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/host", "prepare_samples": 5, "samples": 15, "smoke": false, "warmups": 1}, "environment": {"compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "cpu_flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es", "emcc": {"command": ["emcc", "--version"], "exit_code": 0, "output": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a)\nCopyright (C) 2026 the Emscripten authors (see AUTHORS.txt)\nThis is free and open source software under the MIT license.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "host_controls": {"LD_LIBRARY_PATH": null, "LD_PRELOAD": null, "OMP_NUM_THREADS": null, "RAYON_NUM_THREADS": null, "WASMTIME_BACKTRACE_DETAILS": null}, "input_sha256": {"bench/benchmark.py": "98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f", "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d", "oracle/goose_wasm.py": "617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086", "scripts/goose_wasm.py": "fb6319f181316f9d33cc6a6dfe58259cb234046861aa97c5e3ad09269824977d", "scripts/run_wasm.mjs": "dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44", "scripts/run_wasmtime.py": "439bd31e947ed48c9630ab4a9a95a24d5d4634181ef6ee8dd6370d3858fcb230"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "AMD Ryzen 7 3800X, shared desktop host", "toolchain_pin": {"emscripten": "6.0.13", "emsdk_repository": "https://github.com/emscripten-core/emsdk.git", "emsdk_revision": "d7b4130688bfa348392b921ab04015aa15c4f154", "minimum_cmake": "3.27", "minimum_python": "3.10", "node": "24.22.1", "patches": ["oracle/patches/0001-webassembly-target.patch", "patches/direct-target.patch"], "repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569", "schema": "goose-to-wasm-toolchain-v1", "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}, "host_build": {"command": ["/usr/bin/clang++", "-std=c++20", "-O2", "-Wall", "-Wextra", "-Werror", "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "-Wl,--gc-sections", "-static-libstdc++", "-static-libgcc", "-lpthread", "-ldl", "-lm", "-o", "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"], "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n", "host_sha256": "40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb", "input_sha256": {"/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h": "025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09", "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "263acca3771c73dcc9a84d8e235ef71d7cc0af5936b85ae308383481aadec507", "/home/jacobt/src/goose-to-wasm/toolchain.json": "44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5", "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2"}, "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "linkage": "sdk-static", "schema": "goose-native-wasmtime-host-v1", "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz", "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "static_cxx_runtime": true, "supported_modes": ["ordinary", "precompiled"], "target": "linux-x86_64", "version": "50.0.1"}, "method": "Fresh ordinary launch-to-exit samples with checked golden bytes. Python and native Wasmtime share the pinned version; their library bytes and build/linkage identities are recorded separately and may differ. Native serial changes only compiler parallelism, not Wasm threads. Precompiled uses the native default configuration and an explicitly prepared, trusted local artifact. Preparation includes fresh host launch, Wasm compilation, serialization and file writing. Guest source, Wasm and native-C artifact bytes are unchanged. Phases run sequentially; runtime modes are shuffled within each example/round block. Separate preparation commands never overlap runtime sampling. No headline runner writes a timing file.", "note": "Complete preparation cost for trusted native artifacts; guest execution is separate. Goose compilation is unchanged and separate. Wasmtime 50.0.1 \u00b7 same library bytes as runtime \u00b7 parallelism changes Wasm compilation only."}</dc:description>
     <dc:format>image/svg+xml</dc:format>
-    <dc:source>/home/jacobt/src/goose-to-wasm/bench/results/2026-11-03/functions-forwarding/host.json sha256:1d4426630af05470f129d2249d417c094a1481d60ced709b5210a123dd19adf1; /home/jacobt/src/goose-to-wasm/bench/wasmtime_host_charts.py sha256:053da677cedb55a81580f5c21b343e27ad6b796e82aa91a5eb6a8da05813a810; /home/jacobt/src/goose-to-wasm/bench/example_charts.py sha256:b72c61946f4a9d86321dd49d4aab8d10f69d066356e4664a08652f4ee51c6846; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /home/jacobt/src/goose-to-wasm/bench/benchmark.py sha256:98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f; /home/jacobt/src/goose-to-wasm/bench/examples.py sha256:495601b9d40e33f784fa01a050749eb1831fa62454f1f058dc0a005da3db7c2a; /home/jacobt/src/goose-to-wasm/bench/wasmtime_host.py sha256:4175adebe4c43aae6a3afb2526ef0f94e47f54fc43150867f13335ef08812696; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime sha256:40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json sha256:64c9a495d77916bfc86c1698511330586ffc780e0c48e9ce84832221c68d8020; /home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc sha256:33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/errors/c-wasm/0/program.wasm sha256:71ee12b8a0d7fc7c50daeddbd0a9e0a719afda6c2e8da68205e280eea8688963; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/errors/direct/2/program.wasm sha256:f516a51046b7523e61c63cf38101b841b5ba02203012eb4525c2f7064930e57d; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/errors/native/1/program.bin sha256:3722b2a5bccf0e4c450f268b2e0085fc366c6b02de29637050992872e3e8b0cc; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/functions/c-wasm/4/program.wasm sha256:0f69bdfd50a8e09d9a9ea4615967c3c7e793a03d6d219bd44d908c7c7f6f7f48; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/functions/direct/3/program.wasm sha256:ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/functions/native/3/program.bin sha256:98b53f9578464a8eb5e1fb9e7f8fa734c653c7bb86b584140fab1ff908ca6404; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/life/c-wasm/0/program.wasm sha256:8f37c495f753073bb2d54dd515c081686f16289059adf688984096ede813d091; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/life/direct/1/program.wasm sha256:0103615a2c8d1a4014f37aeb7ac54883afaf4fabc195175778a75e32640845e0; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/life/native/0/program.bin sha256:1db977e97a62132939eef83210acc6a7a9aef73e3dc04cc017cad2d24e71fd7c; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/maze/c-wasm/4/program.wasm sha256:8d951f07f744e6f74c80fa772967a9bb6ef1d276ac74814dc8e258e35ff30271; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/maze/direct/2/program.wasm sha256:f7e3a9a7209c7d2d48ddd56b955d96482812a3432c3e149308568b5e8e37a8d9; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/maze/native/4/program.bin sha256:9cab1727cea0052e9260a17fd2a92a5f88dfee62986c51da41d48d3b854a47d1; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sieve/c-wasm/2/program.wasm sha256:d99ecf31c05d4c39197057d1c795aca6ea010327b968d8ad6d08b1bb5e5401e5; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sieve/direct/2/program.wasm sha256:92f659ba5fb3c7fc7ffb45c0071da6fae97d03aa565b37eac07d7f9be0136756; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sieve/native/3/program.bin sha256:f27e5ac6faf7c7564d71e051c81869bcd1a4256ee30c72129afb4ce3763eeb40; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sorting/c-wasm/0/program.wasm sha256:0bc6c5b68a7039e035b947d3bbfdbe1201bb8ec3dcb135fe2dbe697a00c12c38; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sorting/direct/2/program.wasm sha256:0d15642f5ae5245452cc9adb410073df4b6c78c26476cf2b8f15ea7353f9df48; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sorting/native/4/program.bin sha256:eac4a6a1ff4075e2d4d5c40dca9ecada09f319a16abe7f883bf7619fda42745b; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/squares/c-wasm/3/program.wasm sha256:c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/squares/direct/2/program.wasm sha256:dffba2d34aed1d5534c275c9abbaafc6acbc66d708ed7974eed80708dfde392f; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/squares/native/2/program.bin sha256:0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sudoku/c-wasm/3/program.wasm sha256:91880be16ded9ed64f78e0184b58a11091e44701c77933fbd6192638f0fa1745; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sudoku/direct/0/program.wasm sha256:0d962d75645688d732ce40636888153127f37e3797304642b0998d6ee7beb31a; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/sudoku/native/0/program.bin sha256:0b3a3eaaa36ed309f0f0d0ca729f50fecfee5e4eaf1f96f8d0defaa5aab163dd; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/tour/c-wasm/4/program.wasm sha256:37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/tour/direct/0/program.wasm sha256:74d37f18104f2f07465c226ef9302f1f45be23c37a8eb615ad696ef1b5eed816; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/tour/native/2/program.bin sha256:f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/vm/c-wasm/1/program.wasm sha256:601c85a7cb61f48b413a78f5a72674fa1e3ffaeeac7d7f98cd073774e372d061; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/vm/direct/0/program.wasm sha256:28657c85da7bc973d6a4d622bf8e0a1a76c97ab5cf281bbc9e4caa614ba32743; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/compile/vm/native/3/program.bin sha256:cb36c744c176b4e72281dda6fc78d63179fb1e6f0631f428eff5ea377fc7ace5; /home/jacobt/src/goose-to-wasm/build/functions-next/current/examples/report.json sha256:536b3e4c30a89c84ac334a9f6c21c0a8ca9ac05e1be40db212d7a9fcebc43f9d; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz sha256:e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h sha256:33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h sha256:37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h sha256:c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h sha256:10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h sha256:90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h sha256:a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h sha256:eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h sha256:7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h sha256:c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h sha256:aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h sha256:5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h sha256:caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h sha256:178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h sha256:9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h sha256:89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h sha256:525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h sha256:04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h sha256:29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h sha256:08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h sha256:db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h sha256:025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h sha256:214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h sha256:c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h sha256:de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h sha256:6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h sha256:0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h sha256:7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h sha256:37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h sha256:9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h sha256:5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h sha256:4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h sha256:3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h sha256:95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h sha256:8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h sha256:92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h sha256:521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h sha256:e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h sha256:6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h sha256:1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h sha256:0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h sha256:e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h sha256:47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h sha256:8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h sha256:ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h sha256:16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h sha256:fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h sha256:33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h sha256:7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648; /home/jacobt/src/goose-to-wasm/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json sha256:1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110; /home/jacobt/src/goose-to-wasm/host/wasmtime.cpp sha256:c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09; /home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py sha256:617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086; /home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py sha256:263acca3771c73dcc9a84d8e235ef71d7cc0af5936b85ae308383481aadec507; /home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py sha256:fb6319f181316f9d33cc6a6dfe58259cb234046861aa97c5e3ad09269824977d; /home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs sha256:dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44; /home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py sha256:439bd31e947ed48c9630ab4a9a95a24d5d4634181ef6ee8dd6370d3858fcb230; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5; /usr/bin/clang-23 sha256:3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a sha256:9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a sha256:ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a sha256:96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2; native host sha256:40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb; Wasmtime 50.0.1 /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648</dc:source>
+    <dc:source>/home/jacobt/src/goose-to-wasm/bench/results/2026-11-03/functions-calls/host.json sha256:dfeaf36b72f9c197cc05b3b858c70caec24bbc3fd7ff647ed83ac8f56be90dbc; /home/jacobt/src/goose-to-wasm/bench/wasmtime_host_charts.py sha256:053da677cedb55a81580f5c21b343e27ad6b796e82aa91a5eb6a8da05813a810; /home/jacobt/src/goose-to-wasm/bench/example_charts.py sha256:b72c61946f4a9d86321dd49d4aab8d10f69d066356e4664a08652f4ee51c6846; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /home/jacobt/src/goose-to-wasm/bench/benchmark.py sha256:98f099abb6b3cf8ece750c2166610790f1d745bb0497a7cc00326763e2dd016f; /home/jacobt/src/goose-to-wasm/bench/examples.py sha256:495601b9d40e33f784fa01a050749eb1831fa62454f1f058dc0a005da3db7c2a; /home/jacobt/src/goose-to-wasm/bench/wasmtime_host.py sha256:4175adebe4c43aae6a3afb2526ef0f94e47f54fc43150867f13335ef08812696; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime sha256:40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json sha256:64c9a495d77916bfc86c1698511330586ffc780e0c48e9ce84832221c68d8020; /home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten/emcc sha256:33857101ce8e022ca9c427422154a11c21f03e03439ab2baa1690cbbcc829343; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/errors/c-wasm/0/program.wasm sha256:d94b0791abddecc61fd3691330e018a3783e81fa9fec01387bee7467bd7774e3; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/errors/direct/2/program.wasm sha256:452d36fbea81bae0649bb5f460c6a73c350cea2d76055f6969cbe7409c5b565f; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/errors/native/1/program.bin sha256:b18aa4da60aaa2764ccdad2c4aac6bc32da0ff7ebb8a3e89ed030e77a514e3ad; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/functions/c-wasm/4/program.wasm sha256:0f69bdfd50a8e09d9a9ea4615967c3c7e793a03d6d219bd44d908c7c7f6f7f48; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/functions/direct/3/program.wasm sha256:89ae88e0c71b8d6ce9f3f56abcfec7a6001db087e364f36bff36ff1fd74e6e72; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/functions/native/3/program.bin sha256:e070d0eb8d296047ae4a7f69ace7b2b6514561bf4821b9e2961267f954a08cfd; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/life/c-wasm/0/program.wasm sha256:8f37c495f753073bb2d54dd515c081686f16289059adf688984096ede813d091; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/life/direct/1/program.wasm sha256:af06e91d661188923b4009d5784ea16960fae5cf447f5f9f5271ccfbaf6821c9; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/life/native/0/program.bin sha256:1db977e97a62132939eef83210acc6a7a9aef73e3dc04cc017cad2d24e71fd7c; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/maze/c-wasm/4/program.wasm sha256:61bb932d30b88fb1b462fdbc89e1b346703670a941baea504047532015cd4261; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/maze/direct/2/program.wasm sha256:dd48118b406f3904d8edb1a02edebeeba0785cd3430d7fb29adb185a67ebfc48; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/maze/native/4/program.bin sha256:162f2dd64ae1d8745819f53db3fa940e47bd6dda13a919a96f14658fc319bba9; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sieve/c-wasm/2/program.wasm sha256:d99ecf31c05d4c39197057d1c795aca6ea010327b968d8ad6d08b1bb5e5401e5; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sieve/direct/2/program.wasm sha256:c7fa6420f1634263197567b262a415f7fa89a556da535c0d2651065f0f8d75e8; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sieve/native/3/program.bin sha256:f27e5ac6faf7c7564d71e051c81869bcd1a4256ee30c72129afb4ce3763eeb40; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sorting/c-wasm/0/program.wasm sha256:f4bc6a66407d5b60f486bd25e303265f2680b2ca0e7e3366b93ba5488adce2ea; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sorting/direct/2/program.wasm sha256:ea1232c5abeb93fbbf2baecf171bebc417ee74deadaed856beede2ea568adb5e; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sorting/native/4/program.bin sha256:0c92fe0ef16e0be544e84c4161f665ccce08328ee70e43ced7fa2f65e6e37785; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/squares/c-wasm/3/program.wasm sha256:c57bc10270f1374b2102552d0c3222a74ce674d10cf9ac875719f31d93f0e987; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/squares/direct/2/program.wasm sha256:6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/squares/native/2/program.bin sha256:0c9e57ab1897fe0feb5357f8a92be0d9adea49c7cc6fcc134625f0f001228141; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sudoku/c-wasm/3/program.wasm sha256:91880be16ded9ed64f78e0184b58a11091e44701c77933fbd6192638f0fa1745; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sudoku/direct/0/program.wasm sha256:1f8b9fad87366f937db0ef062c455499c8cf5e502757456b1a1803064a04c3d0; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/sudoku/native/0/program.bin sha256:0b3a3eaaa36ed309f0f0d0ca729f50fecfee5e4eaf1f96f8d0defaa5aab163dd; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/tour/c-wasm/4/program.wasm sha256:37ad640f605eaec3639b3604af263f9924d73e9f7661d248ee5cb5d60b97b78e; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/tour/direct/0/program.wasm sha256:abcdbfb262f0c8cb481aa9fc4430a3bbdde518081d6639d38d06710ec5e314a2; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/tour/native/2/program.bin sha256:f81187482d596f15cf75f648645037e0305a23e9bc5b2e0012a46c4cacdab3f8; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/vm/c-wasm/1/program.wasm sha256:601c85a7cb61f48b413a78f5a72674fa1e3ffaeeac7d7f98cd073774e372d061; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/vm/direct/0/program.wasm sha256:57e837325fcbb456f996b278a87c750a6e635a4cd77dca2e6d7323365ed65995; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/compile/vm/native/3/program.bin sha256:cb36c744c176b4e72281dda6fc78d63179fb1e6f0631f428eff5ea377fc7ace5; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-current/examples/report.json sha256:6152728bcc9f30667d035a4dad5cbb5526f5b30c976401ead57e143810d87e8b; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz sha256:e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h sha256:33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h sha256:37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h sha256:c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h sha256:10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h sha256:90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h sha256:a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h sha256:eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h sha256:7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h sha256:c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h sha256:aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h sha256:5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h sha256:caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h sha256:178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h sha256:9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h sha256:89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h sha256:525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h sha256:04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h sha256:29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h sha256:08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h sha256:db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h sha256:025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h sha256:214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h sha256:c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h sha256:de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h sha256:6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h sha256:0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h sha256:7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h sha256:37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h sha256:9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h sha256:5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h sha256:4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h sha256:3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h sha256:95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h sha256:8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h sha256:92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h sha256:521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h sha256:e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h sha256:6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h sha256:1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h sha256:0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h sha256:e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h sha256:47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h sha256:8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h sha256:ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h sha256:16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h sha256:fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h sha256:33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h sha256:7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648; /home/jacobt/src/goose-to-wasm/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json sha256:1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110; /home/jacobt/src/goose-to-wasm/host/wasmtime.cpp sha256:c6fc0f1c45f75b980d3ca71fbb2332b8a5693834a5c5fb680f0c2c2ee0dd5e09; /home/jacobt/src/goose-to-wasm/oracle/goose_wasm.py sha256:617b96bab2fcd7e1cc01edc5bd205ebe537b7b9f1069f77a971b5a02ea298086; /home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py sha256:263acca3771c73dcc9a84d8e235ef71d7cc0af5936b85ae308383481aadec507; /home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py sha256:fb6319f181316f9d33cc6a6dfe58259cb234046861aa97c5e3ad09269824977d; /home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs sha256:dbc9fba5acbfd4e9de0b86de58ffb3da2df921d958263f117886180dad85eb44; /home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py sha256:439bd31e947ed48c9630ab4a9a95a24d5d4634181ef6ee8dd6370d3858fcb230; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:44f990394c3a9f612d72001e9b09b7442898f1bebaccae603ee0b472b0a905b5; /usr/bin/clang-23 sha256:3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a sha256:9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a sha256:ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a sha256:96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2; native host sha256:40bb4d4ed5e46f0e7786bd084f2741d8ccb801523f9dc6e87b0474a69450a8fb; Wasmtime 50.0.1 /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648</dc:source>
     <dc:creator>
      <cc:Agent>
       <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
@@ -105,515 +105,497 @@ z
    <g id="matplotlib.axis_2">
     <g id="ytick_1">
      <g id="line2d_11">
-      <path d="M 86.4 405.073752
-L 1134.72 405.073752
+      <path d="M 86.4 338.39538
+L 1134.72 338.39538
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_12"/>
      <g id="text_11">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="408.872581" transform="rotate(-0 78.4 408.872581)">1</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="342.194208" transform="rotate(-0 78.4 342.194208)">10</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_13">
-      <path d="M 86.4 334.067487
-L 1134.72 334.067487
+      <path d="M 86.4 264.03019
+L 1134.72 264.03019
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_14"/>
      <g id="text_12">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="337.866316" transform="rotate(-0 78.4 337.866316)">10</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="267.829018" transform="rotate(-0 78.4 267.829018)">100</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_15">
-      <path d="M 86.4 263.061222
-L 1134.72 263.061222
+      <path d="M 86.4 189.665
+L 1134.72 189.665
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_16"/>
      <g id="text_13">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="266.86005" transform="rotate(-0 78.4 266.86005)">100</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="193.463828" transform="rotate(-0 78.4 193.463828)">1e+03</text>
      </g>
     </g>
     <g id="ytick_4">
      <g id="line2d_17">
-      <path d="M 86.4 192.054957
-L 1134.72 192.054957
-" clip-path="url(#p8262be6925)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_18"/>
-     <g id="text_14">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="195.853785" transform="rotate(-0 78.4 195.853785)">1e+03</text>
-     </g>
-    </g>
-    <g id="ytick_5">
-     <g id="line2d_19">
       <defs>
        <path id="md84019238d" d="M 0 0
 L -2 0
 " style="stroke: #475569; stroke-width: 0.6"/>
       </defs>
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="408.322821" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="390.374417" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#md84019238d" x="86.4" y="377.279357" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_6">
-     <g id="line2d_20">
+     <g id="line2d_19">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="383.698737" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="367.988264" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_7">
-     <g id="line2d_21">
+     <g id="line2d_20">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="371.195154" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="360.781533" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_8">
-     <g id="line2d_22">
+     <g id="line2d_21">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="362.323721" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="354.893204" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_9">
-     <g id="line2d_23">
+     <g id="line2d_22">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="355.442503" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="349.914694" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_10">
-     <g id="line2d_24">
+     <g id="line2d_23">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="349.820139" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="345.602111" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_11">
-     <g id="line2d_25">
+     <g id="line2d_24">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="345.066497" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="341.798144" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_12">
-     <g id="line2d_26">
+     <g id="line2d_25">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="340.948705" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="316.009227" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_13">
-     <g id="line2d_27">
+     <g id="line2d_26">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="337.316556" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="302.914167" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_14">
-     <g id="line2d_28">
+     <g id="line2d_27">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="312.692472" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="293.623074" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_15">
-     <g id="line2d_29">
+     <g id="line2d_28">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="300.188889" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="286.416343" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_16">
-     <g id="line2d_30">
+     <g id="line2d_29">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="291.317456" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="280.528014" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_17">
-     <g id="line2d_31">
+     <g id="line2d_30">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="284.436238" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="275.549503" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_18">
-     <g id="line2d_32">
+     <g id="line2d_31">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="278.813873" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="271.236921" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_19">
-     <g id="line2d_33">
+     <g id="line2d_32">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="274.060232" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="267.432954" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_20">
-     <g id="line2d_34">
+     <g id="line2d_33">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="269.94244" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="241.644037" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_21">
-     <g id="line2d_35">
+     <g id="line2d_34">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="266.310291" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="228.548977" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_22">
-     <g id="line2d_36">
+     <g id="line2d_35">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="241.686207" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="219.257884" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_23">
-     <g id="line2d_37">
+     <g id="line2d_36">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="229.182624" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="212.051152" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_24">
-     <g id="line2d_38">
+     <g id="line2d_37">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="220.311191" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="206.162824" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_25">
-     <g id="line2d_39">
+     <g id="line2d_38">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="213.429973" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="201.184313" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_26">
-     <g id="line2d_40">
+     <g id="line2d_39">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="207.807608" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="196.871731" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_27">
-     <g id="line2d_41">
+     <g id="line2d_40">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="203.053967" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="193.067764" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="ytick_28">
-     <g id="line2d_42">
-      <g>
-       <use xlink:href="#md84019238d" x="86.4" y="198.936175" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
-      </g>
-     </g>
-    </g>
-    <g id="ytick_29">
-     <g id="line2d_43">
-      <g>
-       <use xlink:href="#md84019238d" x="86.4" y="195.304026" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
-      </g>
-     </g>
-    </g>
-    <g id="text_15">
+    <g id="text_14">
      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #475569" x="32.377344" y="294.398491" transform="rotate(-90 32.377344 294.398491)">milliseconds · logarithmic scale</text>
     </g>
    </g>
    <g id="patch_3">
     <path d="M 108.736482 410.956981
 L 140.871122 410.956981
-L 140.871122 370.869863
-L 108.736482 370.869863
+L 140.871122 371.084773
+L 108.736482 371.084773
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_4">
     <path d="M 212.530541 410.956981
 L 244.665182 410.956981
-L 244.665182 286.480178
-L 212.530541 286.480178
+L 244.665182 286.343536
+L 212.530541 286.343536
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_5">
     <path d="M 316.3246 410.956981
 L 348.459241 410.956981
-L 348.459241 312.96945
-L 316.3246 312.96945
+L 348.459241 318.511589
+L 316.3246 318.511589
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_6">
     <path d="M 420.11866 410.956981
 L 452.253301 410.956981
-L 452.253301 325.033491
-L 420.11866 325.033491
+L 452.253301 328.969793
+L 420.11866 328.969793
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_7">
     <path d="M 523.912719 410.956981
 L 556.04736 410.956981
-L 556.04736 335.999707
-L 523.912719 335.999707
+L 556.04736 343.981554
+L 523.912719 343.981554
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_8">
     <path d="M 627.706779 410.956981
 L 659.841419 410.956981
-L 659.841419 311.3564
-L 627.706779 311.3564
+L 659.841419 315.577889
+L 627.706779 315.577889
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_9">
     <path d="M 731.500838 410.956981
 L 763.635479 410.956981
-L 763.635479 348.801419
-L 731.500838 348.801419
+L 763.635479 347.268713
+L 731.500838 347.268713
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_10">
     <path d="M 835.294897 410.956981
 L 867.429538 410.956981
-L 867.429538 332.574902
-L 835.294897 332.574902
+L 867.429538 335.930998
+L 835.294897 335.930998
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_11">
     <path d="M 939.088957 410.956981
 L 971.223598 410.956981
-L 971.223598 317.975899
-L 939.088957 317.975899
+L 971.223598 307.267149
+L 939.088957 307.267149
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_12">
     <path d="M 1042.883016 410.956981
 L 1075.017657 410.956981
-L 1075.017657 325.177038
-L 1042.883016 325.177038
+L 1075.017657 323.804357
+L 1042.883016 323.804357
 z
 " clip-path="url(#p8262be6925)" style="fill: #087f8c"/>
    </g>
    <g id="patch_13">
     <path d="M 146.102343 410.956981
 L 178.236984 410.956981
-L 178.236984 377.078383
-L 146.102343 377.078383
+L 178.236984 375.475768
+L 146.102343 375.475768
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_14">
     <path d="M 249.896402 410.956981
 L 282.031043 410.956981
-L 282.031043 297.197077
-L 249.896402 297.197077
+L 282.031043 301.321079
+L 249.896402 301.321079
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_15">
     <path d="M 353.690462 410.956981
 L 385.825103 410.956981
-L 385.825103 278.22804
-L 353.690462 278.22804
+L 385.825103 287.360867
+L 353.690462 287.360867
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_16">
     <path d="M 457.484521 410.956981
 L 489.619162 410.956981
-L 489.619162 293.469244
-L 457.484521 293.469244
+L 489.619162 294.906547
+L 457.484521 294.906547
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_17">
     <path d="M 561.278581 410.956981
 L 593.413221 410.956981
-L 593.413221 341.141813
-L 561.278581 341.141813
+L 593.413221 345.942649
+L 561.278581 345.942649
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_18">
     <path d="M 665.07264 410.956981
 L 697.207281 410.956981
-L 697.207281 293.902332
-L 665.07264 293.902332
+L 697.207281 296.817165
+L 665.07264 296.817165
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_19">
     <path d="M 768.866699 410.956981
 L 801.00134 410.956981
-L 801.00134 325.100757
-L 768.866699 325.100757
+L 801.00134 339.520614
+L 768.866699 339.520614
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_20">
     <path d="M 872.660759 410.956981
 L 904.7954 410.956981
-L 904.7954 316.711769
-L 872.660759 316.711769
+L 904.7954 323.165422
+L 872.660759 323.165422
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_21">
     <path d="M 976.454818 410.956981
 L 1008.589459 410.956981
-L 1008.589459 306.99556
-L 976.454818 306.99556
+L 1008.589459 303.151666
+L 976.454818 303.151666
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="patch_22">
     <path d="M 1080.248878 410.956981
 L 1112.383518 410.956981
-L 1112.383518 302.256217
-L 1080.248878 302.256217
+L 1112.383518 322.674704
+L 1080.248878 322.674704
 z
 " clip-path="url(#p8262be6925)" style="fill: #ce862a"/>
    </g>
    <g id="LineCollection_1">
-    <path d="M 124.803802 375.926013
-L 124.803802 366.527122
+    <path d="M 124.803802 377.172493
+L 124.803802 365.964589
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 228.597861 294.977791
-L 228.597861 279.825447
+    <path d="M 228.597861 291.635187
+L 228.597861 281.798075
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 332.391921 314.40283
-L 332.391921 311.599746
+    <path d="M 332.391921 321.633242
+L 332.391921 315.665248
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 436.18598 326.86185
-L 436.18598 323.307493
+    <path d="M 436.18598 329.597863
+L 436.18598 328.353704
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 539.98004 340.583226
-L 539.98004 332.010125
+    <path d="M 539.98004 350.690686
+L 539.98004 338.42927
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 643.774099 313.945717
-L 643.774099 308.967756
+    <path d="M 643.774099 323.480782
+L 643.774099 309.233652
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 747.568158 352.111318
-L 747.568158 345.812598
+    <path d="M 747.568158 350.7825
+L 747.568158 344.099985
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 851.362218 335.239879
-L 851.362218 330.122024
+    <path d="M 851.362218 339.274352
+L 851.362218 332.901513
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 955.156277 318.882253
-L 955.156277 317.095425
+    <path d="M 955.156277 309.1552
+L 955.156277 305.483405
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 1058.950337 331.974306
-L 1058.950337 319.610767
+    <path d="M 1058.950337 326.228308
+L 1058.950337 321.5497
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
-   <g id="line2d_44">
+   <g id="line2d_41">
     <defs>
      <path id="m4b83c0f92f" d="M 2 0
 L -2 -0
 " style="stroke: #334155"/>
     </defs>
     <g clip-path="url(#p8262be6925)">
-     <use xlink:href="#m4b83c0f92f" x="124.803802" y="375.926013" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="228.597861" y="294.977791" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="332.391921" y="314.40283" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="436.18598" y="326.86185" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="539.98004" y="340.583226" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="643.774099" y="313.945717" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="747.568158" y="352.111318" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="851.362218" y="335.239879" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="955.156277" y="318.882253" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="331.974306" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="124.803802" y="377.172493" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="228.597861" y="291.635187" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="332.391921" y="321.633242" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="436.18598" y="329.597863" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="539.98004" y="350.690686" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="643.774099" y="323.480782" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="747.568158" y="350.7825" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="851.362218" y="339.274352" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="955.156277" y="309.1552" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="326.228308" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
-   <g id="line2d_45">
+   <g id="line2d_42">
     <g clip-path="url(#p8262be6925)">
-     <use xlink:href="#m4b83c0f92f" x="124.803802" y="366.527122" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="228.597861" y="279.825447" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="332.391921" y="311.599746" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="436.18598" y="323.307493" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="539.98004" y="332.010125" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="643.774099" y="308.967756" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="747.568158" y="345.812598" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="851.362218" y="330.122024" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="955.156277" y="317.095425" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="319.610767" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="124.803802" y="365.964589" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="228.597861" y="281.798075" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="332.391921" y="315.665248" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="436.18598" y="328.353704" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="539.98004" y="338.42927" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="643.774099" y="309.233652" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="747.568158" y="344.099985" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="851.362218" y="332.901513" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="955.156277" y="305.483405" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="321.5497" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="LineCollection_2">
-    <path d="M 162.169663 380.441332
-L 162.169663 374.046379
+    <path d="M 162.169663 381.948546
+L 162.169663 370.086176
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 265.963723 297.62415
-L 265.963723 296.775837
+    <path d="M 265.963723 302.227785
+L 265.963723 300.439134
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 369.757782 279.396223
-L 369.757782 277.102499
+    <path d="M 369.757782 292.364734
+L 369.757782 283.029281
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 473.551842 296.29664
-L 473.551842 290.879451
+    <path d="M 473.551842 295.980903
+L 473.551842 293.866783
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 577.345901 347.158205
-L 577.345901 336.109774
+    <path d="M 577.345901 351.471134
+L 577.345901 341.223647
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 681.13996 294.886932
-L 681.13996 292.948199
+    <path d="M 681.13996 297.627757
+L 681.13996 296.02642
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 784.93402 336.629981
-L 784.93402 316.728297
+    <path d="M 784.93402 342.210049
+L 784.93402 337.038023
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 888.728079 319.566253
-L 888.728079 314.099268
+    <path d="M 888.728079 323.82556
+L 888.728079 322.518508
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 992.522139 308.082964
-L 992.522139 305.945198
+    <path d="M 992.522139 308.015423
+L 992.522139 298.925418
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 1096.316198 302.916253
-L 1096.316198 301.610013
+    <path d="M 1096.316198 324.908911
+L 1096.316198 320.585106
 " clip-path="url(#p8262be6925)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
-   <g id="line2d_46">
+   <g id="line2d_43">
     <g clip-path="url(#p8262be6925)">
-     <use xlink:href="#m4b83c0f92f" x="162.169663" y="380.441332" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="265.963723" y="297.62415" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="369.757782" y="279.396223" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="473.551842" y="296.29664" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="577.345901" y="347.158205" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="681.13996" y="294.886932" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="784.93402" y="336.629981" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="888.728079" y="319.566253" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="992.522139" y="308.082964" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="302.916253" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="162.169663" y="381.948546" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="265.963723" y="302.227785" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="369.757782" y="292.364734" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="473.551842" y="295.980903" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="577.345901" y="351.471134" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="681.13996" y="297.627757" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="784.93402" y="342.210049" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="888.728079" y="323.82556" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="992.522139" y="308.015423" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="324.908911" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
-   <g id="line2d_47">
+   <g id="line2d_44">
     <g clip-path="url(#p8262be6925)">
-     <use xlink:href="#m4b83c0f92f" x="162.169663" y="374.046379" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="265.963723" y="296.775837" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="369.757782" y="277.102499" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="473.551842" y="290.879451" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="577.345901" y="336.109774" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="681.13996" y="292.948199" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="784.93402" y="316.728297" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="888.728079" y="314.099268" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="992.522139" y="305.945198" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="301.610013" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="162.169663" y="370.086176" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="265.963723" y="300.439134" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="369.757782" y="283.029281" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="473.551842" y="293.866783" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="577.345901" y="341.223647" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="681.13996" y="296.02642" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="784.93402" y="337.038023" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="888.728079" y="322.518508" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="992.522139" y="298.925418" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="320.585106" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="patch_23">
@@ -621,67 +603,67 @@ L 1096.316198 301.610013
 L 1134.72 410.956981
 " style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
+   <g id="text_15">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(126.881927 363.779459) rotate(-90)">3.63 ±0.62</text>
+   </g>
    <g id="text_16">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(126.881927 364.44069) rotate(-90)">3.03 ±0.46</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(230.675986 279.612944) rotate(-90)">50.1 ±7.6</text>
    </g>
    <g id="text_17">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(230.675986 277.739014) rotate(-90)">46.8 ±11</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(334.470046 313.480118) rotate(-90)">18.5 ±1.7</text>
    </g>
    <g id="text_18">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(334.470046 309.513314) rotate(-90)">19.8 ±0.9</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(438.264105 326.168574) rotate(-90)">13.4 ±0.26</text>
    </g>
    <g id="text_19">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(438.264105 321.221061) rotate(-90)">13.4 ±0.77</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(542.058165 336.24414) rotate(-90)">8.41 ±1.6</text>
    </g>
    <g id="text_20">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(542.058165 329.923693) rotate(-90)">9.39 ±1.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(645.852224 307.048522) rotate(-90)">20.3 ±4.4</text>
    </g>
    <g id="text_21">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(645.852224 306.881324) rotate(-90)">20.9 ±1.7</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(749.646283 341.914855) rotate(-90)">7.6 ±0.78</text>
    </g>
    <g id="text_22">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(749.646283 343.726165) rotate(-90)">6.2 ±0.63</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(853.440343 330.716382) rotate(-90)">10.8 ±1.1</text>
    </g>
    <g id="text_23">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(853.440343 328.035591) rotate(-90)">10.5 ±0.87</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(957.234402 303.298275) rotate(-90)">26.2 ±1.5</text>
    </g>
    <g id="text_24">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(957.234402 315.008993) rotate(-90)">16.9 ±0.49</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1061.028462 319.36457) rotate(-90)">15.7 ±1.1</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1061.028462 317.524335) rotate(-90)">13.3 ±2.6</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(164.247788 367.901046) rotate(-90)">3.17 ±0.58</text>
    </g>
    <g id="text_26">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(164.247788 371.959947) rotate(-90)">2.48 ±0.26</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(268.041848 298.254004) rotate(-90)">31.5 ±0.87</text>
    </g>
    <g id="text_27">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(268.041848 294.689405) rotate(-90)">33.1 ±0.45</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(371.835907 280.844151) rotate(-90)">48.6 ±7</text>
    </g>
    <g id="text_28">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(371.835907 275.016067) rotate(-90)">61.2 ±2.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(475.629967 291.681652) rotate(-90)">38.4 ±1.3</text>
    </g>
    <g id="text_29">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(475.629967 288.793018) rotate(-90)">37.3 ±3.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(579.424026 339.038517) rotate(-90)">7.92 ±1.2</text>
    </g>
    <g id="text_30">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(579.424026 334.023342) rotate(-90)">7.95 ±1.4</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(683.218085 293.841289) rotate(-90)">36.2 ±0.9</text>
    </g>
    <g id="text_31">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(683.218085 290.861766) rotate(-90)">36.8 ±1.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(787.012145 334.852893) rotate(-90)">9.66 ±0.77</text>
    </g>
    <g id="text_32">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(787.012145 314.641864) rotate(-90)">13.4 ±4.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(890.806204 320.333377) rotate(-90)">16 ±0.32</text>
    </g>
    <g id="text_33">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(890.806204 312.012836) rotate(-90)">17.6 ±1.6</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(994.600264 296.740288) rotate(-90)">29.8 ±4.2</text>
    </g>
    <g id="text_34">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(994.600264 303.858766) rotate(-90)">24.1 ±0.83</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1098.394323 318.399976) rotate(-90)">16.3 ±1.1</text>
    </g>
    <g id="text_35">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1098.394323 299.523581) rotate(-90)">28.1 ±0.59</text>
-   </g>
-   <g id="text_36">
     <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="86.4" y="162.84" transform="rotate(-0 86.4 162.84)">Direct Wasm</text>
    </g>
   </g>
@@ -696,529 +678,529 @@ z
    </g>
    <g id="matplotlib.axis_3">
     <g id="xtick_11">
-     <g id="line2d_48"/>
-     <g id="text_37">
+     <g id="line2d_45"/>
+     <g id="text_36">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="143.486733" y="811.197656" transform="rotate(-0 143.486733 811.197656)">Squares</text>
      </g>
     </g>
     <g id="xtick_12">
-     <g id="line2d_49"/>
-     <g id="text_38">
+     <g id="line2d_46"/>
+     <g id="text_37">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="247.280792" y="811.197656" transform="rotate(-0 247.280792 811.197656)">Tour</text>
      </g>
     </g>
     <g id="xtick_13">
-     <g id="line2d_50"/>
-     <g id="text_39">
+     <g id="line2d_47"/>
+     <g id="text_38">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="351.074851" y="811.198438" transform="rotate(-0 351.074851 811.198438)">Functions</text>
      </g>
     </g>
     <g id="xtick_14">
-     <g id="line2d_51"/>
-     <g id="text_40">
+     <g id="line2d_48"/>
+     <g id="text_39">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="454.868911" y="811.197656" transform="rotate(-0 454.868911 811.197656)">Errors</text>
      </g>
     </g>
     <g id="xtick_15">
-     <g id="line2d_52"/>
-     <g id="text_41">
+     <g id="line2d_49"/>
+     <g id="text_40">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="558.66297" y="811.198438" transform="rotate(-0 558.66297 811.198438)">Sieve</text>
      </g>
     </g>
     <g id="xtick_16">
-     <g id="line2d_53"/>
-     <g id="text_42">
+     <g id="line2d_50"/>
+     <g id="text_41">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="662.45703" y="811.198438" transform="rotate(-0 662.45703 811.198438)">Sorting</text>
      </g>
     </g>
     <g id="xtick_17">
-     <g id="line2d_54"/>
-     <g id="text_43">
+     <g id="line2d_51"/>
+     <g id="text_42">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="766.251089" y="811.198438" transform="rotate(-0 766.251089 811.198438)">Sudoku</text>
      </g>
     </g>
     <g id="xtick_18">
-     <g id="line2d_55"/>
-     <g id="text_44">
+     <g id="line2d_52"/>
+     <g id="text_43">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="870.045149" y="811.197656" transform="rotate(-0 870.045149 811.197656)">Maze</text>
      </g>
     </g>
     <g id="xtick_19">
-     <g id="line2d_56"/>
-     <g id="text_45">
+     <g id="line2d_53"/>
+     <g id="text_44">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="973.839208" y="811.197656" transform="rotate(-0 973.839208 811.197656)">VM</text>
      </g>
     </g>
     <g id="xtick_20">
-     <g id="line2d_57"/>
-     <g id="text_46">
+     <g id="line2d_54"/>
+     <g id="text_45">
       <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="1077.633267" y="811.198438" transform="rotate(-0 1077.633267 811.198438)">Life</text>
      </g>
     </g>
    </g>
    <g id="matplotlib.axis_4">
-    <g id="ytick_30">
-     <g id="line2d_58">
-      <path d="M 86.4 761.384357
-L 1134.72 761.384357
+    <g id="ytick_28">
+     <g id="line2d_55">
+      <path d="M 86.4 768.369934
+L 1134.72 768.369934
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
-     <g id="line2d_59"/>
+     <g id="line2d_56"/>
+     <g id="text_46">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="772.168762" transform="rotate(-0 78.4 772.168762)">10</text>
+     </g>
+    </g>
+    <g id="ytick_29">
+     <g id="line2d_57">
+      <path d="M 86.4 678.67699
+L 1134.72 678.67699
+" clip-path="url(#pe27511e04e)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_58"/>
      <g id="text_47">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="765.183185" transform="rotate(-0 78.4 765.183185)">10</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="682.475818" transform="rotate(-0 78.4 682.475818)">100</text>
+     </g>
+    </g>
+    <g id="ytick_30">
+     <g id="line2d_59">
+      <path d="M 86.4 588.984045
+L 1134.72 588.984045
+" clip-path="url(#pe27511e04e)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_60"/>
+     <g id="text_48">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="592.782873" transform="rotate(-0 78.4 592.782873)">1e+03</text>
      </g>
     </g>
     <g id="ytick_31">
-     <g id="line2d_60">
-      <path d="M 86.4 673.623054
-L 1134.72 673.623054
-" clip-path="url(#pe27511e04e)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_61"/>
-     <g id="text_48">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="677.421882" transform="rotate(-0 78.4 677.421882)">100</text>
+     <g id="line2d_61">
+      <g>
+       <use xlink:href="#md84019238d" x="86.4" y="795.370201" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
      </g>
     </g>
     <g id="ytick_32">
      <g id="line2d_62">
-      <path d="M 86.4 585.86175
-L 1134.72 585.86175
-" clip-path="url(#pe27511e04e)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_63"/>
-     <g id="text_49">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="589.660578" transform="rotate(-0 78.4 589.660578)">1e+03</text>
+      <g>
+       <use xlink:href="#md84019238d" x="86.4" y="788.268202" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
      </g>
     </g>
     <g id="ytick_33">
-     <g id="line2d_64">
+     <g id="line2d_63">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="787.803141" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="782.263547" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_34">
-     <g id="line2d_65">
+     <g id="line2d_64">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="780.854092" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="777.062079" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_35">
-     <g id="line2d_66">
+     <g id="line2d_65">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="774.978755" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="772.474058" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_36">
-     <g id="line2d_67">
+     <g id="line2d_66">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="769.889306" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="741.369668" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_37">
-     <g id="line2d_68">
+     <g id="line2d_67">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="765.400094" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="725.575524" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_38">
-     <g id="line2d_69">
+     <g id="line2d_68">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="734.965572" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="714.369401" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_39">
-     <g id="line2d_70">
+     <g id="line2d_69">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="719.511574" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="705.677256" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_40">
-     <g id="line2d_71">
+     <g id="line2d_70">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="708.546787" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="698.575257" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_41">
-     <g id="line2d_72">
+     <g id="line2d_71">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="700.041838" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="692.570603" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_42">
-     <g id="line2d_73">
+     <g id="line2d_72">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="693.092789" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="687.369134" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_43">
-     <g id="line2d_74">
+     <g id="line2d_73">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="687.217451" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="682.781114" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_44">
-     <g id="line2d_75">
+     <g id="line2d_74">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="682.128003" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="651.676723" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_45">
-     <g id="line2d_76">
+     <g id="line2d_75">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="677.638791" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="635.88258" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_46">
-     <g id="line2d_77">
+     <g id="line2d_76">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="647.204269" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="624.676456" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_47">
-     <g id="line2d_78">
+     <g id="line2d_77">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="631.75027" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="615.984312" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_48">
-     <g id="line2d_79">
+     <g id="line2d_78">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="620.785484" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="608.882313" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_49">
-     <g id="line2d_80">
+     <g id="line2d_79">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="612.280535" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="602.877658" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_50">
-     <g id="line2d_81">
+     <g id="line2d_80">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="605.331486" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="597.67619" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_51">
-     <g id="line2d_82">
+     <g id="line2d_81">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="599.456148" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="593.088169" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
-    <g id="ytick_52">
-     <g id="line2d_83">
-      <g>
-       <use xlink:href="#md84019238d" x="86.4" y="594.366699" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
-      </g>
-     </g>
-    </g>
-    <g id="ytick_53">
-     <g id="line2d_84">
-      <g>
-       <use xlink:href="#md84019238d" x="86.4" y="589.877487" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
-      </g>
-     </g>
-    </g>
-    <g id="text_50">
+    <g id="text_49">
      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #475569" x="32.377344" y="679.041509" transform="rotate(-90 32.377344 679.041509)">milliseconds · logarithmic scale</text>
     </g>
    </g>
    <g id="patch_25">
     <path d="M 108.736482 795.6
 L 140.871122 795.6
-L 140.871122 753.727217
-L 108.736482 753.727217
+L 140.871122 752.80559
+L 108.736482 752.80559
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_26">
     <path d="M 212.530541 795.6
 L 244.665182 795.6
-L 244.665182 715.913494
-L 212.530541 715.913494
+L 244.665182 700.756256
+L 212.530541 700.756256
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_27">
     <path d="M 316.3246 795.6
 L 348.459241 795.6
-L 348.459241 719.63602
-L 316.3246 719.63602
+L 348.459241 728.457685
+L 316.3246 728.457685
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_28">
     <path d="M 420.11866 795.6
 L 452.253301 795.6
-L 452.253301 739.530838
-L 420.11866 739.530838
+L 452.253301 744.417291
+L 420.11866 744.417291
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_29">
     <path d="M 523.912719 795.6
 L 556.04736 795.6
-L 556.04736 748.903004
-L 523.912719 748.903004
+L 556.04736 749.873768
+L 523.912719 749.873768
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_30">
     <path d="M 627.706779 795.6
 L 659.841419 795.6
-L 659.841419 717.177996
-L 627.706779 717.177996
+L 659.841419 716.37911
+L 627.706779 716.37911
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_31">
     <path d="M 731.500838 795.6
 L 763.635479 795.6
-L 763.635479 741.73887
-L 731.500838 741.73887
+L 763.635479 750.909253
+L 731.500838 750.909253
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_32">
     <path d="M 835.294897 795.6
 L 867.429538 795.6
-L 867.429538 741.144755
-L 835.294897 741.144755
+L 867.429538 735.437308
+L 835.294897 735.437308
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_33">
     <path d="M 939.088957 795.6
 L 971.223598 795.6
-L 971.223598 735.841119
-L 939.088957 735.841119
+L 971.223598 730.257762
+L 939.088957 730.257762
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_34">
     <path d="M 1042.883016 795.6
 L 1075.017657 795.6
-L 1075.017657 734.42648
-L 1042.883016 734.42648
+L 1075.017657 739.840839
+L 1042.883016 739.840839
 z
 " clip-path="url(#pe27511e04e)" style="fill: #087f8c"/>
    </g>
    <g id="patch_35">
     <path d="M 146.102343 795.6
 L 178.236984 795.6
-L 178.236984 724.850712
-L 146.102343 724.850712
+L 178.236984 728.364404
+L 146.102343 728.364404
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_36">
     <path d="M 249.896402 795.6
 L 282.031043 795.6
-L 282.031043 694.65129
-L 249.896402 694.65129
+L 282.031043 689.609977
+L 249.896402 689.609977
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_37">
     <path d="M 353.690462 795.6
 L 385.825103 795.6
-L 385.825103 701.771707
-L 353.690462 701.771707
+L 385.825103 695.073941
+L 353.690462 695.073941
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_38">
     <path d="M 457.484521 795.6
 L 489.619162 795.6
-L 489.619162 688.241704
-L 457.484521 688.241704
+L 489.619162 701.482745
+L 457.484521 701.482745
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_39">
     <path d="M 561.278581 795.6
 L 593.413221 795.6
-L 593.413221 718.487553
-L 561.278581 718.487553
+L 593.413221 724.485994
+L 561.278581 724.485994
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_40">
     <path d="M 665.07264 795.6
 L 697.207281 795.6
-L 697.207281 691.265904
-L 665.07264 691.265904
+L 697.207281 699.504675
+L 665.07264 699.504675
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_41">
     <path d="M 768.866699 795.6
 L 801.00134 795.6
-L 801.00134 716.871465
-L 768.866699 716.871465
+L 801.00134 718.130437
+L 768.866699 718.130437
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_42">
     <path d="M 872.660759 795.6
 L 904.7954 795.6
-L 904.7954 695.795784
-L 872.660759 695.795784
+L 904.7954 699.653312
+L 872.660759 699.653312
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_43">
     <path d="M 976.454818 795.6
 L 1008.589459 795.6
-L 1008.589459 701.451308
-L 976.454818 701.451308
+L 1008.589459 712.014539
+L 976.454818 712.014539
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="patch_44">
     <path d="M 1080.248878 795.6
 L 1112.383518 795.6
-L 1112.383518 714.421155
-L 1080.248878 714.421155
+L 1112.383518 719.367354
+L 1080.248878 719.367354
 z
 " clip-path="url(#pe27511e04e)" style="fill: #ce862a"/>
    </g>
    <g id="LineCollection_3">
-    <path d="M 124.803802 756.491678
-L 124.803802 751.149777
+    <path d="M 124.803802 754.062062
+L 124.803802 751.588383
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 228.597861 717.676347
-L 228.597861 714.228585
+    <path d="M 228.597861 702.598727
+L 228.597861 698.997011
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 332.391921 722.794661
-L 332.391921 716.71923
+    <path d="M 332.391921 728.781045
+L 332.391921 728.136987
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 436.18598 745.940551
-L 436.18598 734.045467
+    <path d="M 436.18598 745.575627
+L 436.18598 743.292408
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 539.98004 754.310029
-L 539.98004 744.168606
+    <path d="M 539.98004 752.188832
+L 539.98004 747.688608
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 643.774099 718.467955
-L 643.774099 715.93027
+    <path d="M 643.774099 723.593732
+L 643.774099 710.294209
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 747.568158 743.619742
-L 747.568158 739.946467
+    <path d="M 747.568158 757.435706
+L 747.568158 745.320971
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 851.362218 748.132467
-L 851.362218 735.241826
+    <path d="M 851.362218 738.455459
+L 851.362218 732.636286
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 955.156277 744.941609
-L 955.156277 728.50015
+    <path d="M 955.156277 734.220121
+L 955.156277 726.661504
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 1058.950337 736.959616
-L 1058.950337 732.05126
+    <path d="M 1058.950337 745.888335
+L 1058.950337 734.607271
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
-   <g id="line2d_85">
+   <g id="line2d_82">
     <g clip-path="url(#pe27511e04e)">
-     <use xlink:href="#m4b83c0f92f" x="124.803802" y="756.491678" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="228.597861" y="717.676347" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="332.391921" y="722.794661" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="436.18598" y="745.940551" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="539.98004" y="754.310029" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="643.774099" y="718.467955" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="747.568158" y="743.619742" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="851.362218" y="748.132467" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="955.156277" y="744.941609" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="736.959616" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="124.803802" y="754.062062" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="228.597861" y="702.598727" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="332.391921" y="728.781045" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="436.18598" y="745.575627" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="539.98004" y="752.188832" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="643.774099" y="723.593732" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="747.568158" y="757.435706" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="851.362218" y="738.455459" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="955.156277" y="734.220121" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="745.888335" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
-   <g id="line2d_86">
+   <g id="line2d_83">
     <g clip-path="url(#pe27511e04e)">
-     <use xlink:href="#m4b83c0f92f" x="124.803802" y="751.149777" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="228.597861" y="714.228585" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="332.391921" y="716.71923" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="436.18598" y="734.045467" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="539.98004" y="744.168606" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="643.774099" y="715.93027" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="747.568158" y="739.946467" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="851.362218" y="735.241826" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="955.156277" y="728.50015" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="732.05126" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="124.803802" y="751.588383" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="228.597861" y="698.997011" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="332.391921" y="728.136987" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="436.18598" y="743.292408" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="539.98004" y="747.688608" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="643.774099" y="710.294209" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="747.568158" y="745.320971" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="851.362218" y="732.636286" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="955.156277" y="726.661504" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1058.950337" y="734.607271" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="LineCollection_4">
-    <path d="M 162.169663 730.876375
-L 162.169663 719.648908
+    <path d="M 162.169663 741.481497
+L 162.169663 718.569117
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 265.963723 699.89389
-L 265.963723 690.043384
+    <path d="M 265.963723 691.433106
+L 265.963723 687.868375
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 369.757782 701.914392
-L 369.757782 701.629555
+    <path d="M 369.757782 703.289284
+L 369.757782 688.293083
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 473.551842 689.931499
-L 473.551842 686.623656
+    <path d="M 473.551842 710.246039
+L 473.551842 694.333385
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 577.345901 720.674841
-L 577.345901 716.419005
+    <path d="M 577.345901 725.411053
+L 577.345901 723.582395
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 681.13996 698.528667
-L 681.13996 685.168056
+    <path d="M 681.13996 704.265727
+L 681.13996 695.262677
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 784.93402 717.99872
-L 784.93402 715.776593
+    <path d="M 784.93402 723.925726
+L 784.93402 713.086735
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 888.728079 702.980394
-L 888.728079 689.753076
+    <path d="M 888.728079 700.283783
+L 888.728079 699.032882
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 992.522139 702.71547
-L 992.522139 700.227733
+    <path d="M 992.522139 712.907527
+L 992.522139 711.141565
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 1096.316198 714.687021
-L 1096.316198 714.15713
+    <path d="M 1096.316198 720.653897
+L 1096.316198 718.121949
 " clip-path="url(#pe27511e04e)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
-   <g id="line2d_87">
+   <g id="line2d_84">
     <g clip-path="url(#pe27511e04e)">
-     <use xlink:href="#m4b83c0f92f" x="162.169663" y="730.876375" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="265.963723" y="699.89389" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="369.757782" y="701.914392" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="473.551842" y="689.931499" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="577.345901" y="720.674841" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="681.13996" y="698.528667" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="784.93402" y="717.99872" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="888.728079" y="702.980394" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="992.522139" y="702.71547" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="714.687021" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="162.169663" y="741.481497" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="265.963723" y="691.433106" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="369.757782" y="703.289284" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="473.551842" y="710.246039" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="577.345901" y="725.411053" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="681.13996" y="704.265727" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="784.93402" y="723.925726" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="888.728079" y="700.283783" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="992.522139" y="712.907527" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="720.653897" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
-   <g id="line2d_88">
+   <g id="line2d_85">
     <g clip-path="url(#pe27511e04e)">
-     <use xlink:href="#m4b83c0f92f" x="162.169663" y="719.648908" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="265.963723" y="690.043384" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="369.757782" y="701.629555" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="473.551842" y="686.623656" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="577.345901" y="716.419005" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="681.13996" y="685.168056" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="784.93402" y="715.776593" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="888.728079" y="689.753076" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="992.522139" y="700.227733" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="714.15713" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="162.169663" y="718.569117" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="265.963723" y="687.868375" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="369.757782" y="688.293083" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="473.551842" y="694.333385" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="577.345901" y="723.582395" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="681.13996" y="695.262677" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="784.93402" y="713.086735" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="888.728079" y="699.032882" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="992.522139" y="711.141565" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1096.316198" y="718.121949" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="patch_45">
@@ -1226,83 +1208,83 @@ L 1096.316198 714.15713
 L 1134.72 795.6
 " style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
+   <g id="text_50">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(126.881927 748.952866) rotate(-90)">14.9 ±0.47</text>
+   </g>
    <g id="text_51">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(126.881927 748.571018) rotate(-90)">12.2 ±0.86</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(230.675986 696.361494) rotate(-90)">56.7 ±2.6</text>
    </g>
    <g id="text_52">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(230.675986 711.649826) rotate(-90)">33 ±1.5</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(334.470046 725.50147) rotate(-90)">27.9 ±0.23</text>
    </g>
    <g id="text_53">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(334.470046 714.140472) rotate(-90)">29.9 ±2.4</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(438.264105 740.65689) rotate(-90)">18.5 ±0.54</text>
    </g>
    <g id="text_54">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(438.264105 731.466709) rotate(-90)">17.7 ±2.7</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(542.058165 745.05309) rotate(-90)">16.1 ±0.93</text>
    </g>
    <g id="text_55">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(542.058165 741.589847) rotate(-90)">13.9 ±1.8</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(645.852224 707.658691) rotate(-90)">38 ±6.4</text>
    </g>
    <g id="text_56">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(645.852224 713.351511) rotate(-90)">31.9 ±1.1</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(749.646283 742.685454) rotate(-90)">15.7 ±2.4</text>
    </g>
    <g id="text_57">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(749.646283 737.367709) rotate(-90)">16.7 ±0.81</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(853.440343 730.000768) rotate(-90)">23.3 ±1.7</text>
    </g>
    <g id="text_58">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(853.440343 732.663068) rotate(-90)">17 ±2.8</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(957.234402 724.025987) rotate(-90)">26.6 ±2.6</text>
    </g>
    <g id="text_59">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(957.234402 725.921391) rotate(-90)">19.5 ±4.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1061.028462 731.971753) rotate(-90)">20.8 ±3</text>
    </g>
    <g id="text_60">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1061.028462 729.472501) rotate(-90)">20.3 ±1.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(164.247788 715.9336) rotate(-90)">27.9 ±8</text>
    </g>
    <g id="text_61">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(164.247788 717.070149) rotate(-90)">26.1 ±3.8</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(268.041848 685.232857) rotate(-90)">75.5 ±3.5</text>
    </g>
    <g id="text_62">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(268.041848 687.464625) rotate(-90)">57.6 ±7.4</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(371.835907 685.657565) rotate(-90)">65.6 ±12</text>
    </g>
    <g id="text_63">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(371.835907 699.050797) rotate(-90)">47.8 ±0.18</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(475.629967 691.697868) rotate(-90)">55.7 ±11</text>
    </g>
    <g id="text_64">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(475.629967 684.044897) rotate(-90)">68.1 ±3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(579.424026 720.946878) rotate(-90)">30.9 ±0.72</text>
    </g>
    <g id="text_65">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(579.424026 713.840247) rotate(-90)">30.8 ±1.7</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(683.218085 692.627159) rotate(-90)">58.6 ±6.7</text>
    </g>
    <g id="text_66">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(683.218085 682.589297) rotate(-90)">62.9 ±11</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(787.012145 710.451217) rotate(-90)">36.3 ±5</text>
    </g>
    <g id="text_67">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(787.012145 713.197835) rotate(-90)">32.2 ±0.94</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(890.806204 696.397365) rotate(-90)">58.4 ±0.94</text>
    </g>
    <g id="text_68">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(890.806204 687.174317) rotate(-90)">55.9 ±9.6</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(994.600264 708.506047) rotate(-90)">42.5 ±0.96</text>
    </g>
    <g id="text_69">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(994.600264 697.648975) rotate(-90)">48.2 ±1.6</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1098.394323 715.486431) rotate(-90)">35.2 ±1.1</text>
    </g>
    <g id="text_70">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1098.394323 711.578372) rotate(-90)">34.3 ±0.24</text>
-   </g>
-   <g id="text_71">
     <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="86.4" y="547.483019" transform="rotate(-0 86.4 547.483019)">C → Wasm</text>
    </g>
   </g>
-  <g id="text_72">
+  <g id="text_71">
    <text style="font-weight: 700; font-size: 20px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="86.4" y="42.12" transform="rotate(-0 86.4 42.12)">Wasmtime preparation</text>
   </g>
-  <g id="text_73">
+  <g id="text_72">
    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="86.4" y="76.752" transform="rotate(-0 86.4 76.752)">Fresh host launch + Wasm compilation + serialization + file writing · lower is better</text>
   </g>
-  <g id="text_74">
+  <g id="text_73">
    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="86.4" y="854.568" transform="rotate(-0 86.4 854.568)">2026-11-03 · AMD Ryzen 7 3800X, shared desktop host · 5 preparation samples per bar · labels: median ms ±MAD</text>
   </g>
-  <g id="text_75">
+  <g id="text_74">
    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="86.4" y="882.648" transform="rotate(-0 86.4 882.648)">Complete preparation cost for trusted native artifacts; guest execution is separate. Goose compilation is unchanged and separate.</text>
   </g>
-  <g id="text_76">
+  <g id="text_75">
    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="86.4" y="909.792" transform="rotate(-0 86.4 909.792)">Wasmtime 50.0.1 · same library bytes as runtime · parallelism changes Wasm compilation only.</text>
   </g>
   <g id="legend_1">
@@ -1314,7 +1296,7 @@ L 88.236 112.582281
 z
 " style="fill: #087f8c"/>
    </g>
-   <g id="text_77">
+   <g id="text_76">
     <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="119.036" y="120.282281" transform="rotate(-0 119.036 120.282281)">Parallel compilation</text>
    </g>
    <g id="patch_47">
@@ -1325,7 +1307,7 @@ L 249.011313 112.582281
 z
 " style="fill: #ce862a"/>
    </g>
-   <g id="text_78">
+   <g id="text_77">
     <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="279.811312" y="120.282281" transform="rotate(-0 279.811312 120.282281)">Serial compilation</text>
    </g>
   </g>

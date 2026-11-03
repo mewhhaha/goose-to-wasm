@@ -1,0 +1,177 @@
+{
+  "schema": "goose-calls-bundle-spec-v1",
+  "build": "build/functions-grow",
+  "output": "bench/results/2026-11-03/functions-calls",
+  "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+  "reference": "build/runtime-reference/production/report.json",
+  "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+  "reports": {
+    "qualification.json": "qualification-body/attempt-1/focused/report.json",
+    "differential.json": "qualification-body/attempt-1/differential/report.json",
+    "host-qualification.json": "qualification-body/attempt-1/host/report.json",
+    "final-warmed.json": "body-delivered-warmed/report.json",
+    "final-v8.json": "body-delivered-v8/report.json",
+    "examples.json": "body-current/examples/report.json",
+    "host.json": "body-current/host/report.json",
+    "cohort.json": "body-current/langarena/report.json"
+  },
+  "extra_reports": {
+    "holdout-cpu2.json": "body-holdout-cpu2/report.json",
+    "holdout-default.json": "body-holdout-default/report.json"
+  },
+  "trees": [
+    "qualification/attempt-1",
+    "qualification/sources",
+    "delivery-execution",
+    "delivered-warmed",
+    "delivered-v8",
+    "current/examples",
+    "current/host",
+    "current/langarena",
+    "slow-helper",
+    "named-only",
+    "named-tail",
+    "test-development",
+    "screen-factorial",
+    "screen-slow",
+    "stale-rebuild",
+    "holdout-cpu2",
+    "holdout-default",
+    "qualification-body/attempt-1",
+    "qualification-body/sources",
+    "body-delivery-execution",
+    "body-delivered-warmed",
+    "body-delivered-v8",
+    "body-current/examples",
+    "body-current/host",
+    "body-current/langarena",
+    "body-growth",
+    "body-holdout-cpu2",
+    "body-holdout-default",
+    "sieve-factorial",
+    "body-functions-screen",
+    "body-warmed-screen"
+  ],
+  "optional_trees": [
+    "chart-previews",
+    "reviews",
+    "packaging-attempts"
+  ],
+  "evidence_documents": [
+    "qualification-body/attempt-1/selected.json",
+    "qualification-body/attempt-1/input-pins.json",
+    "body-delivery-execution/report.json",
+    "static-review-body.json",
+    "module-analysis-body.json",
+    "campaign-body.json",
+    "final-numbers-body.json",
+    "body-holdout-cpu2/report.json",
+    "body-holdout-default/report.json",
+    "screen-factorial/report.json",
+    "screen-slow/report.json",
+    "factorial-summary.json",
+    "sieve-static-diagnosis.json",
+    "sieve-factorial/report.json",
+    "body-functions-screen/report.json",
+    "body-warmed-screen/report.json",
+    "test-static-review-body.json"
+  ],
+  "optional_evidence_documents": [
+    "qualification-body/summary.json",
+    "reviews/final-public-review-body.json"
+  ],
+  "source_stages": {
+    "baseline-19d": "build/functions-next/forward-v3",
+    "slow-helper": "build/functions-grow/slow-helper",
+    "named-only": "build/functions-grow/named-only",
+    "final": "build/functions-grow/body-growth",
+    "combined-864": "build/functions-grow/named-tail"
+  },
+  "direct_files": [
+    "build/functions-next/forward-v3/O2.wasm",
+    "build/native/CMakeCache.txt"
+  ],
+  "public_files": [
+    "README.md",
+    "bench/examples.md",
+    "bench/wasmtime-host.md",
+    "docs/FUNCTIONS_PERFORMANCE.md",
+    "docs/PERFORMANCE_PLAN.md",
+    "docs/RUNTIME_TARGETS.md",
+    "bench/results/latest.json",
+    "bench/results/examples-latest.json",
+    "bench/results/wasmtime-host-latest.json",
+    "bench/results/runtime-targets-latest.json",
+    "bench/charts/compilation.svg",
+    "bench/charts/runtime.svg",
+    "bench/charts/runtime-targets.svg",
+    "bench/charts/examples-compilation.svg",
+    "bench/charts/examples-runtime.svg",
+    "bench/charts/examples-python-runtime.svg",
+    "bench/charts/examples-entry.svg",
+    "bench/charts/wasmtime-host-preparation.svg",
+    "bench/charts/wasmtime-host-runtime.svg",
+    "bench/charts/wasmtime-host-c-wasm.svg"
+  ],
+  "required_public_files": [
+    "README.md",
+    "campaign.json",
+    "readme.json",
+    "target-chart-verification.json",
+    "chart-verification.json",
+    "chart-visual-review.json"
+  ],
+  "max_raw_archive_bytes": 67108864,
+  "policy": "Closure is current archives plus explicitly referenced members in the immediate prior eight functions-forwarding archives; verification needs both published folders. Reuse is byte storage only: all current execution records and cohorts remain fresh. Current aliases only, no prior namespace import, recursive report/index closure or older archive dependencies. Stale-rebuild is opaque FAILED ATTEMPT context, never a valid source stage. Tool/dependency omissions have explicit identities. Final353 shares only body growth; fixed frame prologues remain inline. All previous864 qualifications/cohorts/holdouts are explicitly rejected performance evidence; final primary data comes only from body-prefixed paths and qualification-body.",
+  "reuse": {
+    "index": "bench/results/2026-11-03/functions-forwarding/archives.json.gz",
+    "manifest": "bench/results/2026-11-03/functions-forwarding/SHA256.json",
+    "relative_directory": "../functions-forwarding",
+    "archives": [
+      "evidence-000.tar.gz",
+      "evidence-001.tar.gz",
+      "evidence-002.tar.gz",
+      "evidence-003.tar.gz",
+      "evidence-004.tar.gz",
+      "evidence-005.tar.gz",
+      "evidence-006.tar.gz",
+      "evidence-007.tar.gz"
+    ]
+  },
+  "opaque_failed_attempts": [
+    "stale-rebuild"
+  ],
+  "qualification": "qualification-body",
+  "qualification_controls": {
+    "qualification": [
+      "resource-control"
+    ],
+    "qualification-body": [
+      "resource-control",
+      "named-control"
+    ]
+  },
+  "public_metadata": {
+    "campaign.json": "campaign-body.json",
+    "final-numbers.json": "final-numbers-body.json",
+    "module-analysis.json": "module-analysis-body.json",
+    "static-review-body.json": "static-review-body.json",
+    "rejected-warmed.json": "delivered-warmed/report.json",
+    "sieve-diagnosis.json": "sieve-static-diagnosis.json",
+    "test-static-review-body.json": "test-static-review-body.json",
+    "final-public-review-body.json": "reviews/final-public-review-body.json"
+  },
+  "rejected_execution_roots": [
+    "qualification/attempt-1",
+    "delivery-execution",
+    "delivered-warmed",
+    "delivered-v8",
+    "current/examples",
+    "current/host",
+    "current/langarena",
+    "holdout-cpu2",
+    "holdout-default"
+  ],
+  "rejection_reason": "All-site grow-helper864 is correctness-qualified but performance-rejected: Wasmtime Sieve cost about20percent; those executions are immutable investigation evidence, never selected final measurements.",
+  "delivery_execution": "body-delivery-execution/report.json"
+}

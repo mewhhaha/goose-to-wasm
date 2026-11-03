@@ -1,0 +1,249 @@
+{
+  "schema": "goose-functions-calls-final-archive-audit-v1",
+  "status": "passed",
+  "reviewed_utc": "2026-11-03T12:49:20.963663+00:00",
+  "reviewer": "Astra independent final archive audit",
+  "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+  "scope": "Current publication index plus its explicitly named members in the immediate prior eight functions-forwarding archives. No older report/index traversal, compiler build, test or guest execution.",
+  "independent_verification": {
+    "result": "passed",
+    "exactly_matches_published_verification": true,
+    "elapsed_seconds": 22.27841895399615,
+    "method": "Invoked the published pure offline verify.verify against the frozen package with bytecode-cache writes disabled. It rehashed all local archives and explicit prior members, validated source/control identities, current report edges, raw outputs, exact matrices, holdouts, omissions and pointers.",
+    "verifier_sha256": "538a21202fbd5207762cd79ecaca3d70b68d58877658849ffb3c52c3c32cd075",
+    "published_report_sha256": "8f54a3a857bd6aade4d59ad7f6194d2fc43e31cd0a0388bdc1a350892b7dc519",
+    "published_log_sha256": "a0fb3a84883ba4f423f3c07e12a576cfbdf6f82808e295cfac59320e2091b1f0"
+  },
+  "archive_closure": {
+    "index_sha256": "103e4d44455d0640400a5d243dd499b3003ec9f9307871c242b831393231b343",
+    "retention_sha256": "dfed7d98ece4246b035f85e44e67a91adb1e505ca609112db918414549ba4482",
+    "local_archive_count": 4,
+    "local_compressed_archive_bytes": 48131524,
+    "local_object_count": 55445,
+    "prior_archive_count": 8,
+    "explicit_prior_members": 5061,
+    "reused_raw_bytes": 345823257,
+    "aliases": 244875,
+    "required_guest_identities": 4303,
+    "retained_guest_objects": 5849,
+    "explicit_tool_dependency_omissions": 80,
+    "measured_guest_omissions": 0,
+    "prior_aliases_imported": 0,
+    "prior_documents_opened": 0,
+    "archives": {
+      "../functions-forwarding/evidence-000.tar.gz": {
+        "sha256": "9b20ad36eae7bb7b084584e6fba4735982598b9d99b3910e16349814b0d1a9dd",
+        "bytes": 20196881,
+        "external": true,
+        "explicit_members": 680
+      },
+      "../functions-forwarding/evidence-001.tar.gz": {
+        "sha256": "90d0e9d792723c1933e86b30c3f2fa7f6ebc082958ae986edd8ccf543e4e1b1b",
+        "bytes": 22019827,
+        "external": true,
+        "explicit_members": 759
+      },
+      "../functions-forwarding/evidence-002.tar.gz": {
+        "sha256": "0895ba41cac5967838a50fb35cd74e0496e506e6a7e7efd1c43d085eabfbc283",
+        "bytes": 21162483,
+        "external": true,
+        "explicit_members": 782
+      },
+      "../functions-forwarding/evidence-003.tar.gz": {
+        "sha256": "8873464668da87a3171f5853c90f957bb71450e1633e5b0205fec9d3b56e1ebb",
+        "bytes": 17289095,
+        "external": true,
+        "explicit_members": 543
+      },
+      "../functions-forwarding/evidence-004.tar.gz": {
+        "sha256": "cecf25b5e247996b544012901b299402f17c2f0b78379967acd031089bad30f2",
+        "bytes": 22884906,
+        "external": true,
+        "explicit_members": 777
+      },
+      "../functions-forwarding/evidence-005.tar.gz": {
+        "sha256": "ce814d01f5c3767469a6ff370cfe40cf0ca8ee87cd676417c7167acd5c09c802",
+        "bytes": 21782920,
+        "external": true,
+        "explicit_members": 751
+      },
+      "../functions-forwarding/evidence-006.tar.gz": {
+        "sha256": "73612a40ac6ce10fb1a380cf7fd951889e898e8132a632d54951fb5afba53349",
+        "bytes": 21362271,
+        "external": true,
+        "explicit_members": 682
+      },
+      "../functions-forwarding/evidence-007.tar.gz": {
+        "sha256": "bf6e5e57b5b9c5e03e76aad734143c421573b6059165ddcf8488d0af03d93955",
+        "bytes": 4020145,
+        "external": true,
+        "explicit_members": 87
+      },
+      "evidence-000.tar.gz": {
+        "sha256": "014654995aab81e8422e6e35f3cd4bda8361db1e6b0726258541ccef8cb8f953",
+        "bytes": 10905110,
+        "external": false,
+        "explicit_members": 12711
+      },
+      "evidence-001.tar.gz": {
+        "sha256": "37cfec86e277eac9e53d3bd43a82ad6dd833ea375da438744f68c40a1ecb0932",
+        "bytes": 14488614,
+        "external": false,
+        "explicit_members": 17007
+      },
+      "evidence-002.tar.gz": {
+        "sha256": "40a5d4a918abfcab3c6b3df14b241bb5c4bc490b79bbea03da43115e9af5e76f",
+        "bytes": 11266669,
+        "external": false,
+        "explicit_members": 12038
+      },
+      "evidence-003.tar.gz": {
+        "sha256": "f37c7a7b4ebd999aea8a98a10b12daa3ff83aad8af3395b0632ccb8852de90e6",
+        "bytes": 11471131,
+        "external": false,
+        "explicit_members": 13689
+      }
+    }
+  },
+  "source_identity": {
+    "stages": {
+      "baseline-19d": {
+        "compiler_sha256": "19d377d68530e0cf5b59f6d28f7b1a2ca207b9ed981dfad29dedf7fa5723473b",
+        "headers": 32,
+        "patches": 2,
+        "module_sha256": "ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec"
+      },
+      "combined-864": {
+        "compiler_sha256": "864262133e821068738b24952324a3145ba74a926ad7135c6cb15f7baba1f04a",
+        "headers": 32,
+        "patches": 2,
+        "module_sha256": "1f7ae65abb5c400888e10cf7455cf7c9920fa5994a89486b8fd858fd76977a7b"
+      },
+      "final": {
+        "compiler_sha256": "353a3f1bd547330c8ecd32e9084ae92d616340f81f83a5cc30f2e657d577652e",
+        "headers": 32,
+        "patches": 2,
+        "module_sha256": "89ae88e0c71b8d6ce9f3f56abcfec7a6001db087e364f36bff36ff1fd74e6e72"
+      },
+      "named-only": {
+        "compiler_sha256": "dd3af59dfb470aa4b5ddda04667a7171a14f3970b49ed21025a981e2e9f0440b",
+        "headers": 32,
+        "patches": 2,
+        "module_sha256": "f6b7ff9e7bd6474e611c52228c18a6ce6c79508f6a13dbe78e5f158590fd236d"
+      },
+      "slow-helper": {
+        "compiler_sha256": "33a9fb04cb2d0847443232bf75d266a0be080b3195f78a9773d12b04cdd58698",
+        "headers": 32,
+        "patches": 2,
+        "module_sha256": "1641fce8809ff6a77030653e7846e9dd753605226891889908123873b4c2f1ca"
+      }
+    },
+    "controls": {
+      "qualification-body/named-control": {
+        "compiler_sha256": "2cffc0cdea2d5f8c6fcaaddc99b6a846a816604755f3e64cdb46ad57abed3e52",
+        "headers": 32
+      },
+      "qualification-body/resource-control": {
+        "compiler_sha256": "02fe3098196dd8ec61473bf001ecddcccd76192ac190faed2416192ed6dbdb47",
+        "headers": 32
+      },
+      "qualification/resource-control": {
+        "compiler_sha256": "648bd7f741f4bce8ea647ea6efc5f27e0af7a25bc688ec7d3d4d90348c50e57f",
+        "headers": 32
+      }
+    },
+    "final_headers_match_current_and_frozen_source": 32,
+    "matched_control_boundary": "Accepted353 resource control02fe changes only direct_wasm_temps.h; named control2cff changes only direct_wasm_funvals.h. Earlier648 control belongs to rejected864 qualification.",
+    "failed_attempt_boundary": "stale-rebuild is explicitly opaque FAILED ATTEMPT context and is not a valid source/compiler stage. Combined864 remains a valid reproducible source stage with rejected performance executions; none of its measurements substitute for final body-prefixed reports."
+  },
+  "qualification": {
+    "focused": 69,
+    "cases": 978,
+    "observations": 9573,
+    "native_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_modules": 1574
+  },
+  "measurement_matrices": {
+    "warmed": 550,
+    "v8": 200,
+    "paired_rounds": 9,
+    "examples": 1600,
+    "host": 1440,
+    "preparations": 200,
+    "cohort": 315
+  },
+  "holdouts": {
+    "reports": [
+      "holdout-cpu2.json",
+      "holdout-default.json"
+    ],
+    "process_pairs_each": 61,
+    "phase_pairs_each": 31,
+    "selected_module_sha256": "89ae88e0c71b8d6ce9f3f56abcfec7a6001db087e364f36bff36ff1fd74e6e72",
+    "baseline_module_sha256": "ae193532120e32c8b321d3c84ba3df090f5b7d5fc564c280ea3af1404e46c9ec",
+    "checked": "Both current raw report copies, exact observation grids, selected/baseline/AOT identities, median/MAD/paired summaries, and stdout/golden/stderr edges resolve from retained bytes."
+  },
+  "public_review_closure": {
+    "review_sha256": "92223d44c506eb84194dfb4dcdb285c2b20add69e1c9aeb94b5cc28359b9fd2f",
+    "all_prior_review_input_pins_archived_and_current": 54,
+    "svg_charts": 10,
+    "numeric_label_proof": 403,
+    "rendered_preview_bindings": 13,
+    "latest_pointers": 4,
+    "source_prose_reports_charts_unchanged_since_review": true
+  },
+  "public_file_limit": {
+    "files_before_this_supplement": 38,
+    "total_bytes_before_this_supplement": 95518872,
+    "largest_file_bytes": 20623751,
+    "all_files_below_100000000_bytes": true
+  },
+  "manifest_boundary": {
+    "audited_pre_audit_manifest_sha256": "ec5994468dbbf2b6e4bf934c69261f8d375ee44e87896e9df48b2ceb146b99c2",
+    "audited_pre_audit_manifest_bytes": 3431,
+    "audited_pre_audit_manifest_entries": {
+      "qualification.json": "ee31300663a46a896e0c849e9b4cb074dde95eba099911ce0745560547604e8e",
+      "differential.json": "b6c5f0b736d8f7f1a1f9c0cc4ee66f330175a290341b72b078868c0afa8c9900",
+      "host-qualification.json": "ad4a4f96e956fcea829bca562fdc1a4dc7769e575106d546eab8165bd5b3a616",
+      "final-warmed.json": "17930b21e604f7fd0184da404ad69b78b85bc9e1ece439ea921249e6dc52f914",
+      "final-v8.json": "1119f99d29c18f134b95fc1b0cf188141f9d3e458a7a1ae28220d3811b9a6881",
+      "examples.json": "6152728bcc9f30667d035a4dad5cbb5526f5b30c976401ead57e143810d87e8b",
+      "host.json": "dfeaf36b72f9c197cc05b3b858c70caec24bbc3fd7ff647ed83ac8f56be90dbc",
+      "cohort.json": "c530f341bbebc1380c13db51e7ad990105650a104c363688a2a79b87e8eccb7f",
+      "holdout-cpu2.json": "37910bcf0473475c14dfecacb816536f5e2f030ef251e9bd972a8a3022ce9434",
+      "holdout-default.json": "818b5daf60da55aa5f1c46491c5e4b619dbde13830485389f1e10e7e8b8c71d2",
+      "campaign.json": "f2b1a3f61e7972437115484f6072b628e1e981e4d1be1daf688583ed570cdee2",
+      "final-numbers.json": "ea470c61c224d47b3ab98816c1d05b09792d48c8c9f001c8d7b7c5df8576689a",
+      "module-analysis.json": "88b2e56c27a70c4091a5faa7e4e1eceb0b9ccef8e714f23205a20b90b1a8fcf6",
+      "static-review-body.json": "509f8062e087b7dac2d5202b1593af6d7d4d0e1733720c5fd4498d35ac5be9dd",
+      "rejected-warmed.json": "66f56fbcc9cf86e75b5e3118f69d100bc6ccfeb75151fd6c11f1d9ca6c4c2ddb",
+      "sieve-diagnosis.json": "078bdc31ad8bba91473f859d6e039384c2d4affbe4f3db004d6132ae16b1e924",
+      "references.json": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+      "compiler-identity.json": "77d4354745fe487bffc462338a2baa0b543ff09d7f8a723c08c67a68af7addbe",
+      "README.md": "52dd403cabc2bacbad50552ce6b0537517e83e7d207b08f86a0f47441767e758",
+      "test-static-review-body.json": "0134bb47cdd6d5e7755970dd66530c6b1c0a2e7cf02578b0ba29f7d5657d2fb3",
+      "readme.json": "351f337c91a50ad019da1d451bf1da89c2f875c7c13d78ee6e371f233ab10bbe",
+      "target-chart-verification.json": "ef56fc39609d045147d6e14a6276817e065078ced8dd1923dba4e067ba03c56c",
+      "chart-verification.json": "9beda869500b75d4af603d06acb15d1e535be1892a01f6fd42cac95db2058d9a",
+      "chart-visual-review.json": "20f0fd2c5c5d2a1c01bcf120f18961ba0bd5e5b37baad9520bcd40db8550a46f",
+      "final-public-review-body.json": "92223d44c506eb84194dfb4dcdb285c2b20add69e1c9aeb94b5cc28359b9fd2f",
+      "evidence-000.tar.gz": "014654995aab81e8422e6e35f3cd4bda8361db1e6b0726258541ccef8cb8f953",
+      "evidence-001.tar.gz": "37cfec86e277eac9e53d3bd43a82ad6dd833ea375da438744f68c40a1ecb0932",
+      "evidence-002.tar.gz": "40a5d4a918abfcab3c6b3df14b241bb5c4bc490b79bbea03da43115e9af5e76f",
+      "evidence-003.tar.gz": "f37c7a7b4ebd999aea8a98a10b12daa3ff83aad8af3395b0632ccb8852de90e6",
+      "archives.json.gz": "103e4d44455d0640400a5d243dd499b3003ec9f9307871c242b831393231b343",
+      "reproduction/bundle.py": "8946f2138fc62fda7148b7ed6531b3e25d7417809309f204173e9a3cf78bc78d",
+      "reproduction/verify.py": "538a21202fbd5207762cd79ecaca3d70b68d58877658849ffb3c52c3c32cd075",
+      "reproduction/checks.py": "7ba349fafb8240bf6d2134afc150ac789b3255a698d00e87114f692c4b648e1b",
+      "reproduction/spec.json": "9524f5bf64a4fe9796813f5447027a2fb2671842bf583267d32ad56f90cc5044",
+      "retention.json": "dfed7d98ece4246b035f85e44e67a91adb1e505ca609112db918414549ba4482",
+      "verification.json": "8f54a3a857bd6aade4d59ad7f6194d2fc43e31cd0a0388bdc1a350892b7dc519",
+      "verification.log": "a0fb3a84883ba4f423f3c07e12a576cfbdf6f82808e295cfac59320e2091b1f0"
+    },
+    "serialization": "UTF-8 JSON with indent2, insertion order as shown, and one final LF; reconstructs the exact pre-audit manifest.",
+    "final_update": "Add only final-audit.json SHA to these existing entries. The manifest excludes its own hash. This audit is outside its own archives and intentionally contains no final-manifest hash, avoiding a cycle."
+  },
+  "decision": "PASS; ready for the coordinator to stage, commit and push the qualified batch.",
+  "blockers": []
+}
