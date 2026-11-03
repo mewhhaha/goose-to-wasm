@@ -2,7 +2,7 @@
 namespace goose::direct_wasm {
 
 inline bool Function::BoundedMerge(While *loop) {
-    if (c.opts.debug || emitting_bounded_merge ||
+    if (c.opts.debug || emitting_guarded_loop ||
         (c.region_cursors && c.may_have_prefix_mappings) || loop->body->tail || loop->body->stmts.size() != 2) return false;
     auto both = Is<Binary>(loop->cond);
     auto choose = Is<IfExpr>(loop->body->stmts[0]);
@@ -109,7 +109,7 @@ inline bool Function::BoundedMerge(While *loop) {
     Get(pointer); code.Op(0xad); Get(position); Get(count); code.Op(0x7c); code.I64Const(width); code.Op(0x7e); code.Op(0x7c);
     Get(memory); code.Op(0x58); code.Op(0x71);
     Begin(0x04);
-    emitting_bounded_merge = true;
+    emitting_guarded_loop = true;
     auto done = Begin(), repeat = Begin(0x03);
     Truth(loop->cond); code.Op(0x45); Br(done, true);
     auto address = [&](uint32_t base, Ident *cursor) {
@@ -129,7 +129,7 @@ inline bool Function::BoundedMerge(While *loop) {
     Read(*output_slot); code.I64Const(1); code.Op(0x7c); Write(*output_slot);
     Br(repeat); End(); End();
     Else(); Expr(loop); End();
-    emitting_bounded_merge = false;
+    emitting_guarded_loop = false;
     return true;
 }
 

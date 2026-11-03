@@ -1,0 +1,285 @@
+{
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T22:14:54.087796+00:00",
+  "compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+  "decision": "GO to seal and run broad qualification; no source correctness blocker found.",
+  "broad_qualification": "PENDING: 76 focused commands, 978 cases / 9573 differential observations / 7656 native comparisons, 11484 standard host observations, and derived distinct module/input worker cases over 3828 aliases. Focused prechecks and factorial screens do not substitute for these gates.",
+  "preserved_prior_group4_reviews": [
+    {
+      "path": "build/stride-hills/qualification/preparation-history/group4-only-reviews/static-review.json",
+      "sha256": "e9092e3d143def03a03744216f887adec09f445875e1929f4dc1a5cf7e69a53a"
+    },
+    {
+      "path": "build/stride-hills/qualification/preparation-history/group4-only-reviews/test-static-review.json",
+      "sha256": "e8c6a3a46a32147b4131fea531e7b57d1121d69f761f24db70a473dcf44e1226"
+    }
+  ],
+  "schema": "goose-stride-scan-static-review-v2",
+  "scope": "Read-only final combined compiler, exact source identities and qualification-helper review. No build, engine, benchmark or test was run by this review.",
+  "source_manifest": {
+    "path": "build/stride-hills/final/source.json",
+    "sha256": "0f92a14457296e1954f7a32f35d9c6c1560c0e0b0a20ec7e09946f1ece24510a"
+  },
+  "toolchain_manifest": {
+    "path": "build/stride-hills/final/toolchain.json",
+    "sha256": "c24910ca1da4a8a1eadb89f3e2781cd59ddfe03442ee64c029b58c55fe73a9e9"
+  },
+  "source_verification": {
+    "canonical_and_frozen_compiler_bytes_verified": true,
+    "current_and_frozen_header_count": 36,
+    "headers": {
+      "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+      "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+      "direct_wasm.h": "a0648deed500cd6da783c3e8a29f52ab8dda9cb9d25a12e16e1eaf9d93632cf0",
+      "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+      "direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+      "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+      "direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+      "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+      "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+      "direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+      "direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+      "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+      "direct_wasm_expr.h": "f55e5f1f799377100e31f32ac587214489bfffcd3cffedb9b40fd059b1dee750",
+      "direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+      "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+      "direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+      "direct_wasm_merge.h": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+      "direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+      "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+      "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+      "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+      "direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+      "direct_wasm_scan.h": "ba108282d59f9a60ed8b2eea4b62846d37f8c88cd5003fe4ae2497e7c9dd8f40",
+      "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+      "direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+      "direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+      "direct_wasm_stride.h": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+      "direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+      "direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+      "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+      "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+      "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+      "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+      "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+      "wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+    },
+    "patches": {
+      "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+      "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+    },
+    "patch_bytes_verified": true
+  },
+  "grouped_store_proof": [
+    "Exact two-statement literal store plus positive-stride update; plain declared/context i64 private cursor, stable bound/step, exact integer payload types. Captures, address exposure, extra effects, debug and possible prefix mappings reject.",
+    "Original condition executes before receiver capture. Zero iterations cause no owner-header read. Only private LOCAL slices, fixed FRAME/GLOBAL arrays and closed raw RegionArray receivers are admitted.",
+    "The full conjunction proves 0<=cursor<exclusive_end<=u32 length, 0<stride<=UINT32_MAX, and widened base+end*width<=memory bytes. Guard arithmetic is nontrapping; invalid wrapped end values cannot pass the complete proof.",
+    "cursor+3*stride<end proves four ordered stores. The following cursor+4*stride is below 2^33. Successful physical-span checks make i32 address conversions exact for all stores, including the last byte.",
+    "For a raw owner, the entire possible write interval is disjoint from its whole HeaderLayout span. PackArrayView reads raw base/length without mode validation; every header byte therefore remains stable until the unchanged scalar tail. Encoded owners are rejected.",
+    "The literal has the exact element type; raw Store truncation preserves the same low bits as scalar normalization followed by Store. Delaying the private cursor update until four nontrapping stores is unobservable: no callbacks, additional effects or exposed cursor exist.",
+    "Guard failure and exhausted groups reach one original scalar while, preserving ordered partial writes, bounds/physical traps, abort payloads and final cursor. The shared suppression flag prevents recursive rematching."
+  ],
+  "byte_scan_proof": [
+    "Exact equality-to-literal byte predicate, last=cursor then count++, and literal stride 1/2/4/8. Cursor, count and last are distinct private plain i64 locals; the bound aliases none. Only private LOCAL slices or fixed FRAME/GLOBAL arrays are admitted, never owners.",
+    "Captured view and bound expressions have no memory effects or traps for admitted storage. Invalid or zero-trip inputs enter the unchanged scalar loop; no eager owner read is possible.",
+    "The widened whole-span guard proves every byte of each 16-byte vector readable, including scalar-stride-skipped lanes. Unaligned loads are permitted. A group runs only when cursor+16<=exclusive_end.",
+    "Byte equality and the mask select exactly offsets 0,step,...,15. popcnt is the number of matching scalar iterations; the highest set bit is their final matching index. Exact signed/unsigned byte contexts preserve equality of normalized literal bits.",
+    "Nondebug i64 count addition is modular: adding popcnt equals the original number of increments modulo 2^64. Debug rejects, retaining checked overflow behavior. No count bound is required in the nondebug proof.",
+    "Count/last updates may be reordered because the locals are distinct and private, all vector reads are nontrapping and no callback/effect can observe intermediate state. Last remains unchanged for an empty mask; cursor advances exactly 16 before the scalar tail."
+  ],
+  "integration": "ByteScan, GroupedStores and BoundedMerge share bounded fallback suppression. Patterns do not overlap. Prior merge changes are only the suppression-field rename; accepted merge arithmetic/emission is otherwise unchanged.",
+  "matched_controls": [
+    {
+      "control": "scan",
+      "compiler_sha256": "b2afb8d57af01cdf635070a2acfaf389315077a49bc2211c3a6a6c4e488ca13f",
+      "changed_header": "direct_wasm_scan.h",
+      "proof": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/scan-control/build/control-toolchain-match.json",
+        "sha256": "95d77ddb5529423a7be9e5251917940a85e5923ee2c24044a609367765de4a61"
+      },
+      "source": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/scan-control/build/source.json",
+        "sha256": "0b2e23fa0098526ab3a7588ee22e2a38a70b1eff508f1a4eb5402151980a36dc"
+      },
+      "preparation": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/scan-control/preparation.json",
+        "sha256": "097bc7228b504032439a87b581921691bde4f3309b568c5a8c47da27ba68a687"
+      }
+    },
+    {
+      "control": "stride",
+      "compiler_sha256": "91c365bd21349ff11c28d4bf9eb0f7073b25649b04d71e60e6030ee520a60963",
+      "changed_header": "direct_wasm_stride.h",
+      "proof": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/count-only/build/control-toolchain-match.json",
+        "sha256": "823b20d95eb7e4c5cd3afd8d606b37bacdbce9964597ec7dd71e8c84cdaf357f"
+      },
+      "source": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/count-only/build/source.json",
+        "sha256": "cb14ae1330d3e89a8abdc958f38a9ad2c25cf3a1eb27068c2f5d963eac874b69"
+      },
+      "preparation": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/count-only/preparation.json",
+        "sha256": "76560f1029228d13bbc74462c36f0cc5988b6779a0374083ce0458a06b1e1194"
+      }
+    },
+    {
+      "control": "merge",
+      "compiler_sha256": "425e4bdd56ec5c861aae22ad8a12fcc6d4e9ce7389c0c6329a61f55990167707",
+      "changed_header": "direct_wasm_merge.h",
+      "proof": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/merge-control/build/control-toolchain-match.json",
+        "sha256": "e52c12d9bf39761ad38238dbd34cae8632f81eeff7c24b5e5e81aae88b2e079a"
+      },
+      "source": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/merge-control/build/source.json",
+        "sha256": "fa1e0431c54fe2557283e16fba0c0b86fc17a3b21c605b6fc70d0671f28c57a0"
+      },
+      "preparation": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/merge-control/preparation.json",
+        "sha256": "21de02a0aff0640aa82970c940e9f767725f4b3edce145d4d2d2bd66e7157613"
+      }
+    },
+    {
+      "control": "resource",
+      "compiler_sha256": "093d1d21a81d880f2eee71cac26a1e6e34aa348cb1f978541a13c5258d3dd4fd",
+      "changed_header": "direct_wasm_temps.h",
+      "proof": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/resource-control/build/control-toolchain-match.json",
+        "sha256": "09e6395781c0a239397115c6096cf0e854393b9faf7ea7f931af4dcc481f6105"
+      },
+      "source": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/resource-control/build/source.json",
+        "sha256": "65cb8022e532e569e35139aded12e259e6bffebe1eb50d4eca0a97abffdd0ce3"
+      },
+      "preparation": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/resource-control/preparation.json",
+        "sha256": "8d5c041dd2699a7a71c3782e4f223cc8212223d8e7061c939bbe2c43149c5866"
+      }
+    },
+    {
+      "control": "named",
+      "compiler_sha256": "8a050e5bcb49072af4b1c67a6de3327fc790958858c89294a1ab136e9cfd2d32",
+      "changed_header": "direct_wasm_funvals.h",
+      "proof": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/named-control/build/control-toolchain-match.json",
+        "sha256": "049b101d2b85195bca72a079e1897b1f8abd40b4d68787e36bf8055c4f81397a"
+      },
+      "source": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/named-control/build/source.json",
+        "sha256": "11dba78e6720ef9831f02495fdc39b1d8e19d2226aecd0f5b620eb77e3f4a06b"
+      },
+      "preparation": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/named-control/preparation.json",
+        "sha256": "fe4a4d7c1865f1a45901262117c26e02c09e7ad2d2326d3b0f50eb916aa78729"
+      }
+    },
+    {
+      "control": "private",
+      "compiler_sha256": "95ec1216fa9141ef16cf82a702c42932b22b3975b69d3e32ff4fdf38b8c7a880",
+      "changed_header": "direct_wasm_emit.h",
+      "proof": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/private-control/build/control-toolchain-match.json",
+        "sha256": "fbfe4cd5c9e4560e0158377470babf4f252b5489660e7bf163205a5a0206490f"
+      },
+      "source": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/private-control/build/source.json",
+        "sha256": "c6f423c8089aaec62cb0340611206c944ccfd5df6236db6b1c535336b53fa937"
+      },
+      "preparation": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/private-control/preparation.json",
+        "sha256": "c31c285001147756cc77f42cb9bfe82ec520d7ccdcdab618b14193525b3c6766"
+      }
+    },
+    {
+      "control": "stencil",
+      "compiler_sha256": "70d3cdf57e2043a7c879483410cbe894a2b9a4a89b2ff5b605522094821bece9",
+      "changed_header": "direct_wasm_stencil.h",
+      "proof": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/stencil-control/build/control-toolchain-match.json",
+        "sha256": "9ca57c3ea8f7f871681856d35a76b81e51737b60de036229f31fc9c567ba89ce"
+      },
+      "source": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/stencil-control/build/source.json",
+        "sha256": "02a181e8b939b31c99dba0f1f929e5055441e33c798a63ab300123025c883149"
+      },
+      "preparation": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/stencil-control/preparation.json",
+        "sha256": "1bb3f9814eac32550270a585b33fc21231f54d00681091344f5e1bd9896f51a5"
+      }
+    }
+  ],
+  "qualification_helpers": [
+    {
+      "path": "build/stride-hills/qualification/run.py",
+      "sha256": "0d400d3179b938b27f5277de3d451b61b9ad80b28780cd88674ca95e9a84889b"
+    },
+    {
+      "path": "build/stride-hills/qualification/plan.json",
+      "sha256": "5575eade3aad9a53a18bce7bc66987712d7e0e46fe49ba21d6c0a4679343172d"
+    },
+    {
+      "path": "build/stride-hills/qualification/controls.py",
+      "sha256": "4dcba6caada0211ca5b3ddd2eb097f075ee544d688599a32599a14e290507e1b"
+    },
+    {
+      "path": "build/stride-hills/qualification/build-controls.py",
+      "sha256": "b1bfc75f3bbce2ca3cb64b3304fc53fdd011440e35d6e26423e6b94ca4a91c3e"
+    },
+    {
+      "path": "build/stride-hills/qualification/worker-replay.py",
+      "sha256": "7ada8a3c88314888aa05f24c016a3e87716f6138cd31b9e5dcf2bc394e08baa0"
+    },
+    {
+      "path": "build/stride-hills/qualification/environment-preflight.py",
+      "sha256": "94f7a1ee2ddb226f5064ea76805599358163a316308f0e95ea5cc1eded4d5a8d"
+    },
+    {
+      "path": "build/stride-hills/qualification/environment-preflight.json",
+      "sha256": "acb69edcb556c5919fe402052f071b32b2c86b1d2664fafc16d4957e7eff0925"
+    },
+    {
+      "path": "build/stride-hills/qualification/control-source-audit.json",
+      "sha256": "9e0b8f3d3b7b550738c949232d1fca120984fd1619c7e8829debabb5b20f3584"
+    },
+    {
+      "path": "build/stride-hills/qualification/controls-execution.json",
+      "sha256": "a855907f6751d177e4292a7b8b5457c469db6d479e0167d340dc76974bfd99bd"
+    },
+    {
+      "path": "build/stride-hills/measure_delivery.py",
+      "sha256": "8b661a279a3ec7e4840a5f264c7fc55c370dc71f57e16efce20d0ea41f49fde7"
+    }
+  ],
+  "ci": {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "e412072d9facdb25d8d407f06a666fae810987e40e201b803173ee33606c69d9"
+  },
+  "helper_findings": [
+    "Seven controls each retain 36 headers and two exact patches, changing only the intended entry predicate under the same Release Clang/Ninja configuration. Current metadata revalidation passed all seven with zero rebuilds.",
+    "The idempotent controls.match correction compares an existing proof for exact equality and fails on differences. Original helper, failed reuse aggregate and log remain under preparation-history/control-reuse-1.",
+    "Runner retains all 74 previous commands exactly and appends two matched-reference test invocations. It binds explicit selected compiler bytes, source/control identities, build tools, review hashes and all sealed inputs; both review status=passed and compiler SHA must match before sealing.",
+    "Worker replay derives effective distinct module/input groups from verified fresh byte identities over the 3828 expected aliases. It does not assume a stale effective-case count.",
+    "Current source/test/helper pins are approved for qualification. Plan adaptation prose retains earlier exploratory wording; approved status, final selected identities and the actual 76-command list are unambiguous."
+  ],
+  "selection_evidence": {
+    "path": "build/stride-hills/reviews/factorial-selection.json",
+    "sha256": "e7721db4650b1e3a5dba8d393e334dbce3b61e2622eccd90e2bbe76177949be8"
+  },
+  "machine_evidence": [
+    {
+      "path": "build/stride-hills/reviews/grouped-machine.json",
+      "sha256": "5e4e7cb43b8cdd134a4844cddf52bc55155172c289a78a3a824e0fdde8b11146"
+    },
+    {
+      "path": "build/stride-hills/reviews/scan-machine.json",
+      "sha256": "9d450bf887f2aef2d90f0f25288af7967bc07900be27dd79b7fe7329e4b3fda5"
+    }
+  ],
+  "claim_limits": [
+    "Factorial results justify KEEP for fresh broad qualification and delivery measurements, not universal optimality or a full-process speedup.",
+    "Observed grouping/scan interaction has no proven hardware or tiering cause. Static instruction counts are not dynamic cost attribution."
+  ]
+}

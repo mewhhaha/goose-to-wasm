@@ -1,0 +1,1084 @@
+{
+  "status": "passed",
+  "created_utc": "2026-11-03T22:31:05.840104+00:00",
+  "compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+  "host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+  "header_count": 36,
+  "patch_count": 2,
+  "input_pins": 1368,
+  "input_pins_rechecked": true,
+  "coverage": {
+    "focused_commands": 76,
+    "cases": 978,
+    "differential_observations": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "host_unique_wasm": 1574,
+    "worker_observations": 3001,
+    "worker_underlying_aliases": 3828,
+    "worker_unique_wasm": 1574
+  },
+  "guest_catalog": {
+    "fresh_paths": 4982,
+    "unique_objects": 4217
+  },
+  "reports": {
+    "selected.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/selected.json",
+      "sha256": "e27fed36358f536d059dd7ea549f60905c04fbad9fdf3dbc979dfd603f09842c"
+    },
+    "input-pins.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/input-pins.json",
+      "sha256": "17ee825b9bf1cf4981f8fd15347396f0a40ec038beb02427f8429f146ab6543a"
+    },
+    "execution.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/execution.json",
+      "sha256": "a81d08eb67613f625bfbaa36b0ce4f7185fcf8debbb8f02a0e961fe44012be24"
+    },
+    "focused/report.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/report.json",
+      "sha256": "86e071bc360e37dcb08c6d23608186609ab36a7856a66d24918b536544078158"
+    },
+    "differential/report.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/report.json",
+      "sha256": "d7da0da3c89c537dc6ed24057a902933a2a26b6c0df314612ae8992fc06a6817"
+    },
+    "host/report.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/host/report.json",
+      "sha256": "771f486c6327ba9163af352c5c366fd1c722e168be11b3fa46d0a1458b57d073"
+    },
+    "worker-replay/report.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/worker-replay/report.json",
+      "sha256": "4cccf98ea6b50d123717c8962093fcff3483f1c0de96a92e7656651d254ba281"
+    },
+    "host-execution.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/host-execution.json",
+      "sha256": "cf44dfa16dda78a292f43ec47d79027e7616f399fd8af707df98831523a1c6a4"
+    },
+    "worker-execution.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/worker-execution.json",
+      "sha256": "b8da38fc722b1c8445f4487ce5a9f5db9e0f3cc08b11de057a9b3a67114eec38"
+    },
+    "artifact-catalog.json": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/artifact-catalog.json",
+      "sha256": "477606359daf8798de9d6b81b477e7b6c45d748fab6dd6823c714425f8d38cb6"
+    }
+  },
+  "durations": {
+    "purpose": "Correctness-run iteration evidence, not performance benchmark observations. Concurrent phase durations must not be added.",
+    "gates_wall_seconds": 694.9346156310057,
+    "gate_jobs": [
+      {
+        "name": "native-O0",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/tests/run_differential.py",
+          "--goose",
+          "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+          "--backends",
+          "native",
+          "--levels",
+          "0",
+          "--engines",
+          "v8",
+          "wasmtime",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/shards/native-O0",
+          "--skip-refusals"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 341.2829275940312,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/native-O0.log"
+      },
+      {
+        "name": "c-wasm-O0",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/tests/run_differential.py",
+          "--goose",
+          "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+          "--backends",
+          "c-wasm",
+          "--levels",
+          "0",
+          "--engines",
+          "v8",
+          "wasmtime",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/shards/c-wasm-O0",
+          "--skip-refusals"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 479.11187796999,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/c-wasm-O0.log"
+      },
+      {
+        "name": "direct-O2",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/tests/run_differential.py",
+          "--goose",
+          "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+          "--backends",
+          "direct",
+          "--levels",
+          "2",
+          "--engines",
+          "v8",
+          "wasmtime",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/shards/direct-O2",
+          "--skip-refusals"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 187.16419234900968,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/direct-O2.log"
+      },
+      {
+        "name": "c-wasm-O2",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/tests/run_differential.py",
+          "--goose",
+          "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+          "--backends",
+          "c-wasm",
+          "--levels",
+          "2",
+          "--engines",
+          "v8",
+          "wasmtime",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/shards/c-wasm-O2",
+          "--skip-refusals"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 600.6965472659795,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/c-wasm-O2.log"
+      },
+      {
+        "name": "direct-O0",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/tests/run_differential.py",
+          "--goose",
+          "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+          "--backends",
+          "direct",
+          "--levels",
+          "0",
+          "--engines",
+          "v8",
+          "wasmtime",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/shards/direct-O0"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 182.52074579999316,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/direct-O0.log"
+      },
+      {
+        "name": "focused",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/run.py",
+          "focused",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 667.8991999530117,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused-runner.log"
+      },
+      {
+        "name": "native-O2",
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "/home/jacobt/src/goose-to-wasm/tests/run_differential.py",
+          "--goose",
+          "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+          "--backends",
+          "native",
+          "--levels",
+          "2",
+          "--engines",
+          "v8",
+          "wasmtime",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/shards/native-O2",
+          "--skip-refusals"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 166.06898104801076,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential/native-O2.log"
+      }
+    ],
+    "focused_command_sum_seconds": 667.2732887279126,
+    "focused_commands": [
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_local_tee.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 1.6943815880222246,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/00-test_local_tee.log",
+        "script_sha256": "216975c219075c46c9e2cb4ded1ed0b42b36c33b547e4aec2e238b465b44edb9"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_private_snapshot_parameters.py",
+          "--reference-goose",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/private-control/build/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 28.648360482999124,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/01-test_private_snapshot_parameters.log",
+        "script_sha256": "ae3fe97abdb3b691d20feea153a7e8ad049f116738072dcd1d74673974e75a14"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_byte_stencil.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 7.2699164299992844,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/02-test_byte_stencil.log",
+        "script_sha256": "9cdfa825a60207a2a5df044a9bf3e05c0a275ecb65902fb21f3976382b94296e"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_runtime_session.py",
+          "--host",
+          "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.16852576402015984,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/03-test_runtime_session.log",
+        "script_sha256": "4923980d444ab5fe2c4576bcc414e5de9518fa0d3763ada5c166a38a83fd7549"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_fresh_initialization.py",
+          "--reference-goose",
+          "/home/jacobt/src/goose-to-wasm/build/functions-grow/body-growth/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 28.100261491024867,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/04-test_fresh_initialization.log",
+        "script_sha256": "649343c570828b158fd7b351c3d799191f197745395c660087a9eb2c88ef763b"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_resource_free_blocks.py",
+          "--reference-goose",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/resource-control/build/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 2.8014182499609888,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/05-test_resource_free_blocks.log",
+        "script_sha256": "ac89092ab7cac6863751690bf20a01c574170e95897bc5267e6df2fe6d09671f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_backend_extensions.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 7.241645670030266,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/06-test_backend_extensions.log",
+        "script_sha256": "eaff0344f23815cbd730dc4923dead61a888482cab1fbeaf902f0ab8c86cb3bc"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_static_data.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.78337310499046,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/07-test_static_data.log",
+        "script_sha256": "6dabf806397a4a34eaf6f299e70da0596df3e77f04e351cad3d01ecb0d2dcbb0"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_fill_loops.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.6240067670005374,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/08-test_fill_loops.log",
+        "script_sha256": "da281a5602ba946e802071da49e529f507f03cf732d41e4234b1f216b71a99a8"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_strip_loops.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 1.8998914060066454,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/09-test_strip_loops.log",
+        "script_sha256": "605427962fc79df8be12cf333fe4ad6580e7f01d55dd6bef8ea47e6d9beb679a"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_merge_bounds.py",
+          "--reference-compiler",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/merge-control/build/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 56.496269266004674,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/10-test_merge_bounds.log",
+        "script_sha256": "8ff21e85880b296e8a0760ac0e187b02e55f2eadaf4a5a40c7dfb635f8f0b8dd"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_while_unroll.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.25185170298209414,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/11-test_while_unroll.log",
+        "script_sha256": "40df7bb479cd62ae4a1777a3a320e5c2e85340a49d8cd936e81a09018161908f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_popcount.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 9.936713464965578,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/12-test_popcount.log",
+        "script_sha256": "5b432af79fc2e531779f4c2216838737b557a8e96b53da1fe2f1264bbb8f27c3"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_leaf_frames.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 26.79650513798697,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/13-test_leaf_frames.log",
+        "script_sha256": "025bd01cf93fead5755deae0b7ebc7bc4623a891b821a03a8bf8435dbf6e903a"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_dynamic_remainder.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 6.031652948993724,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/14-test_dynamic_remainder.log",
+        "script_sha256": "adc3212c414932fca3487e0dbdd5e5764ad38dcb2d6f4f60d2d0ec2329541d1b"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_constant_divisors.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 11.90328461601166,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/15-test_constant_divisors.log",
+        "script_sha256": "31c0b1d9a170b64bf758a9cb788434d9dd3e362d268f9daa24f89b77e0e34e40"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_native_wasmtime.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 3.2347221639938653,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/16-test_native_wasmtime.log",
+        "script_sha256": "e9f9d5d3458cf9fd768e14025dfd1324335af650655f939da7947677a2e36448"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_regions.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 84.58946191897849,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/17-test_regions.log",
+        "script_sha256": "be3ff2a35fe1a4682d6fe5cfb21b212325ca2a28bf5b725c71850dc6b9e53d4d"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_prefix_resolution.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 4.2937956060050055,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/18-test_prefix_resolution.log",
+        "script_sha256": "cd94ab35b66dfe5895325fe452245d8ea888c40865bb9487a6c42e5e2c70d980"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_dynamic_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.1352036859607324,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/19-test_dynamic_boundaries.log",
+        "script_sha256": "cdaaa710f61a97c8a7a291b55f3c3aea8f75012c3eb7afcaa879f60214450f76"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_static_capture_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.24463344598188996,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/20-test_static_capture_boundaries.log",
+        "script_sha256": "041b91149ad81f4afc7908583ddbb2d45184ca37e623b05bfb88a8243038888e"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_variable_enum_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.1324239150271751,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/21-test_variable_enum_boundaries.log",
+        "script_sha256": "6802b3fcd5986376dcd38905efdf9c3624a8ba5311f374d30def798f97abe36c"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_variable_variant_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.12713744101347402,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/22-test_variable_variant_boundaries.log",
+        "script_sha256": "f7ff45ce5a5a47e90ae707b2075624da98426d82e5bddb7adc433d6a74f2702d"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_owned_struct_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.14887852902757004,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/23-test_owned_struct_boundaries.log",
+        "script_sha256": "26b0be6c7e959628cfa18e234baa3123bc4ee96cc1c4876d19a18a93a6fcb9f7"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_packed_layout_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.1314744069823064,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/24-test_packed_layout_boundaries.log",
+        "script_sha256": "8b1e95c0e3b2c743531419f56dec2bab989cd6a9baa56592d4b2fb054f512c0b"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_array_images.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.6355638779932633,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/25-test_array_images.log",
+        "script_sha256": "94430ca092f034bb89e86c07462a80df708358060462c53f10fd6c982f4f6bc5"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_array_image_modes.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 16.616312474012375,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/26-test_array_image_modes.log",
+        "script_sha256": "0cba9661c4dcb4c293113f13f9a2f5dd25c4cbe33c6bbff6329c3f5e7592efd9"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_sparse_array_images.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.3812353960238397,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/27-test_sparse_array_images.log",
+        "script_sha256": "8bc2edd75edf46e417f615f2964a0a177d8700e33852f8cebf260664212592a1"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_record_images.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.5838226900086738,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/28-test_record_images.log",
+        "script_sha256": "37965e669fa5ddef425b6c913b12e666cecba7a66898d8c89e0251d079609d2a"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_enum_tags.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.4479688460123725,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/29-test_enum_tags.log",
+        "script_sha256": "47c34900b8890711f166a0a7ed49c5d47867385be1adeedf3e93c9ed3188c674"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_enum_images.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.570194226980675,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/30-test_enum_images.log",
+        "script_sha256": "3774810e4ac937583dc7697d17038c0863d13f1180b757b1f009a1c9b57f0c19"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_enum_image_returns.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.4212915800162591,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/31-test_enum_image_returns.log",
+        "script_sha256": "c247fe07eba47d93606ffc721c55f24f2b2a8f637585db4a925365a7e78ce5ec"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_static_limited_images.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.7660009420360439,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/32-test_static_limited_images.log",
+        "script_sha256": "886db9d70c58299308d8cc67601974f52e4a66ba83fde339e410df198e203e36"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_record_padding.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.6779701580526307,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/33-test_record_padding.log",
+        "script_sha256": "8433719faab9b5180a70d3928666daf1a127f9c33a0bc418b2e0b2dff9055554"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_padding_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.1350169109646231,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/34-test_padding_boundaries.log",
+        "script_sha256": "b68fe4bce1bc2ba5749756f76c706fcbeef94875f0d84c85f74f4b034b2b280f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_varint_records.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 1.282717403024435,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/35-test_varint_records.log",
+        "script_sha256": "d5e0fcf9628e21ab9756d4c7a8d05eed20b1fcf7422e61cce876f8cb2baf7f6e"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_varint_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.13871419901261106,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/36-test_varint_boundaries.log",
+        "script_sha256": "d3fe025c1acf8e8c60ca554fd41bb340f1cff29d89370e65dd25743220ca5b64"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_varint_capture_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.07484119600849226,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/37-test_varint_capture_boundaries.log",
+        "script_sha256": "34145447997991ae47149e7c170fc2ef26b68338d712a91bdd6cc3fdd50175b9"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_varint_arrays.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.705311949015595,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/38-test_varint_arrays.log",
+        "script_sha256": "79cd5479dc17f5dcf5539730e93112897efb277e2d755f4009dd7eb0437dae7c"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_varint_array_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.10374260402750224,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/39-test_varint_array_boundaries.log",
+        "script_sha256": "d7b8b6407b79cc7a0e7e8f4ecf92becf9da867a33aa6e4baeeeb1888958d3be2"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_varint_grow.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.3363357409834862,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/40-test_varint_grow.log",
+        "script_sha256": "157f1685c9d79bea089a99c287740078b5c22e3ac189a68a57ea84d768124759"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_varint_grow_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.11881238297792152,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/41-test_varint_grow_boundaries.log",
+        "script_sha256": "7b797c84f3f0ce8cf0d3fb29bcd48830f1eb6b9dd9dabe619f6e00fec3bb05b5"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_uleb_lengths.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 1.0081416349858046,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/42-test_uleb_lengths.log",
+        "script_sha256": "b9d32f415c5075816958c0baf8c374877a6e4c65f66d7cd74e348cd785cc18cb"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_uleb_accessor_helpers.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 1.6077157520339824,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/43-test_uleb_accessor_helpers.log",
+        "script_sha256": "75c48e58aae795c7988b11f16a47c1623ac1f516e7013b40bcf6f56a3c54ce4f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_combined_varints.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.9021462530363351,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/44-test_combined_varints.log",
+        "script_sha256": "44d744acfe62bee05d50eb9045a5a01d5b8c916d999fecf2821d10fd2d1181a8"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_combined_varint_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.1234749989816919,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/45-test_combined_varint_boundaries.log",
+        "script_sha256": "be50fa8462caee8d42f695a0d90edf24c083261cdce03694b6a4018d2b788716"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_encoded_record_tails.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.6774846849730238,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/46-test_encoded_record_tails.log",
+        "script_sha256": "28dc304f31965598ed6aaab4c9419582a1f46c73e4b763878c2ee8289d22e123"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_encoded_record_tail_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.16926314600277692,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/47-test_encoded_record_tail_boundaries.log",
+        "script_sha256": "3911be10967db544786d7d7eb339dcbad0eff4ea648d1e29d53492f3456bcd61"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_aggregate_print.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 1.3284940899466164,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/48-test_aggregate_print.log",
+        "script_sha256": "44793040503062e3d7aa75c37e1112093bbc527883ac982e7e169e26a8fdfaf1"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_aggregate_print_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.13368503603851423,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/49-test_aggregate_print_boundaries.log",
+        "script_sha256": "bdb9a4f3c8d4368a404ffbf6b19b416565a1c9eb2d1d5a640e616c1023d7107d"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_uleb_length_boundaries.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.14645190100418404,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/50-test_uleb_length_boundaries.log",
+        "script_sha256": "97bf867708f9dd0edcdf24ecaaf5641e7c1a1f10272e6c4f187c40be0589027d"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_compiler_session.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 14.720011950994376,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/51-test_compiler_session.log",
+        "script_sha256": "046abe3f7d6ce318da0f514fcbda70d14e0403e10d29791293d969d0c094314f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_incremental.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 2.2623924629879184,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/52-test_incremental.log",
+        "script_sha256": "63cc58fb286376887aaac920384573b98f026dd5bd7d455333601f79c3225682"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_input_dependencies.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 4.275010321987793,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/53-test_input_dependencies.log",
+        "script_sha256": "8b12766efbdbbc295351ded5d6278be7d028293aadd73f38b3a4f6a3a8ad2118"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_langarena.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.6111071639461443,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/54-test_langarena.log",
+        "script_sha256": "45f5215d48fe734ac1386afb149e21db5fef361a1555ed5ee514aafb52a17c1d"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_runtime_reference.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.21751088596647605,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/55-test_runtime_reference.log",
+        "script_sha256": "2256f4eecf1b66ad443291d68b2b5efc8f91077887072eeef94cdaa62f6ef06f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_reference_examples.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 2.04430071398383,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/56-test_reference_examples.log",
+        "script_sha256": "b88120df5b58c097ff9a5f1cae1f7e255e563a4ff56a5ec6e3cb8adeac6e4907"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "scripts/check_engines.py",
+          "--output",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/engine-probes.json"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.13216522301081568,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/57-check_engines.log",
+        "script_sha256": "695a4f67077ea7bf9c75e43b29fb349614aa552f45519931f290c3433ac8a6b3"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "scripts/check_capabilities.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.05055548303062096,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/58-check_capabilities.log",
+        "script_sha256": "16082ad7c640af47fc04769af8075c9dc9a0a49f3bd7c4a87ca882b4ae1c6292"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "examples/run.py",
+          "--backends",
+          "native",
+          "c-wasm",
+          "direct",
+          "--levels",
+          "0",
+          "2",
+          "--output-dir",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/examples"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 34.45432394096861,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/59-run.log",
+        "script_sha256": "bc9858b5e8999bf9a1e96da0055436b7ee1cc02700f0f8bb2cbfcd29972dd1a4"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_loop_ordinals.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 5.341605604975484,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/60-test_loop_ordinals.log",
+        "script_sha256": "514e0f9ea28992c5067236d4970724c06fbf3f7d644a12ab8a0e69baf163ad39"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_literal_ranges.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 11.340311584994197,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/61-test_literal_ranges.log",
+        "script_sha256": "6b2c96c4511c0572baef4e54ff57da30e612b666cd2b0787c1291fe1146dc86b"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_zero_stores.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 3.041263650986366,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/62-test_zero_stores.log",
+        "script_sha256": "58a1167ad081f7c7bfedc0d6316f80ec4bf98b90731158548563280a33a034f5"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_descending_while.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 3.702616942988243,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/63-test_descending_while.log",
+        "script_sha256": "448b19c9dcb9bcdcaa42d48a3ecb054e7ed84b262727626c84480dc063581d3f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_popcount_wrapper.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 3.2881103660329245,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/64-test_popcount_wrapper.log",
+        "script_sha256": "bffb71b0627ce7ff9c28631e6cde87d8e499e73aacdea8cd47eb5d094168e7b0"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_print_reentry.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.2144202029448934,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/65-test_print_reentry.log",
+        "script_sha256": "c25e2d723dceaa7afe6e682e81b31f967d5564a33bbaacbba2da2beb3a31f697"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_bulk_integer_loops.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 7.4222613999736495,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/66-test_bulk_integer_loops.log",
+        "script_sha256": "0dfe0d9846385dd9c3290e8b9592f28ea52406730af1e05423f78650dfc7f7cb"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_literal_select.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 8.429579254996497,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/67-test_literal_select.log",
+        "script_sha256": "9cdbbe5ccf5e1557b91e065fe81da209984457d0a7bb26b10494b21afa4c9a27"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_simd_only_writeback.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 6.299786205985583,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/68-test_simd_only_writeback.log",
+        "script_sha256": "b7df2564b28642ee49ffb5da1f50671577f20cbe4b977ca5dc33437e18777268"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_python_wasmtime.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 0.3426914850133471,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/69-test_python_wasmtime.log",
+        "script_sha256": "3b3ea90886c3ce7e9c53fa3419ae32409595652ac08466bb6b08a120819b9af0"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_descending_simd.py"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 4.92053774202941,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/70-test_descending_simd.log",
+        "script_sha256": "a9c5ce58028a50fa0ea4811ca801d37a2911f71c52a3873fdbd8e209ec8cca7f"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_function_value_forwarding.py",
+          "--reference-goose",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/named-control/build/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 35.914109716017265,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/71-test_function_value_forwarding.log",
+        "script_sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_named_callback_forwarding.py",
+          "--reference-goose",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/named-control/build/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 27.3169580239919,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/72-test_named_callback_forwarding.log",
+        "script_sha256": "bb46d7a2dda6f4aa64a758dca8d293095b6a57958a51d4f1680bd868380d4f76"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_memory_growth_helper.py",
+          "--reference-goose",
+          "/home/jacobt/src/goose-to-wasm/build/functions-next/forward-v3/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 1.2687589559936896,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/73-test_memory_growth_helper.log",
+        "script_sha256": "73be08b9870d5340517316b9b8f2a25188b3c15c086690be6b70235964bc0980"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_strided_stores.py",
+          "--reference-compiler",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/count-only/build/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 90.31894645496504,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/74-test_strided_stores.log",
+        "script_sha256": "32d93ce6eac373de34e1cb3d776518a620d89f61f43b651d22e346ed94063f12"
+      },
+      {
+        "command": [
+          "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+          "tests/test_byte_scans.py",
+          "--reference-compiler",
+          "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/scan-control/build/bin/goose"
+        ],
+        "exit_status": 0,
+        "wall_seconds": 85.56545371102402,
+        "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/focused/75-test_byte_scans.log",
+        "script_sha256": "150d9c3b0a045dfc258679d6f2bc5df3814837d71a50fafcf9a0ae1b338bb23b"
+      }
+    ],
+    "host": {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/bench/qualify_wasmtime_host.py",
+        "--baseline-dir",
+        "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential",
+        "--host",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/host",
+        "--jobs",
+        "4"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 125.07856597198406,
+      "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/host-runner.log"
+    },
+    "worker": {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "-B",
+        "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/worker-replay.py",
+        "--baseline-dir",
+        "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/differential",
+        "--host-report",
+        "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/host/report.json",
+        "--host",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "--output",
+        "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/worker-replay"
+      ],
+      "exit_status": 0,
+      "wall_seconds": 61.119756789004896,
+      "log": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/attempt-1/worker-runner.log"
+    },
+    "control_builds": {
+      "scan": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/scan-control/build-execution.json",
+        "sha256": "f0a9d70aaa162fd5106c4f8e82eae9dbf49fcb55bd68a5865280e54aa2c5ff2b",
+        "wall_seconds": 66.60708158701891
+      },
+      "stride": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/count-only/build-execution.json",
+        "sha256": "760ab540e85e8320916dc22fb2bf8d97f5adcb264142e225492a8885f1c05a7e",
+        "wall_seconds": 66.42010066099465
+      },
+      "merge": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/merge-control/build-execution.json",
+        "sha256": "91fbc81899e7d4168d189094c94a085c0eba5ba477b6154b859bb440149eb0b8",
+        "wall_seconds": 71.20727878197795
+      },
+      "resource": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/resource-control/build-execution.json",
+        "sha256": "84e55e69567eeb7fd45558880c1d1f8bbb7a7dab30f2e669f89d5e8806ae4f85",
+        "wall_seconds": 71.60560774302576
+      },
+      "named": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/named-control/build-execution.json",
+        "sha256": "5bb8ee1c6ac6d4ec0d32257b38a394b8228bbd922947471221b2e0eb5349163a",
+        "wall_seconds": 69.62662201299099
+      },
+      "private": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/private-control/build-execution.json",
+        "sha256": "ccdaf2b8793418765e45734e14328f9b89d7c185808b2264d6c0d062e68f0860",
+        "wall_seconds": 68.12067870603641
+      },
+      "stencil": {
+        "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/stencil-control/build-execution.json",
+        "sha256": "f9ebefb87668ea51e17be0e52d160bbb14f3f771805c3dedf190d566e058f2eb",
+        "wall_seconds": 67.73826329299482
+      }
+    },
+    "unmeasured_overhead": "Seal, catalog and final pin-check durations were not separately timed."
+  }
+}

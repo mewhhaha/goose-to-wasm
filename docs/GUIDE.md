@@ -198,6 +198,8 @@ python tests/test_backend_extensions.py
 python tests/test_static_data.py
 python tests/test_fill_loops.py
 python tests/test_merge_bounds.py
+python tests/test_strided_stores.py
+python tests/test_byte_scans.py
 python tests/test_strip_loops.py
 python tests/test_regions.py
 python tests/test_prefix_resolution.py

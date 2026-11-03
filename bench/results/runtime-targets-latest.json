@@ -1,14 +1,14 @@
 {
   "schema": "goose-runtime-reference-latest-v1",
-  "report": "2026-11-03/merge-bounds/references.json",
+  "report": "2026-11-03/strided-stores/references.json",
   "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
   "comparison": {
-    "report": "2026-11-03/merge-bounds/final-warmed.json",
-    "sha256": "0295a6c534a0fc7f2bc63c5d70065c1ed21e79115cd12508f6ead5b22a5021b8",
+    "report": "2026-11-03/strided-stores/final-warmed.json",
+    "sha256": "c3079a81ed9abec6abdbf4d377fe4731dccb35ab04019e56770a84db60e3b823",
     "compiler": "final"
   },
   "chart_verification": {
-    "report": "2026-11-03/merge-bounds/target-chart-verification.json",
-    "sha256": "6c24920bbf28e9b396077d3c8399573f8393c6960d8b384a1d275d4919ba7889"
+    "report": "2026-11-03/strided-stores/target-chart-verification.json",
+    "sha256": "884f05e0ad62490644f2cecca3f5784d0f9d68553090b1afb7fdf5fda18e38c6"
   }
 }

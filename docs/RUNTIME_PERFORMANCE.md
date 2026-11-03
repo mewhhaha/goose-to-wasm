@@ -1,5 +1,13 @@
 # Runtime performance work
 
+## Strided stores and byte scans
+
+Eligible positive-stride constant stores use a guarded group of four ordered stores. Eligible byte-equality count and last-index scans use SIMD. Scalar tails, failed guards and debug builds retain the original path.
+
+Nine paired warmed rounds measured the Sieve port at 1,472.666 → 899.059 ms on Wasmtime (1.611× paired, ratio MAD 0.028) and 1,320.857 → 846.565 ms on V8 (1.561×, MAD 0.004). The separately built selected native reference took 919.335 ms in the Wasmtime cohort; the paired direct/native time ratio was 0.971 (MAD 0.029), roughly matching within observed variation. The Sieve port grows from 3,098 to 3,482 bytes (12.4%); full Sieve grows from 6,390 to 6,698 bytes (4.8%). The other nine warmed guests and other nine full example modules were byte-identical. These are warmed kernel timings; the full Sieve example matches store grouping, but its collector push loop does not match the scan.
+
+In separate five-round factorial screens, count-only and grouping-only variants had different results from the combined variant, with an observed interaction. Wasmtime medians were 973.782 ms for count-only and 1,434.737 ms for grouping-only; V8 medians were 1,011.216 and 1,195.366 ms. The combined screen measured 874.092 ms on Wasmtime and 872.323 ms on V8. These screening observations do not establish a hardware cause. [Results and qualification](../bench/results/2026-11-03/strided-stores/README.md) retain the separate cohorts and tradeoffs.
+
 ## Guarded merge loops
 
 Eligible merge loops over 32- or 64-bit integer slices with stable local views and cursors check complete logical and physical source and destination spans before entering a branchless loop. The loop retains the original comparison, loads both candidates, selects the value to store and advances the corresponding cursor. The fast path preserves overlap behavior and access order. Failed guards and debug builds retain the scalar loop, including partial effects on traps.

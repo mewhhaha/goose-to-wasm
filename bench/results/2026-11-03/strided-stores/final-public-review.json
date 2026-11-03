@@ -1,0 +1,259 @@
+{
+  "schema": "goose-stride-scan-final-public-review-v1",
+  "status": "passed",
+  "created_utc": "2026-11-03T23:00:26.284380+00:00",
+  "reviewer": "astra_campaign",
+  "compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+  "baseline_compiler_sha256": "b53aaf097e0ea47b3f3efea158db3520aa03f9ab1fb1625efd21fff31d49319d",
+  "scope": "Final source, raw arithmetic, current public prose, chart/value/link and identity review. No compiler/test/engine execution. Archive assembly and exact offline reproduction command are pending the separate final archive audit.",
+  "decision": "GO for finite evidence collection and packaging; no public-claim blocker found.",
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "f6080ddf08bcbd0b2d61f844bafb468c4eb13fa18209212090194734218f679b"
+    },
+    {
+      "path": "bench/examples.md",
+      "sha256": "d3041e2b06a374068b6879c97d04b935bcb6fe7935e02f198246b0a5a63a0be1"
+    },
+    {
+      "path": "bench/wasmtime-host.md",
+      "sha256": "ae5de58eb6e51399d204a6dc13058236a2a182d1afab94c1da4f37afa0a11e9d"
+    },
+    {
+      "path": "docs/FUNCTIONS_PERFORMANCE.md",
+      "sha256": "3545ad821f27f23c7e42c4bb03479396dcf625d913aec839b118665eb25edef2"
+    },
+    {
+      "path": "docs/GUIDE.md",
+      "sha256": "fd8673ad11cdedcb1c243020a46309c0ae5be811e7e033ce297074dde0bb8206"
+    },
+    {
+      "path": "docs/PERFORMANCE_PLAN.md",
+      "sha256": "dc783d5c908dec9886c59986372ebf03d3ca42b4cf3255b0ee3410c5939e5f73"
+    },
+    {
+      "path": "docs/RUNTIME_TARGETS.md",
+      "sha256": "513fdd863f2c279f09f630cb1ce0c2e03a0d3d38be2259bc5e28e376facf1e82"
+    },
+    {
+      "path": "docs/RUNTIME_PERFORMANCE.md",
+      "sha256": "05e64761e5da0ca3252c84c74732840538ac63413f3c4e5057dee5c831c5b99b"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/README.md",
+      "sha256": "33f4543c1d8af81fc8e510ff9b9171eb8ab8588bbf3cea28eedb159c175d6615"
+    }
+  ],
+  "local_document_links_verified": 109,
+  "pointers": [
+    {
+      "path": "bench/results/latest.json",
+      "sha256": "e1c8585aa628bc39bc0943fce11a42b4242b63fff0110b2b998a342b8bc15174"
+    },
+    {
+      "path": "bench/results/examples-latest.json",
+      "sha256": "a05c9bbcbb702dff141d57747c66ce2c2da8a979d627ff64169c23541cea8c67"
+    },
+    {
+      "path": "bench/results/wasmtime-host-latest.json",
+      "sha256": "d38ee6c68c21f40be0a32817328439e12520ecbcb0f71b0e6f9ce850750d8ec1"
+    },
+    {
+      "path": "bench/results/runtime-targets-latest.json",
+      "sha256": "2b0e5596e41bbfb7f2b4bea039f7aac50c503990c4318c9ada6062cee7fc4e06"
+    },
+    {
+      "path": "bench/results/runtime-lifecycle-latest.json",
+      "sha256": "3ba438eb46c4445424f17cfb7c0504d88452ed54491072d082fa97c8b629c028"
+    }
+  ],
+  "reports_exact_private_copies": [
+    {
+      "path": "bench/results/2026-11-03/strided-stores/qualification.json",
+      "sha256": "86e071bc360e37dcb08c6d23608186609ab36a7856a66d24918b536544078158"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/differential.json",
+      "sha256": "d7da0da3c89c537dc6ed24057a902933a2a26b6c0df314612ae8992fc06a6817"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/host-qualification.json",
+      "sha256": "771f486c6327ba9163af352c5c366fd1c722e168be11b3fa46d0a1458b57d073"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/final-warmed.json",
+      "sha256": "c3079a81ed9abec6abdbf4d377fe4731dccb35ab04019e56770a84db60e3b823"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/final-v8.json",
+      "sha256": "877626d443e35ac7414ac78bdf19ce26ffcdb709e8ca086a30c7eb4bcf8ee08f"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/examples.json",
+      "sha256": "a3b9f26e2532d21e874b86d35baf9b82efebf41484139d92e2be86927182a8c9"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/host.json",
+      "sha256": "b960fa0162c3af5322e4e95a19753c710342a641649152ccd3708f69f44b4b76"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/cohort.json",
+      "sha256": "b313f1842befda2777ac0a0c1cecc5936bdfe4ee2a38e3c5ad791a476579a536"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/lifecycle.json",
+      "sha256": "ebc8bd24d858b2708cf9f862cfb95f60fecfda1d81af4e38bbdcaedb09ee00af"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/worker-qualification.json",
+      "sha256": "4cccf98ea6b50d123717c8962093fcff3483f1c0de96a92e7656651d254ba281"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/campaign.json",
+      "sha256": "4554e1174dba0f3fd2593e5f72d82089a2d1965a5856b0e122ae8bec0e69c5b9"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/final-numbers.json",
+      "sha256": "0ee7d4bce3b61974fc878caa1f7611a0c58d08ceb3b8f990537695a4cdf04510"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/module-analysis.json",
+      "sha256": "5ba159b20baeadcfc86639991c320eea1e70f34779f3e2ad6c73f28313a055eb"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/static-review.json",
+      "sha256": "eeb4887fe05f8a5a5305d4cd37a55ccadf2e380e24e515b9d9d6d9648371c20d"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/test-static-review.json",
+      "sha256": "bac6714c10c759cfa989e8c637fc24d4982af3e576351e2fdb7369342c840b60"
+    },
+    {
+      "path": "bench/results/2026-11-03/strided-stores/qualification-summary.json",
+      "sha256": "ad69da498600140366f00a3a5f61de719ac25e543dcacff784f2eb9667b832f7"
+    }
+  ],
+  "arithmetic_review": {
+    "path": "build/stride-hills/reviews/independent-arithmetic.json",
+    "sha256": "e960b13f374a815a63878d4638295e58c49647b5033f7841a53f2fc5c64847ac"
+  },
+  "independent_calculation": {
+    "summary_cells": 903,
+    "cohorts": {
+      "wasmtime": 550,
+      "v8": 200,
+      "examples": 1600,
+      "host": 1440,
+      "langarena": 315,
+      "lifecycle": 960
+    },
+    "separate_host_preparations": 200,
+    "exact_matrices_passed": true,
+    "artifact_identity_checks": 635,
+    "distinct_hashed_files": 615
+  },
+  "current_source_identity": {
+    "manifest": {
+      "path": "build/stride-hills/final/source.json",
+      "sha256": "0f92a14457296e1954f7a32f35d9c6c1560c0e0b0a20ec7e09946f1ece24510a"
+    },
+    "headers": 36,
+    "patches": 2,
+    "measured_source_pins_rechecked": 1405,
+    "engine_and_host_pins": [
+      {
+        "path": "build/full-hills/baseline/bin/goose-wasmtime",
+        "sha256": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3"
+      },
+      {
+        "path": ".venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so",
+        "sha256": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178"
+      },
+      {
+        "path": "build/bin/goose-wasmtime",
+        "sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28"
+      },
+      {
+        "path": "build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a",
+        "sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648"
+      },
+      {
+        "path": "build/bin/goose-wasmtime.json",
+        "sha256": "3ce9f9e13b278ac68c30136381b448d1e550116d335066952974ccccadc03dd0"
+      }
+    ]
+  },
+  "qualification": {
+    "focused_commands": 76,
+    "cases": 978,
+    "differential_executions": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574,
+    "worker_observations": 3001,
+    "worker_aliases": 3828
+  },
+  "qualification_summary": {
+    "path": "build/stride-hills/qualification/summary.json",
+    "sha256": "ad69da498600140366f00a3a5f61de719ac25e543dcacff784f2eb9667b832f7"
+  },
+  "static_reviews": [
+    {
+      "path": "build/stride-hills/qualification/static-review.json",
+      "sha256": "eeb4887fe05f8a5a5305d4cd37a55ccadf2e380e24e515b9d9d6d9648371c20d"
+    },
+    {
+      "path": "build/stride-hills/qualification/test-static-review.json",
+      "sha256": "bac6714c10c759cfa989e8c637fc24d4982af3e576351e2fdb7369342c840b60"
+    }
+  ],
+  "charts": {
+    "count": 11,
+    "numeric_labels": 453,
+    "table_cells": 46,
+    "checks_replayed_read_only": true,
+    "proofs": [
+      {
+        "path": "bench/results/2026-11-03/strided-stores/chart-verification.json",
+        "sha256": "17fadf0ffde4f9881c579aff881ed0ff92bd3daa5787c3438302afa2ab2f397e"
+      },
+      {
+        "path": "bench/results/2026-11-03/strided-stores/target-chart-verification.json",
+        "sha256": "884f05e0ad62490644f2cecca3f5784d0f9d68553090b1afb7fdf5fda18e38c6"
+      },
+      {
+        "path": "bench/results/2026-11-03/strided-stores/chart-visual-review.json",
+        "sha256": "6c8a0caf9d701e2affcab4dbede36a06841eea433eef72d679c3071593528db2"
+      },
+      {
+        "path": "bench/results/2026-11-03/strided-stores/table-verification.json",
+        "sha256": "e1aa7eacac4aed07a5e61d4cb8e4c0930b49ab57648ce52c5c9cb5595a3ed53c"
+      }
+    ],
+    "visual_review": "Root inspected all 11 charts via three contact sheets and full lifecycle/host plots plus Sudoku detail. This reviewer independently inspected the three retained contact sheets: labels, legends and bounds readable, no clipping identified. SVG/preview proof hashes match current bytes."
+  },
+  "guide": {
+    "proof": {
+      "path": "build/stride-hills/guide-validation/report.json",
+      "sha256": "6420c1300f3c946f35980f2811ada9a67d1e56ce8a0bed26bde8d866cd8d7050"
+    },
+    "checks": 15,
+    "guide_sha256": "fd8673ad11cdedcb1c243020a46309c0ae5be811e7e033ce297074dde0bb8206",
+    "limit": "Setup/installer instructions unchanged and not rerun; recorded command/session smoke checks were inspected, not executed again."
+  },
+  "findings": [
+    "Nine paired confirmation rounds recompute Sieve 1.610507 speedup/MAD0.028085 on Wasmtime and1.561316/MAD0.003628 on default V8. Both are warmed configured-iteration regions, not launch-to-exit timings.",
+    "Selected native919.335ms and final899.059ms belong to the same fresh Wasmtime cohort; paired direct/native0.971/MAD0.029 supports near parity only. References were previously built and selected; neither a new selection nor a universal engine ceiling is claimed.",
+    "Only Sieve changes among ten warmed modules (+384bytes) and ten full-example direct modules (+308bytes). Nine identical modules in each set remain controls. Full Sieve has an owner-backed marking loop but its collector push loop is outside the byte-scan matcher.",
+    "Five-round factorial screens are kept separate from nine-round delivery confirmation. Grouping-only Wasmtime was flat/slower while V8 improved; the larger combined benefit is an observed interaction with no asserted hardware explanation.",
+    "Full process host, Python/V8 entry probes, LangArena regions and lifecycle modes remain separate cohorts. Native times are not mixed across them. Cache-hit, cold no-cache, precompiled and fresh-Store resident boundaries are explicit.",
+    "All 76 focused gates,978 cases/9573 differential observations/7656 native comparisons,11484 host observations/1574 modules and3001 worker cases over3828 aliases passed;1368 qualification pins were rechecked.",
+    "No compiler, runtime, benchmark or renderer change occurred after qualification. The pre-import select.py shadowing failure is retained separately and contributed zero measured engine observations."
+  ],
+  "pending": [
+    "Finite archive collection, source/guest/failed-attempt closure and documented no-argument offline verifier execution.",
+    "Final additive archive review and final SHA256.json insertion after packager freezes public writes."
+  ],
+  "blockers": []
+}

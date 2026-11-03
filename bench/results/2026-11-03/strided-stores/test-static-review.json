@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T22:14:54.087796+00:00",
+  "compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+  "decision": "GO to seal and run broad qualification; no source correctness blocker found.",
+  "broad_qualification": "PENDING: 76 focused commands, 978 cases / 9573 differential observations / 7656 native comparisons, 11484 standard host observations, and derived distinct module/input worker cases over 3828 aliases. Focused prechecks and factorial screens do not substitute for these gates.",
+  "preserved_prior_group4_reviews": [
+    {
+      "path": "build/stride-hills/qualification/preparation-history/group4-only-reviews/static-review.json",
+      "sha256": "e9092e3d143def03a03744216f887adec09f445875e1929f4dc1a5cf7e69a53a"
+    },
+    {
+      "path": "build/stride-hills/qualification/preparation-history/group4-only-reviews/test-static-review.json",
+      "sha256": "e8c6a3a46a32147b4131fea531e7b57d1121d69f761f24db70a473dcf44e1226"
+    }
+  ],
+  "schema": "goose-stride-scan-test-static-review-v2",
+  "scope": "Final locked test sources, recorded clean focused executions, CI and matched-control qualification wiring. This review did not rerun tests.",
+  "tests": [
+    {
+      "path": "tests/test_strided_stores.py",
+      "sha256": "32d93ce6eac373de34e1cb3d776518a620d89f61f43b651d22e346ed94063f12"
+    },
+    {
+      "path": "tests/test_byte_scans.py",
+      "sha256": "150d9c3b0a045dfc258679d6f2bc5df3814837d71a50fafcf9a0ae1b338bb23b"
+    }
+  ],
+  "ci": {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "e412072d9facdb25d8d407f06a666fae810987e40e201b803173ee33606c69d9"
+  },
+  "strided_execution": {
+    "execution": {
+      "path": "build/stride-hills/test-development/attempt-6-combined-full/execution.json",
+      "sha256": "18d9bd2d458e7c3bafcc0450312ff39fee0e638e77e71d3619f400fe2303f5da"
+    },
+    "log": {
+      "path": "build/stride-hills/test-development/attempt-6-combined-full/tests.log",
+      "sha256": "b130f87debb8335c98df68229009915b61b23a8d87ec6544f8a7d00db37e99f6"
+    },
+    "snapshot": {
+      "path": "build/stride-hills/test-development/attempt-6-combined-full/test_strided_stores.py",
+      "sha256": "32d93ce6eac373de34e1cb3d776518a620d89f61f43b651d22e346ed94063f12"
+    },
+    "methods": 8,
+    "native_runs": 84,
+    "ordinary_candidate_engine_runs": 168,
+    "dynamic_candidate_reference_v8_wasmtime_runs": 5544,
+    "reference_compiler_sha256": "91c365bd21349ff11c28d4bf9eb0f7073b25649b04d71e60e6030ee520a60963"
+  },
+  "scan_execution": {
+    "manifest": {
+      "path": "build/stride-hills/scan-tests/full-clean-manifest.json",
+      "sha256": "4386ec204b9cf6c1f27fb4109e89494465ab57a2f19f95ab11dde856c83ac1a2"
+    },
+    "result": {
+      "path": "build/stride-hills/scan-tests/20261103T220446.928143Z/result.json",
+      "sha256": "dc53bfb5ce788e92c1d7b2f23a142c20f93d34c52ca48ba55506c64ea2c22ca4"
+    },
+    "log": {
+      "path": "build/stride-hills/scan-tests/full-attempt-1.log",
+      "sha256": "398e6e0d27e69fa9b21a074d341e6073a9ee302df91ff7ad015e277cdfe436a0"
+    },
+    "methods": 6,
+    "counts": {
+      "compiles": 240,
+      "compile_failures": 0,
+      "engine_cases": 21320,
+      "oracle_cases": 10412,
+      "body_checks": 120
+    },
+    "reference_compiler_sha256": "b2afb8d57af01cdf635070a2acfaf389315077a49bc2211c3a6a6c4e488ca13f",
+    "engine_versions": {
+      "v8_node": "v24.22.1",
+      "wasmtime": "50.0.1"
+    }
+  },
+  "strided_findings": [
+    "Independent scalar oracle covers all eight signed/unsigned integer widths, exact low literal bits, logical checking before wrapped physical addressing, ordered writes, final cursor and i64 wrap. V8/Wasmtime and matched reference compare memory windows, traps and abort payload/line.",
+    "O0/O2 group boundaries, five strides, inclusive/unit/explicit-assignment updates, high pointers, short logical and physical spans, large strides and finite invalid/empty cases are exercised. Fixed/raw-owner frame/global positives and unchanged full Sieve output also have native or engine oracles.",
+    "Debug, captures/addresses, extra effects/calls/break and encoded/public-owner cases assert scalar body identity when the supplied matched reference is present.",
+    "The new eighth method compiles a closed raw-owner private function before adding a test-only export, asserts the CODE section is unchanged and confirms optimized O2 body difference. Thirteen layouts include header offsets -16 through +24, physical-tail faults and zero-trip forged pointers. Matching scalar-control outcomes directly exercise the raw header-disjointness guard; earlier nonraw forged-owner coverage is not conflated with it."
+  ],
+  "scan_findings": [
+    "Independent oracle returns count, final cursor and last index, models exact i64 wrapping and debug overflow, and checks trap outcomes. Candidate/control comparisons also include abort details on both engines.",
+    "All 256 byte values, i8/u8 literal bits, stride masks 1/2/4/8, individual lane matches, skipped-lane matches, empty/full masks and wrapping count are covered. O0/O2 release/debug, vector boundaries, unaligned/high pointers, short logical/physical spans, literal and slice.len endpoints are included.",
+    "Body-equality negatives cover cursor/count/last aliases, changed bounds, address/capture exposure, extra effects/calls/reads, unsupported step, nonbyte type, explicit widening and reversed predicate. Native oracles cover fixed storage; owners remain scalar.",
+    "The clean result records 240 direct-Wasm compiles, 21320 engine cases, 10412 independent oracle checks and 120 body comparisons. The earlier ARG_MAX harness failure recorded zero engine cases and remains retained; it is not counted as coverage."
+  ],
+  "qualification_wiring": {
+    "plan": {
+      "path": "build/stride-hills/qualification/plan.json",
+      "sha256": "5575eade3aad9a53a18bce7bc66987712d7e0e46fe49ba21d6c0a4679343172d"
+    },
+    "runner": {
+      "path": "build/stride-hills/qualification/run.py",
+      "sha256": "0d400d3179b938b27f5277de3d451b61b9ad80b28780cd88674ca95e9a84889b"
+    },
+    "commands": [
+      [
+        "tests/test_strided_stores.py",
+        "--reference-compiler",
+        "{stride_reference}"
+      ],
+      [
+        "tests/test_byte_scans.py",
+        "--reference-compiler",
+        "{scan_reference}"
+      ]
+    ],
+    "control_proofs": [
+      {
+        "control": "scan",
+        "compiler_sha256": "b2afb8d57af01cdf635070a2acfaf389315077a49bc2211c3a6a6c4e488ca13f",
+        "proof": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/qualification/scan-control/build/control-toolchain-match.json",
+          "sha256": "95d77ddb5529423a7be9e5251917940a85e5923ee2c24044a609367765de4a61"
+        }
+      },
+      {
+        "control": "stride",
+        "compiler_sha256": "91c365bd21349ff11c28d4bf9eb0f7073b25649b04d71e60e6030ee520a60963",
+        "proof": {
+          "path": "/home/jacobt/src/goose-to-wasm/build/stride-hills/count-only/build/control-toolchain-match.json",
+          "sha256": "823b20d95eb7e4c5cd3afd8d606b37bacdbce9964597ec7dd71e8c84cdaf357f"
+        }
+      }
+    ]
+  },
+  "limits": [
+    "Standalone CI without an optional frozen reference cannot perform reference body-equality checks; the broad qualification commands supply exact matched references.",
+    "Strided stores have no dedicated positive slice.len-bound fixture; that matcher remains statically reviewed. Scan has positive slice.len fixtures.",
+    "Memory oracles inspect declared relevant windows rather than every byte of memory. Raw-owner retargeting is checked by full recorded candidate/control outcomes rather than a fixed-view oracle.",
+    "Focused counts above are retained clean prechecks, not the pending broad qualification result."
+  ]
+}

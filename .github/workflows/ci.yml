@@ -127,6 +127,8 @@ jobs:
           python tests/test_descending_simd.py
           python tests/test_byte_stencil.py
           python tests/test_merge_bounds.py
+          python tests/test_strided_stores.py
+          python tests/test_byte_scans.py
       - name: Stable regions, memory isolation and scoped owner cleanup
         run: |
           python tests/test_regions.py

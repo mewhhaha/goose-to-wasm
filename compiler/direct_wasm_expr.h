@@ -2057,7 +2057,7 @@ inline void Function::Expr(Node *n) {
         }
         case NK_While: {
             auto w = static_cast<While *>(n);
-            if (BoundedMerge(w)) return;
+            if (ByteScan(w) || GroupedStores(w) || BoundedMerge(w)) return;
             auto unroll = UnrollWhile(w);
             auto descending = [&]() -> Binary * {
                 if (!unroll) return nullptr;
