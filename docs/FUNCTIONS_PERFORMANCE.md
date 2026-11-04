@@ -6,4 +6,4 @@ In Functions, `by_name` loses two static `memory.copy` instructions, its body sh
 
 The prior compiler passed 73 focused gates, 9,573 differential executions and 11,484 host replays. [That cohort’s measurements and qualification](../bench/results/2026-11-03/runtime-stencil/README.md) cover the other runtime and compiler changes as well.
 
-The current compiler passed 76 focused gates, 9,573 differential executions and 11,484 host replays. [Current qualification](../bench/results/2026-11-04/byte-scans/README.md) covers the later runtime changes as well.
+The current compiler passed 77 focused gates, 9,573 differential executions and 11,484 host replays. [Current qualification](../bench/results/2026-11-04/leaf-and-loads/README.md) covers the later runtime changes as well.

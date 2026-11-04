@@ -1,0 +1,389 @@
+{
+  "schema": "goose-leaf-and-loads-final-public-review-v1",
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-04T06:18:14.380096+00:00",
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "baseline_compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "scope": "Final public claims, rounded table values, exact report copies, source/engine/cohort boundaries and current pointers. No compiler, tests or guest engines executed. Archive assembly and documented offline command validation remain separate final audit work.",
+  "decision": "GO for bounded archive assembly; no remaining public-claim blockers.",
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "9daea673abf49f36c8df23ee90ec1e9118e50c9006cb2ad20c0c35406acd6da8",
+      "bytes": 3026
+    },
+    {
+      "path": "bench/examples.md",
+      "sha256": "4e2268ecb793348ad97e0a6cefae24c76e3d20ab046099e53679bebe33474504",
+      "bytes": 3873
+    },
+    {
+      "path": "bench/wasmtime-host.md",
+      "sha256": "e517ca831b129fe4283c589a971417a7b432704be9268c9817793a19ef712c45",
+      "bytes": 4021
+    },
+    {
+      "path": "docs/FUNCTIONS_PERFORMANCE.md",
+      "sha256": "7af1370a1e71f0036416e8f1383fd0d40dd1c6bd0d565bd467f80a2a7ee1ee3f",
+      "bytes": 1293
+    },
+    {
+      "path": "docs/PERFORMANCE_PLAN.md",
+      "sha256": "6fb67aa7664ce44e36e1f00e766b21d34d8bc405155b39a127d7af46c40319ed",
+      "bytes": 3637
+    },
+    {
+      "path": "docs/RUNTIME_TARGETS.md",
+      "sha256": "d452ba73fa43551d64395b1bae562e83517516996c314d0f381f758449f1c887",
+      "bytes": 3069
+    },
+    {
+      "path": "docs/RUNTIME_PERFORMANCE.md",
+      "sha256": "de2329f4dea0a9f941dad87b5e11eb26f718921b1428836ab8b1d3b804c327d6",
+      "bytes": 28102
+    },
+    {
+      "path": "docs/GUIDE.md",
+      "sha256": "fd8673ad11cdedcb1c243020a46309c0ae5be811e7e033ce297074dde0bb8206",
+      "bytes": 23043
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/README.md",
+      "sha256": "3488640ad82c74b5ed7f16f92ca0ff9d76e7b5ee75d35054955f62536ab82151",
+      "bytes": 4103
+    }
+  ],
+  "latest_pointers": [
+    {
+      "path": "bench/results/latest.json",
+      "sha256": "4bf7af8dbd3c9236093ff319a8d2829f16a7d831dd2621b8cc058a64382d2c3d",
+      "bytes": 174
+    },
+    {
+      "path": "bench/results/examples-latest.json",
+      "sha256": "9ab48ee8e91446082c27b2aeb3f2f20ada24005f590d3a1edaa078505e0c5a5a",
+      "bytes": 188
+    },
+    {
+      "path": "bench/results/wasmtime-host-latest.json",
+      "sha256": "45417fbd2d47225e3c44c8db58ca11348ddccdc0649bf7e6f2c1ee9cfe4ebf04",
+      "bytes": 179
+    },
+    {
+      "path": "bench/results/runtime-targets-latest.json",
+      "sha256": "c967395afcd4b7cc9396b33c6ca9a3848a814c6df5b661343305e96c6c79e227",
+      "bytes": 565
+    },
+    {
+      "path": "bench/results/runtime-lifecycle-latest.json",
+      "sha256": "12e0b240e9ac0eb8f2f7fd002fc7a8a5278a5eb0bb0acfa6ec9cee563408d8b6",
+      "bytes": 188
+    }
+  ],
+  "public_reports": [
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/qualification.json",
+      "sha256": "4d5220140a885382c2903238a24bf1b448b5eece27f31c870fb86d8f216bad07",
+      "bytes": 35133
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/differential.json",
+      "sha256": "fdbb2f2f33899b915fce79370ab9755b67b051601d95625c3cd57df37ad8bae6",
+      "bytes": 6091614
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/host-qualification.json",
+      "sha256": "b2ef8eb88e0637dff429d9e43a5d76e757fd892154fc080865a7e9406b246e79",
+      "bytes": 20838606
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/final-warmed.json",
+      "sha256": "e3cc57c5ff9421b420882ee958b935eaf39d03fbe7f4c555ea3ab604f8661111",
+      "bytes": 1529585
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/final-v8.json",
+      "sha256": "4ab3370406f60291741c1663bbf030b74e0d3bd5d4fd093980c6501270f30403",
+      "bytes": 810985
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/examples.json",
+      "sha256": "bdebb4abd6306d10e437815c4c6354ff56e11d409433ebd3c565eabb49ed1c14",
+      "bytes": 1809916
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/host.json",
+      "sha256": "477d5bfc5f1d1764a088a5df9bc732297f434906da44420a3c0d23f3575ea09b",
+      "bytes": 1127636
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/cohort.json",
+      "sha256": "1cb195471caec76cfdd4af9a8e82f19bcd7627f6218a062fd01adc290d7b1497",
+      "bytes": 879411
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/lifecycle.json",
+      "sha256": "a5bb3edad3324d18efc91d4319938d9c1105f4f12a66421d151487deea5150da",
+      "bytes": 1739999
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/worker-qualification.json",
+      "sha256": "f89cd639d1e3294657524fad3c614ed740ceb9bed6af83e9e3ca25e0bb25bba8",
+      "bytes": 8044563
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/campaign.json",
+      "sha256": "8c475c3591b296256bdca8a0d94b5e14aaad2e6646d73418a3fe9f4229ab3921",
+      "bytes": 4860
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/final-numbers.json",
+      "sha256": "d24455e04ebafb4f160e2c5babeb1a5fc8801ccf341a3310c13664f6ff9ebced",
+      "bytes": 774530
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/module-analysis.json",
+      "sha256": "3040d422abc2257975b6ce83e2e92dc1aff2a9a37923bfb2fd34455d164f14b0",
+      "bytes": 74660
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/static-review.json",
+      "sha256": "2ce947a172e59dd436783710d38334416f9965b8ae44e0f240982cda01a34e99",
+      "bytes": 12552
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/test-static-review.json",
+      "sha256": "599976034827543fceca1d46d12a51ff7c822e41f8e36527b688cedf5914c7f7",
+      "bytes": 12327
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/qualification-summary.json",
+      "sha256": "196079383cf72c661f4370a43c7acf414d6c81ebbd754117e88ee6fe4e3f386c",
+      "bytes": 49519
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/references.json",
+      "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+      "bytes": 1939980
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/compiler-identity.json",
+      "sha256": "d0aa23d62bad6c10fda64a0dbc99faa27460580d0a19b1aae15ac566749b1bcc",
+      "bytes": 9492
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/readme.json",
+      "sha256": "4843d8c466bf1fa7a222e1ef4312d2e94585df576ea44f35fb1c43d2fb52f17e",
+      "bytes": 108941
+    }
+  ],
+  "proofs": [
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/chart-verification.json",
+      "sha256": "c52d150a9c5eea932ce40fe84406865bfe6460fb36dcfe7442825a22f4427cb1",
+      "bytes": 2586
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/chart-visual-review.json",
+      "sha256": "cb7834f473fce4b12bb3a00281fdffa9e1394afe2fc929cbb8768f85b855cf2a",
+      "bytes": 4866
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/target-chart-verification.json",
+      "sha256": "5e6d3b540e4bcaaf283b8c4c32c5b30f5c16480b099065da20931894081a5c32",
+      "bytes": 75412
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/table-verification.json",
+      "sha256": "d1412e4464330df4c6245c028589a73c03f6ea84cf551f6191eb0b8ed6a7f4df",
+      "bytes": 2994
+    },
+    {
+      "path": "bench/results/2026-11-04/leaf-and-loads/guide-verification.json",
+      "sha256": "7d6abb0bd58e011f4db0e8af5bb92efaed5953b6e2f92c5ff2d26913916a4ff8",
+      "bytes": 5218
+    }
+  ],
+  "evidence": [
+    {
+      "path": "build/next-runtime-hills/reviews/independent-arithmetic.json",
+      "sha256": "875c09c74c09feadc274a2be8a2b4d36ffbdfdfef5b16bf802b6cf4ff3292db1",
+      "bytes": 14339
+    },
+    {
+      "path": "build/next-runtime-hills/tiny-machine-review.json",
+      "sha256": "c7aa7efcf9710f116c18043f674e10cdaf1f2ddafeddd105488bcd470a33ea9b",
+      "bytes": 10028
+    },
+    {
+      "path": "build/next-runtime-hills/tiny-leaf-implementation-review.json",
+      "sha256": "3fa75ad3f707254bdb2d607599c824caec5926da0c29b33fd6749109f76460c4",
+      "bytes": 5111
+    },
+    {
+      "path": "build/next-runtime-hills/qualification/static-review.json",
+      "sha256": "2ce947a172e59dd436783710d38334416f9965b8ae44e0f240982cda01a34e99",
+      "bytes": 12552
+    },
+    {
+      "path": "build/next-runtime-hills/qualification/test-static-review.json",
+      "sha256": "599976034827543fceca1d46d12a51ff7c822e41f8e36527b688cedf5914c7f7",
+      "bytes": 12327
+    },
+    {
+      "path": "build/next-runtime-hills/qualification/summary.json",
+      "sha256": "196079383cf72c661f4370a43c7acf414d6c81ebbd754117e88ee6fe4e3f386c",
+      "bytes": 49519
+    },
+    {
+      "path": "build/next-runtime-hills/qualification/completion.json",
+      "sha256": "a68beb0f8c33ec906cb15db7b728068826622f00a04075381eda7679a50a578b",
+      "bytes": 5773
+    },
+    {
+      "path": "build/next-runtime-hills/reviews/controller-recovery-review.json",
+      "sha256": "62ecfb10a8a3823daf15f18488687330f378d0a9691f9f810f9fc7e417a97f25",
+      "bytes": 4280
+    },
+    {
+      "path": "build/next-runtime-hills/reviews/resume-helper-static-review.json",
+      "sha256": "c414ac853de2aa6fc30dee95178c1f9bb444e2d1ba7d2d0587d07d9513235efc",
+      "bytes": 3786
+    },
+    {
+      "path": "build/next-runtime-hills/delivery-execution-resumed/report.json",
+      "sha256": "c8830dac56919979abd0cc7b18ff74d17a32318011777c23e9e04b1a46b524d2",
+      "bytes": 1216472
+    },
+    {
+      "path": "build/next-runtime-hills/delivery-execution-resumed/coordinator-completion.json",
+      "sha256": "a6069ebb1dc4fa3999624d7f9db0362ed79f8702a0417f3bb4f7af23ab7a0ecd",
+      "bytes": 360
+    },
+    {
+      "path": "build/next-runtime-hills/delivery-package/recovery-validation-probes.json",
+      "sha256": "be7a4e576bbc486e1b3034183d656ae5aa5f2f1e8b868f90ec85f105d14f2fe3",
+      "bytes": 2743
+    },
+    {
+      "path": "build/next-runtime-hills/delivery-package/recovery-timing-validation.json",
+      "sha256": "36a156740751c438d5944acbba3047f7aeac3a6cb60bba8edf0ba76f1a06e8e2",
+      "bytes": 790
+    }
+  ],
+  "package_sources": [
+    {
+      "path": "build/next-runtime-hills/delivery-package/bundle.py",
+      "sha256": "b7b72052d12bfbaf6061ed034a55fd7593139969b758e0cb15f8e97a2dfac07a",
+      "bytes": 33234
+    },
+    {
+      "path": "build/next-runtime-hills/delivery-package/checks.py",
+      "sha256": "43f9bf84241c93a8ff2c796f49ecaa65e4ded778889b6a62beb588f9485ec9bb",
+      "bytes": 41044
+    },
+    {
+      "path": "build/next-runtime-hills/delivery-package/verify.py",
+      "sha256": "f91ae42f6ded7f8d91b8fff6c450f4dbb2811aa6e57dd0d9d77bdcc1d578904b",
+      "bytes": 31207
+    },
+    {
+      "path": "build/next-runtime-hills/delivery-package/spec.json",
+      "sha256": "2ac8d8c127243bd05eacc58fc64c53935486c095398fc11ecef22b1da5b9a70e",
+      "bytes": 15824
+    }
+  ],
+  "checks": {
+    "documents": 9,
+    "existing_local_link_targets": 111,
+    "latest_pointers": 5,
+    "raw_summary_cells_independently_recomputed": 903,
+    "primary_observations": 5065,
+    "separate_host_preparations": 200,
+    "charts": 11,
+    "numeric_chart_labels": 453,
+    "table_cells": 46,
+    "guide_commands_and_requests": 15,
+    "headers": 37,
+    "patches": 2,
+    "qualification_input_pins": 1487,
+    "matched_controls": 8,
+    "qualified_focused_commands": 77,
+    "differential_observations": 9573,
+    "native_comparisons": 7656,
+    "standard_host_observations": 11484,
+    "unique_host_modules": 1574,
+    "worker_observations": 3001,
+    "worker_aliases": 3828
+  },
+  "findings": [
+    "Paired Wasmtime speedup is 1.2261049803610888 (MAD 0.044451026865227394) for Quick and 1.248346492262265 (MAD 0.0038123305893742465) for custom hash; public 1.23x/1.25x rounding agrees.",
+    "V8 paired Quick 1.0075084239454366 and custom hash 0.9974426187171335 are described as essentially flat; the separate approximately 1 percent hash-only screening loss remains disclosed.",
+    "Only warmed Quick (+124 bytes) and custom hash (-13 bytes) change; eight other warmed guests and all ten full example guests are identical. No full-process timing difference is attributed to this compiler change.",
+    "Frozen selected native/Wasm reference builds are distinguished from the new paired executions. Profile-specific comparisons are not universal ceilings; CRC outer-repetition AVX2 remains disclosed.",
+    "Warmed measurements use native host e046 linked dynamically to Python Wasmtime; process/lifecycle uses e303 linked statically to SDK Wasmtime. Both are 50.0.1 and public prose now distinguishes them.",
+    "Recovery retains four exact completed phase records/reports/streams. Old 315-row LangArena child has unknown process exit and zero primary use. Fresh LangArena and lifecycle complete six observed exit-zero phases; cause of original controller termination remains unconfirmed.",
+    "Strict live/offline recovery validator binds raw streams, unchanged pins/environment, completion report SHA, exact command differences and timezone-aware chronology. Fourteen identity/state mutations and two timing mutations are rejected.",
+    "Current qualification links/counts in Functions and latest runtime section were corrected before this review. Historical comparisons remain explicitly linked to earlier campaigns.",
+    "Root visual review is pinned and its current SVG/PNG hashes match; this audit independently verifies proof bindings and numeric/source consistency, not a duplicate visual inspection."
+  ],
+  "engine_identities": {
+    "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+    "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+    "/home/jacobt/src/goose-to-wasm/build/full-hills/baseline/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3"
+  },
+  "source_inventory": {
+    "headers": {
+      "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+      "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+      "direct_wasm.h": "62e010a5eb5ecc02b84249f995238c562b5d659708189402fa0740de8ba974be",
+      "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+      "direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+      "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+      "direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+      "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+      "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+      "direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+      "direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+      "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+      "direct_wasm_expr.h": "9a1ecc291d3776c2f9060e5719f927a44f195a1fdfc0e16e116da77d7be7e87d",
+      "direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+      "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+      "direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+      "direct_wasm_merge.h": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+      "direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+      "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+      "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+      "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+      "direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+      "direct_wasm_scan.h": "6d93756d8b7423d788bfd73e6a6455b7f9f34b6434e9dda76af8c078b5d8740f",
+      "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+      "direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+      "direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+      "direct_wasm_stride.h": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+      "direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+      "direct_wasm_tiny_leaf.h": "c87caaf3b8f1c9c97f4487047fb77500d3355a69959fe9a4c7cb050652b1ab77",
+      "direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+      "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+      "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+      "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+      "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+      "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+      "wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+    },
+    "patches": {
+      "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+      "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+    }
+  },
+  "limits": [
+    "Shared-host observational timing; no hardware-cause attribution from instruction counts.",
+    "Guide setup/install prerequisites were not rerun; the recorded 15 post-timing CLI/session checks passed.",
+    "Archive closure, omissions, final checksum manifest and exact plain-python offline command are pending assembly and must pass the subsequent separate archive audit."
+  ],
+  "blockers": []
+}

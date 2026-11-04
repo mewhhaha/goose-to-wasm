@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "charts": [
+    {
+      "chart": "examples-compilation.svg",
+      "labels_checked": 30,
+      "sha256": "0c11f9363dc23bc899e8c530872d0109d848db0886d198fd544cab4d3f822a42"
+    },
+    {
+      "chart": "examples-python-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "ef5bd02173628b0d275b926ecac823877af872e9c3bd0aa653baf29ec8820e9f"
+    },
+    {
+      "chart": "examples-entry.svg",
+      "labels_checked": 40,
+      "sha256": "05eaed49d099f6716ba72c9310dbe9fee62d5187587897ce4c9e19754f1a2814"
+    },
+    {
+      "chart": "examples-runtime.svg",
+      "labels_checked": 60,
+      "sha256": "c9d22775ff37c476ff1019414dd10891f3209e2064581d724a98542ec402775c"
+    },
+    {
+      "chart": "wasmtime-host-runtime.svg",
+      "labels_checked": 40,
+      "sha256": "d03b5af972929456cdc7cebf33417dbd9c24cc085e780722a2e5dede77069fc6"
+    },
+    {
+      "chart": "wasmtime-host-c-wasm.svg",
+      "labels_checked": 40,
+      "sha256": "8dbba1f54c05329dcb1f56b1c996c582cd931f8988056d3dc13d6b7395359796"
+    },
+    {
+      "chart": "wasmtime-host-preparation.svg",
+      "labels_checked": 40,
+      "sha256": "1d509847960c223cbcc03a5e8ae60bc33e3698ad398d84fba8fb89c56b23a884"
+    },
+    {
+      "chart": "compilation.svg",
+      "labels_checked": 21,
+      "sha256": "14d039dc520401e9d55d70f7cf1f8f14537a12111ac7d747a55b324c52f8d005"
+    },
+    {
+      "chart": "runtime.svg",
+      "labels_checked": 42,
+      "sha256": "5c7611fb60193c5fd65b67a5ae9a76b7ea4e5d9f994913dd1162c758ba1b4593"
+    },
+    {
+      "chart": "runtime-targets.svg",
+      "labels_checked": 30,
+      "sha256": "19802d9a65dd90808190402bc624db6ba5cc659d4f982568282875afb4cf2293"
+    },
+    {
+      "chart": "runtime-lifecycle.svg",
+      "labels_checked": 50,
+      "sha256": "88123a76dd83adefc79ad1c1711193911c0a1b1cda99527bb80e43fea9394d2f"
+    }
+  ],
+  "total_numeric_bar_labels": 453,
+  "method": "Exact SVG text order and rounded values matched to retained summary cells; chart generators validate their source fingerprints. Pointer hashes checked. Visual inspection recorded separately after rendering.",
+  "visual_review": {
+    "path": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/review.json",
+    "sha256": "cb7834f473fce4b12bb3a00281fdffa9e1394afe2fc929cbb8768f85b855cf2a",
+    "status": "passed",
+    "method": "All11SVGs rendered at1600px; all11 inspected onthreecontact sheets, plus runtime-targets andruntime-lifecycle fullsize. Titles, axes, legends andlabels fit without visible clipping. Independent numeric matching checked453 bar labels."
+  }
+}

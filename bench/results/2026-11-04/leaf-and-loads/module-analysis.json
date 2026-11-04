@@ -1,0 +1,2332 @@
+{
+  "schema": "goose-leaf-and-loads-module-analysis-v1",
+  "status": "passed",
+  "method": "Existing measured unchanged-source O2 modules and compiler statistics; no extra compilations. Static counts are not dynamic operation counts. Full examples and adapted warmed kernels remain distinct unchanged workloads.",
+  "source_reports": {
+    "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-04/byte-scans/examples.json": "758fd077be2032870010c110d7d9a176395c7ef0d36b8c517c262509427637dd",
+    "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/report.json": "bdebb4abd6306d10e437815c4c6354ff56e11d409433ebd3c565eabb49ed1c14",
+    "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/report.json": "e3cc57c5ff9421b420882ee958b935eaf39d03fbe7f4c555ea3ab604f8661111"
+  },
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "baseline_compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "examples": [
+    {
+      "task": "squares",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/squares/direct/0/program.wasm",
+        "sha256": "6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc",
+        "bytes": 1375,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/squares-baseline.disassembly",
+        "disassembly_sha256": "49a64e7d95d160bed60a54639eb23eea80d02c3027135e815cc723b620734558",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 311,
+            "body_hash": "2272736725239167149"
+          },
+          {
+            "name": "_start",
+            "index": 10,
+            "code_bytes": 17,
+            "body_hash": "3250867854454395021"
+          },
+          {
+            "name": "grow_memory",
+            "index": 11,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/squares/direct/0/program.wasm",
+        "sha256": "6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc",
+        "bytes": 1375,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/squares-final.disassembly",
+        "disassembly_sha256": "89080c6f906ea969575f7753b34654c1ff1b2e1e4a7673c2ee99861c2db7d5ca",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 311,
+            "body_hash": "2272736725239167149"
+          },
+          {
+            "name": "_start",
+            "index": 10,
+            "code_bytes": 17,
+            "body_hash": "3250867854454395021"
+          },
+          {
+            "name": "grow_memory",
+            "index": 11,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "tour",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/tour/direct/0/program.wasm",
+        "sha256": "f7d6ede315a3e57039c02d18f94024499d3ba2af1ea9901f06b341293e7deb06",
+        "bytes": 35592,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/tour-baseline.disassembly",
+        "disassembly_sha256": "be7e6d3e0445982c15de484ed060df178bcb8ed99c29233ef75c3ee4ea4a2fcf",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 32687,
+            "body_hash": "313413028337906620"
+          },
+          {
+            "name": "divide#4",
+            "index": 10,
+            "code_bytes": 52,
+            "body_hash": "8002607825641883538"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 11,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 12,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 13,
+            "code_bytes": 161,
+            "body_hash": "5157214888614136117"
+          },
+          {
+            "name": "grow_memory",
+            "index": 14,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          },
+          {
+            "name": "read_uleb_array",
+            "index": 15,
+            "code_bytes": 216,
+            "body_hash": "12733478868527308160"
+          },
+          {
+            "name": "patch_uleb_array_length",
+            "index": 16,
+            "code_bytes": 316,
+            "body_hash": "15178263182205250982"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/tour/direct/0/program.wasm",
+        "sha256": "f7d6ede315a3e57039c02d18f94024499d3ba2af1ea9901f06b341293e7deb06",
+        "bytes": 35592,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/tour-final.disassembly",
+        "disassembly_sha256": "1f7e9d309eef545983190306bc689f4e08de10956e89b702f5922ecfe9396ba7",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 32687,
+            "body_hash": "313413028337906620"
+          },
+          {
+            "name": "divide#4",
+            "index": 10,
+            "code_bytes": 52,
+            "body_hash": "8002607825641883538"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 11,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 12,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 13,
+            "code_bytes": 161,
+            "body_hash": "5157214888614136117"
+          },
+          {
+            "name": "grow_memory",
+            "index": 14,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          },
+          {
+            "name": "read_uleb_array",
+            "index": 15,
+            "code_bytes": 216,
+            "body_hash": "12733478868527308160"
+          },
+          {
+            "name": "patch_uleb_array_length",
+            "index": 16,
+            "code_bytes": 316,
+            "body_hash": "15178263182205250982"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "functions",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/functions/direct/0/program.wasm",
+        "sha256": "048eb4b49710c64615529758ce76944ae591ebd63325b3c6ae5deb580da2a762",
+        "bytes": 39322,
+        "static_memory_copy": 254,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/functions-baseline.disassembly",
+        "disassembly_sha256": "fce4fc6d81e4858c5bc7c9a90af7e43b3f70fccc6af66ab0e8955d753ec95aec",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 16641,
+            "body_hash": "12348575943443696880"
+          },
+          {
+            "name": "sort#19",
+            "index": 10,
+            "code_bytes": 6780,
+            "body_hash": "11272042333611566850"
+          },
+          {
+            "name": "sort_pivot#25",
+            "index": 11,
+            "code_bytes": 2875,
+            "body_hash": "6405674716411445505"
+          },
+          {
+            "name": "sort#39",
+            "index": 12,
+            "code_bytes": 6951,
+            "body_hash": "17203208325748799882"
+          },
+          {
+            "name": "by_name#41",
+            "index": 13,
+            "code_bytes": 735,
+            "body_hash": "1105763290945901349"
+          },
+          {
+            "name": "sort_pivot#45",
+            "index": 14,
+            "code_bytes": 2823,
+            "body_hash": "16652806339681137367"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 15,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 16,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 613,
+            "body_hash": "11053290192420011560"
+          },
+          {
+            "name": "grow_memory",
+            "index": 18,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/functions/direct/0/program.wasm",
+        "sha256": "048eb4b49710c64615529758ce76944ae591ebd63325b3c6ae5deb580da2a762",
+        "bytes": 39322,
+        "static_memory_copy": 254,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/functions-final.disassembly",
+        "disassembly_sha256": "f9f16027f6d5e86aa5beae3b252418a36d6c0c3f821d28827473f945c461c34d",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 16641,
+            "body_hash": "12348575943443696880"
+          },
+          {
+            "name": "sort#19",
+            "index": 10,
+            "code_bytes": 6780,
+            "body_hash": "11272042333611566850"
+          },
+          {
+            "name": "sort_pivot#25",
+            "index": 11,
+            "code_bytes": 2875,
+            "body_hash": "6405674716411445505"
+          },
+          {
+            "name": "sort#39",
+            "index": 12,
+            "code_bytes": 6951,
+            "body_hash": "17203208325748799882"
+          },
+          {
+            "name": "by_name#41",
+            "index": 13,
+            "code_bytes": 735,
+            "body_hash": "1105763290945901349"
+          },
+          {
+            "name": "sort_pivot#45",
+            "index": 14,
+            "code_bytes": 2823,
+            "body_hash": "16652806339681137367"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 15,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 16,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 613,
+            "body_hash": "11053290192420011560"
+          },
+          {
+            "name": "grow_memory",
+            "index": 18,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "errors",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/errors/direct/0/program.wasm",
+        "sha256": "d40d973ab789778c163789104f0a3f9e132df441e95d2abd93c96ace95e5662d",
+        "bytes": 23415,
+        "static_memory_copy": 76,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/errors-baseline.disassembly",
+        "disassembly_sha256": "ee7f973b3a4177b2217a830b76d53a1b3c4fbd95f96895609ed374937a586430",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 4688,
+            "body_hash": "12877875805474355344"
+          },
+          {
+            "name": "parse_age#1",
+            "index": 10,
+            "code_bytes": 276,
+            "body_hash": "15188484128294419075"
+          },
+          {
+            "name": "parse_int#6",
+            "index": 11,
+            "code_bytes": 578,
+            "body_hash": "2070137163387316222"
+          },
+          {
+            "name": "trim#2",
+            "index": 12,
+            "code_bytes": 699,
+            "body_hash": "11511411303608117043"
+          },
+          {
+            "name": "find_user#7",
+            "index": 13,
+            "code_bytes": 513,
+            "body_hash": "18158939728694246488"
+          },
+          {
+            "name": "report#9",
+            "index": 14,
+            "code_bytes": 1746,
+            "body_hash": "17071916031235671564"
+          },
+          {
+            "name": "load#10",
+            "index": 15,
+            "code_bytes": 1258,
+            "body_hash": "16522910994424041461"
+          },
+          {
+            "name": "each_split#11",
+            "index": 16,
+            "code_bytes": 5805,
+            "body_hash": "3612254652486679704"
+          },
+          {
+            "name": "message#14",
+            "index": 17,
+            "code_bytes": 1299,
+            "body_hash": "8724542010057769085"
+          },
+          {
+            "name": "parse_record#12",
+            "index": 18,
+            "code_bytes": 3637,
+            "body_hash": "17990513005425796980"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 19,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 20,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 21,
+            "code_bytes": 614,
+            "body_hash": "15350985928903254004"
+          },
+          {
+            "name": "grow_memory",
+            "index": 22,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/errors/direct/0/program.wasm",
+        "sha256": "d40d973ab789778c163789104f0a3f9e132df441e95d2abd93c96ace95e5662d",
+        "bytes": 23415,
+        "static_memory_copy": 76,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/errors-final.disassembly",
+        "disassembly_sha256": "4ad14913a97452930479ef25fd2a70371bfe8b9b9bf873c319f6a7d0ee4aed1d",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 4688,
+            "body_hash": "12877875805474355344"
+          },
+          {
+            "name": "parse_age#1",
+            "index": 10,
+            "code_bytes": 276,
+            "body_hash": "15188484128294419075"
+          },
+          {
+            "name": "parse_int#6",
+            "index": 11,
+            "code_bytes": 578,
+            "body_hash": "2070137163387316222"
+          },
+          {
+            "name": "trim#2",
+            "index": 12,
+            "code_bytes": 699,
+            "body_hash": "11511411303608117043"
+          },
+          {
+            "name": "find_user#7",
+            "index": 13,
+            "code_bytes": 513,
+            "body_hash": "18158939728694246488"
+          },
+          {
+            "name": "report#9",
+            "index": 14,
+            "code_bytes": 1746,
+            "body_hash": "17071916031235671564"
+          },
+          {
+            "name": "load#10",
+            "index": 15,
+            "code_bytes": 1258,
+            "body_hash": "16522910994424041461"
+          },
+          {
+            "name": "each_split#11",
+            "index": 16,
+            "code_bytes": 5805,
+            "body_hash": "3612254652486679704"
+          },
+          {
+            "name": "message#14",
+            "index": 17,
+            "code_bytes": 1299,
+            "body_hash": "8724542010057769085"
+          },
+          {
+            "name": "parse_record#12",
+            "index": 18,
+            "code_bytes": 3637,
+            "body_hash": "17990513005425796980"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 19,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 20,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 21,
+            "code_bytes": 614,
+            "body_hash": "15350985928903254004"
+          },
+          {
+            "name": "grow_memory",
+            "index": 22,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "sieve",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/sieve/direct/0/program.wasm",
+        "sha256": "58c919369ac2967531ea8186dd4329d1d4c351f16f60c96bab0213b843b6feea",
+        "bytes": 6698,
+        "static_memory_copy": 8,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/sieve-baseline.disassembly",
+        "disassembly_sha256": "8f7ddba0f767c2dc6dc4f4d64f080431ce5bdad5b53a585dc6430aead3089ae3",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 4349,
+            "body_hash": "11834013910661955346"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 10,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 11,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 12,
+            "code_bytes": 629,
+            "body_hash": "2165419143600001150"
+          },
+          {
+            "name": "grow_memory",
+            "index": 13,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/sieve/direct/0/program.wasm",
+        "sha256": "58c919369ac2967531ea8186dd4329d1d4c351f16f60c96bab0213b843b6feea",
+        "bytes": 6698,
+        "static_memory_copy": 8,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/sieve-final.disassembly",
+        "disassembly_sha256": "b29cbfe38743717aba17ad831378435b94d24cad1db35b54767532df2e5e5c8e",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 4349,
+            "body_hash": "11834013910661955346"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 10,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 11,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 12,
+            "code_bytes": 629,
+            "body_hash": "2165419143600001150"
+          },
+          {
+            "name": "grow_memory",
+            "index": 13,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "sorting",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/sorting/direct/0/program.wasm",
+        "sha256": "2735a5df425a761caa7cf8187b1213611fe14d48c23e308a7ddce3d1f554adba",
+        "bytes": 48582,
+        "static_memory_copy": 172,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/sorting-baseline.disassembly",
+        "disassembly_sha256": "4f3b2773c43773abc3e198c2355a6e37d856b60af544b133c29621de81f54a8e",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 14701,
+            "body_hash": "2820273383234195736"
+          },
+          {
+            "name": "insertion_sort#1",
+            "index": 10,
+            "code_bytes": 790,
+            "body_hash": "16527656141848941137"
+          },
+          {
+            "name": "bsearch#3",
+            "index": 11,
+            "code_bytes": 225,
+            "body_hash": "14862721722939832084"
+          },
+          {
+            "name": "random_ints#4",
+            "index": 12,
+            "code_bytes": 1138,
+            "body_hash": "4943037222683045912"
+          },
+          {
+            "name": "merge_sort#7",
+            "index": 13,
+            "code_bytes": 1308,
+            "body_hash": "10311610163788893732"
+          },
+          {
+            "name": "copy_into#8",
+            "index": 14,
+            "code_bytes": 281,
+            "body_hash": "16252351477246962428"
+          },
+          {
+            "name": "sort#9",
+            "index": 15,
+            "code_bytes": 177,
+            "body_hash": "8929112492653112217"
+          },
+          {
+            "name": "sort#10",
+            "index": 16,
+            "code_bytes": 5533,
+            "body_hash": "5981374282235529900"
+          },
+          {
+            "name": "sort_pivot#16",
+            "index": 17,
+            "code_bytes": 1989,
+            "body_hash": "9628581307089221422"
+          },
+          {
+            "name": "binary_search#28",
+            "index": 18,
+            "code_bytes": 172,
+            "body_hash": "3296384940529431650"
+          },
+          {
+            "name": "sort#29",
+            "index": 19,
+            "code_bytes": 6509,
+            "body_hash": "11756930420740573935"
+          },
+          {
+            "name": "reverse#32",
+            "index": 20,
+            "code_bytes": 376,
+            "body_hash": "3793015230246750220"
+          },
+          {
+            "name": "sort_pivot#34",
+            "index": 21,
+            "code_bytes": 2871,
+            "body_hash": "6962878803157779755"
+          },
+          {
+            "name": "stable_sort#46",
+            "index": 22,
+            "code_bytes": 9815,
+            "body_hash": "12477969919064025137"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 23,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 24,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 25,
+            "code_bytes": 614,
+            "body_hash": "16378251261995780256"
+          },
+          {
+            "name": "grow_memory",
+            "index": 26,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/sorting/direct/0/program.wasm",
+        "sha256": "2735a5df425a761caa7cf8187b1213611fe14d48c23e308a7ddce3d1f554adba",
+        "bytes": 48582,
+        "static_memory_copy": 172,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/sorting-final.disassembly",
+        "disassembly_sha256": "c1831c95ce0f08844c7da099cefc4be0b13120da88cb733f87559334eafe588d",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 14701,
+            "body_hash": "2820273383234195736"
+          },
+          {
+            "name": "insertion_sort#1",
+            "index": 10,
+            "code_bytes": 790,
+            "body_hash": "16527656141848941137"
+          },
+          {
+            "name": "bsearch#3",
+            "index": 11,
+            "code_bytes": 225,
+            "body_hash": "14862721722939832084"
+          },
+          {
+            "name": "random_ints#4",
+            "index": 12,
+            "code_bytes": 1138,
+            "body_hash": "4943037222683045912"
+          },
+          {
+            "name": "merge_sort#7",
+            "index": 13,
+            "code_bytes": 1308,
+            "body_hash": "10311610163788893732"
+          },
+          {
+            "name": "copy_into#8",
+            "index": 14,
+            "code_bytes": 281,
+            "body_hash": "16252351477246962428"
+          },
+          {
+            "name": "sort#9",
+            "index": 15,
+            "code_bytes": 177,
+            "body_hash": "8929112492653112217"
+          },
+          {
+            "name": "sort#10",
+            "index": 16,
+            "code_bytes": 5533,
+            "body_hash": "5981374282235529900"
+          },
+          {
+            "name": "sort_pivot#16",
+            "index": 17,
+            "code_bytes": 1989,
+            "body_hash": "9628581307089221422"
+          },
+          {
+            "name": "binary_search#28",
+            "index": 18,
+            "code_bytes": 172,
+            "body_hash": "3296384940529431650"
+          },
+          {
+            "name": "sort#29",
+            "index": 19,
+            "code_bytes": 6509,
+            "body_hash": "11756930420740573935"
+          },
+          {
+            "name": "reverse#32",
+            "index": 20,
+            "code_bytes": 376,
+            "body_hash": "3793015230246750220"
+          },
+          {
+            "name": "sort_pivot#34",
+            "index": 21,
+            "code_bytes": 2871,
+            "body_hash": "6962878803157779755"
+          },
+          {
+            "name": "stable_sort#46",
+            "index": 22,
+            "code_bytes": 9815,
+            "body_hash": "12477969919064025137"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 23,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 24,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 25,
+            "code_bytes": 614,
+            "body_hash": "16378251261995780256"
+          },
+          {
+            "name": "grow_memory",
+            "index": 26,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "sudoku",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/sudoku/direct/0/program.wasm",
+        "sha256": "6a42be1c36beb1b620311cf4c136d2d419f9dcda124f5db3c6564b2176d7d0ca",
+        "bytes": 9231,
+        "static_memory_copy": 16,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/sudoku-baseline.disassembly",
+        "disassembly_sha256": "395f3218fbd7a610bf64ed4a60810a44b726463b18756b8be08a136c29cd860c",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 223,
+            "body_hash": "649440035554073952"
+          },
+          {
+            "name": "run#1",
+            "index": 10,
+            "code_bytes": 2427,
+            "body_hash": "4162565101246953195"
+          },
+          {
+            "name": "show#6",
+            "index": 11,
+            "code_bytes": 2129,
+            "body_hash": "2259025633023389490"
+          },
+          {
+            "name": "solve#7",
+            "index": 12,
+            "code_bytes": 404,
+            "body_hash": "6665166819181164914"
+          },
+          {
+            "name": "count_bits#9",
+            "index": 13,
+            "code_bytes": 52,
+            "body_hash": "8784159649635360704"
+          },
+          {
+            "name": "candidates#8",
+            "index": 14,
+            "code_bytes": 308,
+            "body_hash": "7512094135559252690"
+          },
+          {
+            "name": "bit#4",
+            "index": 15,
+            "code_bytes": 40,
+            "body_hash": "1916918081689719331"
+          },
+          {
+            "name": "place#3",
+            "index": 16,
+            "code_bytes": 492,
+            "body_hash": "17826849182879997614"
+          },
+          {
+            "name": "unplace#10",
+            "index": 17,
+            "code_bytes": 546,
+            "body_hash": "16168278358751098763"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 18,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 19,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 20,
+            "code_bytes": 628,
+            "body_hash": "2784671247277583644"
+          },
+          {
+            "name": "grow_memory",
+            "index": 21,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/sudoku/direct/0/program.wasm",
+        "sha256": "6a42be1c36beb1b620311cf4c136d2d419f9dcda124f5db3c6564b2176d7d0ca",
+        "bytes": 9231,
+        "static_memory_copy": 16,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/sudoku-final.disassembly",
+        "disassembly_sha256": "b8f67c4a1133b6bb2a137159603596d963cc9410a3462b6cb4e85cce6ef82e9a",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 223,
+            "body_hash": "649440035554073952"
+          },
+          {
+            "name": "run#1",
+            "index": 10,
+            "code_bytes": 2427,
+            "body_hash": "4162565101246953195"
+          },
+          {
+            "name": "show#6",
+            "index": 11,
+            "code_bytes": 2129,
+            "body_hash": "2259025633023389490"
+          },
+          {
+            "name": "solve#7",
+            "index": 12,
+            "code_bytes": 404,
+            "body_hash": "6665166819181164914"
+          },
+          {
+            "name": "count_bits#9",
+            "index": 13,
+            "code_bytes": 52,
+            "body_hash": "8784159649635360704"
+          },
+          {
+            "name": "candidates#8",
+            "index": 14,
+            "code_bytes": 308,
+            "body_hash": "7512094135559252690"
+          },
+          {
+            "name": "bit#4",
+            "index": 15,
+            "code_bytes": 40,
+            "body_hash": "1916918081689719331"
+          },
+          {
+            "name": "place#3",
+            "index": 16,
+            "code_bytes": 492,
+            "body_hash": "17826849182879997614"
+          },
+          {
+            "name": "unplace#10",
+            "index": 17,
+            "code_bytes": 546,
+            "body_hash": "16168278358751098763"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 18,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 19,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 20,
+            "code_bytes": 628,
+            "body_hash": "2784671247277583644"
+          },
+          {
+            "name": "grow_memory",
+            "index": 21,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "maze",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/maze/direct/0/program.wasm",
+        "sha256": "1515f6f2c6d4dc3ede3c382f486e20094cf2ce1b57bccbe950d48ffdd7655a0f",
+        "bytes": 18251,
+        "static_memory_copy": 42,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/maze-baseline.disassembly",
+        "disassembly_sha256": "97645a3f6f681971c1d6c5c85ccce5c33c6b01e258757ad014441fe8ba230ec5",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 7993,
+            "body_hash": "17601712416831157539"
+          },
+          {
+            "name": "show#9",
+            "index": 10,
+            "code_bytes": 1224,
+            "body_hash": "11993097737125074359"
+          },
+          {
+            "name": "dijkstra#11",
+            "index": 11,
+            "code_bytes": 5981,
+            "body_hash": "2065545064135714302"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 12,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 13,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 14,
+            "code_bytes": 930,
+            "body_hash": "5913540443694053319"
+          },
+          {
+            "name": "grow_memory",
+            "index": 15,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/maze/direct/0/program.wasm",
+        "sha256": "1515f6f2c6d4dc3ede3c382f486e20094cf2ce1b57bccbe950d48ffdd7655a0f",
+        "bytes": 18251,
+        "static_memory_copy": 42,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/maze-final.disassembly",
+        "disassembly_sha256": "011bf8a4b01ec970fc985ed8be674dd2efe4b65fcf20524b3b5ee547c47e9ec3",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 7993,
+            "body_hash": "17601712416831157539"
+          },
+          {
+            "name": "show#9",
+            "index": 10,
+            "code_bytes": 1224,
+            "body_hash": "11993097737125074359"
+          },
+          {
+            "name": "dijkstra#11",
+            "index": 11,
+            "code_bytes": 5981,
+            "body_hash": "2065545064135714302"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 12,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 13,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 14,
+            "code_bytes": 930,
+            "body_hash": "5913540443694053319"
+          },
+          {
+            "name": "grow_memory",
+            "index": 15,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "vm",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/vm/direct/0/program.wasm",
+        "sha256": "6a55b471e4e085d0cdcf5b9b44641ee1c03f5abe09dd89281e5933db440ef10a",
+        "bytes": 25238,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/vm-baseline.disassembly",
+        "disassembly_sha256": "ffe8e57167ab72bf94400be933fb44f9480716983b2f8c898afa22b3623611cc",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 14082,
+            "body_hash": "7320193560074962336"
+          },
+          {
+            "name": "disassemble#1",
+            "index": 10,
+            "code_bytes": 2175,
+            "body_hash": "15107229753644354842"
+          },
+          {
+            "name": "append_decimal#2",
+            "index": 11,
+            "code_bytes": 1007,
+            "body_hash": "7030479751902056970"
+          },
+          {
+            "name": "run#4",
+            "index": 12,
+            "code_bytes": 5276,
+            "body_hash": "12479877920398843786"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 13,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 14,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 803,
+            "body_hash": "16983453127450151315"
+          },
+          {
+            "name": "grow_memory",
+            "index": 16,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/vm/direct/0/program.wasm",
+        "sha256": "6a55b471e4e085d0cdcf5b9b44641ee1c03f5abe09dd89281e5933db440ef10a",
+        "bytes": 25238,
+        "static_memory_copy": 62,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/vm-final.disassembly",
+        "disassembly_sha256": "b7f6ccbe21269ba44e73cb0148db8cec999cbc7da2b452f6311fe9c07d7d39f4",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 14082,
+            "body_hash": "7320193560074962336"
+          },
+          {
+            "name": "disassemble#1",
+            "index": 10,
+            "code_bytes": 2175,
+            "body_hash": "15107229753644354842"
+          },
+          {
+            "name": "append_decimal#2",
+            "index": 11,
+            "code_bytes": 1007,
+            "body_hash": "7030479751902056970"
+          },
+          {
+            "name": "run#4",
+            "index": 12,
+            "code_bytes": 5276,
+            "body_hash": "12479877920398843786"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 13,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 14,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 803,
+            "body_hash": "16983453127450151315"
+          },
+          {
+            "name": "grow_memory",
+            "index": 16,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "life",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/compile/life/direct/0/program.wasm",
+        "sha256": "b4c10b0f1aba17c1d4d83ce9e64b087ff24eae172b38ade7db3f78719ce1c649",
+        "bytes": 19829,
+        "static_memory_copy": 17,
+        "static_widened_loads": 36,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/life-baseline.disassembly",
+        "disassembly_sha256": "e1ef9bddfdd8f02697fbb3432f4caec74eb7aeaeb5f47aa55a962ee44851af6f",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 10902,
+            "body_hash": "5095146931525264287"
+          },
+          {
+            "name": "show#2",
+            "index": 10,
+            "code_bytes": 1409,
+            "body_hash": "10563302889849082948"
+          },
+          {
+            "name": "neighbours#4",
+            "index": 11,
+            "code_bytes": 2636,
+            "body_hash": "10315621928176279326"
+          },
+          {
+            "name": "neighbours_const_0#4",
+            "index": 12,
+            "code_bytes": 1471,
+            "body_hash": "14346799430405518212"
+          },
+          {
+            "name": "neighbours_const_1#4",
+            "index": 13,
+            "code_bytes": 967,
+            "body_hash": "5114512296251856203"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 14,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 15,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 16,
+            "code_bytes": 613,
+            "body_hash": "16346417942337112357"
+          },
+          {
+            "name": "grow_memory",
+            "index": 17,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/current/examples/compile/life/direct/0/program.wasm",
+        "sha256": "b4c10b0f1aba17c1d4d83ce9e64b087ff24eae172b38ade7db3f78719ce1c649",
+        "bytes": 19829,
+        "static_memory_copy": 17,
+        "static_widened_loads": 36,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/life-final.disassembly",
+        "disassembly_sha256": "959673c1724ee4512bd6b30b20cc0251affd40e6996f56d4f8d0a21f8357fb05",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 9,
+            "code_bytes": 10902,
+            "body_hash": "5095146931525264287"
+          },
+          {
+            "name": "show#2",
+            "index": 10,
+            "code_bytes": 1409,
+            "body_hash": "10563302889849082948"
+          },
+          {
+            "name": "neighbours#4",
+            "index": 11,
+            "code_bytes": 2636,
+            "body_hash": "10315621928176279326"
+          },
+          {
+            "name": "neighbours_const_0#4",
+            "index": 12,
+            "code_bytes": 1471,
+            "body_hash": "14346799430405518212"
+          },
+          {
+            "name": "neighbours_const_1#4",
+            "index": 13,
+            "code_bytes": 967,
+            "body_hash": "5114512296251856203"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 14,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 15,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 16,
+            "code_bytes": 613,
+            "body_hash": "16346417942337112357"
+          },
+          {
+            "name": "grow_memory",
+            "index": 17,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    }
+  ],
+  "warmed": [
+    {
+      "task": "Etc::Sieve",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/etc_sieve/baseline/program.wasm",
+        "sha256": "1478a2dfe42ab228ce4f65dce7bbef8b4eb9720a3b75abc53360602de7887b5d",
+        "bytes": 3576,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Etc-Sieve-baseline.disassembly",
+        "disassembly_sha256": "8172fefdcc516631cda7dfcce32206c4453fa4bf2a79481316c02ab0d7ab97a2",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 450,
+            "body_hash": "16050899497946452209"
+          },
+          {
+            "name": "run#3",
+            "index": 14,
+            "code_bytes": 1282,
+            "body_hash": "15419810895946722679"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 612,
+            "body_hash": "10740058541579163720"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/etc_sieve/final/program.wasm",
+        "sha256": "1478a2dfe42ab228ce4f65dce7bbef8b4eb9720a3b75abc53360602de7887b5d",
+        "bytes": 3576,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Etc-Sieve-final.disassembly",
+        "disassembly_sha256": "2a5244c355b7cd92ace174dddd39dcc9665fe4509d184cfb126faa55e4e70967",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 450,
+            "body_hash": "16050899497946452209"
+          },
+          {
+            "name": "run#3",
+            "index": 14,
+            "code_bytes": 1282,
+            "body_hash": "15419810895946722679"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 612,
+            "body_hash": "10740058541579163720"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "Sort::Quick",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/sort_quick/baseline/program.wasm",
+        "sha256": "9c5a7d1d7591593b7dd52982b05f47e10ffeca70410e25a70bb2f1ec50344bb2",
+        "bytes": 4356,
+        "static_memory_copy": 2,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Sort-Quick-baseline.disassembly",
+        "disassembly_sha256": "5c1092d4984ba622eea1e1acacf578ac4e0b7a4e8c3f498718abac7333bf705b",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 806,
+            "body_hash": "2617536690808749910"
+          },
+          {
+            "name": "run#5",
+            "index": 14,
+            "code_bytes": 1168,
+            "body_hash": "176879850865499883"
+          },
+          {
+            "name": "quick_sort#7",
+            "index": 15,
+            "code_bytes": 394,
+            "body_hash": "16506453117367282407"
+          },
+          {
+            "name": "swap_at#8",
+            "index": 16,
+            "code_bytes": 123,
+            "body_hash": "11570777600401803880"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 584,
+            "body_hash": "10367125862994157709"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/sort_quick/final/program.wasm",
+        "sha256": "92176273d259ef3acfec2a962927ea654cd569c9ef0f1c6d55c3137469f2ed63",
+        "bytes": 4480,
+        "static_memory_copy": 2,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Sort-Quick-final.disassembly",
+        "disassembly_sha256": "c951667a0d530d9da0b4673b58d6c7785cce81c3fcd042e5580d8223691f07a8",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 806,
+            "body_hash": "2617536690808749910"
+          },
+          {
+            "name": "run#5",
+            "index": 14,
+            "code_bytes": 1168,
+            "body_hash": "176879850865499883"
+          },
+          {
+            "name": "quick_sort#7",
+            "index": 15,
+            "code_bytes": 518,
+            "body_hash": "8293721616422131584"
+          },
+          {
+            "name": "swap_at#8",
+            "index": 16,
+            "code_bytes": 123,
+            "body_hash": "11570777600401803880"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 584,
+            "body_hash": "10367125862994157709"
+          }
+        ]
+      },
+      "bytes_delta": 124,
+      "byte_identical": false
+    },
+    {
+      "task": "Sort::Merge",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/sort_merge/baseline/program.wasm",
+        "sha256": "36ba6ec1806c0373c5260ec19f9c9a828baf82bcd592e379a0db7e46541d50b7",
+        "bytes": 5527,
+        "static_memory_copy": 3,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Sort-Merge-baseline.disassembly",
+        "disassembly_sha256": "3f3a07a729bb8cdce835b32ac7e0b1f8ab3982b851972daab2031c3f189a733c",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 807,
+            "body_hash": "3532456479632456424"
+          },
+          {
+            "name": "run#5",
+            "index": 14,
+            "code_bytes": 1444,
+            "body_hash": "15931175076399330808"
+          },
+          {
+            "name": "merge_sort_helper#9",
+            "index": 15,
+            "code_bytes": 189,
+            "body_hash": "15852074264968653055"
+          },
+          {
+            "name": "merge#10",
+            "index": 16,
+            "code_bytes": 1165,
+            "body_hash": "10315398817693957053"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 602,
+            "body_hash": "7852363844188355928"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/sort_merge/final/program.wasm",
+        "sha256": "36ba6ec1806c0373c5260ec19f9c9a828baf82bcd592e379a0db7e46541d50b7",
+        "bytes": 5527,
+        "static_memory_copy": 3,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Sort-Merge-final.disassembly",
+        "disassembly_sha256": "38cc8be080a1b51fd98bb260d027b7f551bfbf1a921ee83928df9a8eb274ceab",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 807,
+            "body_hash": "3532456479632456424"
+          },
+          {
+            "name": "run#5",
+            "index": 14,
+            "code_bytes": 1444,
+            "body_hash": "15931175076399330808"
+          },
+          {
+            "name": "merge_sort_helper#9",
+            "index": 15,
+            "code_bytes": 189,
+            "body_hash": "15852074264968653055"
+          },
+          {
+            "name": "merge#10",
+            "index": 16,
+            "code_bytes": 1165,
+            "body_hash": "10315398817693957053"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 602,
+            "body_hash": "7852363844188355928"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "Hash::SHA256",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/hash_sha256/baseline/program.wasm",
+        "sha256": "caeeee8d5acda712800084110b07982c8c5de139ef225a1512f7692c5b860da3",
+        "bytes": 6611,
+        "static_memory_copy": 5,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Hash-SHA256-baseline.disassembly",
+        "disassembly_sha256": "e192cc846eb555f42adbd2943d7910ec6f36bf8c4cfd19a077e0090fb59ccf47",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 978,
+            "body_hash": "5608543117511456351"
+          },
+          {
+            "name": "run#6",
+            "index": 14,
+            "code_bytes": 3487,
+            "body_hash": "596600961101678386"
+          },
+          {
+            "name": "binary::read_u32le#8",
+            "index": 15,
+            "code_bytes": 298,
+            "body_hash": "13711420722451799673"
+          },
+          {
+            "name": "_start",
+            "index": 16,
+            "code_bytes": 573,
+            "body_hash": "3294212441617889303"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/hash_sha256/final/program.wasm",
+        "sha256": "ad46f4d11aa1110f0ed8ed0f1899fcb6919a923ee69eb2203dc6d1edc00dfadc",
+        "bytes": 6598,
+        "static_memory_copy": 5,
+        "static_widened_loads": 1,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Hash-SHA256-final.disassembly",
+        "disassembly_sha256": "b51b09b952617f6a18d89cfbfa53064e2c597fcc992230b580f79a1aafa85633",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 978,
+            "body_hash": "5608543117511456351"
+          },
+          {
+            "name": "run#6",
+            "index": 14,
+            "code_bytes": 3474,
+            "body_hash": "6633102530718939193"
+          },
+          {
+            "name": "binary::read_u32le#8",
+            "index": 15,
+            "code_bytes": 298,
+            "body_hash": "13711420722451799673"
+          },
+          {
+            "name": "_start",
+            "index": 16,
+            "code_bytes": 573,
+            "body_hash": "3294212441617889303"
+          }
+        ]
+      },
+      "bytes_delta": -13,
+      "byte_identical": false
+    },
+    {
+      "task": "Hash::CRC32",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/hash_crc32/baseline/program.wasm",
+        "sha256": "24af650de931bcbd3fc0c8262db77bb81c9f29c43623444b4fa20ff967a8a78c",
+        "bytes": 3132,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Hash-CRC32-baseline.disassembly",
+        "disassembly_sha256": "9eeba985fec436b6595168ec122ad93ebade896dd93c98f91c7d404ce30ca340",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 978,
+            "body_hash": "9356414138771628958"
+          },
+          {
+            "name": "run#6",
+            "index": 14,
+            "code_bytes": 338,
+            "body_hash": "8730209422665559370"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 573,
+            "body_hash": "3294212441617889303"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/hash_crc32/final/program.wasm",
+        "sha256": "24af650de931bcbd3fc0c8262db77bb81c9f29c43623444b4fa20ff967a8a78c",
+        "bytes": 3132,
+        "static_memory_copy": 1,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Hash-CRC32-final.disassembly",
+        "disassembly_sha256": "8abad0af1d22f02d4b4ae10cda39a687e2d102c3f319b4be1ef73da2883cac25",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 978,
+            "body_hash": "9356414138771628958"
+          },
+          {
+            "name": "run#6",
+            "index": 14,
+            "code_bytes": 338,
+            "body_hash": "8730209422665559370"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 573,
+            "body_hash": "3294212441617889303"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "CLBG::Fannkuchredux",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/clbg_fannkuchredux/baseline/program.wasm",
+        "sha256": "b26739dd31a385973d1d7cb0230d393d70826cbcba435d38c87a0f4e7be7dc11",
+        "bytes": 3917,
+        "static_memory_copy": 5,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/CLBG-Fannkuchredux-baseline.disassembly",
+        "disassembly_sha256": "a20adfd2aa22b5358fd13b4f039eca19eac124d153220dbe8e09cea250ddd335",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 546,
+            "body_hash": "17899401099381715979"
+          },
+          {
+            "name": "fannkuchredux#4",
+            "index": 14,
+            "code_bytes": 1587,
+            "body_hash": "4958164968927480477"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 550,
+            "body_hash": "13682014108304285202"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/clbg_fannkuchredux/final/program.wasm",
+        "sha256": "b26739dd31a385973d1d7cb0230d393d70826cbcba435d38c87a0f4e7be7dc11",
+        "bytes": 3917,
+        "static_memory_copy": 5,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/CLBG-Fannkuchredux-final.disassembly",
+        "disassembly_sha256": "5c08318698dfd9af430855fe3a80bf017856966bfe25896b51504aa1c75a87ba",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 546,
+            "body_hash": "17899401099381715979"
+          },
+          {
+            "name": "fannkuchredux#4",
+            "index": 14,
+            "code_bytes": 1587,
+            "body_hash": "4958164968927480477"
+          },
+          {
+            "name": "_start",
+            "index": 15,
+            "code_bytes": 550,
+            "body_hash": "13682014108304285202"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "CLBG::Mandelbrot",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/clbg_mandelbrot/baseline/program.wasm",
+        "sha256": "c4a7175395a56c91ef862b4c86f60caac56f9bb05cc4af2ec1cb1f01c89c6042",
+        "bytes": 4467,
+        "static_memory_copy": 2,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/CLBG-Mandelbrot-baseline.disassembly",
+        "disassembly_sha256": "13f8fc980a533e2cdc160d1cc77695d3607ef07359c20949e3c0ac66df1f9995",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 727,
+            "body_hash": "14005783328348523464"
+          },
+          {
+            "name": "run#3",
+            "index": 14,
+            "code_bytes": 1227,
+            "body_hash": "2340794594496713846"
+          },
+          {
+            "name": "append_dimension#6",
+            "index": 15,
+            "code_bytes": 596,
+            "body_hash": "15291797311386985866"
+          },
+          {
+            "name": "_start",
+            "index": 16,
+            "code_bytes": 623,
+            "body_hash": "3078766067728318512"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/clbg_mandelbrot/final/program.wasm",
+        "sha256": "c4a7175395a56c91ef862b4c86f60caac56f9bb05cc4af2ec1cb1f01c89c6042",
+        "bytes": 4467,
+        "static_memory_copy": 2,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/CLBG-Mandelbrot-final.disassembly",
+        "disassembly_sha256": "64c7d5122240234db0eccdb22a16e1f5432424e1cdf668c01893e1a33c5b427d",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 727,
+            "body_hash": "14005783328348523464"
+          },
+          {
+            "name": "run#3",
+            "index": 14,
+            "code_bytes": 1227,
+            "body_hash": "2340794594496713846"
+          },
+          {
+            "name": "append_dimension#6",
+            "index": 15,
+            "code_bytes": 596,
+            "body_hash": "15291797311386985866"
+          },
+          {
+            "name": "_start",
+            "index": 16,
+            "code_bytes": 623,
+            "body_hash": "3078766067728318512"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "Example::Life",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/example_life/baseline/program.wasm",
+        "sha256": "c6603a729aabe1776fce548aaec9ca817bb1bb8bf8200f80633102fda2f6e726",
+        "bytes": 19773,
+        "static_memory_copy": 2,
+        "static_widened_loads": 36,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Example-Life-baseline.disassembly",
+        "disassembly_sha256": "c639d418f0773486b03510194ced6b39c496601f07c8c9a36176d7d845abbfe5",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 13242,
+            "body_hash": "1963770152186647470"
+          },
+          {
+            "name": "neighbours#8",
+            "index": 14,
+            "code_bytes": 2464,
+            "body_hash": "4943664798280426156"
+          },
+          {
+            "name": "neighbours_const_0#8",
+            "index": 15,
+            "code_bytes": 796,
+            "body_hash": "11794084816827648846"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 16,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 17,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 18,
+            "code_bytes": 614,
+            "body_hash": "17225550939933057920"
+          },
+          {
+            "name": "grow_memory",
+            "index": 19,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          },
+          {
+            "name": "read_uleb_array",
+            "index": 20,
+            "code_bytes": 216,
+            "body_hash": "9693414048110559563"
+          },
+          {
+            "name": "patch_uleb_array_length",
+            "index": 21,
+            "code_bytes": 316,
+            "body_hash": "18206197964583021648"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/example_life/final/program.wasm",
+        "sha256": "c6603a729aabe1776fce548aaec9ca817bb1bb8bf8200f80633102fda2f6e726",
+        "bytes": 19773,
+        "static_memory_copy": 2,
+        "static_widened_loads": 36,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Example-Life-final.disassembly",
+        "disassembly_sha256": "ff588fed0a49f16fb5f461eaf0e465c60e1a9e1eeeee6842a7be1cc697d3c84c",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 13242,
+            "body_hash": "1963770152186647470"
+          },
+          {
+            "name": "neighbours#8",
+            "index": 14,
+            "code_bytes": 2464,
+            "body_hash": "4943664798280426156"
+          },
+          {
+            "name": "neighbours_const_0#8",
+            "index": 15,
+            "code_bytes": 796,
+            "body_hash": "11794084816827648846"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 16,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 17,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 18,
+            "code_bytes": 614,
+            "body_hash": "17225550939933057920"
+          },
+          {
+            "name": "grow_memory",
+            "index": 19,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          },
+          {
+            "name": "read_uleb_array",
+            "index": 20,
+            "code_bytes": 216,
+            "body_hash": "9693414048110559563"
+          },
+          {
+            "name": "patch_uleb_array_length",
+            "index": 21,
+            "code_bytes": 316,
+            "body_hash": "18206197964583021648"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "Example::Sorting",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/example_sorting/baseline/program.wasm",
+        "sha256": "71c556316b3a575e3f5e13cb36a8fca6ab1f5d9f25c89a5db87ed715969ac3c7",
+        "bytes": 11184,
+        "static_memory_copy": 2,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Example-Sorting-baseline.disassembly",
+        "disassembly_sha256": "1e98c8a35ac182802c301af79acec3a1ca18d0174227dfe91e234746091475dd",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 6511,
+            "body_hash": "514615189442056901"
+          },
+          {
+            "name": "measured_run#5",
+            "index": 14,
+            "code_bytes": 1428,
+            "body_hash": "17897228477959509133"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 15,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 16,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 614,
+            "body_hash": "14537134524226195101"
+          },
+          {
+            "name": "grow_memory",
+            "index": 18,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          },
+          {
+            "name": "read_uleb_array",
+            "index": 19,
+            "code_bytes": 216,
+            "body_hash": "12596999635559041278"
+          },
+          {
+            "name": "patch_uleb_array_length",
+            "index": 20,
+            "code_bytes": 316,
+            "body_hash": "14749908762731052927"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/example_sorting/final/program.wasm",
+        "sha256": "71c556316b3a575e3f5e13cb36a8fca6ab1f5d9f25c89a5db87ed715969ac3c7",
+        "bytes": 11184,
+        "static_memory_copy": 2,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Example-Sorting-final.disassembly",
+        "disassembly_sha256": "32adb7cc6ae11be2dc29ae456852a966b59bf2275be03f8805e7ddaae5467a84",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 6511,
+            "body_hash": "514615189442056901"
+          },
+          {
+            "name": "measured_run#5",
+            "index": 14,
+            "code_bytes": 1428,
+            "body_hash": "17897228477959509133"
+          },
+          {
+            "name": "resolve_prefix",
+            "index": 15,
+            "code_bytes": 4,
+            "body_hash": "7085529457549504980"
+          },
+          {
+            "name": "publish_header",
+            "index": 16,
+            "code_bytes": 140,
+            "body_hash": "412656116226965843"
+          },
+          {
+            "name": "_start",
+            "index": 17,
+            "code_bytes": 614,
+            "body_hash": "14537134524226195101"
+          },
+          {
+            "name": "grow_memory",
+            "index": 18,
+            "code_bytes": 25,
+            "body_hash": "7995624463245823046"
+          },
+          {
+            "name": "read_uleb_array",
+            "index": 19,
+            "code_bytes": 216,
+            "body_hash": "12596999635559041278"
+          },
+          {
+            "name": "patch_uleb_array_length",
+            "index": 20,
+            "code_bytes": 316,
+            "body_hash": "14749908762731052927"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    },
+    {
+      "task": "Example::Sudoku",
+      "baseline": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/example_sudoku/baseline/program.wasm",
+        "sha256": "2328722bff313ffb9d90626655db89f4db556a026f020a7a83f875037e6c431f",
+        "bytes": 5468,
+        "static_memory_copy": 7,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Example-Sudoku-baseline.disassembly",
+        "disassembly_sha256": "28b08ed2c0e873648feb3735e07a8ee1b71e9203b337969735c2dbc9a7773a44",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 321,
+            "body_hash": "10860074319914037306"
+          },
+          {
+            "name": "measured_run#2",
+            "index": 14,
+            "code_bytes": 1349,
+            "body_hash": "15905292871455658178"
+          },
+          {
+            "name": "solve#8",
+            "index": 15,
+            "code_bytes": 404,
+            "body_hash": "15056525591900027828"
+          },
+          {
+            "name": "count_bits#10",
+            "index": 16,
+            "code_bytes": 52,
+            "body_hash": "8784159649635360704"
+          },
+          {
+            "name": "candidates#9",
+            "index": 17,
+            "code_bytes": 308,
+            "body_hash": "515194538122635159"
+          },
+          {
+            "name": "bit#6",
+            "index": 18,
+            "code_bytes": 40,
+            "body_hash": "1916918081689719331"
+          },
+          {
+            "name": "place#5",
+            "index": 19,
+            "code_bytes": 492,
+            "body_hash": "12140329988162154921"
+          },
+          {
+            "name": "unplace#11",
+            "index": 20,
+            "code_bytes": 546,
+            "body_hash": "3659866246445502840"
+          },
+          {
+            "name": "_start",
+            "index": 21,
+            "code_bytes": 481,
+            "body_hash": "11275498176156750993"
+          }
+        ]
+      },
+      "final": {
+        "wasm": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/delivered-warmed/build/example_sudoku/final/program.wasm",
+        "sha256": "2328722bff313ffb9d90626655db89f4db556a026f020a7a83f875037e6c431f",
+        "bytes": 5468,
+        "static_memory_copy": 7,
+        "static_widened_loads": 0,
+        "disassembly": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/module-analysis/Example-Sudoku-final.disassembly",
+        "disassembly_sha256": "d0db70885521ee7f5533108bc9d6c3d93eef21ed843c7721f650c36d2f2555f2",
+        "functions": [
+          {
+            "name": "main#0",
+            "index": 13,
+            "code_bytes": 321,
+            "body_hash": "10860074319914037306"
+          },
+          {
+            "name": "measured_run#2",
+            "index": 14,
+            "code_bytes": 1349,
+            "body_hash": "15905292871455658178"
+          },
+          {
+            "name": "solve#8",
+            "index": 15,
+            "code_bytes": 404,
+            "body_hash": "15056525591900027828"
+          },
+          {
+            "name": "count_bits#10",
+            "index": 16,
+            "code_bytes": 52,
+            "body_hash": "8784159649635360704"
+          },
+          {
+            "name": "candidates#9",
+            "index": 17,
+            "code_bytes": 308,
+            "body_hash": "515194538122635159"
+          },
+          {
+            "name": "bit#6",
+            "index": 18,
+            "code_bytes": 40,
+            "body_hash": "1916918081689719331"
+          },
+          {
+            "name": "place#5",
+            "index": 19,
+            "code_bytes": 492,
+            "body_hash": "12140329988162154921"
+          },
+          {
+            "name": "unplace#11",
+            "index": 20,
+            "code_bytes": 546,
+            "body_hash": "3659866246445502840"
+          },
+          {
+            "name": "_start",
+            "index": 21,
+            "code_bytes": 481,
+            "body_hash": "11275498176156750993"
+          }
+        ]
+      },
+      "bytes_delta": 0,
+      "byte_identical": true
+    }
+  ]
+}

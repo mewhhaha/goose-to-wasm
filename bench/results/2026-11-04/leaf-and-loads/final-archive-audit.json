@@ -1,0 +1,355 @@
+{
+  "schema": "goose-leaf-and-loads-final-archive-audit-v1",
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-04T06:23:59.760740+00:00",
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "scope": "Independent current-package and exact bounded-prior payload audit. No historical index/report recursion, compiler build, test execution or guest execution. This additive post-assembly audit sits outside its own archives.",
+  "pre_audit_manifest": {
+    "sha256": "9a28f06fd355b03d9b314776e9724e8e28d051ef357e26fce94f0d4d08762647",
+    "exact_utf8": "{\n  \"README.md\": \"3488640ad82c74b5ed7f16f92ca0ff9d76e7b5ee75d35054955f62536ab82151\",\n  \"archives.json.gz\": \"e08ecac42c035cacdf9f43aa30d7a6719725b6ddac23d1e1fce172d4533fda45\",\n  \"campaign.json\": \"8c475c3591b296256bdca8a0d94b5e14aaad2e6646d73418a3fe9f4229ab3921\",\n  \"chart-verification.json\": \"c52d150a9c5eea932ce40fe84406865bfe6460fb36dcfe7442825a22f4427cb1\",\n  \"chart-visual-review.json\": \"cb7834f473fce4b12bb3a00281fdffa9e1394afe2fc929cbb8768f85b855cf2a\",\n  \"cohort.json\": \"1cb195471caec76cfdd4af9a8e82f19bcd7627f6218a062fd01adc290d7b1497\",\n  \"compiler-identity.json\": \"d0aa23d62bad6c10fda64a0dbc99faa27460580d0a19b1aae15ac566749b1bcc\",\n  \"differential.json\": \"fdbb2f2f33899b915fce79370ab9755b67b051601d95625c3cd57df37ad8bae6\",\n  \"evidence-000.tar.gz\": \"f164a277128a53092718b7bd94918e5f021c666699bfabe27ec6b10c6af574fe\",\n  \"evidence-001.tar.gz\": \"c4cbb6fa59cbb7b42190439546d3fc57f4e77b734c553e33af5680c9c35343f1\",\n  \"evidence-002.tar.gz\": \"e27d5e90f48c72ba912b8ab1a3fec77be1ad2e2536098007745f9a61f9836c73\",\n  \"examples.json\": \"bdebb4abd6306d10e437815c4c6354ff56e11d409433ebd3c565eabb49ed1c14\",\n  \"final-numbers.json\": \"d24455e04ebafb4f160e2c5babeb1a5fc8801ccf341a3310c13664f6ff9ebced\",\n  \"final-public-review.json\": \"d44cb011b090b72eee3c58223a6ac9e698e475d0faef2decb48aed9eba515dc1\",\n  \"final-v8.json\": \"4ab3370406f60291741c1663bbf030b74e0d3bd5d4fd093980c6501270f30403\",\n  \"final-warmed.json\": \"e3cc57c5ff9421b420882ee958b935eaf39d03fbe7f4c555ea3ab604f8661111\",\n  \"guide-verification.json\": \"7d6abb0bd58e011f4db0e8af5bb92efaed5953b6e2f92c5ff2d26913916a4ff8\",\n  \"host-qualification.json\": \"b2ef8eb88e0637dff429d9e43a5d76e757fd892154fc080865a7e9406b246e79\",\n  \"host.json\": \"477d5bfc5f1d1764a088a5df9bc732297f434906da44420a3c0d23f3575ea09b\",\n  \"lifecycle.json\": \"a5bb3edad3324d18efc91d4319938d9c1105f4f12a66421d151487deea5150da\",\n  \"module-analysis.json\": \"3040d422abc2257975b6ce83e2e92dc1aff2a9a37923bfb2fd34455d164f14b0\",\n  \"qualification-summary.json\": \"196079383cf72c661f4370a43c7acf414d6c81ebbd754117e88ee6fe4e3f386c\",\n  \"qualification.json\": \"4d5220140a885382c2903238a24bf1b448b5eece27f31c870fb86d8f216bad07\",\n  \"readme.json\": \"4843d8c466bf1fa7a222e1ef4312d2e94585df576ea44f35fb1c43d2fb52f17e\",\n  \"references.json\": \"06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350\",\n  \"reproduction/bundle.py\": \"b7b72052d12bfbaf6061ed034a55fd7593139969b758e0cb15f8e97a2dfac07a\",\n  \"reproduction/checks.py\": \"43f9bf84241c93a8ff2c796f49ecaa65e4ded778889b6a62beb588f9485ec9bb\",\n  \"reproduction/spec.json\": \"2ac8d8c127243bd05eacc58fc64c53935486c095398fc11ecef22b1da5b9a70e\",\n  \"reproduction/verify.py\": \"f91ae42f6ded7f8d91b8fff6c450f4dbb2811aa6e57dd0d9d77bdcc1d578904b\",\n  \"retention.json\": \"fa8de945ad62c22dab138383a435aec83b510c4b342890936530ea81fe2eaace\",\n  \"static-review.json\": \"2ce947a172e59dd436783710d38334416f9965b8ae44e0f240982cda01a34e99\",\n  \"table-verification.json\": \"d1412e4464330df4c6245c028589a73c03f6ea84cf551f6191eb0b8ed6a7f4df\",\n  \"target-chart-verification.json\": \"5e6d3b540e4bcaaf283b8c4c32c5b30f5c16480b099065da20931894081a5c32\",\n  \"test-static-review.json\": \"599976034827543fceca1d46d12a51ff7c822e41f8e36527b688cedf5914c7f7\",\n  \"worker-qualification.json\": \"f89cd639d1e3294657524fad3c614ed740ceb9bed6af83e9e3ca25e0bb25bba8\"\n}\n",
+    "entries": 35
+  },
+  "documented_command": {
+    "execution": {
+      "command": [
+        "python",
+        "bench/results/2026-11-04/leaf-and-loads/reproduction/verify.py"
+      ],
+      "started_utc": "2026-11-04T06:20:30.793574+00:00",
+      "finished_utc": "2026-11-04T06:20:52.002631+00:00",
+      "wall_seconds": 21.209060357999988,
+      "returncode": 0,
+      "pre_audit_manifest_sha256": "9a28f06fd355b03d9b314776e9724e8e28d051ef357e26fce94f0d4d08762647",
+      "stdout_sha256": "648d29bbdb8b4f25f2d5e89a781985a80c0f0c3a83d7e028a7a1451ade3b16ff",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "raw_stdout_utf8": "verified ../../2026-11-03/fresh-construction/evidence-000.tar.gz 112 members\nverified ../../2026-11-03/fresh-construction/evidence-001.tar.gz 39 members\nverified ../../2026-11-03/functions-calls/evidence-000.tar.gz 279 members\nverified ../../2026-11-03/functions-calls/evidence-001.tar.gz 385 members\nverified ../../2026-11-03/functions-calls/evidence-002.tar.gz 235 members\nverified ../../2026-11-03/functions-calls/evidence-003.tar.gz 287 members\nverified ../../2026-11-03/functions-forwarding/evidence-000.tar.gz 667 members\nverified ../../2026-11-03/functions-forwarding/evidence-001.tar.gz 751 members\nverified ../../2026-11-03/functions-forwarding/evidence-002.tar.gz 773 members\nverified ../../2026-11-03/functions-forwarding/evidence-003.tar.gz 540 members\nverified ../../2026-11-03/functions-forwarding/evidence-004.tar.gz 766 members\nverified ../../2026-11-03/functions-forwarding/evidence-005.tar.gz 741 members\nverified ../../2026-11-03/functions-forwarding/evidence-006.tar.gz 674 members\nverified ../../2026-11-03/functions-forwarding/evidence-007.tar.gz 86 members\nverified ../../2026-11-03/merge-bounds/evidence-000.tar.gz 8 members\nverified ../../2026-11-03/merge-bounds/evidence-001.tar.gz 2 members\nverified ../../2026-11-03/runtime-stencil/evidence-000.tar.gz 122 members\nverified ../../2026-11-03/runtime-stencil/evidence-001.tar.gz 124 members\nverified ../../2026-11-03/strided-stores/evidence-000.tar.gz 6 members\nverified ../../2026-11-03/strided-stores/evidence-001.tar.gz 10 members\nverified ../byte-scans/evidence-000.tar.gz 16 members\nverified ../byte-scans/evidence-001.tar.gz 2 members\nverified evidence-000.tar.gz 26072 members\nverified evidence-001.tar.gz 11176 members\nverified evidence-002.tar.gz 342 members\n{\n  \"status\": \"passed\",\n  \"compiler_sha256\": \"8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6\",\n  \"archives\": {\n    \"../../2026-11-03/fresh-construction/evidence-000.tar.gz\": 112,\n    \"../../2026-11-03/fresh-construction/evidence-001.tar.gz\": 39,\n    \"../../2026-11-03/functions-calls/evidence-000.tar.gz\": 279,\n    \"../../2026-11-03/functions-calls/evidence-001.tar.gz\": 385,\n    \"../../2026-11-03/functions-calls/evidence-002.tar.gz\": 235,\n    \"../../2026-11-03/functions-calls/evidence-003.tar.gz\": 287,\n    \"../../2026-11-03/functions-forwarding/evidence-000.tar.gz\": 667,\n    \"../../2026-11-03/functions-forwarding/evidence-001.tar.gz\": 751,\n    \"../../2026-11-03/functions-forwarding/evidence-002.tar.gz\": 773,\n    \"../../2026-11-03/functions-forwarding/evidence-003.tar.gz\": 540,\n    \"../../2026-11-03/functions-forwarding/evidence-004.tar.gz\": 766,\n    \"../../2026-11-03/functions-forwarding/evidence-005.tar.gz\": 741,\n    \"../../2026-11-03/functions-forwarding/evidence-006.tar.gz\": 674,\n    \"../../2026-11-03/functions-forwarding/evidence-007.tar.gz\": 86,\n    \"../../2026-11-03/merge-bounds/evidence-000.tar.gz\": 8,\n    \"../../2026-11-03/merge-bounds/evidence-001.tar.gz\": 2,\n    \"../../2026-11-03/runtime-stencil/evidence-000.tar.gz\": 122,\n    \"../../2026-11-03/runtime-stencil/evidence-001.tar.gz\": 124,\n    \"../../2026-11-03/strided-stores/evidence-000.tar.gz\": 6,\n    \"../../2026-11-03/strided-stores/evidence-001.tar.gz\": 10,\n    \"../byte-scans/evidence-000.tar.gz\": 16,\n    \"../byte-scans/evidence-001.tar.gz\": 2,\n    \"evidence-000.tar.gz\": 26072,\n    \"evidence-001.tar.gz\": 11176,\n    \"evidence-002.tar.gz\": 342\n  },\n  \"aliases\": 140514,\n  \"omissions\": 91,\n  \"required_guests\": 4296,\n  \"retained_guest_objects\": 4524,\n  \"qualification\": {\n    \"focused\": 77,\n    \"cases\": 978,\n    \"observations\": 9573,\n    \"native_comparisons\": 7656,\n    \"host_observations\": 11484,\n    \"unique_modules\": 1574\n  },\n  \"measurements\": {\n    \"warmed\": 550,\n    \"v8\": 200,\n    \"paired_rounds\": 9,\n    \"examples\": 1600,\n    \"host\": 1440,\n    \"preparations\": 200,\n    \"cohort\": 315,\n    \"lifecycle\": 960,\n    \"worker_effective\": 3001,\n    \"worker_aliases\": 3828\n  },\n  \"documentation_table_cells\": 46,\n  \"delivery_recovery\": {\n    \"status\": \"passed\",\n    \"retained_phase_records\": 4,\n    \"recollected_langarena_observations\": 315,\n    \"excluded_langarena_observations\": 315,\n    \"excluded_primary_rows_used\": 0,\n    \"observed_successful_exits\": 6,\n    \"termination_cause\": \"unconfirmed\"\n  },\n  \"retention_sha256\": \"fa8de945ad62c22dab138383a435aec83b510c4b342890936530ea81fe2eaace\",\n  \"index_sha256\": \"e08ecac42c035cacdf9f43aa30d7a6719725b6ddac23d1e1fce172d4533fda45\",\n  \"storage\": {\n    \"by_suffix\": {\n      \"new\": {\n        \".bin\": {\n          \"bytes\": 436712,\n          \"objects\": 18\n        },\n        \".c\": {\n          \"bytes\": 11836008,\n          \"objects\": 63\n        },\n        \".cwasm\": {\n          \"bytes\": 429624,\n          \"objects\": 5\n        },\n        \".disassembly\": {\n          \"bytes\": 9480757,\n          \"objects\": 40\n        },\n        \".goose\": {\n          \"bytes\": 5004,\n          \"objects\": 14\n        },\n        \".h\": {\n          \"bytes\": 329554,\n          \"objects\": 5\n        },\n        \".json\": {\n          \"bytes\": 71499938,\n          \"objects\": 25008\n        },\n        \".log\": {\n          \"bytes\": 2610751,\n          \"objects\": 7025\n        },\n        \".md\": {\n          \"bytes\": 79470,\n          \"objects\": 11\n        },\n        \".patch\": {\n          \"bytes\": 427,\n          \"objects\": 1\n        },\n        \".png\": {\n          \"bytes\": 2347360,\n          \"objects\": 14\n        },\n        \".py\": {\n          \"bytes\": 499988,\n          \"objects\": 30\n        },\n        \".stats\": {\n          \"bytes\": 74,\n          \"objects\": 2\n        },\n        \".stdout\": {\n          \"bytes\": 893523,\n          \"objects\": 3563\n        },\n        \".svg\": {\n          \"bytes\": 790103,\n          \"objects\": 11\n        },\n        \".toml\": {\n          \"bytes\": 23248,\n          \"objects\": 171\n        },\n        \".txt\": {\n          \"bytes\": 5056432,\n          \"objects\": 1559\n        },\n        \".wasm\": {\n          \"bytes\": 966891,\n          \"objects\": 48\n        },\n        \".wip-atomic-write-stats\": {\n          \"bytes\": 37,\n          \"objects\": 1\n        },\n        \".yml\": {\n          \"bytes\": 11304,\n          \"objects\": 1\n        }\n      },\n      \"reused\": {\n        \".bin\": {\n          \"bytes\": 156219096,\n          \"objects\": 1110\n        },\n        \".c\": {\n          \"bytes\": 3963363,\n          \"objects\": 22\n        },\n        \".cpp\": {\n          \"bytes\": 77264,\n          \"objects\": 5\n        },\n        \".cwasm\": {\n          \"bytes\": 177682656,\n          \"objects\": 1661\n        },\n        \".goose\": {\n          \"bytes\": 675154,\n          \"objects\": 423\n        },\n        \".h\": {\n          \"bytes\": 957644,\n          \"objects\": 54\n        },\n        \".json\": {\n          \"bytes\": 4450890,\n          \"objects\": 646\n        },\n        \".log\": {\n          \"bytes\": 8076,\n          \"objects\": 14\n        },\n        \".md\": {\n          \"bytes\": 63761,\n          \"objects\": 6\n        },\n        \".mjs\": {\n          \"bytes\": 9911,\n          \"objects\": 1\n        },\n        \".o\": {\n          \"bytes\": 15389,\n          \"objects\": 6\n        },\n        \".patch\": {\n          \"bytes\": 73919,\n          \"objects\": 9\n        },\n        \".py\": {\n          \"bytes\": 1362201,\n          \"objects\": 121\n        },\n        \".sh\": {\n          \"bytes\": 430,\n          \"objects\": 1\n        },\n        \".stats\": {\n          \"bytes\": 150,\n          \"objects\": 4\n        },\n        \".stderr\": {\n          \"bytes\": 18554,\n          \"objects\": 175\n        },\n        \".stdout\": {\n          \"bytes\": 68354,\n          \"objects\": 465\n        },\n        \".svg\": {\n          \"bytes\": 67001,\n          \"objects\": 1\n        },\n        \".txt\": {\n          \"bytes\": 20075,\n          \"objects\": 30\n        },\n        \".wasm\": {\n          \"bytes\": 51711140,\n          \"objects\": 1682\n        },\n        \".wip-atomic-write-stats\": {\n          \"bytes\": 112,\n          \"objects\": 3\n        },\n        \"[no suffix]\": {\n          \"bytes\": 233752,\n          \"objects\": 186\n        }\n      }\n    },\n    \"current_aliases\": 140514,\n    \"largest_new_objects\": [\n      {\n        \"bytes\": 20838606,\n        \"member\": \"objects/b2ef8eb88e0637dff429d9e43a5d76e757fd892154fc080865a7e9406b246e79/report.json\",\n        \"path\": \"/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/qualification/attempt-1/host/report.json\",\n        \"sha256\": \"b2ef8eb88e0637dff429d9e43a5d76e757fd892154fc080865a7e9406b246e79\"\n      },\n      {\n        \"bytes\": 8044563,\n        \"member\": \"objects/f89cd639d1e3294657524fad3c614ed740ceb9bed6af83e9e3ca25e0bb25bba8/report.json\",\n        \"path\": \"/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/qualification/attempt-1/worker-replay/report.json\",\n        \"sha256\": \"f89cd639d1e3294657524fad3c614ed740ceb9bed6af83e9e3ca25e0bb25bba8\"\n      },\n      {\n        \"bytes\": 6091614,\n        \"member\": \"objects/fdbb2f2f33899b915fce79370ab9755b67b051601d95625c3cd57df37ad8bae6/report.json\",\n        \"path\": \"/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/qualification/attempt-1/differential/report.json\",\n        \"sha256\": \"fdbb2f2f33899b915fce79370ab9755b67b051601d95625c3cd57df37ad8bae6\"\n      },\n      {\n        \"bytes\": 1967276,\n        \"member\": \"objects/9058e89bf383704d27ce9466253ab2402f518665b3baa5cb822725b1218df78b/artifact-catalog.json\",\n        \"path\": \"/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/qualification/attempt-1/artifact-catalog.json\",\n        \"sha256\": \"9058e89bf383704d27ce9466253ab2402f518665b3baa5cb822725b1218df78b\"\n      },\n      {\n        \"bytes\": 1821717,\n        \"member\": \"objects/1857eae1b0f328af92f63836ff16324a34de152368572429b3dd1298a48854ab/hash_sha256-wasm.txt\",\n        \"path\": \"/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/astra-machine/hash_sha256-wasm.txt\",\n        \"sha256\": \"1857eae1b0f328af92f63836ff16324a34de152368572429b3dd1298a48854ab\"\n      }\n    ],\n    \"new_objects\": 37590,\n    \"new_raw_bytes\": 107297205,\n    \"prior_aliases_imported\": 0,\n    \"prior_documents_opened\": 0,\n    \"reused_archives\": 22,\n    \"reused_objects\": 6625,\n    \"reused_raw_bytes\": 397678892\n  },\n  \"scope\": \"Verification needs the current publication and the bounded byte-scans and 2026-11-03 strided-stores, merge-bounds, runtime-stencil, fresh-construction, calls and forwarding archives named in its index. Reuse is byte storage only; execution rows remain fresh. No recursive report/index closure, source checkout scan, compiler, test or guest engine execution.\"\n}\n",
+    "raw_stderr_utf8": "",
+    "parsed_result": {
+      "status": "passed",
+      "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+      "aliases": 140514,
+      "omissions": 91,
+      "required_guests": 4296,
+      "retained_guest_objects": 4524,
+      "qualification": {
+        "focused": 77,
+        "cases": 978,
+        "observations": 9573,
+        "native_comparisons": 7656,
+        "host_observations": 11484,
+        "unique_modules": 1574
+      },
+      "measurements": {
+        "warmed": 550,
+        "v8": 200,
+        "paired_rounds": 9,
+        "examples": 1600,
+        "host": 1440,
+        "preparations": 200,
+        "cohort": 315,
+        "lifecycle": 960,
+        "worker_effective": 3001,
+        "worker_aliases": 3828
+      },
+      "documentation_table_cells": 46,
+      "delivery_recovery": {
+        "status": "passed",
+        "retained_phase_records": 4,
+        "recollected_langarena_observations": 315,
+        "excluded_langarena_observations": 315,
+        "excluded_primary_rows_used": 0,
+        "observed_successful_exits": 6,
+        "termination_cause": "unconfirmed"
+      },
+      "retention_sha256": "fa8de945ad62c22dab138383a435aec83b510c4b342890936530ea81fe2eaace",
+      "index_sha256": "e08ecac42c035cacdf9f43aa30d7a6719725b6ddac23d1e1fce172d4533fda45",
+      "scope": "Verification needs the current publication and the bounded byte-scans and 2026-11-03 strided-stores, merge-bounds, runtime-stencil, fresh-construction, calls and forwarding archives named in its index. Reuse is byte storage only; execution rows remain fresh. No recursive report/index closure, source checkout scan, compiler, test or guest engine execution."
+    },
+    "public_inventory_and_content_unchanged": true,
+    "generated_bytecode_cache": false
+  },
+  "independent_payload_stream": {
+    "status": "passed",
+    "started_utc": "2026-11-04T06:22:46.899743+00:00",
+    "finished_utc": "2026-11-04T06:22:57.383040+00:00",
+    "wall_seconds": 10.483290257980116,
+    "method": "Independent stdlib sequential tar streaming and SHA256 of all indexed new and bounded-prior payloads; no packaged verifier import, extraction, prior indexes, source builds or guest execution.",
+    "archives": {
+      "../../2026-11-03/fresh-construction/evidence-000.tar.gz": {
+        "sha256": "6e7eb36ddaaa02eb8a8ea4e62c04b311760f56b26c8eee7de52ef3e79feb077c",
+        "bytes": 8293865,
+        "requested_members": 112,
+        "requested_raw_bytes": 2554002,
+        "physical_members": 20264,
+        "external": true
+      },
+      "../../2026-11-03/fresh-construction/evidence-001.tar.gz": {
+        "sha256": "1d83679ca406da1ed23716bcb3b7e311018e710a44dd0452da3c369159f9b81c",
+        "bytes": 2869636,
+        "requested_members": 39,
+        "requested_raw_bytes": 1118963,
+        "physical_members": 6161,
+        "external": true
+      },
+      "../../2026-11-03/functions-calls/evidence-000.tar.gz": {
+        "sha256": "014654995aab81e8422e6e35f3cd4bda8361db1e6b0726258541ccef8cb8f953",
+        "bytes": 10905110,
+        "requested_members": 279,
+        "requested_raw_bytes": 10053620,
+        "physical_members": 12711,
+        "external": true
+      },
+      "../../2026-11-03/functions-calls/evidence-001.tar.gz": {
+        "sha256": "37cfec86e277eac9e53d3bd43a82ad6dd833ea375da438744f68c40a1ecb0932",
+        "bytes": 14488614,
+        "requested_members": 385,
+        "requested_raw_bytes": 14325301,
+        "physical_members": 17007,
+        "external": true
+      },
+      "../../2026-11-03/functions-calls/evidence-002.tar.gz": {
+        "sha256": "40a5d4a918abfcab3c6b3df14b241bb5c4bc490b79bbea03da43115e9af5e76f",
+        "bytes": 11266669,
+        "requested_members": 235,
+        "requested_raw_bytes": 9437100,
+        "physical_members": 12038,
+        "external": true
+      },
+      "../../2026-11-03/functions-calls/evidence-003.tar.gz": {
+        "sha256": "f37c7a7b4ebd999aea8a98a10b12daa3ff83aad8af3395b0632ccb8852de90e6",
+        "bytes": 11471131,
+        "requested_members": 287,
+        "requested_raw_bytes": 10654344,
+        "physical_members": 13689,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-000.tar.gz": {
+        "sha256": "9b20ad36eae7bb7b084584e6fba4735982598b9d99b3910e16349814b0d1a9dd",
+        "bytes": 20196881,
+        "requested_members": 667,
+        "requested_raw_bytes": 45704642,
+        "physical_members": 4477,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-001.tar.gz": {
+        "sha256": "90d0e9d792723c1933e86b30c3f2fa7f6ebc082958ae986edd8ccf543e4e1b1b",
+        "bytes": 22019827,
+        "requested_members": 751,
+        "requested_raw_bytes": 51540762,
+        "physical_members": 4904,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-002.tar.gz": {
+        "sha256": "0895ba41cac5967838a50fb35cd74e0496e506e6a7e7efd1c43d085eabfbc283",
+        "bytes": 21162483,
+        "requested_members": 773,
+        "requested_raw_bytes": 49224569,
+        "physical_members": 4897,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-003.tar.gz": {
+        "sha256": "8873464668da87a3171f5853c90f957bb71450e1633e5b0205fec9d3b56e1ebb",
+        "bytes": 17289095,
+        "requested_members": 540,
+        "requested_raw_bytes": 37708779,
+        "physical_members": 3488,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-004.tar.gz": {
+        "sha256": "cecf25b5e247996b544012901b299402f17c2f0b78379967acd031089bad30f2",
+        "bytes": 22884906,
+        "requested_members": 766,
+        "requested_raw_bytes": 53418252,
+        "physical_members": 4949,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-005.tar.gz": {
+        "sha256": "ce814d01f5c3767469a6ff370cfe40cf0ca8ee87cd676417c7167acd5c09c802",
+        "bytes": 21782920,
+        "requested_members": 741,
+        "requested_raw_bytes": 50950848,
+        "physical_members": 4605,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-006.tar.gz": {
+        "sha256": "73612a40ac6ce10fb1a380cf7fd951889e898e8132a632d54951fb5afba53349",
+        "bytes": 21362271,
+        "requested_members": 674,
+        "requested_raw_bytes": 48583912,
+        "physical_members": 4507,
+        "external": true
+      },
+      "../../2026-11-03/functions-forwarding/evidence-007.tar.gz": {
+        "sha256": "bf6e5e57b5b9c5e03e76aad734143c421573b6059165ddcf8488d0af03d93955",
+        "bytes": 4020145,
+        "requested_members": 86,
+        "requested_raw_bytes": 7737908,
+        "physical_members": 641,
+        "external": true
+      },
+      "../../2026-11-03/merge-bounds/evidence-000.tar.gz": {
+        "sha256": "4b26d21de116c187390cf990c13ac8ed3018d3a244bfcc3ecc37c7536968a6e6",
+        "bytes": 7898632,
+        "requested_members": 8,
+        "requested_raw_bytes": 588472,
+        "physical_members": 18904,
+        "external": true
+      },
+      "../../2026-11-03/merge-bounds/evidence-001.tar.gz": {
+        "sha256": "9c1d5bd8057c9014a38f335252037aa3a3b1a84d4ff87af28f7192e63267d753",
+        "bytes": 5113670,
+        "requested_members": 2,
+        "requested_raw_bytes": 56120,
+        "physical_members": 16143,
+        "external": true
+      },
+      "../../2026-11-03/runtime-stencil/evidence-000.tar.gz": {
+        "sha256": "cb59eb291406f70bdccb10b604a8deb97507425c1feda65c5e1e3e7d33715ac7",
+        "bytes": 7857943,
+        "requested_members": 122,
+        "requested_raw_bytes": 1083148,
+        "physical_members": 18717,
+        "external": true
+      },
+      "../../2026-11-03/runtime-stencil/evidence-001.tar.gz": {
+        "sha256": "f5a9450e58b5a28a4aba50bc772cd64058ceb23941baa3748319cc817e900bd0",
+        "bytes": 5651270,
+        "requested_members": 124,
+        "requested_raw_bytes": 703132,
+        "physical_members": 16787,
+        "external": true
+      },
+      "../../2026-11-03/strided-stores/evidence-000.tar.gz": {
+        "sha256": "48a24fbe577a77ff3ae253c9e358390790e2a875952043b5c816e4072e0d8977",
+        "bytes": 7990018,
+        "requested_members": 6,
+        "requested_raw_bytes": 59955,
+        "physical_members": 19834,
+        "external": true
+      },
+      "../../2026-11-03/strided-stores/evidence-001.tar.gz": {
+        "sha256": "c7076d5378def5f1100c7ee8960f106436e5bfb405701ade5b37e1ea8b2a2e8b",
+        "bytes": 5076268,
+        "requested_members": 10,
+        "requested_raw_bytes": 249361,
+        "physical_members": 15655,
+        "external": true
+      },
+      "../byte-scans/evidence-000.tar.gz": {
+        "sha256": "87d59eaa545a5d3c3cc0029f40a4ba3b1d2a50775d6926009347d33cb91b0ea3",
+        "bytes": 8732779,
+        "requested_members": 16,
+        "requested_raw_bytes": 1858685,
+        "physical_members": 26838,
+        "external": true
+      },
+      "../byte-scans/evidence-001.tar.gz": {
+        "sha256": "c4d0d68d08b946115c94639fdb026ce46392b0478fad4409b31059cb6fc0861d",
+        "bytes": 4086498,
+        "requested_members": 2,
+        "requested_raw_bytes": 67017,
+        "physical_members": 8429,
+        "external": true
+      },
+      "evidence-000.tar.gz": {
+        "sha256": "f164a277128a53092718b7bd94918e5f021c666699bfabe27ec6b10c6af574fe",
+        "bytes": 11690194,
+        "requested_members": 26072,
+        "requested_raw_bytes": 46029513,
+        "physical_members": 26072,
+        "external": false
+      },
+      "evidence-001.tar.gz": {
+        "sha256": "c4cbb6fa59cbb7b42190439546d3fc57f4e77b734c553e33af5680c9c35343f1",
+        "bytes": 7415817,
+        "requested_members": 11176,
+        "requested_raw_bytes": 54241307,
+        "physical_members": 11176,
+        "external": false
+      },
+      "evidence-002.tar.gz": {
+        "sha256": "e27d5e90f48c72ba912b8ab1a3fec77be1ad2e2536098007745f9a61f9836c73",
+        "bytes": 653341,
+        "requested_members": 342,
+        "requested_raw_bytes": 7026385,
+        "physical_members": 342,
+        "external": false
+      }
+    },
+    "physical_archives": 25,
+    "indexed_payloads": 44215,
+    "distinct_objects": 44215,
+    "indexed_raw_bytes": 504976097,
+    "aliases": 140514,
+    "explicit_omissions": 91,
+    "current_documents": 40,
+    "public_bindings": 24,
+    "qualified_source_bindings": 498,
+    "required_guests": 4296,
+    "retained_guests": 4524,
+    "source_stages": 4,
+    "controls": 8,
+    "cache_files": 678,
+    "cache_config_files": 170,
+    "cache_entry_stat_files": 508,
+    "cache_file_bytes": 3506427,
+    "public_review_pins_resolved": true,
+    "current_public_files_match_archived_bindings": true,
+    "old_controller_and_excluded_child_opaque": true,
+    "no_historical_alias_or_document_import": true,
+    "index_sha256": "e08ecac42c035cacdf9f43aa30d7a6719725b6ddac23d1e1fce172d4533fda45",
+    "retention_sha256": "fa8de945ad62c22dab138383a435aec83b510c4b342890936530ea81fe2eaace"
+  },
+  "public_proofs": {
+    "final_public_review_sha256": "d44cb011b090b72eee3c58223a6ac9e698e475d0faef2decb48aed9eba515dc1",
+    "documents": 9,
+    "latest_pointers": 5,
+    "charts": 11,
+    "numeric_labels": 453,
+    "table_cells": 46,
+    "guide_commands_and_requests": 15,
+    "independent_summary_cells": 903,
+    "public_review_input_hashes_rechecked": true
+  },
+  "closure": {
+    "primary_observations": 5065,
+    "separate_preparations": 200,
+    "source_stages": 4,
+    "selected_headers": 37,
+    "selected_patches": 2,
+    "matched_controls": 8,
+    "qualified_input_pins": 1487,
+    "qualified_source_bindings": 498,
+    "current_evidence_documents": 40,
+    "required_guests": 4296,
+    "retained_guests": 4524,
+    "explicit_tool_upstream_omissions": 91,
+    "measured_guest_omissions": 0,
+    "lifecycle_cache_files": 678,
+    "cache_config_files": 170,
+    "cache_entry_or_stat_files": 508,
+    "cache_bytes": 3506427,
+    "new_archive_files": 3,
+    "new_archive_bytes": 19759352,
+    "bounded_prior_archive_files": 22,
+    "prior_aliases_imported": 0,
+    "prior_documents_opened": 0
+  },
+  "recovery": "Four original completed phase records, reports and streams are preserved exactly. The old 315-row LangArena child has no observed process exit and contributes zero primary rows. Fresh LangArena and lifecycle complete six known exit-zero phases. Archived completion, pins, environment, commands and timezone-aware chronology pass strict validation. Original termination cause is unconfirmed.",
+  "measurement_limits": [
+    "Wasmtime warmed Quick and custom-hash improvements are specific to the retained cohort; V8 is essentially flat.",
+    "All ten full example guest modules are byte-identical to baseline; fresh full-process differences are not compiler-change speedups.",
+    "Warmed e046 native host links Python Wasmtime dynamically; process/lifecycle e303 host links the SDK statically. Selected native references are profile-specific, not universal ceilings."
+  ],
+  "audit_checker_correction": {
+    "classification": "Private audit checker assumption only; sealed package unchanged.",
+    "reason": "The initial independent checker required absolute aliases. Exact public aliases legitimately preserve relative paths; accepting either exact representation resolved the check. Original script and failure logs are retained privately in archive-audit/attempt-1.",
+    "corrected_stream_passed": true
+  },
+  "final_manifest_protocol": "SHA256.json is updated after this audit is written and binds this audit plus every other public file; it excludes only itself. The exact pre-audit manifest is embedded above to avoid a checksum cycle. No other public bytes changed.",
+  "expected_final_public_files": 37,
+  "expected_final_manifest_entries": 36,
+  "blockers": []
+}

@@ -1,14 +1,14 @@
 {
   "schema": "goose-runtime-reference-latest-v1",
-  "report": "2026-11-04/byte-scans/references.json",
+  "report": "2026-11-04/leaf-and-loads/references.json",
   "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
   "comparison": {
-    "report": "2026-11-04/byte-scans/final-warmed.json",
-    "sha256": "a0e20a2054f44177b1076387ec9ddf61ec3271c0b5ac305949d016b27df9b326",
+    "report": "2026-11-04/leaf-and-loads/final-warmed.json",
+    "sha256": "e3cc57c5ff9421b420882ee958b935eaf39d03fbe7f4c555ea3ab604f8661111",
     "compiler": "final"
   },
   "chart_verification": {
-    "report": "2026-11-04/byte-scans/target-chart-verification.json",
-    "sha256": "2c41691542c2877a59ea7cde1c7d1df4fd254068fc054846418fccb1e665c59c"
+    "report": "2026-11-04/leaf-and-loads/target-chart-verification.json",
+    "sha256": "5e6d3b540e4bcaaf283b8c4c32c5b30f5c16480b099065da20931894081a5c32"
   }
 }

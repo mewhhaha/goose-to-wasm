@@ -1,0 +1,166 @@
+{
+  "status": "passed",
+  "method": "Post-timing smoke validation of current GUIDE CLI/cache/session instructions using installed qualified compiler/host. Existing setup/install instructions were not rerun.",
+  "checks": [
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "--target",
+        "wasm-direct",
+        "-O2",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm",
+        "--wasm-stats",
+        "/home/jacobt/src/goose-to-wasm/build/squares.stats.json"
+      ],
+      "returncode": 0,
+      "stdout": "parsed ok: 2 top-level declarations, 1 file(s)\ntypechecked ok: 2 specialization(s), 0 struct/0 enum instance(s); optimized -O2: 1 inlined, 0 base case(s), 0 folded, 1 propagated, 0 tail loop(s), 0 reassociated\nbce: elided 0/0 index and 0/0 slice checks\nwasm-direct: 3 functions, 353 code bytes, 1375 module bytes\n",
+      "stderr": "",
+      "wall_seconds": 0.003403679991606623
+    },
+    {
+      "command": [
+        "node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "wall_seconds": 0.024871417961549014
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "wall_seconds": 0.09502851002616808
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "wall_seconds": 0.05539993999991566
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "wall_seconds": 0.0023640540312044322
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "--no-cache",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "wall_seconds": 0.003191706957295537
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "--compile",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm",
+        "/home/jacobt/src/goose-to-wasm/build/squares.cwasm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "wall_seconds": 0.0017346070380881429
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "--precompiled",
+        "/home/jacobt/src/goose-to-wasm/build/squares.cwasm"
+      ],
+      "returncode": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "wall_seconds": 0.0010797220165841281
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "--cache-config",
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/guide-validation/cache.toml",
+        "/home/jacobt/src/goose-to-wasm/build/squares.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "wall_seconds": 0.0031522130011580884
+    },
+    {
+      "session_options": {},
+      "request": 0,
+      "stdout": "sum=140\n",
+      "returncode": 0,
+      "module_cache_hit": false
+    },
+    {
+      "session_options": {},
+      "request": 1,
+      "stdout": "sum=140\n",
+      "returncode": 0,
+      "module_cache_hit": true
+    },
+    {
+      "session_options": {
+        "cache": true
+      },
+      "request": 0,
+      "stdout": "sum=140\n",
+      "returncode": 0,
+      "module_cache_hit": false
+    },
+    {
+      "session_options": {
+        "cache": true
+      },
+      "request": 1,
+      "stdout": "sum=140\n",
+      "returncode": 0,
+      "module_cache_hit": true
+    },
+    {
+      "session_options": {
+        "cache_config": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/guide-validation/cache.toml"
+      },
+      "request": 0,
+      "stdout": "sum=140\n",
+      "returncode": 0,
+      "module_cache_hit": false
+    },
+    {
+      "session_options": {
+        "cache_config": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/guide-validation/cache.toml"
+      },
+      "request": 1,
+      "stdout": "sum=140\n",
+      "returncode": 0,
+      "module_cache_hit": true
+    }
+  ],
+  "guide_sha256": "fd8673ad11cdedcb1c243020a46309c0ae5be811e7e033ce297074dde0bb8206",
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+  "module_sha256": "6487f443eb6ad04010685eaf9e5970f64586398c717cd160e48d8e86a5a565bc",
+  "artifact_sha256": "6d2b026400f78a97c4960bbb6bc0a1e0fdaaaceea1b84a0011fd47276f288077"
+}

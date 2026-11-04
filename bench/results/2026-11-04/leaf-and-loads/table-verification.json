@@ -1,0 +1,143 @@
+{
+  "status": "passed",
+  "cells_checked": 46,
+  "method": "Exact formatted cells matched by workload identity; no report-order zipping.",
+  "checks": [
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "CLBG::Fannkuchredux",
+      "cells": [
+        "1,426",
+        "1,422",
+        "1,115"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "CLBG::Mandelbrot",
+      "cells": [
+        "1,062",
+        "1,060",
+        "970"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Etc::Sieve",
+      "cells": [
+        "784",
+        "1,528",
+        "919"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Hash::CRC32",
+      "cells": [
+        "458",
+        "427",
+        "207"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Hash::SHA256",
+      "cells": [
+        "280",
+        "394",
+        "230"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Sort::Merge",
+      "cells": [
+        "1,561",
+        "2,113",
+        "1,111"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Sort::Quick",
+      "cells": [
+        "1,499",
+        "1,435",
+        "1,252"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Example::Life",
+      "cells": [
+        "50",
+        "169",
+        "65"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Example::Sorting",
+      "cells": [
+        "446",
+        "2,452",
+        "340"
+      ]
+    },
+    {
+      "document": "docs/RUNTIME_TARGETS.md",
+      "task": "Example::Sudoku",
+      "cells": [
+        "170",
+        "178",
+        "105"
+      ]
+    },
+    {
+      "document": "bench/wasmtime-host.md",
+      "task": "functions",
+      "cells": [
+        "100.133 ms",
+        "25.135 ms",
+        "1.691 ms",
+        "0.920 ms"
+      ]
+    },
+    {
+      "document": "bench/wasmtime-host.md",
+      "task": "sorting",
+      "cells": [
+        "117.767 ms",
+        "35.246 ms",
+        "16.912 ms",
+        "49.450 ms"
+      ]
+    },
+    {
+      "document": "bench/wasmtime-host.md",
+      "task": "sudoku",
+      "cells": [
+        "83.643 ms",
+        "10.015 ms",
+        "4.379 ms",
+        "4.321 ms"
+      ]
+    },
+    {
+      "document": "bench/wasmtime-host.md",
+      "task": "life",
+      "cells": [
+        "96.674 ms",
+        "16.515 ms",
+        "3.081 ms",
+        "19.702 ms"
+      ]
+    }
+  ],
+  "inputs": {
+    "bench/results/2026-11-04/leaf-and-loads/final-warmed.json": "e3cc57c5ff9421b420882ee958b935eaf39d03fbe7f4c555ea3ab604f8661111",
+    "bench/results/2026-11-04/leaf-and-loads/host.json": "477d5bfc5f1d1764a088a5df9bc732297f434906da44420a3c0d23f3575ea09b",
+    "docs/RUNTIME_TARGETS.md": "d452ba73fa43551d64395b1bae562e83517516996c314d0f381f758449f1c887",
+    "bench/wasmtime-host.md": "e517ca831b129fe4283c589a971417a7b432704be9268c9817793a19ef712c45"
+  }
+}

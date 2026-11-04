@@ -1,5 +1,11 @@
 # Runtime performance work
 
+## Leaf calls and byte loads
+
+Eligible straight-line void leaf calls expand in recursive callers, and the width-eight byte recurrence uses one eight-byte load. Nine paired warmed rounds on Wasmtime improved Quicksort 1.23× and custom hash 1.25×; V8 was essentially flat. These results cover configured iteration counts and exclude preparation and startup.
+
+Quicksort grew 124 bytes and custom hash shrank 13 bytes; the other eight warmed modules and all ten full example modules were byte-identical to the baseline. The [campaign evidence](../bench/results/2026-11-04/leaf-and-loads/README.md) records qualification, tradeoffs and separately collected references.
+
 ## Byte scan selection and width
 
 Byte-equality scans select the last matching index without a branch and merge two SIMD128 vectors per 32-byte group, with a 16-byte vector tail. Scalar tails, debug builds and failed span guards retain the original path.

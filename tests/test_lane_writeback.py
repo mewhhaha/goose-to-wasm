@@ -19,7 +19,9 @@ from test_static_data import uleb
 GOOSE = ROOT / "build/bin/goose"
 NODE = "node"
 EXPECT_SIMD = True
-TAIL = bytes(range(161, 185))
+TAIL = bytes([0x00, 0xFF, 0x80, 0x7F, 0x01, 0xFE, 0x55, 0xAA,
+              0x81, 0x00, 0xFF, 0x7E, 0x10, 0xEF, 0x40, 0xBF,
+              0x00, 0xFF, 0x80, 0x7F, 0x02, 0xFD, 0x33, 0xCC])
 INITIAL = [0x102332FE, 0x55667788, 0x12345678, 0xF00DBABE,
            0x81234567, 0x76543210, 0xDEADBEEF, 0xFEEDABCD]
 
@@ -76,9 +78,15 @@ fn main() {{ saved=backing[..]; }}
 def expected(width, scenario, variant, seed=0, a=33, b=1025, shift=6):
     image = bytearray(struct.pack("<"+"I"*width, *INITIAL[:width]))
     count = {"valid":23, "exact":width, "short":5, "empty":0, "group_trap":width+1,
-             "tail_trap":width+1, "alias":width*2+1, "wrap":4}[scenario]
+             "tail_trap":width+1, "alias":width*2+1, "wrap":4}.get(scenario,0)
     available = {"valid":TAIL[-23:], "exact":TAIL[-width:], "short":TAIL[-5:], "empty":b"",
                  "group_trap":TAIL[-(width-1):], "tail_trap":TAIL[-width:], "wrap":b""}
+    if scenario.startswith("remainder_"):
+        count = width+int(scenario.removeprefix("remainder_"))
+        available[scenario] = TAIL[-count:]
+    if scenario == "logical_short":
+        count = width-1
+        available[scenario] = TAIL[-width:]
     trapped = False
     for i in range(count):
         if scenario == "alias":
@@ -141,6 +149,11 @@ const prepared=()=>{
     bytes.set(tail,end-tail.length);
     const cases={valid:[end-23,23],exact:[end-width,width],short:[end-5,5],empty:[end,0],group_trap:[end-width+1,width+1],
                  tail_trap:[end-width,width+1],alias:[laneAt,width*2+1],wrap:[0xfffffffe,4]};
+    if(scenario.startsWith("remainder_")) {
+        const count=width+Number(scenario.slice("remainder_".length));
+        cases[scenario]=[end-count,count];
+    }
+    if(scenario==="logical_short") cases[scenario]=[end-width,width-1];
     const [pointer,length]=cases[scenario];
     bytes.writeUInt32LE(pointer,headerAt); bytes.writeUInt32LE(length,headerAt+4);
 };
@@ -182,6 +195,11 @@ def wasmtime_run(path, width, scenario, seed):
         cases = {"valid":(end-23,23), "exact":(end-width,width), "short":(end-5,5), "empty":(end,0),
                  "group_trap":(end-width+1,width+1), "tail_trap":(end-width,width+1),
                  "alias":(lane_at,width*2+1), "wrap":(0xFFFFFFFE,4)}
+        if scenario.startswith("remainder_"):
+            count = width+int(scenario.removeprefix("remainder_"))
+            cases[scenario] = (end-count,count)
+        if scenario == "logical_short":
+            cases[scenario] = (end-width,width-1)
         memory.write(caller,TAIL,end-len(TAIL))
         memory.write(caller,struct.pack("<II",*cases[scenario]),header_at)
 
@@ -221,13 +239,13 @@ def simd_ops(body):
         if op == 0xFD:
             sub,offset = uleb(body,offset)
             yield sub
-            if sub in (0,0x5C):
+            if sub in (0,0x02,0x5C):
                 _,offset = uleb(body,offset)
                 _,offset = uleb(body,offset)
             elif sub == 0x1B:
                 offset += 1
             else:
-                assert sub in (0x11,0x89,0xA9,0xAB,0xAD,0xAE,0xB1,0xB5,0x4E,0x50,0x51), hex(sub)
+                assert sub in (0x11,0x89,0xA9,0xAA,0xAB,0xAD,0xAE,0xB1,0xB5,0x4E,0x50,0x51), hex(sub)
         elif op in (0x02,0x03,0x04,0x0C,0x0D,0x10,0x20,0x21,0x22,0x23,0x24,0x3F,0x40,0x41,0x42):
             _,offset = uleb(body,offset)
         elif op == 0x0E:
@@ -280,7 +298,9 @@ class LaneWriteback(unittest.TestCase):
             for level in (0,2):
                 for variant,a,b,shift in (("normal",33,1025,6),("normal",17,65537,13),("shift_add",33,1025,6)):
                     path,_ = self.compile(width,level,variant,a=a,b=b,shift=shift)
-                    for scenario in ("valid","exact","short","empty","group_trap","tail_trap","alias","wrap"):
+                    scenarios = ["valid","exact","short","logical_short","empty","group_trap","tail_trap","alias","wrap"]
+                    scenarios.extend(f"remainder_{n}" for n in range(1,width))
+                    for scenario in scenarios:
                         for engine,observed in self.engines(path,width,scenario):
                             with self.subTest(width=width,level=level,variant=variant,a=a,scenario=scenario,engine=engine):
                                 self.assertEqual(observed,expected(width,scenario,variant,a=a,b=b,shift=shift))
@@ -316,8 +336,18 @@ class LaneWriteback(unittest.TestCase):
                 ops = list(simd_ops(function_body(path,stats,"tick")))
                 if EXPECT_SIMD:
                     self.assertEqual(ops.count(0xB5),2*(width//4))
-                    for op in (0x5C,0x89,0xA9,0xAD,0x51):
+                    for op in (0xAD,0x51):
                         self.assertEqual(ops.count(op),width//4)
+                    if width == 4:
+                        for op in (0x5C,0x89,0xA9):
+                            self.assertEqual(ops.count(op),1)
+                        for op in (0x02,0xAA):
+                            self.assertNotIn(op,ops)
+                    else:
+                        for op in (0x02,0xA9,0xAA):
+                            self.assertEqual(ops.count(op),1)
+                        for op in (0x5C,0x89):
+                            self.assertNotIn(op,ops)
                 else:
                     self.assertEqual(ops,[])
             for variant,debug in (("normal",True),("ordinal",False),("early_store",False),("divide",False),("alias_write",False),

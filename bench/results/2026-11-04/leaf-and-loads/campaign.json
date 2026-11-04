@@ -1,0 +1,62 @@
+{
+  "schema": "goose-leaf-and-loads-campaign-v1",
+  "status": "passed",
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "baseline_compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "scope": "Existing width8 byte recurrence unpack plus bounded direct-emitter expansion of straight-line void leaves. No benchmark source, input, algorithm or engine flag changes.",
+  "qualification": {
+    "focused_commands": 77,
+    "cases": 978,
+    "differential_executions": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574,
+    "worker_observations": 3001,
+    "worker_aliases": 3828
+  },
+  "accepted_boundaries": "Fresh paired warmed compiler comparisons and frozen selected references, separately collected full-process backends and lifecycle modes. No algorithm/input/engine-flag changes.",
+  "selection": {
+    "schema": "goose-leaf-and-loads-selection-v1",
+    "status": "selected",
+    "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+    "baseline_compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+    "scope": "Existing width8 byte recurrence unpack plus bounded direct-emitter expansion of straight-line void leaves. No benchmark source, input, algorithm or engine flag changes.",
+    "selected_root": "build/next-runtime-hills/final",
+    "source_stages": {
+      "baseline": "build/scan-hills/final",
+      "hash-only": "build/next-runtime-hills/hash-load",
+      "combined-tiny-leaf": "build/next-runtime-hills/tiny-leaf",
+      "final": "build/next-runtime-hills/final"
+    },
+    "decision": "Accept combined prototype for complete qualification/delivery. Wasmtime paired baseline/tiny Quicksort1.1938387168 MAD.0428542853 and customhash1.2545624328 MAD.0049239543; V8 Quicksort1.0010924217 MAD.0009617752, hash.9978550904 MAD.0007487560. V8 no material Quick gain, small hash regression; do not claim both-engine wins. Warmed Quick+124bytes, hash-13bytes, Merge byte-identical. Full ten examples not yet measured.",
+    "tradeoffs": [
+      "The isolated hash-only screen showed about1percent V8 regression; repeated combined screen0.2percent, not a V8 win.",
+      "Only void straight-line bounded scalar/slice helpers qualify. Debug, recursion, captures, globals, byref/addressed/owning locals, nested calls, branches and loops remain on existing call lowering.",
+      "Quicksort module grows124bytes (4356 to4480); helper remains reachable; this pilot does not prune function definitions.",
+      "The guarded SIMD sentinel-scan idea is deferred: current bounded call expansion wins with less code/proof surface.",
+      "Native may tail-eliminate recursion and use wider SIMD; engine startup/lifecycle remain separate."
+    ],
+    "evidence": {
+      "hash-wasmtime/report.json": "614c1c2b790afbccd23971843145405f4192bb686e8bdcbb667ff4f32eb0191c",
+      "hash-v8/report.json": "1f170ede304390777276af09bb5ba06e243bb2fe5301c15d033750b1169ad09c",
+      "tiny-wasmtime/report.json": "f88d49b55742bc357073f4e8c9f6bb41e54623efa7d52117aa23b2ea83eb8d83",
+      "tiny-v8/report.json": "9f83d16c1e4ff916ab8a9e5b85b6f6159336ab804b7f952df231d2e7169879cf",
+      "tiny-tests/summary.json": "7186f92a859054c2a116c618a319c31ba74ccae0c871e5e09b36cd4608fb5d50",
+      "tiny-leaf-implementation-review.json": "3fa75ad3f707254bdb2d607599c824caec5926da0c29b33fd6749109f76460c4"
+    },
+    "qualification": "All77focused/978cases/9573differential/7656native/11484host/3001derivedworker over3828aliases passed; full1487pins andeightcontrolbinariesrechecked. Finalperformanceclaims await sixfreshdeliverycohorts."
+  },
+  "numbers_sha256": "d24455e04ebafb4f160e2c5babeb1a5fc8801ccf341a3310c13664f6ff9ebced",
+  "evidence": {
+    "module-analysis.json": "3040d422abc2257975b6ce83e2e92dc1aff2a9a37923bfb2fd34455d164f14b0",
+    "qualification/static-review.json": "2ce947a172e59dd436783710d38334416f9965b8ae44e0f240982cda01a34e99",
+    "qualification/test-static-review.json": "599976034827543fceca1d46d12a51ff7c822e41f8e36527b688cedf5914c7f7",
+    "delivery-execution-resumed/report.json": "c8830dac56919979abd0cc7b18ff74d17a32318011777c23e9e04b1a46b524d2",
+    "campaign-selection.json": "ad6254c2cb585f7fd5b4a70737fc0c21713a92eae79335e3a7f294870aab784e",
+    "tiny-leaf-implementation-review.json": "3fa75ad3f707254bdb2d607599c824caec5926da0c29b33fd6749109f76460c4",
+    "hash-wasmtime/report.json": "614c1c2b790afbccd23971843145405f4192bb686e8bdcbb667ff4f32eb0191c",
+    "hash-v8/report.json": "1f170ede304390777276af09bb5ba06e243bb2fe5301c15d033750b1169ad09c",
+    "tiny-wasmtime/report.json": "f88d49b55742bc357073f4e8c9f6bb41e54623efa7d52117aa23b2ea83eb8d83",
+    "tiny-v8/report.json": "9f83d16c1e4ff916ab8a9e5b85b6f6159336ab804b7f952df231d2e7169879cf"
+  }
+}

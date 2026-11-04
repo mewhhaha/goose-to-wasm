@@ -1242,12 +1242,25 @@ inline bool Function::StripSequence(ForLoop *node, const Slot &binding, const Sl
         unordered_map<VarDef *, uint32_t> temporaries;
         for (auto id : vector_ids) temporaries.emplace(id, Local(V128));
         auto bytes = Local(V128);
+        optional<uint32_t> expanded;
+        if (width == 8) expanded = Local(V128);
         auto done = Begin(), again = Begin(0x03);
         Get(limit); Get(position); code.Op(0x7d); code.I64Const(width); code.Op(0x54); Br(done, true);
-        for (int group = 0; group < width / 4; group++) {
+        if (expanded) {
             Get(view); code.Op(0xa7); Get(position); code.Op(0xa7); code.Op(0x6a);
-            code.OpU(0xfd, 0x5c); code.U(0); code.U(group * 4); // v128.load32_zero
-            code.OpU(0xfd, 0x89); code.OpU(0xfd, 0xa9); Set(bytes); // unsigned byte -> word -> dword
+            code.OpU(0xfd, 0x02); code.U(0); code.U(0); Set(*expanded); // v128.load8x8_u
+        }
+        for (int group = 0; group < width / 4; group++) {
+            if (expanded) {
+                Get(*expanded);
+                if (group) code.OpU(0xfd, 0xaa); // i32x4.extend_high_i16x8_u
+                else code.OpU(0xfd, 0xa9); // i32x4.extend_low_i16x8_u
+            } else {
+                Get(view); code.Op(0xa7); Get(position); code.Op(0xa7); code.Op(0x6a);
+                code.OpU(0xfd, 0x5c); code.U(0); code.U(group * 4); // v128.load32_zero
+                code.OpU(0xfd, 0x89); code.OpU(0xfd, 0xa9); // unsigned byte -> word -> dword
+            }
+            Set(bytes);
             function<void(Node *)> emit_value = [&](Node *value) {
                 if (auto id = Is<Ident>(value)) {
                     if (Resolve(id->vdef) == Resolve(node->vdef)) Get(bytes);
@@ -1427,6 +1440,7 @@ inline void Function::EmitCall(Call *n, bool adapt_result, const ResultDestinati
     auto sp = n->spec;
     if (!sp || (!c.function_index.count(sp) && !c.intrinsic_opcode.count(sp)))
         Fail(n->line, "call has no reachable concrete specialization");
+    if (!elements && !n->defaultinit && destinations.empty() && !c.intrinsic_opcode.count(sp) && TinyLeaf(n, args)) return;
     if (!elements && !n->defaultinit && !c.intrinsic_opcode.count(sp) && args.size() == 1 &&
         none_of(destinations.begin(), destinations.end(), [](const auto &destination) { return bool(destination); }) &&
         PopcountWrapper(sp) && c.Leaf(sp)) {

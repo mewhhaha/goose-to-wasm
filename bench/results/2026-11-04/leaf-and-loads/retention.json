@@ -1,0 +1,370 @@
+{
+  "schema": "goose-leaf-and-loads-retention-v1",
+  "specification": {
+    "schema": "goose-leaf-and-loads-bundle-spec-v1",
+    "build": "build/next-runtime-hills",
+    "output": "bench/results/2026-11-04/leaf-and-loads",
+    "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+    "reference": "build/runtime-reference/production/report.json",
+    "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "reports": {
+      "qualification.json": "qualification/attempt-1/focused/report.json",
+      "differential.json": "qualification/attempt-1/differential/report.json",
+      "host-qualification.json": "qualification/attempt-1/host/report.json",
+      "final-warmed.json": "delivered-warmed/report.json",
+      "final-v8.json": "delivered-v8/report.json",
+      "examples.json": "current/examples/report.json",
+      "host.json": "current/host/report.json",
+      "cohort.json": "current/langarena-resumed/report.json",
+      "lifecycle.json": "current/lifecycle/report.json"
+    },
+    "extra_reports": {
+      "worker-qualification.json": "qualification/attempt-1/worker-replay/report.json"
+    },
+    "trees": [
+      "qualification/attempt-1",
+      "qualification/sources",
+      "delivery-execution",
+      "delivered-warmed",
+      "delivered-v8",
+      "current/examples",
+      "current/host",
+      "current/langarena",
+      "current/lifecycle",
+      "hash-load",
+      "tiny-leaf",
+      "source-before",
+      "inline-source-before",
+      "test-development",
+      "tiny-tests",
+      "hash-wasmtime",
+      "hash-v8",
+      "tiny-wasmtime",
+      "tiny-v8",
+      "astra-machine",
+      "final",
+      "reviews",
+      "module-analysis",
+      "tiny-machine",
+      "delivery-execution-resumed",
+      "current/langarena-resumed"
+    ],
+    "optional_trees": [
+      "chart-previews",
+      "packaging-attempts",
+      "guide-validation",
+      "qualification/preparation-history",
+      "delivery-package/preparation-history",
+      "delivery-preparation"
+    ],
+    "evidence_documents": [
+      "qualification/attempt-1/selected.json",
+      "qualification/attempt-1/input-pins.json",
+      "delivery-execution-resumed/report.json",
+      "qualification/static-review.json",
+      "qualification/test-static-review.json",
+      "module-analysis.json",
+      "campaign.json",
+      "final-numbers.json",
+      "qualification/attempt-1/worker-replay/report.json",
+      "qualification/attempt-1/worker-case-inputs.json",
+      "campaign-selection.json",
+      "hash-wasmtime/report.json",
+      "hash-v8/report.json",
+      "tiny-wasmtime/report.json",
+      "tiny-v8/report.json",
+      "guide-validation/report.json",
+      "reviews/independent-arithmetic.json",
+      "qualification/summary.json",
+      "qualification/attempt-1/artifact-catalog.json",
+      "tiny-leaf-design-review.json",
+      "tiny-leaf-static-review.json",
+      "tiny-leaf-implementation-review.json",
+      "tiny-tests/summary.json",
+      "tiny-machine-review.json",
+      "qualification/attempt-1/postrun-control-identity.json",
+      "reviews/controller-recovery-review.json",
+      "delivery-execution-resumed/coordinator-completion.json",
+      "reviews/resume-helper-static-review.json"
+    ],
+    "optional_evidence_documents": [
+      "reviews/final-public-review.json",
+      "table-verification.json"
+    ],
+    "source_stages": {
+      "baseline-b431": "build/scan-hills/final",
+      "wide-byte-load-prototype": "build/next-runtime-hills/hash-load",
+      "tiny-leaf-prototype": "build/next-runtime-hills/tiny-leaf",
+      "final": "build/next-runtime-hills/final"
+    },
+    "direct_files": [
+      "build/scan-hills/final/O2.wasm",
+      "build/native/CMakeCache.txt",
+      "build/squares.wasm",
+      "build/squares.cwasm"
+    ],
+    "public_files": [
+      "README.md",
+      "bench/examples.md",
+      "bench/wasmtime-host.md",
+      "docs/FUNCTIONS_PERFORMANCE.md",
+      "docs/PERFORMANCE_PLAN.md",
+      "docs/RUNTIME_TARGETS.md",
+      "docs/RUNTIME_PERFORMANCE.md",
+      "bench/results/latest.json",
+      "bench/results/examples-latest.json",
+      "bench/results/wasmtime-host-latest.json",
+      "bench/results/runtime-targets-latest.json",
+      "bench/charts/compilation.svg",
+      "bench/charts/runtime.svg",
+      "bench/charts/runtime-targets.svg",
+      "bench/charts/examples-compilation.svg",
+      "bench/charts/examples-runtime.svg",
+      "bench/charts/examples-python-runtime.svg",
+      "bench/charts/examples-entry.svg",
+      "bench/charts/wasmtime-host-preparation.svg",
+      "bench/charts/wasmtime-host-runtime.svg",
+      "bench/charts/wasmtime-host-c-wasm.svg",
+      "docs/GUIDE.md",
+      "bench/results/runtime-lifecycle-latest.json",
+      "bench/charts/runtime-lifecycle.svg"
+    ],
+    "required_public_files": [
+      "README.md",
+      "campaign.json",
+      "readme.json",
+      "target-chart-verification.json",
+      "chart-verification.json",
+      "chart-visual-review.json",
+      "table-verification.json",
+      "guide-verification.json"
+    ],
+    "max_raw_archive_bytes": 67108864,
+    "policy": "Current leaf-and-loads campaign aliases and six fresh delivery cohorts only. Read exactly one byte-scans archive index; reuse byte objects from exactly 22 explicitly named physical archives: two byte-scans and twenty bounded 2026-11-03 archives. Never import prior aliases, documents or namespaces, and never recursively open historical indexes. Retain hash-load and TinyLeaf snapshots/screens, all source-before and test-development snapshots, machine reviews, failed fixture artifacts, all eight freshly built same-source controls, qualification raw logs, measured guests and lifecycle cache payloads/counters. Selected compiler8c09 passed complete qualification; six delivery cohorts now have observed successful exits, including recollected LangArena and new lifecycle. The campaign requires 37 headers, two patches, 77 focused commands and eight matched controls; This campaign derived1487 sealed inputs,1574 host modules and3001 worker module/input groups over3828 aliases from frozen qualification evidence. Preserve the exploratory roughly one percent V8 hash regression and distinguish screening from final fresh delivery measurements. Publication date2026-11-04 is separate from collection UTC ranges. No public folder until six fresh delivery cohorts finish. Stop all public writes after package checks; independent final audit owns SHA256.json last. The first coordinator was externally terminated with tool status143, cause unconfirmed. Retain its four observed successful cohorts unchanged. Its completed315-row LangArena child has unobserved process exit and contributes zero primary rows; collect LangArena again under current/langarena-resumed, then lifecycle under a detached coordinator. Original files remain immutable.",
+    "reuse": {
+      "index": "bench/results/2026-11-04/byte-scans/archives.json.gz",
+      "manifest": "bench/results/2026-11-04/byte-scans/SHA256.json",
+      "index_schema": "goose-byte-scans-objects-v1",
+      "relative_publication_root": "../byte-scans",
+      "archives": {
+        "../../2026-11-03/fresh-construction/evidence-000.tar.gz": "../../2026-11-03/fresh-construction/evidence-000.tar.gz",
+        "../../2026-11-03/fresh-construction/evidence-001.tar.gz": "../../2026-11-03/fresh-construction/evidence-001.tar.gz",
+        "../../2026-11-03/functions-calls/evidence-000.tar.gz": "../../2026-11-03/functions-calls/evidence-000.tar.gz",
+        "../../2026-11-03/functions-calls/evidence-001.tar.gz": "../../2026-11-03/functions-calls/evidence-001.tar.gz",
+        "../../2026-11-03/functions-calls/evidence-002.tar.gz": "../../2026-11-03/functions-calls/evidence-002.tar.gz",
+        "../../2026-11-03/functions-calls/evidence-003.tar.gz": "../../2026-11-03/functions-calls/evidence-003.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-000.tar.gz": "../../2026-11-03/functions-forwarding/evidence-000.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-001.tar.gz": "../../2026-11-03/functions-forwarding/evidence-001.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-002.tar.gz": "../../2026-11-03/functions-forwarding/evidence-002.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-003.tar.gz": "../../2026-11-03/functions-forwarding/evidence-003.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-004.tar.gz": "../../2026-11-03/functions-forwarding/evidence-004.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-005.tar.gz": "../../2026-11-03/functions-forwarding/evidence-005.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-006.tar.gz": "../../2026-11-03/functions-forwarding/evidence-006.tar.gz",
+        "../../2026-11-03/functions-forwarding/evidence-007.tar.gz": "../../2026-11-03/functions-forwarding/evidence-007.tar.gz",
+        "../../2026-11-03/merge-bounds/evidence-000.tar.gz": "../../2026-11-03/merge-bounds/evidence-000.tar.gz",
+        "../../2026-11-03/merge-bounds/evidence-001.tar.gz": "../../2026-11-03/merge-bounds/evidence-001.tar.gz",
+        "../../2026-11-03/runtime-stencil/evidence-000.tar.gz": "../../2026-11-03/runtime-stencil/evidence-000.tar.gz",
+        "../../2026-11-03/runtime-stencil/evidence-001.tar.gz": "../../2026-11-03/runtime-stencil/evidence-001.tar.gz",
+        "../../2026-11-03/strided-stores/evidence-000.tar.gz": "../../2026-11-03/strided-stores/evidence-000.tar.gz",
+        "../../2026-11-03/strided-stores/evidence-001.tar.gz": "../../2026-11-03/strided-stores/evidence-001.tar.gz",
+        "evidence-000.tar.gz": "../byte-scans/evidence-000.tar.gz",
+        "evidence-001.tar.gz": "../byte-scans/evidence-001.tar.gz"
+      }
+    },
+    "opaque_failed_attempts": [
+      "delivery-execution",
+      "current/langarena"
+    ],
+    "qualification": "qualification",
+    "public_metadata": {
+      "campaign.json": "campaign.json",
+      "final-numbers.json": "final-numbers.json",
+      "module-analysis.json": "module-analysis.json",
+      "static-review.json": "qualification/static-review.json",
+      "test-static-review.json": "qualification/test-static-review.json",
+      "qualification-summary.json": "qualification/summary.json"
+    },
+    "rejected_execution_roots": [
+      "hash-wasmtime",
+      "hash-v8",
+      "tiny-wasmtime",
+      "tiny-v8"
+    ],
+    "rejection_reason": "Exploratory candidate screens only, separate from six fresh final delivery cohorts. Keep the wide-load-only alternative, the combined TinyLeaf candidate and their actual code-size, runtime and cross-engine tradeoffs. Preserve the roughly one percent V8 custom-hash regression from wide-load screening; no universal speedup or machine-cause claim.",
+    "delivery_execution": "delivery-execution-resumed/report.json",
+    "optional_public_metadata": {
+      "final-public-review.json": "reviews/final-public-review.json",
+      "table-verification.json": "table-verification.json",
+      "guide-verification.json": "guide-validation/report.json"
+    },
+    "final_review": "reviews/final-public-review.json",
+    "host_stages": {
+      "final": {
+        "metadata": "build/bin/goose-wasmtime.json",
+        "sources": [
+          "host/wasmtime.cpp",
+          "scripts/build_wasmtime_host.py",
+          "host/wasmtime-sdk.json"
+        ]
+      }
+    },
+    "qualified_input_pins": "qualification/attempt-1/input-pins.json",
+    "selection_status": "selected",
+    "compiler_name": "tiny-leaf-and-wide-byte-loads",
+    "baseline_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+    "host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "wasmtime_version": "50.0.1",
+    "controls": {
+      "merge-control": {
+        "root": "qualification/merge-control",
+        "changed_headers": [
+          "direct_wasm_merge.h"
+        ],
+        "predicate_marker": "inline bool Function::BoundedMerge(While *loop) {\n",
+        "predicate_insertion": "    return false;\n",
+        "compiler_sha256": "df307947d0ea17c1d2141f7416bb99511e722057e7292ece9780aa99560c7b74"
+      },
+      "resource-control": {
+        "root": "qualification/resource-control",
+        "changed_headers": [
+          "direct_wasm_temps.h"
+        ],
+        "predicate_marker": "inline bool Function::ResourceFreeBlock(Block *block) {\n",
+        "predicate_insertion": "    return false;\n",
+        "compiler_sha256": "7e57ec88dc16fae7003a76717498ea001a3da9456fe8370ae867a64e21732a5e"
+      },
+      "named-control": {
+        "root": "qualification/named-control",
+        "changed_headers": [
+          "direct_wasm_funvals.h"
+        ],
+        "predicate_marker": "    if (!tail->fvbody) {\n",
+        "predicate_insertion": "        return nullptr;\n",
+        "compiler_sha256": "f06cfcb6a487fd8daff3ef668325f8185fe7bcd707474fe870e1ffd357c7b436"
+      },
+      "private-control": {
+        "root": "qualification/private-control",
+        "changed_headers": [
+          "direct_wasm_emit.h"
+        ],
+        "predicate_marker": "inline void Compiler::AnalyzePrivateSnapshots() {\n",
+        "predicate_insertion": "    return;\n",
+        "compiler_sha256": "c7c3a0169ef0c6befb5dabf8728b7e960937b56488aa923a782b89ae2876389e"
+      },
+      "stencil-control": {
+        "root": "qualification/stencil-control",
+        "changed_headers": [
+          "direct_wasm_stencil.h"
+        ],
+        "predicate_marker": "inline bool Function::ByteStencilLoop(ForLoop *loop, const Slot &binding, TypeExpr *ct, uint32_t lo, uint32_t hi) {\n",
+        "predicate_insertion": "    return false;\n",
+        "compiler_sha256": "5f7f34e8ba5db5f04ed7cce2aca500a7ef949ee1464477e68b1e4b12dcc603b5"
+      },
+      "stride-control": {
+        "root": "qualification/stride-control",
+        "changed_headers": [
+          "direct_wasm_stride.h"
+        ],
+        "predicate_marker": "inline bool Function::GroupedStores(While *loop) {\n",
+        "predicate_insertion": "    return false;\n",
+        "compiler_sha256": "bfac5675980fc12e3b6ed674288807f988905765d9b1242e15ab61f669769298"
+      },
+      "scan-control": {
+        "root": "qualification/scan-control",
+        "changed_headers": [
+          "direct_wasm_scan.h"
+        ],
+        "predicate_marker": "inline bool Function::ByteScan(While *loop) {\n",
+        "predicate_insertion": "    return false;\n",
+        "compiler_sha256": "bdd943d1f2eb4c2b08e80dffb4d0de093aeed186458a597dd364b62ea4ea401d"
+      },
+      "tiny-control": {
+        "root": "qualification/tiny-control",
+        "changed_headers": [
+          "direct_wasm_tiny_leaf.h"
+        ],
+        "predicate_marker": "inline bool Function::TinyLeaf(Call *call, const vector<Node *> &args) {\n",
+        "predicate_insertion": "    return false;\n",
+        "compiler_sha256": "6b8d41b37ea85f4bbd833360096d8da9aaefc33bc1a5d2e3438d7be9a420e8ff"
+      }
+    },
+    "expected": {
+      "focused_commands": 77,
+      "selected_headers": 37,
+      "selected_patches": 2,
+      "matched_controls": 8,
+      "differential_observations": 9573,
+      "native_comparisons": 7656,
+      "cases": 978,
+      "host_observations": 11484,
+      "input_pins": 1487,
+      "host_modules": 1574,
+      "worker_effective_cases": 3001,
+      "worker_aliases": 3828
+    },
+    "additional_test_sources": [
+      "test_private_snapshot_parameters.py",
+      "test_byte_stencil.py",
+      "test_runtime_session.py",
+      "test_strided_stores.py",
+      "test_byte_scans.py",
+      "test_tiny_leaf_calls.py"
+    ],
+    "worker_case_inputs": "qualification/attempt-1/worker-case-inputs.json",
+    "selection_document": "campaign-selection.json",
+    "selection_pending_fields": [],
+    "discarded_execution_roots": [],
+    "expected_derivation": {
+      "input_pins": "len(qualification/attempt-1/input-pins.json)",
+      "host_modules": "qualification/attempt-1/host/report.json:unique_wasm, cross-check distinct preparations.wasm_sha256",
+      "worker_effective_cases": "qualification/attempt-1/worker-replay/report.json:derived_effective_cases, cross-check verified distinct module/input pairs"
+    },
+    "recovery": {
+      "original_execution": "delivery-execution/report.json",
+      "excluded_cohort": "current/langarena/report.json",
+      "completion": "delivery-execution-resumed/coordinator-completion.json",
+      "excluded_observations": 315,
+      "excluded_primary_rows_used": 0,
+      "observed_tool_exit_status": 143,
+      "termination_cause": "unconfirmed"
+    }
+  },
+  "archive_index": "archives.json.gz",
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "public_file_sha256": {
+    "qualification.json": "4d5220140a885382c2903238a24bf1b448b5eece27f31c870fb86d8f216bad07",
+    "differential.json": "fdbb2f2f33899b915fce79370ab9755b67b051601d95625c3cd57df37ad8bae6",
+    "host-qualification.json": "b2ef8eb88e0637dff429d9e43a5d76e757fd892154fc080865a7e9406b246e79",
+    "final-warmed.json": "e3cc57c5ff9421b420882ee958b935eaf39d03fbe7f4c555ea3ab604f8661111",
+    "final-v8.json": "4ab3370406f60291741c1663bbf030b74e0d3bd5d4fd093980c6501270f30403",
+    "examples.json": "bdebb4abd6306d10e437815c4c6354ff56e11d409433ebd3c565eabb49ed1c14",
+    "host.json": "477d5bfc5f1d1764a088a5df9bc732297f434906da44420a3c0d23f3575ea09b",
+    "cohort.json": "1cb195471caec76cfdd4af9a8e82f19bcd7627f6218a062fd01adc290d7b1497",
+    "lifecycle.json": "a5bb3edad3324d18efc91d4319938d9c1105f4f12a66421d151487deea5150da",
+    "worker-qualification.json": "f89cd639d1e3294657524fad3c614ed740ceb9bed6af83e9e3ca25e0bb25bba8",
+    "campaign.json": "8c475c3591b296256bdca8a0d94b5e14aaad2e6646d73418a3fe9f4229ab3921",
+    "final-numbers.json": "d24455e04ebafb4f160e2c5babeb1a5fc8801ccf341a3310c13664f6ff9ebced",
+    "module-analysis.json": "3040d422abc2257975b6ce83e2e92dc1aff2a9a37923bfb2fd34455d164f14b0",
+    "static-review.json": "2ce947a172e59dd436783710d38334416f9965b8ae44e0f240982cda01a34e99",
+    "test-static-review.json": "599976034827543fceca1d46d12a51ff7c822e41f8e36527b688cedf5914c7f7",
+    "qualification-summary.json": "196079383cf72c661f4370a43c7acf414d6c81ebbd754117e88ee6fe4e3f386c",
+    "guide-verification.json": "7d6abb0bd58e011f4db0e8af5bb92efaed5953b6e2f92c5ff2d26913916a4ff8",
+    "references.json": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "compiler-identity.json": "d0aa23d62bad6c10fda64a0dbc99faa27460580d0a19b1aae15ac566749b1bcc",
+    "readme.json": "4843d8c466bf1fa7a222e1ef4312d2e94585df576ea44f35fb1c43d2fb52f17e",
+    "target-chart-verification.json": "5e6d3b540e4bcaaf283b8c4c32c5b30f5c16480b099065da20931894081a5c32",
+    "chart-verification.json": "c52d150a9c5eea932ce40fe84406865bfe6460fb36dcfe7442825a22f4427cb1",
+    "table-verification.json": "d1412e4464330df4c6245c028589a73c03f6ea84cf551f6191eb0b8ed6a7f4df",
+    "README.md": "3488640ad82c74b5ed7f16f92ca0ff9d76e7b5ee75d35054955f62536ab82151",
+    "chart-visual-review.json": "cb7834f473fce4b12bb3a00281fdffa9e1394afe2fc929cbb8768f85b855cf2a",
+    "final-public-review.json": "d44cb011b090b72eee3c58223a6ac9e698e475d0faef2decb48aed9eba515dc1",
+    "evidence-000.tar.gz": "f164a277128a53092718b7bd94918e5f021c666699bfabe27ec6b10c6af574fe",
+    "evidence-001.tar.gz": "c4cbb6fa59cbb7b42190439546d3fc57f4e77b734c553e33af5680c9c35343f1",
+    "evidence-002.tar.gz": "e27d5e90f48c72ba912b8ab1a3fec77be1ad2e2536098007745f9a61f9836c73",
+    "archives.json.gz": "e08ecac42c035cacdf9f43aa30d7a6719725b6ddac23d1e1fce172d4533fda45",
+    "reproduction/bundle.py": "b7b72052d12bfbaf6061ed034a55fd7593139969b758e0cb15f8e97a2dfac07a",
+    "reproduction/verify.py": "f91ae42f6ded7f8d91b8fff6c450f4dbb2811aa6e57dd0d9d77bdcc1d578904b",
+    "reproduction/checks.py": "43f9bf84241c93a8ff2c796f49ecaa65e4ded778889b6a62beb588f9485ec9bb",
+    "reproduction/spec.json": "2ac8d8c127243bd05eacc58fc64c53935486c095398fc11ecef22b1da5b9a70e"
+  }
+}

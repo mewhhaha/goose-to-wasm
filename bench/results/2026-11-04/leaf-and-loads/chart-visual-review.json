@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "method": "All11SVGs rendered at1600px; all11 inspected onthreecontact sheets, plus runtime-targets andruntime-lifecycle fullsize. Titles, axes, legends andlabels fit without visible clipping. Independent numeric matching checked453 bar labels.",
+  "charts": [
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/compilation.svg",
+      "sha256": "14d039dc520401e9d55d70f7cf1f8f14537a12111ac7d747a55b324c52f8d005",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/compilation.png",
+      "preview_sha256": "95f584a4740773b2670516e63b5595fcab39526cc6a7cafd6ac38a651a6c9d92"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime.svg",
+      "sha256": "5c7611fb60193c5fd65b67a5ae9a76b7ea4e5d9f994913dd1162c758ba1b4593",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/runtime.png",
+      "preview_sha256": "910f406beebcd953fec63fa0478dce729c14136c9adbc316b45231b222489869"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime-targets.svg",
+      "sha256": "19802d9a65dd90808190402bc624db6ba5cc659d4f982568282875afb4cf2293",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/runtime-targets.png",
+      "preview_sha256": "8113588a4e0d406950be43cb754e7a780b304f6fb52fa4e95daf00bebda5de35"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-compilation.svg",
+      "sha256": "0c11f9363dc23bc899e8c530872d0109d848db0886d198fd544cab4d3f822a42",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/examples-compilation.png",
+      "preview_sha256": "0ef2fd07cabbbb423f9dec70b6617d71d27a3138f1dec840efa554eb5fac7b73"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-runtime.svg",
+      "sha256": "c9d22775ff37c476ff1019414dd10891f3209e2064581d724a98542ec402775c",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/examples-runtime.png",
+      "preview_sha256": "a7f60577fef9634c857b52ebc163d0091e6c102b358b880fce2582273276b07f"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-python-runtime.svg",
+      "sha256": "ef5bd02173628b0d275b926ecac823877af872e9c3bd0aa653baf29ec8820e9f",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/examples-python-runtime.png",
+      "preview_sha256": "be140a876dffae1fe78533e1fac4c16b2170b0a5500f9957beff8ba819ddc200"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-entry.svg",
+      "sha256": "05eaed49d099f6716ba72c9310dbe9fee62d5187587897ce4c9e19754f1a2814",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/examples-entry.png",
+      "preview_sha256": "22f26f22b7c8205a5a1ae805af22a8098b714416acea47f45507be11beabf514"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-preparation.svg",
+      "sha256": "1d509847960c223cbcc03a5e8ae60bc33e3698ad398d84fba8fb89c56b23a884",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/wasmtime-host-preparation.png",
+      "preview_sha256": "adfdfdb6990a6a142c6e49697655e80c8ec901e5f44c829ede5e570ed0200edc"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-runtime.svg",
+      "sha256": "d03b5af972929456cdc7cebf33417dbd9c24cc085e780722a2e5dede77069fc6",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/wasmtime-host-runtime.png",
+      "preview_sha256": "97de4b22d391573e0c4e53380fe27d911b8b775d629bd5e5788231a55649dd24"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-c-wasm.svg",
+      "sha256": "8dbba1f54c05329dcb1f56b1c996c582cd931f8988056d3dc13d6b7395359796",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/wasmtime-host-c-wasm.png",
+      "preview_sha256": "d485b83f352a65e5c011971c7a23aea9bd4cce8324d1f7fea606e37a12afeb41"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime-lifecycle.svg",
+      "sha256": "88123a76dd83adefc79ad1c1711193911c0a1b1cda99527bb80e43fea9394d2f",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/runtime-lifecycle.png",
+      "preview_sha256": "b004667fe389446e066ad36f948d6b2789b4584f147ad2d384524c1a4841ca4e"
+    }
+  ],
+  "contact_sheets": [
+    "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/contact-1.png",
+    "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/contact-2.png",
+    "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/chart-previews/contact-3.png"
+  ],
+  "reviewer": "root"
+}

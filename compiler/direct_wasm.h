@@ -350,6 +350,7 @@ struct Function {
     bool BoundedMerge(While *);
     bool GroupedStores(While *);
     bool ByteScan(While *);
+    bool TinyLeaf(Call *, const vector<Node *> &);
     bool FoldPopcount(While *, VarDecl *, VarDecl *);
     bool FillLoop(ForLoop *);
     bool CopyLoop(ForLoop *);
@@ -1286,6 +1287,7 @@ inline void Function::ScanAddresses(Node *n) {
 #include "direct_wasm_merge.h"
 #include "direct_wasm_stride.h"
 #include "direct_wasm_scan.h"
+#include "direct_wasm_tiny_leaf.h"
 #include "direct_wasm_expr.h"
 #include "direct_wasm_emit.h"
 
