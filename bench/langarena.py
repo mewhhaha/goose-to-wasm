@@ -210,7 +210,7 @@ def tool_version(command: list[str]) -> dict:
 
 def metadata(args, manifest) -> dict:
     inputs = [Path(__file__), Path(process.__file__), DATA / "manifest.json", DATA / "test.json", DATA / "run.json",
-              ROOT / "scripts" / "goose_wasm.py", ROOT / "oracle" / "goose_wasm.py",
+              ROOT / "scripts" / "goose_wasm.py",
               ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py", ROOT / "toolchain.json", ROOT / "selfhost" / "bootstrap.py",
               ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz", ROOT / "bootstrap" / "sources.tar.gz",
               *sorted((ROOT / "selfhost").glob("*.goose")), *sorted((ROOT / "stdlib").rglob("*.goose")),

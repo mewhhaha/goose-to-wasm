@@ -29,7 +29,6 @@ TASKS = (
 LABELS = ("Fannkuch", "Mandelbrot", "Sieve", "CRC32", "Custom hash", "Merge sort", "Quicksort")
 BACKENDS = (
     ("direct", "Direct Wasm", "#087f8c"),
-    ("c-wasm", "C → Wasm", "#ce862a"),
     ("native", "C → native", "#727b8e"),
 )
 

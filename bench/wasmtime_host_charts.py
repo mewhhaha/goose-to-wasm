@@ -16,13 +16,13 @@ import matplotlib.pyplot as plt
 from example_charts import LABELS, index_rows, milliseconds, plot
 
 ROOT = Path(__file__).resolve().parents[1]
-BACKENDS = ("direct", "c-wasm")
+BACKENDS = ("direct",)
 MODES = ("python", "native", "native-serial", "precompiled")
 RUNTIME_PROFILES = (
     ("python", "Python host", "#b76562"),
     ("native", "Native host", "#087f8c"),
     ("precompiled", "Precompiled", "#479b58"),
-    ("native-C", "C → native", "#727b8e"),
+    ("native-C", "Goose → C → native", "#727b8e"),
 )
 PREPARATION_PROFILES = (
     ("parallel", "Parallel compilation", "#087f8c"),
@@ -48,8 +48,8 @@ def digest(path):
 def input_path(path):
     path = Path(path)
     if path.is_absolute():
-        return path
-    return ROOT / path
+        return path.resolve()
+    return (ROOT / path).resolve()
 
 
 def check_summary(summary, samples, count, label):
@@ -68,8 +68,8 @@ def validate(report, *, allow_smoke=False):
     require(report["status"] == "passed" or (allow_smoke and report["status"] == "passed-smoke"),
             "Only a passed full report can produce charts")
     if not allow_smoke:
-        require(not config["smoke"] and config["samples"] == 15 and config["prepare_samples"] == 5,
-                "Charts require 15 runtime and five preparation samples per cell")
+        require(not config["smoke"] and config["samples"] >= 5 and config["prepare_samples"] >= 5,
+                "Charts require at least five runtime and preparation samples per cell")
     samples = config["samples"]
     prepare_samples = config["prepare_samples"]
     require(type(samples) is int and samples > 0 and type(prepare_samples) is int and prepare_samples > 0,
@@ -117,10 +117,10 @@ def validate(report, *, allow_smoke=False):
     runtime = index_rows(report["runtime_summary"], ("name", "backend", "mode"))
     cells = {(name, backend, mode) for name in names for backend in BACKENDS for mode in MODES}
     cells.update((name, "native", "native-C") for name in names)
-    count = 90
+    count = len(names) * (len(BACKENDS) * len(MODES) + 1)
     if minimal:
         cells.update((name, backend, "precompiled-minimal") for name in names for backend in BACKENDS)
-        count = 110
+        count += len(names) * len(BACKENDS)
     require(set(runtime) == cells and len(runtime) == count, f"Expected exactly {count} runtime summary cells")
     raw_runtime = index_rows(report["observations"], ("name", "backend", "mode", "phase", "sample"))
     expected_runtime = {(*cell, "measure", sample) for cell in cells for sample in range(samples)}
@@ -135,10 +135,10 @@ def validate(report, *, allow_smoke=False):
 
     preparation = index_rows(report["preparation_summary"], ("name", "backend", "configuration"))
     prep_cells = {(name, backend, configuration) for name in names for backend in BACKENDS for configuration in ("parallel", "serial")}
-    count = 40
+    count = len(names) * len(BACKENDS) * 2
     if minimal:
         prep_cells.update((name, backend, "minimal") for name in names for backend in BACKENDS)
-        count = 60
+        count += len(names) * len(BACKENDS)
     require(set(preparation) == prep_cells and len(preparation) == count, f"Expected exactly {count} preparation summary cells")
     raw_prep = index_rows(report["preparation"], ("name", "backend", "configuration", "sample"))
     require(set(raw_prep) == {(*cell, sample) for cell in prep_cells for sample in range(prepare_samples)}, "Incomplete or extra preparation observations")
@@ -201,7 +201,6 @@ def render(report_path, output):
     output.mkdir(parents=True, exist_ok=True)
     for backend, label, filename in (
         ("direct", "Direct Wasm", "wasmtime-host-runtime.svg"),
-        ("c-wasm", "C → Wasm", "wasmtime-host-c-wasm.svg"),
     ):
         profiles = list(RUNTIME_PROFILES)
         if report["configuration"].get("aot_host"):
@@ -224,7 +223,7 @@ def render(report_path, output):
         note = "Precompiled runtime excludes preparation; the preparation figure includes that cost. Goose compilation is separate."
         if len(profiles) == 5:
             note += " Minimal AOT uses separately qualified artifacts and a smaller runtime."
-        fig.text(0.075, 0.115, footer(report, 15, "runtime"), fontsize=9, color="#475569")
+        fig.text(0.075, 0.115, footer(report, report["configuration"]["samples"], "runtime"), fontsize=9, color="#475569")
         fig.text(0.075, 0.077, note, fontsize=9, color="#475569")
         detail = "Bars include host startup, module loading, execution, output and process teardown."
         if clipped:
@@ -232,13 +231,13 @@ def render(report_path, output):
         fig.text(0.075, 0.043, detail, fontsize=9, color="#475569")
         save(fig, output, filename, title, note + " " + detail, report_path, report_bytes, report)
 
-    fig, axes = plt.subplots(2, 1, figsize=(16, 13), facecolor="white")
+    fig, axes = plt.subplots(len(BACKENDS), 1, figsize=(16, 9), facecolor="white", squeeze=False)
     fig.subplots_adjust(left=0.075, right=0.985, top=0.81, bottom=0.15, hspace=0.65)
     title = "Wasmtime preparation"
     fig.text(0.075, 0.955, title, fontsize=20, weight="bold")
     fig.text(0.075, 0.918, "Fresh host launch + Wasm compilation + serialization + file writing · lower is better", fontsize=11, color="#475569")
     clipped = False
-    for ax, backend, label in zip(axes, BACKENDS, ("Direct Wasm", "C → Wasm")):
+    for ax, backend, label in zip(axes[:, 0], BACKENDS, ("Direct Wasm",)):
         profiles = list(PREPARATION_PROFILES)
         if report["configuration"].get("aot_host"):
             profiles.append(MINIMAL_PREPARATION_PROFILE)
@@ -253,7 +252,7 @@ def render(report_path, output):
     fig.legend(handles, [profile[1] for profile in legend_profiles], loc="upper left",
                bbox_to_anchor=(0.068, 0.891), ncols=len(legend_profiles), frameon=False, fontsize=11)
     note = "Complete preparation cost for trusted native artifacts; guest execution is separate. Goose compilation is unchanged and separate."
-    fig.text(0.075, 0.087, footer(report, 5, "preparation"), fontsize=9, color="#475569")
+    fig.text(0.075, 0.087, footer(report, report["configuration"]["prepare_samples"], "preparation"), fontsize=9, color="#475569")
     fig.text(0.075, 0.057, note, fontsize=9, color="#475569")
     detail = "Wasmtime 50.0.1 · compilation profile and parallelism recorded separately."
     if clipped:

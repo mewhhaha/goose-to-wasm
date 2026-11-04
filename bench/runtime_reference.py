@@ -73,7 +73,8 @@ def load_workloads(args):
 
 def variants(args):
     rows = [{"id": "direct-O2", "family": "direct", "optimization": 2}]
-    native = {(compiler, 2, "generic") for compiler in args.native_compilers}
+    native = {(compiler, level, march) for compiler in args.native_compilers
+              for level in args.native_levels for march in args.march}
     native.add(("gcc", 2, "generic"))
     for compiler, level, march in sorted(native):
         rows.append({"id": f"native-{compiler}-O{level}-{march}", "family": "native",
@@ -247,7 +248,15 @@ class Harness:
         paths = [Path(__file__), ROOT/"bench/langarena.py", Path(arena.process.__file__),
                  ROOT/"bench/langarena/manifest.json", ROOT/"bench/langarena/test.json", ROOT/"bench/langarena/run.json",
                  ROOT/"bench/host_input.c", ROOT/"scripts/goose_wasm.py", ROOT/"scripts/run_wasm.mjs",
-                 ROOT/"scripts/run_wasmtime.py", ROOT/"toolchain.json", ROOT/"selfhost/bootstrap.py", ROOT/"bootstrap"]
+                 ROOT/"scripts/run_wasmtime.py", ROOT/"toolchain.json", ROOT/"selfhost/bootstrap.py",
+                 ROOT/"bootstrap/seed.json", ROOT/"bootstrap/seed.c.gz", ROOT/"bootstrap/sources.tar.gz"]
+        compiler_metadata = Path(self.tools["goose"]).parent.parent/"toolchain.json"
+        if compiler_metadata.is_file():
+            paths.append(compiler_metadata)
+            metadata = json.loads(compiler_metadata.read_text())
+            if metadata.get("compiler_sha256") and metadata["compiler_sha256"] != arena.sha256(Path(self.tools["goose"])):
+                raise ValueError("compiler bytes differ from installed build metadata")
+            self.report["compiler_source_sha256"] = metadata.get("source_sha256", {})
         paths += list((ROOT/"selfhost").glob("*.goose")) + list((ROOT/"stdlib").rglob("*.goose"))
         paths += [Path(value) for value in self.tools.values() if Path(value).is_file()]
         for case in self.workloads:
@@ -324,10 +333,8 @@ class Harness:
                 stats = directory/(variant["id"]+"-driver.json")
                 command = [sys.executable, ROOT/"scripts/goose_wasm.py", "build", case["source"], "-o", path,
                            "--backend", backend, "--goose", compiler, "--no-cache", "-O2", "--stats", stats]
-                if backend == "direct":
+                if variant["family"] == "direct":
                     command += ["--initial-pages", str(self.args.initial_pages), "--maximum-pages", str(self.args.maximum_pages)]
-                if backend == "native":
-                    command += ["--cc", self.tools[variant["compiler"]], "--c-source", ROOT/"bench/host_input.c"]
                 if variant["family"] == "wasm-opt":
                     source = self.report["artifacts"].get(case["id"]+"/direct-O2", {})
                     command = [self.tools["wasm_opt"], source["path"], "-O3", "--enable-bulk-memory",
@@ -337,6 +344,28 @@ class Harness:
                        "family": variant["family"], "path": str(path), "status": "failed"}
                 self.report["artifacts"][key] = row
                 try:
+                    if backend == "native":
+                        generated = directory/"goose-native.c"
+                        source_key = case["id"]+"/native-source"
+                        saved = self.report.setdefault("generated_sources", {}).get(source_key)
+                        if saved:
+                            if arena.sha256(generated) != saved["sha256"]:
+                                raise ValueError("generated native source changed")
+                        else:
+                            emitted, logs = self.execute([compiler, case["source"], "--target", "native",
+                                "--standalone", "-O2", "-o", generated], f"build-logs/{source_key}")
+                            if emitted["returncode"] or not generated.is_file():
+                                raise ValueError(f"native source emission failed: {logs}")
+                            self.report["generated_sources"][source_key] = {"path": str(generated),
+                                "sha256": arena.sha256(generated), "wall_seconds": emitted["wall_seconds"]}
+                        self.pin(generated)
+                        command = [self.tools[variant["compiler"]], generated, ROOT/"bench/host_input.c",
+                                   f"-O{variant['optimization']}", *COMMON, "-rdynamic", "-pthread", "-lm", "-ldl", "-o", path]
+                        if variant["march"] == "native":
+                            command.insert(1, "-march=native")
+                        row["generated_c_sha256"] = arena.sha256(generated)
+                    if variant["family"] == "wasm-opt":
+                        row["input_wasm_sha256"] = arena.sha256(Path(source["path"]))
                     result, logs = self.execute(command, f"build-logs/{key}/artifact")
                     row["artifact_build_wall_seconds"] = result["wall_seconds"]
                     if result["returncode"] or not path.is_file():
@@ -522,6 +551,8 @@ def parser():
     result.add_argument("--plan", action="store_true", help="print workload/matrix counts without tool execution")
     result.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["wasmtime"])
     result.add_argument("--native-compilers", nargs="+", choices=("gcc", "clang"), default=["gcc", "clang"])
+    result.add_argument("--native-levels", nargs="+", type=int, choices=(2, 3), default=[2, 3])
+    result.add_argument("--march", nargs="+", choices=("generic", "native"), default=["generic", "native"])
     result.add_argument("--goose", type=Path, default=ROOT/"build/bin/goose")
     result.add_argument("--host", type=Path, default=ROOT/"build/bin/goose-wasmtime")
     result.add_argument("--cc", default="gcc")

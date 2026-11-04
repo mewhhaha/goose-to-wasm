@@ -57,13 +57,13 @@ def main():
     compiler_hash = digest(compiler)
     rows = []
     for level in (0, 2):
-        for backend in ("native", "c-wasm", "direct"):
+        for backend in ("native", "direct"):
             directory = output / f"O{level}" / backend
             directory.mkdir(parents=True, exist_ok=True)
             artifact = directory / ("program.bin" if backend == "native" else "program.wasm")
             guard(artifact)
             build = [sys.executable, str(ROOT / "scripts/goose_wasm.py"), "build", str(output / "main.goose"),
-                     "--backend", backend, "--goose", str(compiler), f"-O{level}", "--no-cache", "--offline", "-o", str(artifact)]
+                     "--backend", backend, "--goose", str(compiler), f"-O{level}", "--no-cache", "-o", str(artifact)]
             if backend != "direct":
                 build += ["--c-source", str(ROOT / "bench/host_input.c")]
             compiled = subprocess.run(build, capture_output=True, text=True, timeout=180, cwd=ROOT)

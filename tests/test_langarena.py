@@ -144,7 +144,7 @@ class LangArenaContract(unittest.TestCase):
 
     def test_target_refusal_is_not_any_compiler_failure(self):
         self.assertTrue(ARENA.known_whole_refusal("direct", "error: wasm-direct: only fixed-size owned arrays are supported"))
-        self.assertTrue(ARENA.known_whole_refusal("c-wasm", "WebAssembly target does not support threads or typed queues"))
+        self.assertFalse(ARENA.known_whole_refusal("native", "WebAssembly target does not support threads or typed queues"))
         self.assertFalse(ARENA.known_whole_refusal("direct", "compiler crashed"))
         self.assertFalse(ARENA.known_whole_refusal("native", "only fixed-size owned arrays"))
 
@@ -158,7 +158,7 @@ class LangArenaContract(unittest.TestCase):
         self.assertEqual(report["runtime_summary"], [])
 
     def test_cold_build_command_cannot_use_content_cache(self):
-        for backend in ("native", "direct", "c-wasm"):
+        for backend in ("native", "direct"):
             args = SimpleNamespace(current_backend=backend, goose=Path("compiler"), cc="cc", emcc="emcc", output_dir=Path("out"))
             command = ARENA.build_command(args, Path("source"), Path("output"), Path("stats"), port=True)
             self.assertIn("--no-cache", command)

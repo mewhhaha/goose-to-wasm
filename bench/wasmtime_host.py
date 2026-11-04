@@ -17,7 +17,7 @@ import benchmark as common
 import process
 
 ROOT=Path(__file__).resolve().parents[1]
-BACKENDS=('direct','c-wasm')
+BACKENDS=('direct',)
 MODES=('python','native','native-serial','precompiled')
 
 

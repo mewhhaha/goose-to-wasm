@@ -25,7 +25,7 @@ def panel_rows(names, runtime, mode):
             if backend == "native":
                 row_mode = "native-C"
             rows[name, backend] = runtime[name, backend, row_mode]
-    require(len(rows) == 30, "Expected 30 runtime bars per panel")
+    require(len(rows) == len(names) * len(BACKENDS), "Missing runtime bars")
     return rows
 
 
@@ -47,7 +47,7 @@ def save(fig, output, title, note, report_path, report_bytes, report):
                            f"minimal SDK library sha256:{minimal['library_sha256']}"))
     description = {"note": note, "method": report["method"], "environment": report["environment"],
                    "host_build": host, "configuration": report["configuration"],
-                   "bar_count": 30 * panels, "native_C_cohort_repeated": True}
+                   "bar_count": len(report["examples"]) * len(BACKENDS) * panels, "native_C_cohort_repeated": True}
     if "aot_host_build" in report:
         description["aot_host_build"] = report["aot_host_build"]
     path = output / "examples-runtime.svg"
@@ -86,7 +86,7 @@ def render(report_path, output):
         clipped = clipped or panel_clipped
     fig.legend(handles, [backend[1] for backend in BACKENDS], loc="upper left",
                bbox_to_anchor=(0.068, 0.89), ncols=3, frameon=False, fontsize=11)
-    note = "Precompiled runtime excludes preparation. C → native uses the same measured cohort in every panel."
+    note = "Precompiled runtime excludes preparation. Goose → C → native uses the same measured cohort in every panel."
     detail = "Startup, loading, execution, output and process teardown included."
     if clipped:
         detail += " Lower MAD whiskers clipped at the positive log-axis limit."

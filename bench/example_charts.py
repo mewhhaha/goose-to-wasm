@@ -18,8 +18,7 @@ from matplotlib.ticker import FuncFormatter, MaxNLocator
 ROOT = Path(__file__).resolve().parents[1]
 BACKENDS = (
     ("direct", "Direct Wasm", "#087f8c"),
-    ("c-wasm", "C → Wasm", "#ce862a"),
-    ("native", "C → native", "#727b8e"),
+    ("native", "Goose → C → native", "#727b8e"),
 )
 LABELS = {
     "squares": "Squares", "tour": "Tour", "functions": "Functions", "errors": "Errors",
@@ -120,13 +119,13 @@ def validate_measurements(report, names):
     builds = index_rows(report["compile_summary"], ("name", "backend"))
     expected_builds = {(name, backend) for name in names for backend, _, _ in BACKENDS}
     if set(builds) != expected_builds:
-        raise ValueError("Expected all 30 example/backend compilation summaries")
+        raise ValueError("Expected every example/backend compilation summary")
     runtime = index_rows(report["runtime_summary"], ("name", "backend", "engine"))
     expected_runtime = {(name, "native", "native") for name in names}
     expected_runtime.update((name, backend, engine) for name in names
-                            for backend in ("direct", "c-wasm") for engine in ("v8", "wasmtime"))
+                            for backend in ("direct",) for engine in ("v8", "wasmtime"))
     if set(runtime) != expected_runtime:
-        raise ValueError("Expected all 50 example/backend/engine runtime summaries")
+        raise ValueError("Expected every example/backend/engine runtime summary")
 
     def check(summary, expected, description):
         if summary["n"] != expected:
@@ -203,7 +202,7 @@ def render(report_path, output):
     handles, _ = plot(ax, names, compile_rows, "wall_seconds", BACKENDS, False)
     fig.legend(handles, [backend[1] for backend in BACKENDS], loc="upper left",
                bbox_to_anchor=(0.068, 0.88), ncols=3, frameon=False, fontsize=11)
-    note = "Complete uncached builds, including C compiler/linker work for the reference backends."
+    note = "Complete uncached builds, including C compiler/linker work for the native backend."
     fig.text(0.075, 0.075, footer(report, config["compile_samples"]), fontsize=9, color="#475569")
     fig.text(0.075, 0.04, note, fontsize=9, color="#475569")
     save(fig, output, "examples-compilation.svg", title, note, report_path, report_bytes, report)
@@ -211,10 +210,10 @@ def render(report_path, output):
     for metric, suffix, title, subtitle, note, backends in (
         ("process_wall_seconds", "runtime", "Example runtime · full process",
          "Startup, engine compile/instantiation, execution and output included · O2 · lower is better",
-         "Native process timings are repeated unchanged in both panels; all three backends include their complete CLI cost.", BACKENDS),
+         "Native process timings are repeated unchanged in both panels; both backends include their complete CLI cost.", BACKENDS),
         ("entry_function_seconds", "entry", "Example runtime · Wasm entry only",
          "Supplement: entry execution, including lazy JIT work · excludes final output delivery · O2 · lower is better",
-         "Separate fresh-process Wasm probes: entry excludes host startup, initial module compilation/instantiation and final output delivery. Lazy JIT work remains included. No native entry comparison; stdout buffering differs.", BACKENDS[:2]),
+         "Separate fresh-process Wasm probes: entry excludes host startup, initial module compilation/instantiation and final output delivery. Lazy JIT work remains included. No native entry comparison; stdout buffering differs.", tuple(backend for backend in BACKENDS if backend[0] != "native")),
     ):
         fig, axes = plt.subplots(2, 1, figsize=(14, 12), facecolor="white")
         fig.subplots_adjust(left=0.075, right=0.98, top=0.80, bottom=0.14, hspace=0.52)

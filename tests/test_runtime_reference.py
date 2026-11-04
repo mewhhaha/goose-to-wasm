@@ -20,9 +20,9 @@ class RuntimeReference(unittest.TestCase):
     def test_default_matrix_and_anchor(self):
         args = reference.parser().parse_args(["--output-dir", "unused"])
         matrix = reference.variants(args)
-        self.assertEqual(len(matrix),13)
+        self.assertEqual(len(matrix),9)
         self.assertEqual(sum(row["family"] == "native" for row in matrix),8)
-        self.assertEqual(sum(row["family"] == "c-wasm" for row in matrix),4)
+        self.assertFalse(any(row["family"] == "c-wasm" for row in matrix))
         self.assertEqual(len(reference.load_workloads(args)),7)
         args.native_compilers = ["clang"]; args.native_levels = [3]; args.march = ["native"]
         args.wasm_opt = Path("optimizer")
@@ -180,29 +180,32 @@ class RuntimeReference(unittest.TestCase):
         self.assertEqual(row["status"],"failed")
         self.assertIn("exceeds",row["error"])
 
-    def test_frozen_compiler_headers_match_source_pins(self):
-        for layout in ("frozen","active"):
-            with tempfile.TemporaryDirectory() as name:
-                root = Path(name); installed = root/"installed"; (installed/"bin").mkdir(parents=True)
-                headers = installed/"compiler"
-                if layout == "active": headers = root/"compiler"
-                headers.mkdir()
-                compiler = installed/"bin/goose"; compiler.write_text("compiler")
-                header = headers/"example.h"; header.write_text("original")
-                source_patch = root/"changes.patch"; source_patch.write_text("patch")
-                source = {"headers":{"example.h":reference.arena.sha256(header)},
-                          "patches":{"changes.patch":reference.arena.sha256(source_patch)}}
-                (installed/"source.json").write_text(json.dumps(source)); (installed/"toolchain.json").write_text("{}")
-                harness = reference.Harness.__new__(reference.Harness)
-                harness.tools = {"goose":str(compiler)}; harness.workloads = []
-                harness.args = SimpleNamespace(engines=[]); harness.report = {}
-                paths = []; harness.pin = paths.append
-                with patch.object(reference,"ROOT",root):
+    def test_goose_compiler_metadata_and_seed_are_pinned(self):
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name); installed = root/"installed"; (installed/"bin").mkdir(parents=True)
+            compiler = installed/"bin/goose"; compiler.write_text("compiler")
+            (root/"selfhost").mkdir(); source = root/"selfhost/main.goose"; source.write_text("fn main() {}")
+            (root/"stdlib").mkdir(); library = root/"stdlib/std.goose"; library.write_text("// library")
+            (root/"bootstrap").mkdir()
+            for entry in ("seed.json", "seed.c.gz", "sources.tar.gz"):
+                (root/"bootstrap"/entry).write_text(entry)
+            metadata = installed/"toolchain.json"
+            metadata.write_text(json.dumps({"compiler_sha256": reference.arena.sha256(compiler),
+                "source_sha256": {"main.goose": reference.arena.sha256(source)}}))
+            harness = reference.Harness.__new__(reference.Harness)
+            harness.tools = {"goose": str(compiler)}; harness.workloads = []
+            harness.args = SimpleNamespace(engines=[]); harness.report = {}
+            paths = []; harness.pin = paths.append
+            with patch.object(reference, "ROOT", root):
+                harness.pin_inputs()
+                for entry in (source, library, metadata, root/"bootstrap/seed.c.gz"):
+                    self.assertIn(entry, paths)
+                self.assertNotIn(root/"bootstrap", paths)
+                self.assertEqual(harness.report["compiler_source_sha256"],
+                    {"main.goose": reference.arena.sha256(source)})
+                compiler.write_text("different compiler")
+                with self.assertRaisesRegex(ValueError, "compiler bytes differ"):
                     harness.pin_inputs()
-                    self.assertIn(header,paths); self.assertIn(source_patch,paths)
-                    self.assertIn(installed/"toolchain.json",paths)
-                    header.write_text("changed")
-                    with self.assertRaises(ValueError): harness.pin_inputs()
 
 
 class NamedKernelChart(unittest.TestCase):
