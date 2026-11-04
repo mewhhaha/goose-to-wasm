@@ -1,0 +1,122 @@
+{
+  "schema": "goose-in-goose-first-pass-v1",
+  "date": "2026-11-04",
+  "status": "experimental; partial parity; not self-hosting",
+  "base_repository_commit": "c1b10b0321f9862698d508db443d45f139dbdda4",
+  "production_compiler_changed": false,
+  "published_benchmarks_changed": false,
+  "candidate": {
+    "build": "work/build-6/report.json",
+    "sha256": "49f0fb80232fd987c19c414754ac7013de401ac8c0e1926275f2637620f9cb5e",
+    "source_files": 11,
+    "source_lines": 9292,
+    "source_sha256": {
+      "checker.goose": "eb7cdb76ab35dcf067b7c6eb242497e60920aa18d30e4dc779f86cb80b85f149",
+      "codegen.goose": "debdc87c145f2d2dc46b193154e8a9e47ac8803492b30a95f10ba18a9655378a",
+      "codegen_c.goose": "d6c405c9485d9b1fec41b776b46fd518042dc1da884b22163b5fb78890d61c57",
+      "driver.goose": "36b1354eaf1a8f7a98b7565d3c4b66e630d60324e64f23d1306ab3d33dabd48f",
+      "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+      "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+      "model.goose": "e3b5f308cfbfda55e1da5305308fc432e54f93f1f8ed26aaafa9c5be94977a33",
+      "optimizer.goose": "1c81f0977f4d270862a8db499754f752c03322b6b70a6a5cd5b34ee78ef81286",
+      "parser.goose": "939cf6b56235750616c2ca89a7e1772056bd69db2b878807ca9d11404591d733",
+      "sources.goose": "23b17ed5fc8eea07383aa090c5a86485e40cb7917c8b35cbc9905016ddfe7213",
+      "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+    }
+  },
+  "oracle_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "host_sha256": "93bc17c239c008d481ae6955f332d22472006700d27121d8986cac49d1553b50",
+  "basic": {
+    "report": "work/parity-final/report.json",
+    "rows": 20,
+    "compile_equal": 20,
+    "byte_equal": 4,
+    "runtime_equal": 18,
+    "golden_equal": 18,
+    "invalid_refusals": 2,
+    "behavior_passes": 20,
+    "strict_gate": "failed"
+  },
+  "examples": {
+    "report": "work/examples-final/report.json",
+    "rows": 20,
+    "compile_equal": 20,
+    "byte_equal": 0,
+    "runtime_equal": 20,
+    "golden_equal": 20,
+    "behavior_passes": 20,
+    "strict_gate": "failed"
+  },
+  "corpus_O0": {
+    "report": "work/corpus-final-O0/report.json",
+    "selected_rows": 950,
+    "excluded_by_declared_levels": 28,
+    "compile_equal": 578,
+    "byte_equal": 0,
+    "runtime_equal": 413,
+    "golden_equal": 413,
+    "behavior_passes": 409,
+    "candidate_refusals": 372,
+    "runtime_differences": 165,
+    "diagnostic_only_differences": 4,
+    "timeouts": 0
+  },
+  "native": {
+    "report": "work/frontend-native-tests-6/report.json",
+    "cases": 44,
+    "runs": 88,
+    "runtime_equal": 84,
+    "unsupported_refusal": 4,
+    "failures": [],
+    "normal_runtime_matches": 82,
+    "expected_overflow_matches": 2,
+    "note": "Four explicit native --debug refusals are unsupported coverage, not passing semantic comparisons."
+  },
+  "float_focus": {
+    "report": "work/wasm-float-final/report.json",
+    "rows": 6,
+    "runtime_matches": 6
+  },
+  "self_compilation": {
+    "parse_report": "work/self-check-final/parse-native.json",
+    "parse_exit_code": 0,
+    "check_report": "work/self-check-final/check-native.json",
+    "check_exit_code": 1,
+    "check_status": "completed",
+    "diagnostic_count": 16,
+    "diagnostics": {
+      "value cannot implicitly convert to the required type": 5,
+      "recursive function requires an explicit result type": 4,
+      "assignment cannot change read-only storage": 1,
+      "array mutation may invalidate a live reference or slice": 2,
+      "a reference binding must keep one root lifetime depth": 4
+    },
+    "self_hosting_established": false,
+    "note": "Native layouts. Same stage0-generated C rebuilt with GCC O2 for this bounded check; ordinary qualification uses GCC O0 bootstrap. This is not a self-compiled executable."
+  },
+  "earlier_references": {
+    "grammar": "work/frontend-parse-tests/report.json",
+    "numeric_literals": 1055,
+    "numeric_reports": [
+      "work/frontend-native-tests/report.json",
+      "work/frontend-float-fuzz/report.json"
+    ],
+    "note": "Separately collected earlier-candidate results. These are not final-candidate reruns; reports retain exact identities."
+  },
+  "limitations": [
+    "Full language semantics and precise root/effect specialization are incomplete.",
+    "Exact Wasm output differs outside four basic rows.",
+    "Native debug checks, thread/queue/pool lowering, variable image lowering and allocation lifetime reuse are incomplete.",
+    "Project/package commands, remote package retrieval, JIT and LSP are not ported.",
+    "No performance parity claims for this candidate."
+  ],
+  "evidence": {
+    "archive": "evidence.tar.gz",
+    "inventory": "inventory.json inside archive",
+    "historical_attempts": "work/",
+    "initial_seed": "seed/",
+    "external_tool_binaries": "tools/",
+    "cxx_oracle_sources": "oracle-source/",
+    "closure_note": "Includes candidate executables, generated C, Wasm outputs, per-command logs, available frozen source snapshots and seed. Early failed writing checks retain their logs, not complete pre-fix source snapshots. System libraries and external toolchain executables are not bundled; identities and versions are recorded. Absolute original paths remain in command logs."
+  }
+}

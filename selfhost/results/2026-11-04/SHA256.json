@@ -1,0 +1,32 @@
+{
+  "schema": "goose-in-goose-evidence-sha256-v1",
+  "files": {
+    "selfhost/IR.md": "9197ce653c22066cb80384ca3f5972fc665a238026508870092714aeb1320332",
+    "selfhost/README.md": "f3c2a8f26a9c1b221b9a33108f4108f542eba602e1b62f75ed98e13661991c2a",
+    "selfhost/bootstrap.py": "c3ae5583d6568a2f82489539c79c4eeb51890413b2f47fec869e240b420365d5",
+    "selfhost/checker.goose": "eb7cdb76ab35dcf067b7c6eb242497e60920aa18d30e4dc779f86cb80b85f149",
+    "selfhost/codegen.goose": "debdc87c145f2d2dc46b193154e8a9e47ac8803492b30a95f10ba18a9655378a",
+    "selfhost/codegen_c.goose": "d6c405c9485d9b1fec41b776b46fd518042dc1da884b22163b5fb78890d61c57",
+    "selfhost/driver.goose": "36b1354eaf1a8f7a98b7565d3c4b66e630d60324e64f23d1306ab3d33dabd48f",
+    "selfhost/lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "selfhost/model.goose": "e3b5f308cfbfda55e1da5305308fc432e54f93f1f8ed26aaafa9c5be94977a33",
+    "selfhost/optimizer.goose": "1c81f0977f4d270862a8db499754f752c03322b6b70a6a5cd5b34ee78ef81286",
+    "selfhost/oracle.json": "b9cfd031654beb3d5687424ee3c8e2da2e253c05c173e339250ca5830de87b1d",
+    "selfhost/parser.goose": "939cf6b56235750616c2ca89a7e1772056bd69db2b878807ca9d11404591d733",
+    "selfhost/sources.goose": "23b17ed5fc8eea07383aa090c5a86485e40cb7917c8b35cbc9905016ddfe7213",
+    "selfhost/verify.py": "be996aa586507af31819d9de186803984ca4d147da4120229ba55e2f51436c9c",
+    "selfhost/wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
+    "selfhost/results/2026-11-04/README.md": "d960e2873de8fe33e56be1377f5bb0cabf4c6871728806d4acc50e9c764015a8",
+    "selfhost/results/2026-11-04/summary.json": "8c8d9f368e29285dc3016edb73d2688dff23d3afc16142aafe5c49f130243d82",
+    "selfhost/results/2026-11-04/evidence.tar.gz": "e7af6e072604dd6f09ac0bac61e7b62171b832a87d4614929cef5f50eb14594e",
+    "selfhost/results/2026-11-04/archive-audit.json": "a2ea99ebe4b0f3d7583681739db004a40dc3b8161a10f4e61511b0e3784e27ec"
+  },
+  "archive_inventory": {
+    "path": "inventory.json",
+    "sha256": "6cbd2e9c43eae23498e1f8e43a488f5f1efb6bbfa09c78275f42c71bd89f7537",
+    "files": 29817
+  },
+  "note": "Archive inventory covers all members except inventory.json itself. System libraries/toolchains are external and identified in work/environment.json.",
+  "archive_encoding": "Identical file contents with the same permission mode are stored as standard tar hard links."
+}
