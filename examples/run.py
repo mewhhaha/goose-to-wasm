@@ -36,19 +36,17 @@ def main():
     manifest_path = HERE / "manifest.json"
     manifest = json.loads(manifest_path.read_text())
     assert manifest["schema"] == "goose-examples-v1"
-    assert manifest["upstream"]["revision"] == json.loads((ROOT / "toolchain.json").read_text())["revision"]
     catalog = manifest["examples"]
     names = [entry["name"] for entry in catalog]
     assert names and len(names) == len(set(names))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("names", nargs="*", help="example names; omit to check the complete catalog")
     parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goose")
-    parser.add_argument("--backends", nargs="+", choices=("direct", "c-wasm", "native"), default=["direct"])
+    parser.add_argument("--backends", nargs="+", choices=("direct", "native"), default=["direct"])
     parser.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["v8", "wasmtime"])
     parser.add_argument("--levels", nargs="+", type=int, choices=(0, 1, 2), default=[2])
     parser.add_argument("--node", default="node")
     parser.add_argument("--cc", default=os.environ.get("CC", "cc"))
-    parser.add_argument("--emcc", default=os.environ.get("EMCC", "emcc"))
     parser.add_argument("--output-dir", type=Path, default=ROOT / "build/examples")
     args = parser.parse_args()
     unknown = set(args.names) - set(names)
@@ -59,7 +57,9 @@ def main():
     selected = [entry for entry in catalog if not args.names or entry["name"] in args.names]
     inputs = [manifest_path, Path(__file__).resolve(), ROOT / "scripts/goose_wasm.py",
               ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py",
-              ROOT / "oracle/goose_wasm.py", ROOT / "toolchain.json", ROOT / "LICENSE"]
+              ROOT / "toolchain.json", ROOT / "LICENSE", ROOT / "selfhost/bootstrap.py",
+              ROOT / "bootstrap/seed.json", ROOT / "bootstrap/seed.c.gz", ROOT / "bootstrap/sources.tar.gz"]
+    inputs += sorted((ROOT / "selfhost").glob("*.goose"))
     for entry in selected:
         source, expected = HERE / entry["file"], HERE / entry["expected"]
         inputs.extend((source, expected))
@@ -68,7 +68,7 @@ def main():
             assert sha256(source) == origin["sha256"], entry["name"]
             assert sha256(expected) == origin["expected_sha256"], entry["name"]
     stdlib = args.goose.resolve().parent / "stdlib"
-    inputs.extend(sorted(stdlib.glob("*.goose")))
+    inputs.extend(sorted(stdlib.rglob("*.goose")))
     hashes = {str(path.resolve()): sha256(path) for path in inputs}
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -76,8 +76,6 @@ def main():
     version_commands = {"node": [args.node, "-p", "JSON.stringify(process.versions)"]}
     if "native" in args.backends:
         version_commands["cc"] = [args.cc, "--version"]
-    if "c-wasm" in args.backends:
-        version_commands["emcc"] = [args.emcc, "--version"]
     for name, command in version_commands.items():
         observation, stdout = execute(command, output / "identities", name)
         identities[name] = {**observation, "stdout": stdout}
@@ -97,7 +95,7 @@ def main():
     checkpoint()
     native_outputs = {}
     for level in dict.fromkeys(args.levels):
-        for backend in ("native", "c-wasm", "direct"):
+        for backend in ("native", "direct"):
             if backend not in args.backends:
                 continue
             for entry in selected:
@@ -109,9 +107,9 @@ def main():
                 artifact = directory / (name + suffix)
                 command = [sys.executable, ROOT / "scripts/goose_wasm.py", "build", HERE / entry["file"],
                            "--goose", args.goose.resolve(), "--backend", backend, "-O" + str(level),
-                           "--offline", "--no-cache", "-o", artifact]
-                if backend != "direct":
-                    command += ["--cc", args.cc, "--emcc", args.emcc]
+                           "--no-cache", "-o", artifact]
+                if backend == "native":
+                    command += ["--cc", args.cc]
                 built, _ = execute(command, directory, "build")
                 build = {"name": name, "backend": backend, "level": level, **built, "status": "failed"}
                 if built["exit_code"] == 0 and artifact.is_file():

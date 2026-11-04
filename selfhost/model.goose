@@ -223,6 +223,12 @@ let F_FROM_END: i64 = 536870912;
 let F_TO_END: i64 = 1073741824;
 let F_VARIABLE_MODE: i64 = 2147483648;
 let F_BROKEN: i64 = 4294967296;
+let F_DISPATCH: i64 = 8589934592;
+let F_SYNTHETIC: i64 = 17179869184;
+let F_REFERENCE_CONTEXT: i64 = 34359738368;
+let F_DIVERGES: i64 = 68719476736;
+let F_RETURNS: i64 = 137438953472;
+let F_FORMAT_RAW: i64 = 274877906944;
 let TF_UNSIGNED: i64 = 1;
 let TF_OPTIONAL: i64 = 2;
 let TF_CONST: i64 = 4;
@@ -260,6 +266,7 @@ struct Node {
     integer: i64 = 0, float_value: f64 = 0.0, flags: i64 = 0,
     scope: i64 = -1, aux: i64 = -1,
     origin: i64 = -1, captures: i64 = -1,
+    named_results: i64 = -1,
 }
 struct Type {
     kind: i64 = 0, element: i64 = -1, count: i64 = 0,
@@ -268,11 +275,14 @@ struct Type {
     array_kind: i64 = 0,
     storage: i64 = 0, length_storage: i64 = -1, padding: i64 = 0,
     pool: i64 = -1, index_type: i64 = -1, prefix: i64 = -1, tail: i64 = -1,
+    arguments: i64 = -1,
 }
 struct Symbol {
     name_token: i64 = -1, type_id: i64 = -1, node: i64 = -1,
     scope: i64 = -1, slot: i64 = -1, flags: i64 = 0, next: i64 = -1,
     owner: i64 = -1, offset: i64 = 0, index: i64 = -1,
+    scope_next: i64 = -1,
+    provenance: i64 = -1,
 }
 struct Diagnostic {
     source: i64 = 0, start: i64 = 0, end: i64 = 0,

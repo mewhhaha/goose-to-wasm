@@ -1,0 +1,34 @@
+{
+  "schema": "goose-bootstrap-seed-v1",
+  "language": "C11",
+  "producer": "Goose-written compiler through C-only bootstrap",
+  "c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d",
+  "compressed_sha256": "440c7bc38731a9a013bc99582c9a99071550a65cc5048300672f7d11448bb594",
+  "source_bundle_sha256": "aa7c926d48021af4c338e2ca841f62ae6ee478fa8bd1c03b301f0a2bfd2cbf84",
+  "source_sha256": {
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
+    "sources.goose": "ad9a1f96ac3850ad4268795c605c3c0576ba604b9f816baa0f60db1e13de4140",
+    "region_plan.goose": "c6985be85725a9be4aea5e8e39c203f0e88b803520f66ffb84ac6461986fe17b",
+    "parser.goose": "8b36e4859a3e4659e858892903d8af3ad0bb9698f0faadfea45325c8da75309f",
+    "optimizer.goose": "91a7282ba020ab700a0ed034d4d931290e344fe3244eb4c9f14a991553947347",
+    "model.goose": "03e2d9481d30ec3eb032c229e72df6d91e6ec48df8e055ca9a477bfb5ebb0fa6",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "driver.goose": "4a41188a615d154b096c733d7459805fb24d585e6d2aea4ac154e01a3958e645",
+    "codegen_c.goose": "ccd16540922168884c3e91deb08d5277abf7860ed2aa890a544b356f89fb8fbd",
+    "codegen.goose": "3aae7e5b5347ee18544909d6c0ffbfe13a142d07c8f306c042832ab32b646a9f",
+    "checker_validation.goose": "c8b10654d7757d0542c9d48c3627897d4d063e8098c4e01dbcf13b962b58aec5",
+    "checker_rendering.goose": "7b4e82cc8931dfb726b01144dd1ba914b098bd1fde3a816db42dc3c3657496f0",
+    "checker_operations.goose": "8e0935df3d292052a687e928116b4b252ad02963c8925eb60ff6f3afb74b1883",
+    "checker_lifetimes.goose": "f461d8b8667945f33339b302a885e4f7f3cac85c853462f48d397a79827592a1",
+    "checker.goose": "23d47997c4ae427074da589675f73cd92f3d19666707e81771151fb6a5ab4ebd"
+  },
+  "proof": {
+    "fixed_point": true,
+    "parent_seed_c_sha256": "fcf32591a8f7c778fdb9f4357b3571a0e2e64165a83434b814714bfebb3f4637",
+    "stage1_c_sha256": "8fde140ff2215f0dfcc77923cff87c597b1a8244fd95d2ee709d4bf076002e19",
+    "stage2_c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d",
+    "stage3_c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d"
+  },
+  "note": "The final two generations have identical C output. Build requires Python and a C compiler; no C++ frontend or runtime compiler fallback."
+}

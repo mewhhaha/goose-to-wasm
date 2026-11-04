@@ -170,6 +170,7 @@ fn opt_temporary(p: Program&, owner: i64, scope: i64, token: i64, ty: i64, value
 recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     if p.optimization <= 0 || o.current_function < 0 { return false; }
     let call = p.nodes[node];
+    if (call.flags & F_DISPATCH) != 0 { return false; }
     if call.symbol < 0 || call.symbol >= p.symbols.len { return false; }
     let symbol = p.symbols[call.symbol];
     if (symbol.flags & (S_BUILTIN | S_EXTERN)) != 0 || symbol.node < 0 { return false; }
@@ -352,8 +353,12 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
             opt_set_float(p, node, value); o.folded += 1;
         } else if source.kind == N_INTEGER && check_float(destination) {
             var value = source.integer as f64;
-            if check_unsigned(source.type_id) { value = (source.integer as! u64) as f64; }
-            if destination == TYPE_F32 { value = (value as! f32) as f64; }
+            let unsigned = check_unsigned(check_numeric_value_type(p, source.type_id));
+            if unsigned { value = (source.integer as! u64) as f64; }
+            if destination == TYPE_F32 {
+                value = (source.integer as f32) as f64;
+                if unsigned { value = ((source.integer as! u64) as f32) as f64; }
+            }
             opt_set_float(p, node, value); o.folded += 1;
         }
     } else if n.kind == N_CALL && n.symbol >= 0 {
@@ -412,7 +417,7 @@ recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_sy
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return 0; }
     if n.kind == N_RETURN && n.symbol == function_symbol && n.first >= 0 && p.nodes[n.first].next < 0 {
         let call = p.nodes[n.first];
-        if call.kind == N_CALL && call.symbol == function_symbol {
+        if call.kind == N_CALL && call.symbol == function_symbol && (call.flags & F_DISPATCH) == 0 {
             let function_node = p.symbols[function_symbol].node;
             let inline_body = new_node(p, N_BLOCK, n.token); p.nodes[inline_body].type_id = TYPE_VOID;
             p.nodes[inline_body].flags = F_CHECKED; p.nodes[inline_body].scope = n.scope;

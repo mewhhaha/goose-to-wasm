@@ -1,0 +1,1039 @@
+{
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "host_sha256": "93bc17c239c008d481ae6955f332d22472006700d27121d8986cac49d1553b50",
+  "observations": [
+    {
+      "case": "codegen/select-zero/False",
+      "source_sha256": "b69a54ff36cf8c562c7c4d8c494b1f6f172d96c0744d779c6f5bf76d22ddedbb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/codegen_select_lazy.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/0.wasm"
+      ],
+      "stdin": "1 1 91 0\n",
+      "stdout": "",
+      "stderr": "goose runtime error: division by zero (line 15)\n",
+      "exit_code": 1,
+      "artifact_sha256": "a7a79cfd3296bb4b39f411b995a2648f02d517bead8867f14423c335390f7a26"
+    },
+    {
+      "case": "codegen/select-bounds/False",
+      "source_sha256": "b69a54ff36cf8c562c7c4d8c494b1f6f172d96c0744d779c6f5bf76d22ddedbb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/codegen_select_lazy.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/1.wasm"
+      ],
+      "stdin": "2 1 91 99\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 18)\n",
+      "exit_code": 1,
+      "artifact_sha256": "a7a79cfd3296bb4b39f411b995a2648f02d517bead8867f14423c335390f7a26"
+    },
+    {
+      "case": "codegen/select-zero/True",
+      "source_sha256": "b69a54ff36cf8c562c7c4d8c494b1f6f172d96c0744d779c6f5bf76d22ddedbb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/codegen_select_lazy.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/2.wasm",
+        "--debug"
+      ],
+      "stdin": "1 1 91 0\n",
+      "stdout": "",
+      "stderr": "goose runtime error: division by zero (line 15)\n",
+      "exit_code": 1,
+      "artifact_sha256": "184beef6c7ecfd44ac754678f5d20d0d4fb1475427474ea08cd44151dc086a7a"
+    },
+    {
+      "case": "codegen/select-bounds/True",
+      "source_sha256": "b69a54ff36cf8c562c7c4d8c494b1f6f172d96c0744d779c6f5bf76d22ddedbb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/codegen_select_lazy.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/3.wasm",
+        "--debug"
+      ],
+      "stdin": "2 1 91 99\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 18)\n",
+      "exit_code": 1,
+      "artifact_sha256": "184beef6c7ecfd44ac754678f5d20d0d4fb1475427474ea08cd44151dc086a7a"
+    },
+    {
+      "case": "codegen/select-overflow",
+      "source_sha256": "b69a54ff36cf8c562c7c4d8c494b1f6f172d96c0744d779c6f5bf76d22ddedbb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/codegen_select_lazy.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/4.wasm",
+        "--debug"
+      ],
+      "stdin": "3 1 9223372036854775807 0\n",
+      "stdout": "",
+      "stderr": "goose runtime error: signed integer overflow (line 20)\n",
+      "exit_code": 1,
+      "artifact_sha256": "184beef6c7ecfd44ac754678f5d20d0d4fb1475427474ea08cd44151dc086a7a"
+    },
+    {
+      "case": "codegen/select-cast",
+      "source_sha256": "b69a54ff36cf8c562c7c4d8c494b1f6f172d96c0744d779c6f5bf76d22ddedbb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/codegen_select_lazy.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/5.wasm",
+        "--debug"
+      ],
+      "stdin": "4 1 128 0\n",
+      "stdout": "",
+      "stderr": "goose runtime error: integer cast out of range (line 22)\n",
+      "exit_code": 1,
+      "artifact_sha256": "184beef6c7ecfd44ac754678f5d20d0d4fb1475427474ea08cd44151dc086a7a"
+    },
+    {
+      "case": "growable/errors/0",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/6.wasm"
+      ],
+      "stdin": "0\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: negative array resize (line 5)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/1",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/7.wasm"
+      ],
+      "stdin": "1\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 6)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/2",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/8.wasm"
+      ],
+      "stdin": "2\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 7)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/3",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/9.wasm"
+      ],
+      "stdin": "3\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop from empty array (line 8)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/4",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/10.wasm"
+      ],
+      "stdin": "4\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array resize growth requires a fill value (line 9)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/5",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/11.wasm"
+      ],
+      "stdin": "5\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 10)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/6",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/12.wasm"
+      ],
+      "stdin": "6\n-1\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 10)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/7",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/13.wasm"
+      ],
+      "stdin": "7\n3\n",
+      "stdout": "",
+      "stderr": "goose runtime error: slice bounds out of range (line 11)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/0-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/14.wasm",
+        "--debug"
+      ],
+      "stdin": "0\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: negative array resize (line 5)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/1-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/15.wasm",
+        "--debug"
+      ],
+      "stdin": "1\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 6)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/2-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/16.wasm",
+        "--debug"
+      ],
+      "stdin": "2\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 7)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/3-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/17.wasm",
+        "--debug"
+      ],
+      "stdin": "3\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop from empty array (line 8)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/4-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/18.wasm",
+        "--debug"
+      ],
+      "stdin": "4\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array resize growth requires a fill value (line 9)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/5-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/19.wasm",
+        "--debug"
+      ],
+      "stdin": "5\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 10)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/6-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/20.wasm",
+        "--debug"
+      ],
+      "stdin": "6\n-1\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 10)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "growable/errors/7-debug",
+      "source_sha256": "b4920fe89c20113765538f98bd86582d2282696ae05a821b49c82f7d6915fce7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/growable_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/21.wasm",
+        "--debug"
+      ],
+      "stdin": "7\n3\n",
+      "stdout": "",
+      "stderr": "goose runtime error: slice bounds out of range (line 11)\n",
+      "exit_code": 1,
+      "artifact_sha256": "0010047a0e3ffddff780847b431712fe8197778eef5996a1f9202ce96087a90e"
+    },
+    {
+      "case": "limited/errors/0",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/22.wasm"
+      ],
+      "stdin": "0\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 5)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/1",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/23.wasm"
+      ],
+      "stdin": "1\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 6)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/2",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/24.wasm"
+      ],
+      "stdin": "2\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 7)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/3",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/25.wasm"
+      ],
+      "stdin": "3\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: negative array resize (line 8)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/4",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/26.wasm"
+      ],
+      "stdin": "4\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 9)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/5",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/27.wasm"
+      ],
+      "stdin": "5\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 10)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/6",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/28.wasm"
+      ],
+      "stdin": "6\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop from empty array (line 11)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/7",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/29.wasm"
+      ],
+      "stdin": "7\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array resize growth requires a fill value (line 12)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/8",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/30.wasm"
+      ],
+      "stdin": "8\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 13)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/9",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/31.wasm"
+      ],
+      "stdin": "9\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: slice bounds out of range (line 14)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/10",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/32.wasm"
+      ],
+      "stdin": "10\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 15)\n",
+      "exit_code": 1,
+      "artifact_sha256": "4c477a79a32d72936518e134d3f27dee43d47371684304dff12554810f295e2b"
+    },
+    {
+      "case": "limited/errors/0-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/33.wasm",
+        "--debug"
+      ],
+      "stdin": "0\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 5)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/1-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/34.wasm",
+        "--debug"
+      ],
+      "stdin": "1\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 6)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/2-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/35.wasm",
+        "--debug"
+      ],
+      "stdin": "2\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 7)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/3-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/36.wasm",
+        "--debug"
+      ],
+      "stdin": "3\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: negative array resize (line 8)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/4-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/37.wasm",
+        "--debug"
+      ],
+      "stdin": "4\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 9)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/5-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/38.wasm",
+        "--debug"
+      ],
+      "stdin": "5\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop count out of bounds (line 10)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/6-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/39.wasm",
+        "--debug"
+      ],
+      "stdin": "6\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: pop from empty array (line 11)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/7-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/40.wasm",
+        "--debug"
+      ],
+      "stdin": "7\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array resize growth requires a fill value (line 12)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/8-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/41.wasm",
+        "--debug"
+      ],
+      "stdin": "8\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 13)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/9-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/42.wasm",
+        "--debug"
+      ],
+      "stdin": "9\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: slice bounds out of range (line 14)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "limited/errors/10-debug",
+      "source_sha256": "7fe7b349261fe19a7fbfdd4989081398b64eb6f5f6b1fe9588226a865574d7de",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/limited_array_errors.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/43.wasm",
+        "--debug"
+      ],
+      "stdin": "10\n2\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array capacity exceeded (line 15)\n",
+      "exit_code": 1,
+      "artifact_sha256": "82e0a8634feaacd62a5a19ec44392a4fc2889e0091a1ed1ad07851cdb88612d6"
+    },
+    {
+      "case": "narrow/debug-division",
+      "source_sha256": "7aad66c2de223e2b9c7b566018d1578e7caf6b5d9e6b78f77ef2712594cc2f93",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/narrow_division.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/44.wasm",
+        "--debug"
+      ],
+      "stdin": "-2147483648 -1\n",
+      "stdout": "",
+      "stderr": "goose runtime error: signed integer overflow (line 5)\n",
+      "exit_code": 1,
+      "artifact_sha256": "03e005a5e02d3095623db82ada6b499619fe7ab6d76dac52cc7d33bbdf2f38d6"
+    },
+    {
+      "case": "float/rounding",
+      "source_sha256": "31ccfc675a33bdb36ebc0884ed96d74ca7336abf084052553dae99de44c15755",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/float_operations.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/45.wasm"
+      ],
+      "stdin": "9 0.1\n",
+      "stdout": "9.1 8.9 0.9 90.0\n9.1 0.90000004 90.0\nfalse false true\n",
+      "stderr": "",
+      "exit_code": 0,
+      "artifact_sha256": "c3265a546b51aca11cd946cd4506d349d1f3e0e176e4cea145a0c09ef2b8e51f"
+    },
+    {
+      "case": "float/nan",
+      "source_sha256": "31ccfc675a33bdb36ebc0884ed96d74ca7336abf084052553dae99de44c15755",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/float_operations.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/46.wasm"
+      ],
+      "stdin": "nan 1\n",
+      "stdout": "nan nan nan nan\nnan nan nan\nfalse false true\n",
+      "stderr": "",
+      "exit_code": 0,
+      "artifact_sha256": "c3265a546b51aca11cd946cd4506d349d1f3e0e176e4cea145a0c09ef2b8e51f"
+    },
+    {
+      "case": "float/cast-debug",
+      "source_sha256": "9745836c0ebad4eaa695d78bceb2b5d1a2114c667a9da3cd2ac5229982283359",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/float_to_integer.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/47.wasm",
+        "--debug"
+      ],
+      "stdin": "1.5\n",
+      "stdout": "",
+      "stderr": "goose runtime error: float-to-integer conversion changes the value (line 2)\n",
+      "exit_code": 1,
+      "artifact_sha256": "3896e68417eeb64a7fcfb15cd5d4f471eb9e476f3fbf9e3888b62cb442ec807a"
+    },
+    {
+      "case": "assert/fail",
+      "source_sha256": "fb05c91e4833b9dbaea3b568380a7d8ed03083ce2d982b046d23921ef1a64daf",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/assertion.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/48.wasm"
+      ],
+      "stdin": "0\n",
+      "stdout": "",
+      "stderr": "goose runtime error: assertion failed (line 2)\n",
+      "exit_code": 1,
+      "artifact_sha256": "108b10b1d2c4205c820d7c7e0f891c590c414455a8badb72aaaa84f7cbdee8cb"
+    },
+    {
+      "case": "abort/message",
+      "source_sha256": "241eb9fafe34ad6525b57eddc2bd7c185bf81a5c687103f077a55b1ffffc71eb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/abort.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/49.wasm"
+      ],
+      "stdin": "",
+      "stdout": "",
+      "stderr": "goose runtime error: custom abort message (line 1)\n",
+      "exit_code": 1,
+      "artifact_sha256": "848cc206b5c8fb3e7a12a5f3997bd1b8cbb623cb92b7ea9f2dcb491337d5345b"
+    },
+    {
+      "case": "division/zero",
+      "source_sha256": "9d9d1076c6d42826d598739f3cdd119ce32ba9aba0889bed334b8f200718caa7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/scalar_arithmetic.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/50.wasm"
+      ],
+      "stdin": "7 0\n",
+      "stdout": "",
+      "stderr": "goose runtime error: division by zero (line 5)\n",
+      "exit_code": 1,
+      "artifact_sha256": "5dc09142190d96687a268102021d4e297094b20ae129dadc752e58205e42a689"
+    },
+    {
+      "case": "division/i64-overflow",
+      "source_sha256": "9d9d1076c6d42826d598739f3cdd119ce32ba9aba0889bed334b8f200718caa7",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/scalar_arithmetic.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/51.wasm"
+      ],
+      "stdin": "-9223372036854775808 -1\n",
+      "stdout": "",
+      "stderr": "goose runtime error: signed integer overflow (line 5)\n",
+      "exit_code": 1,
+      "artifact_sha256": "5dc09142190d96687a268102021d4e297094b20ae129dadc752e58205e42a689"
+    },
+    {
+      "case": "arrays/upper-bound",
+      "source_sha256": "2b4f58f1bf27cf3ffbb4cd090e47e5e0029e0177a3abc4abc46608e4d543f2bb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/array_bounds.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/52.wasm"
+      ],
+      "stdin": "3\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 4)\n",
+      "exit_code": 1,
+      "artifact_sha256": "e88130b26d3ff24590ca61b42099732476844e578b478469a3d6b415bb46887d"
+    },
+    {
+      "case": "arrays/negative-index",
+      "source_sha256": "2b4f58f1bf27cf3ffbb4cd090e47e5e0029e0177a3abc4abc46608e4d543f2bb",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/array_bounds.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/53.wasm"
+      ],
+      "stdin": "-1\n",
+      "stdout": "",
+      "stderr": "goose runtime error: array index out of bounds (line 4)\n",
+      "exit_code": 1,
+      "artifact_sha256": "e88130b26d3ff24590ca61b42099732476844e578b478469a3d6b415bb46887d"
+    },
+    {
+      "case": "float/render-corpus",
+      "source_sha256": "c67369a2d690f0099ae774d75bbc586aff571f51fba59db4f457f0f9e3fdfabe",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/float_render.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/54.wasm"
+      ],
+      "stdin": "208\n0\n-0.0\nnan\ninf\n-inf\n0.1\n0.0001\n0.00001\n1e15\n1e14\n1e20\n1.2345678901234567\n3.4028234663852886e38\n1.401298464324817e-45\n5e-324\n1.7976931348623157e308\n-1.6311608197205296e-26\n3.743111437509446e-19\n2.8901974093783552e-36\n-2.77093605238509e-25\n-6.76289755574544e-06\n-522226304.0\n-1.7104632361125455e-35\n1.7888775647972127e-25\n-104297928.0\n1.6383808101626756e-32\n-5.756956213870047e-24\n0.0009427937329746783\n-1.9357421726240604e+18\n-8.030288511634949e+23\n9.900121972079435e+24\n2.2693288326263428\n7.700791762180367e-30\n1.8713541639090622e+25\n6.093238002593227e+20\n4.751221917387545e+33\n0.00018322380492463708\n148758400.0\n3156167680.0\n0.3373887538909912\n6.836704042021371e+24\n2.898059642139307e+28\n-0.019799968227744102\n5.465777145108823e-30\n3078931611648.0\n1.7907573062908811e-35\n229727.890625\n1.1273698286757416e-21\n3.3461459840761943e+36\n-2.4321553104833527e-10\n-1.4419726661886935e+18\n1.476157817787565e-25\n-7.23678976817533e+21\n-9.638434642511293e-19\n3.0870974996544265e-19\n7.428107018370156e-10\n-6.120377727587673e-24\n-4.221348835255281e+19\n3.510186704083673e-31\n1.2455225731417307e+30\n1.630364959893446e-22\n-2.332103563492726e+25\n2.985721045660333e+22\n-6.832403186209705e-24\n-1.4612289333050484e-26\n32218970112.0\n-2.3708916713449653e+30\n-2.2448464528229684e-12\n-9.901359241321319e+27\n0.21991297602653503\n-2.6861614502427474e+27\n-9055990972416.0\n2.485172167035133e+24\n-5.757232798137002e-12\n-4.178829014167137e+21\n-1.08670292320312e-05\n0.007194036617875099\n-5.376588916916488e+37\n6.941945151065794e-28\n-2.5565901826118953e-11\n-9.169408143602483e+16\n8.978199748998478e+33\n-1.0471719434394656e-16\n7.878750339717625e+35\n9.77001826891219e-36\n-1092.946533203125\n8.641466014980281e-11\n4.188880256887056e+19\n0.0479733981192112\n8839191552.0\n-9.942982405473947e+23\n-2.7547637497407455e-15\n3.805765731487075e+37\n-9.048052586031744e-33\n-5.804649870395036e+25\n1.3461915073035088e+29\n3.6984106982316895e-28\n-1469178752.0\n-2.9979689433541058e-30\n0.00044814200373366475\n837282.125\n-8.492632598016428e+21\n4.048054039878507e+23\n461367.1875\n5.859138011932373\n-1.4265886685300631e-34\n4.4214121565093135e-34\n4.843464171400136e-11\n-1.5319724155915537e-08\n1.3578288924459008e+16\n72131567616.0\n1.4120386167413146e+17\n1.0832754067843956e-161\n4.8691449393368616e-188\n-6.230908881554168e+85\n-5.9681809160452525e-115\n-3.0784102313886763e-145\n9.593626205533372e+253\n3.421413708082822e-153\n9.520782299064067e-228\n2.085831365244238e-80\n-3.586332420096599e+137\n1.1482081986634254e-64\n7.701630315440153e-125\n7.261278009311495e-96\n4.7357746027553596e-276\n2.3476491248593494e-98\n-9.982229463756713e+292\n-4.429435721787069e-186\n-3.945588300582011e+124\n1.448292873047088e+274\n-1.382015109791777e+291\n-2.0091873954045462e-230\n-1.579974191814812e+207\n-5.885541372990234e-34\n-7.308221929077112e-112\n-1.365773375220945e+154\n2.561892449161933e+195\n-1.7209153563677318e+52\n1.7798334939163917e+276\n3.650769506331439e+94\n-4.047080159194548e-264\n1.8869646619759835e+47\n5.988634141810968e-150\n2.823332753645805e-225\n-4.458586902435039e+285\n1.6781164208002614e+26\n4.45060658873012e-139\n2.882213576022345e+238\n5.649558828936683e-128\n-4.679109454162504e+30\n-2.4912209835953574e-250\n-4.955537634042774e+162\n2.0330882849144375e+231\n1.5215581117017177e-213\n1.98756482116953e+162\n-4.366667208560369e+267\n1.4044761608685444e+69\n1.7215701108813366e+240\n2.4601270483482973e-185\n-3.5309012066741266e+212\n8.338215949030299e-293\n1.5710293673661123e-301\n3.067170888034952e-246\n-5.289391051594815e+287\n-1.7039241471648746e-37\n-2.859346723538699e-272\n2.113269302150401e+187\n6.700445259939775e+128\n-2.4759592832500708e+157\n-2.1564397649696803e-127\n-5.796044559614385e-305\n-7.171142182345505e-276\n-5.321973597790962e+254\n-1.3093905053490623e+247\n-5.628085478708337e+129\n9.057592122264957e-87\n1.1420613970872816e+84\n-1.5611723742355326e+220\n7678001788882519.0\n-4.1057166048291955e-21\n-4.3057357480026675e+78\n3.5114044335055986e-175\n-4.824354468430864e-102\n444057.9595715057\n2.1657595586852643e+40\n-6.26955421774501e-247\n-9.62300442272861e-11\n-1.399019639991846e-28\n1.1374593182743346e+63\n-5.664215922062337e-303\n1.6948519125697465e-89\n-417805695650683.7\n-1.51428444950185e-202\n5.456938758425722e-47\n1.8176430129974936e+51\n-5.3882601930074335e+22\n5.848152919956355e-266\n-1.5951190915353608e+79\n-6.574269733522674e-163\n2.4996457537526346e+107\n-5.444407517054536e+203\n-3.564777784986726e+214\n-4.267494253109811e-267\n-3.1199117660286003e+176\n-3.0135424970875586e+174\n-1.4910770785499752e+19\n-4.683415121756968e+162\n",
+      "stdout": "0.0 0.0\n-0.0 -0.0\nnan nan\ninf inf\n-inf -inf\n0.1 0.1\n0.0001 0.0001\n1e-05 1e-05\n1e+15 1e+15\n100000000000000.0 100000000000000.0\n1e+20 1e+20\n1.2345678901234567 1.2345679\n3.4028234663852886e+38 3.4028235e+38\n1.401298464324817e-45 1e-45\n5e-324 0.0\n1.7976931348623157e+308 inf\n-1.6311608197205296e-26 -1.6311608e-26\n3.743111437509446e-19 3.7431114e-19\n2.8901974093783552e-36 2.8901974e-36\n-2.77093605238509e-25 -2.770936e-25\n-6.76289755574544e-06 -6.7628976e-06\n-522226304.0 -522226300.0\n-1.7104632361125455e-35 -1.7104632e-35\n1.7888775647972127e-25 1.7888776e-25\n-104297928.0 -104297930.0\n1.6383808101626756e-32 1.6383808e-32\n-5.756956213870047e-24 -5.7569562e-24\n0.0009427937329746783 0.00094279373\n-1.9357421726240604e+18 -1.9357422e+18\n-8.030288511634949e+23 -8.0302885e+23\n9.900121972079435e+24 9.900122e+24\n2.2693288326263428 2.2693288\n7.700791762180367e-30 7.700792e-30\n1.8713541639090622e+25 1.8713542e+25\n6.093238002593227e+20 6.093238e+20\n4.751221917387545e+33 4.751222e+33\n0.00018322380492463708 0.0001832238\n148758400.0 148758400.0\n3156167680.0 3156167700.0\n0.3373887538909912 0.33738875\n6.836704042021371e+24 6.836704e+24\n2.898059642139307e+28 2.8980596e+28\n-0.019799968227744102 -0.019799968\n5.465777145108823e-30 5.465777e-30\n3078931611648.0 3078931600000.0\n1.7907573062908811e-35 1.7907573e-35\n229727.890625 229727.89\n1.1273698286757416e-21 1.1273698e-21\n3.3461459840761943e+36 3.346146e+36\n-2.4321553104833527e-10 -2.4321553e-10\n-1.4419726661886935e+18 -1.4419727e+18\n1.476157817787565e-25 1.4761578e-25\n-7.23678976817533e+21 -7.23679e+21\n-9.638434642511293e-19 -9.638435e-19\n3.0870974996544265e-19 3.0870975e-19\n7.428107018370156e-10 7.428107e-10\n-6.120377727587673e-24 -6.1203777e-24\n-4.221348835255281e+19 -4.221349e+19\n3.510186704083673e-31 3.5101867e-31\n1.2455225731417307e+30 1.2455226e+30\n1.630364959893446e-22 1.630365e-22\n-2.332103563492726e+25 -2.3321036e+25\n2.985721045660333e+22 2.985721e+22\n-6.832403186209705e-24 -6.832403e-24\n-1.4612289333050484e-26 -1.461229e-26\n32218970112.0 32218970000.0\n-2.3708916713449653e+30 -2.3708917e+30\n-2.2448464528229684e-12 -2.2448465e-12\n-9.901359241321319e+27 -9.901359e+27\n0.21991297602653503 0.21991298\n-2.6861614502427474e+27 -2.6861615e+27\n-9055990972416.0 -9055991000000.0\n2.485172167035133e+24 2.4851722e+24\n-5.757232798137002e-12 -5.757233e-12\n-4.178829014167137e+21 -4.178829e+21\n-1.08670292320312e-05 -1.0867029e-05\n0.007194036617875099 0.0071940366\n-5.376588916916488e+37 -5.376589e+37\n6.941945151065794e-28 6.941945e-28\n-2.5565901826118953e-11 -2.5565902e-11\n-9.169408143602483e+16 -9.169408e+16\n8.978199748998478e+33 8.9782e+33\n-1.0471719434394656e-16 -1.04717194e-16\n7.878750339717625e+35 7.87875e+35\n9.77001826891219e-36 9.770018e-36\n-1092.946533203125 -1092.9465\n8.641466014980281e-11 8.641466e-11\n4.188880256887056e+19 4.1888803e+19\n0.0479733981192112 0.047973398\n8839191552.0 8839192000.0\n-9.942982405473947e+23 -9.9429824e+23\n-2.7547637497407455e-15 -2.7547637e-15\n3.805765731487075e+37 3.8057657e+37\n-9.048052586031744e-33 -9.0480526e-33\n-5.804649870395036e+25 -5.80465e+25\n1.3461915073035088e+29 1.3461915e+29\n3.6984106982316895e-28 3.6984107e-28\n-1469178752.0 -1469178800.0\n-2.9979689433541058e-30 -2.997969e-30\n0.00044814200373366475 0.000448142\n837282.125 837282.1\n-8.492632598016428e+21 -8.4926326e+21\n4.048054039878507e+23 4.048054e+23\n461367.1875 461367.2\n5.859138011932373 5.859138\n-1.4265886685300631e-34 -1.4265887e-34\n4.4214121565093135e-34 4.421412e-34\n4.843464171400136e-11 4.843464e-11\n-1.5319724155915537e-08 -1.5319724e-08\n13578288924459008.0 1.3578289e+16\n72131567616.0 72131570000.0\n1.4120386167413146e+17 1.4120386e+17\n1.0832754067843956e-161 0.0\n4.8691449393368616e-188 0.0\n-6.230908881554168e+85 -inf\n-5.9681809160452525e-115 -0.0\n-3.0784102313886763e-145 -0.0\n9.593626205533372e+253 inf\n3.421413708082822e-153 0.0\n9.520782299064067e-228 0.0\n2.085831365244238e-80 0.0\n-3.586332420096599e+137 -inf\n1.1482081986634254e-64 0.0\n7.701630315440153e-125 0.0\n7.261278009311495e-96 0.0\n4.7357746027553596e-276 0.0\n2.3476491248593494e-98 0.0\n-9.982229463756713e+292 -inf\n-4.429435721787069e-186 -0.0\n-3.945588300582011e+124 -inf\n1.448292873047088e+274 inf\n-1.382015109791777e+291 -inf\n-2.0091873954045462e-230 -0.0\n-1.579974191814812e+207 -inf\n-5.885541372990234e-34 -5.8855413e-34\n-7.308221929077112e-112 -0.0\n-1.365773375220945e+154 -inf\n2.561892449161933e+195 inf\n-1.7209153563677318e+52 -inf\n1.7798334939163917e+276 inf\n3.650769506331439e+94 inf\n-4.047080159194548e-264 -0.0\n1.8869646619759835e+47 inf\n5.988634141810968e-150 0.0\n2.823332753645805e-225 0.0\n-4.458586902435039e+285 -inf\n1.6781164208002614e+26 1.6781164e+26\n4.45060658873012e-139 0.0\n2.882213576022345e+238 inf\n5.649558828936683e-128 0.0\n-4.679109454162504e+30 -4.6791093e+30\n-2.4912209835953574e-250 -0.0\n-4.955537634042774e+162 -inf\n2.0330882849144375e+231 inf\n1.5215581117017177e-213 0.0\n1.98756482116953e+162 inf\n-4.366667208560369e+267 -inf\n1.4044761608685444e+69 inf\n1.7215701108813366e+240 inf\n2.4601270483482973e-185 0.0\n-3.5309012066741266e+212 -inf\n8.338215949030299e-293 0.0\n1.5710293673661123e-301 0.0\n3.067170888034952e-246 0.0\n-5.289391051594815e+287 -inf\n-1.7039241471648746e-37 -1.7039241e-37\n-2.859346723538699e-272 -0.0\n2.113269302150401e+187 inf\n6.700445259939775e+128 inf\n-2.4759592832500708e+157 -inf\n-2.1564397649696803e-127 -0.0\n-5.796044559614385e-305 -0.0\n-7.171142182345505e-276 -0.0\n-5.321973597790962e+254 -inf\n-1.3093905053490623e+247 -inf\n-5.628085478708337e+129 -inf\n9.057592122264957e-87 0.0\n1.1420613970872816e+84 inf\n-1.5611723742355326e+220 -inf\n7678001788882519.0 7.678002e+15\n-4.1057166048291955e-21 -4.1057166e-21\n-4.3057357480026675e+78 -inf\n3.5114044335055986e-175 0.0\n-4.824354468430864e-102 -0.0\n444057.9595715057 444057.97\n2.1657595586852643e+40 inf\n-6.26955421774501e-247 -0.0\n-9.62300442272861e-11 -9.6230045e-11\n-1.399019639991846e-28 -1.3990196e-28\n1.1374593182743346e+63 inf\n-5.664215922062337e-303 -0.0\n1.6948519125697465e-89 0.0\n-417805695650683.7 -417805700000000.0\n-1.51428444950185e-202 -0.0\n5.456938758425722e-47 0.0\n1.8176430129974936e+51 inf\n-5.3882601930074335e+22 -5.38826e+22\n5.848152919956355e-266 0.0\n-1.5951190915353608e+79 -inf\n-6.574269733522674e-163 -0.0\n2.4996457537526346e+107 inf\n-5.444407517054536e+203 -inf\n-3.564777784986726e+214 -inf\n-4.267494253109811e-267 -0.0\n-3.1199117660286003e+176 -inf\n-3.0135424970875586e+174 -inf\n-1.4910770785499752e+19 -1.4910771e+19\n-4.683415121756968e+162 -inf\n",
+      "stderr": "",
+      "exit_code": 0,
+      "artifact_sha256": "17b3d99f95f922385809f087c7055368c998a014e3b855e03d46086da8fa66b5"
+    },
+    {
+      "case": "float/remainder-corpus",
+      "source_sha256": "37235fec4d48bf25f1b32689c54a3093ebf520d3b2e4d983a9e6ebcbffba893e",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+        "/home/jacobt/src/goose-to-wasm/tests/fixtures/float_remainder.goose",
+        "--target",
+        "wasm-direct",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/reference-capture/55.wasm"
+      ],
+      "stdin": "666\n0.0 0.0\n0.0 -0.0\n0.0 1.0\n0.0 -1.0\n0.0 5.5\n0.0 -5.5\n0.0 inf\n0.0 -inf\n0.0 nan\n0.0 5e-324\n0.0 1.5e-323\n0.0 2.2250738585072014e-308\n0.0 2.225073858507201e-308\n0.0 1.7976931348623157e+308\n0.0 1e+308\n0.0 1.401298464324817e-45\n0.0 4.203895392974451e-45\n0.0 1.1754943508222875e-38\n0.0 1.1754942106924411e-38\n0.0 3.4028234663852886e+38\n-0.0 0.0\n-0.0 -0.0\n-0.0 1.0\n-0.0 -1.0\n-0.0 5.5\n-0.0 -5.5\n-0.0 inf\n-0.0 -inf\n-0.0 nan\n-0.0 5e-324\n-0.0 1.5e-323\n-0.0 2.2250738585072014e-308\n-0.0 2.225073858507201e-308\n-0.0 1.7976931348623157e+308\n-0.0 1e+308\n-0.0 1.401298464324817e-45\n-0.0 4.203895392974451e-45\n-0.0 1.1754943508222875e-38\n-0.0 1.1754942106924411e-38\n-0.0 3.4028234663852886e+38\n1.0 0.0\n1.0 -0.0\n1.0 1.0\n1.0 -1.0\n1.0 5.5\n1.0 -5.5\n1.0 inf\n1.0 -inf\n1.0 nan\n1.0 5e-324\n1.0 1.5e-323\n1.0 2.2250738585072014e-308\n1.0 2.225073858507201e-308\n1.0 1.7976931348623157e+308\n1.0 1e+308\n1.0 1.401298464324817e-45\n1.0 4.203895392974451e-45\n1.0 1.1754943508222875e-38\n1.0 1.1754942106924411e-38\n1.0 3.4028234663852886e+38\n-1.0 0.0\n-1.0 -0.0\n-1.0 1.0\n-1.0 -1.0\n-1.0 5.5\n-1.0 -5.5\n-1.0 inf\n-1.0 -inf\n-1.0 nan\n-1.0 5e-324\n-1.0 1.5e-323\n-1.0 2.2250738585072014e-308\n-1.0 2.225073858507201e-308\n-1.0 1.7976931348623157e+308\n-1.0 1e+308\n-1.0 1.401298464324817e-45\n-1.0 4.203895392974451e-45\n-1.0 1.1754943508222875e-38\n-1.0 1.1754942106924411e-38\n-1.0 3.4028234663852886e+38\n5.5 0.0\n5.5 -0.0\n5.5 1.0\n5.5 -1.0\n5.5 5.5\n5.5 -5.5\n5.5 inf\n5.5 -inf\n5.5 nan\n5.5 5e-324\n5.5 1.5e-323\n5.5 2.2250738585072014e-308\n5.5 2.225073858507201e-308\n5.5 1.7976931348623157e+308\n5.5 1e+308\n5.5 1.401298464324817e-45\n5.5 4.203895392974451e-45\n5.5 1.1754943508222875e-38\n5.5 1.1754942106924411e-38\n5.5 3.4028234663852886e+38\n-5.5 0.0\n-5.5 -0.0\n-5.5 1.0\n-5.5 -1.0\n-5.5 5.5\n-5.5 -5.5\n-5.5 inf\n-5.5 -inf\n-5.5 nan\n-5.5 5e-324\n-5.5 1.5e-323\n-5.5 2.2250738585072014e-308\n-5.5 2.225073858507201e-308\n-5.5 1.7976931348623157e+308\n-5.5 1e+308\n-5.5 1.401298464324817e-45\n-5.5 4.203895392974451e-45\n-5.5 1.1754943508222875e-38\n-5.5 1.1754942106924411e-38\n-5.5 3.4028234663852886e+38\ninf 0.0\ninf -0.0\ninf 1.0\ninf -1.0\ninf 5.5\ninf -5.5\ninf inf\ninf -inf\ninf nan\ninf 5e-324\ninf 1.5e-323\ninf 2.2250738585072014e-308\ninf 2.225073858507201e-308\ninf 1.7976931348623157e+308\ninf 1e+308\ninf 1.401298464324817e-45\ninf 4.203895392974451e-45\ninf 1.1754943508222875e-38\ninf 1.1754942106924411e-38\ninf 3.4028234663852886e+38\n-inf 0.0\n-inf -0.0\n-inf 1.0\n-inf -1.0\n-inf 5.5\n-inf -5.5\n-inf inf\n-inf -inf\n-inf nan\n-inf 5e-324\n-inf 1.5e-323\n-inf 2.2250738585072014e-308\n-inf 2.225073858507201e-308\n-inf 1.7976931348623157e+308\n-inf 1e+308\n-inf 1.401298464324817e-45\n-inf 4.203895392974451e-45\n-inf 1.1754943508222875e-38\n-inf 1.1754942106924411e-38\n-inf 3.4028234663852886e+38\nnan 0.0\nnan -0.0\nnan 1.0\nnan -1.0\nnan 5.5\nnan -5.5\nnan inf\nnan -inf\nnan nan\nnan 5e-324\nnan 1.5e-323\nnan 2.2250738585072014e-308\nnan 2.225073858507201e-308\nnan 1.7976931348623157e+308\nnan 1e+308\nnan 1.401298464324817e-45\nnan 4.203895392974451e-45\nnan 1.1754943508222875e-38\nnan 1.1754942106924411e-38\nnan 3.4028234663852886e+38\n5e-324 0.0\n5e-324 -0.0\n5e-324 1.0\n5e-324 -1.0\n5e-324 5.5\n5e-324 -5.5\n5e-324 inf\n5e-324 -inf\n5e-324 nan\n5e-324 5e-324\n5e-324 1.5e-323\n5e-324 2.2250738585072014e-308\n5e-324 2.225073858507201e-308\n5e-324 1.7976931348623157e+308\n5e-324 1e+308\n5e-324 1.401298464324817e-45\n5e-324 4.203895392974451e-45\n5e-324 1.1754943508222875e-38\n5e-324 1.1754942106924411e-38\n5e-324 3.4028234663852886e+38\n1.5e-323 0.0\n1.5e-323 -0.0\n1.5e-323 1.0\n1.5e-323 -1.0\n1.5e-323 5.5\n1.5e-323 -5.5\n1.5e-323 inf\n1.5e-323 -inf\n1.5e-323 nan\n1.5e-323 5e-324\n1.5e-323 1.5e-323\n1.5e-323 2.2250738585072014e-308\n1.5e-323 2.225073858507201e-308\n1.5e-323 1.7976931348623157e+308\n1.5e-323 1e+308\n1.5e-323 1.401298464324817e-45\n1.5e-323 4.203895392974451e-45\n1.5e-323 1.1754943508222875e-38\n1.5e-323 1.1754942106924411e-38\n1.5e-323 3.4028234663852886e+38\n2.2250738585072014e-308 0.0\n2.2250738585072014e-308 -0.0\n2.2250738585072014e-308 1.0\n2.2250738585072014e-308 -1.0\n2.2250738585072014e-308 5.5\n2.2250738585072014e-308 -5.5\n2.2250738585072014e-308 inf\n2.2250738585072014e-308 -inf\n2.2250738585072014e-308 nan\n2.2250738585072014e-308 5e-324\n2.2250738585072014e-308 1.5e-323\n2.2250738585072014e-308 2.2250738585072014e-308\n2.2250738585072014e-308 2.225073858507201e-308\n2.2250738585072014e-308 1.7976931348623157e+308\n2.2250738585072014e-308 1e+308\n2.2250738585072014e-308 1.401298464324817e-45\n2.2250738585072014e-308 4.203895392974451e-45\n2.2250738585072014e-308 1.1754943508222875e-38\n2.2250738585072014e-308 1.1754942106924411e-38\n2.2250738585072014e-308 3.4028234663852886e+38\n2.225073858507201e-308 0.0\n2.225073858507201e-308 -0.0\n2.225073858507201e-308 1.0\n2.225073858507201e-308 -1.0\n2.225073858507201e-308 5.5\n2.225073858507201e-308 -5.5\n2.225073858507201e-308 inf\n2.225073858507201e-308 -inf\n2.225073858507201e-308 nan\n2.225073858507201e-308 5e-324\n2.225073858507201e-308 1.5e-323\n2.225073858507201e-308 2.2250738585072014e-308\n2.225073858507201e-308 2.225073858507201e-308\n2.225073858507201e-308 1.7976931348623157e+308\n2.225073858507201e-308 1e+308\n2.225073858507201e-308 1.401298464324817e-45\n2.225073858507201e-308 4.203895392974451e-45\n2.225073858507201e-308 1.1754943508222875e-38\n2.225073858507201e-308 1.1754942106924411e-38\n2.225073858507201e-308 3.4028234663852886e+38\n1.7976931348623157e+308 0.0\n1.7976931348623157e+308 -0.0\n1.7976931348623157e+308 1.0\n1.7976931348623157e+308 -1.0\n1.7976931348623157e+308 5.5\n1.7976931348623157e+308 -5.5\n1.7976931348623157e+308 inf\n1.7976931348623157e+308 -inf\n1.7976931348623157e+308 nan\n1.7976931348623157e+308 5e-324\n1.7976931348623157e+308 1.5e-323\n1.7976931348623157e+308 2.2250738585072014e-308\n1.7976931348623157e+308 2.225073858507201e-308\n1.7976931348623157e+308 1.7976931348623157e+308\n1.7976931348623157e+308 1e+308\n1.7976931348623157e+308 1.401298464324817e-45\n1.7976931348623157e+308 4.203895392974451e-45\n1.7976931348623157e+308 1.1754943508222875e-38\n1.7976931348623157e+308 1.1754942106924411e-38\n1.7976931348623157e+308 3.4028234663852886e+38\n1e+308 0.0\n1e+308 -0.0\n1e+308 1.0\n1e+308 -1.0\n1e+308 5.5\n1e+308 -5.5\n1e+308 inf\n1e+308 -inf\n1e+308 nan\n1e+308 5e-324\n1e+308 1.5e-323\n1e+308 2.2250738585072014e-308\n1e+308 2.225073858507201e-308\n1e+308 1.7976931348623157e+308\n1e+308 1e+308\n1e+308 1.401298464324817e-45\n1e+308 4.203895392974451e-45\n1e+308 1.1754943508222875e-38\n1e+308 1.1754942106924411e-38\n1e+308 3.4028234663852886e+38\n1.401298464324817e-45 0.0\n1.401298464324817e-45 -0.0\n1.401298464324817e-45 1.0\n1.401298464324817e-45 -1.0\n1.401298464324817e-45 5.5\n1.401298464324817e-45 -5.5\n1.401298464324817e-45 inf\n1.401298464324817e-45 -inf\n1.401298464324817e-45 nan\n1.401298464324817e-45 5e-324\n1.401298464324817e-45 1.5e-323\n1.401298464324817e-45 2.2250738585072014e-308\n1.401298464324817e-45 2.225073858507201e-308\n1.401298464324817e-45 1.7976931348623157e+308\n1.401298464324817e-45 1e+308\n1.401298464324817e-45 1.401298464324817e-45\n1.401298464324817e-45 4.203895392974451e-45\n1.401298464324817e-45 1.1754943508222875e-38\n1.401298464324817e-45 1.1754942106924411e-38\n1.401298464324817e-45 3.4028234663852886e+38\n4.203895392974451e-45 0.0\n4.203895392974451e-45 -0.0\n4.203895392974451e-45 1.0\n4.203895392974451e-45 -1.0\n4.203895392974451e-45 5.5\n4.203895392974451e-45 -5.5\n4.203895392974451e-45 inf\n4.203895392974451e-45 -inf\n4.203895392974451e-45 nan\n4.203895392974451e-45 5e-324\n4.203895392974451e-45 1.5e-323\n4.203895392974451e-45 2.2250738585072014e-308\n4.203895392974451e-45 2.225073858507201e-308\n4.203895392974451e-45 1.7976931348623157e+308\n4.203895392974451e-45 1e+308\n4.203895392974451e-45 1.401298464324817e-45\n4.203895392974451e-45 4.203895392974451e-45\n4.203895392974451e-45 1.1754943508222875e-38\n4.203895392974451e-45 1.1754942106924411e-38\n4.203895392974451e-45 3.4028234663852886e+38\n1.1754943508222875e-38 0.0\n1.1754943508222875e-38 -0.0\n1.1754943508222875e-38 1.0\n1.1754943508222875e-38 -1.0\n1.1754943508222875e-38 5.5\n1.1754943508222875e-38 -5.5\n1.1754943508222875e-38 inf\n1.1754943508222875e-38 -inf\n1.1754943508222875e-38 nan\n1.1754943508222875e-38 5e-324\n1.1754943508222875e-38 1.5e-323\n1.1754943508222875e-38 2.2250738585072014e-308\n1.1754943508222875e-38 2.225073858507201e-308\n1.1754943508222875e-38 1.7976931348623157e+308\n1.1754943508222875e-38 1e+308\n1.1754943508222875e-38 1.401298464324817e-45\n1.1754943508222875e-38 4.203895392974451e-45\n1.1754943508222875e-38 1.1754943508222875e-38\n1.1754943508222875e-38 1.1754942106924411e-38\n1.1754943508222875e-38 3.4028234663852886e+38\n1.1754942106924411e-38 0.0\n1.1754942106924411e-38 -0.0\n1.1754942106924411e-38 1.0\n1.1754942106924411e-38 -1.0\n1.1754942106924411e-38 5.5\n1.1754942106924411e-38 -5.5\n1.1754942106924411e-38 inf\n1.1754942106924411e-38 -inf\n1.1754942106924411e-38 nan\n1.1754942106924411e-38 5e-324\n1.1754942106924411e-38 1.5e-323\n1.1754942106924411e-38 2.2250738585072014e-308\n1.1754942106924411e-38 2.225073858507201e-308\n1.1754942106924411e-38 1.7976931348623157e+308\n1.1754942106924411e-38 1e+308\n1.1754942106924411e-38 1.401298464324817e-45\n1.1754942106924411e-38 4.203895392974451e-45\n1.1754942106924411e-38 1.1754943508222875e-38\n1.1754942106924411e-38 1.1754942106924411e-38\n1.1754942106924411e-38 3.4028234663852886e+38\n3.4028234663852886e+38 0.0\n3.4028234663852886e+38 -0.0\n3.4028234663852886e+38 1.0\n3.4028234663852886e+38 -1.0\n3.4028234663852886e+38 5.5\n3.4028234663852886e+38 -5.5\n3.4028234663852886e+38 inf\n3.4028234663852886e+38 -inf\n3.4028234663852886e+38 nan\n3.4028234663852886e+38 5e-324\n3.4028234663852886e+38 1.5e-323\n3.4028234663852886e+38 2.2250738585072014e-308\n3.4028234663852886e+38 2.225073858507201e-308\n3.4028234663852886e+38 1.7976931348623157e+308\n3.4028234663852886e+38 1e+308\n3.4028234663852886e+38 1.401298464324817e-45\n3.4028234663852886e+38 4.203895392974451e-45\n3.4028234663852886e+38 1.1754943508222875e-38\n3.4028234663852886e+38 1.1754942106924411e-38\n3.4028234663852886e+38 3.4028234663852886e+38\n28052639744.0 -135317600.0\n7.382024777627206e-30 -6.630347382241553e-10\n-2.5113743340627772e+32 -1.7267893781536259e-06\n1.810142730152009e-10 7.968665122062275e-25\n-1.2406469977577217e-05 6.195906141564029e+29\n-8.534680495727141e-31 -9.728475713620671e+30\n4.997849559475887e-19 8.49586787139874e+21\n-242.1572723388672 2.0102885353004592e-14\n4.2472725077126394e+27 4930025984.0\n-1971.0986328125 4.5281794846873354e+18\n-6.664132461806349e-37 309993324675072.0\n-18576.611328125 -31406.9921875\n3.0465652223199413e-10 6.586340827289085e+32\n-4.6383494440629665e+28 -5.5133042081041564e+26\n-4.369934528377589e+33 -4993185.5\n2.0412182685232432e+24 204808192000.0\n-1.8874495049071438e+36 0.09616067260503769\n2.2899414309218713e-10 -3.819527363119711e-15\n33082.54296875 -3.0809754975993747e+38\n1.701831756405809e+24 8.239049507812147e+16\n5.871232003430836e+19 1.1880260275139977e+26\n-6.171413624134947e+22 1.977438182514031e+23\n2.1637003091349293e-34 259.60797119140625\n5.764821742749238e-35 -1.574982254660384e+21\n4.992486835895323e-16 -1795279.75\n-2.1749281131633325e-06 -3.202030662532559e-29\n-9.367606690346975e-11 -1.259418671864873e+17\n-491.1592712402344 -1.4067094619203017e-25\n-3.3503186792183895e+21 -1.1571559777338875e-32\n-1.3858353711059748e-22 -4.9554930652309094e+17\n-1.5146682926570065e-05 -1.225195169859502e+17\n3.243960933208001e-10 -1.5473794467979474e-09\n-3.239752069199039e+36 0.10221689194440842\n1.2981266385593172e+19 7.429552756358912e+31\n-6.2023310973981964e-34 36.191646575927734\n-2.8390813163482612e-27 0.12644420564174652\n-3.521077911427949e-18 4.709052431702502e+29\n-1.5701817826995368e+25 544601856.0\n1.6250223387405688e+25 -3.7139270879591596e-14\n-1.7955354593556057e-30 -3.282697092555861e+37\n-1.0160176311738541e-22 -496302160871424.0\n-1.4749519775046468e-32 -3.296044406146353e-30\n1.2170887378921483e-17 -1.1659666565577709e-09\n-2399322.5 5.322295920853405e+29\n-3.1751929883380417e+19 2.199868679046631\n-3.2431838370583444e+35 21278572544.0\n-1.8867208530038796e+38 1.047257487199527e+21\n-3.938660811726103e-19 2217670929809408.0\n-255791491710976.0 3.583771253542323e-17\n1.8339049227240486e-35 0.04758424684405327\n-3.935688683457024e+33 467644896.0\n4.267369777901693e+28 -1.9335267301247776e-22\n-24.66254997253418 8.061295153261169e-28\n-0.004448101855814457 -1.1817077935555433e-32\n3.4044828680634964e-06 0.047287289053201675\n6.418667211836662e-26 -4.823890818100918e-36\n-1.1387872076603013e+31 -4.951275527813673e-14\n-0.002931969938799739 -2.5383924425041514e+38\n-0.13597922027111053 -3.269546318450569e-31\n-2.3380385726685183e-22 9.040915756486356e-06\n7809780224.0 -1.6717383688817436e+33\n1.8741960023270388e-37 -0.1954686939716339\n-3.8522529892566493e-13 0.05736614391207695\n-97.10588073730469 8.077625671779312e-26\n-109.34013366699219 nan\n-2.25978449160058e+33 4.190429538195213e-14\n1.6299267144859186e-06 -3.1441570950832755e+23\n-3.527537673730165e+35 -2.719341115911127e+29\n5.307798952287888e-35 3.625836963472939e-29\n2.078351347048514e+36 5.5884836234404076e+35\n2.863987586833823e-28 1.3043576245763688e-06\n-3.416906445127256e-36 7.194229455235883e-29\n-2.2949693381293855e+23 3.2686661890382135e+35\n-0.04333281144499779 -2.390216962130166e-17\n4.4092933722447496e-36 -3.6620855838208036e-38\n-19.683542251586914 -2.4910033752672896e-27\n-1.5763549773354762e+18 0.06606020778417587\n1.2015261008357925e-10 -1.7724752865433402e-07\n7750594903146496.0 -2.930552984656152e-24\n1.82257768244599e-28 3.061202106322786e-25\n-1.7029546582570873e-14 4.911531261547251e+29\n5.9771665320306296e-33 -9.341311670141295e-05\n-1.1910253599339837e-12 -38075.10546875\n-5.609509143536892e+26 -6.311955842969532e+37\n-4.653827106496792e-38 -6.412987232208252\n-1.4412996461669475e-28 9.943695337120476e+32\n-2.8103997296521524e-30 30788720640.0\n1.8423019647598267 -2.3004504379208022e-31\n-236311.328125 3.682103176040177e-17\n3.310937250871106e-36 5.535123012868627e-20\n7.999411652445712e+22 2.890964704611978e-19\n1.7811885348866874e+36 -9.035142655566152e+17\n-6.1283320093102425e-25 9.571934540167905e+17\n7.880716782711229e+35 -2.1128927683624685e+23\n1.4832984163090432e+16 4.607668225031153e-29\n3.9584769240263995e-08 -3420.98193359375\n1.3462421875470842e-36 -2.6601738085662177e-31\n4.628678485438453e+36 5.028967605593263e-33\n2.469779350854564e-36 6.567211872366028e-32\n2.1618292331695557 -3.551221767995392e+16\n-5.251374739159669e-37 -2.3202094480445407e+19\n129799944.0 -2.112416237469445e-19\n0.33689531683921814 -1.4823260841012598e-08\n-1.5744855864697974e+36 2.1361583890012483e-19\n-4.085890792371316e-10 1.7772594615988928e+22\n15041.4189453125 -0.0003899695002473891\n-3.628142809786444e-15 7.030234217059096e-25\n1.1074317863661576e-16 -3.410211290974161e-16\n-7.917254852720448e-28 3.857570482068695e-05\n2.7242038157343656e+23 -2.9381949659833482e-33\n6077.8037109375 -2.9962999294550343e-30\n9.379555958236862e-38 3.3427136531052756e-26\n1.531274319616987e+28 9482956.0\n-6.357618722505369e-35 1.8716775438854034e-36\n-8.86190076115943e+29 6.57371339570584e+36\n1.6707885026757664e-16 6.689746672036826e+29\n-1.0093366142882587e-09 -1.7202892630764808e+34\n1.841490038175231e+24 3.04515809299503e-26\n-5.611484648405533e+34 -3.645591663256022e-31\n1.8122943988452078e+37 2.706692704456224e-32\n-5.518536999746036e-38 3.220770205466624e+16\n1.625460364514776e+31 1.9897786579825756e+24\n-1.585983436209585e-38 -3.854285410532495e+20\n-0.000388395506888628 -1.0366661540900011e-16\n-126035795968.0 -2.2135774087142424e-31\n-5.8728684138031895e-08 -4.849409747944423e-28\n5.482917921653837e+19 -1.2995795726331828e-17\n-1.3453419007284132e-16 -2.9695592349449377e-15\n-1.7664504254132754e-87 2.9782017906247103e-53\n-2.9997146385078034e+176 -1.0961324994639675e-237\n5.876678508159471e-167 4.7760948328163615e-127\n8.044186888289464e-42 -2.0417756528985207e-265\n-3.658266696156161e-187 -7.554308031316897e-136\n2.7807989394512786e-06 -2.1695522840733634e+164\n-5.637295546892076e+192 -5.760355117107633e-100\n-3.575301058378999e+52 1.985842343213636e+101\n-2.6144131024991127e+256 -4.94823026271759e-163\n3.3967065218977288e-270 -3.6212560348922964e-248\n1.3392821002920111e-222 3.391846876009448e-08\n1.1562063721132638e+61 -1.1121032522084325e-178\n-1.6137968363266634e+91 3.751647417206829e+108\n3.2303320827477646e+106 -9.90629997148136e+70\n-22550998985.68288 -6.630772862170814e+182\n1.5668324388610195e-06 -3.730235405660076e+121\n8.306364839013981e+164 0.0009482810535609657\n-2.07872493574697e+306 1.1791819994163037e-54\n2.6597396808308076e-157 -1.218438770021176e-47\n-1.3851093211109893e+158 9.040380451159029e+114\n-1.5493058723089656e+100 -2.307942720569485e-279\n-3.7540535083643243e+264 2.525271703609878e-107\n5.123980551564321e+86 9.094023474231803e+170\n-6.994313752771746e-219 1.8933766618608554e-176\n5.063927800024791e+290 -1.0047192372291309e+198\n-1.0776576580565422e+141 -1.14824518591142e-42\n-2.2774824719350568e+185 5.330278393498781e-131\n0.008269854868095262 -5.794944756808016e+130\n4.7420488855694566e+51 -6.591959558515886e-25\n2.9654239394649654e+206 5.416598191514747e+266\n2.893170289153813e+31 -2.7345820847563194e+255\n1.827341520726406e-257 -3.8570752122425344e+179\n-2.286662918106912e+122 1.290737579765479e-75\n3.5050220690557305e+20 -4.155629284765094e-102\n7.075842048886255e-80 -1.2283856406943613e-248\n-4.922751615069557e-102 3.991997351466526e-101\n-5.384913692893157e-123 -5.3663452693699804e+290\n-1.5536256223968997e+213 1.1875321744237377e-23\n7.334791918565726e+215 6.97599681280554e-71\n-2.0568553407363897e+307 -7.406240982747163e-221\n-3.6321001438808247e-41 -4.3706901243373155e-58\n7.401519604268102e-200 -5.080372856118455e-121\n3.784394385697888e+120 3.162004225682302e-62\n7.760997266290058e+177 -1.5581372114171598e-72\n-1.997007646361458e-151 -1.1103581980038678e+299\n4.845992553073328e+269 8.583161369233891e-119\n2.9073886864446132e-273 -4.8032415929279966e-116\n-2.5666112947238015e+306 -8.87994222255763e+118\n4.7871260040069385e+291 2.8915340909274466e-108\n2.7260076363606092e+194 1.8462311322940428e-68\n-7.761099771737435e+210 3.299052252763638e+227\n1.012875272299873e-60 -5.995743668184306e-197\n-1.6375141704748434e-20 7.837211734453145e-228\n-1.909181188551833e+166 -7.999048445595175e+58\n2.6123882822584964e+182 1.945200089767056e-72\n3.022802006147282e+190 -2.1881135933476136e-08\n-3.4311584718766374e+187 -4.213314026851343e-250\n7.435407529575398e-202 -1.5861939110077304e+111\n-3.832829294376533e-122 1.3742715640074196e-175\n-1.0726972972805364e+293 1.7115622064537714e-176\n-4.363084320554103e-16 2.581250850734753e-168\n1.3737661919252177e-248 1.9330824707988756e-171\n1.0145377122928375e+283 1.6973454430817818e+94\n214235.19178639012 2.2049909466889936e-181\n-2.3679463590025404e-219 4.29231889651669e-125\n-1.8511117949011217e-155 1.069658513787069e+184\n3.0987607771642273e-93 1.0285787277579845e-173\n1.550468385515945e+117 1.4637652979750605e-10\n9.090787765311459e-255 3.05977335716084e+88\n2.117274155510896e-108 -2.7534871632707885e+130\n7.593095604189127e+214 -4.740122094668876e+103\n-3.3322800441513017e-147 -6.618989571054673e+49\n-1.7610734878057304e+261 2.3924052724812096e+24\n-2.7541992268829775e-37 -3.871650286956413e+113\n-1.2953518337446241e+265 -2.3057686865170055e-180\n2.637787298587908e-134 -2.5773176223213076e-270\n-48148332398.36908 -9.091158949475087e-27\n4.1616948493943627e+40 -1.700475676345124e-171\n5.422789740643142e-59 -8.850720483065557e-06\n-2.0966463415744036e-191 -1.288212342903942e+299\n1.2670929735440492e+174 58774.104984889476\n6.550980123907492e-152 -3.2377816692986952e+41\n-1.59449422460683e+86 -3.8787398270893274e+130\n-1.1635667210119873e-176 1.1131535988267516e-114\n-2.246350678091752e-54 2.83395428045042e+241\n7.533261061893852e+108 4.30430808124849e+200\n8.776717677579633e-07 -3.1315877996751605e+23\n-3677998417991347.0 1.0994032899948892e-88\n7.380337985556626e-70 -1.9063967691178634e-291\n1.1129865430213494e-69 -1.4765195700411373e+22\n3.835788177535542e-288 -2.0086198628430895e+105\n-4.52673020287006e-217 4.601735917673314e-291\n1.6277907420173875e+28 4.919731086800605e-187\n-3.964320754406465e+87 9.803612609941043e+60\n-2.3995685312493005e-222 -4.468057148540225e-111\n-1.0234581654606804e+112 -6.295350864679724e-42\n3.755400765226732e-168 -2.82890498281849e+289\n6.626486325515243e-177 1.0163696567107967e+192\n2.4258606346573105e-260 1.0863949775048145e-196\n5.144261285117715e-286 2.373854086883781e-126\n4.308776198982988e+18 -1.9222554021290292e-128\n3.4296869488066035e+140 2.922989290173295e+284\n-3.1837951561146595e+106 -1.3652192290450515e-91\n2.960913269741362e+28 5.955167118779616e-289\n-2.9430757454999198e+119 -1.8370219804209283e+125\n1.91725049229442e-23 -8.599092873202532e+69\n1.789937615231849e+200 1.1223803050633505e-249\n1.687896419469957e-32 -5.030291499873366e+279\n-1.7353605561993232e+118 -1.773466486407005e-116\n-7.277379291364532e+189 9.749779036199683e-56\n1.4940292319896058e+276 1.9457670988921472e+121\n-1.6463076710198606e-135 1.587246988812246e-224\n-1.8374920176719153e-97 -1.4416029445967183e-77\n3.414531313389215e+100 2.4971650699294958e+47\n2.4871445149235023e+144 2.015316688058685e-170\n-1.8226550097580242e+241 -2.4284974033836954e+19\n7.130381058073514e+212 9.84797856849951e-154\n2.657520927578746e-123 -2.1657232442608557e-278\n-4.2577978215952503e+158 6.037536877943824e+158\n-1.9398386637801897e-112 3760.4315493805766\n4.094964685280487e-298 -2.600586203555047e+178\n2.935964362910393e-130 5.066291492779435e-220\n9.404250002998793e+124 -1.4378675219468937e-17\n-3.6658255263828044e-27 1.0837329779573787e+73\n-1.064075989118266 -6.427244383791134e-230\n1.863571194006251e-41 -1.2424113661344007e+150\n-1.4017727116773544e+67 1.0141785695174344e-51\n6.129038806353874e-232 2.642860910146875e+80\n0.9999999999999999 1.0\n1.0000000000000002 1.0\n1.9999999999999998 1.0\n2.0000000000000004 1.0\n9.999999999999998e+307 1e+308\n1.0000000000000002e+308 1e+308\n2.225073858507201e-308 2.2250738585072014e-308\n2.225073858507202e-308 2.2250738585072014e-308\n4.4501477170144023e-308 2.2250738585072014e-308\n4.450147717014404e-308 2.2250738585072014e-308\n",
+      "stdout": "nan nan nan nan 12\nnan nan nan nan 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\nnan nan nan nan 12\n-0.0 nan -0.0 nan 12\n-0.0 nan -0.0 nan 12\n-0.0 nan -0.0 nan 12\n-0.0 nan -0.0 nan 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n1.0 1.0 1.0 1.0 12\n1.0 1.0 1.0 1.0 12\n1.0 1.0 1.0 1.0 12\n1.0 1.0 1.0 1.0 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n5e-324 nan 5e-324 nan 12\n0.0 nan 0.0 nan 12\n8.487983164e-314 nan 8.487983164e-314 nan 12\n1.0 1.0 1.0 1.0 12\n1.0 1.0 1.0 1.0 12\n0.0 0.0 0.0 0.0 12\n2.802596928649634e-45 3e-45 2.802596928649634e-45 3e-45 12\n0.0 0.0 0.0 0.0 12\n2.8698592549372254e-42 2.87e-42 2.8698592549372254e-42 2.87e-42 12\n1.0 1.0 1.0 1.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-1.0 -1.0 -1.0 -1.0 12\n-1.0 -1.0 -1.0 -1.0 12\n-1.0 -1.0 -1.0 -1.0 12\n-1.0 -1.0 -1.0 -1.0 12\nnan nan nan nan 12\n-0.0 nan -0.0 nan 12\n-5e-324 nan -5e-324 nan 12\n-0.0 nan -0.0 nan 12\n-8.487983164e-314 nan -8.487983164e-314 nan 12\n-1.0 -1.0 -1.0 -1.0 12\n-1.0 -1.0 -1.0 -1.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-2.802596928649634e-45 -3e-45 -2.802596928649634e-45 -3e-45 12\n-0.0 -0.0 -0.0 -0.0 12\n-2.8698592549372254e-42 -2.87e-42 -2.8698592549372254e-42 -2.87e-42 12\n-1.0 -1.0 -1.0 -1.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n0.5 0.5 0.5 0.5 12\n0.5 0.5 0.5 0.5 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n5.5 5.5 5.5 5.5 12\n5.5 5.5 5.5 5.5 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n5e-324 nan 5e-324 nan 12\n0.0 nan 0.0 nan 12\n4.6683907401e-313 nan 4.6683907401e-313 nan 12\n5.5 5.5 5.5 5.5 12\n5.5 5.5 5.5 5.5 12\n0.0 0.0 0.0 0.0 12\n2.802596928649634e-45 3e-45 2.802596928649634e-45 3e-45 12\n0.0 0.0 0.0 0.0 12\n1.578422590215474e-41 1.5784e-41 1.578422590215474e-41 1.5784e-41 12\n5.5 5.5 5.5 5.5 12\nnan nan nan nan 12\nnan nan nan nan 12\n-0.5 -0.5 -0.5 -0.5 12\n-0.5 -0.5 -0.5 -0.5 12\n-0.0 -0.0 -0.0 -0.0 12\n-0.0 -0.0 -0.0 -0.0 12\n-5.5 -5.5 -5.5 -5.5 12\n-5.5 -5.5 -5.5 -5.5 12\nnan nan nan nan 12\n-0.0 nan -0.0 nan 12\n-5e-324 nan -5e-324 nan 12\n-0.0 nan -0.0 nan 12\n-4.6683907401e-313 nan -4.6683907401e-313 nan 12\n-5.5 -5.5 -5.5 -5.5 12\n-5.5 -5.5 -5.5 -5.5 12\n-0.0 -0.0 -0.0 -0.0 12\n-2.802596928649634e-45 -3e-45 -2.802596928649634e-45 -3e-45 12\n-0.0 -0.0 -0.0 -0.0 12\n-1.578422590215474e-41 -1.5784e-41 -1.578422590215474e-41 -1.5784e-41 12\n-5.5 -5.5 -5.5 -5.5 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\nnan nan nan nan 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n5e-324 nan 5e-324 nan 12\n5e-324 nan 5e-324 nan 12\n5e-324 nan 5e-324 nan 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\n5e-324 0.0 5e-324 0.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n1.5e-323 nan 1.5e-323 nan 12\n1.5e-323 nan 1.5e-323 nan 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\n1.5e-323 0.0 1.5e-323 0.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n5e-324 nan 5e-324 nan 12\n0.0 nan 0.0 nan 12\n5e-324 nan 5e-324 nan 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\n2.2250738585072014e-308 0.0 2.2250738585072014e-308 0.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n2.225073858507201e-308 nan 2.225073858507201e-308 nan 12\n0.0 nan 0.0 nan 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\n2.225073858507201e-308 0.0 2.225073858507201e-308 0.0 12\nnan nan nan nan 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n3.0 nan 3.0 nan 12\n3.0 nan 3.0 nan 12\n1.7976931348623157e+308 nan 1.7976931348623157e+308 nan 12\n1.7976931348623157e+308 nan 1.7976931348623157e+308 nan 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n1e-323 nan 1e-323 nan 12\n0.0 nan 0.0 nan 12\n6.4758e-319 nan 6.4758e-319 nan 12\n0.0 nan 0.0 nan 12\n7.976931348623157e+307 nan 7.976931348623157e+307 nan 12\n0.0 nan 0.0 nan 12\n1.401298464324817e-45 nan 1.401298464324817e-45 nan 12\n0.0 nan 0.0 nan 12\n1.1663108012064884e-38 nan 1.1663108012064884e-38 nan 12\n5.030037581705614e+33 nan 5.030037581705614e+33 nan 12\nnan nan nan nan 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n2.5 nan 2.5 nan 12\n2.5 nan 2.5 nan 12\n1e+308 nan 1e+308 nan 12\n1e+308 nan 1e+308 nan 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n1e-323 nan 1e-323 nan 12\n0.0 nan 0.0 nan 12\n9.79902786395302e-309 nan 9.79902786395302e-309 nan 12\n1e+308 nan 1e+308 nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n1.401298464324817e-45 nan 1.401298464324817e-45 nan 12\n0.0 nan 0.0 nan 12\n1.0565161237998639e-38 nan 1.0565161237998639e-38 nan 12\n2.6303001533821385e+38 nan 2.6303001533821385e+38 nan 12\nnan nan nan nan 12\nnan nan nan nan 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n1e-323 nan 1e-323 nan 12\n0.0 nan 0.0 nan 12\n1.086461844974e-311 nan 1.086461844974e-311 nan 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n0.0 0.0 0.0 0.0 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\nnan nan nan nan 12\nnan nan nan nan 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n3.2593855349227e-311 nan 3.2593855349227e-311 nan 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\n4.203895392974451e-45 4e-45 4.203895392974451e-45 4e-45 12\nnan nan nan nan 12\nnan nan nan nan 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n5e-324 nan 5e-324 nan 12\n0.0 nan 0.0 nan 12\n2.0237e-320 nan 2.0237e-320 nan 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\n0.0 0.0 0.0 0.0 12\n2.802596928649634e-45 3e-45 2.802596928649634e-45 3e-45 12\n0.0 0.0 0.0 0.0 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.1754943508222875e-38 1.1754944e-38 1.1754943508222875e-38 1.1754944e-38 12\nnan nan nan nan 12\nnan nan nan nan 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n1e-323 nan 1e-323 nan 12\n0.0 nan 0.0 nan 12\n2.2239873966642504e-308 nan 2.2239873966642504e-308 nan 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n0.0 0.0 0.0 0.0 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\n0.0 0.0 0.0 0.0 12\n1.1754942106924411e-38 1.1754942e-38 1.1754942106924411e-38 1.1754942e-38 12\nnan nan nan nan 12\nnan nan nan nan 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n3.5 3.5 3.5 3.5 12\n3.5 3.5 3.5 3.5 12\n3.4028234663852886e+38 3.4028235e+38 3.4028234663852886e+38 3.4028235e+38 12\n3.4028234663852886e+38 3.4028235e+38 3.4028234663852886e+38 3.4028235e+38 12\nnan nan nan nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n0.0 nan 0.0 nan 12\n2.2250653705240686e-308 nan 2.2250653705240686e-308 nan 12\n3.4028234663852886e+38 3.4028235e+38 3.4028234663852886e+38 3.4028235e+38 12\n3.4028234663852886e+38 3.4028235e+38 3.4028234663852886e+38 3.4028235e+38 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n0.0 0.0 0.0 0.0 12\n1.401298464324817e-45 1e-45 1.401298464324817e-45 1e-45 12\n0.0 0.0 0.0 0.0 12\n41896544.0 41896544.0 41896544.0 41896544.0 12\n7.382024777627206e-30 7.382025e-30 7.382024777627206e-30 7.382025e-30 12\n-1.3014559954172e-06 -1.301456e-06 -1.3014559954172e-06 -1.301456e-06 12\n4.343704802418457e-25 4.343705e-25 4.343704802418457e-25 4.343705e-25 12\n-1.2406469977577217e-05 -1.240647e-05 -1.2406469977577217e-05 -1.240647e-05 12\n-8.534680495727141e-31 -8.5346805e-31 -8.534680495727141e-31 -8.5346805e-31 12\n4.997849559475887e-19 4.9978496e-19 4.997849559475887e-19 4.9978496e-19 12\n-1.74295324809233e-14 -1.7429532e-14 -1.74295324809233e-14 -1.7429532e-14 12\n897044480.0 897044500.0 897044480.0 897044500.0 12\n-1971.0986328125 -1971.0986 -1971.0986328125 -1971.0986 12\n-6.664132461806349e-37 -6.6641325e-37 -6.664132461806349e-37 -6.6641325e-37 12\n-18576.611328125 -18576.611 -18576.611328125 -18576.611 12\n3.0465652223199413e-10 3.0465652e-10 3.0465652223199413e-10 3.0465652e-10 12\n-7.173909255475127e+25 -7.1739093e+25 -7.173909255475127e+25 -7.1739093e+25 12\n-4257590.5 -4257590.5 -4257590.5 -4257590.5 12\n196047273984.0 196047270000.0 196047273984.0 196047270000.0 12\n-0.03942108154296875 -0.03942108 -0.03942108154296875 -0.03942108 12\n2.0190910710949153e-15 2.019091e-15 2.0190910710949153e-15 2.019091e-15 12\n33082.54296875 33082.543 33082.54296875 33082.543 12\n5.50305569701888e+16 5.5030557e+16 5.50305569701888e+16 5.5030557e+16 12\n5.871232003430836e+19 5.871232e+19 5.871232003430836e+19 5.871232e+19 12\n-6.171413624134947e+22 -6.1714136e+22 -6.171413624134947e+22 -6.1714136e+22 12\n2.1637003091349293e-34 2.1637003e-34 2.1637003091349293e-34 2.1637003e-34 12\n5.764821742749238e-35 5.764822e-35 5.764821742749238e-35 5.764822e-35 12\n4.992486835895323e-16 4.992487e-16 4.992486835895323e-16 4.992487e-16 12\n-9.811926954110279e-30 -9.811927e-30 -9.811926954110279e-30 -9.811927e-30 12\n-9.367606690346975e-11 -9.367607e-11 -9.367606690346975e-11 -9.367607e-11 12\n-9.559148976317545e-26 -9.559149e-26 -9.559148976317545e-26 -9.559149e-26 12\n-5.5085869331440184e-33 -5.508587e-33 -5.5085869331440184e-33 -5.508587e-33 12\n-1.3858353711059748e-22 -1.3858354e-22 -1.3858353711059748e-22 -1.3858354e-22 12\n-1.5146682926570065e-05 -1.5146683e-05 -1.5146682926570065e-05 -1.5146683e-05 12\n3.243960933208001e-10 3.243961e-10 3.243960933208001e-10 3.243961e-10 12\n-0.06275584548711777 -0.062755845 -0.06275584548711777 -0.062755845 12\n1.2981266385593172e+19 1.2981266e+19 1.2981266385593172e+19 1.2981266e+19 12\n-6.2023310973981964e-34 -6.202331e-34 -6.2023310973981964e-34 -6.202331e-34 12\n-2.8390813163482612e-27 -2.8390813e-27 -2.8390813163482612e-27 -2.8390813e-27 12\n-3.521077911427949e-18 -3.521078e-18 -3.521077911427949e-18 -3.521078e-18 12\n-126235904.0 -126235900.0 -126235904.0 -126235900.0 12\n6.441651682551064e-15 6.4416517e-15 6.441651682551064e-15 6.4416517e-15 12\n-1.7955354593556057e-30 -1.7955355e-30 -1.7955354593556057e-30 -1.7955355e-30 12\n-1.0160176311738541e-22 -1.0160176e-22 -1.0160176311738541e-22 -1.0160176e-22 12\n-1.4749519775046468e-32 -1.474952e-32 -1.4749519775046468e-32 -1.474952e-32 12\n1.2170887378921483e-17 1.2170887e-17 1.2170887378921483e-17 1.2170887e-17 12\n-2399322.5 -2399322.5 -2399322.5 -2399322.5 12\n-2.144477367401123 -2.1444774 -2.144477367401123 -2.1444774 12\n-13407109120.0 -13407109000.0 -13407109120.0 -13407109000.0 12\n-4.4025501107313705e+19 -4.40255e+19 -4.4025501107313705e+19 -4.40255e+19 12\n-3.938660811726103e-19 -3.9386608e-19 -3.938660811726103e-19 -3.9386608e-19 12\n-3.100356315654493e-17 -3.1003563e-17 -3.100356315654493e-17 -3.1003563e-17 12\n1.8339049227240486e-35 1.8339049e-35 1.8339049227240486e-35 1.8339049e-35 12\n-453534112.0 -453534100.0 -453534112.0 -453534100.0 12\n1.8888770766715235e-22 1.8888771e-22 1.8888770766715235e-22 1.8888771e-22 12\n-6.312515615536074e-28 -6.3125156e-28 -6.312515615536074e-28 -6.3125156e-28 12\n-1.0075099632760439e-32 -1.00751e-32 -1.0075099632760439e-32 -1.00751e-32 12\n3.4044828680634964e-06 3.4044829e-06 3.4044828680634964e-06 3.4044829e-06 12\n1.4733749795125655e-37 1.473375e-37 1.4733749795125655e-37 1.473375e-37 12\n-1.3849435921003961e-14 -1.3849436e-14 -1.3849435921003961e-14 -1.3849436e-14 12\n-0.002931969938799739 -0.00293197 -0.002931969938799739 -0.00293197 12\n-5.406277194573025e-32 -5.406277e-32 -5.406277194573025e-32 -5.406277e-32 12\n-2.3380385726685183e-22 -2.3380386e-22 -2.3380385726685183e-22 -2.3380386e-22 12\n7809780224.0 7809780000.0 7809780224.0 7809780000.0 12\n1.8741960023270388e-37 1.874196e-37 1.8741960023270388e-37 1.874196e-37 12\n-3.8522529892566493e-13 -3.852253e-13 -3.8522529892566493e-13 -3.852253e-13 12\n-4.46806872412655e-26 -4.4680687e-26 -4.46806872412655e-26 -4.4680687e-26 12\nnan nan nan nan 12\n-3.7053812031477215e-14 -3.7053812e-14 -3.7053812031477215e-14 -3.7053812e-14 12\n1.6299267144859186e-06 1.6299267e-06 1.6299267144859186e-06 1.6299267e-06 12\n-2.201469029090985e+28 -2.201469e+28 -2.201469029090985e+28 -2.201469e+28 12\n5.307798952287888e-35 5.307799e-35 5.307798952287888e-35 5.307799e-35 12\n4.018062600163917e+35 4.0180626e+35 4.018062600163917e+35 4.0180626e+35 12\n2.863987586833823e-28 2.8639876e-28 2.863987586833823e-28 2.8639876e-28 12\n-3.416906445127256e-36 -3.4169064e-36 -3.416906445127256e-36 -3.4169064e-36 12\n-2.2949693381293855e+23 -2.2949693e+23 -2.2949693381293855e+23 -2.2949693e+23 12\n-1.1875623604909455e-17 -1.1875624e-17 -1.1875623604909455e-17 -1.1875624e-17 12\n1.47906716597853e-38 1.4790672e-38 1.47906716597853e-38 1.4790672e-38 12\n-2.1742208328176383e-27 -2.1742208e-27 -2.1742208328176383e-27 -2.1742208e-27 12\n-0.007822282612323761 -0.007822283 -0.007822282612323761 -0.007822283 12\n1.2015261008357925e-10 1.2015261e-10 1.2015261008357925e-10 1.2015261e-10 12\n1.1626981439007232e-24 1.1626981e-24 1.1626981439007232e-24 1.1626981e-24 12\n1.82257768244599e-28 1.8225777e-28 1.82257768244599e-28 1.8225777e-28 12\n-1.7029546582570873e-14 -1.7029547e-14 -1.7029546582570873e-14 -1.7029547e-14 12\n5.9771665320306296e-33 5.9771665e-33 5.9771665320306296e-33 5.9771665e-33 12\n-1.1910253599339837e-12 -1.1910254e-12 -1.1910253599339837e-12 -1.1910254e-12 12\n-5.609509143536892e+26 -5.609509e+26 -5.609509143536892e+26 -5.609509e+26 12\n-4.653827106496792e-38 -4.653827e-38 -4.653827106496792e-38 -4.653827e-38 12\n-1.4412996461669475e-28 -1.4412996e-28 -1.4412996461669475e-28 -1.4412996e-28 12\n-2.8103997296521524e-30 -2.8103997e-30 -2.8103997296521524e-30 -2.8103997e-30 12\n1.7016047150469348e-31 1.7016047e-31 1.7016047150469348e-31 1.7016047e-31 12\n-2.7707056509619003e-17 -2.7707057e-17 -2.7707056509619003e-17 -2.7707057e-17 12\n3.310937250871106e-36 3.3109373e-36 3.310937250871106e-36 3.3109373e-36 12\n2.1296374915879455e-19 2.1296375e-19 2.1296374915879455e-19 2.1296375e-19 12\n5.430437764367647e+17 5.4304378e+17 5.430437764367647e+17 5.4304378e+17 12\n-6.1283320093102425e-25 -6.128332e-25 -6.1283320093102425e-25 -6.128332e-25 12\n7.172937169708517e+21 7.172937e+21 7.172937169708517e+21 7.172937e+21 12\n9.154847805333964e-30 9.154848e-30 9.154847805333964e-30 9.154848e-30 12\n3.9584769240263995e-08 3.958477e-08 3.9584769240263995e-08 3.958477e-08 12\n1.3462421875470842e-36 1.3462422e-36 1.3462421875470842e-36 1.3462422e-36 12\n3.065865591097149e-34 3.0658656e-34 3.065865591097149e-34 3.0658656e-34 12\n2.469779350854564e-36 2.4697794e-36 2.469779350854564e-36 2.4697794e-36 12\n2.1618292331695557 2.1618292 2.1618292331695557 2.1618292 12\n-5.251374739159669e-37 -5.2513747e-37 -5.251374739159669e-37 -5.2513747e-37 12\n5.405998826779392e-20 5.4059988e-20 5.405998826779392e-20 5.4059988e-20 12\n1.1833364510493993e-08 1.18333645e-08 1.1833364510493993e-08 1.18333645e-08 12\n-1.9290536893681376e-20 -1.9290537e-20 -1.9290536893681376e-20 -1.9290537e-20 12\n-4.085890792371316e-10 -4.0858908e-10 -4.085890792371316e-10 -4.0858908e-10 12\n0.00011385901598259807 0.000113859016 0.00011385901598259807 0.000113859016 12\n-5.839099116639353e-26 -5.839099e-26 -5.839099116639353e-26 -5.839099e-26 12\n1.1074317863661576e-16 1.1074318e-16 1.1074317863661576e-16 1.1074318e-16 12\n-7.917254852720448e-28 -7.917255e-28 -7.917254852720448e-28 -7.917255e-28 12\n1.6764847166839693e-33 1.6764847e-33 1.6764847166839693e-33 1.6764847e-33 12\n8.422321103302663e-31 8.422321e-31 8.422321103302663e-31 8.422321e-31 12\n9.379555958236862e-38 9.379556e-38 9.379555958236862e-38 9.379556e-38 12\n1941436.0 1941436.0 1941436.0 1941436.0 12\n-1.8108282768353763e-36 -1.8108283e-36 -1.8108282768353763e-36 -1.8108283e-36 12\n-8.86190076115943e+29 -8.861901e+29 -8.86190076115943e+29 -8.861901e+29 12\n1.6707885026757664e-16 1.6707885e-16 1.6707885026757664e-16 1.6707885e-16 12\n-1.0093366142882587e-09 -1.0093366e-09 -1.0093366142882587e-09 -1.0093366e-09 12\n2.4769952008539868e-26 2.4769952e-26 2.4769952008539868e-26 2.4769952e-26 12\n-9.257911388432139e-32 -9.2579114e-32 -9.257911388432139e-32 -9.2579114e-32 12\n1.7625709067062871e-32 1.7625709e-32 1.7625709067062871e-32 1.7625709e-32 12\n-5.518536999746036e-38 -5.518537e-38 -5.518536999746036e-38 -5.518537e-38 12\n3.0937654181327015e+23 3.0937654e+23 3.0937654181327015e+23 3.0937654e+23 12\n-1.585983436209585e-38 -1.5859834e-38 -1.585983436209585e-38 -1.5859834e-38 12\n-5.19167669195842e-18 -5.1916767e-18 -5.19167669195842e-18 -5.1916767e-18 12\n-9.881205513012149e-32 -9.881206e-32 -9.881205513012149e-32 -9.881206e-32 12\n-2.8715904360305345e-28 -2.8715904e-28 -2.8715904360305345e-28 -2.8715904e-28 12\n6.605679083391267e-18 6.605679e-18 6.605679083391267e-18 6.605679e-18 12\n-1.3453419007284132e-16 -1.3453419e-16 -1.3453419007284132e-16 -1.3453419e-16 12\n-1.7664504254132754e-87 nan -1.7664504254132754e-87 nan 12\n-5.68257059256687e-238 nan -5.68257059256687e-238 nan 12\n5.876678508159471e-167 nan 5.876678508159471e-167 nan 12\n4.843613232402842e-266 nan 4.843613232402842e-266 nan 12\n-3.658266696156161e-187 nan -3.658266696156161e-187 nan 12\n2.7807989394512786e-06 2.780799e-06 2.7807989394512786e-06 2.780799e-06 12\n-5.61979060091709e-100 nan -5.61979060091709e-100 nan 12\n-3.575301058378999e+52 nan -3.575301058378999e+52 nan 12\n-3.1346576203199733e-163 nan -3.1346576203199733e-163 nan 12\n3.3967065218977288e-270 nan 3.3967065218977288e-270 nan 12\n1.3392821002920111e-222 0.0 1.3392821002920111e-222 0.0 12\n2.9913808012670463e-180 nan 2.9913808012670463e-180 nan 12\n-1.6137968363266634e+91 nan -1.6137968363266634e+91 nan 12\n3.538585458962144e+70 nan 3.538585458962144e+70 nan 12\n-22550998985.68288 -22551000000.0 -22550998985.68288 -22551000000.0 12\n1.5668324388610195e-06 1.5668325e-06 1.5668324388610195e-06 1.5668325e-06 12\n0.00024673379756046197 nan 0.00024673379756046197 nan 12\n-1.0356091657746523e-55 nan -1.0356091657746523e-55 nan 12\n2.6597396808308076e-157 nan 2.6597396808308076e-157 nan 12\n-3.0509565090837833e+114 nan -3.0509565090837833e+114 nan 12\n-2.296471663905217e-279 nan -2.296471663905217e-279 nan 12\n-1.879832135365144e-107 nan -1.879832135365144e-107 nan 12\n5.123980551564321e+86 nan 5.123980551564321e+86 nan 12\n-6.994313752771746e-219 nan -6.994313752771746e-219 nan 12\n4.457442965601967e+197 nan 4.457442965601967e+197 nan 12\n-2.0009881245003744e-43 nan -2.0009881245003744e-43 nan 12\n-5.114988283672192e-131 nan -5.114988283672192e-131 nan 12\n0.008269854868095262 0.008269855 0.008269854868095262 0.008269855 12\n2.6174937219809937e-25 nan 2.6174937219809937e-25 nan 12\n2.9654239394649654e+206 nan 2.9654239394649654e+206 nan 12\n2.893170289153813e+31 2.8931703e+31 2.893170289153813e+31 2.8931703e+31 12\n1.827341520726406e-257 0.0 1.827341520726406e-257 0.0 12\n-3.370704698733424e-76 nan -3.370704698733424e-76 nan 12\n9.521244284264753e-103 nan 9.521244284264753e-103 nan 12\n2.2360184063006687e-250 nan 2.2360184063006687e-250 nan 12\n-4.922751615069557e-102 nan -4.922751615069557e-102 nan 12\n-5.384913692893157e-123 -0.0 -5.384913692893157e-123 -0.0 12\n-7.032730138965968e-24 nan -7.032730138965968e-24 nan 12\n6.037745744178967e-71 nan 6.037745744178967e-71 nan 12\n-1.924277125995841e-222 nan -1.924277125995841e-222 nan 12\n-4.0789964074070126e-58 nan -4.0789964074070126e-58 nan 12\n7.401519604268102e-200 nan 7.401519604268102e-200 nan 12\n8.186569307436076e-63 nan 8.186569307436076e-63 nan 12\n1.2499890654649262e-72 nan 1.2499890654649262e-72 nan 12\n-1.997007646361458e-151 -0.0 -1.997007646361458e-151 -0.0 12\n1.875507661659902e-120 nan 1.875507661659902e-120 nan 12\n2.9073886864446132e-273 nan 2.9073886864446132e-273 nan 12\n-2.2679129988447117e+118 nan -2.2679129988447117e+118 nan 12\n2.56120023055409e-108 nan 2.56120023055409e-108 nan 12\n1.312302476464855e-68 nan 1.312302476464855e-68 nan 12\n-7.761099771737435e+210 nan -7.761099771737435e+210 nan 12\n5.958675191185559e-197 nan 5.958675191185559e-197 nan 12\n-3.4854828837997173e-228 nan -3.4854828837997173e-228 nan 12\n-2.575299570018071e+58 nan -2.575299570018071e+58 nan 12\n1.4831911851950043e-72 nan 1.4831911851950043e-72 nan 12\n2.136270937614558e-08 nan 2.136270937614558e-08 nan 12\n-3.5192774787003895e-250 nan -3.5192774787003895e-250 nan 12\n7.435407529575398e-202 0.0 7.435407529575398e-202 0.0 12\n-7.410031391545521e-176 nan -7.410031391545521e-176 nan 12\n-7.704577059713661e-177 nan -7.704577059713661e-177 nan 12\n-2.4719599145276883e-168 nan -2.4719599145276883e-168 nan 12\n1.3737661919252177e-248 nan 1.3737661919252177e-248 nan 12\n9.798710656599933e+93 nan 9.798710656599933e+93 nan 12\n2.6238359969026128e-182 nan 2.6238359969026128e-182 nan 12\n-2.3679463590025404e-219 nan -2.3679463590025404e-219 nan 12\n-1.8511117949011217e-155 -0.0 -1.8511117949011217e-155 -0.0 12\n1.2017653763724471e-174 nan 1.2017653763724471e-174 nan 12\n3.911962344388384e-11 nan 3.911962344388384e-11 nan 12\n9.090787765311459e-255 0.0 9.090787765311459e-255 0.0 12\n2.117274155510896e-108 0.0 2.117274155510896e-108 0.0 12\n3.862063462081411e+103 nan 3.862063462081411e+103 nan 12\n-3.3322800441513017e-147 -0.0 -3.3322800441513017e-147 -0.0 12\n-1.4120254189118836e+24 nan -1.4120254189118836e+24 nan 12\n-2.7541992268829775e-37 -2.7541992e-37 -2.7541992268829775e-37 -2.7541992e-37 12\n-3.5160977284874745e-181 nan -3.5160977284874745e-181 nan 12\n1.144263915644438e-271 nan 1.144263915644438e-271 nan 12\n-2.3455532528809553e-27 -4.09133e-28 -2.3455532528809553e-27 -4.09133e-28 12\n1.4826021166866983e-171 nan 1.4826021166866983e-171 nan 12\n5.422789740643142e-59 0.0 5.422789740643142e-59 0.0 12\n-2.0966463415744036e-191 -0.0 -2.0966463415744036e-191 -0.0 12\n20878.83300513032 nan 20878.83300513032 nan 12\n6.550980123907492e-152 0.0 6.550980123907492e-152 0.0 12\n-1.59449422460683e+86 nan -1.59449422460683e+86 nan 12\n-1.1635667210119873e-176 nan -1.1635667210119873e-176 nan 12\n-2.246350678091752e-54 -0.0 -2.246350678091752e-54 -0.0 12\n7.533261061893852e+108 nan 7.533261061893852e+108 nan 12\n8.776717677579633e-07 8.7767177e-07 8.776717677579633e-07 8.7767177e-07 12\n-7.641650790493133e-89 nan -7.641650790493133e-89 nan 12\n1.3308001690191707e-291 nan 1.3308001690191707e-291 nan 12\n1.1129865430213494e-69 0.0 1.1129865430213494e-69 0.0 12\n3.835788177535542e-288 0.0 3.835788177535542e-288 0.0 12\n-1.0361689989387856e-291 nan -1.0361689989387856e-291 nan 12\n1.979629973479457e-188 nan 1.979629973479457e-188 nan 12\n-3.3908779593824924e+60 nan -3.3908779593824924e+60 nan 12\n-2.3995685312493005e-222 nan -2.3995685312493005e-222 nan 12\n-1.5784495939337284e-42 nan -1.5784495939337284e-42 nan 12\n3.755400765226732e-168 0.0 3.755400765226732e-168 0.0 12\n6.626486325515243e-177 0.0 6.626486325515243e-177 0.0 12\n2.4258606346573105e-260 nan 2.4258606346573105e-260 nan 12\n5.144261285117715e-286 nan 5.144261285117715e-286 nan 12\n6.835594446279437e-129 nan 6.835594446279437e-129 nan 12\n3.4296869488066035e+140 nan 3.4296869488066035e+140 nan 12\n-1.2337540575783053e-91 nan -1.2337540575783053e-91 nan 12\n4.953476862953738e-289 nan 4.953476862953738e-289 nan 12\n-2.9430757454999198e+119 nan -2.9430757454999198e+119 nan 12\n1.91725049229442e-23 1.9172505e-23 1.91725049229442e-23 1.9172505e-23 12\n1.2029198321195373e-250 nan 1.2029198321195373e-250 nan 12\n1.687896419469957e-32 1.6878965e-32 1.687896419469957e-32 1.6878965e-32 12\n-1.773067665636058e-116 nan -1.773067665636058e-116 nan 12\n-4.783724756691732e-56 nan -4.783724756691732e-56 nan 12\n1.8285404552070466e+121 nan 1.8285404552070466e+121 nan 12\n-8.946854139809244e-225 nan -8.946854139809244e-225 nan 12\n-1.8374920176719153e-97 nan -1.8374920176719153e-97 nan 12\n1.9028392618000218e+47 nan 1.9028392618000218e+47 nan 12\n1.6114997937555052e-170 nan 1.6114997937555052e-170 nan 12\n-1.1297431120266568e+18 nan -1.1297431120266568e+18 nan 12\n2.6458825369679033e-154 nan 2.6458825369679033e-154 nan 12\n1.636323683885742e-279 nan 1.636323683885742e-279 nan 12\n-4.2577978215952503e+158 nan -4.2577978215952503e+158 nan 12\n-1.9398386637801897e-112 -0.0 -1.9398386637801897e-112 -0.0 12\n4.094964685280487e-298 0.0 4.094964685280487e-298 0.0 12\n4.279314637690021e-220 nan 4.279314637690021e-220 nan 12\n9.743277089648893e-18 nan 9.743277089648893e-18 nan 12\n-3.6658255263828044e-27 -3.6658255e-27 -3.6658255263828044e-27 -3.6658255e-27 12\n-6.3382344488285945e-230 nan -6.3382344488285945e-230 nan 12\n1.863571194006251e-41 1.8636e-41 1.863571194006251e-41 1.8636e-41 12\n-2.50478148790806e-52 nan -2.50478148790806e-52 nan 12\n6.129038806353874e-232 0.0 6.129038806353874e-232 0.0 12\n0.9999999999999999 0.0 0.9999999999999999 0.0 12\n2.220446049250313e-16 0.0 2.220446049250313e-16 0.0 12\n0.9999999999999998 0.0 0.9999999999999998 0.0 12\n4.440892098500626e-16 0.0 4.440892098500626e-16 0.0 12\n9.999999999999998e+307 nan 9.999999999999998e+307 nan 12\n1.99584030953472e+292 nan 1.99584030953472e+292 nan 12\n2.225073858507201e-308 nan 2.225073858507201e-308 nan 12\n5e-324 nan 5e-324 nan 12\n2.225073858507201e-308 nan 2.225073858507201e-308 nan 12\n1e-323 nan 1e-323 nan 12\n",
+      "stderr": "",
+      "exit_code": 0,
+      "artifact_sha256": "76c30d379b7d9b080da66848844c8da9aed07ee558dddbfa5e0bc66870da8168"
+    }
+  ]
+}

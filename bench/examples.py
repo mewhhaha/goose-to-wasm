@@ -16,13 +16,14 @@ import benchmark as common
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "examples/manifest.json"
-BACKENDS = ("direct", "c-wasm", "native")
+BACKENDS = ("direct", "native")
 
 
 def input_paths(examples, goose):
-    paths = [CATALOG, Path(__file__), ROOT / "bench/benchmark.py", Path(common.process.__file__), ROOT / "toolchain.json",
-             ROOT / "scripts/goose_wasm.py", ROOT / "oracle/goose_wasm.py",
+    paths = [CATALOG, Path(__file__), ROOT / "bench/benchmark.py", Path(common.process.__file__), ROOT / "toolchain.json", ROOT / "scripts/goose_wasm.py", ROOT / "selfhost/bootstrap.py",
+             ROOT / "bootstrap/seed.json", ROOT / "bootstrap/seed.c.gz", ROOT / "bootstrap/sources.tar.gz",
              ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py"]
+    paths += sorted((ROOT / "selfhost").glob("*.goose"))
     for example in examples:
         paths += [ROOT / "examples" / example["file"], ROOT / "examples" / example["expected"]]
     roots = [goose.parent / "stdlib", ROOT / "stdlib"]
@@ -61,8 +62,6 @@ def tool_paths(args):
     names = []
     if "native" in args.backends:
         names.append(("cc", args.cc))
-    if "c-wasm" in args.backends:
-        names.append(("emcc", args.emcc))
     if any(backend != "native" for backend in args.backends):
         names.append(("node", args.node))
         try:
@@ -82,11 +81,11 @@ def render(report):
     host = env["supplied_machine_label"] or env["cpu"]
     lines = ["# Example program benchmarks", "", "Status: **" + report["status"] + "**.", "",
              report["started_utc"][:10] + " · " + host + ".", "",
-             "Goose O2. Direct Wasm uses memory32; C-Wasm uses memory64. "
+             "Goose O2. Direct Wasm uses memory32; Native C is emitted by the Goose compiler. "
              "The selected programs, their constant inputs and all printing are unchanged from the "
              "[example catalog](../../../../examples/README.md). Compiler constant folding is allowed.", "",
              "Builds are complete uncached Python-driver invocations, including any C compilation/linking. "
-             "OS page caches and Emscripten's installed system-library cache remain warm.", "",
+             "OS page caches remain warm.", "",
              "Runtime is **whole-process launch-to-exit time**, including host startup, Wasm compilation/instantiation, "
              "program initialization, computation, output delivery and teardown. Each observation starts a fresh "
              "process/instance and calls the entrypoint once. This measures CLI cost, not warmed kernel throughput.", "",
@@ -97,7 +96,7 @@ def render(report):
              "Headline runtime samples use the ordinary runners without timing-file instrumentation. "
              "The Wasm supplements use a separate shuffled set of fresh processes, with the same sample count; "
              "timing files are written after their engine intervals end.", "",
-             "## Compilation", "", "| Example | Direct | C-Wasm | Native C |", "| --- | ---: | ---: | ---: |"]
+             "## Compilation", "", "| Example | Direct Wasm | Goose Native C |", "| --- | ---: | ---: |"]
     builds = {(r["name"], r["backend"]): r for r in report["compile_summary"]}
     runs = {(r["name"], r["backend"], r["engine"]): r for r in report["runtime_summary"]}
 
@@ -114,9 +113,9 @@ def render(report):
             values.append(value)
         lines.append("| " + " | ".join([name, *values]) + " |")
     lines += ["", "## Whole-process runtime", "",
-              "| Example | Direct / V8 | C-Wasm / V8 | Direct / Wasmtime | C-Wasm / Wasmtime | Native C |",
-              "| --- | ---: | ---: | ---: | ---: | ---: |"]
-    columns = (("direct", "v8"), ("c-wasm", "v8"), ("direct", "wasmtime"), ("c-wasm", "wasmtime"), ("native", "native"))
+              "| Example | Direct / V8 | Direct / Wasmtime | Goose Native C |",
+              "| --- | ---: | ---: | ---: |"]
+    columns = (("direct", "v8"), ("direct", "wasmtime"), ("native", "native"))
     for example in report["examples"]:
         name = example["name"]
         values = []
@@ -129,12 +128,12 @@ def render(report):
     for metric, title in (("entry_function_seconds", "Supplement: Wasm entrypoint"),
                           ("engine_compile_instantiate_seconds", "Supplement: Wasm engine compilation and instantiation")):
         lines += ["", "## " + title, "",
-                  "| Example | Direct / V8 | C-Wasm / V8 | Direct / Wasmtime | C-Wasm / Wasmtime |",
-                  "| --- | ---: | ---: | ---: | ---: |"]
+                  "| Example | Direct / V8 | Direct / Wasmtime |",
+                  "| --- | ---: | ---: | ---: |"]
         for example in report["examples"]:
             name = example["name"]
             values = []
-            for backend, engine in columns[:4]:
+            for backend, engine in columns[:2]:
                 value = "—"
                 if (name, backend, engine) in runs:
                     value = cell(runs[(name, backend, engine)][metric])
@@ -156,7 +155,6 @@ def main():
     parser.add_argument("examples", nargs="*")
     parser.add_argument("--goose", type=Path, default=ROOT / "build/bin/goose")
     parser.add_argument("--cc", default=os.environ.get("CC", "gcc"))
-    parser.add_argument("--emcc", default=os.environ.get("EMCC", "emcc"))
     parser.add_argument("--node", default="node")
     parser.add_argument("--machine-label", default="")
     parser.add_argument("--compile-samples", type=int, default=5)
@@ -170,8 +168,6 @@ def main():
     names = {e["name"] for e in manifest["examples"]}
     if manifest["schema"] != "goose-examples-v1" or not names or len(names) != len(manifest["examples"]):
         parser.error("invalid or empty example catalog")
-    if manifest["upstream"]["revision"] != json.loads((ROOT / "toolchain.json").read_text())["revision"]:
-        parser.error("example catalog does not match the compiler source pin")
     if set(args.examples) - names:
         parser.error("unknown example names")
     if len(args.backends) != len(set(args.backends)):
@@ -197,10 +193,9 @@ def main():
     environment["tool_paths"] = tool_paths(args)
     paths += [Path(p) for p in environment["tool_paths"].values()]
     environment["input_sha256"] = {str(p.resolve()): common.digest(p) for p in paths}
-    environment["env_overrides"] = {key: os.environ.get(key) for key in ("NODE_OPTIONS", "CC", "CFLAGS", "EMCC_CFLAGS", "EMCC_CORES", "EM_CACHE", "GOOSE_STDLIB")}
-    source_identity = args.goose.parent.parent / "source.json"
-    if source_identity.is_file():
-        environment["compiler_source_identity"] = json.loads(source_identity.read_text())
+    environment["env_overrides"] = {key: os.environ.get(key) for key in ("NODE_OPTIONS", "CC", "CFLAGS", "GOOSE_STDLIB")}
+    environment["bootstrap_seed_sha256"] = {path.name: common.digest(path) for path in
+        (ROOT / "bootstrap/seed.json", ROOT / "bootstrap/seed.c.gz", ROOT / "bootstrap/sources.tar.gz")}
     report = {"schema": "goose-example-benchmarks-v1", "status": "running",
               "started_utc": datetime.now(timezone.utc).isoformat(), "environment": environment,
               "configuration": vars(args), "examples": examples, "upstream": manifest["upstream"],
@@ -256,9 +251,9 @@ def main():
                 artifact = directory / "program.bin"
             stats = directory / "driver-stats.json"
             command = [sys.executable, ROOT / "scripts/goose_wasm.py", "build", ROOT / "examples" / example["file"],
-                       "--backend", backend, "--goose", args.goose, "--offline", "--no-cache", "-O2", "-o", artifact, "--stats", stats]
-            if backend != "direct":
-                command += ["--cc", args.cc, "--emcc", args.emcc]
+                       "--backend", backend, "--goose", args.goose, "--no-cache", "-O2", "-o", artifact, "--stats", stats]
+            if backend == "native":
+                command += ["--cc", args.cc]
             row = {"kind": "build", "name": example["name"], "backend": backend, "sample": sample,
                    "command": [str(x) for x in command], "artifact": str(artifact)}
             report["observations"].append(row)

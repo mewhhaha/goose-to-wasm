@@ -6,7 +6,7 @@ import codegen;
 import codegen_c;
 import os;
 
-// Process execution is an OS service. No compiler stage invokes the C++ oracle.
+// Process execution is an OS service; compiler stages run in this program.
 extern "libc.so.6" {
     fn driver_system(command: const u8&) -> i32 = "system";
 }
@@ -16,7 +16,7 @@ struct DriverOptions {
     stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1,
     target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     check: bool = false, parse: bool = false, tokens: bool = false,
-    dump: bool = false, run: bool = false, debug: bool = false, library: bool = false,
+    dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false,
     help: bool = false, version: bool = false, bad: bool = false,
 }
 fn driver_integer(out: u8[>..]&, value: i64) {
@@ -43,6 +43,37 @@ fn driver_json(out: u8[>..]&, text: const u8[:]) {
     }
     out.push('"');
 }
+fn driver_string_literal(out: u8[>..]&, text: const u8[:]) {
+    out.push('"');
+    for byte in text {
+        if byte == '"' || byte == '\\' || byte == 39 { out.push('\\'); out.push(byte); }
+        else if byte == 0 { out.append("\\0"); }
+        else if byte == 10 { out.append("\\n"); }
+        else if byte == 13 { out.append("\\r"); }
+        else if byte == 9 { out.append("\\t"); }
+        else if byte < 32 || byte == 127 {
+            out.append("\\x"); out.push("0123456789abcdef"[byte >> 4]); out.push("0123456789abcdef"[byte & 15]);
+        } else { out.push(byte); }
+    }
+    out.push('"');
+}
+fn driver_tokens(p: Program&) {
+    var out: u8[>..] = [];
+    for token in p.tokens {
+        if token.kind == T_EOF { continue; }
+        let spelling = p.text[token.start..token.end];
+        if token.kind == T_IDENT { out.append("identifier "); out.append(spelling); }
+        else if token.kind == T_INTLIT {
+            out.append("integer literal "); driver_integer(out, token.integer);
+            out.append(" ("); out.append(spelling); out.push(')');
+        } else if token.kind == T_FLTLIT { out.append("float literal "); out.format(token.float_value); }
+        else if token.kind == T_STRLIT {
+            out.append("string literal "); driver_string_literal(out, p.text[token.text_start..token.text_start + token.text_len]);
+        } else { out.append(spelling); }
+        out.push('\n');
+    }
+    write_stdout(out);
+}
 fn driver_number(text: const u8[:]) -> i64, bool {
     var n: i64 = 0;
     if text.len == 0 { return 0, false; }
@@ -53,7 +84,7 @@ fn driver_number(text: const u8[:]) -> i64, bool {
     }
     return n, true;
 }
-fn driver_error(message: const u8[:]) { write_stderr("goose-selfhost: "); write_stderr(message); write_stderr("\n"); }
+fn driver_error(message: const u8[:]) { write_stderr("goose: "); write_stderr(message); write_stderr("\n"); }
 fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
     var at = 1;
     while at < arguments.len {
@@ -64,6 +95,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "--parse") { o.parse = true; }
         else if same_bytes(a, "--tokens") { o.tokens = true; }
         else if same_bytes(a, "--dump") { o.dump = true; }
+        else if same_bytes(a, "--dump-ir") { o.dump_ir = true; }
         else if same_bytes(a, "--run") { o.run = true; }
         else if same_bytes(a, "--debug") { o.debug = true; }
         else if same_bytes(a, "--library") { o.library = true; }
@@ -121,12 +153,69 @@ fn driver_dependencies(p: Program&, path: const u8[:]) -> bool {
     out.append(",{\"kind\":\"build\",\"path\":\"\",\"exists\":false,\"complete\":false}]\n");
     return write_file(path, out);
 }
+fn driver_ir_field(out: u8[>..]&, name: const u8[:], value: i64) {
+    out.push(','); driver_json(out, name); out.push(':'); driver_integer(out, value);
+}
+fn driver_ir(p: Program&) {
+    var out: u8[>..] = [];
+    out.append("{\"pointer_bytes\":"); driver_integer(out, p.pointer_bytes);
+    out.append(",\"sources\":[");
+    for s, i in p.sources {
+        if i > 0 { out.push(','); }
+        driver_json(out, p.text[s.path_start..s.path_start + s.path_len]);
+    }
+    out.append("],\"tokens\":[");
+    for t, i in p.tokens {
+        if i > 0 { out.push(','); }
+        out.append("{\"id\":"); driver_integer(out, i);
+        driver_ir_field(out, "kind", t.kind); driver_ir_field(out, "source", t.source);
+        driver_ir_field(out, "line", t.line); driver_ir_field(out, "column", t.column);
+        out.append(",\"text\":"); driver_json(out, p.text[t.start..t.end]); out.push('}');
+    }
+    out.append("],\"nodes\":[");
+    for n, i in p.nodes {
+        if i > 0 { out.push(','); }
+        out.append("{\"id\":"); driver_integer(out, i);
+        driver_ir_field(out, "kind", n.kind); driver_ir_field(out, "token", n.token);
+        driver_ir_field(out, "type_id", n.type_id); driver_ir_field(out, "symbol", n.symbol);
+        driver_ir_field(out, "left", n.left); driver_ir_field(out, "right", n.right);
+        driver_ir_field(out, "third", n.third); driver_ir_field(out, "first", n.first);
+        driver_ir_field(out, "next", n.next); driver_ir_field(out, "aux", n.aux);
+        driver_ir_field(out, "integer", n.integer); driver_ir_field(out, "flags", n.flags);
+        driver_ir_field(out, "origin", n.origin); driver_ir_field(out, "scope", n.scope);
+        driver_ir_field(out, "captures", n.captures); out.push('}');
+    }
+    out.append("],\"types\":[");
+    for t, i in p.types {
+        if i > 0 { out.push(','); }
+        out.append("{\"id\":"); driver_integer(out, i);
+        driver_ir_field(out, "kind", t.kind); driver_ir_field(out, "element", t.element);
+        driver_ir_field(out, "count", t.count); driver_ir_field(out, "array_kind", t.array_kind);
+        driver_ir_field(out, "storage", t.storage); driver_ir_field(out, "size", t.size);
+        driver_ir_field(out, "declaration", t.declaration); driver_ir_field(out, "first", t.first);
+        driver_ir_field(out, "flags", t.flags); driver_ir_field(out, "pool", t.pool);
+        driver_ir_field(out, "prefix", t.prefix); driver_ir_field(out, "tail", t.tail);
+        driver_ir_field(out, "length_storage", t.length_storage); driver_ir_field(out, "padding", t.padding);
+        driver_ir_field(out, "arguments", t.arguments); out.push('}');
+    }
+    out.append("],\"symbols\":[");
+    for s, i in p.symbols {
+        if i > 0 { out.push(','); }
+        out.append("{\"id\":"); driver_integer(out, i);
+        driver_ir_field(out, "node", s.node); driver_ir_field(out, "type_id", s.type_id);
+        driver_ir_field(out, "owner", s.owner); driver_ir_field(out, "name_token", s.name_token);
+        driver_ir_field(out, "scope", s.scope); driver_ir_field(out, "flags", s.flags); out.push('}');
+    }
+    out.append("]}\n"); write_stdout(out);
+}
 fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checking: i64, optimizing: i64, backend: i64) -> bool {
     var out: u8[>..] = []; var functions = 0;
     for symbol in p.symbols {
         if (symbol.flags & S_FUNCTION) != 0 && symbol.node >= 0 && (p.nodes[symbol.node].flags & F_REACHABLE) != 0 { functions++; }
     }
-    out.append("{\"implementation\":\"goose-selfhost\",\"backend\":\"direct\",\"functions\":"); driver_integer(out, functions);
+    out.append("{\"implementation\":\"goose\",\"backend\":");
+    if p.pointer_bytes == 8 { driver_json(out, "native"); } else { driver_json(out, "direct"); }
+    out.append(",\"functions\":"); driver_integer(out, functions);
     out.append(",\"module_bytes\":"); driver_integer(out, bytes);
     out.append(",\"source_files\":"); driver_integer(out, p.sources.len);
     out.append(",\"nodes\":"); driver_integer(out, p.nodes.len);
@@ -160,7 +249,7 @@ fn driver_main() -> i64 {
     let arguments = args();
     var o = DriverOptions {}; driver_options(o, arguments);
     if o.help { driver_help(); return 0; }
-    if o.version { write_stdout("Goose selfhost draft; oracle 2e2bedef5b980bf013cac5aaa0095bfea64e5569\n"); return 0; }
+    if o.version { write_stdout("Goose to Wasm (Goose implementation)\n"); return 0; }
     if o.bad { return 2; }
     if o.source_arg < 0 { driver_help(); return 2; }
     source_path.append(arguments[o.source_arg]);
@@ -168,7 +257,9 @@ fn driver_main() -> i64 {
     if o.stats_arg >= 0 { stats_path.append(arguments[o.stats_arg]); }
     if o.dependencies_arg >= 0 { dependency_path.append(arguments[o.dependencies_arg]); }
     if o.stdlib_arg >= 0 { stdlib_path.append(arguments[o.stdlib_arg]); }
-    else { env("GOOSE_STDLIB", stdlib_path); }
+    else if !env("GOOSE_STDLIB", stdlib_path) {
+        resource_dir(stdlib_path); stdlib_path.append("stdlib");
+    }
     if o.cc_arg >= 0 { c_compiler.append(arguments[o.cc_arg]); }
     else { env("CC", c_compiler); }
     if c_compiler.len == 0 { c_compiler.append("cc"); }
@@ -181,22 +272,33 @@ fn driver_main() -> i64 {
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;
     if o.target == 1 { p.pointer_bytes = 8; }
     initialize_types(p);
-    let started = clock_ns(); load_sources(p, source_path, stdlib_path); let parsed = clock_ns();
+    let started = clock_ns(); load_sources(p, source_path, stdlib_path, o.tokens); let parsed = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
     if o.tokens {
-        for token, i in p.tokens {
-            var out: u8[>..] = []; driver_integer(out, i); out.push(' '); driver_integer(out, token.kind);
-            out.push(' '); driver_json(out, p.text[token.start..token.end]); out.push('\n'); write_stdout(out);
-        }
+        driver_tokens(p);
         return 0;
     }
     if o.dump { let s = p.sources[0]; write_stdout(p.text[s.text_start..s.text_start + s.text_len]); return 0; }
-    if o.parse { return 0; }
+    if o.parse {
+        check_program(p, true);
+        if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+        return 0;
+    }
     check_program(p); let checked = clock_ns();
+    if o.dump_ir {
+        driver_ir(p);
+        if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+        return 0;
+    }
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
     optimize_program(p); let optimized = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
-    if o.check { return 0; }
+    if o.check {
+        if stats_path.len > 0 && !driver_stats(p, stats_path, 0, parsed - started, checked - parsed, optimized - checked, 0) {
+            driver_error("cannot write statistics"); return 1;
+        }
+        return 0;
+    }
     var output: u8[>..] = [];
     if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
     let generated = clock_ns();

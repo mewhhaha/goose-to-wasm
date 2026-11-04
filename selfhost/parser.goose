@@ -542,7 +542,7 @@ recursive fn parse_pattern(p: Program&, c: ParseCursor&) -> i64 {
         var item = parse_pattern_bound(p, c);
         if parse_accept(p, c, T_DOTDOT) {
             let high = parse_pattern_bound(p, c); let range = parse_node(p, N_RANGE, p.nodes[item].token);
-            p.nodes[range].left = item; p.nodes[range].right = high; p.nodes[range].flags |= F_INCLUSIVE; item = range;
+            p.nodes[range].left = item; p.nodes[range].right = high; item = range;
         }
         parse_link(p, first, last, item);
         if p.nodes[item].kind == N_NAME && (parse_kind(p, c) == T_BITAND || parse_kind(p, c) == T_IDENT) {

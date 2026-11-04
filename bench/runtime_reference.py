@@ -73,16 +73,11 @@ def load_workloads(args):
 
 def variants(args):
     rows = [{"id": "direct-O2", "family": "direct", "optimization": 2}]
-    native = {(compiler, level, march) for compiler in args.native_compilers
-              for level in args.native_levels for march in args.march}
+    native = {(compiler, 2, "generic") for compiler in args.native_compilers}
     native.add(("gcc", 2, "generic"))
     for compiler, level, march in sorted(native):
         rows.append({"id": f"native-{compiler}-O{level}-{march}", "family": "native",
                      "compiler": compiler, "optimization": level, "march": march})
-    for level in args.c_wasm_levels:
-        for simd in args.simd:
-            rows.append({"id": f"c-wasm-O{level}-{simd}", "family": "c-wasm",
-                         "optimization": level, "simd": simd})
     if args.wasm_opt:
         rows.append({"id": "direct-wasm-opt-O3", "family": "wasm-opt", "optimization": 3})
     return rows
@@ -192,13 +187,10 @@ class Harness:
         self.args = args; self.output = args.output_dir.resolve()
         self.workloads = load_workloads(args); self.variants = variants(args)
         self.tools = {"goose": self.locate(args.goose), "gcc": self.locate(args.cc),
-                      "clang": self.locate(args.clang), "emcc": self.locate(args.emcc),
+                      "clang": self.locate(args.clang),
                       "node": self.locate(args.node), "host": self.locate(args.host)}
         if args.wasm_opt:
             self.tools["wasm_opt"] = self.locate(args.wasm_opt)
-        llvm = Path(self.tools["emcc"]).parent.parent/"bin/clang"
-        if llvm.is_file():
-            self.tools["emscripten_clang"] = str(llvm.resolve())
         if args.cpu is not None:
             if not hasattr(os, "sched_getaffinity") or args.cpu not in os.sched_getaffinity(0):
                 raise ValueError("selected runtime CPU is outside the allowed affinity")
@@ -221,7 +213,7 @@ class Harness:
                 "method": "Unchanged two-line kernel protocol and profile inputs. This task's builds/AOT preparation/tests finish before timings; "
                 "unrelated shared-host activity is not stopped or assumed idle. Aggregate phase load averages are retained. "
                 "Internal warmed bench_clock intervals are authoritative; process wall/preparation remain separate. "
-                "Pilot-only references minimize median+MAD among native and direct/C-Wasm/optional wasm-opt candidates; fresh confirmation never reselects them. "
+                "Pilot-only references minimize median+MAD among native and direct/optional wasm-opt candidates; fresh confirmation never reselects them. "
                 "GCC-O2-generic remains an anchor. "
                 "Ratios above one mean direct is slower. These are empirical references for this source/workload/toolchain/machine, "
                 "not ceilings or confidence bounds. Close or noisy differences remain uncertain."}
@@ -252,26 +244,12 @@ class Harness:
                 destination.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(path, destination)
 
     def pin_inputs(self):
-        paths = [Path(__file__), ROOT/"bench/langarena.py", Path(arena.process.__file__), ROOT/"bench/langarena/manifest.json",
-                 ROOT/"bench/langarena/test.json", ROOT/"bench/langarena/run.json", ROOT/"bench/host_input.c",
-                 ROOT/"oracle/goose_wasm.py", ROOT/"scripts/run_wasm.mjs", ROOT/"toolchain.json"]
+        paths = [Path(__file__), ROOT/"bench/langarena.py", Path(arena.process.__file__),
+                 ROOT/"bench/langarena/manifest.json", ROOT/"bench/langarena/test.json", ROOT/"bench/langarena/run.json",
+                 ROOT/"bench/host_input.c", ROOT/"scripts/goose_wasm.py", ROOT/"scripts/run_wasm.mjs",
+                 ROOT/"scripts/run_wasmtime.py", ROOT/"toolchain.json", ROOT/"selfhost/bootstrap.py", ROOT/"bootstrap"]
+        paths += list((ROOT/"selfhost").glob("*.goose")) + list((ROOT/"stdlib").rglob("*.goose"))
         paths += [Path(value) for value in self.tools.values() if Path(value).is_file()]
-        compiler = Path(self.tools["goose"])
-        paths += list((compiler.parent/"stdlib").rglob("*.goose")) + list((compiler.parent/"include").rglob("*.h"))
-        for name in ("source.json", "toolchain.json"):
-            path = compiler.parent.parent/name
-            if path.is_file():
-                paths.append(path)
-        source_metadata = compiler.parent.parent/"source.json"
-        if source_metadata.is_file():
-            source = json.loads(source_metadata.read_text()); self.report["compiler_build"] = source
-            for category, subdirectory in (("headers", "compiler"), ("patches", "")):
-                for name, expected in source.get(category, {}).items():
-                    matches = [path for path in (compiler.parent.parent/subdirectory/name, ROOT/subdirectory/name)
-                               if path.is_file() and arena.sha256(path) == expected]
-                    if not matches:
-                        raise ValueError(f"compiler {category} input differs from source.json: {name}")
-                    paths.append(matches[0])
         for case in self.workloads:
             paths += list(Path(case["source"]).parent.glob("*.goose"))
             paths += [Path(value) for value in case["source_files"]]
@@ -313,7 +291,7 @@ class Harness:
         info = {"platform": platform.platform(), "python": sys.version, "cpu_count": os.cpu_count(),
                 "selected_runtime_cpu": self.args.cpu,
                 "tools": {}, "host_controls": {key: os.environ.get(key) for key in
-                ("PATH", "EM_NODE_JS", "EM_CONFIG", "EM_CACHE", "EMCC_CORES", "TMPDIR", "GOOSE_STDLIB",
+                ("PATH", "TMPDIR", "GOOSE_STDLIB",
                  "LD_PRELOAD", "LD_LIBRARY_PATH", "NODE_OPTIONS", "RAYON_NUM_THREADS", "OMP_NUM_THREADS")}}
         if hasattr(os, "sched_getaffinity"):
             info["cpu_affinity"] = sorted(os.sched_getaffinity(0))
@@ -327,120 +305,48 @@ class Harness:
             result, directory = self.execute(command, f"metadata/{name}")
             info["tools"][name] = {"command": command, "output": result["stdout"]+result["stderr"],
                                     "returncode": result["returncode"], "log_directory": directory}
-        for compiler in ("gcc", "clang"):
-            for march in ("generic", "native"):
-                flags = self.arch_flags(march)
-                command = [self.tools[compiler], *flags, "-Q", "--help=target"]
-                if compiler == "clang":
-                    command = [self.tools[compiler], *flags, "-###", "-x", "c", "-c", os.devnull, "-o", os.devnull]
-                self.execute(command, f"metadata/{compiler}-{march}-target")
-
-    def arch_flags(self, march):
-        if march == "native":
-            return ["-march=native"]
-        return [f"-march={self.args.generic_march}", f"-mtune={self.args.generic_mtune}"]
-
-    def flags(self, variant):
-        result = [f"-O{variant['optimization']}", *COMMON]
-        if variant["family"] == "native":
-            return result + self.arch_flags(variant["march"])
-        result += ["-m64", "-fwasm-exceptions", "-mno-relaxed-simd"]
-        if variant["simd"] == "simd128":
-            result.append("-msimd128")
-        else:
-            result.append("-mno-simd128")
-        return result
 
     def failure(self, phase, error, **context):
         self.report["failures"].append({"phase": phase, "error": str(error), **context})
 
     def build(self):
-        compiler = self.tools["goose"]; headers = str(Path(compiler).parent/"include")
-        if not (Path(headers)/"goose.h").is_file():
-            raise ValueError("installed Goose include/goose.h is required")
-        host_objects = {}
-        for variant in self.variants:
-            if variant["family"] in ("direct", "wasm-opt"):
-                continue
-            compiler_name = "emcc"
-            if variant["family"] == "native":
-                compiler_name = variant["compiler"]
-            path = self.output/"build/host"/(variant["id"]+".o"); path.parent.mkdir(parents=True, exist_ok=True)
-            result, _ = self.execute([self.tools[compiler_name], *self.flags(variant), "-c", ROOT/"bench/host_input.c", "-o", path],
-                                     f"build-logs/host/{variant['id']}")
-            host_objects[variant["id"]] = None
-            if not result["returncode"] and path.is_file():
-                self.pin(path); host_objects[variant["id"]] = path
+        compiler = self.tools["goose"]
         for case in self.workloads:
-            directory = self.output/"build"/case["id"]; directory.mkdir(parents=True, exist_ok=True)
-            generated = {}
-            for target in ("native", "wasm"):
-                path = directory/(target+".c")
-                command = [compiler, case["source"], "--target", target, "--standalone", "--offline", "-O2", "-o", path]
-                if target == "wasm":
-                    command += ["--stack-reserve", "16777216"]
-                result, _ = self.execute(command, f"build-logs/{case['id']}/frontend-{target}")
-                if not result["returncode"] and path.is_file():
-                    self.pin(path); generated[target] = path
+            directory = self.output/"build"/case["id"]
+            directory.mkdir(parents=True, exist_ok=True)
             for variant in self.variants:
                 key = case["id"]+"/"+variant["id"]
                 if self.report["artifacts"].get(key, {}).get("status") == "built":
                     continue
-                suffix = ".wasm"
-                if variant["family"] == "native":
-                    suffix = ".bin"
+                backend = "native" if variant["family"] == "native" else "direct"
+                suffix = ".bin" if backend == "native" else ".wasm"
                 path = directory/(variant["id"]+suffix)
+                stats = directory/(variant["id"]+"-driver.json")
+                command = [sys.executable, ROOT/"scripts/goose_wasm.py", "build", case["source"], "-o", path,
+                           "--backend", backend, "--goose", compiler, "--no-cache", "-O2", "--stats", stats]
+                if backend == "direct":
+                    command += ["--initial-pages", str(self.args.initial_pages), "--maximum-pages", str(self.args.maximum_pages)]
+                if backend == "native":
+                    command += ["--cc", self.tools[variant["compiler"]], "--c-source", ROOT/"bench/host_input.c"]
+                if variant["family"] == "wasm-opt":
+                    source = self.report["artifacts"].get(case["id"]+"/direct-O2", {})
+                    command = [self.tools["wasm_opt"], source["path"], "-O3", "--enable-bulk-memory",
+                               "--enable-sign-ext", "--enable-multivalue", "--enable-nontrapping-float-to-int",
+                               "--enable-simd", "-o", path]
                 row = {"task": case["name"], "task_id": case["id"], "variant": variant["id"],
                        "family": variant["family"], "path": str(path), "status": "failed"}
                 self.report["artifacts"][key] = row
-                command = None
-                if variant["family"] == "direct":
-                    deps = directory/"direct-dependencies.json"
-                    command = [compiler, case["source"], "--target", "wasm-direct", "--offline", "-O2",
-                               "--wasm-initial-pages", str(self.args.initial_pages), "--wasm-max-pages", str(self.args.maximum_pages),
-                               "--wasm-stats", directory/"direct-stats.json", "--wasm-deps", deps, "-o", path]
-                elif variant["family"] == "wasm-opt":
-                    source = self.report["artifacts"].get(case["id"]+"/direct-O2", {})
-                    if source.get("status") == "built":
-                        command = [self.tools["wasm_opt"], source["path"], "-O3", "--enable-bulk-memory",
-                                   "--enable-sign-ext", "--enable-multivalue", "--enable-nontrapping-float-to-int",
-                                   "--enable-simd", "-o", path]
-                        row.update(input_wasm=source["path"], input_wasm_sha256=source["sha256"])
-                elif variant["family"] == "native" and "native" in generated and host_objects[variant["id"]]:
-                    command = [self.tools[variant["compiler"]], generated["native"], *self.flags(variant), "-I", headers,
-                               host_objects[variant["id"]], "-lm", "-pthread", "-ldl", "-o", path]
-                elif variant["family"] == "c-wasm" and "wasm" in generated and host_objects[variant["id"]]:
-                    command = [self.tools["emcc"], generated["wasm"], *self.flags(variant), "-I", headers,
-                        "-sALLOW_MEMORY_GROWTH=1", "-sINITIAL_MEMORY=33554432", "-sMAXIMUM_MEMORY=2147483648",
-                        "-sSTACK_SIZE=4194304", "-sSTACK_OVERFLOW_CHECK=2", "-sASSERTIONS=1", "-sERROR_ON_UNDEFINED_SYMBOLS=1",
-                        "-sSTANDALONE_WASM=1", "-sSUPPORT_LONGJMP=wasm", "-sWASM_LEGACY_EXCEPTIONS=0",
-                        host_objects[variant["id"]], "-o", path]
                 try:
-                    if command is None:
-                        raise ValueError("required generated C or separate host object failed")
                     result, logs = self.execute(command, f"build-logs/{key}/artifact")
                     row["artifact_build_wall_seconds"] = result["wall_seconds"]
-                    if variant["family"] == "wasm-opt":
-                        row["postprocess_wall_seconds"] = result["wall_seconds"]
                     if result["returncode"] or not path.is_file():
                         raise ValueError(f"build failed: {logs}")
-                    if variant["family"] != "native":
-                        expected = 32
-                        if variant["family"] == "c-wasm":
-                            expected = 64
-                        if wasm_memories(path) != [expected]:
-                            raise ValueError(f"expected one memory{expected}")
+                    if backend == "direct" and wasm_memories(path) != [32]:
+                        raise ValueError("expected one memory32")
                     self.pin(path); row.update(status="built", sha256=arena.sha256(path), bytes=path.stat().st_size)
-                    if variant["family"] in ("native", "c-wasm"):
-                        row["generated_c"] = str(generated["wasm"])
-                        if variant["family"] == "native":
-                            row["generated_c"] = str(generated["native"])
-                        row["generated_c_sha256"] = arena.sha256(Path(row["generated_c"]))
-                    if variant["family"] == "direct":
-                        for dependency in json.loads(deps.read_text()):
-                            if dependency.get("kind", "source") == "source" and Path(dependency["path"]).is_file():
-                                self.pin(Path(dependency["path"]))
-                    if variant["family"] != "native" and "wasmtime" in self.args.engines and self.args.wasmtime_mode == "precompiled":
+                    if backend == "native":
+                        row["generated_c_identity"] = "Goose compiler native target"
+                    if backend != "native" and "wasmtime" in self.args.engines and self.args.wasmtime_mode == "precompiled":
                         aot = path.with_suffix(".cwasm")
                         result, logs = self.execute([self.tools["host"], "--compile", path, aot], f"build-logs/{key}/preparation")
                         row["preparation_wall_seconds"] = result["wall_seconds"]
@@ -536,7 +442,7 @@ class Harness:
         for case in self.workloads:
             rows = [row for row in self.report["observations"] if row["task"] == case["name"] and row["phase"] == "pilot"]
             native = [row["id"] for row in self.variants if row["family"] == "native"]
-            wasm = [row["id"] for row in self.variants if row["family"] in ("direct", "c-wasm", "wasm-opt")]
+            wasm = [row["id"] for row in self.variants if row["family"] in ("direct", "wasm-opt")]
             selected = {"native": pick_reference([row for row in rows if row["engine"] == "native"], native, self.args.pilot_samples), "wasm": {}}
             for engine in self.args.engines:
                 selected["wasm"][engine] = pick_reference([row for row in rows if row["engine"] == engine], wasm, self.args.pilot_samples)
@@ -616,17 +522,10 @@ def parser():
     result.add_argument("--plan", action="store_true", help="print workload/matrix counts without tool execution")
     result.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["wasmtime"])
     result.add_argument("--native-compilers", nargs="+", choices=("gcc", "clang"), default=["gcc", "clang"])
-    result.add_argument("--native-levels", nargs="+", type=int, choices=(2,3), default=[2,3])
-    result.add_argument("--march", nargs="+", choices=("generic", "native"), default=["generic", "native"])
-    result.add_argument("--c-wasm-levels", nargs="+", type=int, choices=(2,3), default=[2,3])
-    result.add_argument("--simd", nargs="+", choices=("scalar", "simd128"), default=["scalar", "simd128"])
-    result.add_argument("--generic-march", default="x86-64")
-    result.add_argument("--generic-mtune", default="generic")
     result.add_argument("--goose", type=Path, default=ROOT/"build/bin/goose")
     result.add_argument("--host", type=Path, default=ROOT/"build/bin/goose-wasmtime")
     result.add_argument("--cc", default="gcc")
     result.add_argument("--clang", default="clang-23")
-    result.add_argument("--emcc", default="emcc")
     result.add_argument("--node", default="node")
     result.add_argument("--wasmtime-mode", choices=("precompiled", "wasm"), default="precompiled")
     result.add_argument("--wasm-opt", type=Path, help="optional normal-semantics -O3 direct-Wasm postprocess reference")

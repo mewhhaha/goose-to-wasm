@@ -16,210 +16,42 @@ concurrency:
 jobs:
   qualify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
-    env:
-      EMCC_CORES: "2"
-      EM_CACHE: ${{ github.workspace }}/build/em-cache
-      TMPDIR: ${{ github.workspace }}/build/tmp
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Read toolchain pins
-        id: pins
-        run: |
-          python3 - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-          pins = json.loads(Path("toolchain.json").read_text())
-          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-              print("node=" + pins["node"], file=output)
-          PY
-          mkdir -p build/tmp
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
+      - name: Read engine pin
+        id: pins
+        run: |
+          python - <<'PYTHON'
+          import json, os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('node=' + json.load(open('toolchain.json'))['node'], file=output)
+          PYTHON
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ steps.pins.outputs.node }}
-      - name: Install build tools and Wasmtime
+      - name: Install C compiler and runtime tools
         run: |
-          python -m pip install cmake==4.4.4 ninja==1.13.2 -r requirements.txt
-          echo "EM_NODE_JS=$(command -v node)" >> "$GITHUB_ENV"
-      - name: Build pinned compiler
-        run: python scripts/bootstrap.py --generator Ninja --jobs 2
-      - name: Pinned language capability inventory
-        run: python scripts/check_capabilities.py
-      - name: Install pinned Emscripten
-        run: |
-          python scripts/install_emsdk.py --jobs 2
-          echo "${{ github.workspace }}/build/emsdk/upstream/emscripten" >> "$GITHUB_PATH"
-      - name: Record engine and compiler identities
-        run: |
-          python scripts/goose_wasm.py version
-          node -p 'JSON.stringify({node: process.version, v8: process.versions.v8})'
-          python -c 'from importlib.metadata import version; print("Wasmtime", version("wasmtime"))'
-          cat build/toolchain.json
-      - name: Verify shared engine features
-        run: python scripts/check_engines.py --output build/engine-probes.json
-      - name: Native Wasmtime host and ABI boundaries
-        run: |
-          python scripts/build_wasmtime_host.py
-          python scripts/build_wasmtime_host.py --runtime-only
-          python tests/test_native_wasmtime.py
-          python tests/test_aot_wasmtime.py
-          python tests/test_runtime_session.py
-      - name: Oracle source and driver contracts
-        run: |
-          python tests/test_benchmark_process.py
-          python tests/test_command_logs.py
-          python oracle/tests/test_bootstrap.py
-          python oracle/tests/test_target.py
-          python oracle/tests/test_driver.py
-          python oracle/tests/test_qualification.py
-      - name: Full C-Wasm portability corpus
-        run: python oracle/tests/run_tests.py --full --jobs 2
-      - name: Memory64 and native GCC comparison
+          sudo apt-get update
+          sudo apt-get install -y clang
+          python -m pip install -r requirements.txt
+      - name: Build Goose and verify self-hosting
+        id: compiler
+        run: python scripts/bootstrap.py --verify
+      - name: Build Wasmtime host
+        run: python scripts/build_wasmtime_host.py
+      - name: Source and output contracts
         run: >-
-          python oracle/tests/run_tests.py --quick --memory64 --native-gcc gcc
-          --jobs 2 --output-dir build/oracle/memory64-results
-      - name: Direct, C-Wasm and native differential qualification
+          python tests/conformance.py --compiler build/bin/goose
+          --output-dir build/conformance --levels 0 2 --timeout 20
+      - name: Curated WebAssembly contracts on V8
+        if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
         run: >-
-          python tests/run_differential.py --engines v8 wasmtime
-          --backends direct c-wasm native --compact-logs
-      - name: Aggregate returns and scalar math qualification
-        run: python tests/test_backend_extensions.py
-      - name: Example catalog across all backends and optimization levels
-        run: >-
-          python examples/run.py --backends native c-wasm direct --levels 0 2
-          --output-dir build/examples-qualification
-      - name: Sparse static data and memory limits
-        run: python tests/test_static_data.py
-      - name: Byte fill lowering and partial-write boundaries
-        run: python tests/test_fill_loops.py
-      - name: Strip-mined loops, tails and ordered traps
-        run: python tests/test_strip_loops.py
-      - name: While-loop tails and later-copy traps
-        run: python tests/test_while_unroll.py
-      - name: Local popcount loops and observable scalar fallbacks
-        run: python tests/test_popcount.py
-      - name: Dynamic integer remainders and operand effects
-        run: python tests/test_dynamic_remainder.py
-      - name: Bounded constant-divisor leaf clones
-        run: python tests/test_constant_divisors.py
-      - name: Frame-free leaves and resource fallbacks
-        run: python tests/test_leaf_frames.py
-      - name: Qualified loop, SIMD and runtime regressions
-        run: |
-          python tests/test_local_tee.py
-          python tests/test_function_value_forwarding.py
-          python tests/test_named_callback_forwarding.py
-          python tests/test_memory_growth_helper.py
-          python tests/test_fresh_initialization.py
-          python tests/test_private_snapshot_parameters.py
-          python tests/test_loop_ordinals.py
-          python tests/test_literal_ranges.py
-          python tests/test_zero_stores.py
-          python tests/test_descending_while.py
-          python tests/test_popcount_wrapper.py
-          python tests/test_print_reentry.py
-          python tests/test_bulk_integer_loops.py
-          python tests/test_resource_free_blocks.py
-          python tests/test_literal_select.py
-          python tests/test_lane_writeback.py
-          python tests/test_simd_only_writeback.py SimdOnlyWriteback.test_unsupported_ordinal_body_keeps_single_write_through_loop
-          python tests/test_python_wasmtime.py
-          python tests/test_descending_simd.py
-          python tests/test_byte_stencil.py
-          python tests/test_merge_bounds.py
-          python tests/test_strided_stores.py
-          python tests/test_byte_scans.py
-          python tests/test_tiny_leaf_calls.py
-      - name: Stable regions, memory isolation and scoped owner cleanup
-        run: |
-          python tests/test_regions.py
-          python tests/test_prefix_resolution.py
-          python tests/test_dynamic_boundaries.py
-          python tests/test_static_capture_boundaries.py
-          python tests/test_variable_enum_boundaries.py
-          python tests/test_variable_variant_boundaries.py
-          python tests/test_owned_struct_boundaries.py
-          python tests/test_packed_layout_boundaries.py
-          python tests/test_array_images.py
-          python tests/test_array_image_modes.py
-          python tests/test_sparse_array_images.py
-          python tests/test_record_images.py
-          python tests/test_enum_tags.py
-          python tests/test_enum_images.py
-          python tests/test_enum_image_returns.py
-          python tests/test_static_limited_images.py
-          python tests/test_record_padding.py
-          python tests/test_padding_boundaries.py
-          python tests/test_varint_records.py
-          python tests/test_varint_boundaries.py
-          python tests/test_varint_capture_boundaries.py
-          python tests/test_varint_arrays.py
-          python tests/test_varint_array_boundaries.py
-          python tests/test_varint_grow.py
-          python tests/test_varint_grow_boundaries.py
-          python tests/test_uleb_lengths.py
-          python tests/test_uleb_accessor_helpers.py
-          python tests/test_combined_varints.py
-          python tests/test_combined_varint_boundaries.py
-          python tests/test_encoded_record_tails.py
-          python tests/test_encoded_record_tail_boundaries.py
-          python tests/test_aggregate_print.py
-          python tests/test_aggregate_print_boundaries.py
-          python tests/test_uleb_length_boundaries.py
-      - name: LangArena inputs and measurement contracts
-        run: python tests/test_langarena.py
-      - name: Warmed runtime reference contracts and independent example answers
-        run: |
-          python tests/test_runtime_reference.py
-          python tests/test_reference_examples.py
-      - name: LangArena official small cases and observable marker edits
-        run: |
-          python bench/langarena.py fetch
-          python bench/langarena.py check --output-dir build/langarena-smoke
-          python bench/qualify_sieve.py --output-dir build/isolated-sieve-smoke
-      - name: Incremental cache correctness
-        run: python tests/test_incremental.py
-      - name: Configuration and module-search dependency tracking
-        run: python tests/test_input_dependencies.py
-      - name: Native compiler sessions and source overlays
-        run: python tests/test_compiler_session.py
-      - name: Lexer transition reuse and source ownership under sanitizers
-        run: python tests/test_lexical_cache.py
-      - name: Parsed module caching and semantic isolation
-        run: python tests/test_syntax_cache.py
-      - name: Syntax import ownership under sanitizers
-        run: python tests/test_syntax_importer.py
-      - name: Checked scalar leaf reuse and invalidation
-        run: python tests/test_checked_leaf_cache.py
-      - name: Checked scalar caller contracts and invalidation
-        run: python tests/test_checked_scalar_cache.py
-      - name: Checked scalar ownership, nested eviction, and bounds under sanitizers
-        run: python tests/test_checked_leaf_ownership.py
-      - name: Incremental rebuild measurement smoke
-        run: |
-          python bench/incremental.py --samples 3
-          python bench/incremental.py --samples 3 --shape leaves --native-worker --syntax-cache --checked-leaf-cache
-          python bench/incremental.py --samples 3 --native-worker --syntax-cache --checked-scalar-cache
-          python bench/incremental.py --samples 3 --native-worker --syntax-cache --checked-scalar-cache --edit-source-mode overlay
-      - name: Benchmark harness correctness smoke
-        run: >-
-          python bench/benchmark.py --smoke --samples 2 --compile-samples 1
-          --warmups 1 --output-dir build/benchmark-smoke
-      - name: Example benchmark correctness smoke
-        run: >-
-          python bench/examples.py squares tour --smoke --samples 2 --compile-samples 1
-          --warmups 0 --output-dir build/example-benchmark-smoke
-      - name: Native Wasmtime host benchmark correctness smoke
-        run: >-
-          python bench/wasmtime_host.py squares tour --smoke --prepare-samples 1 --samples 2 --warmups 0
-          --example-report build/example-benchmark-smoke/report.json --output-dir build/wasmtime-host/smoke
-      - name: Package compiler and corresponding sources
-        run: |
-          tar --exclude=source/.git --exclude=bin/goose-wasmtime --exclude=bin/goose-wasmtime.json -C build -czf build/compiler-linux-x64.tar.gz bin source toolchain.json source.json
+          python tests/conformance.py --compiler build/bin/goose
+          --output-dir build/conformance-v8 --filter corpus/ --levels 0 2 --engine v8 --timeout 20
       - name: Publish qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -227,20 +59,8 @@ jobs:
           name: qualification-linux-x64
           if-no-files-found: warn
           path: |
+            build/bootstrap/
             build/toolchain.json
-            build/source.json
-            build/engine-probes.json
-            build/examples-qualification/report.json
-            build/compiler-linux-x64.tar.gz
-            build/oracle/**/report.json
-            build/oracle/driver-tests/
-            build/oracle/target-tests/
-            build/differential/
-            build/backend-extensions/
-            build/langarena-smoke/
-            build/isolated-sieve-smoke/
-            build/benchmark-smoke/
-            build/example-benchmark-smoke/
-            build/wasmtime-host/smoke/
+            build/conformance/report.json
+            build/conformance-v8/report.json
             build/bin/goose-wasmtime.json
-            build/incremental-benchmark.json

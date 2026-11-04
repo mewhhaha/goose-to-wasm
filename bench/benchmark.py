@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure complete cold builds and validated runtime work across three backends.
+"""Measure complete cold builds and validated runtime work across Goose backends.
 
 Cold means the driver content cache is disabled and every compiler/linker is a
 fresh process; OS filesystem caches are not purged. Each executable receives
@@ -112,15 +112,21 @@ def metadata(args):
         wasmtime_version = importlib.metadata.version("wasmtime")
     except importlib.metadata.PackageNotFoundError:
         wasmtime_version = "not installed"
-    tracked_inputs = [ROOT / "scripts" / "goose_wasm.py", ROOT / "oracle" / "goose_wasm.py", ROOT / "scripts" / "run_wasm.mjs",
+    tracked_inputs = [ROOT / "scripts" / "goose_wasm.py", ROOT / "scripts" / "run_wasm.mjs",
                       ROOT / "scripts" / "run_wasmtime.py", ROOT / "bench" / "host_input.c", Path(__file__),
-                      Path(process.__file__)]
+                      Path(process.__file__), ROOT / "selfhost" / "bootstrap.py", ROOT / "toolchain.json",
+                      ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz",
+                      ROOT / "bootstrap" / "sources.tar.gz"]
+    tracked_inputs += sorted((ROOT / "selfhost").glob("*.goose"))
+    tracked_inputs += sorted((ROOT / "stdlib").rglob("*.goose"))
     return {"platform": platform.platform(), "machine": platform.machine(), "cpu": cpu,
             "supplied_machine_label": args.machine_label,
             "logical_cpu_count": os.cpu_count(), "cpu_affinity": affinity, "python": sys.version,
             "node": command_version([args.node, "-p", "JSON.stringify(process.versions)"]),
-            "native_cc": command_version([args.cc, "--version"]), "emcc": command_version([args.emcc, "--version"]),
-            "wasmtime": wasmtime_version, "toolchain_pin": json.loads((ROOT / "toolchain.json").read_text()),
+            "native_cc": command_version([args.cc, "--version"]),
+            "wasmtime": wasmtime_version,
+            "bootstrap_seed_sha256": {path.name: digest(path) for path in tracked_inputs if path.parent == ROOT / "bootstrap"},
+            "toolchain_pin": json.loads((ROOT / "toolchain.json").read_text()),
             "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_memory64": True, "wasm_tail_call": True,
                                  "wasm_exceptions": True, "wasm_simd": True, "wasm_bulk_memory": True,
                                  "wasm_multi_value": True, "wasm_threads": False, "wasm_relaxed_simd": False},
@@ -152,12 +158,10 @@ def render(report):
              f"Compiler SHA-256: `{meta['compiler_sha256']}`.", "",
              "## Measurement contract", "",
              "All backends use the same Goose source and `-O2` semantic passes. Direct emits binary Wasm without LLVM; "
-             "native C and C-Wasm additionally use their C compiler's `-O2`. Direct uses memory32. The C-Wasm profile "
-             "preserves Goose's LP64 C layout in one standalone memory64 binary, run unchanged on V8 and Wasmtime "
-             "through the same WASI64 service contract. These memory-layout differences are part of the compared targets.", "",
+             "native builds the Goose compiler's generated C with the selected C compiler at `-O2`. Direct uses memory32.", "",
              "Cold-build wall time includes driver startup, Goose frontend/emission, and any C compilation/linking. "
              "`--no-cache` disables the content cache. OS file caches are retained; this is a complete fresh-process build, "
-             "not a disk-cold experiment. Emscripten's installed system-library cache is reused. Sample order is deterministically shuffled.", "",
+             "not a disk-cold experiment. Sample order is deterministically shuffled.", "",
              f"Each runtime process performs {report['configuration']['kernel_warmups']} untimed kernel executions before "
              "one timed execution. The timed region excludes process startup, Wasm compilation/instantiation, input parsing, "
              "and output formatting. It includes two scalar FFI barriers and the clock-call boundary. Process wall time "
@@ -191,7 +195,6 @@ def render(report):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goose")
-    parser.add_argument("--emcc", default=os.environ.get("EMCC", "emcc"))
     parser.add_argument("--cc", default=os.environ.get("CC", "cc"))
     parser.add_argument("--node", default="node")
     parser.add_argument("--machine-label", help="optional independently observed hardware description, recorded as supplied")
@@ -201,7 +204,7 @@ def main():
     parser.add_argument("--kernel-warmups", type=int, default=2, help="untimed kernel executions inside every runtime process")
     parser.add_argument("--smoke", action="store_true", help="small correctness-only workloads; not performance evidence")
     parser.add_argument("--workloads", nargs="+", choices=tuple(WORKLOADS), default=list(WORKLOADS))
-    parser.add_argument("--backends", nargs="+", choices=("direct", "c-wasm", "native"), default=["direct", "c-wasm", "native"])
+    parser.add_argument("--backends", nargs="+", choices=("direct", "native"), default=["direct", "native"])
     parser.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["v8", "wasmtime"])
     parser.add_argument("--output-dir", type=Path, default=ROOT / "build" / "benchmark")
     args = parser.parse_args()
@@ -220,7 +223,7 @@ def main():
     if min(args.samples, args.compile_samples) < 5:
         report["warnings"].append("Fewer than five samples were collected in at least one category; treat dispersion and medians as preliminary.")
     report["warnings"].append("The direct backend supports a documented fragment of Goose. Results do not establish full-language parity or compilation of arbitrary programs.")
-    report["warnings"].append("Native and C-Wasm use different C compilers; engine tiering, host-call costs, machine load, and CPU frequency can affect results.")
+    report["warnings"].append("Native is Goose-generated C; engine tiering, host-call costs, machine load, and CPU frequency can affect results.")
     workloads = {}
     for name in args.workloads:
         settings = WORKLOADS[name]
@@ -240,9 +243,9 @@ def main():
         artifact = directory / ("program.bin" if backend == "native" else "program.wasm")
         stats = directory / "driver-stats.json"
         command = [sys.executable, ROOT / "scripts" / "goose_wasm.py", "build", workloads[name]["source"], "-o", artifact,
-                   "--backend", backend, "-O2", "--no-cache", "--offline", "--goose", args.goose, "--stats", stats]
-        if backend != "direct":
-            command += ["--c-source", ROOT / "bench" / "host_input.c", "--cc", args.cc, "--emcc", args.emcc]
+                   "--backend", backend, "-O2", "--no-cache", "--goose", args.goose, "--stats", stats]
+        if backend == "native":
+            command += ["--c-source", ROOT / "bench" / "host_input.c", "--cc", args.cc]
         try:
             _, seconds = run(command, directory=directory, name="build")
             data = {"seconds": seconds, "artifact": str(artifact), "bytes": artifact.stat().st_size,

@@ -3,7 +3,7 @@
 
 The whole-suite track retains all 50 upstream Goose workloads. The adapted
 track runs seven disclosed ports (six change storage), with identical source and
-official runtime inputs across native C, C-Wasm, and direct Wasm. Unavailable
+official runtime inputs across Goose native C and direct Wasm. Unavailable
 whole-suite targets remain visible; refusals are never successful timings.
 """
 
@@ -211,7 +211,9 @@ def tool_version(command: list[str]) -> dict:
 def metadata(args, manifest) -> dict:
     inputs = [Path(__file__), Path(process.__file__), DATA / "manifest.json", DATA / "test.json", DATA / "run.json",
               ROOT / "scripts" / "goose_wasm.py", ROOT / "oracle" / "goose_wasm.py",
-              ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py",
+              ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py", ROOT / "toolchain.json", ROOT / "selfhost" / "bootstrap.py",
+              ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz", ROOT / "bootstrap" / "sources.tar.gz",
+              *sorted((ROOT / "selfhost").glob("*.goose")), *sorted((ROOT / "stdlib").rglob("*.goose")),
               ROOT / "bench" / "host_input.c", *sorted((DATA / "ports").glob("*.goose"))]
     try:
         wasmtime = importlib.metadata.version("wasmtime")
@@ -242,17 +244,19 @@ def metadata(args, manifest) -> dict:
     return {"platform": platform.platform(), "python": sys.version, "cpu": cpu,
             "logical_cpu_count": os.cpu_count(), "supplied_machine_label": args.machine_label,
             "node": tool_version([args.node, "-p", "JSON.stringify(process.versions)"]),
-            "native_cc": tool_version([args.cc, "--version"]), "emcc": tool_version([args.emcc, "--version"]),
+            "native_cc": tool_version([args.cc, "--version"]),
             "wasmtime": wasmtime, "python_engine": python_engine, "compiler_sha256": sha256(args.goose),
             "installed_stdlib_sha256": {str(p): sha256(p) for p in sorted(stdlib.rglob("*.goose"))},
             "input_sha256": fingerprints,
             "upstream_revision": manifest["upstream"]["revision"],
+            "bootstrap_seed_sha256": {p.name: sha256(p) for p in
+                (ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz", ROOT / "bootstrap" / "sources.tar.gz")},
             "toolchain": json.loads((ROOT / "toolchain.json").read_text()),
             "environment_overrides": {key: os.environ.get(key) for key in
-                                      ("EM_NODE_JS", "EM_CONFIG", "EM_CACHE", "EMCC_CORES", "TMPDIR", "GOOSE_STDLIB")},
+                                      ("TMPDIR", "GOOSE_STDLIB")},
             "target_profiles": {"direct": "memory32; explicit bounds; no LLVM",
-                                "c-wasm": "LP64 memory64; WASI64; standard Wasm EH",
-                                "native": "native C; -O2 -fno-strict-aliasing -ffp-contract=off"}}
+
+                                "native": "Goose-generated C; -O2 -fno-strict-aliasing -ffp-contract=off"}}
 
 
 def execute(command, directory: Path, *, cwd: Path, stdin="", timeout=600) -> dict:
@@ -305,13 +309,13 @@ def execute(command, directory: Path, *, cwd: Path, stdin="", timeout=600) -> di
 
 def build_command(args, source, artifact, stats, *, port=False, cache=False):
     command = [sys.executable, ROOT / "scripts" / "goose_wasm.py", "build", source, "-o", artifact,
-               "--backend", args.current_backend, "--goose", args.goose, "--offline", "-O2", "--stats", stats]
+               "--backend", args.current_backend, "--goose", args.goose, "-O2", "--stats", stats]
     if not cache:
         command.append("--no-cache")
     else:
         command += ["--cache-dir", args.output_dir / "noop-cache"]
-    if args.current_backend != "direct":
-        command += ["--cc", args.cc, "--emcc", args.emcc]
+    if args.current_backend == "native":
+        command += ["--cc", args.cc]
         if port:
             command += ["--c-source", ROOT / "bench" / "host_input.c"]
     return command
@@ -331,8 +335,7 @@ def engine_command(args, artifact, engine, timing_path=None):
 
 def known_whole_refusal(backend: str, diagnostic: str) -> bool:
     lower = diagnostic.lower()
-    return (backend == "c-wasm" and "does not support threads or typed queues" in lower) or (
-        backend == "direct" and "wasm-direct:" in lower and any(fragment in lower for fragment in
+    return (backend == "direct" and "wasm-direct:" in lower and any(fragment in lower for fragment in
         ("only fixed-size owned arrays", "not supported", "not available", "currently accept", "currently return")))
 
 
@@ -383,7 +386,7 @@ def render_report(report) -> str:
              "Whole-suite results use all original Goose kernel sources. The only staging patch changes the "
              "marker destination from `/tmp/recompile_marker` to a relative file inside the isolated run directory. "
              "The original checkout is hash-verified and never edited. Whole-suite compile times include all 50 tasks.", "",
-             "The adapted track uses the same seven port sources across native C, direct Wasm, and C-Wasm. "
+             "The adapted track uses the same seven port sources across Goose native C and direct Wasm. "
              "Six ports replace growable storage; Fannkuch keeps its original fixed-array kernel. Official test/run inputs and checksums "
              "are unchanged. Preparation stays outside the clock; warmups mutate the same state used for measurement; "
              "the deterministic RNG is reset before measured iterations. Existing checksum work retains its original placement.", "",
@@ -674,12 +677,11 @@ def main():
     parser.add_argument("--upstream", type=Path, default=ROOT / "build" / "langarena-upstream")
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goose")
-    parser.add_argument("--emcc", default=os.environ.get("EMCC", "emcc"))
     parser.add_argument("--cc", default=os.environ.get("CC", "cc"))
     parser.add_argument("--node", default="node")
     parser.add_argument("--machine-label")
     parser.add_argument("--tracks", nargs="+", choices=("whole", "adapted"), default=["whole", "adapted"])
-    parser.add_argument("--backends", nargs="+", choices=("native", "c-wasm", "direct"), default=["native", "c-wasm", "direct"])
+    parser.add_argument("--backends", nargs="+", choices=("native", "direct"), default=["native", "direct"])
     parser.add_argument("--engines", nargs="+", choices=("v8", "wasmtime"), default=["v8", "wasmtime"])
     parser.add_argument("--profiles", nargs="+", choices=("test", "run"))
     parser.add_argument("--compile-samples", type=int)
@@ -705,7 +707,7 @@ def main():
         parser.error("sample counts must be positive")
     if min(args.compile_timeout, args.run_timeout) <= 0:
         parser.error("timeouts must be positive")
-    for name in ("cc", "emcc", "node"):
+    for name in ("cc", "node"):
         value = getattr(args, name)
         resolved = shutil.which(value)
         if resolved or Path(value).is_file():

@@ -1,0 +1,194 @@
+{
+  "schema": "goose-bootstrap-v2",
+  "status": "passed",
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/clang-23",
+        "--version"
+      ],
+      "exit_code": 0,
+      "seconds": 0.044133113988209516,
+      "stdout_sha256": "7b6f0e7fb622d3036a01251f091ec89e0240721d9538d61495472134a9084c63",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/clang-23",
+        "-std=gnu11",
+        "-O2",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/seed.c",
+        "-lm",
+        "-ldl",
+        "-pthread",
+        "-o",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/seed"
+      ],
+      "exit_code": 0,
+      "seconds": 17.94260613899678,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c63d35410a37c2e0fdd4d7e75927d5d9d2e76ab7535ca3483bf4eaa7eeb1b340"
+    },
+    {
+      "command": [
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/seed",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/sources/main.goose",
+        "--stdlib",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/stdlib",
+        "--target",
+        "native",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/compiler.c"
+      ],
+      "exit_code": 0,
+      "seconds": 316.9542240879964,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/clang-23",
+        "-std=gnu11",
+        "-O2",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/compiler.c",
+        "-lm",
+        "-ldl",
+        "-pthread",
+        "-o",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/goose"
+      ],
+      "exit_code": 0,
+      "seconds": 24.420354779984336,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "27c59b891f162bef10e91378eae0c5d806c36be12d65b0fb14fce36d78e860d5"
+    },
+    {
+      "command": [
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/goose",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/sources/main.goose",
+        "--stdlib",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/stdlib",
+        "--target",
+        "native",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/next-generation.c"
+      ],
+      "exit_code": 0,
+      "seconds": 146.1181234139949,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/clang-23",
+        "-std=gnu11",
+        "-O2",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/next-generation.c",
+        "-lm",
+        "-ldl",
+        "-pthread",
+        "-o",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/next-generation"
+      ],
+      "exit_code": 0,
+      "seconds": 22.648352359014098,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "291f6a7214fc00a81db9f947e5c3f6d5b5057ddc75c525d977b75469c8463e34"
+    },
+    {
+      "command": [
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/next-generation",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/sources/main.goose",
+        "--stdlib",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/stdlib",
+        "--target",
+        "native",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/c-only-bootstrap-23/third-generation.c"
+      ],
+      "exit_code": 0,
+      "seconds": 160.73090903402772,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "seed_c_sha256": "fcf32591a8f7c778fdb9f4357b3571a0e2e64165a83434b814714bfebb3f4637",
+  "cc": "/usr/bin/clang-23",
+  "cc_sha256": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+  "bootstrap_source_sha256": {
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
+    "sources.goose": "ad9a1f96ac3850ad4268795c605c3c0576ba604b9f816baa0f60db1e13de4140",
+    "region_plan.goose": "c6985be85725a9be4aea5e8e39c203f0e88b803520f66ffb84ac6461986fe17b",
+    "parser.goose": "939cf6b56235750616c2ca89a7e1772056bd69db2b878807ca9d11404591d733",
+    "optimizer.goose": "31a41f9246fdefe256bc04b1c2715a03c73ff6fe7092f53e6ab38d0381d325e9",
+    "model.goose": "9ce8d33f310b5d32a2a08a3bd77658c9a94aaf9c783365712fcdefac14ae29f5",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "driver.goose": "4a41188a615d154b096c733d7459805fb24d585e6d2aea4ac154e01a3958e645",
+    "codegen_c.goose": "7bce73fb1ddf20e0bf221aca83b2d9d308f16de47c6ef9e83c677b1f99521187",
+    "codegen.goose": "5fac6a1deadf9063e4c66db3d3b28cf10a979bd7865975580b18a1967af9fd63",
+    "checker_validation.goose": "c8b10654d7757d0542c9d48c3627897d4d063e8098c4e01dbcf13b962b58aec5",
+    "checker_rendering.goose": "ff90f9b9e0f1885581a70642767513d4ad03b62902b0a56c0334545bdcd235ca",
+    "checker_operations.goose": "ae4f1a44560f1f73321d8c8ee70cfac7b85038d1774cd49cf8ab956d5506ed6d",
+    "checker_lifetimes.goose": "e6fa71ab7358ce48aea5df86a9af9d9c35652a9e0f350de20e0617f96d302f90",
+    "checker.goose": "7bc0a5f3a31515660e01f0c2c751825e1d90ffd66ff2f5d6644c6a05c1e2ab5e"
+  },
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py": "274045b73104e666c850cf8ad96b99f70245cf42a6c823a55ea48f5d12256ef3",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.json": "c763cb7ea407f3a2514910bd4eedbf3b3bc1bb27d3a6cade5640879f77873aa5",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz": "3ed5e401b1d446c28160eccef8cce6c55e868c7b5dacc745b734467abd1a2b88",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz": "b47a75b28db5fcb80cf098f6396b04b30b2f8229d216a49ce01ea164470b58d5",
+    "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d"
+  },
+  "cc_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+  "source_kind": "current-goose-sources",
+  "source_sha256": {
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
+    "sources.goose": "ad9a1f96ac3850ad4268795c605c3c0576ba604b9f816baa0f60db1e13de4140",
+    "region_plan.goose": "c6985be85725a9be4aea5e8e39c203f0e88b803520f66ffb84ac6461986fe17b",
+    "parser.goose": "8b36e4859a3e4659e858892903d8af3ad0bb9698f0faadfea45325c8da75309f",
+    "optimizer.goose": "91a7282ba020ab700a0ed034d4d931290e344fe3244eb4c9f14a991553947347",
+    "model.goose": "03e2d9481d30ec3eb032c229e72df6d91e6ec48df8e055ca9a477bfb5ebb0fa6",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "driver.goose": "4a41188a615d154b096c733d7459805fb24d585e6d2aea4ac154e01a3958e645",
+    "codegen_c.goose": "ccd16540922168884c3e91deb08d5277abf7860ed2aa890a544b356f89fb8fbd",
+    "codegen.goose": "3aae7e5b5347ee18544909d6c0ffbfe13a142d07c8f306c042832ab32b646a9f",
+    "checker_validation.goose": "c8b10654d7757d0542c9d48c3627897d4d063e8098c4e01dbcf13b962b58aec5",
+    "checker_rendering.goose": "7b4e82cc8931dfb726b01144dd1ba914b098bd1fde3a816db42dc3c3657496f0",
+    "checker_operations.goose": "8e0935df3d292052a687e928116b4b252ad02963c8925eb60ff6f3afb74b1883",
+    "checker_lifetimes.goose": "f461d8b8667945f33339b302a885e4f7f3cac85c853462f48d397a79827592a1",
+    "checker.goose": "23d47997c4ae427074da589675f73cd92f3d19666707e81771151fb6a5ab4ebd"
+  },
+  "stdlib_sha256": {
+    "vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61"
+  },
+  "generated_c_sha256": "8fde140ff2215f0dfcc77923cff87c597b1a8244fd95d2ee709d4bf076002e19",
+  "executable_c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d",
+  "next_generation_c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d",
+  "third_generation_c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d",
+  "fixed_point": true,
+  "input_sha256_after": {
+    "/home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py": "274045b73104e666c850cf8ad96b99f70245cf42a6c823a55ea48f5d12256ef3",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.json": "c763cb7ea407f3a2514910bd4eedbf3b3bc1bb27d3a6cade5640879f77873aa5",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz": "3ed5e401b1d446c28160eccef8cce6c55e868c7b5dacc745b734467abd1a2b88",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz": "b47a75b28db5fcb80cf098f6396b04b30b2f8229d216a49ce01ea164470b58d5",
+    "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d"
+  },
+  "executable": "/dev/shm/goose-completion-work/c-only-bootstrap-23/goose",
+  "executable_sha256": "085b2d6e51e3ce7de613e23e56b10be6c90be45e5efd855d9fd9839ffa570540"
+}

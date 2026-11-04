@@ -1,219 +1,98 @@
-"""Run and merge the complete differential matrix in backend/level shards."""
+#!/usr/bin/env python3
+"""Run the independent frozen-contract suite against one Goose compiler."""
+from __future__ import annotations
+
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
-import signal
 from pathlib import Path
 import subprocess
 import sys
-import time
 
-BACKENDS = ("native", "c-wasm", "direct")
-LEVELS = (0, 2)
-ENGINES = ("v8", "wasmtime")
-REFUSALS = {"unsupported_varint_array", "unsupported_pointer_extern", "invalid_source"}
 ROOT = Path(__file__).resolve().parents[1]
+CONFORMANCE = ROOT / "tests" / "conformance.py"
+MANIFEST = ROOT / "tests" / "conformance" / "cases.json"
+ARCHIVE = ROOT / "tests" / "conformance" / "upstream.tar.gz"
 
 
 def digest(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def expected_configuration(backend, level, filter_text):
-    return {"backends": [backend], "levels": [level], "filter": filter_text,
-            "skip_refusals": not (backend == "direct" and level == 0)}
-
-
-def combine(reports, cases, configurations, compiler_hash, filtered):
-    assert set(reports) == {(backend, level) for backend in BACKENDS for level in LEVELS}
-    first = reports[("native", 0)]
-    expected = set()
-    for case in cases:
-        for level in LEVELS:
-            if level not in case.levels:
-                continue
-            for backend in BACKENDS:
-                engines = ENGINES
-                if backend == "native":
-                    engines = ("native",)
-                for engine in engines:
-                    expected.add((case.name, level, case.debug, backend, engine))
-
-    rows = []
-    references = {}
-    observed = set()
-    refusals = set()
-    shard_summaries = {}
-    for key, report in reports.items():
-        backend, level = key
-        configuration = configurations[key]
-        assert report["configuration"] == configuration, (key, report["configuration"], configuration)
-        for field in ("compiler_sha256", "toolchain", "platform", "python", "cases"):
-            assert report[field] == first[field], (key, field)
-        assert report["compiler_sha256"] == compiler_hash
-        assert report["failures"] == 0, (key, report["failures"])
-        assert report["observations"] == len(report["results"]), key
-        assert report["cases"] == len(cases)
-        for row in report["results"]:
-            assert row["status"] == "pass" and row["backend"] == backend, (key, row)
-            if row.get("kind") == "compile-refusal":
-                assert backend == "direct" and level == 0 and not filtered
-                assert row["case"] not in refusals, ("duplicate refusal", row["case"])
-                refusals.add(row["case"])
-            else:
-                assert row["optimization"] == level, (key, row)
-                observation = (row["case"], level, row["debug"], backend, row["engine"])
-                assert observation not in observed, ("duplicate", observation)
-                observed.add(observation)
-                reference = observation[:3]
-                if backend == "native":
-                    references[reference] = row["stdout"]
-                else:
-                    assert reference in references, ("missing native reference", observation)
-                    assert row["stdout"] == references[reference], ("native stdout mismatch", observation)
-            rows.append(row)
-        shard_summaries[f"{backend}-O{level}"] = {
-            "configuration": configuration,
-            "report_sha256": report["_report_sha256"],
-            "command": report["_command"],
-        }
-        if "command_logs" in report:
-            shard_summaries[f"{backend}-O{level}"]["command_logs"] = report["command_logs"]
-
-    assert observed == expected, ("missing", expected - observed, "extra", observed - expected)
-    if filtered:
-        assert not refusals
-    else:
-        assert refusals == REFUSALS, ("refusals", refusals)
-    assert first["cases"] == len(cases)
-    result = {key: value for key, value in first.items()
-              if key not in ("configuration", "results", "observations", "failures", "command_logs") and not key.startswith("_")}
-    result.update(observations=len(rows), failures=0, results=rows)
-    return result, shard_summaries
+    with Path(path).open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--goose", type=Path, default=ROOT / "build" / "bin" / "goose")
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--filter", default="", help="optional case-name substring for a reduced smoke run")
-    parser.add_argument("--jobs", type=int, default=6)
-    parser.add_argument("--compact-logs", action="store_true", help="archive command logs separately in each shard")
+    parser.add_argument("--filter", default="", help="optional case-id substring")
+    parser.add_argument("--jobs", type=int, default=1,
+                        help="accepted for old command lines; frozen conformance runs as one suite")
+    parser.add_argument("--levels", nargs="+", type=int, choices=(0, 2), default=[0, 2])
+    parser.add_argument("--engine", choices=("wasmtime", "v8"), default="wasmtime")
+    parser.add_argument("--host", type=Path, help="optional Goose Wasmtime host")
+    parser.add_argument("--cc", default="gcc")
+    parser.add_argument("--frontend-only", action="store_true")
     args = parser.parse_args()
-    if args.jobs < 1:
-        parser.error("--jobs must be at least 1")
 
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    combined_path = output / "report.json"
-    if combined_path.exists():
-        combined_path.unlink()
-    goose = args.goose.resolve()
-    sys.path.insert(0, str(ROOT / "tests"))
-    from run_differential import cases
+    run_name = datetime.now(timezone.utc).strftime("conformance-%Y%m%dT%H%M%S-%fZ")
+    run_output = output / run_name
+    compiler = args.goose.resolve()
+    inputs = [Path(__file__).resolve(), CONFORMANCE, MANIFEST, ARCHIVE, compiler,
+              ROOT / "toolchain.json", ROOT / "selfhost" / "bootstrap.py",
+              ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz",
+              ROOT / "bootstrap" / "sources.tar.gz"]
+    inputs += sorted((ROOT / "selfhost").glob("*.goose"))
+    inputs += sorted((ROOT / "stdlib").rglob("*.goose"))
+    fingerprints = {str(path.resolve()): digest(path) for path in inputs}
+    report_path = output / "report.json"
+    report = {"schema": "goose-compiler-qualification-v2", "status": "running",
+              "started_utc": datetime.now(timezone.utc).isoformat(),
+              "configuration": {"compiler": str(compiler), "output_dir": str(output),
+                  "filter": args.filter, "levels": args.levels, "engine": args.engine,
+                  "host": str(args.host.resolve()) if args.host else None,
+                  "frontend_only": args.frontend_only},
+              "input_sha256": fingerprints, "conformance_report": str(run_output / "report.json"),
+              "log_file": str(output / "conformance.log"),
+              "failures": []}
+    report_path.write_text(json.dumps(report, indent=2) + "\n")
 
-    selected = [case for case in cases() if args.filter in case.name]
-    if not selected:
-        parser.error("no cases selected")
-
-    inputs = [ROOT / "tests/run_differential.py", ROOT / "bench/command_logs.py", Path(__file__).resolve(), goose]
-    inputs += [ROOT / name for name in ("scripts/goose_wasm.py", "oracle/goose_wasm.py",
-               "scripts/run_wasm.mjs", "scripts/run_wasmtime.py", "bench/host_input.c", "toolchain.json")]
-    inputs += sorted((ROOT / "tests/fixtures").glob("*.goose"))
-    inputs += sorted((ROOT / "tests/fixtures").glob("*.json"))
-    inputs += [path for path in (goose.parent / "source.json", goose.parent / "toolchain.json") if path.exists()]
-    inputs += sorted((goose.parent / "stdlib").glob("*.goose"))
-    source_hashes = {str(path): digest(path) for path in inputs}
-    started = time.monotonic()
-    reports = {}
-    configurations = {}
-    failures = []
-    jobs = []
-
-    shards = [(backend, level) for backend in BACKENDS for level in LEVELS]
+    command = [sys.executable, CONFORMANCE, "--compiler", compiler, "--output-dir", run_output,
+               "--manifest", MANIFEST, "--stdlib", ROOT / "stdlib", "--filter", args.filter,
+               "--levels", *map(str, args.levels), "--engine", args.engine, "--cc", args.cc]
+    if args.host:
+        command += ["--host", args.host.resolve()]
+    if args.frontend_only:
+        command.append("--frontend-only")
+    report["command"] = list(map(str, command))
     try:
-        for start in range(0, len(shards), args.jobs):
-            batch = shards[start:start + args.jobs]
-            for backend, level in batch:
-                key = (backend, level)
-                name = f"{backend}-O{level}"
-                shard_output = output / "shards" / name
-                shard_output.mkdir(parents=True, exist_ok=True)
-                report_path = shard_output / "report.json"
-                if report_path.exists():
-                    report_path.unlink()
-                configuration = expected_configuration(backend, level, args.filter)
-                configurations[key] = configuration
-                command = [sys.executable, str(ROOT / "tests/run_differential.py"),
-                           "--goose", str(goose), "--backends", backend,
-                           "--levels", str(level), "--output-dir", str(shard_output)]
-                if args.compact_logs:
-                    command.append("--compact-logs")
-                if args.filter:
-                    command += ["--filter", args.filter]
-                if configuration["skip_refusals"]:
-                    command.append("--skip-refusals")
-                log_path = output / f"{name}.log"
-                log = log_path.open("w")
-                try:
-                    process = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
-                except BaseException:
-                    log.close()
-                    raise
-                jobs.append((key, process, log, command, report_path))
+        with (output / "conformance.log").open("w") as log:
+            result = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=False)
+        report["exit_code"] = result.returncode
+        report["log_sha256"] = digest(output / "conformance.log")
+    except OSError as error:
+        report["exit_code"] = -1
+        report["failures"].append(str(error))
 
-            for key, process, log, command, report_path in jobs:
-                status = process.wait()
-                log.close()
-                print(f"{key[0]} O{key[1]} exit {status}", flush=True)
-                if status:
-                    failures.append((key, status))
-                if not report_path.exists():
-                    failures.append((key, "missing report"))
-                    continue
-                report = json.loads(report_path.read_text())
-                report["_report_sha256"] = digest(report_path)
-                report["_command"] = command
-                reports[key] = report
-            jobs = []
-    finally:
-        for _key, process, log, _command, _report_path in jobs:
-            if process.poll() is None:
-                if args.compact_logs:
-                    process.send_signal(signal.SIGINT)
-                else:
-                    process.terminate()
-            process.wait()
-            if not log.closed:
-                log.close()
-
-    if failures:
-        failure_report = {"schema": "goose-compiler-qualification-failure-v1", "status": "fail",
-                          "failures": failures, "qualification_execution": {
-                              "input_sha256": source_hashes, "shards": {
-                                  f"{backend}-O{level}": {
-                                      "report_sha256": shard["_report_sha256"],
-                                      "command": shard["_command"],
-                                      "command_logs": shard.get("command_logs"),
-                                  } for (backend, level), shard in reports.items()}}}
-        combined_path.write_text(json.dumps(failure_report, indent=2) + "\n")
-    assert not failures, failures
-    compiler_hash = digest(goose)
-    report, shard_summaries = combine(reports, selected, configurations, compiler_hash, bool(args.filter))
-    assert source_hashes == {str(path): digest(path) for path in inputs}
-    comparisons = sum(row["backend"] != "native" and row.get("kind") != "compile-refusal"
-                      for row in report["results"])
-    report["qualification_execution"] = {
-        "method": "Concurrent backend/optimization shards; exact coverage and native stdout compared after all shards pass.",
-        "wall_seconds": time.monotonic() - started,
-        "jobs": args.jobs,
-        "shards": shard_summaries,
-        "native_stdout_comparisons": comparisons,
-        "input_sha256": source_hashes,
-    }
-    combined_path.write_text(json.dumps(report, indent=2) + "\n")
-    print(report["observations"], "observations passed with full native-output comparison", flush=True)
-    return 0
+    child_path = run_output / "report.json"
+    if child_path.is_file():
+        child = json.loads(child_path.read_text())
+        report["conformance_status"] = child.get("status")
+        report["conformance_summary"] = child.get("summary")
+        report["conformance_report_sha256"] = digest(child_path)
+    after = {path: digest(path) for path in fingerprints}
+    report["input_sha256_after"] = after
+    if after != fingerprints:
+        report["failures"].append("qualification inputs changed during the run")
+    report["finished_utc"] = datetime.now(timezone.utc).isoformat()
+    report["status"] = "passed"
+    if report["exit_code"] != 0 or report["failures"] or report.get("conformance_status") != "passed":
+        report["status"] = "failed"
+    report_path.write_text(json.dumps(report, indent=2) + "\n")
+    print(report["status"], report.get("conformance_summary", {}), "report:", report_path)
+    return int(report["status"] != "passed")
 
 
 if __name__ == "__main__":

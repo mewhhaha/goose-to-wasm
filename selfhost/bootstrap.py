@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Build the Goose implementation with a SHA-pinned, separate C++ oracle."""
+"""Build the Goose compiler from a checked-in, reproducible C bootstrap seed."""
 from __future__ import annotations
+
 import argparse
+import gzip
 import hashlib
 import json
 import os
@@ -12,7 +14,7 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-HERE = Path(__file__).resolve().parent
+SEED = ROOT / 'bootstrap'
 
 
 def digest(path):
@@ -26,92 +28,117 @@ def save(path, value):
     temporary.replace(path)
 
 
-def command(argv, directory, name, timeout=900):
-    argv = list(map(str, argv))
-    started = time.monotonic()
-    result = subprocess.run(argv, cwd=ROOT, stdin=subprocess.DEVNULL,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
-    (directory / (name + '.stdout')).write_bytes(result.stdout)
-    (directory / (name + '.stderr')).write_bytes(result.stderr)
-    return {'command': argv, 'exit_code': result.returncode,
-            'seconds': time.monotonic() - started,
-            'stdout_sha256': hashlib.sha256(result.stdout).hexdigest(),
-            'stderr_sha256': hashlib.sha256(result.stderr).hexdigest(),
-            'stderr_tail': result.stderr[-4000:].decode(errors='replace')}
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--oracle', type=Path, default=ROOT / 'build/next-runtime-hills/final/bin/goose')
-    parser.add_argument('--output-dir', type=Path, default=Path('/dev/shm/goose-selfhost-work/bootstrap'))
-    parser.add_argument('--cc', default=os.environ.get('CC', 'gcc'))
-    parser.add_argument('--check', action='store_true', help='typecheck the complete implementation without building')
+    parser.add_argument('--source-dir', type=Path, default=ROOT / 'selfhost')
+    parser.add_argument('--stdlib', type=Path, default=ROOT / 'stdlib')
+    parser.add_argument('--output-dir', type=Path, default=ROOT / 'build' / 'selfhost')
+    parser.add_argument('--cc', default=os.environ.get('CC', 'clang'))
+    parser.add_argument('--verify', action='store_true', help='require identical next-generation C output')
+    parser.add_argument('--seed-only', action='store_true', help='build the frozen seed, without compiling current sources')
+    parser.add_argument('--timeout', type=float, default=900)
     args = parser.parse_args()
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=False)
-    pin = json.loads((HERE / 'oracle.json').read_bytes())
-    oracle = args.oracle.resolve()
-    if digest(oracle) != pin['binary_sha256']:
-        parser.error('oracle binary differs from selfhost/oracle.json')
-    for name, expected in pin['files'].items():
-        if digest(ROOT / name) != expected:
-            parser.error('C++ oracle source changed: ' + name)
-    sources = sorted(HERE.glob('*.goose'))
-    stdlib = oracle.parent / 'stdlib'
-    if not stdlib.is_dir():
-        stdlib = ROOT / 'build/bin/stdlib'
-    library_sources = sorted(stdlib.rglob('*.goose'))
-    inputs = {str(path): digest(path) for path in [Path(__file__), HERE / 'oracle.json', *sources, *library_sources, oracle]}
-    snapshots = out / 'sources'
-    snapshots.mkdir()
-    for path in [Path(__file__), HERE / 'oracle.json', *sources]:
-        shutil.copyfile(path, snapshots / path.name)
-    shutil.copytree(stdlib, out / 'stdlib', ignore=shutil.ignore_patterns('__pycache__'))
-    report = {'schema': 'goose-selfhost-bootstrap-v1', 'status': 'running',
-              'method': 'The pinned C++ compiler bootstraps the Goose-written compiler through native C. '
-                        'The produced implementation does not delegate compilation back to this oracle. '
-                        'Bootstrap success does not establish language, Wasm-byte or runtime parity.',
-              'oracle_sha256': pin['binary_sha256'], 'source_files': len(sources),
-              'source_lines': sum(len(path.read_bytes().splitlines()) for path in sources),
-              'input_sha256': inputs, 'commands': []}
-    save(out / 'report.json', report)
-    source = out / 'goose-selfhost.c'
-    executable = out / 'goose-selfhost'
-    try:
-        invocation = [oracle, snapshots / 'main.goose', '--stdlib', out / 'stdlib', '--target', 'native', '--standalone', '-O0']
-        if args.check:
-            invocation.append('--check')
-        else:
-            invocation += ['-o', source]
-        row = command(invocation, out, 'oracle')
+    report = {'schema': 'goose-bootstrap-v2', 'status': 'running', 'commands': []}
+
+    def command(argv, name):
+        argv = list(map(str, argv))
+        started = time.monotonic()
+        result = subprocess.run(argv, cwd=ROOT, stdin=subprocess.DEVNULL,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=args.timeout)
+        (out / (name + '.stdout')).write_bytes(result.stdout)
+        (out / (name + '.stderr')).write_bytes(result.stderr)
+        row = {'command': argv, 'exit_code': result.returncode,
+               'seconds': time.monotonic() - started,
+               'stdout_sha256': hashlib.sha256(result.stdout).hexdigest(),
+               'stderr_sha256': hashlib.sha256(result.stderr).hexdigest()}
         report['commands'].append(row)
         save(out / 'report.json', report)
-        if row['exit_code']:
-            raise RuntimeError('bootstrap typechecking failed: ' + row['stderr_tail'])
-        if not args.check:
-            cc = shutil.which(args.cc)
-            if not cc:
-                raise RuntimeError('native C compiler not found: ' + args.cc)
-            inputs[str(Path(cc).resolve())] = digest(Path(cc).resolve())
-            row = command([cc, '-std=gnu11', '-O0', source, '-lm', '-ldl', '-pthread', '-o', executable], out, 'cc')
-            report['commands'].append(row)
-            if row['exit_code']:
-                raise RuntimeError('bootstrap C compilation failed: ' + row['stderr_tail'])
-            report.update(executable=str(executable), executable_sha256=digest(executable),
-                          generated_c_sha256=digest(source))
-        after = {path: digest(path) for path in inputs}
-        if after != inputs:
-            raise RuntimeError('implementation changed during bootstrap; freeze writers before rebuilding')
-        report.update(status='passed', input_sha256_after=after)
+        if result.returncode:
+            raise RuntimeError(name + ' failed: ' + result.stderr[-4000:].decode(errors='replace'))
+        return result.stdout
+
+    try:
+        pin = json.loads((SEED / 'seed.json').read_bytes())
+        compressed = SEED / 'seed.c.gz'
+        bundle = SEED / 'sources.tar.gz'
+        if digest(compressed) != pin['compressed_sha256']:
+            raise RuntimeError('bootstrap seed checksum differs')
+        if digest(bundle) != pin['source_bundle_sha256']:
+            raise RuntimeError('bootstrap source bundle checksum differs')
+        c_source = out / 'seed.c'
+        c_source.write_bytes(gzip.decompress(compressed.read_bytes()))
+        if digest(c_source) != pin['c_sha256']:
+            raise RuntimeError('decompressed bootstrap seed checksum differs')
+        cc = shutil.which(args.cc)
+        if not cc:
+            raise RuntimeError('C compiler not found: ' + args.cc)
+        cc = Path(cc).resolve()
+        report.update(seed_c_sha256=pin['c_sha256'], cc=str(cc), cc_sha256=digest(cc),
+                      bootstrap_source_sha256=pin['source_sha256'],
+                      input_sha256={str(p): digest(p) for p in [Path(__file__), SEED / 'seed.json', compressed, bundle, cc]})
+        report['cc_version'] = command([cc, '--version'], 'cc-version').decode(errors='replace')
+        seed_executable = out / 'seed'
+        command([cc, '-std=gnu11', '-O2', c_source, '-lm', '-ldl', '-pthread', '-o', seed_executable], 'build-seed')
+        executable = out / 'goose'
+        if args.seed_only:
+            shutil.copyfile(seed_executable, executable)
+            executable.chmod(0o755)
+            report['source_kind'] = 'frozen-bootstrap-seed'
+        else:
+            sources = out / 'sources'
+            sources.mkdir()
+            for path in sorted(args.source_dir.resolve().glob('*.goose')):
+                shutil.copyfile(path, sources / path.name)
+            if not (sources / 'main.goose').is_file():
+                raise RuntimeError('compiler source directory has no main.goose')
+            library = out / 'stdlib'
+            shutil.copytree(args.stdlib.resolve(), library)
+            source_hashes = {p.name: digest(p) for p in sources.glob('*.goose')}
+            report.update(source_kind='current-goose-sources', source_sha256=source_hashes,
+                          stdlib_sha256={str(p.relative_to(library)): digest(p) for p in library.rglob('*.goose')})
+            generated = out / 'compiler.c'
+            invocation = [sources / 'main.goose', '--stdlib', library, '--target', 'native', '-O0']
+            if source_hashes == pin['source_sha256']:
+                shutil.copyfile(c_source, generated)
+                report['seed_matches_sources'] = True
+                shutil.copyfile(seed_executable, executable)
+                executable.chmod(0o755)
+            else:
+                command([seed_executable, *invocation, '-o', generated], 'compile-goose')
+                command([cc, '-std=gnu11', '-O2', generated, '-lm', '-ldl', '-pthread', '-o', executable], 'build-goose')
+            report['generated_c_sha256'] = digest(generated)
+            report['executable_c_sha256'] = digest(generated)
+            if args.verify:
+                following = out / 'next-generation.c'
+                command([executable, *invocation, '-o', following], 'verify-selfhost')
+                report['next_generation_c_sha256'] = digest(following)
+                if digest(generated) != digest(following):
+                    # A changed backend can legitimately emit different C from
+                    # the older seed. Compare two generations of that backend.
+                    second = out / 'next-generation'
+                    command([cc, '-std=gnu11', '-O2', following, '-lm', '-ldl', '-pthread', '-o', second], 'build-next-generation')
+                    third = out / 'third-generation.c'
+                    command([second, *invocation, '-o', third], 'verify-next-generation')
+                    report['third_generation_c_sha256'] = digest(third)
+                    if digest(following) != digest(third):
+                        raise RuntimeError('self-hosted C output differs between generations')
+                    shutil.copyfile(second, executable)
+                    executable.chmod(0o755)
+                    report['executable_c_sha256'] = digest(following)
+                report['fixed_point'] = True
+        report['input_sha256_after'] = {path: digest(path) for path in report['input_sha256']}
+        if report['input_sha256_after'] != report['input_sha256']:
+            raise RuntimeError('bootstrap inputs changed during the build')
+        report.update(status='passed', executable=str(executable), executable_sha256=digest(executable))
     except BaseException as error:
         report.update(status='failed', error=type(error).__name__ + ': ' + str(error))
         save(out / 'report.json', report)
         print(report['error'], file=sys.stderr)
         return 1
     save(out / 'report.json', report)
-    print(json.dumps({key: report[key] for key in ('status', 'source_files', 'source_lines')}, indent=2))
-    if not args.check:
-        print(executable)
+    print(executable)
     return 0
 
 
