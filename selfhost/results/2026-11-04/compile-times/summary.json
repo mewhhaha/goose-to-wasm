@@ -1,0 +1,589 @@
+{
+  "schema": "goose-selfhost-compile-times-summary-v1",
+  "source_commit": "ce77b03d97c90f1abaf0750f09d4ddde8d3ae39a",
+  "status": "passed",
+  "build_samples": 3,
+  "build_medians": [
+    {
+      "profile": "cpp-release",
+      "samples": 3,
+      "total_s": 60.673224524,
+      "configure_s": 0.611430336,
+      "compile_link_s": 60.068921062
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "samples": 3,
+      "total_s": 2.335811381,
+      "goose_to_c_s": 0.412359306,
+      "compile_link_s": 1.898852473
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "samples": 3,
+      "total_s": 9.464964935000001,
+      "goose_to_c_s": 0.412555499,
+      "compile_link_s": 9.05212451
+    }
+  ],
+  "program_samples_per_cell": 21,
+  "program_warmups_per_cell": 2,
+  "program_cells": 60,
+  "qualification_passes": 60,
+  "program_medians": [
+    {
+      "profile": "cpp-release",
+      "example": "squares",
+      "level": 0,
+      "median_ms": 1.760352,
+      "min_ms": 1.6479979999999999,
+      "max_ms": 1.870461,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "squares",
+      "level": 0,
+      "median_ms": 1.198953,
+      "min_ms": 1.151071,
+      "max_ms": 1.316727,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "squares",
+      "level": 0,
+      "median_ms": 1.097169,
+      "min_ms": 1.058745,
+      "max_ms": 1.180938,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "squares",
+      "level": 2,
+      "median_ms": 1.754701,
+      "min_ms": 1.634943,
+      "max_ms": 3.582531,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "squares",
+      "level": 2,
+      "median_ms": 1.1790340000000001,
+      "min_ms": 1.12362,
+      "max_ms": 1.31827,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "squares",
+      "level": 2,
+      "median_ms": 1.091909,
+      "min_ms": 1.06594,
+      "max_ms": 1.2270670000000001,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "tour",
+      "level": 0,
+      "median_ms": 3.5930519999999997,
+      "min_ms": 3.428007,
+      "max_ms": 3.762204,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "tour",
+      "level": 0,
+      "median_ms": 2.963453,
+      "min_ms": 2.899992,
+      "max_ms": 3.0717090000000002,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "tour",
+      "level": 0,
+      "median_ms": 1.715837,
+      "min_ms": 1.686962,
+      "max_ms": 1.865702,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "tour",
+      "level": 2,
+      "median_ms": 3.6886940000000004,
+      "min_ms": 3.475117,
+      "max_ms": 3.864198,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "tour",
+      "level": 2,
+      "median_ms": 3.030531,
+      "min_ms": 2.960047,
+      "max_ms": 3.17726,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "tour",
+      "level": 2,
+      "median_ms": 1.7458339999999999,
+      "min_ms": 1.690819,
+      "max_ms": 1.8428190000000002,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "functions",
+      "level": 0,
+      "median_ms": 13.690699,
+      "min_ms": 13.47592,
+      "max_ms": 14.275803,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "functions",
+      "level": 0,
+      "median_ms": 20.047723,
+      "min_ms": 19.976318,
+      "max_ms": 20.442154000000002,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "functions",
+      "level": 0,
+      "median_ms": 7.390753,
+      "min_ms": 7.290543,
+      "max_ms": 7.589822000000001,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "functions",
+      "level": 2,
+      "median_ms": 19.606053,
+      "min_ms": 19.255945999999998,
+      "max_ms": 20.189954,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "functions",
+      "level": 2,
+      "median_ms": 21.0591,
+      "min_ms": 20.950693,
+      "max_ms": 21.31181,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "functions",
+      "level": 2,
+      "median_ms": 7.666589,
+      "min_ms": 7.569033,
+      "max_ms": 7.960057,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "errors",
+      "level": 0,
+      "median_ms": 7.528595,
+      "min_ms": 7.366396,
+      "max_ms": 7.666918,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "errors",
+      "level": 0,
+      "median_ms": 9.166133,
+      "min_ms": 9.123432000000001,
+      "max_ms": 9.562147,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "errors",
+      "level": 0,
+      "median_ms": 3.740893,
+      "min_ms": 3.667253,
+      "max_ms": 3.815515,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "errors",
+      "level": 2,
+      "median_ms": 8.248056,
+      "min_ms": 8.022616,
+      "max_ms": 8.567864,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "errors",
+      "level": 2,
+      "median_ms": 9.176513,
+      "min_ms": 9.12194,
+      "max_ms": 9.243501,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "errors",
+      "level": 2,
+      "median_ms": 3.741033,
+      "min_ms": 3.694414,
+      "max_ms": 3.877914,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "sieve",
+      "level": 0,
+      "median_ms": 6.156843,
+      "min_ms": 5.907618,
+      "max_ms": 6.732539,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "sieve",
+      "level": 0,
+      "median_ms": 6.573096,
+      "min_ms": 6.487323,
+      "max_ms": 6.662917,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "sieve",
+      "level": 0,
+      "median_ms": 2.848544,
+      "min_ms": 2.78331,
+      "max_ms": 3.116153,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "sieve",
+      "level": 2,
+      "median_ms": 6.104163,
+      "min_ms": 5.927637000000001,
+      "max_ms": 6.347777,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "sieve",
+      "level": 2,
+      "median_ms": 6.5842670000000005,
+      "min_ms": 6.478236,
+      "max_ms": 6.641857,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "sieve",
+      "level": 2,
+      "median_ms": 2.8693630000000003,
+      "min_ms": 2.804841,
+      "max_ms": 2.9588639999999997,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "sorting",
+      "level": 0,
+      "median_ms": 15.916718,
+      "min_ms": 15.66033,
+      "max_ms": 16.113481999999998,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "sorting",
+      "level": 0,
+      "median_ms": 23.542699,
+      "min_ms": 23.405087,
+      "max_ms": 23.623633,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "sorting",
+      "level": 0,
+      "median_ms": 8.659498,
+      "min_ms": 8.559408,
+      "max_ms": 8.799496,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "sorting",
+      "level": 2,
+      "median_ms": 25.033436,
+      "min_ms": 24.824729,
+      "max_ms": 25.329871999999998,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "sorting",
+      "level": 2,
+      "median_ms": 24.420970999999998,
+      "min_ms": 24.326712,
+      "max_ms": 24.536852,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "sorting",
+      "level": 2,
+      "median_ms": 8.884557,
+      "min_ms": 8.80727,
+      "max_ms": 9.084768,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "sudoku",
+      "level": 0,
+      "median_ms": 7.0690800000000005,
+      "min_ms": 6.845745,
+      "max_ms": 7.351769,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "sudoku",
+      "level": 0,
+      "median_ms": 7.672389,
+      "min_ms": 7.605051,
+      "max_ms": 7.769043,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "sudoku",
+      "level": 0,
+      "median_ms": 3.214381,
+      "min_ms": 3.128928,
+      "max_ms": 3.39771,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "sudoku",
+      "level": 2,
+      "median_ms": 7.4402870000000005,
+      "min_ms": 7.264152,
+      "max_ms": 7.609007999999999,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "sudoku",
+      "level": 2,
+      "median_ms": 7.747202,
+      "min_ms": 7.694502,
+      "max_ms": 7.840018000000001,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "sudoku",
+      "level": 2,
+      "median_ms": 3.2519519999999997,
+      "min_ms": 3.162632,
+      "max_ms": 3.339289,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "maze",
+      "level": 0,
+      "median_ms": 8.180967,
+      "min_ms": 7.990486,
+      "max_ms": 8.480217999999999,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "maze",
+      "level": 0,
+      "median_ms": 9.902396000000001,
+      "min_ms": 9.814267999999998,
+      "max_ms": 10.050898,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "maze",
+      "level": 0,
+      "median_ms": 3.9179899999999996,
+      "min_ms": 3.85447,
+      "max_ms": 3.988023,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "maze",
+      "level": 2,
+      "median_ms": 10.334698,
+      "min_ms": 10.201865,
+      "max_ms": 10.520312,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "maze",
+      "level": 2,
+      "median_ms": 9.960035000000001,
+      "min_ms": 9.891765,
+      "max_ms": 10.194261,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "maze",
+      "level": 2,
+      "median_ms": 3.9520450000000005,
+      "min_ms": 3.898794,
+      "max_ms": 4.071512,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "vm",
+      "level": 0,
+      "median_ms": 7.2357890000000005,
+      "min_ms": 7.025026,
+      "max_ms": 7.473801000000001,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "vm",
+      "level": 0,
+      "median_ms": 10.009789999999999,
+      "min_ms": 9.927463,
+      "max_ms": 10.107204999999999,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "vm",
+      "level": 0,
+      "median_ms": 3.866903,
+      "min_ms": 3.787572,
+      "max_ms": 3.955752,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "vm",
+      "level": 2,
+      "median_ms": 7.205279,
+      "min_ms": 7.017511,
+      "max_ms": 7.623667,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "vm",
+      "level": 2,
+      "median_ms": 10.060767,
+      "min_ms": 9.974904,
+      "max_ms": 10.129047,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "vm",
+      "level": 2,
+      "median_ms": 3.914964,
+      "min_ms": 3.833179,
+      "max_ms": 4.081,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "life",
+      "level": 0,
+      "median_ms": 7.029735,
+      "min_ms": 6.7997179999999995,
+      "max_ms": 7.2616570000000005,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "life",
+      "level": 0,
+      "median_ms": 7.631431,
+      "min_ms": 7.539246,
+      "max_ms": 7.722304,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "life",
+      "level": 0,
+      "median_ms": 3.181648,
+      "min_ms": 3.1239079999999997,
+      "max_ms": 3.2837729999999996,
+      "samples": 21
+    },
+    {
+      "profile": "cpp-release",
+      "example": "life",
+      "level": 2,
+      "median_ms": 7.852092,
+      "min_ms": 7.666117,
+      "max_ms": 8.270477999999999,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O0",
+      "example": "life",
+      "level": 2,
+      "median_ms": 7.627574,
+      "min_ms": 7.581858,
+      "max_ms": 7.758814,
+      "samples": 21
+    },
+    {
+      "profile": "goose-gcc-O2",
+      "example": "life",
+      "level": 2,
+      "median_ms": 3.189022,
+      "min_ms": 3.11939,
+      "max_ms": 3.283131,
+      "samples": 21
+    }
+  ],
+  "geometric_mean_speedup": {
+    "goose-gcc-O0-source-O0": 0.8924475623818039,
+    "goose-gcc-O2-source-O0": 1.9839472923043728,
+    "goose-gcc-O0-source-O2": 1.0056877481965114,
+    "goose-gcc-O2-source-O2": 2.2350807031414344
+  },
+  "speedup_method": "Geometric mean of per-example C++ median divided by the selected Goose compiler median; fresh-process source-to-Wasm times.",
+  "validation": {
+    "qualified_artifacts_unchanged": 60,
+    "goose_build_profiles_byte_identical": 20,
+    "rebuilt_cpp_matches": 30
+  },
+  "scope": "Independent C++-bootstrapped first-pass compiler, not self-compilation. Broader O0 behavior gate remains409/950; different feature and optimizer coverage.",
+  "evidence_omissions": "Object files, dependency-library build intermediates, and binaries from the rejected initial harness are omitted. System libraries/toolchains are external and identified. Wasmtime host is in parent ../evidence.tar.gz as tools/goose-wasmtime with SHA pinned in report."
+}

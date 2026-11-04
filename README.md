@@ -46,4 +46,4 @@ Native C uses generic GCC `-O2`; [separate tuned controls](docs/NATIVE_PERFORMAN
 
 The direct backend is developed against Goose’s C backend as an oracle. Differential tests compile the same programs through direct Wasm, C-to-Wasm, and native C, then compare output, exit status, diagnostics, and independently calculated answers. Both Wasm paths run on V8 and Wasmtime. The [guide](docs/GUIDE.md#correctness-qualification) covers the tests and their limits.
 
-An experimental [Goose-written compiler rewrite](selfhost/README.md) is also in progress.
+An experimental [Goose-written compiler rewrite](selfhost/README.md) is also in progress. See its [compile-time comparison](selfhost/results/2026-11-04/compile-times/README.md).

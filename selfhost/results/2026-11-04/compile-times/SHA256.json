@@ -1,0 +1,20 @@
+{
+  "schema": "goose-compile-times-evidence-v1",
+  "files": {
+    "README.md": "c1f61fffe0324e547c13445e2cd5be22abb7f24f2e05987aecd05f6ff1b82fcc",
+    "selfhost/benchmark.py": "551c8cfae3b0e36f3ae628f73ce69fc9cb430f041ed50e20d82f60fac215451b",
+    "selfhost/results/2026-11-04/compile-times/README.md": "db6d6898c945e633dcb6f88bec4a809ded34316acacbb3aa6bae424e0fd458bf",
+    "selfhost/results/2026-11-04/compile-times/report.json": "7892b67ca85ce29ef8ace84ec01ce441d8295850b4cf41ca7016373324559c90",
+    "selfhost/results/2026-11-04/compile-times/summary.json": "730bb8697fe1e77f881d9448a0a1fd5d1628e8add2cf34dd6c0b31dec3702015",
+    "selfhost/results/2026-11-04/compile-times/evidence.tar.gz": "0ef04b4944f0ffe14cc77a91a82c792c7b57f90b16dc02bc28e42891a89923f8",
+    "selfhost/results/2026-11-04/compile-times/source-snapshot-audit.json": "e65e8bdd70f0190b00639ad051063cf1931d7e90035bd98a2cafea7d7579e89d",
+    "selfhost/results/2026-11-04/compile-times/archive-audit.json": "51c95875eb13fa5d823e40305a27f322a0caafead4abf1eb7db8c5adcb8175dd"
+  },
+  "archive_inventory": {
+    "path": "inventory.json",
+    "sha256": "9f1450459ffe178216e9c400219aa254420da1bbeed05ef422f686a3d53ec153",
+    "members": 6692,
+    "hard_links": 6231
+  },
+  "note": "Archive omits clean-build object/dependency intermediates and initial rejected-harness binaries. System libraries and toolchains are identified rather than bundled. Wasmtime host comes from parent first-pass evidence bundle. Identical bytes with equal permission modes use standard tar hard links."
+}
