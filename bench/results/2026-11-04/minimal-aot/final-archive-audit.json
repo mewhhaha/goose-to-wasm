@@ -1,0 +1,316 @@
+{
+  "auditor_development": "Failed checker-development attempts and source snapshots are preserved privately in build/functions-native-hills/final-audit. They exposed checker assumptions, not data or runtime failures; only final exit-zero results support this audit.",
+  "bindings": {
+    "AUDIT.md": "5638b969642e156773e2cfa2aa99691e3365e34feb5b3b5ff3de58303a0a8861",
+    "README.md": "785d643b4adac0a8b299194ed79714ff8574056bbb83d4c52ecb01b9954ed872",
+    "archives.json.gz": "be32861036843e01d488dd638eef70ea1d5ae583f5742220949c70a69cddb42c",
+    "reproduction/audit_results.py": "3c702705fd155000361448395dee30dca73ad1a71c0fe3c800c004102e94e2a0",
+    "reproduction/verify.py": "980d606051fe34bd3a2563168f61e31baeced49de2dc099d7e334010c97ab405",
+    "retention.json": "3156c76439a3e36a81a44351f142e58bf995fa35c1e160143bada4265a1c0bbd",
+    "semantic-verification.json": "d9160d88f006ae4b8d56e1c06e411ed382ebe5289cbaaba2eed7067cd37aa7cb",
+    "verification.json": "f3b36be551df9f3b60a5a24bbe447174c874725a9c28fdfcceb86f9f42c4ab60"
+  },
+  "byte_verification": {
+    "command": [
+      "python",
+      "bench/results/2026-11-04/minimal-aot/reproduction/verify.py",
+      "bench/results/2026-11-04/minimal-aot"
+    ],
+    "elapsed_seconds": 16.041683881019708,
+    "exit_status": 0,
+    "finished_utc": "2026-11-04T11:00:48.138661+00:00",
+    "public_bytecode_caches": 0,
+    "read_only_public_files_unchanged": true,
+    "result": {
+      "archives": {
+        "../leaf-and-loads/../../2026-11-03/fresh-construction/evidence-000.tar.gz": 92,
+        "../leaf-and-loads/../../2026-11-03/fresh-construction/evidence-001.tar.gz": 33,
+        "../leaf-and-loads/../../2026-11-03/functions-calls/evidence-000.tar.gz": 279,
+        "../leaf-and-loads/../../2026-11-03/functions-calls/evidence-001.tar.gz": 384,
+        "../leaf-and-loads/../../2026-11-03/functions-calls/evidence-002.tar.gz": 235,
+        "../leaf-and-loads/../../2026-11-03/functions-calls/evidence-003.tar.gz": 287,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-000.tar.gz": 339,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-001.tar.gz": 341,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-002.tar.gz": 361,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-003.tar.gz": 260,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-004.tar.gz": 376,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-005.tar.gz": 331,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-006.tar.gz": 312,
+        "../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-007.tar.gz": 49,
+        "../leaf-and-loads/../../2026-11-03/merge-bounds/evidence-000.tar.gz": 3,
+        "../leaf-and-loads/../../2026-11-03/merge-bounds/evidence-001.tar.gz": 2,
+        "../leaf-and-loads/../../2026-11-03/runtime-stencil/evidence-000.tar.gz": 36,
+        "../leaf-and-loads/../../2026-11-03/runtime-stencil/evidence-001.tar.gz": 27,
+        "../leaf-and-loads/../../2026-11-03/strided-stores/evidence-000.tar.gz": 6,
+        "../leaf-and-loads/../../2026-11-03/strided-stores/evidence-001.tar.gz": 6,
+        "../leaf-and-loads/../byte-scans/evidence-000.tar.gz": 8,
+        "../leaf-and-loads/evidence-000.tar.gz": 71,
+        "../leaf-and-loads/evidence-001.tar.gz": 35,
+        "../leaf-and-loads/evidence-002.tar.gz": 2,
+        "evidence-000.tar.gz": 1821,
+        "evidence-001.tar.gz": 555,
+        "evidence-002.tar.gz": 1042,
+        "evidence-003.tar.gz": 4,
+        "evidence-004.tar.gz": 152,
+        "evidence-005.tar.gz": 284
+      },
+      "compacted_payloads": 68900,
+      "identity_only": 0,
+      "retained_inputs": 24678,
+      "sealed": true,
+      "status": "passed"
+    },
+    "started_utc": "2026-11-04T11:00:32.097004+00:00",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "f3b36be551df9f3b60a5a24bbe447174c874725a9c28fdfcceb86f9f42c4ab60"
+  },
+  "claims": {
+    "causal_limit": "Compiler8c09 and benchmark programs are unchanged. The selected package changes host implementation, feature profile, SDK and AOT metadata; improvement does not isolate one mechanism. Functions is closer to native, not equivalent. Broad cohort variation and slower minimal cells remain visible.",
+    "cohort_boundary": "61 paired rounds and 15-sample broad process cells remain separate. Current ten native example programs ran freshly; 9573 compiler-reference observations are explicitly historical.",
+    "matched_primary_pool_functions": {
+      "ratios": {
+        "default_aa_over_default": {
+          "mad": 0.02856513048809639,
+          "median": 0.9941505447117112,
+          "median_ci95": [
+            0.9822737705504927,
+            1.010878591759886
+          ],
+          "n": 61
+        },
+        "subset_full_over_default": {
+          "mad": 0.029252937300437876,
+          "median": 0.9652168119239597,
+          "median_ci95": [
+            0.9512361497759997,
+            0.9831315577078289
+          ],
+          "n": 61
+        },
+        "subset_min_over_default": {
+          "mad": 0.023767947579157678,
+          "median": 0.7639772392154588,
+          "median_ci95": [
+            0.7568674215120045,
+            0.7790044311957878
+          ],
+          "n": 61
+        },
+        "subset_min_over_native": {
+          "mad": 0.05621308657370094,
+          "median": 1.1583336709445762,
+          "median_ci95": [
+            1.150156695049639,
+            1.167902688798875
+          ],
+          "n": 61
+        },
+        "subset_min_over_subset_full": {
+          "mad": 0.028956583185630436,
+          "median": 0.788839224565107,
+          "median_ci95": [
+            0.7830436416208578,
+            0.7960466243325935
+          ],
+          "n": 61
+        }
+      },
+      "wall_us": {
+        "default": {
+          "mad": 22.57299999999998,
+          "median": 1001.584,
+          "n": 61
+        },
+        "default_aa": {
+          "mad": 25.567000000000007,
+          "median": 997.637,
+          "n": 61
+        },
+        "native": {
+          "mad": 9.376999999999953,
+          "median": 666.447,
+          "n": 61
+        },
+        "subset_full": {
+          "mad": 23.925000000000068,
+          "median": 971.677,
+          "n": 61
+        },
+        "subset_min": {
+          "mad": 18.424000000000092,
+          "median": 771.968,
+          "n": 61
+        }
+      }
+    },
+    "qualification_boundary": "11484 fresh full-host rows cover both backends;1914 fresh minimal rows cover direct only. The interrupted3828-unit all-backend minimal attempt contributes zero passing runtime rows. Selected ten C-to-Wasm example artifacts were separately qualified."
+  },
+  "final_seal": {
+    "expected_manifest_entries": 25,
+    "expected_public_files": 26,
+    "method": "Add only final-archive-audit.json to the verified pre-audit inventory, then write SHA256.json last. The manifest excludes itself. This supplemental audit and auditor sit outside their own immutable archives to avoid hash cycles."
+  },
+  "finished_utc": "2026-11-04T11:02:39.720954+00:00",
+  "pre_audit_manifest": {
+    "sha256": "13cd81ee727c058cdec30fd3be6b76ede7eb280199bf8968d9f0917675be432e",
+    "utf8_exact": "{\n  \"AUDIT.md\": \"5638b969642e156773e2cfa2aa99691e3365e34feb5b3b5ff3de58303a0a8861\",\n  \"README.md\": \"785d643b4adac0a8b299194ed79714ff8574056bbb83d4c52ecb01b9954ed872\",\n  \"archives.json.gz\": \"be32861036843e01d488dd638eef70ea1d5ae583f5742220949c70a69cddb42c\",\n  \"delivery-execution.json\": \"b8bf4db2b175424323d144aedbeefa2bfee099746dcd4018a5dd98638eabcfb3\",\n  \"evidence-000.tar.gz\": \"7e777de8bc42c34bccace08ee9c98f3de8145ad0a3c66cfa6a572d9781a1f7b8\",\n  \"evidence-001.tar.gz\": \"e44bf3dbf6d3d1318fff94c7a7a5868f94d158d73acfc0e9c7a35321b498b767\",\n  \"evidence-002.tar.gz\": \"a5ea3aee6f62d25ab6a9a0b2771061dda4458df5118ec7564fe9547f1dd8adc8\",\n  \"evidence-003.tar.gz\": \"49587eff1a7c3c59793a569c780a8ce0c0af614f95be271382526ea1f2ede2f9\",\n  \"evidence-004.tar.gz\": \"d6c1a76c3e33d87492046e5a6df42f7ece21ba6e7b57f10a82e54de8969878c1\",\n  \"evidence-005.tar.gz\": \"c48143039cf0d4e2cceb51749280bf23215ec096c26a426b21f4c1bb7cbaa354\",\n  \"examples.json\": \"8cd412199e375a243eea8704391a3dd278889b12deac6ce002f7bd2090c8dd84\",\n  \"functions-paired.json\": \"3fa46009d9005853d9ec54959b59f8a3c9a1a6673e9e25fa03bc99f7263c2a74\",\n  \"host.json\": \"941f657fc6b5e68b21d7d7939d73818f504976afd0c702a61ae73e8687cbf88b\",\n  \"lifecycle.json\": \"18fb235dfe4e810d3735de29c5fc11ab796e97373093b9abaa554269f47c8439\",\n  \"qualification.json\": \"af1bbb1d5fbf2f49ecc506eb229b632cb2dd42db4b209b670fe124f5d3537d88\",\n  \"reproduction/audit_results.py\": \"3c702705fd155000361448395dee30dca73ad1a71c0fe3c800c004102e94e2a0\",\n  \"reproduction/bounded_reuse.py\": \"f333c45f6174d7e5aa7ab812866f89646c369218a704912f47359b38cd070e12\",\n  \"reproduction/bundle.py\": \"347c4cbe7ddfeb5ee259393ccaccb01ed57538c2636519a626c34d7da458ce7d\",\n  \"reproduction/spec.json\": \"0220e9f03712321504905ae839fb04a0d9a99a779ce7950a5da94bb6802b09d2\",\n  \"reproduction/verify.py\": \"980d606051fe34bd3a2563168f61e31baeced49de2dc099d7e334010c97ab405\",\n  \"retention.json\": \"3156c76439a3e36a81a44351f142e58bf995fa35c1e160143bada4265a1c0bbd\",\n  \"selection.json\": \"52b6157b79e3bb318093772727e479b2c2ac2037bcad635e68c74b9bcc6fc1ad\",\n  \"semantic-verification.json\": \"d9160d88f006ae4b8d56e1c06e411ed382ebe5289cbaaba2eed7067cd37aa7cb\",\n  \"verification.json\": \"f3b36be551df9f3b60a5a24bbe447174c874725a9c28fdfcceb86f9f42c4ab60\"\n}\n"
+  },
+  "presentation": "All22 current document/chart/pointer bindings match retained bytes.14 rounded numeric table rows match raw host medians. Current examples/host/lifecycle pointers target this release; LangArena and warmed-target pointers retain their separately collected prior release. Recorded visual review covers four retained previews; no broader visual-inspection claim is made by this audit.",
+  "public_claim_bindings": {
+    "bindings": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "d0fa39647b8c2a8fda476f9d53a515381e0b2a2e30b4f3725c9026a02b755683"
+      },
+      {
+        "path": "README.md",
+        "sha256": "039e964a40a1a4474fcc57fdc32e7faed820edf517a7347115cf8d7ba8a6b0a7"
+      },
+      {
+        "path": "bench/charts/compilation.svg",
+        "sha256": "14d039dc520401e9d55d70f7cf1f8f14537a12111ac7d747a55b324c52f8d005"
+      },
+      {
+        "path": "bench/charts/examples-compilation.svg",
+        "sha256": "4e8bb2b389750fbc57dcbf3784667de4eb1f580fd1c2b07fd0eddd9926ef6be2"
+      },
+      {
+        "path": "bench/charts/examples-entry.svg",
+        "sha256": "de88db1f938456b13d22025290ea94a4ee9702e237f9cec0e5a71c0126136c7a"
+      },
+      {
+        "path": "bench/charts/examples-python-runtime.svg",
+        "sha256": "5e2e28a409951dcd0d22952e7e366b615041192623467538247e13800cc1c922"
+      },
+      {
+        "path": "bench/charts/examples-runtime.svg",
+        "sha256": "852930f9f7fd68be36a8d514663f1193d41a735cb8b071328ec199c2022f5a65"
+      },
+      {
+        "path": "bench/charts/runtime-lifecycle.svg",
+        "sha256": "2b6cdc7f1635e1b31494ec28b6d748af154ed8606fad844b26ace049c242d9c0"
+      },
+      {
+        "path": "bench/charts/runtime-targets.svg",
+        "sha256": "19802d9a65dd90808190402bc624db6ba5cc659d4f982568282875afb4cf2293"
+      },
+      {
+        "path": "bench/charts/runtime.svg",
+        "sha256": "5c7611fb60193c5fd65b67a5ae9a76b7ea4e5d9f994913dd1162c758ba1b4593"
+      },
+      {
+        "path": "bench/charts/wasmtime-host-c-wasm.svg",
+        "sha256": "d834355f3d881c9839cbfac272621eb9580ad83c8f6e2653b59138628fc9ba8d"
+      },
+      {
+        "path": "bench/charts/wasmtime-host-preparation.svg",
+        "sha256": "4dc0c4227f7f6ffdc66da74fb4a4ddf51f9570c4c22a61e66cd88f3198e92d29"
+      },
+      {
+        "path": "bench/charts/wasmtime-host-runtime.svg",
+        "sha256": "664493e1e7e3882f90b11d2dd559b1516eb3ff8513e7d423db82129015dafcd0"
+      },
+      {
+        "path": "bench/examples.md",
+        "sha256": "dfa1a88b232f7ac1ee67e31b51c9c5817ad0c7480cb0040b7f3046e7778509aa"
+      },
+      {
+        "path": "bench/results/examples-latest.json",
+        "sha256": "7c774816c4550d10a83dee0d325ca87a4d01127f5a72a47726ff30feca79073c"
+      },
+      {
+        "path": "bench/results/latest.json",
+        "sha256": "4bf7af8dbd3c9236093ff319a8d2829f16a7d831dd2621b8cc058a64382d2c3d"
+      },
+      {
+        "path": "bench/results/runtime-lifecycle-latest.json",
+        "sha256": "90717ad9edc6027817dbfe1cafe7a2826ef9d66c0de005f4f09c37e1b65eafeb"
+      },
+      {
+        "path": "bench/results/runtime-targets-latest.json",
+        "sha256": "c967395afcd4b7cc9396b33c6ca9a3848a814c6df5b661343305e96c6c79e227"
+      },
+      {
+        "path": "bench/results/wasmtime-host-latest.json",
+        "sha256": "1f592f2a1c2dce74e4ba7a4e1c542a62c9785fe34efd2b11c2f3ad296fa429a4"
+      },
+      {
+        "path": "bench/wasmtime-host.md",
+        "sha256": "b4ea43fd97bd46159580a51e7045d0c3d06f73ffd0e3a78dbc7e8fb6fa7a8d45"
+      },
+      {
+        "path": "docs/GUIDE.md",
+        "sha256": "77dc33b779639891d699040497c400374bb6441cb9ef0d6051601c67fcefcd65"
+      },
+      {
+        "path": "docs/PERFORMANCE_PLAN.md",
+        "sha256": "a8c998fb94938bf3e5981278909ac51ecfdbb089e30972ad4696fcf80efab1c8"
+      }
+    ],
+    "status": "passed"
+  },
+  "publication": "bench/results/2026-11-04/minimal-aot",
+  "retention": {
+    "boundary": "Current declared input graph is retained without omissions. Historical oracle rows are reused, not rerun; their 1010 native binaries are additionally verified through member projections of eight already selected archives. No old alias namespace or unrelated report tree is imported.",
+    "bounded_prior_archives_selected": 24,
+    "current_documents": 19,
+    "current_input_edges": 24678,
+    "exact_prior_allowlist": 25,
+    "historical_native_member_archives": 8,
+    "historical_native_oracle_members_independently_hashed": 1010,
+    "identity_only_omissions": 0,
+    "nested_raw_log_payloads": 68900,
+    "new_archives": 6,
+    "new_compressed_bytes": 173112478,
+    "physical_archives": 30
+  },
+  "review_scope": "Independent retained-byte and result-semantic audit; no compiler, guest, benchmark or engine was executed.",
+  "schema": "goose-minimal-aot-independent-final-audit-v1",
+  "semantic_verification": {
+    "command": [
+      "python",
+      "bench/results/2026-11-04/minimal-aot/reproduction/audit_results.py"
+    ],
+    "elapsed_seconds": 5.112442614044994,
+    "exit_status": 0,
+    "finished_utc": "2026-11-04T10:59:41.043012+00:00",
+    "result": {
+      "bootstrap_intervals_recomputed": 20,
+      "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+      "delivery_phases": 4,
+      "examples_rows": 1600,
+      "fresh_full_host_observations": 11484,
+      "fresh_minimal_direct_observations": 1914,
+      "fresh_unit_checks": 78,
+      "full_host_sha256": "9c387aac2f4057e007f50cf421a7c7895c4c9a02b9496ca2fb45cd1291b27bf8",
+      "historical_native_payloads_verified": 1010,
+      "host_preparation_cells": 60,
+      "host_preparation_rows": 300,
+      "host_rows": 1760,
+      "host_runtime_cells": 110,
+      "identity_only": 0,
+      "lifecycle_rows": 960,
+      "limits": [
+        "Compiler/native/V8/Python differential rows are verified historical evidence, not rerun.",
+        "Minimal full-corpus support is direct only; the selected ten C-to-Wasm examples are independently qualified.",
+        "61-round paired and 15-sample broad cohorts remain separate.",
+        "Byte inventory, all archive members, nested raw logs and other retained artifacts are checked by verify.py.",
+        "Chart layout is reviewed visually outside this arithmetic checker."
+      ],
+      "minimal_host_sha256": "b3460d7f5dbae2abe3177fddcce4cfbdffa428824e723c65d00bfa8bffd2498e",
+      "paired_rounds_per_cell": 61,
+      "paired_rows": 1260,
+      "prior_compiler_observations": 9573,
+      "prior_input_aliases": 13,
+      "prior_input_pins": 1487,
+      "retained_lifecycle_cache_files": 672,
+      "rounded_table_rows": 14,
+      "semantic_payload_objects": 44,
+      "status": "passed",
+      "unqualified_all_backend_attempt_primary_rows": 0
+    },
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "d9160d88f006ae4b8d56e1c06e411ed382ebe5289cbaaba2eed7067cd37aa7cb"
+  },
+  "status": "passed"
+}

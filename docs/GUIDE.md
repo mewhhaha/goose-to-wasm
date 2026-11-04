@@ -55,11 +55,7 @@ C-compiler paths.
 
 ## Optional native Wasmtime host
 
-On Linux x86_64, build with C++20 `clang++`. The builder checks the official
-Wasmtime 50.0.1 SDK archive and links its full static library, with section
-collection and static C++ runtimes. Both ordinary execution and AOT preparation
-remain available. `--linkage python-shared` instead links the installed pinned
-Python package's library; benchmark reports record both library identities.
+On Linux x86_64, build with C++20 `clang++`. The builder checks the official Wasmtime 50.0.1 SDK archive and links its full static library, with section collection and static C++ runtimes. `--linkage python-shared` instead links the installed pinned Python package's library.
 
 ```sh
 python scripts/build_wasmtime_host.py
@@ -68,12 +64,19 @@ build/bin/goose-wasmtime --compile build/squares.wasm build/squares.cwasm
 build/bin/goose-wasmtime --precompiled build/squares.cwasm
 ```
 
-Normal execution enables Wasmtime's SDK compilation cache by default. Use
-`--no-cache` for an uncached run, or `--cache-config FILE` to select a cache
-configuration. If the default cache cannot be loaded, execution continues
-without it; an invalid explicit configuration is an error. Precompiled artifacts
-contain native code and depend on the Wasmtime version and CPU; load only
-trusted artifacts you produced for the target. [Wasmtime documents serialization](https://docs.wasmtime.dev/examples-serialize.html).
+Normal execution enables Wasmtime's SDK compilation cache by default. Use `--no-cache` for an uncached run, or `--cache-config FILE` to select a configuration. If the default cache cannot be loaded, execution continues without it; an invalid explicit configuration is an error.
+
+For a smaller AOT-only host, build the companion and prepare an artifact with the matching profile:
+
+```sh
+python scripts/build_wasmtime_host.py --runtime-only
+build/bin/goose-wasmtime --aot-profile minimal --compile build/squares.wasm build/squares-minimal.cwasm
+build/bin/goose-wasmtime-aot --precompiled build/squares-minimal.cwasm
+```
+
+The companion supports numeric and linear-memory modules, including SIMD, tail calls, memory64, bulk memory and multivalue. It excludes GC, reference and function reference types, exceptions, components, concurrency and JIT compilation. Existing default-profile artifacts are incompatible; rebuild them with the minimal profile. The full host can also load those artifacts with `--aot-profile minimal --precompiled`.
+
+Precompiled artifacts contain native code and depend on the Wasmtime version, profile and CPU; load only trusted artifacts produced for the target. [Wasmtime documents serialization](https://docs.wasmtime.dev/examples-serialize.html). The [host measurements](../bench/wasmtime-host.md) include preparation costs and timing boundaries.
 
 For repeated requests, keep a native runtime resident:
 

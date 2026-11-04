@@ -20,7 +20,7 @@ BACKENDS = ("direct", "c-wasm", "native")
 
 
 def input_paths(examples, goose):
-    paths = [CATALOG, Path(__file__), ROOT / "bench/benchmark.py", ROOT / "toolchain.json",
+    paths = [CATALOG, Path(__file__), ROOT / "bench/benchmark.py", Path(common.process.__file__), ROOT / "toolchain.json",
              ROOT / "scripts/goose_wasm.py", ROOT / "oracle/goose_wasm.py",
              ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py"]
     for example in examples:

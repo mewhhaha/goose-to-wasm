@@ -24,6 +24,7 @@ import subprocess
 import sys
 import time
 
+import process
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKLOADS = {
@@ -112,7 +113,8 @@ def metadata(args):
     except importlib.metadata.PackageNotFoundError:
         wasmtime_version = "not installed"
     tracked_inputs = [ROOT / "scripts" / "goose_wasm.py", ROOT / "oracle" / "goose_wasm.py", ROOT / "scripts" / "run_wasm.mjs",
-                      ROOT / "scripts" / "run_wasmtime.py", ROOT / "bench" / "host_input.c", Path(__file__)]
+                      ROOT / "scripts" / "run_wasmtime.py", ROOT / "bench" / "host_input.c", Path(__file__),
+                      Path(process.__file__)]
     return {"platform": platform.platform(), "machine": platform.machine(), "cpu": cpu,
             "supplied_machine_label": args.machine_label,
             "logical_cpu_count": os.cpu_count(), "cpu_affinity": affinity, "python": sys.version,
@@ -129,7 +131,7 @@ def metadata(args):
 
 def run(command, *, directory, stdin="", timeout=300, name="run"):
     started = time.perf_counter_ns()
-    result = subprocess.run([str(value) for value in command], cwd=ROOT, input=stdin, text=True,
+    result = process.run([str(value) for value in command], cwd=ROOT, input=stdin, text=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, check=False)
     seconds = (time.perf_counter_ns() - started) / 1e9
     directory.mkdir(parents=True, exist_ok=True)

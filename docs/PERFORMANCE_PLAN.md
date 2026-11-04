@@ -16,9 +16,8 @@ The historical [audit](WASM_AUDIT.md) covers all ten examples. Leaf frames, bit 
 
 ## Native-host comparison
 
-The [native Wasmtime host comparison](../bench/wasmtime-host.md) measures uncached compilation, SDK caching, precompiled loading and resident sessions alongside the Python host.
-Preparation and startup matter for one-off runs; the relative process times vary by workload. Host, callback and I/O differences also affect the comparison, which does not bound steady-state code generation. Serial compilation
-was generally slower and remains a control rather than the default.
+The [native Wasmtime host comparison](../bench/wasmtime-host.md) measures uncached compilation, SDK caching, precompiled loading and resident sessions alongside the Python host. A minimal AOT companion reduces host size and reduced paired Functions process time by 23.6%; it requires trusted artifacts prepared with its matching profile. Preparation and startup matter for one-off runs. Host, callback and I/O differences also affect the comparison. Serial compilation was generally slower and remains a control rather than the default.
+The Functions compiler projection removed 56 copies and 921 Wasm bytes without a measurable runtime gain, so it was rejected. Lazy input v3 was also rejected after the primary workload remained flat. The [minimal AOT record](../bench/results/2026-11-04/minimal-aot/README.md) retains the experiments, corrected timing method and tradeoffs.
 
 ## Language and host coverage
 

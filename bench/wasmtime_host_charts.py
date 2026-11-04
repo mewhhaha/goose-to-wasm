@@ -28,6 +28,8 @@ PREPARATION_PROFILES = (
     ("parallel", "Parallel compilation", "#087f8c"),
     ("serial", "Serial compilation", "#ce862a"),
 )
+MINIMAL_RUNTIME_PROFILE = ("precompiled-minimal", "Minimal AOT", "#7461a8")
+MINIMAL_PREPARATION_PROFILE = ("minimal", "Minimal AOT profile", "#7461a8")
 
 
 def require(condition, message):
@@ -60,12 +62,18 @@ def check_summary(summary, samples, count, label):
     milliseconds(summary)
 
 
-def validate(report):
+def validate(report, *, allow_smoke=False):
     require(report["schema"] == "goose-wasmtime-host-benchmarks-v1", "Unexpected report schema")
-    require(report["status"] == "passed", "Only a passed full report can produce charts")
     config = report["configuration"]
-    require(not config["smoke"] and config["samples"] == 15 and config["prepare_samples"] == 5,
-            "Charts require 15 runtime and five preparation samples per cell")
+    require(report["status"] == "passed" or (allow_smoke and report["status"] == "passed-smoke"),
+            "Only a passed full report can produce charts")
+    if not allow_smoke:
+        require(not config["smoke"] and config["samples"] == 15 and config["prepare_samples"] == 5,
+                "Charts require 15 runtime and five preparation samples per cell")
+    samples = config["samples"]
+    prepare_samples = config["prepare_samples"]
+    require(type(samples) is int and samples > 0 and type(prepare_samples) is int and prepare_samples > 0,
+            "Invalid sample counts")
     require(isinstance(config["warmups"], int) and config["warmups"] >= 0, "Invalid warmup count")
     pins = report["input_sha256"]
     require(bool(pins), "Measurement report has no input fingerprints")
@@ -90,27 +98,50 @@ def validate(report):
     require(digest(input_path(host["library"])) == host["library_sha256"], "Wasmtime library bytes changed")
     for path, sha in host["input_sha256"].items():
         require(path in pins and pins[path] == sha, "Host build inputs differ from measurement pins: " + path)
+    minimal = bool(config.get("aot_host"))
+    if minimal:
+        companion = report["aot_host_build"]
+        require(companion["runtime_only"] and companion["aot_profiles"] == ["minimal"]
+                and companion["supported_modes"] == ["precompiled"], "Expected a minimal AOT-only companion")
+        require(companion["version"] == host["version"] and "minimal" in host["aot_profiles"],
+                "Preparation host and companion profiles differ")
+        for path, expected in ((input_path(config["aot_host"]), companion["host_sha256"]),
+                               (input_path(companion["library"]), companion["library_sha256"])):
+            require(str(path) in pins and pins[str(path)] == expected and digest(path) == expected,
+                    "Unpinned or changed minimal companion input: " + str(path))
+        require(str(input_path(config["aot_host"]).with_suffix(".json")) in pins,
+                "Minimal companion build metadata is not fingerprinted")
+        for path, sha in companion["input_sha256"].items():
+            require(path in pins and pins[path] == sha, "Minimal companion build inputs differ from measurement pins: " + path)
 
     runtime = index_rows(report["runtime_summary"], ("name", "backend", "mode"))
     cells = {(name, backend, mode) for name in names for backend in BACKENDS for mode in MODES}
     cells.update((name, "native", "native-C") for name in names)
-    require(set(runtime) == cells and len(runtime) == 90, "Expected exactly 90 runtime summary cells")
+    count = 90
+    if minimal:
+        cells.update((name, backend, "precompiled-minimal") for name in names for backend in BACKENDS)
+        count = 110
+    require(set(runtime) == cells and len(runtime) == count, f"Expected exactly {count} runtime summary cells")
     raw_runtime = index_rows(report["observations"], ("name", "backend", "mode", "phase", "sample"))
-    expected_runtime = {(*cell, "measure", sample) for cell in cells for sample in range(15)}
+    expected_runtime = {(*cell, "measure", sample) for cell in cells for sample in range(samples)}
     expected_runtime.update((*cell, "warmup", sample) for cell in cells for sample in range(config["warmups"]))
     require(set(raw_runtime) == expected_runtime, "Incomplete or extra raw runtime observations")
     for row in raw_runtime.values():
         require(row["exit_code"] == 0 and row["stdout_sha256"] == goldens[row["name"]], "Unqualified runtime observation")
     for key, row in runtime.items():
-        samples = [item["wall_seconds"] for item in report["observations"]
+        values = [item["wall_seconds"] for item in report["observations"]
                    if (item["name"], item["backend"], item["mode"]) == key and item["phase"] == "measure"]
-        check_summary(row["wall_seconds"], samples, 15, str(key))
+        check_summary(row["wall_seconds"], values, samples, str(key))
 
     preparation = index_rows(report["preparation_summary"], ("name", "backend", "configuration"))
     prep_cells = {(name, backend, configuration) for name in names for backend in BACKENDS for configuration in ("parallel", "serial")}
-    require(set(preparation) == prep_cells and len(preparation) == 40, "Expected exactly 40 preparation summary cells")
+    count = 40
+    if minimal:
+        prep_cells.update((name, backend, "minimal") for name in names for backend in BACKENDS)
+        count = 60
+    require(set(preparation) == prep_cells and len(preparation) == count, f"Expected exactly {count} preparation summary cells")
     raw_prep = index_rows(report["preparation"], ("name", "backend", "configuration", "sample"))
-    require(set(raw_prep) == {(*cell, sample) for cell in prep_cells for sample in range(5)}, "Incomplete or extra preparation observations")
+    require(set(raw_prep) == {(*cell, sample) for cell in prep_cells for sample in range(prepare_samples)}, "Incomplete or extra preparation observations")
     artifacts = set()
     for row in raw_prep.values():
         require(digest(input_path(row["artifact"])) == row["sha256"], "Prepared native artifact changed: " + row["artifact"])
@@ -120,9 +151,9 @@ def validate(report):
     require(set(qualified) == artifacts and all(row["status"] == "passed" for row in qualified.values()),
             "Preparation artifacts lack exact runtime qualification")
     for key, row in preparation.items():
-        samples = [item["wall_seconds"] for item in report["preparation"]
+        values = [item["wall_seconds"] for item in report["preparation"]
                    if (item["name"], item["backend"], item["configuration"]) == key]
-        check_summary(row["wall_seconds"], samples, 5, str(key))
+        check_summary(row["wall_seconds"], values, prepare_samples, str(key))
     return names, runtime, preparation
 
 
@@ -143,8 +174,12 @@ def save(fig, output, name, title, note, report_path, report_bytes, report):
     host = report["host_build"]
     provenance.extend((f"native host sha256:{host['host_sha256']}",
                        f"Wasmtime {host['version']} {host['library']} sha256:{host['library_sha256']}"))
+    companion = report.get("aot_host_build")
+    if companion:
+        provenance.extend((f"minimal AOT host sha256:{companion['host_sha256']}",
+                           f"minimal Wasmtime library {companion['library']} sha256:{companion['library_sha256']}"))
     description = {"note": note, "method": report["method"], "environment": report["environment"],
-                   "host_build": host, "configuration": report["configuration"]}
+                   "host_build": host, "aot_host_build": companion, "configuration": report["configuration"]}
     path = output / name
     fig.savefig(path, facecolor="white", metadata={
         "Date": None, "Title": title, "Description": json.dumps(description, sort_keys=True),
@@ -168,9 +203,12 @@ def render(report_path, output):
         ("direct", "Direct Wasm", "wasmtime-host-runtime.svg"),
         ("c-wasm", "C → Wasm", "wasmtime-host-c-wasm.svg"),
     ):
+        profiles = list(RUNTIME_PROFILES)
+        if report["configuration"].get("aot_host"):
+            profiles.insert(-1, MINIMAL_RUNTIME_PROFILE)
         rows = {}
         for name in names:
-            for mode, _, _ in RUNTIME_PROFILES:
+            for mode, _, _ in profiles:
                 row_backend = backend
                 if mode == "native-C":
                     row_backend = "native"
@@ -180,10 +218,12 @@ def render(report_path, output):
         title = "Wasmtime host runtime · " + label
         fig.text(0.075, 0.945, title, fontsize=20, weight="bold")
         fig.text(0.075, 0.897, "Fresh launch to exit · Wasmtime 50.0.1 · O2 · lower is better", fontsize=11, color="#475569")
-        handles, clipped = plot(ax, names, rows, "wall_seconds", RUNTIME_PROFILES, True)
-        fig.legend(handles, [profile[1] for profile in RUNTIME_PROFILES], loc="upper left",
-                   bbox_to_anchor=(0.068, 0.87), ncols=4, frameon=False, fontsize=11)
+        handles, clipped = plot(ax, names, rows, "wall_seconds", profiles, True)
+        fig.legend(handles, [profile[1] for profile in profiles], loc="upper left",
+                   bbox_to_anchor=(0.068, 0.87), ncols=len(profiles), frameon=False, fontsize=11)
         note = "Precompiled runtime excludes preparation; the preparation figure includes that cost. Goose compilation is separate."
+        if len(profiles) == 5:
+            note += " Minimal AOT uses separately qualified artifacts and a smaller runtime."
         fig.text(0.075, 0.115, footer(report, 15, "runtime"), fontsize=9, color="#475569")
         fig.text(0.075, 0.077, note, fontsize=9, color="#475569")
         detail = "Bars include host startup, module loading, execution, output and process teardown."
@@ -199,17 +239,23 @@ def render(report_path, output):
     fig.text(0.075, 0.918, "Fresh host launch + Wasm compilation + serialization + file writing · lower is better", fontsize=11, color="#475569")
     clipped = False
     for ax, backend, label in zip(axes, BACKENDS, ("Direct Wasm", "C → Wasm")):
+        profiles = list(PREPARATION_PROFILES)
+        if report["configuration"].get("aot_host"):
+            profiles.append(MINIMAL_PREPARATION_PROFILE)
         ax.set_title(label, loc="left", fontsize=12, weight="bold", pad=15)
         rows = {(name, configuration): preparation[name, backend, configuration]
-                for name in names for configuration, _, _ in PREPARATION_PROFILES}
-        handles, panel_clipped = plot(ax, names, rows, "wall_seconds", PREPARATION_PROFILES, True)
+                for name in names for configuration, _, _ in profiles}
+        panel_handles, panel_clipped = plot(ax, names, rows, "wall_seconds", profiles, True)
+        if backend == "direct":
+            handles = panel_handles
+            legend_profiles = profiles
         clipped = clipped or panel_clipped
-    fig.legend(handles, [profile[1] for profile in PREPARATION_PROFILES], loc="upper left",
-               bbox_to_anchor=(0.068, 0.891), ncols=2, frameon=False, fontsize=11)
+    fig.legend(handles, [profile[1] for profile in legend_profiles], loc="upper left",
+               bbox_to_anchor=(0.068, 0.891), ncols=len(legend_profiles), frameon=False, fontsize=11)
     note = "Complete preparation cost for trusted native artifacts; guest execution is separate. Goose compilation is unchanged and separate."
     fig.text(0.075, 0.087, footer(report, 5, "preparation"), fontsize=9, color="#475569")
     fig.text(0.075, 0.057, note, fontsize=9, color="#475569")
-    detail = "Wasmtime 50.0.1 · same library bytes as runtime · parallelism changes Wasm compilation only."
+    detail = "Wasmtime 50.0.1 · compilation profile and parallelism recorded separately."
     if clipped:
         detail += " Lower MAD whiskers clipped at the positive logarithmic floor."
     fig.text(0.075, 0.028, detail, fontsize=9, color="#475569")

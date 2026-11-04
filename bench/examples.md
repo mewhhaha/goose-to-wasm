@@ -6,19 +6,19 @@ Ten [example programs](../examples/README.md) compare direct Wasm, C-to-Wasm and
 
 ![Example process times with the native Wasmtime host and native C](charts/examples-runtime.svg)
 
-The runtime chart includes uncached native-host launches and precompiled launches; preparation is excluded from the latter. Native C was freshly measured in the same runtime blocks. Functions direct Wasm took 25.135 ms cold (MAD 6.571) and 1.691 ms precompiled (MAD 0.311), versus 0.920 ms native C (MAD 0.075). [Preparation costs and host qualification](wasmtime-host.md) give the full accounting.
+The runtime chart includes uncached native-host launches and full and minimal precompiled launches; preparation is excluded from the latter. In the 15-sample cohort, Functions took 18.321 ms cold, 1.853 ms full AOT and 1.384 ms minimal AOT, versus 0.947 ms native C. [Preparation costs and host qualification](wasmtime-host.md) give the full accounting.
 
-[Results and raw samples](results/2026-11-04/leaf-and-loads/README.md)
+[Results and raw samples](results/2026-11-04/minimal-aot/README.md)
 
-The separate cold-build cohort measured direct builds at 62.5–96.2 ms and C-to-Wasm at 546.6–989.6 ms. Its [V8 and Python-host chart](charts/examples-python-runtime.svg) is a separate control.
+The cold-build cohort measured direct builds at 61.2–100.9 ms and C-to-Wasm at 487.0–937.3 ms. Its [V8 and Python-host chart](charts/examples-python-runtime.svg) is a separate control.
 
 ## Method
 
-The build cohort has five complete `--no-cache` Python-driver builds per backend/example cell. The native-host cohort reuses its qualified artifact bytes and has one untimed fresh-process warmup and 15 fresh-process samples per runtime configuration, with checked output. Values are median milliseconds; the reports also include median absolute deviation (MAD).
+The build cohort has five complete `--no-cache` Python-driver builds per backend/example cell. The native-host cohort reuses qualified artifact bytes and has one untimed warmup and 15 fresh-process samples per runtime configuration, with checked output. Values are median milliseconds; reports include median absolute deviation (MAD).
 
-The headline runtime measures launch to exit, including startup, Wasm instantiation, initialization, computation, output delivery and teardown. Cold launches disable the SDK cache and include Wasm compilation; precompiled launches exclude preparation. The build cohort's separate entry probes use V8 and the Python Wasmtime host and a different timing boundary.
+The headline runtime measures launch to exit, including startup, Wasm instantiation, initialization, computation, output delivery and teardown. Cold launches disable the SDK cache and include Wasm compilation; precompiled launches exclude preparation. Inputs remain constant and ordinary constant folding is allowed. Direct Wasm uses memory32; C-to-Wasm uses memory64. The runs use a shared AMD Ryzen 7 3800X, Goose revision `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, compiler SHA-256 `8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6`, Wasmtime 50.0.1, Emscripten 6.0.13 and GCC 16.2.1. The V8 control uses Node 24.22.1 / V8 13.6.233.17-node.58.
 
-Inputs remain constant and ordinary constant folding is allowed. Direct Wasm uses memory32; C-to-Wasm uses memory64. OS page and installed Emscripten library caches remain warm. The runs use a shared AMD Ryzen 7 3800X desktop, Goose revision `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, compiler SHA-256 `8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6`, Wasmtime 50.0.1, Emscripten 6.0.13 and GCC 16.2.1. The V8 control uses Node 24.22.1 / V8 13.6.233.17-node.58.
+A corrected pidfd-based wait removes an approximately 1 ms Python timed-wait polling artifact from the earlier host cohort. Historical and corrected process timings are not a matched before/after comparison. [Evidence and limitations](results/2026-11-04/minimal-aot/README.md).
 
 ## Native gap
 
@@ -34,7 +34,7 @@ With the [toolchain and native host installed](../docs/GUIDE.md#optional-native-
 python bench/examples.py --machine-label 'your machine' --output-dir build/example-benchmarks
 python bench/example_charts.py build/example-benchmarks/report.json
 cp bench/charts/examples-runtime.svg bench/charts/examples-python-runtime.svg
-python bench/wasmtime_host.py --example-report build/example-benchmarks/report.json
+python bench/wasmtime_host.py --example-report build/example-benchmarks/report.json --aot-host build/bin/goose-wasmtime-aot
 python bench/example_runtime_charts.py build/wasmtime-host/bench/report.json
 ```
 

@@ -1,0 +1,319 @@
+{
+  "schema": "goose-minimal-aot-final-selection-v1",
+  "status": "passed",
+  "report": "/home/jacobt/src/goose-to-wasm/build/functions-native-hills/final-measurement/report.json",
+  "report_sha256": "3fa46009d9005853d9ec54959b59f8a3c9a1a6673e9e25fa03bc99f7263c2a74",
+  "selector": "Median of within-round candidate/reference wall ratios; lower is better.",
+  "confidence_method": "10000 bootstrap resamples of paired ratios; percentile95% interval of the median; seed20261104. Shared-host observations are retained without outlier removal.",
+  "primary": "pool/functions",
+  "summary": {
+    "pool/functions": {
+      "wall_us": {
+        "default": {
+          "n": 61,
+          "median": 1001.584,
+          "mad": 22.57299999999998
+        },
+        "default_aa": {
+          "n": 61,
+          "median": 997.637,
+          "mad": 25.567000000000007
+        },
+        "subset_full": {
+          "n": 61,
+          "median": 971.677,
+          "mad": 23.925000000000068
+        },
+        "subset_min": {
+          "n": 61,
+          "median": 771.968,
+          "mad": 18.424000000000092
+        },
+        "native": {
+          "n": 61,
+          "median": 666.447,
+          "mad": 9.376999999999953
+        }
+      },
+      "ratios": {
+        "default_aa_over_default": {
+          "n": 61,
+          "median": 0.9941505447117112,
+          "mad": 0.02856513048809639,
+          "median_ci95": [
+            0.9822737705504927,
+            1.010878591759886
+          ]
+        },
+        "subset_full_over_default": {
+          "n": 61,
+          "median": 0.9652168119239597,
+          "mad": 0.029252937300437876,
+          "median_ci95": [
+            0.9512361497759997,
+            0.9831315577078289
+          ]
+        },
+        "subset_min_over_default": {
+          "n": 61,
+          "median": 0.7639772392154588,
+          "mad": 0.023767947579157678,
+          "median_ci95": [
+            0.7568674215120045,
+            0.7790044311957878
+          ]
+        },
+        "subset_min_over_native": {
+          "n": 61,
+          "median": 1.1583336709445762,
+          "mad": 0.05621308657370094,
+          "median_ci95": [
+            1.150156695049639,
+            1.167902688798875
+          ]
+        },
+        "subset_min_over_subset_full": {
+          "n": 61,
+          "median": 0.788839224565107,
+          "mad": 0.028956583185630436,
+          "median_ci95": [
+            0.7830436416208578,
+            0.7960466243325935
+          ]
+        }
+      }
+    },
+    "pool/squares": {
+      "wall_us": {
+        "default": {
+          "n": 61,
+          "median": 933.604,
+          "mad": 19.64799999999991
+        },
+        "default_aa": {
+          "n": 61,
+          "median": 933.946,
+          "mad": 20.428999999999974
+        },
+        "subset_full": {
+          "n": 61,
+          "median": 914.8,
+          "mad": 21.83299999999997
+        },
+        "subset_min": {
+          "n": 61,
+          "median": 707.465,
+          "mad": 14.968000000000075
+        },
+        "native": {
+          "n": 61,
+          "median": 596.854,
+          "mad": 15.809000000000083
+        }
+      },
+      "ratios": {
+        "default_aa_over_default": {
+          "n": 61,
+          "median": 1.005139249642277,
+          "mad": 0.03444983685514602,
+          "median_ci95": [
+            0.9988160213159138,
+            1.0142918028437915
+          ]
+        },
+        "subset_full_over_default": {
+          "n": 61,
+          "median": 0.9765852852291027,
+          "mad": 0.03944741388941153,
+          "median_ci95": [
+            0.9594855351376931,
+            1.0014518900343643
+          ]
+        },
+        "subset_min_over_default": {
+          "n": 61,
+          "median": 0.7521013725312797,
+          "mad": 0.02566018021185512,
+          "median_ci95": [
+            0.7453631681962016,
+            0.7654396514421283
+          ]
+        },
+        "subset_min_over_native": {
+          "n": 61,
+          "median": 1.1938846928248965,
+          "mad": 0.037209630673440186,
+          "median_ci95": [
+            1.1860151609527383,
+            1.2091397898376017
+          ]
+        },
+        "subset_min_over_subset_full": {
+          "n": 61,
+          "median": 0.7755848005446604,
+          "mad": 0.021261472779374513,
+          "median_ci95": [
+            0.7623498651850641,
+            0.7846095285444616
+          ]
+        }
+      }
+    },
+    "cpu2/functions": {
+      "wall_us": {
+        "default": {
+          "n": 61,
+          "median": 1112.786,
+          "mad": 36.64899999999989
+        },
+        "default_aa": {
+          "n": 61,
+          "median": 1107.576,
+          "mad": 30.337999999999965
+        },
+        "subset_full": {
+          "n": 61,
+          "median": 1084.361,
+          "mad": 23.91599999999994
+        },
+        "subset_min": {
+          "n": 61,
+          "median": 842.852,
+          "mad": 23.723999999999933
+        },
+        "native": {
+          "n": 61,
+          "median": 684.321,
+          "mad": 8.525999999999954
+        }
+      },
+      "ratios": {
+        "default_aa_over_default": {
+          "n": 61,
+          "median": 0.9912412780347302,
+          "mad": 0.052210939186980165,
+          "median_ci95": [
+            0.9576574740594388,
+            1.018412538123551
+          ]
+        },
+        "subset_full_over_default": {
+          "n": 61,
+          "median": 0.9749406376045393,
+          "mad": 0.06338461036717757,
+          "median_ci95": [
+            0.9383989388894262,
+            0.9827184656561464
+          ]
+        },
+        "subset_min_over_default": {
+          "n": 61,
+          "median": 0.7556517358809361,
+          "mad": 0.033244726647028044,
+          "median_ci95": [
+            0.7363087701038911,
+            0.771107294881067
+          ]
+        },
+        "subset_min_over_native": {
+          "n": 61,
+          "median": 1.227327179403475,
+          "mad": 0.051022199010520186,
+          "median_ci95": [
+            1.205500579844943,
+            1.246621948750451
+          ]
+        },
+        "subset_min_over_subset_full": {
+          "n": 61,
+          "median": 0.7878633793661881,
+          "mad": 0.043310596093015685,
+          "median_ci95": [
+            0.7743159822658323,
+            0.8216795650058711
+          ]
+        }
+      }
+    },
+    "cpu2/squares": {
+      "wall_us": {
+        "default": {
+          "n": 61,
+          "median": 1042.161,
+          "mad": 24.145999999999958
+        },
+        "default_aa": {
+          "n": 61,
+          "median": 1046.168,
+          "mad": 48.664000000000215
+        },
+        "subset_full": {
+          "n": 61,
+          "median": 1017.003,
+          "mad": 32.20100000000002
+        },
+        "subset_min": {
+          "n": 61,
+          "median": 767.599,
+          "mad": 19.127000000000066
+        },
+        "native": {
+          "n": 61,
+          "median": 613.596,
+          "mad": 9.778999999999996
+        }
+      },
+      "ratios": {
+        "default_aa_over_default": {
+          "n": 61,
+          "median": 1.0018843522740986,
+          "mad": 0.04156639881407931,
+          "median_ci95": [
+            0.9816370554974945,
+            1.026325071939107
+          ]
+        },
+        "subset_full_over_default": {
+          "n": 61,
+          "median": 0.9759160839436293,
+          "mad": 0.04042426215071726,
+          "median_ci95": [
+            0.9582419066587152,
+            0.9933523964706571
+          ]
+        },
+        "subset_min_over_default": {
+          "n": 61,
+          "median": 0.7436044270065544,
+          "mad": 0.023841107302175812,
+          "median_ci95": [
+            0.7341136521688051,
+            0.755543878288786
+          ]
+        },
+        "subset_min_over_native": {
+          "n": 61,
+          "median": 1.2467684886420216,
+          "mad": 0.02970520009114952,
+          "median_ci95": [
+            1.226853985488559,
+            1.2547068460121238
+          ]
+        },
+        "subset_min_over_subset_full": {
+          "n": 61,
+          "median": 0.7550749447956865,
+          "mad": 0.029363951701338764,
+          "median_ci95": [
+            0.7472564474767529,
+            0.7657860809324682
+          ]
+        }
+      }
+    }
+  },
+  "decision": "Select official minimal AOT runner. Functions is closer to native, with a measurable remaining gap; no native-equivalence or universal-ceiling claim. Broader15-sample all10 cohort remains separate and all regressions/variation retained.",
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/functions-native-hills/analyze_final.py": "e9d33b1f4601bb4a1c5f1363ae370154aafb0851c858c5b2885a089109b78e75"
+  }
+}

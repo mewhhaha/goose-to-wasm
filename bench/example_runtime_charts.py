@@ -39,9 +39,17 @@ def save(fig, output, title, note, report_path, report_bytes, report):
     host = report["host_build"]
     provenance.extend((f"native host sha256:{host['host_sha256']}",
                        f"Wasmtime {host['version']} {host['library']} sha256:{host['library_sha256']}"))
+    panels = 2
+    if "aot_host_build" in report:
+        panels = 3
+        minimal = report["aot_host_build"]
+        provenance.extend((f"minimal AOT host sha256:{minimal['host_sha256']}",
+                           f"minimal SDK library sha256:{minimal['library_sha256']}"))
     description = {"note": note, "method": report["method"], "environment": report["environment"],
                    "host_build": host, "configuration": report["configuration"],
-                   "bar_count": 60, "native_C_cohort_repeated": True}
+                   "bar_count": 30 * panels, "native_C_cohort_repeated": True}
+    if "aot_host_build" in report:
+        description["aot_host_build"] = report["aot_host_build"]
     path = output / "examples-runtime.svg"
     fig.savefig(path, facecolor="white", metadata={
         "Date": None, "Title": title, "Description": json.dumps(description, sort_keys=True),
@@ -60,23 +68,25 @@ def render(report_path, output):
         "axes.labelcolor": "#475569", "xtick.color": "#334155", "ytick.color": "#475569",
         "svg.fonttype": "none", "svg.hashsalt": "goose-example-runtime-charts-v1",
     })
-    fig, axes = plt.subplots(2, 1, figsize=(14, 12), facecolor="white")
+    panels = [("native", "Full Wasmtime host · compile on launch"),
+              ("precompiled", "Full Wasmtime host · precompiled")]
+    if "aot_host_build" in report:
+        panels.append(("precompiled-minimal", "Minimal Wasmtime host · precompiled"))
+    fig, axes = plt.subplots(len(panels), 1, figsize=(14, 6 * len(panels)), facecolor="white")
     fig.subplots_adjust(left=0.075, right=0.98, top=0.80, bottom=0.16, hspace=0.65)
     title = "Example runtime · full process"
     fig.text(0.075, 0.95, title, fontsize=20, weight="bold")
     fig.text(0.075, 0.915, "Fresh launch to exit · Wasmtime 50.0.1 · O2 · lower is better",
              fontsize=11, color="#475569")
     clipped = False
-    for ax, mode, label in zip(axes, ("native", "precompiled"), (
-        "Wasmtime native host · compile on launch", "Wasmtime native host · precompiled",
-    )):
+    for ax, (mode, label) in zip(axes, panels):
         ax.set_title(label, loc="left", fontsize=12, weight="bold", pad=14)
         handles, panel_clipped = plot(ax, names, panel_rows(names, runtime, mode),
                                      "wall_seconds", BACKENDS, True)
         clipped = clipped or panel_clipped
     fig.legend(handles, [backend[1] for backend in BACKENDS], loc="upper left",
                bbox_to_anchor=(0.068, 0.89), ncols=3, frameon=False, fontsize=11)
-    note = "Precompiled runtime excludes preparation. C → native uses the same measured cohort in both panels."
+    note = "Precompiled runtime excludes preparation. C → native uses the same measured cohort in every panel."
     detail = "Startup, loading, execution, output and process teardown included."
     if clipped:
         detail += " Lower MAD whiskers clipped at the positive log-axis limit."

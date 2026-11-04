@@ -15,6 +15,7 @@ import sys
 import time
 import tomllib
 
+import process
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -37,7 +38,7 @@ def summary(values):
 
 def run_command(command, *, stdin=b"", cwd=ROOT):
     started = time.perf_counter_ns()
-    result = subprocess.run([str(value) for value in command], input=stdin,
+    result = process.run([str(value) for value in command], input=stdin,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             cwd=cwd, check=False)
     wall_ns = time.perf_counter_ns() - started
@@ -63,7 +64,8 @@ def metadata(args, example_report, examples):
     affinity = None
     if hasattr(os, "sched_getaffinity"):
         affinity = sorted(os.sched_getaffinity(0))
-    input_paths = {str(Path(__file__).resolve()), str((ROOT / "scripts/wasmtime_session.py").resolve()),
+    input_paths = {str(Path(__file__).resolve()), str(Path(process.__file__).resolve()),
+                   str((ROOT / "scripts/wasmtime_session.py").resolve()),
                    str((ROOT / "host/wasmtime.cpp").resolve()), str((ROOT / "host/wasmtime-sdk.json").resolve()),
                    str(example_report.resolve()), str(host_metadata_path),
                    str((ROOT / "examples/manifest.json").resolve()), str(host)}
@@ -397,7 +399,7 @@ def main():
                         if mode == "native-C":
                             command = [native["path"]]
                             started = time.perf_counter_ns()
-                            result = subprocess.run([str(native["path"])], stdout=subprocess.PIPE,
+                            result = process.run([str(native["path"])], stdout=subprocess.PIPE,
                                                     stderr=subprocess.PIPE, cwd=ROOT, check=False)
                             wall_ns = time.perf_counter_ns() - started
                             row = {"name": name, "mode": mode, "round": round_number,

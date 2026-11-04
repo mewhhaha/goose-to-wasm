@@ -8,7 +8,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <fstream>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -78,6 +77,12 @@ static string read_file(const string &path) {
     Owned<FILE, std::fclose> file(std::fopen(path.c_str(), "rb"));
     if (!file) fail("cannot open " + path);
     return read_all(file.get());
+}
+static void write_file(const string &path, string_view bytes) {
+    Owned<FILE, std::fclose> file(std::fopen(path.c_str(), "wb"));
+    if (!file) fail("cannot write " + path);
+    if (std::fwrite(bytes.data(), 1, bytes.size(), file.get()) != bytes.size()) fail("cannot write " + path);
+    if (std::fclose(file.release())) fail("cannot write " + path);
 }
 template <class T> static string goose_float(T value) {
     if (std::isnan(value)) return "nan";
@@ -396,19 +401,46 @@ static void call(wasmtime_context_t *context, const wasmtime_instance_t &instanc
 struct Options {
     string module, timing, compiled, cache_config;
     bool precompiled = false, no_parallel_compilation = false, cache = true, serve = false;
+#ifdef RUNTIME_ONLY
+    bool minimal_profile = true;
+#else
+    bool minimal_profile = false;
+#endif
 };
 static Owned<wasm_engine_t, wasm_engine_delete> make_engine(const Options &options, bool &cache_enabled) {
     Owned<wasm_config_t, wasm_config_delete> config(wasm_config_new());
     if (!config) fail("cannot create Wasmtime configuration");
+#ifndef RUNTIME_ONLY
     wasmtime_config_cranelift_opt_level_set(config.get(), WASMTIME_OPT_LEVEL_SPEED);
+#else
+    (void)cache_enabled;
+#endif
     wasmtime_config_wasm_memory64_set(config.get(), true);
     wasmtime_config_wasm_tail_call_set(config.get(), true);
-    wasmtime_config_wasm_exceptions_set(config.get(), true);
+    if (options.minimal_profile) {
+#ifdef WASMTIME_FEATURE_COMPONENT_MODEL
+        wasmtime_config_wasm_component_model_set(config.get(), false);
+        wasmtime_config_concurrency_support_set(config.get(), false);
+#endif
+        wasmtime_config_gc_support_set(config.get(), false);
+#ifdef WASMTIME_FEATURE_GC
+        wasmtime_config_wasm_gc_set(config.get(), false);
+        wasmtime_config_wasm_function_references_set(config.get(), false);
+        wasmtime_config_wasm_reference_types_set(config.get(), false);
+        wasmtime_config_wasm_exceptions_set(config.get(), false);
+#endif
+    }
+#ifdef WASMTIME_FEATURE_GC
+    else wasmtime_config_wasm_exceptions_set(config.get(), true);
+#endif
     wasmtime_config_wasm_simd_set(config.get(), true);
     wasmtime_config_wasm_bulk_memory_set(config.get(), true);
     wasmtime_config_wasm_multi_value_set(config.get(), true);
+#ifdef WASMTIME_FEATURE_THREADS
     wasmtime_config_wasm_threads_set(config.get(), false);
+#endif
     wasmtime_config_wasm_relaxed_simd_set(config.get(), false);
+#ifndef RUNTIME_ONLY
     if (options.no_parallel_compilation) wasmtime_config_parallel_compilation_set(config.get(), false);
     if (options.cache && !options.precompiled) {
         const char *path = nullptr;
@@ -419,6 +451,7 @@ static Owned<wasm_engine_t, wasm_engine_delete> make_engine(const Options &optio
             wasmtime_error_delete(error);
         } else cache_enabled = true;
     }
+#endif
     Owned<wasm_engine_t, wasm_engine_delete> engine(wasm_engine_new_with_config(config.release()));
     if (!engine) fail("cannot create Wasmtime engine");
     return engine;
@@ -479,19 +512,23 @@ static int run(const Options &options, State &state, Runtime *shared = nullptr, 
             wasmtime_module_t *raw = nullptr;
             wasmtime_error_t *error = nullptr;
             if (options.precompiled) error = wasmtime_module_deserialize_file(engine, options.module.c_str(), &raw);
+#ifndef RUNTIME_ONLY
             else error = wasmtime_module_new(engine, reinterpret_cast<const uint8_t *>(data.data()), data.size(), &raw);
+#else
+            else fail("AOT-only Wasmtime host requires --precompiled");
+#endif
             owned->module.reset(raw); check(error); module = owned.get();
             if (memoize && data.size() <= Runtime::max_source_bytes) {
                 owned->source = std::move(data); module = shared->retain(std::move(owned));
             }
         }
+#ifndef RUNTIME_ONLY
         if (!options.compiled.empty()) {
             Bytes serialized; check(wasmtime_module_serialize(module->module.get(), &serialized.value));
-            std::ofstream output(options.compiled, std::ios::binary);
-            output.write(serialized.value.data, serialized.value.size); output.close();
-            if (!output) fail("cannot write " + options.compiled);
+            write_file(options.compiled, string_view(serialized.value.data, serialized.value.size));
             return 0;
         }
+#endif
         if (!module->linker) {
             Owned<wasmtime_linker_t, wasmtime_linker_delete> linker(wasmtime_linker_new(engine));
             if (!linker) fail("cannot create Wasmtime linker");
@@ -523,22 +560,29 @@ static int run(const Options &options, State &state, Runtime *shared = nullptr, 
     if (!entered) instantiated = ended;
     if (observed) { observed->prepare = instantiated - started; observed->start = ended - instantiated; }
     if (!options.timing.empty()) {
-        std::ofstream timing(options.timing);
-        timing << "{\n  \"engine\": \"Wasmtime\",\n  \"wasmtime\": \"" WASMTIME_VERSION "\",\n"
-               << "  \"host\": \"native C API\",\n  \"module_mode\": \"";
-        if (options.precompiled) timing << "precompiled";
-        else timing << "wasm";
-        timing << "\",\n  \"parallel_compilation\": ";
-        if (options.no_parallel_compilation) timing << "false";
-        else timing << "true";
-        timing << ",\n  \"compilation_cache_enabled\": ";
-        if (shared->cache_enabled) timing << "true";
-        else timing << "false";
-        timing << ",\n  \"optimization\": \"cranelift speed\",\n  \"compile_instantiate_ns\": " << instantiated - started
-               << ",\n  \"start_function_ns\": " << ended - instantiated
-               << ",\n  \"engine_total_ns\": " << ended - started << "\n}\n";
-        timing.close();
-        if (!timing) fail("cannot write " + options.timing);
+        const char *mode = "wasm", *parallel = "true", *cached = "false";
+        if (options.precompiled) mode = "precompiled";
+        if (options.no_parallel_compilation) parallel = "false";
+        if (shared->cache_enabled) cached = "true";
+        const char *profile = "full", *optimization = "cranelift speed";
+        if (options.minimal_profile) profile = "minimal";
+#ifdef RUNTIME_ONLY
+        parallel = "false";
+        optimization = "precompiled artifact";
+#endif
+        char timing[1024];
+        int length = std::snprintf(timing, sizeof timing,
+            "{\n  \"engine\": \"Wasmtime\",\n  \"wasmtime\": \"%s\",\n"
+            "  \"host\": \"native C API\",\n  \"aot_profile\": \"%s\",\n  \"module_mode\": \"%s\",\n"
+            "  \"parallel_compilation\": %s,\n  \"compilation_cache_enabled\": %s,\n"
+            "  \"optimization\": \"%s\",\n  \"compile_instantiate_ns\": %llu,\n"
+            "  \"start_function_ns\": %llu,\n  \"engine_total_ns\": %llu\n}\n",
+            WASMTIME_VERSION, profile, mode, parallel, cached, optimization,
+            static_cast<unsigned long long>(instantiated - started),
+            static_cast<unsigned long long>(ended - instantiated),
+            static_cast<unsigned long long>(ended - started));
+        if (length < 0 || size_t(length) >= sizeof timing) fail("cannot format timing");
+        write_file(options.timing, string_view(timing, size_t(length)));
     }
     return exit_code;
 }
@@ -596,13 +640,21 @@ int main(int argc, char **argv) {
         for (int i = 1; i < argc; ++i) {
             string arg = argv[i];
             if (arg == "--version" && argc == 2) { std::puts("Wasmtime " WASMTIME_VERSION); return 0; }
+#ifdef RUNTIME_ONLY
+            if (arg == "--no-parallel-compilation" || arg == "--cache" || arg == "--no-cache" ||
+                arg == "--cache-config" || arg == "--serve" || arg == "--compile")
+                fail("AOT-only Wasmtime host accepts --precompiled and --timing-json only");
+#endif
             if (arg == "--no-parallel-compilation") options.no_parallel_compilation = true;
             else if (arg == "--cache") options.cache = true;
             else if (arg == "--cache-config" && i + 1 < argc) { options.cache_config = argv[++i]; options.cache = true; }
             else if (arg == "--no-cache") { options.cache = false; options.cache_config.clear(); }
             else if (arg == "--serve") options.serve = true;
             else if (arg == "--precompiled") options.precompiled = true;
-            else if (arg == "--timing-json" && i + 1 < argc) options.timing = argv[++i];
+            else if (arg == "--aot-profile" && i + 1 < argc) {
+                if (string_view(argv[++i]) != "minimal") fail("unknown AOT profile; expected minimal");
+                options.minimal_profile = true;
+            } else if (arg == "--timing-json" && i + 1 < argc) options.timing = argv[++i];
             else if (arg == "--compile" && i + 2 < argc && options.module.empty()) {
                 options.module = argv[++i]; options.compiled = argv[++i];
             } else if (!arg.empty() && arg[0] != '-' && options.module.empty()) options.module = arg;
@@ -610,8 +662,15 @@ int main(int argc, char **argv) {
                       "       wasmtime-host --cache module.wasm [--cache-config FILE]\n"
                       "       wasmtime-host --serve [--cache] [--cache-config FILE]\n"
                       "       wasmtime-host --compile module.wasm output.cwasm\n"
-                      "       wasmtime-host --precompiled trusted.cwasm [--timing-json FILE]");
+                      "       wasmtime-host --precompiled trusted.cwasm [--timing-json FILE]\n"
+                      "       wasmtime-host --aot-profile minimal --compile module.wasm output.cwasm");
         }
+#ifdef RUNTIME_ONLY
+        if (!options.precompiled || options.module.empty() || options.serve || !options.compiled.empty())
+            fail("AOT-only Wasmtime host requires --precompiled trusted.cwasm");
+#endif
+        if (options.minimal_profile && !options.precompiled && options.compiled.empty())
+            fail("--aot-profile minimal requires --compile or --precompiled");
         if (options.serve) {
             if (!options.module.empty() || options.precompiled || !options.compiled.empty() || !options.timing.empty())
                 fail("--serve takes Wasm requests on stdin, without a module or preparation/timing output");

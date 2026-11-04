@@ -27,6 +27,8 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import process
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "bench" / "langarena"
@@ -207,7 +209,7 @@ def tool_version(command: list[str]) -> dict:
 
 
 def metadata(args, manifest) -> dict:
-    inputs = [Path(__file__), DATA / "manifest.json", DATA / "test.json", DATA / "run.json",
+    inputs = [Path(__file__), Path(process.__file__), DATA / "manifest.json", DATA / "test.json", DATA / "run.json",
               ROOT / "scripts" / "goose_wasm.py", ROOT / "oracle" / "goose_wasm.py",
               ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py",
               ROOT / "bench" / "host_input.c", *sorted((DATA / "ports").glob("*.goose"))]
@@ -262,7 +264,7 @@ def execute(command, directory: Path, *, cwd: Path, stdin="", timeout=600) -> di
     error = ""
     p = None
     try:
-        p = subprocess.Popen(command, cwd=cwd, text=True, stdin=subprocess.PIPE,
+        p = process.Process(command, cwd=cwd, text=True, stdin=subprocess.PIPE,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              start_new_session=os.name != "nt",
                              creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0)

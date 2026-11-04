@@ -14,7 +14,7 @@ Complete uncached builds include Python driver startup. Direct builds took 65.6�
 
 ![Runtime by workload, backend, and engine](bench/charts/runtime.svg)
 
-Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine.
+Seconds per configured measured iteration count, excluding preparation, warmups, and startup. Runtime varies by workload and engine. These LangArena and target runs were collected separately from the example cohorts below, using the same compiler.
 
 [Full results and raw samples](bench/results/2026-11-04/leaf-and-loads/README.md) · [Benchmark method](bench/langarena/README.md)
 
@@ -36,7 +36,7 @@ All ten examples use the same constant inputs across backends and check their ou
 
 ![Runtime lifecycle by mode](bench/charts/runtime-lifecycle.svg)
 
-The lifecycle chart separates fresh processes from a resident worker that creates a fresh instance per request.
+The lifecycle chart uses the full host and separates fresh processes from a resident worker that creates a fresh instance per request. The example runtime chart also shows the optional minimal AOT host, which loads trusted, profile-matched artifacts; preparation is measured separately. In 61 paired Functions rounds, its median paired time was 23.6% lower than the previous full host, and 15.8% above native C.
 
 [Method and results](bench/examples.md) · [Host comparison, preparation costs and qualification](bench/wasmtime-host.md)
 

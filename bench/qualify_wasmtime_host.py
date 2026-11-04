@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BACKENDS = ("direct", "c-wasm")
 LEVELS = (0, 2)
 MODES = ("wasm", "wasm-no-parallel", "precompiled-no-parallel")
+AOT_HOST = None
 REFUSALS = {"unsupported_varint_array", "unsupported_pointer_extern", "invalid_source"}
 CONFIG = {
     "optimization": "cranelift speed", "memory64": True, "tail_call": True,
@@ -94,6 +95,33 @@ def verify_pins(pins):
         require(digest(name) == expected, "input SHA256 changed: " + name)
 
 
+def baseline_report(path, baseline):
+    report = json.loads(path.read_text())
+    if path == baseline / "report.json":
+        return report
+    derivation = report.get("reference_derivation", {})
+    original_path = Path(derivation.get("original_report", "")).resolve()
+    require(original_path == baseline / "report.json", "derived reference origin differs from baseline directory")
+    require(digest(original_path) == derivation.get("original_report_sha256"), "original reference report changed")
+    original = json.loads(original_path.read_text())
+    aliases = derivation.get("input_aliases", {})
+    old_pins = original["qualification_execution"]["input_sha256"]
+    require(set(aliases) <= set(old_pins), "derived reference has unknown input aliases")
+    expected = {aliases.get(name, name): sha for name, sha in old_pins.items()}
+    require(len(expected) == len(old_pins), "derived reference aliases collide")
+    require(report["qualification_execution"]["input_sha256"] == expected,
+            "derived reference input pins differ from exact aliases")
+    restored = {**report, "qualification_execution": {
+        **report["qualification_execution"], "input_sha256": old_pins}}
+    restored.pop("reference_derivation")
+    require(restored == original, "derived reference changed content other than input aliases")
+    require(bytes_digest(json_bytes(original["results"])) == derivation.get("results_sha256"),
+            "derived reference result rows differ")
+    require(bytes_digest(json_bytes(original["qualification_execution"]["shards"])) == derivation.get("shards_sha256"),
+            "derived reference shard identities differ")
+    return report
+
+
 def artifact_path(baseline, case, level, backend):
     profile = "release"
     if case.debug:
@@ -156,7 +184,10 @@ def prepare(host, output, sha, item):
     log = output / "preparation" / sha
     source = Path(item["module"])
     require(digest(source) == sha, "Wasm changed before serialization: " + str(source))
-    result = execute([host, "--no-cache", "--no-parallel-compilation", "--compile", source, aot], log, timeout=180)
+    command = [host, "--no-cache", "--no-parallel-compilation"]
+    if AOT_HOST is not None:
+        command += ["--aot-profile", "minimal"]
+    result = execute([*command, "--compile", source, aot], log, timeout=180)
     row = {"module": str(source), "wasm_sha256": sha, "artifact": str(aot), "logs": str(log),
            "exit_code": result["exit_code"], "status": "fail", "error": result["error"]}
     if result["exit_code"] == 0 and not result["error"] and aot.is_file():
@@ -174,6 +205,8 @@ def replay(index, unit, mode, host, output, compiled):
         command += ["--no-parallel-compilation"]
     elif mode == "precompiled-no-parallel":
         command = [host, "--no-parallel-compilation", "--precompiled", compiled[sha]["artifact"]]
+    elif mode == "precompiled-minimal":
+        command = [AOT_HOST, "--precompiled", compiled[sha]["artifact"]]
     log = output / "runs" / f"{index:05d}" / mode
     row = {"case": case.name, "fixture": case.fixture, "optimization": level, "debug": case.debug,
            "backend": backend, "mode": mode, "engine": "native C API", "module": str(module),
@@ -207,7 +240,9 @@ def qualify(args, output, report):
     baseline = args.baseline_dir.resolve()
     host = args.host.resolve()
     baseline_path = baseline / "report.json"
-    old = json.loads(baseline_path.read_text())
+    if args.baseline_report is not None:
+        baseline_path = args.baseline_report.resolve()
+    old = baseline_report(baseline_path, baseline)
     old_pins = old["qualification_execution"]["input_sha256"]
     require(bool(old_pins), "baseline has no source input pins")
     verify_pins(old_pins)
@@ -263,13 +298,15 @@ def qualify(args, output, report):
                       "wasm-no-parallel": {"module_mode": "wasm", "parallel_compilation": False},
                       "precompiled-no-parallel": {"module_mode": "precompiled", "parallel_compilation": False},
                   }, serialization_configuration={**CONFIG, "parallel_compilation": False})
+    if "reference_derivation" in old:
+        report["reference_derivation"] = old["reference_derivation"]
     units, modules, unique = [], {}, {}
     for case in selected:
         for level in LEVELS:
             if level not in case.levels:
                 continue
             native = rows[(case.name, level, case.debug, "native", "native")]
-            for backend in BACKENDS:
+            for backend in args.backends:
                 python = rows[(case.name, level, case.debug, backend, "wasmtime")]
                 module = artifact_path(baseline, case, level, backend)
                 sha = python["sha256"]
@@ -285,8 +322,30 @@ def qualify(args, output, report):
     inputs = set(old_pins) | set(manifest["input_sha256"])
     inputs.update(str(path) for path in (host, manifest_path, library, python_library, sdk_pin_path, archive,
                                         baseline_path, Path(__file__).resolve()))
+    if "reference_derivation" in old:
+        inputs.add(old["reference_derivation"]["original_report"])
     inputs.update(str(baseline / "shards" / shard / "report.json") for shard in old["qualification_execution"]["shards"])
     inputs.update(modules)
+    if AOT_HOST is not None:
+        aot_manifest_path = AOT_HOST.with_suffix(".json")
+        aot_manifest = json.loads(aot_manifest_path.read_text())
+        require(aot_manifest["runtime_only"] and aot_manifest["aot_profiles"] == ["minimal"],
+                "minimal AOT runtime metadata differs")
+        require(digest(AOT_HOST) == aot_manifest["host_sha256"], "minimal AOT runtime changed")
+        require(aot_manifest["version"] == version, "minimal AOT Wasmtime version differs")
+        require(aot_manifest["sdk_archive_sha256"] == sdk_target["sha256"], "minimal AOT SDK differs")
+        require(digest(aot_manifest["library"]) == aot_manifest["library_sha256"], "minimal AOT library changed")
+        verify_pins(aot_manifest["input_sha256"])
+        inputs.update(aot_manifest["input_sha256"])
+        inputs.update(map(str, (AOT_HOST, aot_manifest_path)))
+        report["aot_host_build"] = aot_manifest
+        limited = {**CONFIG, "exceptions": False, "aot_profile": "minimal", "gc_support": False,
+                   "gc": False, "reference_types": False, "function_references": False,
+                   "components": False, "concurrency_support": False}
+        report["engine_configuration"] = limited
+        report["serialization_configuration"] = {**limited, "parallel_compilation": False}
+        report["mode_configuration"] = {"precompiled-minimal": {
+            "module_mode": "precompiled", "parallel_compilation": False, "aot_profile": "minimal"}}
     before = {name: digest(name) for name in sorted(inputs)}
     require(all(before[name] == sha for name, sha in old_pins.items()), "baseline inputs changed while preparing replay")
     require(all(before[name] == sha for name, sha in manifest["input_sha256"].items()), "host inputs changed while preparing replay")
@@ -295,6 +354,10 @@ def qualify(args, output, report):
     version_result = execute([host, "--version"], output / "version")
     require(version_result["exit_code"] == 0 and version_result["stdout"] == ("Wasmtime " + version + "\n").encode(),
             "host --version does not match pinned Wasmtime")
+    if AOT_HOST is not None:
+        actual = execute([AOT_HOST, "--version"], output / "aot-version")
+        require(actual["exit_code"] == 0 and actual["stdout"] == version_result["stdout"],
+                "minimal AOT --version differs")
     compiled = {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         pending = {pool.submit(prepare, host, output, sha, item): sha for sha, item in unique.items()}
@@ -307,7 +370,7 @@ def qualify(args, output, report):
             report["preparations"].append(row)
             if row["status"] == "pass":
                 compiled[sha] = row
-            if len(report["preparations"]) % 100 == 0:
+            if len(report["preparations"]) % 1000 == 0:
                 save_report(output, report)
     save_report(output, report)
     require(set(compiled) == set(unique), "one or more native artifact preparations failed")
@@ -328,7 +391,7 @@ def qualify(args, output, report):
                 row = {"case": case.name, "optimization": level, "debug": case.debug, "backend": backend,
                        "mode": mode, "status": "fail", "errors": [str(error)]}
             report["results"].append(row)
-            if len(report["results"]) % 250 == 0:
+            if len(report["results"]) % 1000 == 0:
                 save_report(output, report)
                 print(len(report["results"]), "/", report["expected_observations"], "runtime observations", flush=True)
     expected = {(case.name, level, case.debug, backend, mode)
@@ -347,15 +410,27 @@ def qualify(args, output, report):
 
 
 def main():
+    global AOT_HOST, MODES
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--baseline-dir", type=Path, default=ROOT / "build/native-gap/differential")
+    parser.add_argument("--baseline-report", type=Path,
+                        help="SHA-verified input-alias view of baseline-dir/report.json; artifacts remain in baseline-dir")
     parser.add_argument("--host", type=Path, default=ROOT / "build/bin/goose-wasmtime")
+    parser.add_argument("--aot-host", type=Path,
+                        help="qualify the minimal AOT runtime instead of the three general-host modes")
+    parser.add_argument("--backends", choices=BACKENDS, nargs="+", default=list(BACKENDS),
+                        help="explicit replay scope; retained baseline validation always covers both backends")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--filter", default="", help="case-name substring for an exact reduced smoke matrix")
     args = parser.parse_args()
+    if args.aot_host is not None:
+        AOT_HOST = args.aot_host.resolve()
+        MODES = ("precompiled-minimal",)
     if args.jobs < 1:
         parser.error("--jobs must be at least one")
+    if len(args.backends) != len(set(args.backends)):
+        parser.error("duplicate replay backends")
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     report = {"schema": "goose-native-wasmtime-qualification-v1", "status": "running", "coverage_exact": False,
@@ -363,6 +438,8 @@ def main():
                                 "baseline_dir": str(args.baseline_dir.resolve()), "host": str(args.host.resolve())},
               "measurement": "Concurrent correctness run; timings are not performance evidence.",
               "results": [], "preparations": []}
+    report["configuration"]["baseline_report"] = str((args.baseline_report or args.baseline_dir / "report.json").resolve())
+    report["configuration"]["backends"] = args.backends
     save_report(output, report)
     started = time.monotonic()
     try:

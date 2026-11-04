@@ -21,9 +21,17 @@ def digest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx', default='clang++')
-    parser.add_argument('--output', type=Path, default=ROOT/'build/bin/goose-wasmtime')
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--runtime-only', action='store_true', help='build the minimal trusted-AOT companion')
     parser.add_argument('--linkage', choices=['sdk-static', 'python-shared'], default='sdk-static')
     args = parser.parse_args()
+    if args.runtime_only and args.linkage != 'sdk-static':
+        parser.error('--runtime-only requires the official static SDK')
+    if args.output is None:
+        name = 'goose-wasmtime'
+        if args.runtime_only:
+            name += '-aot'
+        args.output = ROOT/'build/bin'/name
     pin_path = ROOT/'host/wasmtime-sdk.json'
     pin = json.loads(pin_path.read_text())
     expected = json.loads((ROOT/'toolchain.json').read_text())['wasmtime_python']
@@ -53,10 +61,12 @@ def main():
     if digest(archive) != archive_pin['sha256']:
         raise RuntimeError('Wasmtime SDK archive hash mismatch: '+str(archive))
     sdk = directory/archive.name.removesuffix('.tar.xz')
+    if args.runtime_only:
+        sdk = sdk/'min'
     # Copy only regular pinned members; never extract links or archive paths directly.
     with tarfile.open(archive) as package:
-        prefix = sdk.name+'/include/'
-        library_member = sdk.name+'/lib/libwasmtime.a'
+        prefix = sdk.relative_to(directory).as_posix()+'/include/'
+        library_member = sdk.relative_to(directory).as_posix()+'/lib/libwasmtime.a'
         found_library = False
         for member in package.getmembers():
             wanted = member.name.startswith(prefix)
@@ -89,6 +99,8 @@ def main():
     inputs += sorted((sdk/'include').rglob('*.h'))
     command = [compiler, '-std=c++20', '-O2', '-Wall', '-Wextra', '-Werror', '-I'+str(sdk/'include'),
                str(source), str(library)]
+    if args.runtime_only:
+        command.insert(1, '-DRUNTIME_ONLY')
     if args.linkage == 'sdk-static':
         command += ['-Wl,--gc-sections', '-static-libstdc++', '-static-libgcc', '-lpthread', '-ldl', '-lm']
         for name in ['libstdc++.a', 'libgcc.a', 'libgcc_eh.a']:
@@ -110,11 +122,16 @@ def main():
     assert hashes == {str(path):digest(path) for path in inputs}
     metadata = {'schema':'goose-native-wasmtime-host-v1', 'version':version, 'target':target,
                 'linkage':args.linkage, 'static_cxx_runtime':args.linkage == 'sdk-static',
+                'runtime_only':args.runtime_only,
+                'aot_profiles':['full', 'minimal'],
                 'supported_modes':['ordinary', 'cached', 'precompiled', 'worker'],
                 'library':str(library),'library_sha256':digest(library),
                 'sdk_archive':str(archive), 'sdk_archive_sha256':archive_pin['sha256'], 'input_sha256':hashes,
                 'command':command,'host_sha256':digest(output),
                 'cxx_version':subprocess.check_output([compiler,'--version'],text=True)}
+    if args.runtime_only:
+        metadata['aot_profiles'] = ['minimal']
+        metadata['supported_modes'] = ['precompiled']
     manifest.write_text(json.dumps(metadata,indent=2)+'\n')
     print('Built',output,'using',args.linkage,library)
 

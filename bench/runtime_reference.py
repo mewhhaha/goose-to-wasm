@@ -252,7 +252,7 @@ class Harness:
                 destination.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(path, destination)
 
     def pin_inputs(self):
-        paths = [Path(__file__), ROOT/"bench/langarena.py", ROOT/"bench/langarena/manifest.json",
+        paths = [Path(__file__), ROOT/"bench/langarena.py", Path(arena.process.__file__), ROOT/"bench/langarena/manifest.json",
                  ROOT/"bench/langarena/test.json", ROOT/"bench/langarena/run.json", ROOT/"bench/host_input.c",
                  ROOT/"oracle/goose_wasm.py", ROOT/"scripts/run_wasm.mjs", ROOT/"toolchain.json"]
         paths += [Path(value) for value in self.tools.values() if Path(value).is_file()]

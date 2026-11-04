@@ -1,6 +1,6 @@
 # Wasmtime host comparison
 
-The native C++ host uses the full static Wasmtime SDK; Python uses its own bindings. Both are version 50.0.1, with different library bytes. The host, callbacks and I/O differ, so timing differences are not Python startup alone. Direct Wasm uses memory32; C-to-Wasm uses memory64.
+The native C++ host uses the official static Wasmtime 50.0.1 SDK; Python uses its own bindings. The full host supports compilation, caching, precompiled modules and a resident worker. An optional minimal host loads trusted precompiled modules only. Host, callbacks and I/O differ, so timing differences are not Python startup alone. Direct Wasm uses memory32; C-to-Wasm uses memory64.
 
 ![Direct Wasm process times](charts/wasmtime-host-runtime.svg)
 
@@ -8,24 +8,28 @@ The native C++ host uses the full static Wasmtime SDK; Python uses its own bindi
 
 ![Precompiled artifact preparation](charts/wasmtime-host-preparation.svg)
 
-The November 4 UTC run used the shared AMD Ryzen 7 3800X host and compiler `8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6`. The example build artifacts were reused; native C was freshly executed in the same runtime blocks. Native-host ordinary cells use `--no-cache`; each runtime cell has one warmup and 15 fresh-process samples with checked output: 1,440 observations. Five separate preparations per artifact/configuration provide 200 observations. Precompiled timings exclude preparation.
+The November 4 run used a shared AMD Ryzen 7 3800X and compiler `8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6`. The broad cohort has one warmup and 15 fresh-process samples per cell, with checked output. Five separate preparations per artifact and configuration measure preparation, which is excluded from AOT execution. Median milliseconds for direct Wasm:
 
-| Example | Python host | Native host | Precompiled | Native C |
+| Example | Cold | Full AOT | Minimal AOT | Native C |
 | --- | ---: | ---: | ---: | ---: |
-| Functions | 100.133 ms | 25.135 ms | 1.691 ms | 0.920 ms |
-| Sorting | 117.767 ms | 35.246 ms | 16.912 ms | 49.450 ms |
-| Sudoku | 83.643 ms | 10.015 ms | 4.379 ms | 4.321 ms |
-| Life | 96.674 ms | 16.515 ms | 3.081 ms | 19.702 ms |
+| Functions | 18.321 | 1.853 | 1.384 | 0.947 |
+| Sorting | 32.385 | 15.542 | 15.727 | 45.734 |
+| Sudoku | 8.783 | 4.020 | 4.861 | 4.183 |
+| Life | 14.437 | 2.813 | 2.821 | 18.770 |
 
-The compiler and host qualification passed 9,573 differential executions and 11,484 host replay executions. The [campaign evidence](results/2026-11-04/leaf-and-loads/README.md) records identities, samples, preparation and limitations. The earlier [host cohort](results/2026-11-02/resource-free-calls/README.md) used compiler `73005d231e1a6e3c380dbe1a9440206198f7ac5eb887a32b784e2f9005586689` and a different host build.
+The full host is 22,029,544 bytes; the minimal host is 1,412,248 bytes. The minimal profile supports numeric and linear-memory Wasm, including SIMD, tail calls, memory64, bulk memory and multivalue. It excludes GC, reference and function reference types, exceptions, components, concurrency and JIT. Default-profile AOT artifacts cannot be loaded by the minimal host.
+
+A separate 61-round matched Functions comparison measured 1.002 ms for the previous full host, 0.772 ms minimal and 0.666 ms native C. The median paired minimal/full ratio was 0.764 (23.6% lower); minimal/native was 1.158 (15.8% higher). These results and the broader cohort above are separate measurements.
+
+The historical Functions precompiled median of 1.691 ms used Python's timed wait, which introduced an approximately 1 ms polling artifact on this system. The corrected harness uses pidfd; the difference from that historical value includes this method correction. Only matched before/after runs using the corrected harness establish runtime improvement. Lifecycle measurements already used a blocking wait.
+
+[Results, raw samples, preparation and qualification](results/2026-11-04/minimal-aot/README.md) · [Earlier cohort](results/2026-11-04/leaf-and-loads/README.md)
 
 ## Runtime lifecycle
 
 ![Runtime lifecycle by mode](charts/runtime-lifecycle.svg)
 
-The lifecycle cohort measures uncached compilation, an empty SDK cache, a populated SDK cache and precompiled artifacts in fresh processes; a resident session is measured separately. The resident session excludes process startup but creates fresh guest state, store and instance on every request. The empty-cache launch includes cache population; precompiled execution excludes artifact preparation.
-
-For Functions, median milliseconds were 29.568 uncached, 31.210 cache miss, 2.675 cache hit, 1.817 precompiled, 1.180 native C and 0.313 resident. For Life, they were 19.255, 22.365, 3.254, 3.732, 18.114 and 1.294 respectively. These are separate from the table above. Sorting native C was 49.450 ms in the host cohort and 47.304 ms in the lifecycle cohort; these unpaired results show cohort variation.
+The lifecycle cohort uses the full host and measures uncached compilation, an empty SDK cache, a populated SDK cache and precompiled artifacts in fresh processes; a resident session is measured separately. The host charts above also show minimal AOT. The resident session excludes process startup but creates fresh guest state, store and instance on every request. The empty-cache launch includes cache population; precompiled execution excludes artifact preparation.
 
 ## Reproduce
 
@@ -33,18 +37,20 @@ Install the [toolchain and optional native host](../docs/GUIDE.md#optional-nativ
 
 ```sh
 python bench/examples.py --output-dir build/example-benchmarks
-python bench/wasmtime_host.py --example-report build/example-benchmarks/report.json
+python bench/wasmtime_host.py --example-report build/example-benchmarks/report.json --aot-host build/bin/goose-wasmtime-aot
 python bench/wasmtime_host_charts.py build/wasmtime-host/bench/report.json --output-dir bench/charts
 python bench/runtime_lifecycle.py --example-report build/example-benchmarks/report.json --output-dir build/runtime-lifecycle
 python bench/runtime_lifecycle_charts.py build/runtime-lifecycle/report.json --output build/runtime-lifecycle.svg
 ```
 
-Chart rendering requires Matplotlib. The lifecycle chart command requires a fresh output path and will not overwrite an existing file. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-04/leaf-and-loads/README.md) for retained raw data and qualification.
+Chart rendering requires Matplotlib. The lifecycle chart command requires a fresh output path and will not overwrite an existing file. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-04/minimal-aot/README.md) for retained raw data and qualification.
 
 To regenerate the qualification baseline and replay from a fresh checkout:
 
 ```sh
 python bench/qualify_compiler.py --jobs 6 --output-dir build/differential-sharded
 python bench/qualify_wasmtime_host.py --baseline-dir build/differential-sharded --output-dir build/wasmtime-host-qualification
+python bench/qualify_wasmtime_host.py --baseline-dir build/differential-sharded --aot-host build/bin/goose-wasmtime-aot --backends direct --output-dir build/minimal-host-qualification
 python tests/test_native_wasmtime.py
+python tests/test_aot_wasmtime.py
 ```

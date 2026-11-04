@@ -64,10 +64,13 @@ jobs:
       - name: Native Wasmtime host and ABI boundaries
         run: |
           python scripts/build_wasmtime_host.py
+          python scripts/build_wasmtime_host.py --runtime-only
           python tests/test_native_wasmtime.py
+          python tests/test_aot_wasmtime.py
           python tests/test_runtime_session.py
       - name: Oracle source and driver contracts
         run: |
+          python tests/test_benchmark_process.py
           python oracle/tests/test_bootstrap.py
           python oracle/tests/test_target.py
           python oracle/tests/test_driver.py
