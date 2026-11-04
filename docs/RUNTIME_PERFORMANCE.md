@@ -1,5 +1,13 @@
 # Runtime performance work
 
+## Byte scan selection and width
+
+Byte-equality scans select the last matching index without a branch and merge two SIMD128 vectors per 32-byte group, with a 16-byte vector tail. Scalar tails, debug builds and failed span guards retain the original path.
+
+Nine paired warmed rounds measured the Sieve port at 883.190 → 765.352 ms on Wasmtime (1.158× paired, ratio MAD 0.007) and 865.667 → 745.622 ms on V8 (1.163×, MAD 0.003). The separately built selected native reference took 891.264 ms in the Wasmtime cohort; the paired direct/native time ratio was 0.861 (MAD 0.006), about 14% less time in this snapshot. Only Sieve changed among the ten warmed guest modules; it grew from 3,482 to 3,576 bytes (2.7%). All ten full example modules were byte-identical. These are warmed kernel timings; separately collected full-process timings do not establish a compiler-change gain.
+
+In separate five-pair screens, branchless selection alone gained about 13% without module growth. Adding the wider group measured a further 2.8% on Wasmtime and 4.0% on V8; V8 improved in three of five pairs. The width result alone does not establish a 5% gain. [Measurements and qualification](../bench/results/2026-11-04/byte-scans/README.md) retain the experiments and limits.
+
 ## Strided stores and byte scans
 
 Eligible positive-stride constant stores use a guarded group of four ordered stores. Eligible byte-equality count and last-index scans use SIMD. Scalar tails, failed guards and debug builds retain the original path.

@@ -1,0 +1,327 @@
+{
+  "schema": "goose-byte-scans-retention-v1",
+  "specification": {
+    "schema": "goose-byte-scans-bundle-spec-v1",
+    "build": "build/scan-hills",
+    "output": "bench/results/2026-11-04/byte-scans",
+    "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+    "reference": "build/runtime-reference/production/report.json",
+    "reference_sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "reports": {
+      "qualification.json": "qualification/attempt-1/focused/report.json",
+      "differential.json": "qualification/attempt-1/differential/report.json",
+      "host-qualification.json": "qualification/attempt-1/host/report.json",
+      "final-warmed.json": "delivered-warmed/report.json",
+      "final-v8.json": "delivered-v8/report.json",
+      "examples.json": "current/examples/report.json",
+      "host.json": "current/host/report.json",
+      "cohort.json": "current/langarena/report.json",
+      "lifecycle.json": "current/lifecycle/report.json"
+    },
+    "extra_reports": {
+      "worker-qualification.json": "qualification/attempt-1/worker-replay/report.json"
+    },
+    "trees": [
+      "qualification/attempt-1",
+      "qualification/sources",
+      "delivery-execution",
+      "delivered-warmed",
+      "delivered-v8",
+      "current/examples",
+      "current/host",
+      "current/langarena",
+      "current/lifecycle",
+      "scan-tests",
+      "wide-tests",
+      "source-before",
+      "test-source-before",
+      "last-select",
+      "wide-32",
+      "final",
+      "select-wasmtime",
+      "select-v8",
+      "reviews",
+      "module-analysis",
+      "wide-wasmtime",
+      "wide-v8",
+      "delivery-preparation"
+    ],
+    "optional_trees": [
+      "chart-previews",
+      "packaging-attempts",
+      "guide-validation",
+      "qualification/preparation-history",
+      "delivery-package/preparation-history",
+      "development",
+      "test-development",
+      "wide-screen-wasmtime",
+      "wide-screen-v8"
+    ],
+    "evidence_documents": [
+      "qualification/attempt-1/selected.json",
+      "qualification/attempt-1/input-pins.json",
+      "delivery-execution/report.json",
+      "qualification/static-review.json",
+      "qualification/test-static-review.json",
+      "module-analysis.json",
+      "campaign.json",
+      "final-numbers.json",
+      "qualification/attempt-1/worker-replay/report.json",
+      "qualification/attempt-1/worker-case-inputs.json",
+      "campaign-selection.json",
+      "select-wasmtime/report.json",
+      "select-v8/report.json",
+      "guide-validation/report.json",
+      "reviews/independent-arithmetic.json",
+      "select-static-review.json",
+      "select-screen-review.json",
+      "qualification/summary.json",
+      "qualification/attempt-1/artifact-catalog.json",
+      "wide-wasmtime/report.json",
+      "wide-v8/report.json",
+      "wide-static-review.json",
+      "wide-selection-review.json"
+    ],
+    "optional_evidence_documents": [
+      "reviews/final-public-review.json",
+      "table-verification.json",
+      "wide-screen-review.json",
+      "scan-tests/full-clean-manifest.json",
+      "wide-tests/full-clean-manifest.json"
+    ],
+    "source_stages": {
+      "baseline-f76": "build/stride-hills/final",
+      "select-only-prototype": "build/scan-hills/last-select",
+      "wide32-prototype": "build/scan-hills/wide-32",
+      "final": "build/scan-hills/final"
+    },
+    "direct_files": [
+      "build/stride-hills/final/O2.wasm",
+      "build/native/CMakeCache.txt",
+      "build/squares.wasm",
+      "build/squares.cwasm"
+    ],
+    "public_files": [
+      "README.md",
+      "bench/examples.md",
+      "bench/wasmtime-host.md",
+      "docs/FUNCTIONS_PERFORMANCE.md",
+      "docs/PERFORMANCE_PLAN.md",
+      "docs/RUNTIME_TARGETS.md",
+      "docs/RUNTIME_PERFORMANCE.md",
+      "bench/results/latest.json",
+      "bench/results/examples-latest.json",
+      "bench/results/wasmtime-host-latest.json",
+      "bench/results/runtime-targets-latest.json",
+      "bench/charts/compilation.svg",
+      "bench/charts/runtime.svg",
+      "bench/charts/runtime-targets.svg",
+      "bench/charts/examples-compilation.svg",
+      "bench/charts/examples-runtime.svg",
+      "bench/charts/examples-python-runtime.svg",
+      "bench/charts/examples-entry.svg",
+      "bench/charts/wasmtime-host-preparation.svg",
+      "bench/charts/wasmtime-host-runtime.svg",
+      "bench/charts/wasmtime-host-c-wasm.svg",
+      "docs/GUIDE.md",
+      "bench/results/runtime-lifecycle-latest.json",
+      "bench/charts/runtime-lifecycle.svg"
+    ],
+    "required_public_files": [
+      "README.md",
+      "campaign.json",
+      "readme.json",
+      "target-chart-verification.json",
+      "chart-verification.json",
+      "chart-visual-review.json",
+      "table-verification.json",
+      "guide-verification.json"
+    ],
+    "max_raw_archive_bytes": 67108864,
+    "policy": "Current byte-scans campaign aliases and six fresh delivery cohorts only. Read exactly one strided-stores archive index; reuse byte objects from exactly twenty explicitly named physical archives under2026-11-03: two strided-stores, two merge-bounds, two runtime-stencil, two fresh-construction, four functions-calls and eight functions-forwarding. Never import prior aliases, documents, namespaces or recursively open historical indexes. Retain select-only and wide32 snapshots/screens, source-before/test snapshots, static/machine reviews, every failed attempt, all seven newly built same-source controls, qualification raw logs, measured guests and lifecycle cache payloads/counters. Selected final compiler b431 uses36 headers/2 patches/76 focused gates and7 fresh local controls. Final qualification derives1368 sealed inputs,1574 modules,3001 worker module/input groups over3828 aliases. The first delivery attempt was wholly discarded after bookkeeping overlap; its raw interrupted state and stop proof remain opaque and used0 primary observations. Only the separate clean six-cohort run supplies primary reports. Select-only c834 remains the smaller alternative; the width32 marginal gain is disclosed separately from the combined baseline gain. Publication date2026-11-04 is separate from collection UTC ranges. No public folder until six fresh delivery cohorts finish. The independent final audit owns SHA256.json last after public writes stop.",
+    "reuse": {
+      "index": "bench/results/2026-11-03/strided-stores/archives.json.gz",
+      "manifest": "bench/results/2026-11-03/strided-stores/SHA256.json",
+      "index_schema": "goose-strided-stores-objects-v1",
+      "relative_publication_root": "../../2026-11-03",
+      "archives": {
+        "../fresh-construction/evidence-000.tar.gz": "../../2026-11-03/fresh-construction/evidence-000.tar.gz",
+        "../fresh-construction/evidence-001.tar.gz": "../../2026-11-03/fresh-construction/evidence-001.tar.gz",
+        "../functions-calls/evidence-000.tar.gz": "../../2026-11-03/functions-calls/evidence-000.tar.gz",
+        "../functions-calls/evidence-001.tar.gz": "../../2026-11-03/functions-calls/evidence-001.tar.gz",
+        "../functions-calls/evidence-002.tar.gz": "../../2026-11-03/functions-calls/evidence-002.tar.gz",
+        "../functions-calls/evidence-003.tar.gz": "../../2026-11-03/functions-calls/evidence-003.tar.gz",
+        "../functions-forwarding/evidence-000.tar.gz": "../../2026-11-03/functions-forwarding/evidence-000.tar.gz",
+        "../functions-forwarding/evidence-001.tar.gz": "../../2026-11-03/functions-forwarding/evidence-001.tar.gz",
+        "../functions-forwarding/evidence-002.tar.gz": "../../2026-11-03/functions-forwarding/evidence-002.tar.gz",
+        "../functions-forwarding/evidence-003.tar.gz": "../../2026-11-03/functions-forwarding/evidence-003.tar.gz",
+        "../functions-forwarding/evidence-004.tar.gz": "../../2026-11-03/functions-forwarding/evidence-004.tar.gz",
+        "../functions-forwarding/evidence-005.tar.gz": "../../2026-11-03/functions-forwarding/evidence-005.tar.gz",
+        "../functions-forwarding/evidence-006.tar.gz": "../../2026-11-03/functions-forwarding/evidence-006.tar.gz",
+        "../functions-forwarding/evidence-007.tar.gz": "../../2026-11-03/functions-forwarding/evidence-007.tar.gz",
+        "../runtime-stencil/evidence-000.tar.gz": "../../2026-11-03/runtime-stencil/evidence-000.tar.gz",
+        "../runtime-stencil/evidence-001.tar.gz": "../../2026-11-03/runtime-stencil/evidence-001.tar.gz",
+        "../merge-bounds/evidence-000.tar.gz": "../../2026-11-03/merge-bounds/evidence-000.tar.gz",
+        "../merge-bounds/evidence-001.tar.gz": "../../2026-11-03/merge-bounds/evidence-001.tar.gz",
+        "evidence-000.tar.gz": "../../2026-11-03/strided-stores/evidence-000.tar.gz",
+        "evidence-001.tar.gz": "../../2026-11-03/strided-stores/evidence-001.tar.gz"
+      }
+    },
+    "opaque_failed_attempts": [],
+    "qualification": "qualification",
+    "public_metadata": {
+      "campaign.json": "campaign.json",
+      "final-numbers.json": "final-numbers.json",
+      "module-analysis.json": "module-analysis.json",
+      "static-review.json": "qualification/static-review.json",
+      "test-static-review.json": "qualification/test-static-review.json",
+      "qualification-summary.json": "qualification/summary.json"
+    },
+    "rejected_execution_roots": [
+      "select-wasmtime",
+      "select-v8",
+      "wide-wasmtime",
+      "wide-v8"
+    ],
+    "rejection_reason": "Exploratory candidate screens, separate from fresh final delivery cohorts. The selected32-byte scan adds94 guest bytes; its marginal width improvement is2.8% Wasmtime/4.0% V8 with V8 winning3of5 pairs. No independent5% width gain or hardware cause is established; retain select-only as a smaller valid alternative.",
+    "delivery_execution": "delivery-execution/report.json",
+    "optional_public_metadata": {
+      "final-public-review.json": "reviews/final-public-review.json",
+      "table-verification.json": "table-verification.json",
+      "guide-verification.json": "guide-validation/report.json"
+    },
+    "final_review": "reviews/final-public-review.json",
+    "host_stages": {
+      "final": {
+        "metadata": "build/bin/goose-wasmtime.json",
+        "sources": [
+          "host/wasmtime.cpp",
+          "scripts/build_wasmtime_host.py",
+          "host/wasmtime-sdk.json"
+        ]
+      }
+    },
+    "qualified_input_pins": "qualification/attempt-1/input-pins.json",
+    "selection_status": "selected",
+    "compiler_name": "simd-byte-scan-select-and-width32",
+    "baseline_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+    "host_sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "wasmtime_version": "50.0.1",
+    "controls": {
+      "merge-control": {
+        "root": "qualification/merge-control",
+        "changed_headers": [
+          "direct_wasm_merge.h"
+        ],
+        "compiler_sha256": "d614072d1fc14c14aad3174e5713ab49f59766d0d31b4bddaabcbcaa091903f8"
+      },
+      "resource-control": {
+        "root": "qualification/resource-control",
+        "changed_headers": [
+          "direct_wasm_temps.h"
+        ],
+        "compiler_sha256": "f1a56984e3091ee8de9cf26fffc85f5e0171eff833acfe355ae1931923d556bd"
+      },
+      "named-control": {
+        "root": "qualification/named-control",
+        "changed_headers": [
+          "direct_wasm_funvals.h"
+        ],
+        "compiler_sha256": "fd9a1f5fc562db519e3ba3f930f5782d11eb07acfc4db920a8e8a0d9f418266d"
+      },
+      "private-control": {
+        "root": "qualification/private-control",
+        "changed_headers": [
+          "direct_wasm_emit.h"
+        ],
+        "compiler_sha256": "7a066767001c9ef6c1baccd0261b72ba80a049acf8ccf6ac6165177db407969b"
+      },
+      "stencil-control": {
+        "root": "qualification/stencil-control",
+        "changed_headers": [
+          "direct_wasm_stencil.h"
+        ],
+        "compiler_sha256": "167dee2a66af971aea30b66b8e799cf5884e685b899b38f82905899e6c2a3c97"
+      },
+      "stride-control": {
+        "root": "qualification/stride-control",
+        "changed_headers": [
+          "direct_wasm_stride.h"
+        ],
+        "compiler_sha256": "ec1b54613cdc242dde54d56ba449c5ef8b9727caa501e16f8f7c65ce00765c87"
+      },
+      "scan-control": {
+        "root": "qualification/scan-control",
+        "changed_headers": [
+          "direct_wasm_scan.h"
+        ],
+        "compiler_sha256": "188deaa056365d534d6ecb22eecca5fceb9097a02cef7ac3506d3583ab906224"
+      }
+    },
+    "expected": {
+      "focused_commands": 76,
+      "selected_headers": 36,
+      "selected_patches": 2,
+      "matched_controls": 7,
+      "differential_observations": 9573,
+      "native_comparisons": 7656,
+      "cases": 978,
+      "host_observations": 11484,
+      "input_pins": 1368,
+      "host_modules": 1574,
+      "worker_effective_cases": 3001,
+      "worker_aliases": 3828
+    },
+    "additional_test_sources": [
+      "test_private_snapshot_parameters.py",
+      "test_byte_stencil.py",
+      "test_runtime_session.py",
+      "test_strided_stores.py",
+      "test_byte_scans.py"
+    ],
+    "worker_case_inputs": "qualification/attempt-1/worker-case-inputs.json",
+    "selection_document": "campaign-selection.json",
+    "scan_test_manifest": null,
+    "selection_pending_fields": [],
+    "discarded_execution_roots": [
+      "delivery-preparation/window-overlap-1"
+    ]
+  },
+  "archive_index": "archives.json.gz",
+  "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "public_file_sha256": {
+    "qualification.json": "708d1af9500613a378b0556f9f3fe2c08e085941995a27995637a3908140f4f8",
+    "differential.json": "cd38d1f130913140161934fbb744b6bfa9a6119564a38e1e25d6a8f5b651a6e4",
+    "host-qualification.json": "c2b5a853f8098c05365033863c06d8a43c05e9aa24f6fee5ddaa0fbb6c1f0e88",
+    "final-warmed.json": "a0e20a2054f44177b1076387ec9ddf61ec3271c0b5ac305949d016b27df9b326",
+    "final-v8.json": "731823e5b69dab3327cb9910f2d3ffc24a7e694c5ae021b5ce3c675dc5bbc5d3",
+    "examples.json": "758fd077be2032870010c110d7d9a176395c7ef0d36b8c517c262509427637dd",
+    "host.json": "3f69c679188963574d7e06b32d0a114ed6c49432f1f7f5478985dfb59a098ea1",
+    "cohort.json": "2a200d6dbb700ec5d24aae7151b9e7f551d2f94cc0812652456eddad2b869822",
+    "lifecycle.json": "9bb34b666e28ca93b71662753bfd70abb09a28116d60a54232f1c24ed43e08a7",
+    "worker-qualification.json": "a09fa8b680dcf4b3ea4aa135947824cd17a2d92faedca908c69a2a859e6317f9",
+    "campaign.json": "2ab399fca0dae8d744c2204c5444be97a4f2b48524b674ba36d51861171a2a94",
+    "final-numbers.json": "e64f07e1704dd13ff8752cf224e3f0d7de9422580b7f1444b3b2b27ed651cec1",
+    "module-analysis.json": "83c6583d9c526dc0a572f9c8af5cf22f3b9b6b0b20a8f8a7b38924d091a90c71",
+    "static-review.json": "8b482f5a89550b07b379b2811714533e300275721ee6d112144c0d134abe4f0d",
+    "test-static-review.json": "88690c187bf0ff84cae0994b926881c6215a2fec701bd927ec31fa5021f663a2",
+    "qualification-summary.json": "afeeab8ae57d74e172370c42672b1bbf76b94960bccbf5687e0504ec1c3370f8",
+    "references.json": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350",
+    "compiler-identity.json": "5c14445eb80a205a905013080a866c901f97c1609e33a983e4f2534842f72270",
+    "README.md": "6fc2e18316d2da733ae40cbd20b0c9660af3547d325d964628edb33d3586f325",
+    "readme.json": "de01e8c571344f94cd8adb65c1bdafdd418021f8aab5461cf19292fc63248258",
+    "target-chart-verification.json": "2c41691542c2877a59ea7cde1c7d1df4fd254068fc054846418fccb1e665c59c",
+    "chart-verification.json": "1c0fdb543b14c11f710caa366b49dd066da1de5b6c0921dcfea6e3983913ac3c",
+    "table-verification.json": "19a6747e2d5b36d1544cc730e115ee1752801546473a13715abb47e894dab028",
+    "chart-visual-review.json": "ecf449aba6384c14fd0fa8f1df2ac44a952d9cf0c8c8b30b719f7644b53d727b",
+    "guide-verification.json": "1b8a711fd08d85eb0f2fae51b83d4c3a8a338637093192d72273d81949317d79",
+    "final-public-review.json": "464f513c11db95e1824cd82e7a2b003da1d93feed61c3ce364d472cf691d1626",
+    "evidence-000.tar.gz": "87d59eaa545a5d3c3cc0029f40a4ba3b1d2a50775d6926009347d33cb91b0ea3",
+    "evidence-001.tar.gz": "c4d0d68d08b946115c94639fdb026ce46392b0478fad4409b31059cb6fc0861d",
+    "archives.json.gz": "0c5e7a607585685a40801087687a5193992fc4b42217165d3a74b09dc8edd40b",
+    "reproduction/bundle.py": "41abf857d912273430124d2fb55aab4da6f51580eb1193e62492966bb0a3b818",
+    "reproduction/verify.py": "57a163181d9702efd99a45a57b93f05e5d991eb2e29d33a8c0f363f526da2233",
+    "reproduction/checks.py": "f71c4c66ca93e92f1d759544f7d720b91902c4bc584ed233708ff854dbd025ec",
+    "reproduction/spec.json": "44685b0f32ef86df8ec34a9f0b90e63f73980783b754b4836fa9ae270cefb089"
+  }
+}

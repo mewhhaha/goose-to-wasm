@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "method": "All11SVGs rendered with rsvg-convert at1600px; three contact sheets and full-size plots inspected separately. Numeric labels checked against raw reports by check_charts.py.",
+  "charts": [
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/compilation.svg",
+      "sha256": "d6bcdf1d926ee6ef5a1139c18e9bede1915a4095eb5b02aad96e0f75aa064bde",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/compilation.png",
+      "preview_sha256": "33df9b3dcdd96e698983ddb5c2ac041a5f64c3256cba38bb477af1f7cc8793c7"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime.svg",
+      "sha256": "f9291076cf9da116d15d340c8b92554f5349af06b6d7ad0590a432ce1e3d6b7b",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/runtime.png",
+      "preview_sha256": "396407426bf678646022cf717f421b37d5e4e8b345567802db91a43f7a47757a"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime-targets.svg",
+      "sha256": "22dc2ad9d8f23e23965a1843ed88e270a1f9663bc52207fdf71c7318b6c029ed",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/runtime-targets.png",
+      "preview_sha256": "b740c55f43e242718890e85c81243d265e6ab357e7eaeab15a82569974395080"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-compilation.svg",
+      "sha256": "87c33f27ee7809bbc527021f397730f7e889a2b5e7ac2904279168043e5bd00a",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/examples-compilation.png",
+      "preview_sha256": "05644e8bca7ce9d0e2d1ba419d70f1824b59ab6af264b0ee905bd8b52f3c2b7c"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-runtime.svg",
+      "sha256": "99b77207f6106d161948416038db7c8d2eb81197daf786b053dd2b3ccef7c4d8",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/examples-runtime.png",
+      "preview_sha256": "19c47ac639f32df25cfd923f1afc96b272ca29c92e3cfa21b46cd8295b01b709"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-python-runtime.svg",
+      "sha256": "ec275b9a867f56cccab5e73c264773e698858061640a2bc404fc3c2e9b81e389",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/examples-python-runtime.png",
+      "preview_sha256": "edd9a35482348bbbc1ef75d04214112596c87d49f053b32a557ecdc3ee4e3f6f"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/examples-entry.svg",
+      "sha256": "99cecfa5af800ca3e01b00366113bc1cbda279317619c48d916972055a4d847c",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/examples-entry.png",
+      "preview_sha256": "293987e51905866b6dac7ee71709baf7d109650c9595d1a8216f666d40ffb565"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-preparation.svg",
+      "sha256": "cec9ae99fea1e7d8a6c9698702ea193a6ecb3a423d31b02c4c25149319718a62",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/wasmtime-host-preparation.png",
+      "preview_sha256": "0319fc458a6c32686033b5d6883a81636ff909bdc11f90444379382e98582fbc"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-runtime.svg",
+      "sha256": "bc924090e9b68a37e41fe2771c2f86b210c9b6af092deb5fe7933a016b2a22de",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/wasmtime-host-runtime.png",
+      "preview_sha256": "01702364b233c17e33135feef61fe27854b1feccec77d94f9497fccbe3f13a22"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/wasmtime-host-c-wasm.svg",
+      "sha256": "f378becc43652336d5301f6a5096ff60c41f2f150380210ccab73d573c924b1e",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/wasmtime-host-c-wasm.png",
+      "preview_sha256": "ce3d77ee5e581f959459c27d91170acfcfa392bdbb1d5eede1d2d4bd4eec6f16"
+    },
+    {
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/runtime-lifecycle.svg",
+      "sha256": "d54bedf251ce7041a774c27424e81559cab34a0926f69c2fa4493de078170a11",
+      "preview": "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/runtime-lifecycle.png",
+      "preview_sha256": "a123079a0720fe51e8529d3626a2f443c492f124af17802e1c9d67deddff7c48"
+    }
+  ],
+  "contact_sheets": [
+    "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/contact-1.png",
+    "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/contact-2.png",
+    "/home/jacobt/src/goose-to-wasm/build/scan-hills/chart-previews/contact-3.png"
+  ],
+  "reviewer": "root",
+  "inspection": {
+    "all_plots": "All eleven rendered plots inspected via three contact sheets.",
+    "full_size": [
+      "runtime-lifecycle.png",
+      "wasmtime-host-runtime.png"
+    ],
+    "findings": "Numeric labels, legends, axes and footnotes are readable; no clipped text found. All453numeric labels independently match retained summaries."
+  }
+}

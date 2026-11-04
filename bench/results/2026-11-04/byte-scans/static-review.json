@@ -1,0 +1,1344 @@
+{
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-03T23:54:58.020058+00:00",
+  "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "baseline_compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+  "host": {
+    "path": "build/bin/goose-wasmtime",
+    "sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+    "bytes": 22751120
+  },
+  "header_count": 36,
+  "patch_count": 2,
+  "source_inventory": {
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+    "patches": {
+      "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+      "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+    },
+    "headers": {
+      "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+      "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+      "direct_wasm.h": "a0648deed500cd6da783c3e8a29f52ab8dda9cb9d25a12e16e1eaf9d93632cf0",
+      "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+      "direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+      "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+      "direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+      "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+      "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+      "direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+      "direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+      "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+      "direct_wasm_expr.h": "f55e5f1f799377100e31f32ac587214489bfffcd3cffedb9b40fd059b1dee750",
+      "direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+      "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+      "direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+      "direct_wasm_merge.h": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+      "direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+      "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+      "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+      "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+      "direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+      "direct_wasm_scan.h": "6d93756d8b7423d788bfd73e6a6455b7f9f34b6434e9dda76af8c078b5d8740f",
+      "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+      "direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+      "direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+      "direct_wasm_stride.h": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+      "direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+      "direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+      "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+      "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+      "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+      "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+      "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+      "wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+    },
+    "direct_enabled": true,
+    "source_diff_sha256": "0878d24b7f3781698c7a7d14b451c42c3007abf032bdc88eea713485384390de"
+  },
+  "plan": {
+    "path": "build/scan-hills/qualification/plan.json",
+    "sha256": "3b133ec679644dda6e547a107f701f7833a8a65de942a939bacf32ac55445d7b",
+    "bytes": 8158
+  },
+  "preseal_validation": {
+    "path": "build/scan-hills/qualification/preseal-validation.json",
+    "sha256": "db01a8a55493fa0b50ae495508f4ab5143e39a55eb4b4d654821cc801e8dc0a1",
+    "bytes": 4717
+  },
+  "prior_reviews_and_selection": [
+    {
+      "path": "build/scan-hills/select-static-review.json",
+      "sha256": "38285227e12b73f210a710c86186adf94ff848d6aef8e38e7dd3b8d730d02958",
+      "bytes": 3183
+    },
+    {
+      "path": "build/scan-hills/select-screen-review.json",
+      "sha256": "c148f7d137af88226aedfac98bad6441ee312370c6d4735d9edf7da0bd7f433f",
+      "bytes": 6996
+    },
+    {
+      "path": "build/scan-hills/wide-static-review.json",
+      "sha256": "665bdadab334db18e578b668e927a9821cb1fe5832c84ba0ea128e8fff45deb9",
+      "bytes": 5716
+    },
+    {
+      "path": "build/scan-hills/wide-selection-review.json",
+      "sha256": "5c97baf33c941ba51b54cc6cba18d9c8b0f41301d51112510b5ccc6674b9aa5e",
+      "bytes": 80473
+    },
+    {
+      "path": "build/scan-hills/campaign-selection.json",
+      "sha256": "3775f73ffd7482fdd964cd2164027b98794c7aa8af2328479607acf4f61ebf81",
+      "bytes": 34104
+    }
+  ],
+  "controls": {
+    "scan": {
+      "compiler_sha256": "188deaa056365d534d6ecb22eecca5fceb9097a02cef7ac3506d3583ab906224",
+      "changed_header": "direct_wasm_scan.h",
+      "change": "Single early predicate return; exact declared36-header/2-patch inventory and matched Clang/Ninja Release settings verified.",
+      "inputs": [
+        {
+          "path": "build/scan-hills/qualification/scan-control/preparation.json",
+          "sha256": "c52dd7be5e377610cac44e26b0769a16e6b62912c7f8d2719fae3073c22dd8ca",
+          "bytes": 8901
+        },
+        {
+          "path": "build/scan-hills/qualification/scan-control/before.h",
+          "sha256": "6d93756d8b7423d788bfd73e6a6455b7f9f34b6434e9dda76af8c078b5d8740f",
+          "bytes": 6908
+        },
+        {
+          "path": "build/scan-hills/qualification/scan-control/disable.patch",
+          "sha256": "e27df558a5b70ccf402a8fc4596fe3bc75e770948e403458f159c3fa4d00a098",
+          "bytes": 406
+        },
+        {
+          "path": "build/scan-hills/qualification/scan-control/build-execution.json",
+          "sha256": "fecc04dd47cdb26349b76c088dd255b57ec2e59c717c1c8c6f04b353ff3ef84b",
+          "bytes": 640
+        },
+        {
+          "path": "build/scan-hills/qualification/scan-control/build/source.json",
+          "sha256": "b26078d3732f6de319317e3d788eed9dfd77a4416b397d7ace201222c0d5c982",
+          "bytes": 3909
+        },
+        {
+          "path": "build/scan-hills/qualification/scan-control/build/toolchain.json",
+          "sha256": "0a525576013dc5c83cdc729d9a342cfa295f387feacf496622adc7f250c54e71",
+          "bytes": 4873
+        },
+        {
+          "path": "build/scan-hills/qualification/scan-control/build/control-toolchain-match.json",
+          "sha256": "154d58fd62b5e75b968460fd8fc8d34b33d6309dbdfc218c3909407438a0b357",
+          "bytes": 1268
+        }
+      ]
+    },
+    "stride": {
+      "compiler_sha256": "ec1b54613cdc242dde54d56ba449c5ef8b9727caa501e16f8f7c65ce00765c87",
+      "changed_header": "direct_wasm_stride.h",
+      "change": "Single early predicate return; exact declared36-header/2-patch inventory and matched Clang/Ninja Release settings verified.",
+      "inputs": [
+        {
+          "path": "build/scan-hills/qualification/stride-control/preparation.json",
+          "sha256": "bd92782bfe6f231ac2a5613770f145ffb79c008b10facbfddf0a5d6aaf2a7e6d",
+          "bytes": 8989
+        },
+        {
+          "path": "build/scan-hills/qualification/stride-control/before.h",
+          "sha256": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+          "bytes": 7123
+        },
+        {
+          "path": "build/scan-hills/qualification/stride-control/disable.patch",
+          "sha256": "19ea35ad0ea7461d6a618e31028473e258ec5b80fdafb91eead1eb86bc418bd8",
+          "bytes": 415
+        },
+        {
+          "path": "build/scan-hills/qualification/stride-control/build-execution.json",
+          "sha256": "7d0f0ad03c33229b115eb0712fd5f1ab839838a37358b6c4d20988917fb2e581",
+          "bytes": 644
+        },
+        {
+          "path": "build/scan-hills/qualification/stride-control/build/source.json",
+          "sha256": "3371ac76c5637bb994d4f17c5eebe2990bda8ed47255bf401ba2b1e6918b5f9d",
+          "bytes": 3909
+        },
+        {
+          "path": "build/scan-hills/qualification/stride-control/build/toolchain.json",
+          "sha256": "3b19820f84602d6585fc0cc2820c95b79773afba3c174219f7ccc5f9ff6c38a4",
+          "bytes": 4877
+        },
+        {
+          "path": "build/scan-hills/qualification/stride-control/build/control-toolchain-match.json",
+          "sha256": "dbd54844ed7bbca6f51509b147a107cb80e7a725798024e647f3aaea48f6e199",
+          "bytes": 1272
+        }
+      ]
+    },
+    "merge": {
+      "compiler_sha256": "d614072d1fc14c14aad3174e5713ab49f59766d0d31b4bddaabcbcaa091903f8",
+      "changed_header": "direct_wasm_merge.h",
+      "change": "Single early predicate return; exact declared36-header/2-patch inventory and matched Clang/Ninja Release settings verified.",
+      "inputs": [
+        {
+          "path": "build/scan-hills/qualification/merge-control/preparation.json",
+          "sha256": "65b62e0215e670be89fc2d89e65fd80be23041aad8c1dbe7de8e9abeb3390881",
+          "bytes": 8945
+        },
+        {
+          "path": "build/scan-hills/qualification/merge-control/before.h",
+          "sha256": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+          "bytes": 8124
+        },
+        {
+          "path": "build/scan-hills/qualification/merge-control/disable.patch",
+          "sha256": "e8ad70701c6db2fdc45d7d2560c1a532dbf19c89aba5d87c97e9424880c3bc57",
+          "bytes": 407
+        },
+        {
+          "path": "build/scan-hills/qualification/merge-control/build-execution.json",
+          "sha256": "448d5a81482535c854813ef2da04be70a858b6a9829fe8d43660a1e68f9f3018",
+          "bytes": 643
+        },
+        {
+          "path": "build/scan-hills/qualification/merge-control/build/source.json",
+          "sha256": "899301a731ce0ff613a9cd31756751fe116b7f0e2ac4d70b59a310953ea4368c",
+          "bytes": 3909
+        },
+        {
+          "path": "build/scan-hills/qualification/merge-control/build/toolchain.json",
+          "sha256": "bf41b9e8948b2605b435fd28640a63d081677bbdcc691b3740fc55151c8e71c7",
+          "bytes": 4875
+        },
+        {
+          "path": "build/scan-hills/qualification/merge-control/build/control-toolchain-match.json",
+          "sha256": "b32071678606479d7f57a5e38f3c4f6c1129d2410a7cef063740d827b0ae0344",
+          "bytes": 1270
+        }
+      ]
+    },
+    "resource": {
+      "compiler_sha256": "f1a56984e3091ee8de9cf26fffc85f5e0171eff833acfe355ae1931923d556bd",
+      "changed_header": "direct_wasm_temps.h",
+      "change": "Single early predicate return; exact declared36-header/2-patch inventory and matched Clang/Ninja Release settings verified.",
+      "inputs": [
+        {
+          "path": "build/scan-hills/qualification/resource-control/preparation.json",
+          "sha256": "ce69cb3395a5d676494465b8f10413044dfd1cc7503d494535096c369fe03aea",
+          "bytes": 9074
+        },
+        {
+          "path": "build/scan-hills/qualification/resource-control/before.h",
+          "sha256": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+          "bytes": 10139
+        },
+        {
+          "path": "build/scan-hills/qualification/resource-control/disable.patch",
+          "sha256": "4deb9b241e85196dd389df99ba9c04ec4fe4a3e29835889278b5f44532fda236",
+          "bytes": 335
+        },
+        {
+          "path": "build/scan-hills/qualification/resource-control/build-execution.json",
+          "sha256": "7a45aadf652d64542fbfc3a64fd9f96380326d996d02b231df06b90b92fd250b",
+          "bytes": 649
+        },
+        {
+          "path": "build/scan-hills/qualification/resource-control/build/source.json",
+          "sha256": "b4189480140cc17e8a01ba47f0aa2851932921f88519a573ba88b9d8589d5d22",
+          "bytes": 3909
+        },
+        {
+          "path": "build/scan-hills/qualification/resource-control/build/toolchain.json",
+          "sha256": "e151cd0ca7f21fe064520a93f5c11eeb3a22fb292bff1770e447dc5b818b14bf",
+          "bytes": 4881
+        },
+        {
+          "path": "build/scan-hills/qualification/resource-control/build/control-toolchain-match.json",
+          "sha256": "de691a8c3af808a7e45a39e596e8279a05bbec35147dfd52c8e3ab1bbc118374",
+          "bytes": 1273
+        }
+      ]
+    },
+    "named": {
+      "compiler_sha256": "fd9a1f5fc562db519e3ba3f930f5782d11eb07acfc4db920a8e8a0d9f418266d",
+      "changed_header": "direct_wasm_funvals.h",
+      "change": "Single early predicate return; exact declared36-header/2-patch inventory and matched Clang/Ninja Release settings verified.",
+      "inputs": [
+        {
+          "path": "build/scan-hills/qualification/named-control/preparation.json",
+          "sha256": "f8c9532bc1cccf3854b443e863724e448b2d88287055b225dbac1292975198ea",
+          "bytes": 8947
+        },
+        {
+          "path": "build/scan-hills/qualification/named-control/before.h",
+          "sha256": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+          "bytes": 13685
+        },
+        {
+          "path": "build/scan-hills/qualification/named-control/disable.patch",
+          "sha256": "aa8f964153f9f55b14cb1b951e9b97b8149b5e1174e4ba2875c39dbd0f4bc869",
+          "bytes": 486
+        },
+        {
+          "path": "build/scan-hills/qualification/named-control/build-execution.json",
+          "sha256": "35a95fed90ea06b44a797888db99b4e012f96972af4f71bcd49a25d7a54b6cfc",
+          "bytes": 643
+        },
+        {
+          "path": "build/scan-hills/qualification/named-control/build/source.json",
+          "sha256": "20cd9fb2442eae2f8b702b5868f258e60e9651861be5d263facaaa3a7e73ec01",
+          "bytes": 3909
+        },
+        {
+          "path": "build/scan-hills/qualification/named-control/build/toolchain.json",
+          "sha256": "efe5cb006c996447bd3de5c47fefc855d9c9b9566426789612588674490272cc",
+          "bytes": 4875
+        },
+        {
+          "path": "build/scan-hills/qualification/named-control/build/control-toolchain-match.json",
+          "sha256": "f930deaea3106a7d3c358762f869dfe6270a2f7ae673e65e2369d85602682da2",
+          "bytes": 1272
+        }
+      ]
+    },
+    "private": {
+      "compiler_sha256": "7a066767001c9ef6c1baccd0261b72ba80a049acf8ccf6ac6165177db407969b",
+      "changed_header": "direct_wasm_emit.h",
+      "change": "Single early predicate return; exact declared36-header/2-patch inventory and matched Clang/Ninja Release settings verified.",
+      "inputs": [
+        {
+          "path": "build/scan-hills/qualification/private-control/preparation.json",
+          "sha256": "ef66a4357872f717b1b944b2fa7c49fac2b855c52a1cb984804769e97f958f90",
+          "bytes": 9030
+        },
+        {
+          "path": "build/scan-hills/qualification/private-control/before.h",
+          "sha256": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+          "bytes": 27647
+        },
+        {
+          "path": "build/scan-hills/qualification/private-control/disable.patch",
+          "sha256": "4cea92de2a97cb086ba6248c9c818a6e657ee06fc452399ac5f48abf31801cdc",
+          "bytes": 370
+        },
+        {
+          "path": "build/scan-hills/qualification/private-control/build-execution.json",
+          "sha256": "ed4cd6ecb4806d9035e5e6ea8a1fbb0a9f15cc50c0e04540ac03c4102270fb90",
+          "bytes": 647
+        },
+        {
+          "path": "build/scan-hills/qualification/private-control/build/source.json",
+          "sha256": "a44d73a923a4e629f01655ca066b2e43b324f5eadaea2b232e0465d6dcdd020c",
+          "bytes": 3909
+        },
+        {
+          "path": "build/scan-hills/qualification/private-control/build/toolchain.json",
+          "sha256": "fe751fb1cb3639f0fb82a47643d750dbef1f2f27d0716c0dbe8eeb14a8bdd745",
+          "bytes": 4879
+        },
+        {
+          "path": "build/scan-hills/qualification/private-control/build/control-toolchain-match.json",
+          "sha256": "83a729828959e11b199b2c9dc95e5c138b2d3d7deae317ca75d9ca6a5578f50c",
+          "bytes": 1271
+        }
+      ]
+    },
+    "stencil": {
+      "compiler_sha256": "167dee2a66af971aea30b66b8e799cf5884e685b899b38f82905899e6c2a3c97",
+      "changed_header": "direct_wasm_stencil.h",
+      "change": "Single early predicate return; exact declared36-header/2-patch inventory and matched Clang/Ninja Release settings verified.",
+      "inputs": [
+        {
+          "path": "build/scan-hills/qualification/stencil-control/preparation.json",
+          "sha256": "ea2a37dcc86b6d0d678de0aec0d682df54639eafc838e5f989c994216f04b54b",
+          "bytes": 9033
+        },
+        {
+          "path": "build/scan-hills/qualification/stencil-control/before.h",
+          "sha256": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+          "bytes": 24790
+        },
+        {
+          "path": "build/scan-hills/qualification/stencil-control/disable.patch",
+          "sha256": "7b8f9a00019309e54ce0fbb83953971231715d1454c8abb2c5f25f62f56916eb",
+          "bytes": 592
+        },
+        {
+          "path": "build/scan-hills/qualification/stencil-control/build-execution.json",
+          "sha256": "3498f87602c072012d06825194e83fb1d86eb7f25f2c5dfeee3e0618e73ec162",
+          "bytes": 647
+        },
+        {
+          "path": "build/scan-hills/qualification/stencil-control/build/source.json",
+          "sha256": "789506cf5cc17c77b46258e1c4f685490797b465e1b63546b7708cf0982282a4",
+          "bytes": 3909
+        },
+        {
+          "path": "build/scan-hills/qualification/stencil-control/build/toolchain.json",
+          "sha256": "c8fd3356987fad9d66f2496e1ded8a9743b3c44094a94a47902f622db6bd44b8",
+          "bytes": 4879
+        },
+        {
+          "path": "build/scan-hills/qualification/stencil-control/build/control-toolchain-match.json",
+          "sha256": "188328455331262a1930482834dea74107f9211aefab5a04682d91544e03bc7b",
+          "bytes": 1274
+        }
+      ]
+    }
+  },
+  "helpers": [
+    {
+      "path": "build/scan-hills/qualification/run.py",
+      "sha256": "da47899b5c048ac9982a2803e5d0a6b1c111a1d2d25973e882fd526f8853cd96",
+      "bytes": 26975
+    },
+    {
+      "path": "build/scan-hills/qualification/controls.py",
+      "sha256": "ea38f2619617404cb8e24acb71f32c1afbf8946c7878235a1e5c3b266f1c0e1d",
+      "bytes": 9297
+    },
+    {
+      "path": "build/scan-hills/qualification/build-controls.py",
+      "sha256": "c9ede687acad393e8832a3d735ba8de4858aff3b9bf9ca439d2f40100a1b7c2e",
+      "bytes": 1810
+    },
+    {
+      "path": "build/scan-hills/qualification/worker-replay.py",
+      "sha256": "7ada8a3c88314888aa05f24c016a3e87716f6138cd31b9e5dcf2bc394e08baa0",
+      "bytes": 10308
+    },
+    {
+      "path": "build/scan-hills/qualification/environment-preflight.py",
+      "sha256": "94f7a1ee2ddb226f5064ea76805599358163a316308f0e95ea5cc1eded4d5a8d",
+      "bytes": 2315
+    },
+    {
+      "path": "build/scan-hills/qualification/finalize.py",
+      "sha256": "eb2354fdd92dd53ca0276db5a842312c523e6d99de544a10b83639fe78da6163",
+      "bytes": 4984
+    },
+    {
+      "path": "build/scan-hills/qualification/plan.json",
+      "sha256": "3b133ec679644dda6e547a107f701f7833a8a65de942a939bacf32ac55445d7b",
+      "bytes": 8158
+    },
+    {
+      "path": "build/scan-hills/measure_delivery.py",
+      "sha256": "3ed89e5ec42ca443fe7d05db35b6ef4e340eb5d2afd53a1f6519f11f3fe63e74",
+      "bytes": 19614
+    }
+  ],
+  "ci": {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "e412072d9facdb25d8d407f06a666fae810987e40e201b803173ee33606c69d9",
+    "bytes": 11257
+  },
+  "focused_precheck": {
+    "status": "passed",
+    "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+    "reference_compiler_sha256": "188deaa056365d534d6ecb22eecca5fceb9097a02cef7ac3506d3583ab906224",
+    "test_sha256": "74e436ef12666c43a71d3f599669105939a4e2b2cac9325bc9f4a89c20b8cf6d",
+    "tests_run": 6,
+    "counts": {
+      "compiles": 240,
+      "compile_failures": 0,
+      "engine_cases": 34344,
+      "oracle_cases": 16924,
+      "body_checks": 120
+    },
+    "unittest_wall_seconds": 120.106,
+    "result_path": "/home/jacobt/src/goose-to-wasm/build/scan-hills/qualification/full-scan-evidence/20261103T234954.338058Z/result.json",
+    "result_sha256": "be08698fed1b9ab5daf99ad8b69b3390bfc2671ddf40add5294a6c49e4e41d15",
+    "log_path": "/home/jacobt/src/goose-to-wasm/build/scan-hills/qualification/full-scan.log",
+    "log_sha256": "44e7b2e7a21b814747bb80c0b9ed4b93a6807760c8dcc825ee0820958a0d5c3b"
+  },
+  "qualification_boundary": "GO to seal and run the approved fresh76-command/differential/standard-host/derived-worker qualification. These broad gates have not yet run for b431; no delivery-qualified claim is made.",
+  "scope": "Read source and exact recorded evidence; independently verify explicit file hashes and control deltas. No compiler, test, benchmark, engine or AOT execution by this reviewer.",
+  "blockers": [],
+  "schema": "goose-byte-scan-final-static-review-v1",
+  "decision": "GO: select plus32-byte groups and one16-byte vector tail preserve the existing byte-scan contract.",
+  "source_review": [
+    "Only direct_wasm_scan.h differs from the shipped36-header baseline. Upstream revision and both patches match; current and frozen final source/compiler identities agree.",
+    "Exact scalar pattern remains unchanged: stable private plain-i64 cursor/count/last, byte equality literal, stride1/2/4/8, fixed storage or private packed slice. Debug, owners, effectful bodies, captures, addressed locals, accumulator aliases and possible prefix mappings reject.",
+    "Whole logical and widened physical span guards prove every loaded byte valid, including unselected stride lanes. Invalid or zero-trip cases retain the sole original scalar loop; no callback or new potentially trapping operation is introduced.",
+    "Two16-byte comparison bitmasks merge by unsigned high-mask shift16 and OR, then a uint32 lane mask. Bit31 is defined; all strides divide16 and32, preserving relative lane selection.",
+    "popcnt accumulation preserves nondebug modulo-i64 count. Last uses candidate/old-last/mask/select: clz(0) and discarded candidate arithmetic cannot trap; same-value private writes are unobservable.",
+    "After repeated32-byte groups the residual is below32, so at most one guarded16-byte vector pass suffices. Remaining scalar iterations preserve cursor overshoot, exact last index and trap order. The16-byte loop wrapper has no backedge.",
+    "No payload writes or callbacks occur, and all fast loads are proven nontrapping; delaying private accumulator updates until both loads complete is unobservable. No runtime ABI, memory layout or host behavior changes."
+  ],
+  "helper_review": [
+    "All76 focused argv equal the previous qualified plan. Current accepted baseline is f76; historical memory/fresh references remain intentionally pinned. All seven controls are fresh, exact single-predicate disables from final b431.",
+    "Seal checks final review status and exact compiler SHA, matched source/toolchain controls, explicit source snapshots and bounded input inventory. Before/after pin checks cover commands, engines, tests and source; native comparisons and exact differential/host counts remain enforced.",
+    "Worker replay and environment preflight are byte-identical to the prior reviewed helpers. Worker coverage derives actual unique module/input pairs over3828 aliases; no stale effective-case constant is substituted.",
+    "At most four qualification jobs with internal thread caps1; focused76 run serially. Control builds cap2x2. Failed outputs are preserved; build-controls and finalizer refuse replacing reports.",
+    "Delivery helper changes only campaign roots and accepted baseline. Six-cohort boundaries remain separate; no measurements run within qualification."
+  ],
+  "performance_boundary": "Selection proof is wide-selection-review.json. Combined screening gain is clear; width-only2.8/4.0 percent and V8three-of-five wins remain explicitly modest. Final delivery measurements pending.",
+  "verified_inputs": [
+    {
+      "path": "build/scan-hills/qualification/preseal-validation.json",
+      "sha256": "db01a8a55493fa0b50ae495508f4ab5143e39a55eb4b4d654821cc801e8dc0a1",
+      "bytes": 4717
+    },
+    {
+      "path": "build/scan-hills/qualification/plan.json",
+      "sha256": "3b133ec679644dda6e547a107f701f7833a8a65de942a939bacf32ac55445d7b",
+      "bytes": 8158
+    },
+    {
+      "path": "tests/test_byte_scans.py",
+      "sha256": "74e436ef12666c43a71d3f599669105939a4e2b2cac9325bc9f4a89c20b8cf6d",
+      "bytes": 22035
+    },
+    {
+      "path": "build/scan-hills/qualification/build-controls.py",
+      "sha256": "c9ede687acad393e8832a3d735ba8de4858aff3b9bf9ca439d2f40100a1b7c2e",
+      "bytes": 1810
+    },
+    {
+      "path": "build/scan-hills/qualification/controls.py",
+      "sha256": "ea38f2619617404cb8e24acb71f32c1afbf8946c7878235a1e5c3b266f1c0e1d",
+      "bytes": 9297
+    },
+    {
+      "path": "build/scan-hills/qualification/environment-preflight.py",
+      "sha256": "94f7a1ee2ddb226f5064ea76805599358163a316308f0e95ea5cc1eded4d5a8d",
+      "bytes": 2315
+    },
+    {
+      "path": "build/scan-hills/qualification/finalize.py",
+      "sha256": "eb2354fdd92dd53ca0276db5a842312c523e6d99de544a10b83639fe78da6163",
+      "bytes": 4984
+    },
+    {
+      "path": "build/scan-hills/qualification/run.py",
+      "sha256": "da47899b5c048ac9982a2803e5d0a6b1c111a1d2d25973e882fd526f8853cd96",
+      "bytes": 26975
+    },
+    {
+      "path": "build/scan-hills/qualification/worker-replay.py",
+      "sha256": "7ada8a3c88314888aa05f24c016a3e87716f6138cd31b9e5dcf2bc394e08baa0",
+      "bytes": 10308
+    },
+    {
+      "path": "build/scan-hills/qualification/review-source-freeze.json",
+      "sha256": "bbcb2990d09b4b70589db241422799bddfb38abcf687a135b29ea6fe56ae00e8",
+      "bytes": 1252
+    },
+    {
+      "path": "build/scan-hills/qualification/control-source-audit.json",
+      "sha256": "e6fbd515fa95e414b8db96c0b9fb64d642b6b243c96ca8ec4a0bc3978786a0a5",
+      "bytes": 1875
+    },
+    {
+      "path": "build/scan-hills/qualification/controls-execution.json",
+      "sha256": "a52520a1c57923503e07f87f0a2d10bc1f8e1282965a3a4b3cfddf0aae504999",
+      "bytes": 836
+    },
+    {
+      "path": "build/scan-hills/final/bin/goose",
+      "sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+      "bytes": 8264768
+    },
+    {
+      "path": "build/bin/goose",
+      "sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+      "bytes": 8264768
+    },
+    {
+      "path": "build/scan-hills/final/source.json",
+      "sha256": "a134a8e115f759bb3b5342a3fbb04d1830166cffc364c0762c5c18f335fa8983",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/final/toolchain.json",
+      "sha256": "5cb79a555a1fb93fbfa564905423076b0810969b7df75cbc411515d0c5e1c9b5",
+      "bytes": 4785
+    },
+    {
+      "path": "build/source.json",
+      "sha256": "a134a8e115f759bb3b5342a3fbb04d1830166cffc364c0762c5c18f335fa8983",
+      "bytes": 3909
+    },
+    {
+      "path": "build/toolchain.json",
+      "sha256": "5cb79a555a1fb93fbfa564905423076b0810969b7df75cbc411515d0c5e1c9b5",
+      "bytes": 4785
+    },
+    {
+      "path": "compiler/checked_leaf_cache.h",
+      "sha256": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+      "bytes": 30062
+    },
+    {
+      "path": "build/scan-hills/final/compiler/checked_leaf_cache.h",
+      "sha256": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+      "bytes": 30062
+    },
+    {
+      "path": "compiler/direct_input_trace.h",
+      "sha256": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+      "bytes": 1233
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_input_trace.h",
+      "sha256": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+      "bytes": 1233
+    },
+    {
+      "path": "compiler/direct_wasm.h",
+      "sha256": "a0648deed500cd6da783c3e8a29f52ab8dda9cb9d25a12e16e1eaf9d93632cf0",
+      "bytes": 67664
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm.h",
+      "sha256": "a0648deed500cd6da783c3e8a29f52ab8dda9cb9d25a12e16e1eaf9d93632cf0",
+      "bytes": 67664
+    },
+    {
+      "path": "compiler/direct_wasm_arrays.h",
+      "sha256": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+      "bytes": 13833
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_arrays.h",
+      "sha256": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+      "bytes": 13833
+    },
+    {
+      "path": "compiler/direct_wasm_bits.h",
+      "sha256": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+      "bytes": 5795
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_bits.h",
+      "sha256": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+      "bytes": 5795
+    },
+    {
+      "path": "compiler/direct_wasm_captures.h",
+      "sha256": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+      "bytes": 3376
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_captures.h",
+      "sha256": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+      "bytes": 3376
+    },
+    {
+      "path": "compiler/direct_wasm_constants.h",
+      "sha256": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+      "bytes": 5125
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_constants.h",
+      "sha256": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+      "bytes": 5125
+    },
+    {
+      "path": "compiler/direct_wasm_dependencies.h",
+      "sha256": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+      "bytes": 1140
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_dependencies.h",
+      "sha256": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+      "bytes": 1140
+    },
+    {
+      "path": "compiler/direct_wasm_dispatch.h",
+      "sha256": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+      "bytes": 9668
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_dispatch.h",
+      "sha256": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+      "bytes": 9668
+    },
+    {
+      "path": "compiler/direct_wasm_effects.h",
+      "sha256": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+      "bytes": 16032
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_effects.h",
+      "sha256": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+      "bytes": 16032
+    },
+    {
+      "path": "compiler/direct_wasm_emit.h",
+      "sha256": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+      "bytes": 27647
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_emit.h",
+      "sha256": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+      "bytes": 27647
+    },
+    {
+      "path": "compiler/direct_wasm_enums.h",
+      "sha256": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+      "bytes": 18633
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_enums.h",
+      "sha256": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+      "bytes": 18633
+    },
+    {
+      "path": "compiler/direct_wasm_expr.h",
+      "sha256": "f55e5f1f799377100e31f32ac587214489bfffcd3cffedb9b40fd059b1dee750",
+      "bytes": 126055
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_expr.h",
+      "sha256": "f55e5f1f799377100e31f32ac587214489bfffcd3cffedb9b40fd059b1dee750",
+      "bytes": 126055
+    },
+    {
+      "path": "compiler/direct_wasm_funvals.h",
+      "sha256": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "bytes": 13685
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_funvals.h",
+      "sha256": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "bytes": 13685
+    },
+    {
+      "path": "compiler/direct_wasm_images.h",
+      "sha256": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+      "bytes": 19115
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_images.h",
+      "sha256": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+      "bytes": 19115
+    },
+    {
+      "path": "compiler/direct_wasm_landing.h",
+      "sha256": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+      "bytes": 23950
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_landing.h",
+      "sha256": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+      "bytes": 23950
+    },
+    {
+      "path": "compiler/direct_wasm_leaf.h",
+      "sha256": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+      "bytes": 7475
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_leaf.h",
+      "sha256": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+      "bytes": 7475
+    },
+    {
+      "path": "compiler/direct_wasm_merge.h",
+      "sha256": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+      "bytes": 8124
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_merge.h",
+      "sha256": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+      "bytes": 8124
+    },
+    {
+      "path": "compiler/direct_wasm_numeric.h",
+      "sha256": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+      "bytes": 20390
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_numeric.h",
+      "sha256": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+      "bytes": 20390
+    },
+    {
+      "path": "compiler/direct_wasm_owned.h",
+      "sha256": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+      "bytes": 8219
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_owned.h",
+      "sha256": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+      "bytes": 8219
+    },
+    {
+      "path": "compiler/direct_wasm_publication.h",
+      "sha256": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+      "bytes": 4239
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_publication.h",
+      "sha256": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+      "bytes": 4239
+    },
+    {
+      "path": "compiler/direct_wasm_record_images.h",
+      "sha256": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+      "bytes": 12028
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_record_images.h",
+      "sha256": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+      "bytes": 12028
+    },
+    {
+      "path": "compiler/direct_wasm_regions.h",
+      "sha256": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+      "bytes": 38904
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_regions.h",
+      "sha256": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+      "bytes": 38904
+    },
+    {
+      "path": "compiler/direct_wasm_scan.h",
+      "sha256": "6d93756d8b7423d788bfd73e6a6455b7f9f34b6434e9dda76af8c078b5d8740f",
+      "bytes": 6908
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_scan.h",
+      "sha256": "6d93756d8b7423d788bfd73e6a6455b7f9f34b6434e9dda76af8c078b5d8740f",
+      "bytes": 6908
+    },
+    {
+      "path": "compiler/direct_wasm_session.h",
+      "sha256": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+      "bytes": 14636
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_session.h",
+      "sha256": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+      "bytes": 14636
+    },
+    {
+      "path": "compiler/direct_wasm_stencil.h",
+      "sha256": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+      "bytes": 24790
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_stencil.h",
+      "sha256": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+      "bytes": 24790
+    },
+    {
+      "path": "compiler/direct_wasm_storage.h",
+      "sha256": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+      "bytes": 7389
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_storage.h",
+      "sha256": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+      "bytes": 7389
+    },
+    {
+      "path": "compiler/direct_wasm_stride.h",
+      "sha256": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+      "bytes": 7123
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_stride.h",
+      "sha256": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+      "bytes": 7123
+    },
+    {
+      "path": "compiler/direct_wasm_temps.h",
+      "sha256": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+      "bytes": 10139
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_temps.h",
+      "sha256": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+      "bytes": 10139
+    },
+    {
+      "path": "compiler/direct_wasm_uleb_arrays.h",
+      "sha256": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+      "bytes": 5441
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_uleb_arrays.h",
+      "sha256": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+      "bytes": 5441
+    },
+    {
+      "path": "compiler/direct_wasm_varint_arrays.h",
+      "sha256": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+      "bytes": 8424
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_varint_arrays.h",
+      "sha256": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+      "bytes": 8424
+    },
+    {
+      "path": "compiler/direct_wasm_varints.h",
+      "sha256": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+      "bytes": 4731
+    },
+    {
+      "path": "build/scan-hills/final/compiler/direct_wasm_varints.h",
+      "sha256": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+      "bytes": 4731
+    },
+    {
+      "path": "compiler/lexer_cache.h",
+      "sha256": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+      "bytes": 5471
+    },
+    {
+      "path": "build/scan-hills/final/compiler/lexer_cache.h",
+      "sha256": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+      "bytes": 5471
+    },
+    {
+      "path": "compiler/parsed_module_cache.h",
+      "sha256": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+      "bytes": 7577
+    },
+    {
+      "path": "build/scan-hills/final/compiler/parsed_module_cache.h",
+      "sha256": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+      "bytes": 7577
+    },
+    {
+      "path": "compiler/parsed_module_clone.h",
+      "sha256": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+      "bytes": 16262
+    },
+    {
+      "path": "build/scan-hills/final/compiler/parsed_module_clone.h",
+      "sha256": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+      "bytes": 16262
+    },
+    {
+      "path": "compiler/wasm_binary.h",
+      "sha256": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169",
+      "bytes": 7269
+    },
+    {
+      "path": "build/scan-hills/final/compiler/wasm_binary.h",
+      "sha256": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169",
+      "bytes": 7269
+    },
+    {
+      "path": "oracle/patches/0001-webassembly-target.patch",
+      "sha256": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+      "bytes": 51549
+    },
+    {
+      "path": "build/scan-hills/final/oracle/patches/0001-webassembly-target.patch",
+      "sha256": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+      "bytes": 51549
+    },
+    {
+      "path": "patches/direct-target.patch",
+      "sha256": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91",
+      "bytes": 19359
+    },
+    {
+      "path": "build/scan-hills/final/patches/direct-target.patch",
+      "sha256": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91",
+      "bytes": 19359
+    },
+    {
+      "path": "build/stride-hills/final/source.json",
+      "sha256": "0f92a14457296e1954f7a32f35d9c6c1560c0e0b0a20ec7e09946f1ece24510a",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/build/control-toolchain-match.json",
+      "sha256": "154d58fd62b5e75b968460fd8fc8d34b33d6309dbdfc218c3909407438a0b357",
+      "bytes": 1268
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/build/bin/goose",
+      "sha256": "188deaa056365d534d6ecb22eecca5fceb9097a02cef7ac3506d3583ab906224",
+      "bytes": 8260240
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/preparation.json",
+      "sha256": "c52dd7be5e377610cac44e26b0769a16e6b62912c7f8d2719fae3073c22dd8ca",
+      "bytes": 8901
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/before.h",
+      "sha256": "6d93756d8b7423d788bfd73e6a6455b7f9f34b6434e9dda76af8c078b5d8740f",
+      "bytes": 6908
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/disable.patch",
+      "sha256": "e27df558a5b70ccf402a8fc4596fe3bc75e770948e403458f159c3fa4d00a098",
+      "bytes": 406
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/build-execution.json",
+      "sha256": "fecc04dd47cdb26349b76c088dd255b57ec2e59c717c1c8c6f04b353ff3ef84b",
+      "bytes": 640
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/build/source.json",
+      "sha256": "b26078d3732f6de319317e3d788eed9dfd77a4416b397d7ace201222c0d5c982",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/scan-control/build/toolchain.json",
+      "sha256": "0a525576013dc5c83cdc729d9a342cfa295f387feacf496622adc7f250c54e71",
+      "bytes": 4873
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/build/control-toolchain-match.json",
+      "sha256": "dbd54844ed7bbca6f51509b147a107cb80e7a725798024e647f3aaea48f6e199",
+      "bytes": 1272
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/build/bin/goose",
+      "sha256": "ec1b54613cdc242dde54d56ba449c5ef8b9727caa501e16f8f7c65ce00765c87",
+      "bytes": 8260232
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/preparation.json",
+      "sha256": "bd92782bfe6f231ac2a5613770f145ffb79c008b10facbfddf0a5d6aaf2a7e6d",
+      "bytes": 8989
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/before.h",
+      "sha256": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+      "bytes": 7123
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/disable.patch",
+      "sha256": "19ea35ad0ea7461d6a618e31028473e258ec5b80fdafb91eead1eb86bc418bd8",
+      "bytes": 415
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/build-execution.json",
+      "sha256": "7d0f0ad03c33229b115eb0712fd5f1ab839838a37358b6c4d20988917fb2e581",
+      "bytes": 644
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/build/source.json",
+      "sha256": "3371ac76c5637bb994d4f17c5eebe2990bda8ed47255bf401ba2b1e6918b5f9d",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/stride-control/build/toolchain.json",
+      "sha256": "3b19820f84602d6585fc0cc2820c95b79773afba3c174219f7ccc5f9ff6c38a4",
+      "bytes": 4877
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/build/control-toolchain-match.json",
+      "sha256": "b32071678606479d7f57a5e38f3c4f6c1129d2410a7cef063740d827b0ae0344",
+      "bytes": 1270
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/build/bin/goose",
+      "sha256": "d614072d1fc14c14aad3174e5713ab49f59766d0d31b4bddaabcbcaa091903f8",
+      "bytes": 8255928
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/preparation.json",
+      "sha256": "65b62e0215e670be89fc2d89e65fd80be23041aad8c1dbe7de8e9abeb3390881",
+      "bytes": 8945
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/before.h",
+      "sha256": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+      "bytes": 8124
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/disable.patch",
+      "sha256": "e8ad70701c6db2fdc45d7d2560c1a532dbf19c89aba5d87c97e9424880c3bc57",
+      "bytes": 407
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/build-execution.json",
+      "sha256": "448d5a81482535c854813ef2da04be70a858b6a9829fe8d43660a1e68f9f3018",
+      "bytes": 643
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/build/source.json",
+      "sha256": "899301a731ce0ff613a9cd31756751fe116b7f0e2ac4d70b59a310953ea4368c",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/merge-control/build/toolchain.json",
+      "sha256": "bf41b9e8948b2605b435fd28640a63d081677bbdcc691b3740fc55151c8e71c7",
+      "bytes": 4875
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/build/control-toolchain-match.json",
+      "sha256": "de691a8c3af808a7e45a39e596e8279a05bbec35147dfd52c8e3ab1bbc118374",
+      "bytes": 1273
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/build/bin/goose",
+      "sha256": "f1a56984e3091ee8de9cf26fffc85f5e0171eff833acfe355ae1931923d556bd",
+      "bytes": 8262832
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/preparation.json",
+      "sha256": "ce69cb3395a5d676494465b8f10413044dfd1cc7503d494535096c369fe03aea",
+      "bytes": 9074
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/before.h",
+      "sha256": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+      "bytes": 10139
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/disable.patch",
+      "sha256": "4deb9b241e85196dd389df99ba9c04ec4fe4a3e29835889278b5f44532fda236",
+      "bytes": 335
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/build-execution.json",
+      "sha256": "7a45aadf652d64542fbfc3a64fd9f96380326d996d02b231df06b90b92fd250b",
+      "bytes": 649
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/build/source.json",
+      "sha256": "b4189480140cc17e8a01ba47f0aa2851932921f88519a573ba88b9d8589d5d22",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/resource-control/build/toolchain.json",
+      "sha256": "e151cd0ca7f21fe064520a93f5c11eeb3a22fb292bff1770e447dc5b818b14bf",
+      "bytes": 4881
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/build/control-toolchain-match.json",
+      "sha256": "f930deaea3106a7d3c358762f869dfe6270a2f7ae673e65e2369d85602682da2",
+      "bytes": 1272
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/build/bin/goose",
+      "sha256": "fd9a1f5fc562db519e3ba3f930f5782d11eb07acfc4db920a8e8a0d9f418266d",
+      "bytes": 8264768
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/preparation.json",
+      "sha256": "f8c9532bc1cccf3854b443e863724e448b2d88287055b225dbac1292975198ea",
+      "bytes": 8947
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/before.h",
+      "sha256": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "bytes": 13685
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/disable.patch",
+      "sha256": "aa8f964153f9f55b14cb1b951e9b97b8149b5e1174e4ba2875c39dbd0f4bc869",
+      "bytes": 486
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/build-execution.json",
+      "sha256": "35a95fed90ea06b44a797888db99b4e012f96972af4f71bcd49a25d7a54b6cfc",
+      "bytes": 643
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/build/source.json",
+      "sha256": "20cd9fb2442eae2f8b702b5868f258e60e9651861be5d263facaaa3a7e73ec01",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/named-control/build/toolchain.json",
+      "sha256": "efe5cb006c996447bd3de5c47fefc855d9c9b9566426789612588674490272cc",
+      "bytes": 4875
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/build/control-toolchain-match.json",
+      "sha256": "83a729828959e11b199b2c9dc95e5c138b2d3d7deae317ca75d9ca6a5578f50c",
+      "bytes": 1271
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/build/bin/goose",
+      "sha256": "7a066767001c9ef6c1baccd0261b72ba80a049acf8ccf6ac6165177db407969b",
+      "bytes": 8257920
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/preparation.json",
+      "sha256": "ef66a4357872f717b1b944b2fa7c49fac2b855c52a1cb984804769e97f958f90",
+      "bytes": 9030
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/before.h",
+      "sha256": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+      "bytes": 27647
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/disable.patch",
+      "sha256": "4cea92de2a97cb086ba6248c9c818a6e657ee06fc452399ac5f48abf31801cdc",
+      "bytes": 370
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/build-execution.json",
+      "sha256": "ed4cd6ecb4806d9035e5e6ea8a1fbb0a9f15cc50c0e04540ac03c4102270fb90",
+      "bytes": 647
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/build/source.json",
+      "sha256": "a44d73a923a4e629f01655ca066b2e43b324f5eadaea2b232e0465d6dcdd020c",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/private-control/build/toolchain.json",
+      "sha256": "fe751fb1cb3639f0fb82a47643d750dbef1f2f27d0716c0dbe8eeb14a8bdd745",
+      "bytes": 4879
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/build/control-toolchain-match.json",
+      "sha256": "188328455331262a1930482834dea74107f9211aefab5a04682d91544e03bc7b",
+      "bytes": 1274
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/build/bin/goose",
+      "sha256": "167dee2a66af971aea30b66b8e799cf5884e685b899b38f82905899e6c2a3c97",
+      "bytes": 8228032
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/preparation.json",
+      "sha256": "ea2a37dcc86b6d0d678de0aec0d682df54639eafc838e5f989c994216f04b54b",
+      "bytes": 9033
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/before.h",
+      "sha256": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+      "bytes": 24790
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/disable.patch",
+      "sha256": "7b8f9a00019309e54ce0fbb83953971231715d1454c8abb2c5f25f62f56916eb",
+      "bytes": 592
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/build-execution.json",
+      "sha256": "3498f87602c072012d06825194e83fb1d86eb7f25f2c5dfeee3e0618e73ec162",
+      "bytes": 647
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/build/source.json",
+      "sha256": "789506cf5cc17c77b46258e1c4f685490797b465e1b63546b7708cf0982282a4",
+      "bytes": 3909
+    },
+    {
+      "path": "build/scan-hills/qualification/stencil-control/build/toolchain.json",
+      "sha256": "c8fd3356987fad9d66f2496e1ded8a9743b3c44094a94a47902f622db6bd44b8",
+      "bytes": 4879
+    },
+    {
+      "path": "build/scan-hills/qualification/full-scan-validation.json",
+      "sha256": "df571ce8de9c3a0869889841322695f3cadcb7e460acb2d8383f29043dc0232a",
+      "bytes": 897
+    },
+    {
+      "path": "build/scan-hills/qualification/full-scan-evidence/20261103T234954.338058Z/result.json",
+      "sha256": "be08698fed1b9ab5daf99ad8b69b3390bfc2671ddf40add5294a6c49e4e41d15",
+      "bytes": 5153
+    },
+    {
+      "path": "build/scan-hills/qualification/full-scan.log",
+      "sha256": "44e7b2e7a21b814747bb80c0b9ed4b93a6807760c8dcc825ee0820958a0d5c3b",
+      "bytes": 106
+    },
+    {
+      "path": "build/scan-hills/measure_delivery.py",
+      "sha256": "3ed89e5ec42ca443fe7d05db35b6ef4e340eb5d2afd53a1f6519f11f3fe63e74",
+      "bytes": 19614
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "e412072d9facdb25d8d407f06a666fae810987e40e201b803173ee33606c69d9",
+      "bytes": 11257
+    },
+    {
+      "path": "build/scan-hills/qualification/environment-preflight.json",
+      "sha256": "acb69edcb556c5919fe402052f071b32b2c86b1d2664fafc16d4957e7eff0925",
+      "bytes": 3443
+    },
+    {
+      "path": "build/scan-hills/select-static-review.json",
+      "sha256": "38285227e12b73f210a710c86186adf94ff848d6aef8e38e7dd3b8d730d02958",
+      "bytes": 3183
+    },
+    {
+      "path": "build/scan-hills/select-screen-review.json",
+      "sha256": "c148f7d137af88226aedfac98bad6441ee312370c6d4735d9edf7da0bd7f433f",
+      "bytes": 6996
+    },
+    {
+      "path": "build/scan-hills/wide-static-review.json",
+      "sha256": "665bdadab334db18e578b668e927a9821cb1fe5832c84ba0ea128e8fff45deb9",
+      "bytes": 5716
+    },
+    {
+      "path": "build/scan-hills/wide-selection-review.json",
+      "sha256": "5c97baf33c941ba51b54cc6cba18d9c8b0f41301d51112510b5ccc6674b9aa5e",
+      "bytes": 80473
+    },
+    {
+      "path": "build/scan-hills/campaign-selection.json",
+      "sha256": "3775f73ffd7482fdd964cd2164027b98794c7aa8af2328479607acf4f61ebf81",
+      "bytes": 34104
+    },
+    {
+      "path": "host/wasmtime.cpp",
+      "sha256": "8573711cb0ae48a0cbcb6202b513af442ef06dbfdb1f1a4749c4145ed8a07d61",
+      "bytes": 31649
+    },
+    {
+      "path": "scripts/wasmtime_session.py",
+      "sha256": "4bcaaa6967cfdd92acdac7470cbe3511be73290154c7a9e0f0bdddcafe379ac5",
+      "bytes": 4017
+    },
+    {
+      "path": "scripts/bootstrap.py",
+      "sha256": "22a7562f6975a12932c029e2c4e5548f7fb670b09bff84dfb85a332dd326d1bf",
+      "bytes": 13124
+    },
+    {
+      "path": "tests/test_strided_stores.py",
+      "sha256": "32d93ce6eac373de34e1cb3d776518a620d89f61f43b651d22e346ed94063f12",
+      "bytes": 17976
+    },
+    {
+      "path": "tests/test_merge_bounds.py",
+      "sha256": "8ff21e85880b296e8a0760ac0e187b02e55f2eadaf4a5a40c7dfb635f8f0b8dd",
+      "bytes": 17163
+    },
+    {
+      "path": "tests/test_function_value_forwarding.py",
+      "sha256": "c4512803517301a1fc562d4b5594a409e094b202e7f922b7583041b180e42f3b",
+      "bytes": 11979
+    },
+    {
+      "path": "tests/test_strip_loops.py",
+      "sha256": "605427962fc79df8be12cf333fe4ad6580e7f01d55dd6bef8ea47e6d9beb679a",
+      "bytes": 18003
+    },
+    {
+      "path": "tests/test_fill_loops.py",
+      "sha256": "da281a5602ba946e802071da49e529f507f03cf732d41e4234b1f216b71a99a8",
+      "bytes": 8587
+    },
+    {
+      "path": "build/bin/goose-wasmtime.json",
+      "sha256": "3ce9f9e13b278ac68c30136381b448d1e550116d335066952974ccccadc03dd0",
+      "bytes": 11950
+    },
+    {
+      "path": "build/bin/goose-wasmtime",
+      "sha256": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+      "bytes": 22751120
+    }
+  ]
+}

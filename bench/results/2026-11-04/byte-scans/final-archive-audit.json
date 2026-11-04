@@ -1,0 +1,401 @@
+{
+  "schema": "goose-byte-scan-final-archive-audit-v1",
+  "status": "passed",
+  "reviewer": "astra_campaign",
+  "created_utc": "2026-11-04T00:50:05.514688+00:00",
+  "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "scope": "Frozen current byte-scans publication and its twenty explicitly bounded prior physical archive members. No historical report/index recursion, compiler, guest engine, build or test execution.",
+  "decision": "GO for coordinator read-only verification, stage, commit and push. No archive, provenance, omission or public-claim blocker found.",
+  "immutable_inputs": {
+    "archive_index_sha256": "0c5e7a607585685a40801087687a5193992fc4b42217165d3a74b09dc8edd40b",
+    "retention_sha256": "2a2fe6f75c8f5d832e432c7f0fb476f2b4715f01044e712bdebcd7d068906a73",
+    "final_public_review_sha256": "464f513c11db95e1824cd82e7a2b003da1d93feed61c3ce364d472cf691d1626",
+    "premanifest_sha256": "6ac31232a6edb3ffa19595f4ae33aef2cbef6813d70b2a93aec457ac7abd7824",
+    "premanifest_utf8": "{\n  \"README.md\": \"6fc2e18316d2da733ae40cbd20b0c9660af3547d325d964628edb33d3586f325\",\n  \"archives.json.gz\": \"0c5e7a607585685a40801087687a5193992fc4b42217165d3a74b09dc8edd40b\",\n  \"campaign.json\": \"2ab399fca0dae8d744c2204c5444be97a4f2b48524b674ba36d51861171a2a94\",\n  \"chart-verification.json\": \"1c0fdb543b14c11f710caa366b49dd066da1de5b6c0921dcfea6e3983913ac3c\",\n  \"chart-visual-review.json\": \"ecf449aba6384c14fd0fa8f1df2ac44a952d9cf0c8c8b30b719f7644b53d727b\",\n  \"cohort.json\": \"2a200d6dbb700ec5d24aae7151b9e7f551d2f94cc0812652456eddad2b869822\",\n  \"compiler-identity.json\": \"5c14445eb80a205a905013080a866c901f97c1609e33a983e4f2534842f72270\",\n  \"differential.json\": \"cd38d1f130913140161934fbb744b6bfa9a6119564a38e1e25d6a8f5b651a6e4\",\n  \"evidence-000.tar.gz\": \"87d59eaa545a5d3c3cc0029f40a4ba3b1d2a50775d6926009347d33cb91b0ea3\",\n  \"evidence-001.tar.gz\": \"c4d0d68d08b946115c94639fdb026ce46392b0478fad4409b31059cb6fc0861d\",\n  \"examples.json\": \"758fd077be2032870010c110d7d9a176395c7ef0d36b8c517c262509427637dd\",\n  \"final-numbers.json\": \"e64f07e1704dd13ff8752cf224e3f0d7de9422580b7f1444b3b2b27ed651cec1\",\n  \"final-public-review.json\": \"464f513c11db95e1824cd82e7a2b003da1d93feed61c3ce364d472cf691d1626\",\n  \"final-v8.json\": \"731823e5b69dab3327cb9910f2d3ffc24a7e694c5ae021b5ce3c675dc5bbc5d3\",\n  \"final-warmed.json\": \"a0e20a2054f44177b1076387ec9ddf61ec3271c0b5ac305949d016b27df9b326\",\n  \"guide-verification.json\": \"1b8a711fd08d85eb0f2fae51b83d4c3a8a338637093192d72273d81949317d79\",\n  \"host-qualification.json\": \"c2b5a853f8098c05365033863c06d8a43c05e9aa24f6fee5ddaa0fbb6c1f0e88\",\n  \"host.json\": \"3f69c679188963574d7e06b32d0a114ed6c49432f1f7f5478985dfb59a098ea1\",\n  \"lifecycle.json\": \"9bb34b666e28ca93b71662753bfd70abb09a28116d60a54232f1c24ed43e08a7\",\n  \"module-analysis.json\": \"83c6583d9c526dc0a572f9c8af5cf22f3b9b6b0b20a8f8a7b38924d091a90c71\",\n  \"qualification-summary.json\": \"afeeab8ae57d74e172370c42672b1bbf76b94960bccbf5687e0504ec1c3370f8\",\n  \"qualification.json\": \"708d1af9500613a378b0556f9f3fe2c08e085941995a27995637a3908140f4f8\",\n  \"readme.json\": \"de01e8c571344f94cd8adb65c1bdafdd418021f8aab5461cf19292fc63248258\",\n  \"references.json\": \"06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350\",\n  \"reproduction/bundle.py\": \"41abf857d912273430124d2fb55aab4da6f51580eb1193e62492966bb0a3b818\",\n  \"reproduction/checks.py\": \"f71c4c66ca93e92f1d759544f7d720b91902c4bc584ed233708ff854dbd025ec\",\n  \"reproduction/spec.json\": \"44685b0f32ef86df8ec34a9f0b90e63f73980783b754b4836fa9ae270cefb089\",\n  \"reproduction/verify.py\": \"57a163181d9702efd99a45a57b93f05e5d991eb2e29d33a8c0f363f526da2233\",\n  \"retention.json\": \"2a2fe6f75c8f5d832e432c7f0fb476f2b4715f01044e712bdebcd7d068906a73\",\n  \"static-review.json\": \"8b482f5a89550b07b379b2811714533e300275721ee6d112144c0d134abe4f0d\",\n  \"table-verification.json\": \"19a6747e2d5b36d1544cc730e115ee1752801546473a13715abb47e894dab028\",\n  \"target-chart-verification.json\": \"2c41691542c2877a59ea7cde1c7d1df4fd254068fc054846418fccb1e665c59c\",\n  \"test-static-review.json\": \"88690c187bf0ff84cae0994b926881c6215a2fec701bd927ec31fa5021f663a2\",\n  \"worker-qualification.json\": \"a09fa8b680dcf4b3ea4aa135947824cd17a2d92faedca908c69a2a859e6317f9\"\n}\n"
+  },
+  "documented_command": {
+    "command": "python bench/results/2026-11-04/byte-scans/reproduction/verify.py",
+    "cwd": "repository root",
+    "exit_status": 0,
+    "stderr": "",
+    "stdout_sha256": "85629e3dba7f867424594c57f6d4108c0d1e86460961957fd4a720804872ba42",
+    "result": {
+      "status": "passed",
+      "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+      "archives": {
+        "../../2026-11-03/fresh-construction/evidence-000.tar.gz": 112,
+        "../../2026-11-03/fresh-construction/evidence-001.tar.gz": 39,
+        "../../2026-11-03/functions-calls/evidence-000.tar.gz": 279,
+        "../../2026-11-03/functions-calls/evidence-001.tar.gz": 385,
+        "../../2026-11-03/functions-calls/evidence-002.tar.gz": 235,
+        "../../2026-11-03/functions-calls/evidence-003.tar.gz": 287,
+        "../../2026-11-03/functions-forwarding/evidence-000.tar.gz": 667,
+        "../../2026-11-03/functions-forwarding/evidence-001.tar.gz": 751,
+        "../../2026-11-03/functions-forwarding/evidence-002.tar.gz": 773,
+        "../../2026-11-03/functions-forwarding/evidence-003.tar.gz": 540,
+        "../../2026-11-03/functions-forwarding/evidence-004.tar.gz": 766,
+        "../../2026-11-03/functions-forwarding/evidence-005.tar.gz": 741,
+        "../../2026-11-03/functions-forwarding/evidence-006.tar.gz": 674,
+        "../../2026-11-03/functions-forwarding/evidence-007.tar.gz": 86,
+        "../../2026-11-03/merge-bounds/evidence-000.tar.gz": 10,
+        "../../2026-11-03/merge-bounds/evidence-001.tar.gz": 3,
+        "../../2026-11-03/runtime-stencil/evidence-000.tar.gz": 124,
+        "../../2026-11-03/runtime-stencil/evidence-001.tar.gz": 126,
+        "../../2026-11-03/strided-stores/evidence-000.tar.gz": 45,
+        "../../2026-11-03/strided-stores/evidence-001.tar.gz": 49,
+        "evidence-000.tar.gz": 26838,
+        "evidence-001.tar.gz": 8429
+      },
+      "aliases": 137538,
+      "omissions": 91,
+      "required_guests": 4296,
+      "retained_guest_objects": 4482,
+      "qualification": {
+        "focused": 76,
+        "cases": 978,
+        "observations": 9573,
+        "native_comparisons": 7656,
+        "host_observations": 11484,
+        "unique_modules": 1574
+      },
+      "measurements": {
+        "warmed": 550,
+        "v8": 200,
+        "paired_rounds": 9,
+        "examples": 1600,
+        "host": 1440,
+        "preparations": 200,
+        "cohort": 315,
+        "lifecycle": 960,
+        "worker_effective": 3001,
+        "worker_aliases": 3828
+      },
+      "documentation_table_cells": 46,
+      "retention_sha256": "2a2fe6f75c8f5d832e432c7f0fb476f2b4715f01044e712bdebcd7d068906a73",
+      "index_sha256": "0c5e7a607585685a40801087687a5193992fc4b42217165d3a74b09dc8edd40b",
+      "storage": {
+        "by_suffix": {
+          "new": {
+            ".bin": {
+              "bytes": 270840,
+              "objects": 11
+            },
+            ".cwasm": {
+              "bytes": 429336,
+              "objects": 5
+            },
+            ".h": {
+              "bytes": 20302,
+              "objects": 3
+            },
+            ".json": {
+              "bytes": 69119991,
+              "objects": 24010
+            },
+            ".log": {
+              "bytes": 1929195,
+              "objects": 6103
+            },
+            ".md": {
+              "bytes": 67507,
+              "objects": 10
+            },
+            ".png": {
+              "bytes": 2341523,
+              "objects": 14
+            },
+            ".py": {
+              "bytes": 300214,
+              "objects": 21
+            },
+            ".stats": {
+              "bytes": 75,
+              "objects": 2
+            },
+            ".stdout": {
+              "bytes": 851855,
+              "objects": 3563
+            },
+            ".svg": {
+              "bytes": 786235,
+              "objects": 11
+            },
+            ".toml": {
+              "bytes": 21880,
+              "objects": 171
+            },
+            ".txt": {
+              "bytes": 380538,
+              "objects": 1329
+            },
+            ".wasm": {
+              "bytes": 478575,
+              "objects": 12
+            },
+            ".wip-atomic-write-stats": {
+              "bytes": 75,
+              "objects": 2
+            }
+          },
+          "reused": {
+            ".bin": {
+              "bytes": 156219096,
+              "objects": 1110
+            },
+            ".c": {
+              "bytes": 3963363,
+              "objects": 22
+            },
+            ".cpp": {
+              "bytes": 77264,
+              "objects": 5
+            },
+            ".cwasm": {
+              "bytes": 177682656,
+              "objects": 1661
+            },
+            ".goose": {
+              "bytes": 703902,
+              "objects": 484
+            },
+            ".h": {
+              "bytes": 950196,
+              "objects": 53
+            },
+            ".json": {
+              "bytes": 4460213,
+              "objects": 647
+            },
+            ".log": {
+              "bytes": 12232,
+              "objects": 16
+            },
+            ".md": {
+              "bytes": 63761,
+              "objects": 6
+            },
+            ".mjs": {
+              "bytes": 9911,
+              "objects": 1
+            },
+            ".o": {
+              "bytes": 15389,
+              "objects": 6
+            },
+            ".patch": {
+              "bytes": 73919,
+              "objects": 9
+            },
+            ".py": {
+              "bytes": 1408426,
+              "objects": 125
+            },
+            ".sh": {
+              "bytes": 430,
+              "objects": 1
+            },
+            ".stats": {
+              "bytes": 112,
+              "objects": 3
+            },
+            ".stderr": {
+              "bytes": 18554,
+              "objects": 175
+            },
+            ".stdout": {
+              "bytes": 68354,
+              "objects": 465
+            },
+            ".svg": {
+              "bytes": 67416,
+              "objects": 1
+            },
+            ".txt": {
+              "bytes": 20069,
+              "objects": 30
+            },
+            ".wasm": {
+              "bytes": 51760330,
+              "objects": 1683
+            },
+            ".wip-atomic-write-stats": {
+              "bytes": 74,
+              "objects": 2
+            },
+            ".yml": {
+              "bytes": 11257,
+              "objects": 1
+            },
+            "[no suffix]": {
+              "bytes": 233752,
+              "objects": 186
+            }
+          }
+        },
+        "current_aliases": 137538,
+        "largest_new_objects": [
+          {
+            "bytes": 20462472,
+            "member": "objects/c2b5a853f8098c05365033863c06d8a43c05e9aa24f6fee5ddaa0fbb6c1f0e88/report.json",
+            "path": "/home/jacobt/src/goose-to-wasm/build/scan-hills/qualification/attempt-1/host/report.json",
+            "sha256": "c2b5a853f8098c05365033863c06d8a43c05e9aa24f6fee5ddaa0fbb6c1f0e88"
+          },
+          {
+            "bytes": 7854372,
+            "member": "objects/a09fa8b680dcf4b3ea4aa135947824cd17a2d92faedca908c69a2a859e6317f9/report.json",
+            "path": "/home/jacobt/src/goose-to-wasm/build/scan-hills/qualification/attempt-1/worker-replay/report.json",
+            "sha256": "a09fa8b680dcf4b3ea4aa135947824cd17a2d92faedca908c69a2a859e6317f9"
+          },
+          {
+            "bytes": 6062368,
+            "member": "objects/cd38d1f130913140161934fbb744b6bfa9a6119564a38e1e25d6a8f5b651a6e4/report.json",
+            "path": "/home/jacobt/src/goose-to-wasm/build/scan-hills/qualification/attempt-1/differential/report.json",
+            "sha256": "cd38d1f130913140161934fbb744b6bfa9a6119564a38e1e25d6a8f5b651a6e4"
+          },
+          {
+            "bytes": 1927420,
+            "member": "objects/f62f4ee05ca4ded3eab50b82379bc0abac343dce4536d6df5cf89c136cf1457b/artifact-catalog.json",
+            "path": "/home/jacobt/src/goose-to-wasm/build/scan-hills/qualification/attempt-1/artifact-catalog.json",
+            "sha256": "f62f4ee05ca4ded3eab50b82379bc0abac343dce4536d6df5cf89c136cf1457b"
+          },
+          {
+            "bytes": 1786179,
+            "member": "objects/758fd077be2032870010c110d7d9a176395c7ef0d36b8c517c262509427637dd/report.json",
+            "path": "/home/jacobt/src/goose-to-wasm/build/scan-hills/current/examples/report.json",
+            "sha256": "758fd077be2032870010c110d7d9a176395c7ef0d36b8c517c262509427637dd"
+          }
+        ],
+        "new_objects": 35267,
+        "new_raw_bytes": 76998141,
+        "prior_aliases_imported": 0,
+        "prior_documents_opened": 0,
+        "reused_archives": 20,
+        "reused_objects": 6692,
+        "reused_raw_bytes": 397820676
+      },
+      "scope": "Verification needs the current publication and the bounded 2026-11-03 strided-stores, merge-bounds, runtime-stencil, fresh-construction, calls and forwarding archives named in its index. Reuse is byte storage only; execution rows remain fresh. No recursive report/index closure, source checkout scan, compiler, test or guest engine execution."
+    },
+    "exact_public_inventory_unchanged": true,
+    "all_preexisting_public_hashes_unchanged": true,
+    "bytecode_cache_directories_created": 0,
+    "scope": "Exact documented no-argument command executed once against the initial manifest. No guest execution or checkout scan; all required objects resolve from the publication and bounded named archive dependencies."
+  },
+  "independent_payload_audit": {
+    "status": "passed",
+    "source_stages": {
+      "baseline-f76": {
+        "headers": 36,
+        "patches": 2,
+        "compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8"
+      },
+      "final": {
+        "headers": 36,
+        "patches": 2,
+        "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0"
+      },
+      "select-only-prototype": {
+        "headers": 36,
+        "patches": 2,
+        "compiler_sha256": "c834fcf31dc46ffb59e7105effd800d2adac1b4f2a51a7ab7552f1a50aaf9fed"
+      },
+      "wide32-prototype": {
+        "headers": 36,
+        "patches": 2,
+        "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0"
+      }
+    },
+    "matched_controls_checked": 7,
+    "controls_are_exact_single_predicate_disables": true,
+    "streamed_payload_locations": 879,
+    "streamed_archives": {
+      "../../2026-11-03/fresh-construction/evidence-000.tar.gz": 17,
+      "../../2026-11-03/fresh-construction/evidence-001.tar.gz": 5,
+      "../../2026-11-03/functions-calls/evidence-002.tar.gz": 1,
+      "../../2026-11-03/functions-calls/evidence-003.tar.gz": 1,
+      "../../2026-11-03/functions-forwarding/evidence-000.tar.gz": 27,
+      "../../2026-11-03/functions-forwarding/evidence-001.tar.gz": 21,
+      "../../2026-11-03/functions-forwarding/evidence-002.tar.gz": 19,
+      "../../2026-11-03/functions-forwarding/evidence-003.tar.gz": 7,
+      "../../2026-11-03/functions-forwarding/evidence-004.tar.gz": 32,
+      "../../2026-11-03/functions-forwarding/evidence-005.tar.gz": 16,
+      "../../2026-11-03/functions-forwarding/evidence-006.tar.gz": 21,
+      "../../2026-11-03/functions-forwarding/evidence-007.tar.gz": 5,
+      "../../2026-11-03/merge-bounds/evidence-000.tar.gz": 4,
+      "../../2026-11-03/merge-bounds/evidence-001.tar.gz": 1,
+      "../../2026-11-03/runtime-stencil/evidence-000.tar.gz": 13,
+      "../../2026-11-03/runtime-stencil/evidence-001.tar.gz": 12,
+      "../../2026-11-03/strided-stores/evidence-000.tar.gz": 5,
+      "../../2026-11-03/strided-stores/evidence-001.tar.gz": 12,
+      "evidence-000.tar.gz": 491,
+      "evidence-001.tar.gz": 169
+    },
+    "manual_review_pin_edges_checked": 90,
+    "current_public_bindings_checked": 24,
+    "omissions_checked": 91,
+    "measured_guest_omissions": 0,
+    "sdk_or_tool_binary_scope_leak": false,
+    "prior_index_or_report_reads": 0,
+    "product_or_engine_execution": false,
+    "retained_cache_files_independently_streamed": 672,
+    "discarded_raw_observations": 134,
+    "discarded_primary_observations_used": 0
+  },
+  "independent_audit_implementation": {
+    "sha256": "b91d3260b5a5eabf1a6d0a21cea5f419cb6d6fae3d045cc88289876a615bf765",
+    "source_utf8": "from pathlib import Path\nimport gzip,hashlib,json,tarfile,collections\nROOT=Path.cwd();OUT=ROOT/'bench/results/2026-11-04/byte-scans';HERE=ROOT/'build/scan-hills/reviews/archive-audit'\ndef sha_bytes(b):return hashlib.sha256(b).hexdigest()\ndef load(p):return json.loads(Path(p).read_bytes())\nindex=json.loads(gzip.decompress((OUT/'archives.json.gz').read_bytes()));retention=load(OUT/'retention.json')\nassert sha_bytes((OUT/'archives.json.gz').read_bytes())=='0c5e7a607585685a40801087687a5193992fc4b42217165d3a74b09dc8edd40b'\nassert sha_bytes((OUT/'retention.json').read_bytes())=='2a2fe6f75c8f5d832e432c7f0fb476f2b4715f01044e712bdebcd7d068906a73'\nassert len(index['aliases'])==137538 and len(index['omitted'])==91 and len(index['documents'])==35\nassert len(index['source_stages'])==4 and len(index['controls'])==7\nassert len(index['required_guests'])==4296 and len(index['guests'])==4482 and len(index['engine_cache_files'])==672\nassert index['storage']['prior_aliases_imported']==index['storage']['prior_documents_opened']==0\nwanted={};by_path=collections.defaultdict(dict)\ndef want(location):wanted[(location['archive'],location['member'])]=location\nfor alias,location in index['aliases'].items():\n p,sep,h=alias.rpartition('@');assert sep and h==location['sha256']\n assert index['archives'][location['archive']]['members'][location['member']]=={'sha256':h,'bytes':location['bytes']}\n by_path[p][h]=location\nfor collection in ['source_stages','controls','host_stages']:\n def walk(x):\n  if isinstance(x,dict):\n   if {'archive','member','sha256','bytes'}<=x.keys():want(x)\n   else:\n    for v in x.values():walk(v)\n  elif isinstance(x,list):\n   for v in x:walk(v)\n walk(index[collection])\nfor location in index['public_bindings'].values():want(location)\nfor location in index['engine_cache_files'].values():want(location)\nfor location in index['documents'].values():want(location)\nfor path,location in index['aliases'].items():\n original=path.rpartition('@')[0]\n if '/build/scan-hills/' in original and any(s in original for s in ['/reviews/','/qualification/preparation-history/','/delivery-preparation/window-overlap-1/']):\n  want(location)\n# Source snapshots and reviewer evidence are independently reconstructed from bytes,\n# without reading prior report indexes or running packaged helper code.\npayloads={};streamed_archives={}\nfor archive in sorted({a for a,m in wanted}):\n expected={m:loc for (a,m),loc in wanted.items() if a==archive}; found=set()\n with tarfile.open((OUT/archive).resolve(),'r|gz') as stream:\n  for member in stream:\n   assert member.isfile() and not member.name.startswith('/') and '..' not in Path(member.name).parts\n   if member.name not in expected:continue\n   assert member.name not in found;found.add(member.name)\n   data=stream.extractfile(member).read();location=expected[member.name]\n   assert len(data)==location['bytes'] and sha_bytes(data)==location['sha256']\n   payloads[location['sha256']]=data\n assert found==set(expected)\n streamed_archives[archive]=len(found)\ndef read(location):return payloads[location['sha256']]\ndef readjson(location):return json.loads(read(location))\nsource_counts={}\nfor name,stage in index['source_stages'].items():\n source=readjson(stage['source']);tool=readjson(stage['toolchain'])\n assert source['headers']==tool['headers']=={n:v['sha256'] for n,v in stage['headers'].items()}\n assert source['patches']==tool['patches']=={n:v['sha256'] for n,v in stage['patches'].items()}\n assert stage['compiler_sha256']==tool['compiler_sha256']\n source_counts[name]={'headers':len(source['headers']),'patches':len(source['patches']),'compiler_sha256':stage['compiler_sha256']}\nfinal=index['source_stages']['final'];fheaders={n:read(v) for n,v in final['headers'].items()}\nexpected_entries={\n 'scan-control':('direct_wasm_scan.h','inline bool Function::ByteScan(While *loop) {\\n','    return false;\\n'),\n 'stride-control':('direct_wasm_stride.h','inline bool Function::GroupedStores(While *loop) {\\n','    return false;\\n'),\n 'merge-control':('direct_wasm_merge.h','inline bool Function::BoundedMerge(While *loop) {\\n','    return false;\\n'),\n 'resource-control':('direct_wasm_temps.h','inline bool Function::ResourceFreeBlock(Block *block) {\\n','    return false;\\n'),\n 'named-control':('direct_wasm_funvals.h','    if (!tail->fvbody) {\\n','        return nullptr;\\n'),\n 'private-control':('direct_wasm_emit.h','inline void Compiler::AnalyzePrivateSnapshots() {\\n','    return;\\n'),\n 'stencil-control':('direct_wasm_stencil.h','inline bool Function::ByteStencilLoop(ForLoop *loop, const Slot &binding, TypeExpr *ct, uint32_t lo, uint32_t hi) {\\n','    return false;\\n')}\nassert set(expected_entries)==set(index['controls'])\nfor name,control in index['controls'].items():\n header,marker,insert=expected_entries[name];src=fheaders[header].decode();assert src.count(marker)==1\n for n,v in control['headers'].items():\n  expected=fheaders[n]\n  if n==header:expected=src.replace(marker,marker+insert,1).encode()\n  assert read(v)==expected,(name,n)\n proof=readjson(control['match']);assert proof['status']=='matched' and proof['selected_compiler_sha256']==final['compiler_sha256']\n assert proof['selected_cmake']==proof['control_cmake'] and proof['header_count']==36 and proof['patch_count']==2\nreview_pins=0\nfor origin,location in index['aliases'].items():\n path=origin.rpartition('@')[0]\n if not path.startswith(str(ROOT/'build/scan-hills/reviews')) or not path.endswith('.json'):continue\n try:value=json.loads(read(location))\n except KeyError:continue\n def pins(x):\n  global review_pins\n  if isinstance(x,dict):\n   if 'path' in x and 'sha256' in x and isinstance(x['path'],str):\n    p=x['path'];h=x['sha256']\n    variants=[p,str(ROOT/p)]\n    assert any(h in by_path.get(v,{}) or v+'@'+h in index['omitted'] for v in variants),(path,p,h)\n    review_pins+=1\n   for v in x.values():pins(v)\n  elif isinstance(x,list):\n   for v in x:pins(v)\n pins(value)\nfor p,loc in index['public_bindings'].items():assert read(loc)==(ROOT/p).read_bytes(),p\npublic_review=OUT/'final-public-review.json';h=sha_bytes(public_review.read_bytes())\nassert h=='464f513c11db95e1824cd82e7a2b003da1d93feed61c3ce364d472cf691d1626'\nassert read(by_path[str(ROOT/'build/scan-hills/reviews/final-public-review.json')][h])==public_review.read_bytes()\n# No measured guests are hidden among explicit tool/SDK omissions.\nfor row in index['omitted'].values():\n assert row['reason'] and row['sha256'] not in index['required_guests']\n assert Path(row['original']).suffix not in ('.wasm','.cwasm','.bin')\nfor record in index['archives'].values():\n for member in record['members']:\n  assert Path(member).suffix not in ('.a','.so','.xz'),member\n# Failed setup remains separate; success cannot be inferred from its metadata.\nassert any('/delivery-preparation/window-overlap-1/' in p for p in by_path)\nassert len(index['discarded_executions'])==1\nfor discarded in index['discarded_executions']:\n records={n:readjson(v) for n,v in discarded['records'].items()}\n assert discarded['primary_observations_used']==records['status.json']['primary_observations_used']==0\n assert len(records['delivered-warmed/report.json']['observations'])==134\n assert records['delivered-warmed/report.json']['status']=='running'\n assert records['delivery-execution/report.json']['status']=='failed'\n assert [(p['name'],p['status']) for p in records['delivery-execution/report.json']['phases']]==[('delivered-warmed','running')]\n assert not any(Path(p).is_relative_to(discarded['path']) for p in index['documents'])\nassert all('attempt-2-full' not in n for n in index['source_stages'])\nresult={'status':'passed','source_stages':source_counts,'matched_controls_checked':7,\n 'controls_are_exact_single_predicate_disables':True,'streamed_payload_locations':len(wanted),\n 'streamed_archives':streamed_archives,'manual_review_pin_edges_checked':review_pins,\n 'current_public_bindings_checked':len(index['public_bindings']),\n 'omissions_checked':91,'measured_guest_omissions':0,'sdk_or_tool_binary_scope_leak':False,\n 'prior_index_or_report_reads':0,'product_or_engine_execution':False,\n 'retained_cache_files_independently_streamed':len(index['engine_cache_files']),\n 'discarded_raw_observations':134,'discarded_primary_observations_used':0}\n(HERE/'independent-closure.json').write_text(json.dumps(result,indent=2)+'\\n')\nprint(json.dumps(result,indent=2))\n",
+    "result_sha256": "7dd92d952ca4ce8f79b4589c711e15b718610078c1e21d5fd29206c507f09e16",
+    "scope": "Independent standard-library stream of 879 selected payload locations, including all stage/control sources, public bindings, current evidence documents, reviewer inputs, discarded-attempt records and every cache file. The published full verifier separately hashes every indexed retained object in all22physical archives."
+  },
+  "coverage": {
+    "public_files_before_audit_including_manifest": 35,
+    "public_files_after_audit_including_manifest": 36,
+    "final_manifest_entries": 35,
+    "new_archives": 2,
+    "new_archive_bytes": 12819277,
+    "bounded_prior_archives": 20,
+    "total_physical_archives": 22,
+    "closed_aliases": 137538,
+    "explicit_omissions": 91,
+    "current_evidence_documents": 35,
+    "source_stages": 4,
+    "matched_controls": 7,
+    "required_guest_identities": 4296,
+    "retained_guest_objects": 4482,
+    "engine_cache_files": 672,
+    "focused_commands": 76,
+    "differential_cases": 978,
+    "differential_observations": 9573,
+    "native_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_wasm_modules": 1574,
+    "worker_cases": 3001,
+    "worker_aliases": 3828,
+    "qualification_input_pins": 1368,
+    "delivery_cohorts": 6,
+    "numeric_chart_labels": 453,
+    "charts": 11,
+    "documentation_table_cells": 46,
+    "guide_checks": 15,
+    "largest_public_file_bytes": 20462472
+  },
+  "findings": [
+    "The full verifier passed exact qualification and six-cohort matrices, authoritative warmed stdout/timer/checksum bindings, source seals, worker raw request/response frames, lifecycle modes and cache configuration/payload edges.",
+    "All four compiler source stages reconstruct36headers/twopatches from retained bytes. The seven controls differ from final source only by their exact declared predicate-disabling insertion; build configuration and matched compiler proofs agree.",
+    "Current nine-document/five-pointer/chart bindings match the reviewed workspace bytes. All90explicit manual-review pin edges checked independently resolve; final-public-review is identical to its retained private source.",
+    "All required measured guests and all672cache files are retained. The91explicit omissions contain tool/SDK/compiler dependencies with identities and reasons; no measured Wasm/AOT/native guest is omitted, and no compiler/SDK/tool executable leaks into retained payload scope.",
+    "Reuse is byte storage only: twenty named prior physical archives, zero imported prior aliases, zero prior document/index reads. Current execution rows, references and source identities remain explicit.",
+    "The interrupted delivery attempt retains all four status/stop/coordinator/partial-report records. Its partial report has134observations and contributes zero primary observations; it is excluded from current evidence documents. The clean six-phase run is independently linked to every primary report.",
+    "Source/compiler/engine/reference boundaries and limits from the final public review remain valid: warmed Sieve improves, all ten full-example guests are unchanged, and the native comparison is only against the selected frozen profile on this machine snapshot.",
+    "The exact plain documented verifier is read-only and creates no __pycache__. The additive final audit is outside its own archived payload set, preventing archive self-reference."
+  ],
+  "final_manifest_policy": {
+    "filename": "SHA256.json",
+    "hashes_every_other_public_file": true,
+    "excludes_only_itself": true,
+    "last_public_write": "Insert only final-archive-audit.json into the byte-identical pre-audit mapping, then write SHA256.json last.",
+    "preexisting_entries_unchanged": true,
+    "self_hash_cycle_avoided": true,
+    "note": "The audit embeds the exact pre-audit manifest. Its own hash and final manifest hash are reported to the coordinator after the last write; neither is embedded recursively here."
+  },
+  "blockers": []
+}

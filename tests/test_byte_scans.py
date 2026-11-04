@@ -16,7 +16,7 @@ import test_strip_loops as strip
 from test_fill_loops import function_body
 
 REFERENCE = None
-EVIDENCE = strip.ROOT / 'build/stride-hills/scan-tests'
+EVIDENCE = strip.ROOT / 'build/scan-hills/scan-tests'
 COUNTS = dict(compiles=0, compile_failures=0, engine_cases=0, oracle_cases=0, body_checks=0)
 SOURCE = '''var saved:{kind}[:]; var backing:{kind}[4]=[17,34,51,68];
 var final_cur:i64=-777; var final_last:i64=-888; var effects:i64=0;
@@ -226,10 +226,23 @@ class ByteScans(unittest.TestCase):
             for step in (1, 2, 4, 8):
                 rows = [case(data=[value] * 128) for value in range(256)]
                 for begin in (0, 1, 3):
-                    for lane in range(16):
+                    for lane in range(32):
                         data = [0] * 128
                         data[begin + lane] = literal & 255
-                        rows.append(case(begin=begin, end=begin + 16, data=data))
+                        rows.append(case(begin=begin, end=begin + 32, data=data))
+                    for group in range(4):
+                        data = [0] * 128
+                        data[begin + group * 16 + step] = literal & 255
+                        rows.append(case(begin=begin, end=begin + 64, data=data))
+                    for lanes in ((0, 16), (15, 31), (0, 15, 16, 31), (16, 31), (31,)):
+                        data = [0] * 128
+                        for lane in lanes:
+                            data[begin + lane] = literal & 255
+                        rows.append(case(begin=begin, end=begin + 32, data=data))
+                    for group in range(4):
+                        data = [0] * 160
+                        data[begin + group * 32 + step] = literal & 255
+                        rows.append(case(length=160, begin=begin, end=begin + 128, data=data))
                 rows.extend([case(data=[literal & 255] * 128, seed=(1 << 63) - 3),
                              case(begin=3, end=40, data=[literal & 255] * 128),
                              case(end=0, seed=-(1 << 63))])
@@ -244,18 +257,24 @@ class ByteScans(unittest.TestCase):
             for comparison in ('<', '<='):
                 inclusive = comparison == '<='
                 rows = []
-                for begin in (0, 1, 3, 15, 16, 17):
-                    for span in (0, 1, 7, 8, 15, 16, 17, 31, 32, 33):
+                for begin in (0, 1, 3, 15, 16, 17, 31, 32, 33):
+                    for span in (0, 1, 7, 8, 15, 16, 17, 31, 32, 33, 63, 64, 65):
                         end = begin + span
                         if inclusive:
                             end -= 1
                         rows.append(case(begin=begin, end=end, data=[literal & 255] * 128))
                 rows.extend([
                     case(length=0), case(length=1), case(length=15), case(length=31),
+                    case(length=32, end=33), case(length=33, end=34),
+                    case(length=63, end=64), case(length=64, end=65),
+                    case(length=65, end=66),
                     case(begin=-1), case(begin=128), case(end=(1 << 63) - 1),
                     case(begin=0, end=-1), case(begin=-2, end=-3),
                     case(begin=1, end=0, pointer=0xffffffff, length=0),
                     case(pointer=-8), case(pointer=-16), case(pointer=-17),
+                    case(pointer=-31, end=32), case(pointer=-32, end=33),
+                    case(pointer=-33, end=34), case(pointer=-63, end=64),
+                    case(pointer=-64, end=65), case(pointer=-65, end=66),
                     case(pointer=-8, end=8, length=8),
                     case(pointer=-9, end=8, length=9),
                     case(pointer=0xfffffff8), case(pointer=0xffffffff),
@@ -265,6 +284,14 @@ class ByteScans(unittest.TestCase):
                     case(seed=(1 << 63) - 1, data=[literal & 255] * 128),
                     case(pointer=16385, begin=3, end=40, data=[literal & 255] * 128),
                 ])
+                for span in (31, 32, 33, 63, 64, 65):
+                    end = span
+                    if inclusive:
+                        end -= 1
+                    rows.append(case(pointer=-span, length=span, end=end,
+                                     data=[literal & 255] * 128))
+                    rows.append(case(pointer=16385, begin=3, end=3 + end,
+                                     data=[literal & 255] * 128))
                 for level in (0, 2):
                     for debug in (False, True):
                         with self.subTest(kind=kind, step=step, comparison=comparison,

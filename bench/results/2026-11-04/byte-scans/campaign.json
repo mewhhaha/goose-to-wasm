@@ -1,0 +1,1135 @@
+{
+  "schema": "goose-byte-scan-campaign-v1",
+  "status": "passed",
+  "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "baseline_compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+  "scope": "Byte equality reductions select the last matching index without a mask branch and process two SIMD128 vectors per 32-byte group, followed by at most one 16-byte vector tail and the original scalar tail. Existing eligibility, complete span guards and debug/failed-guard behavior remain unchanged.",
+  "qualification": {
+    "focused_commands": 76,
+    "cases": 978,
+    "differential_executions": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "unique_host_modules": 1574,
+    "worker_observations": 3001,
+    "worker_aliases": 3828
+  },
+  "accepted_boundaries": "Fresh paired warmed compiler comparisons and frozen selected references, separately collected full-process backends and lifecycle modes. No algorithm/input/engine-flag changes.",
+  "selection": {
+    "schema": "goose-byte-scan-selection-v1",
+    "status": "selected",
+    "selected_root": "/home/jacobt/src/goose-to-wasm/build/scan-hills/final",
+    "selected_compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+    "baseline_root": "/home/jacobt/src/goose-to-wasm/build/stride-hills/final",
+    "baseline_compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+    "scope": "Byte equality reductions select the last matching index without a mask branch and process two SIMD128 vectors per 32-byte group, followed by at most one 16-byte vector tail and the original scalar tail. Existing eligibility, complete span guards and debug/failed-guard behavior remain unchanged.",
+    "decision": "Select the wide candidate: its total gain over the shipped compiler is clear on both engines. Select-only already gives about 13 percent without module growth; width adds a modest observed 2.8 percent Wasmtime / 4.0 percent V8 for 94 bytes. V8 width wins 3 of 5 rounds; that marginal result is a screen observation, not an established 5 percent hill or hardware attribution.",
+    "criteria": "Repeated material primary-workload improvement, check both engines and investigate controls over 3 percent. Fresh final qualification and nine-pair delivery required; avoid overstating marginal screens.",
+    "qualification_status_at_selection": "Pending final full 76-command corpus, host/worker replays and six fresh delivery cohorts.",
+    "screens": {
+      "select-wasmtime/report.json": {
+        "report_sha256": "e9e12efdf6d3577ad9c8cd0a30a31dfe1b3d413098adcf206285bd9bb58bf380",
+        "observations": 24,
+        "summary": [
+          {
+            "task": "Etc::Sieve",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 0.84288432,
+                "mad": 0.002853273000000045,
+                "min": 0.840031047,
+                "max": 0.854147373,
+                "p25": 0.841348807,
+                "p75": 0.849310676,
+                "samples": [
+                  0.849310676,
+                  0.840031047,
+                  0.841348807,
+                  0.854147373,
+                  0.84288432
+                ]
+              },
+              "candidate": {
+                "n": 5,
+                "median": 0.74782011,
+                "mad": 0.0014840600000000093,
+                "min": 0.746092681,
+                "max": 0.750594563,
+                "p25": 0.74633605,
+                "p75": 0.74813111,
+                "samples": [
+                  0.74813111,
+                  0.746092681,
+                  0.74633605,
+                  0.74782011,
+                  0.750594563
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "candidate",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.1352430939544809
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.1259071002735115
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.1273055977933801
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.1421829415633125
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.1229555362500008
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.1273055977933801,
+                  "mad": 0.004350061543379358,
+                  "min": 1.1229555362500008,
+                  "max": 1.1421829415633125,
+                  "p25": 1.1259071002735115,
+                  "p75": 1.1352430939544809,
+                  "samples": [
+                    1.1352430939544809,
+                    1.1259071002735115,
+                    1.1273055977933801,
+                    1.1421829415633125,
+                    1.1229555362500008
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          },
+          {
+            "task": "Sort::Merge",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 1.474025381,
+                "mad": 0.0029631709999999867,
+                "min": 1.465077777,
+                "max": 1.482049093,
+                "p25": 1.471501081,
+                "p75": 1.476988552,
+                "samples": [
+                  1.474025381,
+                  1.476988552,
+                  1.465077777,
+                  1.471501081,
+                  1.482049093
+                ]
+              },
+              "candidate": {
+                "n": 5,
+                "median": 1.479843139,
+                "mad": 0.007183616000000059,
+                "min": 1.46494115,
+                "max": 1.487026755,
+                "p25": 1.472230502,
+                "p75": 1.480996424,
+                "samples": [
+                  1.479843139,
+                  1.487026755,
+                  1.472230502,
+                  1.480996424,
+                  1.46494115
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "candidate",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 0.9960686657614729
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 0.9932494805717197
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 0.9951415726068146
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 0.9935885442759178
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.0116782459145202
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 0.9951415726068146,
+                  "mad": 0.0015530283308967663,
+                  "min": 0.9932494805717197,
+                  "max": 1.0116782459145202,
+                  "p25": 0.9935885442759178,
+                  "p75": 0.9960686657614729,
+                  "samples": [
+                    0.9960686657614729,
+                    0.9932494805717197,
+                    0.9951415726068146,
+                    0.9935885442759178,
+                    1.0116782459145202
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          }
+        ]
+      },
+      "select-v8/report.json": {
+        "report_sha256": "84a9325ed4152ff4c45b8bd6dbc59d51b6651ded0cb848db58480ae23487b853",
+        "observations": 24,
+        "summary": [
+          {
+            "task": "Etc::Sieve",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 0.837420748,
+                "mad": 0.0032823069999999843,
+                "min": 0.834138441,
+                "max": 0.843750818,
+                "p25": 0.836115556,
+                "p75": 0.842039778,
+                "samples": [
+                  0.842039778,
+                  0.834138441,
+                  0.837420748,
+                  0.836115556,
+                  0.843750818
+                ]
+              },
+              "candidate": {
+                "n": 5,
+                "median": 0.738530018,
+                "mad": 0.0025123420000000563,
+                "min": 0.735732522,
+                "max": 0.742658157,
+                "p25": 0.737457429,
+                "p75": 0.74104236,
+                "samples": [
+                  0.735732522,
+                  0.737457429,
+                  0.742658157,
+                  0.738530018,
+                  0.74104236
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "candidate",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.1444917178746108
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.1311004651903778
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.1275992057810251
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.1321348294877298
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.1385999823275958
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.1321348294877298,
+                  "mad": 0.004535623706704683,
+                  "min": 1.1275992057810251,
+                  "max": 1.1444917178746108,
+                  "p25": 1.1311004651903778,
+                  "p75": 1.1385999823275958,
+                  "samples": [
+                    1.1444917178746108,
+                    1.1311004651903778,
+                    1.1275992057810251,
+                    1.1321348294877298,
+                    1.1385999823275958
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          },
+          {
+            "task": "Sort::Merge",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 1.409378368,
+                "mad": 0.0007626520000001413,
+                "min": 1.406992568,
+                "max": 1.411335691,
+                "p25": 1.408615716,
+                "p75": 1.409965046,
+                "samples": [
+                  1.409378368,
+                  1.411335691,
+                  1.408615716,
+                  1.406992568,
+                  1.409965046
+                ]
+              },
+              "candidate": {
+                "n": 5,
+                "median": 1.40700368,
+                "mad": 0.003387937000000063,
+                "min": 1.403615743,
+                "max": 1.415306937,
+                "p25": 1.403721382,
+                "p75": 1.410943983,
+                "samples": [
+                  1.403615743,
+                  1.415306937,
+                  1.403721382,
+                  1.40700368,
+                  1.410943983
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "candidate",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.0041055573996935
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 0.9971940743762495
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.0034866847956867
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 0.9999921023660718
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 0.9993061829443303
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 0.9999921023660718,
+                  "mad": 0.002798027989822316,
+                  "min": 0.9971940743762495,
+                  "max": 1.0041055573996935,
+                  "p25": 0.9993061829443303,
+                  "p75": 1.0034866847956867,
+                  "samples": [
+                    1.0041055573996935,
+                    0.9971940743762495,
+                    1.0034866847956867,
+                    0.9999921023660718,
+                    0.9993061829443303
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          }
+        ]
+      },
+      "wide-wasmtime/report.json": {
+        "report_sha256": "702182712a96dab556e5ee92d3b8db3659eb17100799f8c86758eb87c750fefd",
+        "observations": 36,
+        "summary": [
+          {
+            "task": "Etc::Sieve",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 0.866965382,
+                "mad": 0.002726197000000097,
+                "min": 0.861047598,
+                "max": 0.869691579,
+                "p25": 0.862095738,
+                "p75": 0.867361485,
+                "samples": [
+                  0.869691579,
+                  0.861047598,
+                  0.866965382,
+                  0.867361485,
+                  0.862095738
+                ]
+              },
+              "select": {
+                "n": 5,
+                "median": 0.76618576,
+                "mad": 0.002684386000000094,
+                "min": 0.763501374,
+                "max": 0.824810451,
+                "p25": 0.765560303,
+                "p75": 0.769349637,
+                "samples": [
+                  0.76618576,
+                  0.765560303,
+                  0.824810451,
+                  0.763501374,
+                  0.769349637
+                ]
+              },
+              "wide": {
+                "n": 5,
+                "median": 0.748683073,
+                "mad": 0.0012903239999999538,
+                "min": 0.744938117,
+                "max": 0.749973397,
+                "p25": 0.746092108,
+                "p75": 0.74906329,
+                "samples": [
+                  0.74906329,
+                  0.744938117,
+                  0.746092108,
+                  0.749973397,
+                  0.748683073
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "select",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.1350923293066684
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.1247286394367813
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.051108628593262
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.1360313347648279
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.1205513027362355
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.1247286394367813,
+                  "mad": 0.010363689869887116,
+                  "min": 1.051108628593262,
+                  "max": 1.1360313347648279,
+                  "p25": 1.1205513027362355,
+                  "p75": 1.1350923293066684,
+                  "samples": [
+                    1.1350923293066684,
+                    1.1247286394367813,
+                    1.051108628593262,
+                    1.1360313347648279,
+                    1.1205513027362355
+                  ]
+                }
+              },
+              {
+                "numerator": "baseline",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.1610388475985787
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.1558645991530059
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.1620085143696492
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.156523002641919
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.15148287585233
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.156523002641919,
+                  "mad": 0.004515844956659576,
+                  "min": 1.15148287585233,
+                  "max": 1.1620085143696492,
+                  "p25": 1.1558645991530059,
+                  "p75": 1.1610388475985787,
+                  "samples": [
+                    1.1610388475985787,
+                    1.1558645991530059,
+                    1.1620085143696492,
+                    1.156523002641919,
+                    1.15148287585233
+                  ]
+                }
+              },
+              {
+                "numerator": "select",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.022858509058694
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.0276830860569321
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.10550754009584
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.0180379424845118
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.0276038884079326
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.0276038884079326,
+                  "mad": 0.0047453793492386875,
+                  "min": 1.0180379424845118,
+                  "max": 1.10550754009584,
+                  "p25": 1.022858509058694,
+                  "p75": 1.0276830860569321,
+                  "samples": [
+                    1.022858509058694,
+                    1.0276830860569321,
+                    1.10550754009584,
+                    1.0180379424845118,
+                    1.0276038884079326
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          },
+          {
+            "task": "Sort::Merge",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 1.507980035,
+                "mad": 0.008580411000000066,
+                "min": 1.497741182,
+                "max": 1.53894551,
+                "p25": 1.499399624,
+                "p75": 1.511234189,
+                "samples": [
+                  1.497741182,
+                  1.507980035,
+                  1.511234189,
+                  1.53894551,
+                  1.499399624
+                ]
+              },
+              "select": {
+                "n": 5,
+                "median": 1.504227128,
+                "mad": 0.00480499099999987,
+                "min": 1.499422137,
+                "max": 1.525256176,
+                "p25": 1.504011336,
+                "p75": 1.512100612,
+                "samples": [
+                  1.512100612,
+                  1.504227128,
+                  1.525256176,
+                  1.504011336,
+                  1.499422137
+                ]
+              },
+              "wide": {
+                "n": 5,
+                "median": 1.507151366,
+                "mad": 0.0016018250000000567,
+                "min": 1.502408517,
+                "max": 1.518976142,
+                "p25": 1.505549541,
+                "p75": 1.507588455,
+                "samples": [
+                  1.507151366,
+                  1.505549541,
+                  1.507588455,
+                  1.502408517,
+                  1.518976142
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "select",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 0.9905036543957169
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.0024949071387843
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 0.9908067987393614
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.0232273342386562
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 0.9999849855491363
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 0.9999849855491363,
+                  "mad": 0.009178186809774891,
+                  "min": 0.9905036543957169,
+                  "max": 1.0232273342386562,
+                  "p25": 0.9908067987393614,
+                  "p75": 1.0024949071387843,
+                  "samples": [
+                    0.9905036543957169,
+                    1.0024949071387843,
+                    0.9908067987393614,
+                    1.0232273342386562,
+                    0.9999849855491363
+                  ]
+                }
+              },
+              {
+                "numerator": "baseline",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 0.9937563112688709
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.0016143567075089
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.0024182554515515
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.0243189469352563
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 0.9871120306246389
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.0016143567075089,
+                  "mad": 0.007858045438637995,
+                  "min": 0.9871120306246389,
+                  "max": 1.0243189469352563,
+                  "p25": 0.9937563112688709,
+                  "p75": 1.0024182554515515,
+                  "samples": [
+                    0.9937563112688709,
+                    1.0016143567075089,
+                    1.0024182554515515,
+                    1.0243189469352563,
+                    0.9871120306246389
+                  ]
+                }
+              },
+              {
+                "numerator": "select",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.0032838413656722
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 0.9991216409928818
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.0117191936177303
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.0010668330097066
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 0.9871268517922515
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.0010668330097066,
+                  "mad": 0.0022170083559656106,
+                  "min": 0.9871268517922515,
+                  "max": 1.0117191936177303,
+                  "p25": 0.9991216409928818,
+                  "p75": 1.0032838413656722,
+                  "samples": [
+                    1.0032838413656722,
+                    0.9991216409928818,
+                    1.0117191936177303,
+                    1.0010668330097066,
+                    0.9871268517922515
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          }
+        ]
+      },
+      "wide-v8/report.json": {
+        "report_sha256": "834388fc7e77541a9a0ebcf5b6b6b9bdcb804eba30d77ffd4e2250879b98fca5",
+        "observations": 36,
+        "summary": [
+          {
+            "task": "Etc::Sieve",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 0.877086528,
+                "mad": 0.011698183000000029,
+                "min": 0.861466631,
+                "max": 0.948031772,
+                "p25": 0.865388345,
+                "p75": 0.883571592,
+                "samples": [
+                  0.948031772,
+                  0.877086528,
+                  0.865388345,
+                  0.883571592,
+                  0.861466631
+                ]
+              },
+              "select": {
+                "n": 5,
+                "median": 0.778895046,
+                "mad": 0.006577027999999929,
+                "min": 0.763409109,
+                "max": 0.785472074,
+                "p25": 0.771499028,
+                "p75": 0.779711597,
+                "samples": [
+                  0.785472074,
+                  0.778895046,
+                  0.779711597,
+                  0.771499028,
+                  0.763409109
+                ]
+              },
+              "wide": {
+                "n": 5,
+                "median": 0.740784606,
+                "mad": 0.006423654000000001,
+                "min": 0.734360952,
+                "max": 0.787777368,
+                "p25": 0.739647703,
+                "p75": 0.787594018,
+                "samples": [
+                  0.787777368,
+                  0.787594018,
+                  0.739647703,
+                  0.740784606,
+                  0.734360952
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "select",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.206957959908324
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.126065100175255
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.10988261342995
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.145265982110868
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.1284468849585079
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.1284468849585079,
+                  "mad": 0.016819097152360074,
+                  "min": 1.10988261342995,
+                  "max": 1.206957959908324,
+                  "p25": 1.126065100175255,
+                  "p75": 1.145265982110868,
+                  "samples": [
+                    1.206957959908324,
+                    1.126065100175255,
+                    1.10988261342995,
+                    1.145265982110868,
+                    1.1284468849585079
+                  ]
+                }
+              },
+              {
+                "numerator": "baseline",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.2034260065211724
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.1136277167610484
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.17000071992382
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.1927510167510151
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.1730833844771202
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.1730833844771202,
+                  "mad": 0.019667632273894897,
+                  "min": 1.1136277167610484,
+                  "max": 1.2034260065211724,
+                  "p25": 1.17000071992382,
+                  "p75": 1.1927510167510151,
+                  "samples": [
+                    1.2034260065211724,
+                    1.1136277167610484,
+                    1.17000071992382,
+                    1.1927510167510151,
+                    1.1730833844771202
+                  ]
+                }
+              },
+              {
+                "numerator": "select",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 0.9970736732309883
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 0.9889550049883696
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.0541661845734145
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 1.0414620143982853
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.0395556938599317
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.0395556938599317,
+                  "mad": 0.014610490713482749,
+                  "min": 0.9889550049883696,
+                  "max": 1.0541661845734145,
+                  "p25": 0.9970736732309883,
+                  "p75": 1.0414620143982853,
+                  "samples": [
+                    0.9970736732309883,
+                    0.9889550049883696,
+                    1.0541661845734145,
+                    1.0414620143982853,
+                    1.0395556938599317
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          },
+          {
+            "task": "Sort::Merge",
+            "times": {
+              "baseline": {
+                "n": 5,
+                "median": 1.44668391,
+                "mad": 0.003436081999999896,
+                "min": 1.440754282,
+                "max": 1.577507298,
+                "p25": 1.443247828,
+                "p75": 1.447588972,
+                "samples": [
+                  1.577507298,
+                  1.44668391,
+                  1.447588972,
+                  1.440754282,
+                  1.443247828
+                ]
+              },
+              "select": {
+                "n": 5,
+                "median": 1.447724826,
+                "mad": 0.014557147999999964,
+                "min": 1.433167678,
+                "max": 1.669530983,
+                "p25": 1.444670866,
+                "p75": 1.466862328,
+                "samples": [
+                  1.669530983,
+                  1.447724826,
+                  1.466862328,
+                  1.444670866,
+                  1.433167678
+                ]
+              },
+              "wide": {
+                "n": 5,
+                "median": 1.44741161,
+                "mad": 0.010356948000000088,
+                "min": 1.437054662,
+                "max": 1.642578096,
+                "p25": 1.445027217,
+                "p75": 1.479695822,
+                "samples": [
+                  1.642578096,
+                  1.44741161,
+                  1.445027217,
+                  1.479695822,
+                  1.437054662
+                ]
+              }
+            },
+            "paired_ratios": [
+              {
+                "numerator": "baseline",
+                "denominator": "select",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 0.9448805167816403
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 0.9992809987220597
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 0.9868608282917195
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 0.997288943736476
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.0070334756740167
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 0.997288943736476,
+                  "mad": 0.009744531937540657,
+                  "min": 0.9448805167816403,
+                  "max": 1.0070334756740167,
+                  "p25": 0.9868608282917195,
+                  "p75": 0.9992809987220597,
+                  "samples": [
+                    0.9448805167816403,
+                    0.9992809987220597,
+                    0.9868608282917195,
+                    0.997288943736476,
+                    1.0070334756740167
+                  ]
+                }
+              },
+              {
+                "numerator": "baseline",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 0.9603849593766894
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 0.9994972404567073
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.0017728074391001
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 0.9736827397759592
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 1.004309624514478
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 0.9994972404567073,
+                  "mad": 0.0048123840577707355,
+                  "min": 0.9603849593766894,
+                  "max": 1.004309624514478,
+                  "p25": 0.9736827397759592,
+                  "p75": 1.0017728074391001,
+                  "samples": [
+                    0.9603849593766894,
+                    0.9994972404567073,
+                    1.0017728074391001,
+                    0.9736827397759592,
+                    1.004309624514478
+                  ]
+                }
+              },
+              {
+                "numerator": "select",
+                "denominator": "wide",
+                "per_round": [
+                  {
+                    "round": 0,
+                    "ratio": 1.016408892256408
+                  },
+                  {
+                    "round": 1,
+                    "ratio": 1.0002163973246005
+                  },
+                  {
+                    "round": 2,
+                    "ratio": 1.0151105188491407
+                  },
+                  {
+                    "round": 3,
+                    "ratio": 0.9763296243192339
+                  },
+                  {
+                    "round": 4,
+                    "ratio": 0.9972951731741433
+                  }
+                ],
+                "ratio": {
+                  "n": 5,
+                  "median": 1.0002163973246005,
+                  "mad": 0.014894121524540171,
+                  "min": 0.9763296243192339,
+                  "max": 1.016408892256408,
+                  "p25": 0.9972951731741433,
+                  "p75": 1.0151105188491407,
+                  "samples": [
+                    1.016408892256408,
+                    1.0002163973246005,
+                    1.0151105188491407,
+                    0.9763296243192339,
+                    0.9972951731741433
+                  ]
+                }
+              }
+            ],
+            "reference_roles": {}
+          }
+        ]
+      }
+    },
+    "input_sha256": {
+      "/home/jacobt/src/goose-to-wasm/build/scan-hills/select-wasmtime/report.json": "e9e12efdf6d3577ad9c8cd0a30a31dfe1b3d413098adcf206285bd9bb58bf380",
+      "/home/jacobt/src/goose-to-wasm/build/scan-hills/select-v8/report.json": "84a9325ed4152ff4c45b8bd6dbc59d51b6651ded0cb848db58480ae23487b853",
+      "/home/jacobt/src/goose-to-wasm/build/scan-hills/wide-wasmtime/report.json": "702182712a96dab556e5ee92d3b8db3659eb17100799f8c86758eb87c750fefd",
+      "/home/jacobt/src/goose-to-wasm/build/scan-hills/wide-v8/report.json": "834388fc7e77541a9a0ebcf5b6b6b9bdcb804eba30d77ffd4e2250879b98fca5"
+    },
+    "retained_experiments": [
+      "last-select: isolated branchless choice, unchanged 3482-byte guest, valid smaller alternative.",
+      "wide-32: selected 3576-byte guest including a 16-byte vector tail; upper-bit and span proofs covered by expanded oracle fixtures."
+    ]
+  },
+  "numbers_sha256": "e64f07e1704dd13ff8752cf224e3f0d7de9422580b7f1444b3b2b27ed651cec1",
+  "evidence": {
+    "module-analysis.json": "83c6583d9c526dc0a572f9c8af5cf22f3b9b6b0b20a8f8a7b38924d091a90c71",
+    "qualification/static-review.json": "8b482f5a89550b07b379b2811714533e300275721ee6d112144c0d134abe4f0d",
+    "qualification/test-static-review.json": "88690c187bf0ff84cae0994b926881c6215a2fec701bd927ec31fa5021f663a2",
+    "delivery-execution/report.json": "66e108732870305e2698ecab16c3c11f77930835ecee7782f97c322b24dcf8eb",
+    "campaign-selection.json": "3775f73ffd7482fdd964cd2164027b98794c7aa8af2328479607acf4f61ebf81",
+    "wide-static-review.json": "665bdadab334db18e578b668e927a9821cb1fe5832c84ba0ea128e8fff45deb9",
+    "select-wasmtime/report.json": "e9e12efdf6d3577ad9c8cd0a30a31dfe1b3d413098adcf206285bd9bb58bf380",
+    "select-v8/report.json": "84a9325ed4152ff4c45b8bd6dbc59d51b6651ded0cb848db58480ae23487b853",
+    "wide-wasmtime/report.json": "702182712a96dab556e5ee92d3b8db3659eb17100799f8c86758eb87c750fefd",
+    "wide-v8/report.json": "834388fc7e77541a9a0ebcf5b6b6b9bdcb804eba30d77ffd4e2250879b98fca5"
+  }
+}

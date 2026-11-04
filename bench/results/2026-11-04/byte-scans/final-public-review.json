@@ -1,0 +1,306 @@
+{
+  "schema": "goose-byte-scan-final-public-review-v1",
+  "status": "passed",
+  "created_utc": "2026-11-04T00:45:54.244899+00:00",
+  "reviewer": "astra_campaign",
+  "compiler_sha256": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+  "baseline_compiler_sha256": "f76ea0f4bfa57949f5b04d42884f8316546a7eb50720b31e564afafcad9a0af8",
+  "scope": "Final source, raw arithmetic, current public prose, chart/value/link and identity review. No compiler/test/engine execution. Archive assembly and exact offline reproduction command remain the separate final archive audit.",
+  "decision": "GO for finite evidence collection and packaging; no public-claim blocker found.",
+  "documents": [
+    {
+      "path": "README.md",
+      "sha256": "d37c21d7c1ff85811d9094b89d0f5bbf4d6326cd3a9cc4ac79840af4a050af25"
+    },
+    {
+      "path": "bench/examples.md",
+      "sha256": "6c27f313b608804aa4319a20747c6d17a00d89860c462a76b06be042eddda45a"
+    },
+    {
+      "path": "bench/wasmtime-host.md",
+      "sha256": "b51f32a4ec92ca27334b7af88ea7b80884360b02fab216165fb96c2cee42d0cc"
+    },
+    {
+      "path": "docs/FUNCTIONS_PERFORMANCE.md",
+      "sha256": "77001135ccd93fccdf70d31e635c98f2d1d4844eaddd99d9a223f9af9638ec8a"
+    },
+    {
+      "path": "docs/GUIDE.md",
+      "sha256": "fd8673ad11cdedcb1c243020a46309c0ae5be811e7e033ce297074dde0bb8206"
+    },
+    {
+      "path": "docs/PERFORMANCE_PLAN.md",
+      "sha256": "9f4742001fe5f86e834a4bf197f71b625cf7483ea58a38b9249dd23cd709ad7f"
+    },
+    {
+      "path": "docs/RUNTIME_TARGETS.md",
+      "sha256": "fbd7b426f2132eea082f15d5ebf1a5f0c99831d830fed1d8938056372ae25fc3"
+    },
+    {
+      "path": "docs/RUNTIME_PERFORMANCE.md",
+      "sha256": "e2d2cc611333b0b7beddfef13de4b6a9c65f9f5b53ca8cf70b2db2d464ef1b24"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/README.md",
+      "sha256": "6fc2e18316d2da733ae40cbd20b0c9660af3547d325d964628edb33d3586f325"
+    }
+  ],
+  "local_document_links_verified": 110,
+  "pointers": [
+    {
+      "path": "bench/results/latest.json",
+      "sha256": "2441140d782a7081fca0756f931ab4961a7cbf2a2211c71b890329e6e4e39117"
+    },
+    {
+      "path": "bench/results/examples-latest.json",
+      "sha256": "f60c9198466971cdd5af105a36b8b280f49237aa850fadbe8f81d6c74d80ba52"
+    },
+    {
+      "path": "bench/results/wasmtime-host-latest.json",
+      "sha256": "29cc8821798c8d05606360d503cd95a4097a8c50c7a0156328b07c114c720a2a"
+    },
+    {
+      "path": "bench/results/runtime-targets-latest.json",
+      "sha256": "85f409d5c150476d512bc03fe88f14926ea5b6250bdab949beb62481c2ad8584"
+    },
+    {
+      "path": "bench/results/runtime-lifecycle-latest.json",
+      "sha256": "cb26b674c8cb6b26f0b0770d5d0f3b0b3f5c29991c7975356605da65dfcb3503"
+    }
+  ],
+  "reports_exact_private_copies": [
+    {
+      "path": "bench/results/2026-11-04/byte-scans/qualification.json",
+      "sha256": "708d1af9500613a378b0556f9f3fe2c08e085941995a27995637a3908140f4f8"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/differential.json",
+      "sha256": "cd38d1f130913140161934fbb744b6bfa9a6119564a38e1e25d6a8f5b651a6e4"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/host-qualification.json",
+      "sha256": "c2b5a853f8098c05365033863c06d8a43c05e9aa24f6fee5ddaa0fbb6c1f0e88"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/final-warmed.json",
+      "sha256": "a0e20a2054f44177b1076387ec9ddf61ec3271c0b5ac305949d016b27df9b326"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/final-v8.json",
+      "sha256": "731823e5b69dab3327cb9910f2d3ffc24a7e694c5ae021b5ce3c675dc5bbc5d3"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/examples.json",
+      "sha256": "758fd077be2032870010c110d7d9a176395c7ef0d36b8c517c262509427637dd"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/host.json",
+      "sha256": "3f69c679188963574d7e06b32d0a114ed6c49432f1f7f5478985dfb59a098ea1"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/cohort.json",
+      "sha256": "2a200d6dbb700ec5d24aae7151b9e7f551d2f94cc0812652456eddad2b869822"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/lifecycle.json",
+      "sha256": "9bb34b666e28ca93b71662753bfd70abb09a28116d60a54232f1c24ed43e08a7"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/worker-qualification.json",
+      "sha256": "a09fa8b680dcf4b3ea4aa135947824cd17a2d92faedca908c69a2a859e6317f9"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/campaign.json",
+      "sha256": "2ab399fca0dae8d744c2204c5444be97a4f2b48524b674ba36d51861171a2a94"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/final-numbers.json",
+      "sha256": "e64f07e1704dd13ff8752cf224e3f0d7de9422580b7f1444b3b2b27ed651cec1"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/module-analysis.json",
+      "sha256": "83c6583d9c526dc0a572f9c8af5cf22f3b9b6b0b20a8f8a7b38924d091a90c71"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/static-review.json",
+      "sha256": "8b482f5a89550b07b379b2811714533e300275721ee6d112144c0d134abe4f0d"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/test-static-review.json",
+      "sha256": "88690c187bf0ff84cae0994b926881c6215a2fec701bd927ec31fa5021f663a2"
+    },
+    {
+      "path": "bench/results/2026-11-04/byte-scans/qualification-summary.json",
+      "sha256": "afeeab8ae57d74e172370c42672b1bbf76b94960bccbf5687e0504ec1c3370f8"
+    }
+  ],
+  "structured_compiler_identity": {
+    "path": "bench/results/2026-11-04/byte-scans/compiler-identity.json",
+    "sha256": "5c14445eb80a205a905013080a866c901f97c1609e33a983e4f2534842f72270"
+  },
+  "frozen_reference": {
+    "path": "bench/results/2026-11-04/byte-scans/references.json",
+    "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350"
+  },
+  "arithmetic_review": {
+    "path": "build/scan-hills/reviews/independent-arithmetic.json",
+    "sha256": "3f8cea6dce21bf1fb920bb29a54eeec01a420e169e8fa957f2724c145cfd1b72"
+  },
+  "independent_calculation": {
+    "summary_cells": 903,
+    "cohorts": {
+      "wasmtime": 550,
+      "v8": 200,
+      "examples": 1600,
+      "host": 1440,
+      "langarena": 315,
+      "lifecycle": 960
+    },
+    "separate_host_preparations": 200,
+    "exact_matrices_passed": true,
+    "artifact_identity_checks": 2134,
+    "distinct_hashed_files": 2110
+  },
+  "current_source_identity": {
+    "manifest": {
+      "path": "build/scan-hills/final/source.json",
+      "sha256": "a134a8e115f759bb3b5342a3fbb04d1830166cffc364c0762c5c18f335fa8983"
+    },
+    "headers": 36,
+    "patches": 2,
+    "current_and_frozen_headers_rechecked": true,
+    "measured_source_pins_checked_by_arithmetic": 1494,
+    "test": {
+      "path": "tests/test_byte_scans.py",
+      "sha256": "74e436ef12666c43a71d3f599669105939a4e2b2cac9325bc9f4a89c20b8cf6d"
+    },
+    "ci": {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "e412072d9facdb25d8d407f06a666fae810987e40e201b803173ee33606c69d9"
+    },
+    "engines_checked_by_arithmetic": {
+      "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime": "e303865d7661dc5d0dad1e1719753d1101bfe7f7e16d5b1eb2e174f416fbbf28",
+      "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+      "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178",
+      "/home/jacobt/src/goose-to-wasm/build/scan-hills/final/bin/goose": "b431c62fdb28463c72a50c24fb41fa28ff71262fb515a527b9fa903e933ca8a0",
+      "/home/jacobt/src/goose-to-wasm/build/full-hills/baseline/bin/goose-wasmtime": "e0468623661130c89eec4902c287c1ec971928b75469a47303c3392733c51cd3"
+    },
+    "post_qualification_compiler_runtime_benchmark_renderer_changes": false
+  },
+  "qualification": {
+    "focused_commands": 76,
+    "cases": 978,
+    "differential_observations": 9573,
+    "native_stdout_comparisons": 7656,
+    "host_observations": 11484,
+    "host_unique_wasm": 1574,
+    "worker_observations": 3001,
+    "worker_underlying_aliases": 3828,
+    "worker_unique_wasm": 1574
+  },
+  "qualification_input_pins": 1368,
+  "qualification_summary": {
+    "path": "build/scan-hills/qualification/summary.json",
+    "sha256": "afeeab8ae57d74e172370c42672b1bbf76b94960bccbf5687e0504ec1c3370f8"
+  },
+  "static_reviews": [
+    {
+      "path": "build/scan-hills/qualification/static-review.json",
+      "sha256": "8b482f5a89550b07b379b2811714533e300275721ee6d112144c0d134abe4f0d"
+    },
+    {
+      "path": "build/scan-hills/qualification/test-static-review.json",
+      "sha256": "88690c187bf0ff84cae0994b926881c6215a2fec701bd927ec31fa5021f663a2"
+    }
+  ],
+  "charts": {
+    "count": 11,
+    "numeric_labels": 453,
+    "table_cells": 46,
+    "checks_replayed_read_only": true,
+    "target_labels_independently_bound_to_paired_roles": 30,
+    "proofs": [
+      {
+        "path": "bench/results/2026-11-04/byte-scans/chart-verification.json",
+        "sha256": "1c0fdb543b14c11f710caa366b49dd066da1de5b6c0921dcfea6e3983913ac3c"
+      },
+      {
+        "path": "bench/results/2026-11-04/byte-scans/target-chart-verification.json",
+        "sha256": "2c41691542c2877a59ea7cde1c7d1df4fd254068fc054846418fccb1e665c59c"
+      },
+      {
+        "path": "bench/results/2026-11-04/byte-scans/chart-visual-review.json",
+        "sha256": "ecf449aba6384c14fd0fa8f1df2ac44a952d9cf0c8c8b30b719f7644b53d727b"
+      },
+      {
+        "path": "bench/results/2026-11-04/byte-scans/table-verification.json",
+        "sha256": "19a6747e2d5b36d1544cc730e115ee1752801546473a13715abb47e894dab028"
+      }
+    ],
+    "visual_review": "Root inspected all 11 plots via three contact sheets and full lifecycle/host plots. This reviewer independently inspected the three retained contact sheets: labels, legends and bounds readable, no clipping identified. SVG and preview proof hashes match current bytes."
+  },
+  "guide": {
+    "proof": {
+      "path": "build/scan-hills/guide-validation/report.json",
+      "sha256": "1b8a711fd08d85eb0f2fae51b83d4c3a8a338637093192d72273d81949317d79"
+    },
+    "checks": 15,
+    "guide_sha256": "fd8673ad11cdedcb1c243020a46309c0ae5be811e7e033ce297074dde0bb8206",
+    "limit": "Setup/installer instructions unchanged and not rerun; existing command/session smoke records were inspected, not executed again."
+  },
+  "selection_and_machine_evidence": [
+    {
+      "path": "build/scan-hills/select-screen-review.json",
+      "sha256": "c148f7d137af88226aedfac98bad6441ee312370c6d4735d9edf7da0bd7f433f"
+    },
+    {
+      "path": "build/scan-hills/wide-selection-review.json",
+      "sha256": "5c97baf33c941ba51b54cc6cba18d9c8b0f41301d51112510b5ccc6674b9aa5e"
+    },
+    {
+      "path": "build/scan-hills/reviews/scan-machine.json",
+      "sha256": "4e2006da2a437039a95e4942c7426140f5495c17f3e24b49698f460b3d80c070"
+    }
+  ],
+  "discarded_attempt": {
+    "status": "discarded-interrupted-measurement",
+    "retained_raw_rows": 134,
+    "primary_observations_used": 0,
+    "overlap_seconds": 0.73188,
+    "proofs": [
+      {
+        "path": "build/scan-hills/delivery-preparation/window-overlap-1/status.json",
+        "sha256": "6a8984e75659afb14d01780df6556a3bf81bccb53274e5f2f3ba02e0dfdbba36"
+      },
+      {
+        "path": "build/scan-hills/delivery-preparation/window-overlap-1/delivery-overlap-stop.json",
+        "sha256": "cf00f9e9d11c05f1ee18d96edb7e34c2f4fda4224e9b7f51c019f3b89422eece"
+      },
+      {
+        "path": "build/scan-hills/delivery-preparation/window-overlap-1/delivery-execution/report.json",
+        "sha256": "26635e878bd01d8b6c1a179970563e66bc69667359556203f3e72631dd178898"
+      },
+      {
+        "path": "build/scan-hills/delivery-preparation/window-overlap-1/delivered-warmed/report.json",
+        "sha256": "202a166a38f26ab2876cad1218ad2db4e16d641fe167da3083f55d2a2abca883"
+      }
+    ],
+    "reason": "Qualification bookkeeping overlapped the first timing window; the entire interrupted attempt was discarded before a clean six-cohort restart. Correctness qualification and source pins remained valid."
+  },
+  "findings": [
+    "Nine paired confirmation rounds recompute Sieve 1.157911 speedup/MAD 0.007005 on Wasmtime and 1.162702/MAD 0.003452 on default V8. These are warmed configured-iteration regions, not process-launch timings.",
+    "Selected frozen native 891.264 ms and final 765.352 ms are from the same fresh Wasmtime cohort. Paired direct/native 0.860898/MAD 0.005958 is about 14% less time for this selected profile and machine snapshot; it establishes no universal native or engine ceiling.",
+    "Only warmed Sieve changes, from 3482 to 3576 bytes (+94, 2.7%). Nine other warmed modules and all ten full-example direct modules are byte-identical to the baseline. Current full-process timing differences are not attributed to this compiler change.",
+    "The five-pair select-only and width screens remain separate from nine-pair delivery confirmation. Width adds a modest 2.8% Wasmtime and 4.0% V8 median speedup over select for 94 bytes; V8 won three of five pairs, and width alone is not claimed as an established 5% gain.",
+    "Existing Wasmtime machine-code evidence supports conditional-move last selection, two 128-bit loads per 32-byte group, and a single 16-byte vector tail. Instruction counts are not used to assign timing percentages or assert V8 hardware behavior.",
+    "Full process host, Python/V8 entry probes, LangArena regions and lifecycle modes remain separate cohorts. Canonical static-SDK host, warmed Python-library host and Python binding identities are distinct and pinned. Cold no-cache, disk-cache, precompiled and fresh-Store resident boundaries are explicit.",
+    "All 76 focused gates, 978 cases/9573 differential observations/7656 native comparisons, 11484 host observations/1574 modules and 3001 worker cases over 3828 aliases passed; all 1368 qualification pins were checked.",
+    "The complete interrupted 134-row attempt is retained with zero primary observations used. The final six cohorts form a later clean collection from 2026-11-04T00:14:07.772480Z to 00:35:38.587059Z; no measured-data selection is hidden.",
+    "Current and historical links, all five latest pointers, exact report copies, README derived summaries, 453 numeric chart labels, 46 documentation table cells and the unchanged GUIDE proof are consistent."
+  ],
+  "pending": [
+    "Finite archive collection, source/guest/discarded-attempt closure and exact documented no-argument offline verifier execution.",
+    "Final additive archive review and final SHA256.json insertion after the packager freezes all public writes."
+  ],
+  "blockers": []
+}

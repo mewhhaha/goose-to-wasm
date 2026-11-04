@@ -87,21 +87,28 @@ inline bool Function::ByteScan(While *loop) {
     Get(pointer); code.Op(0xad); Get(end); code.Op(0x7c);
     code.OpU(0x3f, 0); code.Op(0xad); code.I64Const(16); code.Op(0x86); code.Op(0x58); code.Op(0x71);
     code.Op(0x45); Br(scalar, true);
-    int32_t lanes = 0;
-    for (int lane = 0; lane < 16; lane += int(step)) lanes |= 1 << lane;
-    auto group = [&]() { Read(*counter); code.I64Const(16); code.Op(0x7c); Get(end); code.Op(0x58); };
-    group(); Begin(0x04); auto repeat = Begin(0x03);
-    Get(pointer); Read(*counter); code.Op(0xa7); code.Op(0x6a);
-    code.OpU(0xfd, 0x00); code.U(0); code.U(0); // v128.load
-    code.I32Const(int32_t(value->val)); code.OpU(0xfd, 0x0f); // i8x16.splat
-    code.OpU(0xfd, 0x23); code.OpU(0xfd, 0x64); // i8x16.eq, i8x16.bitmask
-    code.I32Const(lanes); code.Op(0x71); auto mask = Save(I32);
-    Read(*count); Get(mask); code.Op(0x69); code.Op(0xad); code.Op(0x7c); Write(*count);
-    Get(mask); Begin(0x04);
-    Read(*counter); code.I32Const(31); Get(mask); code.Op(0x67); code.Op(0x6b); code.Op(0xad); code.Op(0x7c); Write(*last);
-    End();
-    Read(*counter); code.I64Const(16); code.Op(0x7c); Write(*counter);
-    group(); Br(repeat, true); End(); End();
+    for (int width : {32, 16}) {
+        uint32_t lanes = 0;
+        for (int lane = 0; lane < width; lane += int(step)) lanes |= uint32_t(1) << lane;
+        auto group = [&]() { Read(*counter); code.I64Const(width); code.Op(0x7c); Get(end); code.Op(0x58); };
+        group(); Begin(0x04); auto repeat = Begin(0x03);
+        Get(pointer); Read(*counter); code.Op(0xa7); code.Op(0x6a); auto address = Save(I32);
+        for (int offset = 0; offset < width; offset += 16) {
+            Get(address); code.OpU(0xfd, 0x00); code.U(0); code.U(offset); // v128.load
+            code.I32Const(int32_t(value->val)); code.OpU(0xfd, 0x0f); // i8x16.splat
+            code.OpU(0xfd, 0x23); code.OpU(0xfd, 0x64); // i8x16.eq, i8x16.bitmask
+            if (offset) { code.I32Const(16); code.Op(0x74); code.Op(0x72); }
+        }
+        code.I32Const(int32_t(lanes)); code.Op(0x71); auto mask = Save(I32);
+        Read(*count); Get(mask); code.Op(0x69); code.Op(0xad); code.Op(0x7c); Write(*count);
+        // The zero-mask candidate is unused; clz and raw arithmetic cannot trap.
+        Read(*counter); code.I32Const(31); Get(mask); code.Op(0x67); code.Op(0x6b); code.Op(0xad); code.Op(0x7c);
+        Read(*last); Get(mask); code.Op(0x1b); Write(*last);
+        Read(*counter); code.I64Const(width); code.Op(0x7c); Write(*counter);
+        // After the 32-byte groups, at most one 16-byte vector tail remains.
+        if (width == 32) { group(); Br(repeat, true); }
+        End(); End();
+    }
     End(); Expr(loop); End();
     emitting_guarded_loop = false;
     return true;
