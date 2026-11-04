@@ -36,7 +36,7 @@ All ten examples use the same constant inputs across backends and check their ou
 
 ![Runtime lifecycle by mode](bench/charts/runtime-lifecycle.svg)
 
-The lifecycle chart uses the full host and separates fresh processes from a resident worker that creates a fresh instance per request. The example runtime chart also shows the optional minimal AOT host, which loads trusted, profile-matched artifacts; preparation is measured separately. In 61 paired Functions rounds, its median paired time was 23.6% lower than the previous full host, and 15.8% above native C.
+The lifecycle chart uses the full host and separates fresh processes from a resident worker that creates a fresh instance per request. The example runtime chart also shows the optional minimal AOT host, which loads trusted, profile-matched artifacts; preparation is measured separately. In 201 paired Functions rounds, its median paired time was 1.6% lower than the previous minimal host, and 16.0% above native C.
 
 [Method and results](bench/examples.md) · [Host comparison, preparation costs and qualification](bench/wasmtime-host.md)
 

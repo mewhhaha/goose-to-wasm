@@ -26,6 +26,8 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
+sys.path.insert(0, str(ROOT / "bench"))
+from command_logs import CommandLogs
 
 
 @dataclass(frozen=True)
@@ -926,18 +928,50 @@ def cases():
     return result
 
 
-def execute(command, *, cwd, stdin="", timeout=180):
+def execute(command, *, cwd, stdin="", timeout=180, logs=None, directory=None, name=None):
     started = time.perf_counter_ns()
-    result = subprocess.run([str(x) for x in command], cwd=cwd, input=stdin, text=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, check=False)
+    if logs is None:
+        result = subprocess.run([str(x) for x in command], cwd=cwd, input=stdin, text=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, check=False)
+    else:
+        try:
+            result = subprocess.run([str(x) for x in command], cwd=cwd, input=stdin.encode(),
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, check=False)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            partial = subprocess.CompletedProcess(command, None, getattr(error, "stdout", None) or b"",
+                                                  getattr(error, "stderr", None) or b"")
+            save_log(directory, name, command, partial, logs, error=str(error))
+            raise
+        result.raw_stdout, result.raw_stderr = result.stdout, result.stderr
+        # Match text=True's universal newlines for existing semantic comparisons;
+        # keep the original process bytes in the archive, including invalid UTF-8.
+        try:
+            result.stdout = result.stdout.decode().replace("\r\n", "\n").replace("\r", "\n")
+            result.stderr = result.stderr.decode().replace("\r\n", "\n").replace("\r", "\n")
+        except UnicodeDecodeError as error:
+            save_log(directory, name, command, result, logs, error=str(error))
+            raise
     return result, (time.perf_counter_ns() - started) / 1e9
 
 
-def save_log(directory, name, command, result):
-    directory.mkdir(parents=True, exist_ok=True)
-    (directory / f"{name}.command.json").write_text(json.dumps([str(x) for x in command], indent=2) + "\n", encoding="utf-8")
-    (directory / f"{name}.stdout").write_text(result.stdout, encoding="utf-8")
-    (directory / f"{name}.stderr").write_text(result.stderr, encoding="utf-8")
+def save_log(directory, name, command, result, logs=None, *, error=""):
+    command_bytes = (json.dumps([str(x) for x in command], indent=2) + "\n").encode()
+    if logs is None:
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / f"{name}.command.json").write_bytes(command_bytes)
+        (directory / f"{name}.stdout").write_text(result.stdout, encoding="utf-8")
+        (directory / f"{name}.stderr").write_text(result.stderr, encoding="utf-8")
+        return
+    stdout = getattr(result, "raw_stdout", result.stdout)
+    stderr = getattr(result, "raw_stderr", result.stderr)
+    logs.write(directory / f"{name}.command.json", command_bytes)
+    logs.write(directory / f"{name}.stdout", stdout)
+    logs.write(directory / f"{name}.stderr", stderr)
+    logs.write(directory / f"{name}.result.json", (json.dumps({
+        "exit_code": result.returncode, "error": error,
+        "stdout_sha256": hashlib.sha256(stdout).hexdigest(),
+        "stderr_sha256": hashlib.sha256(stderr).hexdigest(),
+    }, sort_keys=True, indent=2) + "\n").encode())
 
 
 def main():
@@ -953,6 +987,7 @@ def main():
     parser.add_argument("--filter", default="")
     parser.add_argument("--skip-refusals", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "build" / "differential")
+    parser.add_argument("--compact-logs", action="store_true", help="stream raw command logs into command-logs.tar.gz")
     args = parser.parse_args()
     args.goose = args.goose.resolve()
     output = args.output_dir.resolve()
@@ -960,8 +995,42 @@ def main():
     selected = [case for case in cases() if args.filter in case.name and (not args.scalar_only or case.group == "scalar")]
     if not selected:
         parser.error("no cases selected")
-    compiled = {}
     rows = []
+    logs = None
+    error = ""
+    try:
+        if args.compact_logs:
+            logs = CommandLogs(output)
+        run_cases(args, output, selected, rows, logs)
+    except BaseException as failure:
+        if not args.compact_logs:
+            raise
+        error = type(failure).__name__ + ": " + str(failure)
+    finally:
+        if logs is not None:
+            try:
+                logs.close(complete=not error)
+            except BaseException as failure:
+                error = "command-log close failed: " + str(failure)
+    failures = sum(row["status"] != "pass" for row in rows)
+    report = {"schema": "goose-direct-differential-v1", "platform": platform.platform(),
+              "python": sys.version, "toolchain": json.loads((ROOT / "toolchain.json").read_text()),
+              "compiler_sha256": hashlib.sha256(args.goose.read_bytes()).hexdigest(),
+              "configuration": {"backends": args.backends, "levels": args.levels,
+                                "filter": args.filter, "skip_refusals": args.skip_refusals},
+              "cases": len(selected), "observations": len(rows), "failures": failures + int(bool(error)), "results": rows}
+    if error:
+        report["error"] = error
+    if logs is not None:
+        report["command_logs"] = logs.metadata()
+    report_path = output / "report.json"
+    report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(f"{len(rows) - failures}/{len(rows)} observations passed; {report_path}")
+    return int(report["failures"] != 0)
+
+
+def run_cases(args, output, selected, rows, logs):
+    compiled = {}
     native_observations = {}
     order = [name for name in ("native", "c-wasm", "direct") if name in args.backends]
     for level in args.levels:
@@ -985,8 +1054,8 @@ def main():
                         build.append("--debug")
                     if backend == "direct" and case.maximum_pages is not None:
                         build += ["--initial-pages", "1", "--maximum-pages", str(case.maximum_pages)]
-                    result, seconds = execute(build, cwd=ROOT)
-                    save_log(directory, "compile", build, result)
+                    result, seconds = execute(build, cwd=ROOT, logs=logs, directory=directory, name="compile")
+                    save_log(directory, "compile", build, result, logs)
                     compiled[key] = (artifact, result, seconds)
                 artifact, built, compile_seconds = compiled[key]
                 engines = ["native"] if backend == "native" else args.engines
@@ -1003,9 +1072,10 @@ def main():
                             command = [args.node, ROOT / "scripts" / "run_wasm.mjs", artifact]
                         else:
                             command = [sys.executable, ROOT / "scripts" / "run_wasmtime.py", artifact]
-                        result, seconds = execute(command, cwd=directory, stdin=case.stdin, timeout=30)
                         label = case.name.replace("/", "_") + "_" + engine
-                        save_log(directory, label, command, result)
+                        result, seconds = execute(command, cwd=directory, stdin=case.stdin, timeout=30,
+                                                  logs=logs, directory=directory, name=label)
+                        save_log(directory, label, command, result, logs)
                         row.update(run_seconds=seconds, exit_code=result.returncode, stdout=result.stdout, stderr=result.stderr)
                         if result.returncode != case.exit_code:
                             raise AssertionError(f"exit {result.returncode}, expected {case.exit_code}: {result.stderr[-1500:]}")
@@ -1034,8 +1104,8 @@ def main():
             artifact = directory / "program.wasm"
             command = [sys.executable, ROOT / "scripts" / "goose_wasm.py", "build", FIXTURES / f"{fixture}.goose",
                        "-o", artifact, "--backend", "direct", "--goose", args.goose, "--no-cache", "--offline"]
-            result, seconds = execute(command, cwd=ROOT)
-            save_log(directory, "compile", command, result)
+            result, seconds = execute(command, cwd=ROOT, logs=logs, directory=directory, name="compile")
+            save_log(directory, "compile", command, result, logs)
             passed = result.returncode != 0 and not artifact.exists()
             diagnostic = result.stdout + result.stderr
             if fixture == "invalid_source":
@@ -1045,17 +1115,6 @@ def main():
             rows.append({"case": fixture, "backend": "direct", "kind": "compile-refusal", "status": "pass" if passed else "fail",
                          "compile_seconds": seconds, "diagnostic": diagnostic})
             print(("PASS " if passed else "FAIL ") + fixture, flush=True)
-    failures = sum(row["status"] != "pass" for row in rows)
-    report = {"schema": "goose-direct-differential-v1", "platform": platform.platform(),
-              "python": sys.version, "toolchain": json.loads((ROOT / "toolchain.json").read_text()),
-              "compiler_sha256": hashlib.sha256(args.goose.read_bytes()).hexdigest(),
-              "configuration": {"backends": args.backends, "levels": args.levels,
-                                "filter": args.filter, "skip_refusals": args.skip_refusals},
-              "cases": len(selected), "observations": len(rows), "failures": failures, "results": rows}
-    report_path = output / "report.json"
-    report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(f"{len(rows) - failures}/{len(rows)} observations passed; {report_path}")
-    return int(failures != 0)
 
 
 if __name__ == "__main__":

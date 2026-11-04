@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import signal
 from pathlib import Path
 import subprocess
 import sys
@@ -76,6 +77,8 @@ def combine(reports, cases, configurations, compiler_hash, filtered):
             "report_sha256": report["_report_sha256"],
             "command": report["_command"],
         }
+        if "command_logs" in report:
+            shard_summaries[f"{backend}-O{level}"]["command_logs"] = report["command_logs"]
 
     assert observed == expected, ("missing", expected - observed, "extra", observed - expected)
     if filtered:
@@ -84,7 +87,7 @@ def combine(reports, cases, configurations, compiler_hash, filtered):
         assert refusals == REFUSALS, ("refusals", refusals)
     assert first["cases"] == len(cases)
     result = {key: value for key, value in first.items()
-              if key not in ("configuration", "results", "observations", "failures") and not key.startswith("_")}
+              if key not in ("configuration", "results", "observations", "failures", "command_logs") and not key.startswith("_")}
     result.update(observations=len(rows), failures=0, results=rows)
     return result, shard_summaries
 
@@ -95,6 +98,7 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--filter", default="", help="optional case-name substring for a reduced smoke run")
     parser.add_argument("--jobs", type=int, default=6)
+    parser.add_argument("--compact-logs", action="store_true", help="archive command logs separately in each shard")
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error("--jobs must be at least 1")
@@ -112,7 +116,7 @@ def main():
     if not selected:
         parser.error("no cases selected")
 
-    inputs = [ROOT / "tests/run_differential.py", Path(__file__).resolve(), goose]
+    inputs = [ROOT / "tests/run_differential.py", ROOT / "bench/command_logs.py", Path(__file__).resolve(), goose]
     inputs += [ROOT / name for name in ("scripts/goose_wasm.py", "oracle/goose_wasm.py",
                "scripts/run_wasm.mjs", "scripts/run_wasmtime.py", "bench/host_input.c", "toolchain.json")]
     inputs += sorted((ROOT / "tests/fixtures").glob("*.goose"))
@@ -143,6 +147,8 @@ def main():
                 command = [sys.executable, str(ROOT / "tests/run_differential.py"),
                            "--goose", str(goose), "--backends", backend,
                            "--levels", str(level), "--output-dir", str(shard_output)]
+                if args.compact_logs:
+                    command.append("--compact-logs")
                 if args.filter:
                     command += ["--filter", args.filter]
                 if configuration["skip_refusals"]:
@@ -162,7 +168,6 @@ def main():
                 print(f"{key[0]} O{key[1]} exit {status}", flush=True)
                 if status:
                     failures.append((key, status))
-                    continue
                 if not report_path.exists():
                     failures.append((key, "missing report"))
                     continue
@@ -174,11 +179,24 @@ def main():
     finally:
         for _key, process, log, _command, _report_path in jobs:
             if process.poll() is None:
-                process.terminate()
+                if args.compact_logs:
+                    process.send_signal(signal.SIGINT)
+                else:
+                    process.terminate()
             process.wait()
             if not log.closed:
                 log.close()
 
+    if failures:
+        failure_report = {"schema": "goose-compiler-qualification-failure-v1", "status": "fail",
+                          "failures": failures, "qualification_execution": {
+                              "input_sha256": source_hashes, "shards": {
+                                  f"{backend}-O{level}": {
+                                      "report_sha256": shard["_report_sha256"],
+                                      "command": shard["_command"],
+                                      "command_logs": shard.get("command_logs"),
+                                  } for (backend, level), shard in reports.items()}}}
+        combined_path.write_text(json.dumps(failure_report, indent=2) + "\n")
     assert not failures, failures
     compiler_hash = digest(goose)
     report, shard_summaries = combine(reports, selected, configurations, compiler_hash, bool(args.filter))

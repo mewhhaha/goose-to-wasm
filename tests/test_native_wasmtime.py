@@ -15,6 +15,7 @@ import wasmtime
 ROOT=Path(__file__).resolve().parents[1]
 HOST=ROOT/'build/bin/goose-wasmtime'
 PRECOMPILED_HOST=None
+MINIMAL_HOST=None
 
 
 class NativeHost(unittest.TestCase):
@@ -45,6 +46,10 @@ class NativeHost(unittest.TestCase):
         if PRECOMPILED_HOST is not None:
             modes += [[PRECOMPILED_HOST,'--precompiled',compiled],
                       [PRECOMPILED_HOST,'--no-parallel-compilation','--precompiled',compiled]]
+        if MINIMAL_HOST is not None:
+            minimal=self.prepare_minimal(path)
+            modes += [[HOST,'--aot-profile','minimal','--precompiled',minimal],
+                      [MINIMAL_HOST,'--precompiled',minimal]]
         for command in modes:
             with self.subTest(command=command):
                 actual=self.execute(command,data)
@@ -55,6 +60,24 @@ class NativeHost(unittest.TestCase):
                 elif reference.returncode==0 or b'goose runtime error:' in reference.stderr:
                     self.assertEqual(actual.stderr,reference.stderr)
         return reference
+
+    def prepare_minimal(self,path):
+        compiled=path.with_suffix('.minimal.cwasm')
+        prep=self.execute([HOST,'--aot-profile','minimal','--no-parallel-compilation','--compile',path,compiled])
+        self.assertEqual(prep.returncode,0,prep.stderr)
+        return compiled
+
+    def import_failure(self,path,diagnostic):
+        modes=[[HOST,path]]
+        if MINIMAL_HOST is not None:
+            compiled=self.prepare_minimal(path)
+            modes += [[HOST,'--aot-profile','minimal','--precompiled',compiled],
+                      [MINIMAL_HOST,'--precompiled',compiled]]
+        for command in modes:
+            with self.subTest(command=command):
+                actual=self.execute(command)
+                self.assertEqual(actual.returncode,1)
+                self.assertIn(diagnostic,actual.stderr)
 
     def test_float_spelling_and_integer_extremes(self):
         rng=random.Random(717732)
@@ -118,17 +141,44 @@ class NativeHost(unittest.TestCase):
           (import "env" "emscripten_notify_memory_growth" (func (param i32)))
           (import "env" "emscripten_notify_memory_growth" (func (param i64)))
           (func (export "_start")))''')
-        actual=self.execute([HOST,path])
-        self.assertEqual(actual.returncode,1)
-        self.assertIn(b'import signature',actual.stderr)
+        self.import_failure(path,b'invalid direct host import signature: env.emscripten_notify_memory_growth')
         for imports in ['(import "goose" "print_i64" (func (param f64)))',
                         '(import "env" "bench_input" (func (result i32)))',
                         '(import "goose" "unknown" (func))',
                         '(import "goose" "write" (memory 1))']:
             path=self.module('(module '+imports+' (func (export "_start")))')
-            actual=self.execute([HOST,path])
-            self.assertEqual(actual.returncode,1)
-            self.assertIn(b'host import',actual.stderr)
+            self.import_failure(path,b'host import')
+
+    def test_interleaved_duplicate_imports_preserve_order(self):
+        path=self.module('''(module
+          (import "goose" "print_i64" (func $a (param i64)))
+          (import "goose" "newline" (func $newline))
+          (import "goose" "print_i64" (func $b (param i64)))
+          (import "env" "bench_input" (func $input (result i64)))
+          (import "goose" "newline" (func $newline2))
+          (func $init (call $b (call $input)) (call $newline2)) (start $init)
+          (func (export "_start") (call $a (call $input)) (call $newline)))''')
+        self.assertEqual(self.compare(path,b'12 34').stdout,b'12\n34\n')
+
+    def test_start_function_exit_abort_and_traps(self):
+        cases=[('(call $exit (i32.const 7))',None),
+               ('(call $abort (i32.const 0) (i32.const 5) (i32.const 42))',b'goose runtime error: ready (line 42)'),
+               ('unreachable',b'unreachable'),
+               ('(call $write (i32.const 65535) (i32.const 2))',b'outside exported memory')]
+        for finish,diagnostic in cases:
+            path=self.module('''(module
+              (import "goose" "write" (func $write (param i32 i32)))
+              (import "goose" "exit" (func $exit (param i32)))
+              (import "goose" "abort" (func $abort (param i32 i32 i32)))
+              (memory (export "memory") 1) (data (i32.const 0) "ready")
+              (func $init (call $write (i32.const 0) (i32.const 5)) '''+finish+''') (start $init)
+              (func (export "_start") (call $write (i32.const 0) (i32.const 5))))''')
+            self.assertEqual(self.compare(path,diagnostic=diagnostic).stdout,b'ready')
+        path=self.module('''(module
+          (import "goose" "write" (func $write (param i32 i32)))
+          (func $init (call $write (i32.const 0) (i32.const 0))) (start $init)
+          (func (export "_start")))''')
+        self.compare(path,diagnostic=b'module does not export memory')
 
     def test_imports_during_instantiation_and_memory_growth(self):
         path=self.module('''(module
@@ -160,8 +210,7 @@ class NativeHost(unittest.TestCase):
         path=self.module('''(module
           (import "env" "emscripten_notify_memory_growth" (func $growth (param f64)))
           (func (export "_start") (call $growth (f64.const 0))))''')
-        actual=self.execute([HOST,path]);self.assertEqual(actual.returncode,1)
-        self.assertIn(b'import signature',actual.stderr)
+        self.import_failure(path,b'invalid direct host import signature: env.emscripten_notify_memory_growth')
 
     def test_numeric_input_validation(self):
         path=self.module('''(module
@@ -241,6 +290,8 @@ class NativeHost(unittest.TestCase):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--host',type=Path,default=HOST)
     parser.add_argument('--precompiled-host',type=Path)
+    parser.add_argument('--minimal-host',type=Path,help='also exercise a minimal-profile AOT companion')
     args,remaining=parser.parse_known_args();HOST=args.host.resolve()
     if args.precompiled_host is not None:PRECOMPILED_HOST=args.precompiled_host.resolve()
+    if args.minimal_host is not None:MINIMAL_HOST=args.minimal_host.resolve()
     unittest.main(argv=[sys.argv[0],*remaining])

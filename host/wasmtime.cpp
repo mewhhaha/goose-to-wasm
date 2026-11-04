@@ -2,6 +2,7 @@
 #include <wasmtime.h>
 
 #include <algorithm>
+#include <bit>
 #include <charconv>
 #include <chrono>
 #include <cmath>
@@ -346,6 +347,53 @@ static wasm_trap_t *callback(void *env, wasmtime_caller_t *caller, const wasmtim
         return wasmtime_trap_new("host callback failed", 20);
     }
 }
+#ifdef RUNTIME_ONLY
+static wasmtime_valkind_t scalar_kind(char type) {
+    switch (type) {
+    case 'i': return WASMTIME_I32;
+    case 'I': return WASMTIME_I64;
+    case 'f': return WASMTIME_F32;
+    case 'F': return WASMTIME_F64;
+    default: return 255;
+    }
+}
+static bool raw_eligible(const Spec &spec) {
+    if constexpr (std::endian::native != std::endian::little) return false;
+    string_view params(spec.params), results(spec.results);
+    if (params.size() > 4 || results.size() > 1) return false;
+    for (char type : params) if (scalar_kind(type) == 255) return false;
+    for (char type : results) if (scalar_kind(type) == 255) return false;
+    return true;
+}
+template <class Target, class Source> static void copy_scalar(wasmtime_valkind_t kind, Target &target, const Source &source) {
+    switch (kind) {
+    case WASMTIME_I32: std::memcpy(&target.i32, &source.i32, sizeof(int32_t)); break;
+    case WASMTIME_I64: std::memcpy(&target.i64, &source.i64, sizeof(int64_t)); break;
+    case WASMTIME_F32: std::memcpy(&target.f32, &source.f32, sizeof(float)); break;
+    case WASMTIME_F64: std::memcpy(&target.f64, &source.f64, sizeof(double)); break;
+    }
+}
+static wasm_trap_t *raw_callback(void *env, wasmtime_caller_t *caller, wasmtime_val_raw_t *values, size_t capacity) noexcept {
+    const auto &spec = *static_cast<const Spec *>(env);
+    string_view params(spec.params), results(spec.results);
+    if (params.size() > 4 || results.size() > 1 || capacity < std::max(params.size(), results.size()))
+        return wasmtime_trap_new("invalid raw host callback capacity", 34);
+    wasmtime_val_t arguments[4]{}, result[1]{};
+    // Snapshot every argument before results overwrite the shared raw slots.
+    for (size_t i = 0; i < params.size(); ++i) {
+        arguments[i].kind = scalar_kind(params[i]);
+        if (arguments[i].kind == 255) return wasmtime_trap_new("invalid raw host callback type", 30);
+        copy_scalar(arguments[i].kind, arguments[i].of, values[i]);
+    }
+    auto trap = callback(env, caller, arguments, params.size(), result, results.size());
+    if (trap || results.empty()) return trap;
+    auto expected = scalar_kind(results[0]);
+    if (expected == 255 || result[0].kind != expected)
+        return wasmtime_trap_new("invalid raw host callback result", 32);
+    copy_scalar(expected, values[0], result[0].of);
+    return nullptr;
+}
+#endif
 static bool signature(const wasm_valtype_vec_t *types, string_view expected) {
     if (types->size != expected.size()) return false;
     for (size_t i = 0; i < expected.size(); ++i) {
@@ -357,9 +405,9 @@ static bool signature(const wasm_valtype_vec_t *types, string_view expected) {
     }
     return true;
 }
-static void link_imports(wasmtime_linker_t *linker, const wasmtime_module_t *module) {
-    Imports list; wasmtime_module_imports(module, &list.value);
-    std::map<std::pair<string, string>, const Spec *> defined;
+template <class Bind> static void bind_imports(const Imports &list, Bind bind) {
+    struct Definition { const Spec *spec; size_t index; };
+    std::map<std::pair<string, string>, Definition> defined;
     for (size_t i = 0; i < list.value.size; ++i) {
         auto imported = list.value.data[i];
         auto mod = wasm_importtype_module(imported), name = wasm_importtype_name(imported);
@@ -377,15 +425,39 @@ static void link_imports(wasmtime_linker_t *linker, const wasmtime_module_t *mod
         }
         if (!supported || !type) fail("unsupported direct host import: " + m + "." + n);
         if (!found) fail("invalid direct host import signature: " + m + "." + n);
-        auto [previous, inserted] = defined.emplace(std::make_pair(m, n), found);
-        if (!inserted) {
-            if (previous->second != found) fail("invalid direct host import signature: " + m + "." + n);
-            continue;
-        }
-        check(wasmtime_linker_define_func(linker, m.data(), m.size(), n.data(), n.size(), type,
-                                         callback, const_cast<Spec *>(found), nullptr));
+        auto [previous, inserted] = defined.emplace(std::make_pair(m, n), Definition{found, i});
+        if (!inserted && previous->second.spec != found) fail("invalid direct host import signature: " + m + "." + n);
+        bind(i, previous->second.index, m, n, type, found);
     }
 }
+#ifndef RUNTIME_ONLY
+static void link_imports(wasmtime_linker_t *linker, const wasmtime_module_t *module) {
+    Imports list; wasmtime_module_imports(module, &list.value);
+    bind_imports(list, [&](size_t index, size_t first, const string &m, const string &n,
+                           const wasm_functype_t *type, const Spec *found) {
+        if (index != first) return;
+        check(wasmtime_linker_define_func(linker, m.data(), m.size(), n.data(), n.size(), type,
+                                         callback, const_cast<Spec *>(found), nullptr));
+    });
+}
+#else
+static void instantiate(wasmtime_context_t *context, const wasmtime_module_t *module, wasmtime_instance_t &instance) {
+    Imports list; wasmtime_module_imports(module, &list.value);
+    std::vector<wasmtime_extern_t> bound(list.value.size);
+    bind_imports(list, [&](size_t index, size_t first, const string &, const string &,
+                           const wasm_functype_t *type, const Spec *found) {
+        if (index != first) { bound[index] = bound[first]; return; }
+        bound[index].kind = WASMTIME_EXTERN_FUNC;
+        // Functions belong to this Store; the static Spec outlives every callback.
+        if (raw_eligible(*found))
+            wasmtime_func_new_unchecked(context, type, raw_callback, const_cast<Spec *>(found), nullptr, &bound[index].of.func);
+        else wasmtime_func_new(context, type, callback, const_cast<Spec *>(found), nullptr, &bound[index].of.func);
+    });
+    wasm_trap_t *trap = nullptr;
+    auto error = wasmtime_instance_new(context, module, bound.data(), bound.size(), &instance, &trap);
+    check(error, trap);
+}
+#endif
 static bool exported(wasmtime_context_t *context, const wasmtime_instance_t &instance, const char *name, External &item) {
     item.found = wasmtime_instance_export_get(context, &instance, name, std::strlen(name), &item.value);
     return item.found;
@@ -459,7 +531,9 @@ static Owned<wasm_engine_t, wasm_engine_delete> make_engine(const Options &optio
 struct Module {
     string source;
     Owned<wasmtime_module_t, wasmtime_module_delete> module;
+#ifndef RUNTIME_ONLY
     Owned<wasmtime_linker_t, wasmtime_linker_delete> linker;
+#endif
     uint64_t used = 0;
 };
 struct Runtime {
@@ -529,14 +603,19 @@ static int run(const Options &options, State &state, Runtime *shared = nullptr, 
             return 0;
         }
 #endif
+        wasmtime_instance_t instance;
+#ifdef RUNTIME_ONLY
+        instantiate(context, module->module.get(), instance);
+#else
         if (!module->linker) {
             Owned<wasmtime_linker_t, wasmtime_linker_delete> linker(wasmtime_linker_new(engine));
             if (!linker) fail("cannot create Wasmtime linker");
             link_imports(linker.get(), module->module.get()); module->linker = std::move(linker);
         }
-        wasmtime_instance_t instance; wasm_trap_t *trap = nullptr;
+        wasm_trap_t *trap = nullptr;
         auto error = wasmtime_linker_instantiate(module->linker.get(), context, module->module.get(), &instance, &trap);
         check(error, trap);
+#endif
         External limits;
         if (exported(context, instance, "__set_stack_limits", limits)) {
             call(context, instance, "emscripten_stack_init");

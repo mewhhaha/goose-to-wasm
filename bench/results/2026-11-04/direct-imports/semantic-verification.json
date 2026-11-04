@@ -1,0 +1,17 @@
+{
+  "examples": 10,
+  "fresh_host_observations": 11484,
+  "fresh_minimal_observations": 1914,
+  "paired_rows": {
+    "final-functions.json": 2030,
+    "final-regression.json": 3300,
+    "raw-paired.json": 6090,
+    "startup-confirmation.json": 3248,
+    "startup-paired.json": 2016,
+    "startup-regression.json": 2640,
+    "vm-confirmation.json": 2030
+  },
+  "rounded_host_table_rows": 4,
+  "scope": "Current observation matrices, output identities, medians/MADs and fresh replay pins. Byte closure is verified separately.",
+  "status": "passed"
+}

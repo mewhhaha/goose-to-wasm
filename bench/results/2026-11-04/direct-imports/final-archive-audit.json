@@ -1,0 +1,475 @@
+{
+  "archive_closure": {
+    "actual_binaries": {
+      "build/bin/goose-wasmtime": {
+        "bytes": 22023872,
+        "sha256": "93bc17c239c008d481ae6955f332d22472006700d27121d8986cac49d1553b50"
+      },
+      "build/bin/goose-wasmtime-aot": {
+        "bytes": 1395896,
+        "sha256": "51873433f6bf52b64462b21cc8e8fb5eecb85c3acdf87d9accbdccb58128f1bf"
+      },
+      "build/next-runtime-hills/final/bin/goose": {
+        "bytes": 8279496,
+        "sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6"
+      }
+    },
+    "archives": 32,
+    "compiler_headers": {
+      "checked_leaf_cache.h": "90d97a256ae579fb9b5215acbb8e9d79a03f0d1f583e6c0ea425ce608f693259",
+      "direct_input_trace.h": "a48c943019f67dbd68bebf902cf0ed57b6cfd9639aadf1a276b13a316679ab23",
+      "direct_wasm.h": "62e010a5eb5ecc02b84249f995238c562b5d659708189402fa0740de8ba974be",
+      "direct_wasm_arrays.h": "ad791e0010dc3edad36fd7b8c1cb20730696481f22007031524186952a3a05d2",
+      "direct_wasm_bits.h": "04b347d008c82071b9a1754db20af6a8fa52b59f38546885461caa35b5bd4202",
+      "direct_wasm_captures.h": "7a84c5b72f59feb91800da8b539bcaf89e60c35d828a42aee007cc8966e0e1a3",
+      "direct_wasm_constants.h": "b0e7ce2345ca8c4f0733234b24cbeb57aaaf44ecff345f1fed4a2c8470dfdfbd",
+      "direct_wasm_dependencies.h": "8e8b1e28939e5777ea6ce95ec2059f3874761056621de7ecbe8d7fccbcaa5451",
+      "direct_wasm_dispatch.h": "8d915ed4764daa2efe4de4ef82d75af445b9c653cb7116780806e926a15ede29",
+      "direct_wasm_effects.h": "29baba3ce8d6a1177800f3d1e2faffce3a2eb6129c55c50c888026f340ed3712",
+      "direct_wasm_emit.h": "6c828f52282209dd09d44948f6ef7369a065debac68b71f932999b8662146412",
+      "direct_wasm_enums.h": "ea47941072634e2a19ae46c64046700f42a39d8e52e1c06f4c38d56c01e0fd4b",
+      "direct_wasm_expr.h": "9a1ecc291d3776c2f9060e5719f927a44f195a1fdfc0e16e116da77d7be7e87d",
+      "direct_wasm_funvals.h": "f13a8e0d12430c9d95e389e21752d7e6c145dfbb5e5db42fcef3d0f665b49081",
+      "direct_wasm_images.h": "ae9043afa9460664d1de2a304f6b0dfe14817ecfcd7eded20aa855010bd77b02",
+      "direct_wasm_landing.h": "a1f9d5df3ff0debb49b7edc366e4cc49a596d445a32cf55534e5360f04c49e79",
+      "direct_wasm_leaf.h": "00217c82a5e96ef86c9203e050f744373be14889f6b2c5bb017bd1cec4987208",
+      "direct_wasm_merge.h": "b5ca6e37d3e957272645965c45e1e0db579227b25434015a51820f857082c792",
+      "direct_wasm_numeric.h": "c50e9c971330debbbb1e351ebc14e025e1576f4e66559d678659e87b308f1828",
+      "direct_wasm_owned.h": "5dea8745ee53c864065e609c46dc3807171ec71b4b66cc8bc67dcacb008014f1",
+      "direct_wasm_publication.h": "52c5d5eb9ba2475aa49a25e505679e80d18fbd09a40c975bf29646eca2d314b5",
+      "direct_wasm_record_images.h": "d2e4a913d9cc54edcf6762eb2c9847ba69686c86cb5f419e4024e5bba6f7b3bc",
+      "direct_wasm_regions.h": "828d8b1cf5dae821f339a306fb3bb589af09cf0f2c364061beb0331d5e3a4b75",
+      "direct_wasm_scan.h": "6d93756d8b7423d788bfd73e6a6455b7f9f34b6434e9dda76af8c078b5d8740f",
+      "direct_wasm_session.h": "b101d5abd43557913dda3b35c6930d276805deb0257cad24172699af9d88ff63",
+      "direct_wasm_stencil.h": "6dccbe15feeda681ae1dbdc02bab5ca6265c3292d3cf3149257361f26d9c4c67",
+      "direct_wasm_storage.h": "31d8409c6eee4fbd741222c64e1cc58edd07f4bb5bc72240af1eada7dca596ae",
+      "direct_wasm_stride.h": "bc3a7c00c5a167d0a53702d5adbe5f2211a7609c2a6296821a6e4d5c4aa9dc1e",
+      "direct_wasm_temps.h": "66ea49d550af2ed298234425b62e926c5fe611afea37936e4e651efc75766ad3",
+      "direct_wasm_tiny_leaf.h": "c87caaf3b8f1c9c97f4487047fb77500d3355a69959fe9a4c7cb050652b1ab77",
+      "direct_wasm_uleb_arrays.h": "e9e1d04c8798b34a3135586a592e9751a87ede1db499faa0acbedd83926d7cde",
+      "direct_wasm_varint_arrays.h": "391d8b6a0cafc2aacb700e12094b8a05943d11e6ddc70b116d5aa1488f742e6e",
+      "direct_wasm_varints.h": "f04cc44f32bda1328d5492fc172201c0b45b603374eaafb56d7b4b05d5aee1bd",
+      "lexer_cache.h": "d7b6d0e7aa0b72a354c976cbabbd18e81787e30dbc8ad7eb239c75577c2a3ba3",
+      "parsed_module_cache.h": "ec1a022f5c349c6dc11452927aa8e89d9542048e50dbffbf5d4cad8eb8b79d43",
+      "parsed_module_clone.h": "353aac484eeb9b7bba10602e042ee71513e536588a4fd62c9bf0ac71172173d8",
+      "wasm_binary.h": "b78978a007fa40e9f1cfec876d332b5d8f953e6b9aa2d161cd622a634593a169"
+    },
+    "compiler_patches": {
+      "oracle/patches/0001-webassembly-target.patch": "e428c76192d5f923b468c898f5549b29fa6b4dea74ba388290c3d299071ad4a1",
+      "patches/direct-target.patch": "c0af11cec67f7e0880404c3977988613599c10ac2623b3e5d129cd1e895eed91"
+    },
+    "current_documents": 38,
+    "identity_only_omissions": 0,
+    "input_edges": 25439,
+    "lifecycle_cache_bytes": 3502130,
+    "lifecycle_cache_files": 680,
+    "native_archives": {
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-000.tar.gz": {
+        "members": 129,
+        "sha256": "9b20ad36eae7bb7b084584e6fba4735982598b9d99b3910e16349814b0d1a9dd"
+      },
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-001.tar.gz": {
+        "members": 165,
+        "sha256": "90d0e9d792723c1933e86b30c3f2fa7f6ebc082958ae986edd8ccf543e4e1b1b"
+      },
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-002.tar.gz": {
+        "members": 145,
+        "sha256": "0895ba41cac5967838a50fb35cd74e0496e506e6a7e7efd1c43d085eabfbc283"
+      },
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-003.tar.gz": {
+        "members": 107,
+        "sha256": "8873464668da87a3171f5853c90f957bb71450e1633e5b0205fec9d3b56e1ebb"
+      },
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-004.tar.gz": {
+        "members": 157,
+        "sha256": "cecf25b5e247996b544012901b299402f17c2f0b78379967acd031089bad30f2"
+      },
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-005.tar.gz": {
+        "members": 150,
+        "sha256": "ce814d01f5c3767469a6ff370cfe40cf0ca8ee87cd676417c7167acd5c09c802"
+      },
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-006.tar.gz": {
+        "members": 138,
+        "sha256": "73612a40ac6ce10fb1a380cf7fd951889e898e8132a632d54951fb5afba53349"
+      },
+      "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-007.tar.gz": {
+        "members": 19,
+        "sha256": "bf6e5e57b5b9c5e03e76aad734143c421573b6059165ddcf8488d0af03d93955"
+      }
+    },
+    "native_identities": 1010,
+    "native_oracle_scope": "1010 unique historical native artifacts from reused compiler reference, not fresh executions; independent physical-member reads using only the immediate predecessor exact 30-archive allowlist.",
+    "new_archive_bytes": 33076607,
+    "retained_object_bytes": 918842852,
+    "status": "passed",
+    "unique_retained_objects": 8295
+  },
+  "audited_utc": "2026-11-04T14:42:16.552686+00:00",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "bench/results/2026-11-04/direct-imports/reproduction/verify.py",
+        "bench/results/2026-11-04/direct-imports"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "exit_status": 0,
+      "finished_utc": "2026-11-04T14:34:45.293241+00:00",
+      "result": {
+        "archives": {
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/fresh-construction/evidence-000.tar.gz": 92,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/fresh-construction/evidence-001.tar.gz": 33,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-calls/evidence-000.tar.gz": 279,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-calls/evidence-001.tar.gz": 384,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-calls/evidence-002.tar.gz": 235,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-calls/evidence-003.tar.gz": 287,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-000.tar.gz": 467,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-001.tar.gz": 506,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-002.tar.gz": 505,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-003.tar.gz": 366,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-004.tar.gz": 533,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-005.tar.gz": 481,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-006.tar.gz": 450,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/functions-forwarding/evidence-007.tar.gz": 67,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/merge-bounds/evidence-000.tar.gz": 3,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/merge-bounds/evidence-001.tar.gz": 2,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/runtime-stencil/evidence-000.tar.gz": 36,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/runtime-stencil/evidence-001.tar.gz": 27,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/strided-stores/evidence-000.tar.gz": 5,
+          "../minimal-aot/../leaf-and-loads/../../2026-11-03/strided-stores/evidence-001.tar.gz": 6,
+          "../minimal-aot/../leaf-and-loads/../byte-scans/evidence-000.tar.gz": 5,
+          "../minimal-aot/../leaf-and-loads/evidence-000.tar.gz": 68,
+          "../minimal-aot/../leaf-and-loads/evidence-001.tar.gz": 32,
+          "../minimal-aot/../leaf-and-loads/evidence-002.tar.gz": 2,
+          "../minimal-aot/evidence-000.tar.gz": 356,
+          "../minimal-aot/evidence-001.tar.gz": 113,
+          "../minimal-aot/evidence-002.tar.gz": 236,
+          "../minimal-aot/evidence-003.tar.gz": 1,
+          "../minimal-aot/evidence-004.tar.gz": 30,
+          "../minimal-aot/evidence-005.tar.gz": 53,
+          "evidence-000.tar.gz": 2271,
+          "evidence-001.tar.gz": 364
+        },
+        "compacted_payloads": 5880,
+        "identity_only": 0,
+        "retained_inputs": 25439,
+        "sealed": true,
+        "status": "passed",
+        "streamed_log_members": 62616
+      },
+      "started_utc": "2026-11-04T14:34:29.928160+00:00",
+      "stderr": "build/remaining-hills/final-audit/bytes.stderr",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "build/remaining-hills/final-audit/bytes.stdout",
+      "stdout_bytes": 2772,
+      "stdout_sha256": "e90fb3bc5431ad730d82ca84a035f44a8cc04f50ef622d8aa0df7b04eb306582",
+      "wall_seconds": 15.365083081997
+    },
+    {
+      "command": [
+        "python",
+        "bench/results/2026-11-04/direct-imports/reproduction/audit_results.py",
+        "bench/results/2026-11-04/direct-imports"
+      ],
+      "cwd": "/home/jacobt/src/goose-to-wasm",
+      "exit_status": 0,
+      "finished_utc": "2026-11-04T14:35:13.361325+00:00",
+      "result": {
+        "examples": 10,
+        "fresh_host_observations": 11484,
+        "fresh_minimal_observations": 1914,
+        "paired_rows": {
+          "final-functions.json": 2030,
+          "final-regression.json": 3300,
+          "raw-paired.json": 6090,
+          "startup-confirmation.json": 3248,
+          "startup-paired.json": 2016,
+          "startup-regression.json": 2640,
+          "vm-confirmation.json": 2030
+        },
+        "rounded_host_table_rows": 4,
+        "scope": "Current observation matrices, output identities, medians/MADs and fresh replay pins. Byte closure is verified separately.",
+        "status": "passed"
+      },
+      "started_utc": "2026-11-04T14:34:45.329928+00:00",
+      "stderr": "build/remaining-hills/final-audit/semantics.stderr",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "build/remaining-hills/final-audit/semantics.stdout",
+      "stdout_bytes": 549,
+      "stdout_sha256": "6cd0e3184c4e12d58571dfd6d4a88f9b9be8af92dbdc733128914b094ada72b4",
+      "wall_seconds": 28.031396241975017
+    }
+  ],
+  "initial_manifest": {
+    "exact_utf8": "{\n  \"README.md\": \"4f4a47b7651aa425e91f34f882520a23e6aa806315d461de2526c2abdf656b92\",\n  \"archives.json.gz\": \"5ee4f244ba226fba8be0ffdabe518977394f52e4b698dec5bd0a4193c035f00a\",\n  \"delivery-execution.json\": \"1606d1a8a7adda285789b35ca0bdabb85f9f0a2d798edccd673f084cc17dae1f\",\n  \"evidence-000.tar.gz\": \"616123c56b83f7739c89c0a232a130b65076a78074df3f6f5b221a76c6ab510d\",\n  \"evidence-001.tar.gz\": \"b6bee4badceb9636d29eab737311fa1982699bbc9ecd25617fb163aea83e3b7e\",\n  \"examples.json\": \"e0bd5009d7009b1c94aa480a85db370cc93bed889d18343dd1c8ec3b35e75a01\",\n  \"final-functions.json\": \"cb75f2bf9a3cd701dc7add4f3fd2269b3f93962a949084c847d7a056ecbcb1cc\",\n  \"final-regression.json\": \"97c32ee2973cc75d61f709b8252c598324c6436ffa4387f74e7ac1c66b832346\",\n  \"host.json\": \"045b0dc1b273821bf52bc2607acb9c7799349d26328da66e138054a36ae6c831\",\n  \"lifecycle.json\": \"f482131820efe6012f5c614edd78078b7fca60e25f7120d5e25e230fdfce3994\",\n  \"qualification.json\": \"726a2e7f3804802af40c8bf620659923043e62c927705d73e1342ccef392518e\",\n  \"raw-paired.json\": \"04e6235275062128887b32a720a8d67d0bfa5716b74bc0d14f70025db20c7c05\",\n  \"reproduction/audit_results.py\": \"d5abd0ab45dc31a22d7d8ffa3c3cea57d664f8deb4d46d983e048a34fbbaec2a\",\n  \"reproduction/bounded_reuse.py\": \"e73fd051cd505c58e428014a91517c4a828c994febdb011cbf536d65bb0e1bea\",\n  \"reproduction/bundle.py\": \"a15068e5d23d86d51c090bf356437e40615d3441045b681bb9c6ca1d6ae8dc1b\",\n  \"reproduction/spec.json\": \"eb42e9adbcb03e6ada5cc0d5613114b367b51315169d441cc1db7a499d012d0b\",\n  \"reproduction/verify.py\": \"38a8e1fcd136238501dd6eba45ede52872753ceabf5af62b4a23ad52c66c260e\",\n  \"retention.json\": \"868794f4b73108ffc04c7337fb62e2afa756ac9ad8eb250abc6f20fa779ddfa3\",\n  \"semantic-verification.json\": \"6cd0e3184c4e12d58571dfd6d4a88f9b9be8af92dbdc733128914b094ada72b4\",\n  \"startup-confirmation.json\": \"368467c7b9dc996b829d9fa463cfa3e911830ed2738c5c73a402424116c68c2d\",\n  \"startup-paired.json\": \"a4bf5f579cbe841c4c5f5ff68b05a8e3e415677c42346b7aecacb8839578b916\",\n  \"startup-regression.json\": \"bf77072e5a3eddbe2136aac0a551d9ddb660d8321a0aea939de23caba1b50deb\",\n  \"verification.json\": \"daa41d9b4217b18a2d1f594653cf543d637247888748e56eea02af10d9ff6931\",\n  \"vm-confirmation.json\": \"49c65d8b61557efc0a3d68755627eaca6676d9e5dd5d35b3b9d66ec2e4576f4d\"\n}\n",
+    "sha256": "9fbc5b99e595ac959cdf9e07e2288911436abec49d72bae83fab1084f8ac8eff"
+  },
+  "limitations": [
+    "Reused compiler/native observations are historical, not newly executed by this audit.",
+    "Host load and affinity comparisons retain their recorded boundaries; no universal native ceiling or native parity is claimed.",
+    "The producer result JSON files remain byte-identical pre-seal records; the commands embedded here are the independent manifest-required checks.",
+    "Private audit raw stdout/stderr are identified here by hash; their complete parsed results are embedded. Supplemental audit sources are not recursively added to the immutable archive namespace."
+  ],
+  "performance_boundary": {
+    "broad": "Separate 15-sample marginal medians are not a matched before/after comparison.",
+    "endpoint_review": {
+      "logical_path": "build/remaining-hills/reviews/final-endpoint-assessment.json",
+      "sha256": "0280ba27cde4cd60e449e47153a5a05a79e87ecb30156879db502fe1d25b481e",
+      "status": "passed"
+    },
+    "full_program_modules": "All ten direct Wasm artifacts byte-identical; no compiler speedup is attributed to this host-only change.",
+    "functions_final_native_95ci": [
+      1.1564787348872134,
+      1.1679893980188387
+    ],
+    "functions_final_native_ratio": 1.1603693382689348,
+    "functions_final_previous_95ci": [
+      0.9781661868338416,
+      0.9891101186517998
+    ],
+    "functions_final_previous_ratio": 0.9838307277968917,
+    "primary": "201 paired measured rounds plus two warmups, CPU pool is primary; CPU2 diagnostic remains separate.",
+    "vm": "31-round screen and 201-round follow-up both retained, with separate conclusions."
+  },
+  "presentation": {
+    "charts": {
+      "examples-compilation": {
+        "mad_whiskers": 30,
+        "numeric_labels": 30,
+        "report_sha256": "e0bd5009d7009b1c94aa480a85db370cc93bed889d18343dd1c8ec3b35e75a01",
+        "sha256": "f0aba43a37ec63589ffa7c08d32562e5f9c9cfeb4d77b3a18269c40b5db5d704"
+      },
+      "examples-entry": {
+        "mad_whiskers": 40,
+        "numeric_labels": 40,
+        "report_sha256": "e0bd5009d7009b1c94aa480a85db370cc93bed889d18343dd1c8ec3b35e75a01",
+        "sha256": "2a466de6db4b17707f44b3af6108e097b8abf04d31db70c449448ebe3f5d38ea"
+      },
+      "examples-python-runtime": {
+        "mad_whiskers": 60,
+        "numeric_labels": 60,
+        "report_sha256": "e0bd5009d7009b1c94aa480a85db370cc93bed889d18343dd1c8ec3b35e75a01",
+        "sha256": "582ed5a33c16970450b6032b64e985cfab53555882e986428633574b3920de4c"
+      },
+      "examples-runtime": {
+        "mad_whiskers": 90,
+        "numeric_labels": 90,
+        "report_sha256": "045b0dc1b273821bf52bc2607acb9c7799349d26328da66e138054a36ae6c831",
+        "sha256": "fca3f58b68172336415f1d210243e4833e8158c6d23ba256db4047697922a9b4"
+      },
+      "runtime-lifecycle": {
+        "mad_whiskers": 50,
+        "numeric_labels": 50,
+        "report_sha256": "f482131820efe6012f5c614edd78078b7fca60e25f7120d5e25e230fdfce3994",
+        "sha256": "cf34b6da902a5130428e63a00aa259981ade28d53b6e095433b4018724d86273"
+      },
+      "wasmtime-host-c-wasm": {
+        "mad_whiskers": 50,
+        "numeric_labels": 50,
+        "report_sha256": "045b0dc1b273821bf52bc2607acb9c7799349d26328da66e138054a36ae6c831",
+        "sha256": "33f9d5387a32ecf3fa18ee5727b11911ecec9ab276b6b377f8d97635cd3c8ea4"
+      },
+      "wasmtime-host-preparation": {
+        "mad_whiskers": 60,
+        "numeric_labels": 60,
+        "report_sha256": "045b0dc1b273821bf52bc2607acb9c7799349d26328da66e138054a36ae6c831",
+        "sha256": "217d6b87452665f17c41ae7e49374d5c6c066138dc408be2e3139327aa344568"
+      },
+      "wasmtime-host-runtime": {
+        "mad_whiskers": 50,
+        "numeric_labels": 50,
+        "report_sha256": "045b0dc1b273821bf52bc2607acb9c7799349d26328da66e138054a36ae6c831",
+        "sha256": "93672011e68850c4df66fcdca4d9222898b610130d18a579eec2b94fc7761785"
+      }
+    },
+    "current_public_bindings": {
+      ".github/workflows/ci.yml": "0ed53de8864270049ff90885f5ea735ef413c0233f7c0fe15e8289f36295b802",
+      "README.md": "bc98502c94913531a5252f244b296f68dfc54b38de1c83f2654d2301c4020414",
+      "bench/charts/compilation.svg": "14d039dc520401e9d55d70f7cf1f8f14537a12111ac7d747a55b324c52f8d005",
+      "bench/charts/examples-compilation.svg": "f0aba43a37ec63589ffa7c08d32562e5f9c9cfeb4d77b3a18269c40b5db5d704",
+      "bench/charts/examples-entry.svg": "2a466de6db4b17707f44b3af6108e097b8abf04d31db70c449448ebe3f5d38ea",
+      "bench/charts/examples-python-runtime.svg": "582ed5a33c16970450b6032b64e985cfab53555882e986428633574b3920de4c",
+      "bench/charts/examples-runtime.svg": "fca3f58b68172336415f1d210243e4833e8158c6d23ba256db4047697922a9b4",
+      "bench/charts/runtime-lifecycle.svg": "cf34b6da902a5130428e63a00aa259981ade28d53b6e095433b4018724d86273",
+      "bench/charts/runtime-targets.svg": "19802d9a65dd90808190402bc624db6ba5cc659d4f982568282875afb4cf2293",
+      "bench/charts/runtime.svg": "5c7611fb60193c5fd65b67a5ae9a76b7ea4e5d9f994913dd1162c758ba1b4593",
+      "bench/charts/wasmtime-host-c-wasm.svg": "33f9d5387a32ecf3fa18ee5727b11911ecec9ab276b6b377f8d97635cd3c8ea4",
+      "bench/charts/wasmtime-host-preparation.svg": "217d6b87452665f17c41ae7e49374d5c6c066138dc408be2e3139327aa344568",
+      "bench/charts/wasmtime-host-runtime.svg": "93672011e68850c4df66fcdca4d9222898b610130d18a579eec2b94fc7761785",
+      "bench/examples.md": "765d19af40f357261b2343d5f9b3dbd30a4c0da45c3f76cdad029a762b5d81ac",
+      "bench/results/examples-latest.json": "98b2e34a1df19081da516b2d87bc9d1134c63e45856718095a66fe2e48dbb0b3",
+      "bench/results/latest.json": "4bf7af8dbd3c9236093ff319a8d2829f16a7d831dd2621b8cc058a64382d2c3d",
+      "bench/results/runtime-lifecycle-latest.json": "9cd45d918c4b25f53ebb7da1ba1310850fd75a7fd8552a0cf38ae8ba751bd8d0",
+      "bench/results/runtime-targets-latest.json": "c967395afcd4b7cc9396b33c6ca9a3848a814c6df5b661343305e96c6c79e227",
+      "bench/results/wasmtime-host-latest.json": "88807d58cf16a38ce21c78195004706ee0da88a7608e622d5deda161dbfbe847",
+      "bench/wasmtime-host.md": "68c8e8c0918df2ee388eb8d33e0d2a6bbf6871ea73e708b7c5eb3017e3345c9d",
+      "docs/GUIDE.md": "77dc33b779639891d699040497c400374bb6441cb9ef0d6051601c67fcefcd65",
+      "docs/PERFORMANCE_PLAN.md": "e69e5f3f8a8482166b643865462ebda5368516d3caa624399db58d19b801bb31"
+    },
+    "dated_readme_sha256": "4f4a47b7651aa425e91f34f882520a23e6aa806315d461de2526c2abdf656b92",
+    "mad_whiskers": 430,
+    "numeric_labels": 430,
+    "pointers": {
+      "examples-latest.json": {
+        "sha256": "98b2e34a1df19081da516b2d87bc9d1134c63e45856718095a66fe2e48dbb0b3",
+        "value": {
+          "report": "2026-11-04/direct-imports/examples.json",
+          "schema": "goose-example-benchmarks-latest-v1",
+          "sha256": "e0bd5009d7009b1c94aa480a85db370cc93bed889d18343dd1c8ec3b35e75a01"
+        }
+      },
+      "latest.json": {
+        "sha256": "4bf7af8dbd3c9236093ff319a8d2829f16a7d831dd2621b8cc058a64382d2c3d",
+        "value": {
+          "report": "2026-11-04/leaf-and-loads/readme.json",
+          "schema": "goose-readme-latest-v1",
+          "sha256": "4843d8c466bf1fa7a222e1ef4312d2e94585df576ea44f35fb1c43d2fb52f17e"
+        }
+      },
+      "runtime-lifecycle-latest.json": {
+        "sha256": "9cd45d918c4b25f53ebb7da1ba1310850fd75a7fd8552a0cf38ae8ba751bd8d0",
+        "value": {
+          "report": "2026-11-04/direct-imports/lifecycle.json",
+          "schema": "goose-runtime-lifecycle-latest-v1",
+          "sha256": "f482131820efe6012f5c614edd78078b7fca60e25f7120d5e25e230fdfce3994"
+        }
+      },
+      "runtime-targets-latest.json": {
+        "sha256": "c967395afcd4b7cc9396b33c6ca9a3848a814c6df5b661343305e96c6c79e227",
+        "value": {
+          "chart_verification": {
+            "report": "2026-11-04/leaf-and-loads/target-chart-verification.json",
+            "sha256": "5e6d3b540e4bcaaf283b8c4c32c5b30f5c16480b099065da20931894081a5c32"
+          },
+          "comparison": {
+            "compiler": "final",
+            "report": "2026-11-04/leaf-and-loads/final-warmed.json",
+            "sha256": "e3cc57c5ff9421b420882ee958b935eaf39d03fbe7f4c555ea3ab604f8661111"
+          },
+          "report": "2026-11-04/leaf-and-loads/references.json",
+          "schema": "goose-runtime-reference-latest-v1",
+          "sha256": "06c1f5b883af43d5f5563416fec01d5a1ff5ec309a5005e3abb5293654e59350"
+        }
+      },
+      "wasmtime-host-latest.json": {
+        "sha256": "88807d58cf16a38ce21c78195004706ee0da88a7608e622d5deda161dbfbe847",
+        "value": {
+          "report": "2026-11-04/direct-imports/host.json",
+          "schema": "goose-wasmtime-host-latest-v1",
+          "sha256": "045b0dc1b273821bf52bc2607acb9c7799349d26328da66e138054a36ae6c831"
+        }
+      }
+    },
+    "scope": "Eight regenerated plots: exact labels, report SHA, and actual SVG MAD endpoints. Remaining three plots are retained historical cohorts and match their archived public bindings. No rendering or guest execution.",
+    "status": "passed"
+  },
+  "producer_file_count": 24,
+  "producer_files_unchanged": {
+    "README.md": "4f4a47b7651aa425e91f34f882520a23e6aa806315d461de2526c2abdf656b92",
+    "archives.json.gz": "5ee4f244ba226fba8be0ffdabe518977394f52e4b698dec5bd0a4193c035f00a",
+    "delivery-execution.json": "1606d1a8a7adda285789b35ca0bdabb85f9f0a2d798edccd673f084cc17dae1f",
+    "evidence-000.tar.gz": "616123c56b83f7739c89c0a232a130b65076a78074df3f6f5b221a76c6ab510d",
+    "evidence-001.tar.gz": "b6bee4badceb9636d29eab737311fa1982699bbc9ecd25617fb163aea83e3b7e",
+    "examples.json": "e0bd5009d7009b1c94aa480a85db370cc93bed889d18343dd1c8ec3b35e75a01",
+    "final-functions.json": "cb75f2bf9a3cd701dc7add4f3fd2269b3f93962a949084c847d7a056ecbcb1cc",
+    "final-regression.json": "97c32ee2973cc75d61f709b8252c598324c6436ffa4387f74e7ac1c66b832346",
+    "host.json": "045b0dc1b273821bf52bc2607acb9c7799349d26328da66e138054a36ae6c831",
+    "lifecycle.json": "f482131820efe6012f5c614edd78078b7fca60e25f7120d5e25e230fdfce3994",
+    "qualification.json": "726a2e7f3804802af40c8bf620659923043e62c927705d73e1342ccef392518e",
+    "raw-paired.json": "04e6235275062128887b32a720a8d67d0bfa5716b74bc0d14f70025db20c7c05",
+    "reproduction/audit_results.py": "d5abd0ab45dc31a22d7d8ffa3c3cea57d664f8deb4d46d983e048a34fbbaec2a",
+    "reproduction/bounded_reuse.py": "e73fd051cd505c58e428014a91517c4a828c994febdb011cbf536d65bb0e1bea",
+    "reproduction/bundle.py": "a15068e5d23d86d51c090bf356437e40615d3441045b681bb9c6ca1d6ae8dc1b",
+    "reproduction/spec.json": "eb42e9adbcb03e6ada5cc0d5613114b367b51315169d441cc1db7a499d012d0b",
+    "reproduction/verify.py": "38a8e1fcd136238501dd6eba45ede52872753ceabf5af62b4a23ad52c66c260e",
+    "retention.json": "868794f4b73108ffc04c7337fb62e2afa756ac9ad8eb250abc6f20fa779ddfa3",
+    "semantic-verification.json": "6cd0e3184c4e12d58571dfd6d4a88f9b9be8af92dbdc733128914b094ada72b4",
+    "startup-confirmation.json": "368467c7b9dc996b829d9fa463cfa3e911830ed2738c5c73a402424116c68c2d",
+    "startup-paired.json": "a4bf5f579cbe841c4c5f5ff68b05a8e3e415677c42346b7aecacb8839578b916",
+    "startup-regression.json": "bf77072e5a3eddbe2136aac0a551d9ddb660d8321a0aea939de23caba1b50deb",
+    "verification.json": "daa41d9b4217b18a2d1f594653cf543d637247888748e56eea02af10d9ff6931",
+    "vm-confirmation.json": "49c65d8b61557efc0a3d68755627eaca6676d9e5dd5d35b3b9d66ec2e4576f4d"
+  },
+  "readonly": {
+    "before_after_inventory_equal": true,
+    "bytecode_caches": 0,
+    "producer_files_preserved": true,
+    "stderr_empty": true
+  },
+  "recovery": "Exact complete 1600-row examples phase retained after failed ENOSPC checkpoint; original checkpoint/log and matching pins retained. Remaining host/lifecycle cohorts use explicit RAM scratch; final paired AOTs copied to regular Btrfs files and common byte identity checked.",
+  "schema": "goose-direct-imports-final-archive-audit-v1",
+  "scope": "Independent source, published byte and semantic, physical-member, chart and final inventory review. No guest/build/benchmark execution.",
+  "seal": {
+    "audit_outside_own_archives": true,
+    "expected_manifest_entries": 27,
+    "expected_public_files": 28,
+    "final_manifest_written_after_this_file": true,
+    "final_readonly_rerun": "Performed after the final manifest; execution proof is private and reported to coordinator without rewriting public evidence.",
+    "manifest": "SHA256.json",
+    "manifest_excludes_itself": true
+  },
+  "semantic_coverage": {
+    "broad_examples_rows": 1600,
+    "broad_host_preparations": 300,
+    "broad_host_rows": 1760,
+    "broad_lifecycle_rows": 960,
+    "fresh_general_preparations": 1574,
+    "fresh_general_runtime": 11484,
+    "fresh_minimal_direct_runtime": 1914,
+    "fresh_minimal_preparations": 679,
+    "fresh_unit_methods": 91,
+    "host_summary_cells": 110,
+    "older_compacted_log_files": 5880,
+    "preparation_summary_cells": 60,
+    "prior_aliases": 17,
+    "prior_compiler_cases": 978,
+    "prior_compiler_pins": 1487,
+    "prior_compiler_rows": 9573,
+    "streamed_log_files": 62616
+  },
+  "source_review": {
+    "initial_public_manifest_sha256": "9fbc5b99e595ac959cdf9e07e2288911436abec49d72bae83fab1084f8ac8eff",
+    "limitations": [
+      "No compiler, guest or performance benchmark executed in this review.",
+      "Published command results and presentation audit are recorded separately."
+    ],
+    "private_spec_sha256": "d55f4bb377ced06ac5ed41044f5c2f5a73f5a691ea22164e213d13a9a999be0d",
+    "published_helpers": {
+      "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-04/direct-imports/reproduction/audit_results.py": "d5abd0ab45dc31a22d7d8ffa3c3cea57d664f8deb4d46d983e048a34fbbaec2a",
+      "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-04/direct-imports/reproduction/bounded_reuse.py": "e73fd051cd505c58e428014a91517c4a828c994febdb011cbf536d65bb0e1bea",
+      "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-04/direct-imports/reproduction/bundle.py": "a15068e5d23d86d51c090bf356437e40615d3441045b681bb9c6ca1d6ae8dc1b",
+      "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-04/direct-imports/reproduction/spec.json": "eb42e9adbcb03e6ada5cc0d5613114b367b51315169d441cc1db7a499d012d0b",
+      "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-04/direct-imports/reproduction/verify.py": "38a8e1fcd136238501dd6eba45ede52872753ceabf5af62b4a23ad52c66c260e"
+    },
+    "reviewed_utc": "2026-11-04T14:34:14.899233+00:00",
+    "schema": "goose-direct-imports-final-source-review-v1",
+    "scope": [
+      "Exact finite current-document and input-byte closure, immediate predecessor physical archive allowlist only, no historical namespace recursion.",
+      "Plain verification disables bytecode writing before local imports and writes no evidence.",
+      "Exact 91 unit gates; 11484 full and 1914 direct-only minimal fresh replay rows and 1574/679 preparations; strict restoration of prior 9573 compiler observations with 17 aliases/1487 pins.",
+      "All seven paired campaign grids/seeds/samples, paired medians/MAD/bootstrap confidence bounds, output and host identities; final Functions, all-ten screen, and VM follow-up remain separate.",
+      "Three-cohort exact grids, lifecycle and cache bindings, known process exits, ENOSPC checkpoint and exact retained first phase, completion and chronology.",
+      "Compact command groups bind exact stdout/stderr/result/command bytes to replay observations; 1010 prior native oracle artifacts are bytes retained from explicit physical members, not fresh executions."
+    ],
+    "spec_equivalence": "Exact parsed object equality; public JSON uses canonical formatting. Python helpers byte-identical.",
+    "status": "passed"
+  },
+  "source_review_sha256": "55efd777c47ceeacfda2a396ddf979d6ee1d1f8d6ac7f9808ef7fdab6b3aa2b8",
+  "status": "passed",
+  "svg_provenance": {
+    "distinct_regenerated_chart_path_sha_edges": 193,
+    "historical_charts": "The three unchanged charts match their retained public bindings and separately collected reference pointers.",
+    "indexed": 192,
+    "status": "passed",
+    "supplement": {
+      "absolute_recorded_path": "/home/jacobt/src/goose-to-wasm/bench/wasmtime_host_charts.py",
+      "bytes": 15516,
+      "logical_path": "bench/wasmtime_host_charts.py",
+      "public_path": "reproduction/wasmtime_host_charts.py",
+      "sha256": "51e83225a5d6d84ebcc79e9149f512eba38fa1ff6f25d68ad7ba7ec4132192da"
+    },
+    "supplements": 1
+  }
+}

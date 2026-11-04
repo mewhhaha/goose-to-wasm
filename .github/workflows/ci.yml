@@ -71,6 +71,7 @@ jobs:
       - name: Oracle source and driver contracts
         run: |
           python tests/test_benchmark_process.py
+          python tests/test_command_logs.py
           python oracle/tests/test_bootstrap.py
           python oracle/tests/test_target.py
           python oracle/tests/test_driver.py
@@ -84,7 +85,7 @@ jobs:
       - name: Direct, C-Wasm and native differential qualification
         run: >-
           python tests/run_differential.py --engines v8 wasmtime
-          --backends direct c-wasm native
+          --backends direct c-wasm native --compact-logs
       - name: Aggregate returns and scalar math qualification
         run: python tests/test_backend_extensions.py
       - name: Example catalog across all backends and optimization levels

@@ -19,6 +19,8 @@ import subprocess
 import sys
 import time
 
+from command_logs import CommandLogs
+
 ROOT = Path(__file__).resolve().parents[1]
 BACKENDS = ("direct", "c-wasm")
 LEVELS = (0, 2)
@@ -63,10 +65,16 @@ def save_report(output, report):
     temporary.replace(output / "report.json")
 
 
-def execute(command, log, stdin=b"", timeout=60):
+def execute(command, log, stdin=b"", timeout=60, logs=None):
     command = [str(part) for part in command]
-    log.mkdir(parents=True, exist_ok=True)
-    (log / "command.json").write_bytes(json_bytes(command))
+    def write(name, data):
+        if logs is not None:
+            logs.write(log / name, data)
+        else:
+            log.mkdir(parents=True, exist_ok=True)
+            (log / name).write_bytes(data)
+
+    write("command.json", json_bytes(command))
     result = {"exit_code": None, "stdout": b"", "stderr": b"", "error": ""}
     try:
         process = subprocess.run(command, cwd=ROOT, input=stdin, stdout=subprocess.PIPE,
@@ -76,9 +84,9 @@ def execute(command, log, stdin=b"", timeout=60):
         result.update(stdout=error.stdout or b"", stderr=error.stderr or b"", error=str(error))
     except OSError as error:
         result["error"] = str(error)
-    (log / "stdout").write_bytes(result["stdout"])
-    (log / "stderr").write_bytes(result["stderr"])
-    (log / "result.json").write_bytes(json_bytes({
+    write("stdout", result["stdout"])
+    write("stderr", result["stderr"])
+    write("result.json", json_bytes({
         "exit_code": result["exit_code"], "error": result["error"],
         "stdout_sha256": bytes_digest(result["stdout"]),
         "stderr_sha256": bytes_digest(result["stderr"]),
@@ -177,7 +185,7 @@ def verify_baseline(baseline, report, cases):
     return observed
 
 
-def prepare(host, output, sha, item):
+def prepare(host, output, sha, item, logs=None):
     aot = output / "aot" / (sha + ".cwasm")
     aot.parent.mkdir(parents=True, exist_ok=True)
     aot.unlink(missing_ok=True)
@@ -187,7 +195,7 @@ def prepare(host, output, sha, item):
     command = [host, "--no-cache", "--no-parallel-compilation"]
     if AOT_HOST is not None:
         command += ["--aot-profile", "minimal"]
-    result = execute([*command, "--compile", source, aot], log, timeout=180)
+    result = execute([*command, "--compile", source, aot], log, timeout=180, logs=logs)
     row = {"module": str(source), "wasm_sha256": sha, "artifact": str(aot), "logs": str(log),
            "exit_code": result["exit_code"], "status": "fail", "error": result["error"]}
     if result["exit_code"] == 0 and not result["error"] and aot.is_file():
@@ -198,7 +206,7 @@ def prepare(host, output, sha, item):
     return row
 
 
-def replay(index, unit, mode, host, output, compiled):
+def replay(index, unit, mode, host, output, compiled, logs=None):
     case, level, backend, module, sha, native, python = unit
     command = [host, "--no-cache", module]
     if mode == "wasm-no-parallel":
@@ -212,7 +220,7 @@ def replay(index, unit, mode, host, output, compiled):
            "backend": backend, "mode": mode, "engine": "native C API", "module": str(module),
            "wasm_sha256": sha, "stdin_sha256": bytes_digest(case.stdin.encode()), "logs": str(log),
            "status": "fail", "errors": []}
-    result = execute(command, log, case.stdin.encode(), timeout=30)
+    result = execute(command, log, case.stdin.encode(), timeout=30, logs=logs)
     row.update(exit_code=result["exit_code"], stdout=result["stdout"].decode(errors="replace"),
                stderr=result["stderr"].decode(errors="replace"),
                stdout_sha256=bytes_digest(result["stdout"]), stderr_sha256=bytes_digest(result["stderr"]))
@@ -236,7 +244,7 @@ def replay(index, unit, mode, host, output, compiled):
     return row
 
 
-def qualify(args, output, report):
+def qualify(args, output, report, logs=None):
     baseline = args.baseline_dir.resolve()
     host = args.host.resolve()
     baseline_path = baseline / "report.json"
@@ -321,7 +329,7 @@ def qualify(args, output, report):
     report.update(expected_observations=len(units) * len(MODES), modules=list(modules.values()), unique_wasm=len(unique))
     inputs = set(old_pins) | set(manifest["input_sha256"])
     inputs.update(str(path) for path in (host, manifest_path, library, python_library, sdk_pin_path, archive,
-                                        baseline_path, Path(__file__).resolve()))
+                                        baseline_path, Path(__file__).resolve(), ROOT / "bench/command_logs.py"))
     if "reference_derivation" in old:
         inputs.add(old["reference_derivation"]["original_report"])
     inputs.update(str(baseline / "shards" / shard / "report.json") for shard in old["qualification_execution"]["shards"])
@@ -351,16 +359,16 @@ def qualify(args, output, report):
     require(all(before[name] == sha for name, sha in manifest["input_sha256"].items()), "host inputs changed while preparing replay")
     report["input_sha256"] = before
     save_report(output, report)
-    version_result = execute([host, "--version"], output / "version")
+    version_result = execute([host, "--version"], output / "version", logs=logs)
     require(version_result["exit_code"] == 0 and version_result["stdout"] == ("Wasmtime " + version + "\n").encode(),
             "host --version does not match pinned Wasmtime")
     if AOT_HOST is not None:
-        actual = execute([AOT_HOST, "--version"], output / "aot-version")
+        actual = execute([AOT_HOST, "--version"], output / "aot-version", logs=logs)
         require(actual["exit_code"] == 0 and actual["stdout"] == version_result["stdout"],
                 "minimal AOT --version differs")
     compiled = {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        pending = {pool.submit(prepare, host, output, sha, item): sha for sha, item in unique.items()}
+        pending = {pool.submit(prepare, host, output, sha, item, logs): sha for sha, item in unique.items()}
         for future in as_completed(pending):
             sha = pending[future]
             try:
@@ -380,7 +388,7 @@ def qualify(args, output, report):
         item["precompiled"] = compiled[item["sha256"]]["artifact"]
         item["precompiled_sha256"] = compiled[item["sha256"]]["sha256"]
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        pending = {pool.submit(replay, index, unit, mode, host, output, compiled): (index, mode)
+        pending = {pool.submit(replay, index, unit, mode, host, output, compiled, logs): (index, mode)
                    for index, unit in enumerate(units) for mode in MODES}
         for future in as_completed(pending):
             index, mode = pending[future]
@@ -421,6 +429,7 @@ def main():
     parser.add_argument("--backends", choices=BACKENDS, nargs="+", default=list(BACKENDS),
                         help="explicit replay scope; retained baseline validation always covers both backends")
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--compact-logs", action="store_true", help="stream raw command logs into command-logs.tar.gz")
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--filter", default="", help="case-name substring for an exact reduced smoke matrix")
     args = parser.parse_args()
@@ -441,11 +450,22 @@ def main():
     report["configuration"]["baseline_report"] = str((args.baseline_report or args.baseline_dir / "report.json").resolve())
     report["configuration"]["backends"] = args.backends
     save_report(output, report)
+    logs = None
     started = time.monotonic()
     try:
-        qualify(args, output, report)
+        if args.compact_logs:
+            logs = CommandLogs(output)
+            report["command_logs"] = logs.metadata()
+        qualify(args, output, report, logs)
     except BaseException as error:
         report.update(status="fail", error=type(error).__name__ + ": " + str(error))
+    finally:
+        if logs is not None:
+            try:
+                logs.close(complete=report["status"] == "pass")
+            except BaseException as error:
+                report.update(status="fail", error="command-log close failed: " + str(error))
+            report["command_logs"] = logs.metadata()
     report["wall_seconds"] = time.monotonic() - started
     report["results"].sort(key=lambda row: (row["case"], row["optimization"], row["debug"], row["backend"], row["mode"]))
     save_report(output, report)

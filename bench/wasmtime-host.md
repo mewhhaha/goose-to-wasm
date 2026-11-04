@@ -12,18 +12,18 @@ The November 4 run used a shared AMD Ryzen 7 3800X and compiler `8c09c1a6bcc782d
 
 | Example | Cold | Full AOT | Minimal AOT | Native C |
 | --- | ---: | ---: | ---: | ---: |
-| Functions | 18.321 | 1.853 | 1.384 | 0.947 |
-| Sorting | 32.385 | 15.542 | 15.727 | 45.734 |
-| Sudoku | 8.783 | 4.020 | 4.861 | 4.183 |
-| Life | 14.437 | 2.813 | 2.821 | 18.770 |
+| Functions | 17.924 | 1.313 | 1.480 | 0.890 |
+| Sorting | 32.080 | 15.515 | 14.686 | 45.852 |
+| Sudoku | 8.664 | 4.036 | 3.613 | 4.005 |
+| Life | 14.455 | 2.277 | 2.027 | 18.313 |
 
-The full host is 22,029,544 bytes; the minimal host is 1,412,248 bytes. The minimal profile supports numeric and linear-memory Wasm, including SIMD, tail calls, memory64, bulk memory and multivalue. It excludes GC, reference and function reference types, exceptions, components, concurrency and JIT. Default-profile AOT artifacts cannot be loaded by the minimal host.
+The minimal profile supports numeric and linear-memory Wasm, including SIMD, tail calls, memory64, bulk memory and multivalue. It excludes GC, reference and function reference types, exceptions, components, concurrency and JIT. Default-profile AOT artifacts cannot be loaded by the minimal host.
 
-A separate 61-round matched Functions comparison measured 1.002 ms for the previous full host, 0.772 ms minimal and 0.666 ms native C. The median paired minimal/full ratio was 0.764 (23.6% lower); minimal/native was 1.158 (15.8% higher). These results and the broader cohort above are separate measurements.
+A separate 201-round paired Functions comparison found the minimal host 1.6% faster than the previous minimal host and 16.0% slower than native C on the primary CPU pool. These results and the broader cohort above are separate measurements; their marginal medians are not paired. The broad Functions medians do not demonstrate a minimal-versus-full speedup; the paired comparison is between the previous and final minimal hosts.
 
 The historical Functions precompiled median of 1.691 ms used Python's timed wait, which introduced an approximately 1 ms polling artifact on this system. The corrected harness uses pidfd; the difference from that historical value includes this method correction. Only matched before/after runs using the corrected harness establish runtime improvement. Lifecycle measurements already used a blocking wait.
 
-[Results, raw samples, preparation and qualification](results/2026-11-04/minimal-aot/README.md) · [Earlier cohort](results/2026-11-04/leaf-and-loads/README.md)
+[Results, raw samples, preparation and qualification](results/2026-11-04/direct-imports/README.md) · [Earlier cohort](results/2026-11-04/leaf-and-loads/README.md)
 
 ## Runtime lifecycle
 
@@ -43,7 +43,7 @@ python bench/runtime_lifecycle.py --example-report build/example-benchmarks/repo
 python bench/runtime_lifecycle_charts.py build/runtime-lifecycle/report.json --output build/runtime-lifecycle.svg
 ```
 
-Chart rendering requires Matplotlib. The lifecycle chart command requires a fresh output path and will not overwrite an existing file. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-04/minimal-aot/README.md) for retained raw data and qualification.
+Chart rendering requires Matplotlib. The lifecycle chart command requires a fresh output path and will not overwrite an existing file. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-04/direct-imports/README.md) for retained raw data and qualification.
 
 To regenerate the qualification baseline and replay from a fresh checkout:
 

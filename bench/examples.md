@@ -6,11 +6,11 @@ Ten [example programs](../examples/README.md) compare direct Wasm, C-to-Wasm and
 
 ![Example process times with the native Wasmtime host and native C](charts/examples-runtime.svg)
 
-The runtime chart includes uncached native-host launches and full and minimal precompiled launches; preparation is excluded from the latter. In the 15-sample cohort, Functions took 18.321 ms cold, 1.853 ms full AOT and 1.384 ms minimal AOT, versus 0.947 ms native C. [Preparation costs and host qualification](wasmtime-host.md) give the full accounting.
+The runtime chart includes uncached native-host launches and full and minimal precompiled launches; preparation is excluded from the latter. In the 15-sample cohort, Functions took 17.924 ms cold, 1.313 ms full AOT and 1.480 ms minimal AOT, versus 0.890 ms native C. [Preparation costs and host qualification](wasmtime-host.md) give the full accounting.
 
-[Results and raw samples](results/2026-11-04/minimal-aot/README.md)
+[Results and raw samples](results/2026-11-04/direct-imports/README.md)
 
-The cold-build cohort measured direct builds at 61.2–100.9 ms and C-to-Wasm at 487.0–937.3 ms. Its [V8 and Python-host chart](charts/examples-python-runtime.svg) is a separate control.
+The cold-build cohort measured direct builds at 65.1–102.9 ms and C-to-Wasm at 545.3–967.9 ms. Its [V8 and Python-host chart](charts/examples-python-runtime.svg) is a separate control.
 
 ## Method
 
@@ -18,7 +18,7 @@ The build cohort has five complete `--no-cache` Python-driver builds per backend
 
 The headline runtime measures launch to exit, including startup, Wasm instantiation, initialization, computation, output delivery and teardown. Cold launches disable the SDK cache and include Wasm compilation; precompiled launches exclude preparation. Inputs remain constant and ordinary constant folding is allowed. Direct Wasm uses memory32; C-to-Wasm uses memory64. The runs use a shared AMD Ryzen 7 3800X, Goose revision `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, compiler SHA-256 `8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6`, Wasmtime 50.0.1, Emscripten 6.0.13 and GCC 16.2.1. The V8 control uses Node 24.22.1 / V8 13.6.233.17-node.58.
 
-A corrected pidfd-based wait removes an approximately 1 ms Python timed-wait polling artifact from the earlier host cohort. Historical and corrected process timings are not a matched before/after comparison. [Evidence and limitations](results/2026-11-04/minimal-aot/README.md).
+A corrected pidfd-based wait removes an approximately 1 ms Python timed-wait polling artifact from the earlier host cohort. Historical and corrected process timings are not a matched before/after comparison. [Evidence and limitations](results/2026-11-04/direct-imports/README.md).
 
 ## Native gap
 
