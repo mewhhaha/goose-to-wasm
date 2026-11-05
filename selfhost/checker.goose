@@ -24,8 +24,12 @@ struct CheckReturnRoot { function_node: i64, index: i64, root: i64, kind: i64 = 
 struct CheckSpecialization { original: i64, symbol: i64, binding_start: i64, binding_count: i64 }
 struct CheckFlow { symbol: i64, assigned: bool, maybeassigned: bool, narrowed: i64 = -1 }
 struct CheckFlowCursor { frame: i64, index: i64, active: bool = false }
-struct CheckExit { target: i64, flow: CheckSpan }
+struct CheckExit { target: i64, flow: CheckSpan, backedge: bool = false }
 struct CheckLoop { node: i64, scope: i64, function_node: i64, result: i64 = -1, breaks: bool = false, expected: i64 = -1 }
+struct CheckLogicalKill { node: i64, symbol: i64 }
+
+struct CheckDefaultCapture { node: i64, function_node: i64, floor: i64 }
+
 struct Checker {
     scopes: CheckScope[>..]&, variables: CheckVariable[>..]&, variable_lookup: i64[>..]&,
     roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&,
@@ -36,6 +40,9 @@ struct Checker {
     integer_work: CheckInteger[>..]&, binding_work: TypeBinding[>..]&, flow_work: CheckFlow[>..]&, flow_cursors: CheckFlowCursor[>..]&, exit_work: CheckExit[>..]&, interval_work: CheckInterval[>..]&, render_cache: RenderKey[>..]&, render_hooks: i64[>..]&,
     scope: i64 = 0, function_node: i64 = -1, result_type: i64 = -1,
     next_slot: i64 = 0, reachable: bool = true, tuple_context: bool = false,
+    parameter_default_contexts: CheckDefaultCapture[>..]&,
+    logical_kills: CheckLogicalKill[>..]&,
+    parameter_default_function: i64 = -1, parameter_default_floor: i64 = -1,
     returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {}, context_keys: CheckList = CheckList {},
 }
 
@@ -308,6 +315,9 @@ fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
     p.nodes[node].symbol = id;
     p.nodes[node].scope = scope;
     if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && c.default_fields.count > 0 { p.nodes[node].flags |= F_DEFAULT; }
+    if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & F_SYNTHETIC) == 0 && c.parameter_default_function >= 0 {
+        c.parameter_default_contexts.push(CheckDefaultCapture { node: node, function_node: c.parameter_default_function, floor: c.parameter_default_floor });
+    }
     if slot >= 0 {
         while c.variable_lookup.len <= id { c.variable_lookup.push(-1); }
         c.variable_lookup[id] = c.variables.len; var next_frame = -1;
@@ -379,7 +389,7 @@ fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
         if property == 5 && (t.kind == TY_SLICE || t.kind == TY_FN || t.kind == TY_REF && (t.length_storage < 0 || t.pool >= 0)) { return 1; }
         if property == 2 {
             if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { continue; }
-            if t.storage == 1 { result = 1; continue; }
+            if t.storage == 1 || t.kind == TY_REF && t.length_storage == 0 { result = 1; continue; }
             if t.kind == TY_ARRAY {
                 if t.array_kind == A_GROW || t.array_kind == A_GROWSHRINK { return 2; }
                 if t.array_kind == A_VAR || t.array_kind == A_LIMITED && t.count < 0 { result = 1; continue; }
@@ -450,6 +460,12 @@ recursive fn check_unify(p: Program&, c: Checker&, formal: i64, actual: i64, bin
     if formal < 0 { return true; }
     if actual < 0 { return true; }
     let f = p.types[formal]; let a = p.types[actual];
+    // Concrete copying destinations use argument conversion. A slice cannot
+    // infer an unbound array element type or construct a fixed array.
+    if f.kind == TY_ARRAY && f.array_kind != A_FIXED && a.kind == TY_SLICE {
+        let concrete = check_substitute(p, c, formal, bindings);
+        if !check_has_generic(p, concrete, 0) { return true; }
+    }
     if a.kind == TY_ARRAY && a.element < 0 || a.kind == TY_REF && a.element == TYPE_VOID { return true; }
     if f.kind == TY_GENERIC {
         for index in 0..bindings.count { let binding = check_binding_at(c, bindings, index); if binding.parameter == f.declaration { return true; } }
@@ -1324,6 +1340,76 @@ recursive fn check_integer_constants(p: Program&, c: Checker&, node: i64, depth:
     return check_literal_tree(p, node, depth + 1) && check_constant(p, c, node, depth + 1).valid;
 }
 
+struct CheckFlex { valid: bool = false, flexible: bool = false, minimum: i64 = 0, maximum: i64 = 0 }
+recursive fn check_flex_integer(p: Program&, c: Checker&, node: i64, depth: i64 = 0) -> CheckFlex {
+    if node < 0 || depth > 64 { return CheckFlex {}; }
+    let n = p.nodes[node];
+    if check_bottom(p, node) { return CheckFlex { valid: true }; }
+    if n.kind == N_UNARY && n.integer == T_BITNOT {
+        var child = check_flex_integer(p, c, n.left, depth + 1);
+        if child.valid && (child.flexible || child.minimum >= 0) { child.flexible = true; return child; }
+    }
+    let constant = check_constant(p, c, node, 0);
+    if constant.valid && check_integer_constants(p, c, node, depth + 1) && !(check_unsigned(check_numeric_value_type(p, constant.type_id)) && constant.value < 0) {
+        return CheckFlex { valid: true, minimum: constant.value, maximum: constant.value };
+    }
+    if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { return check_flex_integer(p, c, n.last, depth + 1); }
+    if n.kind == N_IF && n.third >= 0 {
+        let a = check_flex_integer(p, c, n.right, depth + 1); let b = check_flex_integer(p, c, n.third, depth + 1);
+        if !a.valid || !b.valid { return CheckFlex {}; }
+        var out = a; out.flexible = a.flexible || b.flexible;
+        if b.minimum < out.minimum { out.minimum = b.minimum; } if b.maximum > out.maximum { out.maximum = b.maximum; } return out;
+    }
+    if n.kind == N_MATCH && n.first >= 0 {
+        var out = CheckFlex { valid: true }; var first = true; var arm = n.first;
+        while arm >= 0 {
+            let value = check_flex_integer(p, c, p.nodes[arm].right, depth + 1); if !value.valid { return CheckFlex {}; }
+            if first { out = value; first = false; }
+            else { if value.minimum < out.minimum { out.minimum = value.minimum; } if value.maximum > out.maximum { out.maximum = value.maximum; } out.flexible = out.flexible || value.flexible; }
+            arm = p.nodes[arm].next;
+        }
+        return out;
+    }
+    if n.kind == N_BINARY {
+        let left = check_flex_integer(p, c, n.left, depth + 1); if !left.valid { return CheckFlex {}; }
+        if n.integer == T_SHL || n.integer == T_SHR {
+            if !check_integer(check_numeric_value_type(p, p.nodes[n.right].type_id)) { return CheckFlex {}; }
+            var out = left; out.flexible = true; return out;
+        }
+        if n.integer == T_PLUS || n.integer == T_MINUS || n.integer == T_MUL || n.integer == T_DIV || n.integer == T_MOD || n.integer == T_BITAND || n.integer == T_BITOR || n.integer == T_XOR {
+            let right = check_flex_integer(p, c, n.right, depth + 1);
+            if !right.valid || !left.flexible && !right.flexible { return CheckFlex {}; }
+            var out = left; out.flexible = true;
+            if right.minimum < out.minimum { out.minimum = right.minimum; } if right.maximum > out.maximum { out.maximum = right.maximum; } return out;
+        }
+    }
+    return CheckFlex {};
+}
+fn check_flex_fits(p: Program&, c: Checker&, node: i64, destination: i64) -> bool {
+    let value = check_flex_integer(p, c, node);
+    return value.valid && value.flexible && value.minimum >= check_min(destination) && value.maximum <= check_max(destination);
+}
+recursive fn check_retype_integer(p: Program&, c: Checker&, node: i64, type_id: i64) {
+    if node < 0 { return; } let n = p.nodes[node];
+    if !check_flex_integer(p, c, node).flexible { check_expect(p, c, node, n.type_id, type_id); return; }
+    if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { check_retype_integer(p, c, n.last, type_id); p.nodes[node].type_id = type_id; return; }
+    if n.kind == N_IF {
+        check_retype_integer(p, c, n.right, type_id); check_retype_integer(p, c, n.third, type_id); p.nodes[node].type_id = type_id; return;
+    }
+    if n.kind == N_MATCH {
+        var arm = n.first;
+        while arm >= 0 { check_retype_integer(p, c, p.nodes[arm].right, type_id); arm = p.nodes[arm].next; }
+        p.nodes[node].type_id = type_id; return;
+    }
+    if n.kind == N_BINARY {
+        check_retype_integer(p, c, n.left, type_id);
+        if n.integer != T_SHL && n.integer != T_SHR { check_retype_integer(p, c, n.right, type_id); }
+        p.nodes[node].type_id = type_id; p.nodes[node].aux = type_id; return;
+    }
+    if n.kind == N_UNARY && n.integer == T_BITNOT { check_retype_integer(p, c, n.left, type_id); p.nodes[node].type_id = type_id; return; }
+    check_expect(p, c, node, n.type_id, type_id);
+}
+
 recursive fn check_float_literal_tree(p: Program&, node: i64, depth: i64) -> bool {
     if node < 0 || depth > 64 { return false; }
     let n = p.nodes[node];
@@ -1382,6 +1468,7 @@ recursive fn check_constant_names(p: Program&, c: Checker&, node: i64, depth: i6
     if node < 0 || depth > 64 { return; }
     let n = p.nodes[node];
     if n.kind == N_NAME {
+        check_parameter_default_name(p, c, node, false);
         var symbol = n.symbol; if symbol < 0 { symbol = check_lookup_name(p, c, node); } if symbol < 0 { return; }
         let binding = p.symbols[symbol];
         if (binding.flags & S_GLOBAL) == 0 {
@@ -1428,6 +1515,7 @@ fn check_wrap_numeric_cast(p: Program&, node: i64, type_id: i64) {
 recursive fn check_retype_float(p: Program&, c: Checker&, node: i64, type_id: i64) {
     if node < 0 || p.nodes[node].type_id == type_id { return; }
     let n = p.nodes[node];
+    if check_integer(check_numeric_value_type(p, n.type_id)) { check_wrap_numeric_cast(p, node, type_id); return; }
     if n.kind == N_FLOAT { p.nodes[node].type_id = type_id; return; }
     if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { check_retype_float(p, c, n.last, type_id); p.nodes[node].type_id = type_id; return; }
     if n.kind == N_IF {
@@ -1573,6 +1661,7 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
         return score;
     }
     if check_same_type(p, source, destination) { return 0; }
+    if check_integer(destination) && check_flex_fits(p, c, expression, destination) { return 1; }
     if check_width_constant(p, c, expression, destination).valid { return 1; }
     let s = p.types[source]; let d = p.types[destination]; let n = p.nodes[expression];
     if s.kind == TY_GENERIC || d.kind == TY_GENERIC { return 1; }
@@ -1689,6 +1778,9 @@ recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64
         diagnose(p, p.nodes[expression].token, "value cannot implicitly convert to the required type"); return source;
     }
     if source < 0 { return expected; }
+    if check_integer(expected) && check_flex_integer(p, c, expression).flexible {
+        check_rely_named(p, c, expression); check_retype_integer(p, c, expression, expected); return expected;
+    }
     if c.reachable && p.types[expected].kind == TY_ENUM { check_mark_coercion(p, expression, expected); }
     if source != expected && (check_integer(expected) && check_literal_tree(p, expression, 0) || check_float(expected) && check_float_literal_tree(p, expression, 0)) {
         check_rely_named(p, c, expression);
@@ -1810,13 +1902,47 @@ fn check_assign_narrowing(p: Program&, c: Checker&, symbol: i64, value: i64) {
         c.variables[vi].narrowed = add_type(p, narrowed);
     }
 }
+fn check_logical_apply(c: Checker&, node: i64) {
+    for kill in c.logical_kills {
+        if kill.node != node { continue; }
+        let vi = check_variable_index(c, kill.symbol); if vi >= 0 { c.variables[vi].narrowed = -1; }
+    }
+}
+fn check_logical_globals(p: Program&, c: Checker&, out: CheckSpan&) {
+    out.first = c.flow_work.len; out.count = 0; var vi = c.scopes[0].first_variable;
+    while vi >= 0 {
+        let variable = c.variables[vi]; let symbol = p.symbols[variable.symbol]; let ty = symbol.type_id;
+        if (symbol.flags & S_GLOBAL) != 0 && ty >= 0 && p.types[ty].kind == TY_REF && (p.types[ty].flags & TF_OPTIONAL) != 0 {
+            c.flow_work.push(CheckFlow { symbol: variable.symbol, assigned: variable.assigned, maybeassigned: variable.maybeassigned, narrowed: variable.narrowed }); out.count += 1;
+        }
+        vi = variable.next_frame;
+    }
+}
+fn check_logical_capture(c: Checker&, narrowed: CheckList&, span: CheckSpan&) {
+    for index in span.first..span.first + span.count {
+        let symbol = c.flow_work[index].symbol; let vi = check_variable_index(c, symbol);
+        if vi < 0 || c.variables[vi].narrowed < 0 { continue; }
+        var found = false;
+        for j in 0..narrowed.count { if check_list_at(c, narrowed, j) == symbol { found = true; break; } }
+        if !found { check_list_push(c, narrowed, symbol); }
+    }
+}
+fn check_logical_record(c: Checker&, node: i64, narrowed: CheckList&) {
+    for kill, index in c.logical_kills { if kill.node == node { c.logical_kills[index].node = -1; } }
+    for index in 0..narrowed.count {
+        let symbol = check_list_at(c, narrowed, index); let vi = check_variable_index(c, symbol);
+        if vi >= 0 && c.variables[vi].narrowed < 0 { c.logical_kills.push(CheckLogicalKill { node: node, symbol: symbol }); }
+    }
+}
+
 recursive fn check_narrow_condition(p: Program&, c: Checker&, node: i64, sense: bool) {
     if node < 0 { return; }
     let n = p.nodes[node];
     if n.kind == N_UNARY && n.integer == T_NOT { check_narrow_condition(p, c, n.left, !sense); return; }
     if n.kind == N_BINARY {
         if n.integer == T_ANDAND && sense || n.integer == T_OROR && !sense {
-            check_narrow_condition(p, c, n.left, sense); check_narrow_condition(p, c, n.right, sense); return;
+            check_narrow_condition(p, c, n.left, sense); check_logical_apply(c, node);
+            check_narrow_condition(p, c, n.right, sense); return;
         }
         if n.integer == T_EQ || n.integer == T_NEQ || n.integer == T_DOTEQ || n.integer == T_DOTNEQ {
             var value = -1;
@@ -1862,18 +1988,41 @@ fn check_capture(p: Program&, c: Checker&, symbol: i64) {
     let id = new_node(p, N_BINDING, s.name_token); p.nodes[id].symbol = symbol; p.nodes[id].type_id = s.type_id;
     if last < 0 { p.nodes[c.function_node].captures = id; } else { p.nodes[last].next = id; }
 }
+fn check_parameter_default_name(p: Program&, c: Checker&, node: i64, functions_only: bool) {
+    let function_node = c.parameter_default_function;
+    if function_node < 0 || node < 0 { return; }
+    let n = p.nodes[node];
+    if n.aux > 1 || n.integer >= 0 && n.integer < p.tokens.len && p.tokens[n.integer].kind == T_COLONCOLON { return; }
+    let actual = check_lookup_name(p, c, node);
+    if actual >= 0 && p.symbols[actual].node >= c.parameter_default_floor && (p.symbols[actual].flags & S_GLOBAL) == 0 { return; }
+    let saved = c.scope; c.scope = p.nodes[function_node].scope;
+    let symbol = check_lookup_name(p, c, node); c.scope = saved;
+    if symbol < 0 { return; } let binding = p.symbols[symbol];
+    if (binding.flags & S_TYPE) != 0 {
+        if binding.type_id >= 0 && p.types[binding.type_id].kind == TY_FN { diagnose(p, n.token, "a parameter default cannot name a function-value type parameter"); }
+        return;
+    }
+    if functions_only && (binding.flags & S_FUNCTION) == 0 { return; }
+    if (binding.flags & S_PARAMETER) != 0 || binding.owner >= 0 {
+        diagnose(p, n.token, "a parameter default cannot name a parameter, enclosing local, or nested function");
+    }
+}
+
 recursive fn check_parameter_default(p: Program&, c: Checker&, function_node: i64, parameter: i64, token: i64) -> i64 {
     var defaults = c.default_fields;
     for index in 0..defaults.count {
         if check_list_at(c, defaults, index) == p.nodes[parameter].token { diagnose(p, token, "parameter default construction is cyclic"); return -1; }
     }
     let saved_defaults = c.default_fields; let saved_scope = c.scope;
+    let saved_parameter_function = c.parameter_default_function; let saved_parameter_floor = c.parameter_default_floor;
+    c.parameter_default_function = function_node; c.parameter_default_floor = p.nodes.len;
     check_list_push(c, c.default_fields, p.nodes[parameter].token);
     if p.nodes[function_node].scope >= 0 { c.scope = c.scopes[p.nodes[function_node].scope].parent; }
     var bindings = CheckList {};
     let value = check_clone(p, c, p.nodes[parameter].right, bindings);
     check_value(p, c, value, p.nodes[parameter].type_id);
     c.default_fields = saved_defaults; c.scope = saved_scope;
+    c.parameter_default_function = saved_parameter_function; c.parameter_default_floor = saved_parameter_floor;
     return value;
 }
 
@@ -1894,6 +2043,8 @@ fn check_self_init(p: Program&, c: Checker&, value: i64, field: i64, owner: i64)
 }
 recursive fn check_field_default(p: Program&, c: Checker&, field: i64, token: i64, depth: i64, owner: i64, existing: i64 = -1) -> i64 {
     let f = p.nodes[field]; let saved = c.default_fields; let saved_scope = c.scope;
+    let saved_parameter_function = c.parameter_default_function; let saved_parameter_floor = c.parameter_default_floor;
+    c.parameter_default_function = -1; c.parameter_default_floor = -1;
     if f.right >= 0 {
         var fields = c.default_fields;
         for index in 0..fields.count { if check_list_at(c, fields, index) == f.token { diagnose(p, token, "field default construction is cyclic"); return -1; } }
@@ -1907,6 +2058,7 @@ recursive fn check_field_default(p: Program&, c: Checker&, field: i64, token: i6
     }
     if value >= 0 && !check_self_init(p, c, value, field, owner) { check_value(p, c, value, f.type_id); check_slot_value(p, c, value, f.type_id, true); }
     c.default_fields = saved; c.scope = saved_scope;
+    c.parameter_default_function = saved_parameter_function; c.parameter_default_floor = saved_parameter_floor;
     return value;
 }
 
@@ -2506,7 +2658,6 @@ recursive fn check_lower_rendering(p: Program&, c: Checker&, node: i64, builtin:
     if !hooks_exist && !wasm_default { return -2; }
     var first = 0; if builtin == 2 { first = 1; }
     for index in first..args.count { let argument = check_list_at(c, args, index); if !check_render_layout(p, c, p.nodes[argument].type_id, p.nodes[argument].token) { return -1; } }
-    let output_type = render_output_type(p); let array_type = p.types[output_type].element;
     while c.render_hooks.len < p.types.len { let type_id = c.render_hooks.len; c.render_hooks.push(-1); c.render_hooks[type_id] = check_render_hook(p, c, type_id); }
     for index in first..args.count {
         let argument = check_list_at(c, args, index); var path = CheckList {}; var recurring = CheckList {};
@@ -2529,6 +2680,7 @@ recursive fn check_lower_rendering(p: Program&, c: Checker&, node: i64, builtin:
         }
     }
     if !needed { return -2; }
+    let output_type = render_output_type(p); let array_type = p.types[output_type].element;
     let original = p.nodes[node]; let out = operation_name(p, original.token, "__goose_render_builder");
     let body = new_node(p, N_BLOCK, original.token); p.nodes[body].flags = F_SYNTHETIC;
     let builder = new_node(p, N_VARIABLE, out); p.nodes[builder].flags = F_VAR;
@@ -2891,7 +3043,24 @@ recursive fn check_prepare_function(p: Program&, c: Checker&, function_node: i64
     c.scope = saved_scope; c.function_node = saved_function; c.next_slot = saved_slot;
 }
 fn check_has_generic(p: Program&, ty: i64, depth: i64) -> bool { return check_type_property(p, ty, 0) != 0; }
+fn check_function_reached(p: Program&, c: Checker&, function_node: i64, token: i64) -> bool {
+    var declaration = function_node; var depth = 0;
+    while declaration >= 0 && p.nodes[declaration].kind == N_FUNCTION && depth < 64 {
+        let symbol = p.nodes[declaration].symbol;
+        if symbol >= 0 && p.symbols[symbol].scope >= 0 {
+            let scope = p.symbols[symbol].scope;
+            if scope > 0 && c.scopes[scope].namespace_node < 0 && p.symbols[symbol].index < 0 {
+                diagnose(p, token, "a nested function is called before its declaration is reached"); return false;
+            }
+            return true;
+        }
+        declaration = p.nodes[declaration].origin; depth += 1;
+    }
+    return true;
+}
+
 recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, bindings: CheckList&, token: i64) -> i64 {
+    if !check_function_reached(p, c, original, token) { return -1; }
     if bindings.count == 0 { return p.nodes[original].symbol; }
     for spec in c.specializations {
         if spec.original != original || spec.binding_count != bindings.count { continue; }
@@ -3079,7 +3248,7 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
         var infer_formal = p.nodes[fnnode].first; var infer_index = 0;
         while infer_formal >= 0 && infer_index < args.count {
             let argument = check_list_at(c, args, infer_index);
-            if !check_literal_tree(p, argument, 0) && !check_float_literal_tree(p, argument, 0) &&
+            if !check_literal_tree(p, argument, 0) && !check_float_literal_tree(p, argument, 0) && !check_flex_integer(p, c, argument).flexible &&
                !check_unify(p, c, p.nodes[infer_formal].type_id, check_argument_inference(p, c, argument, p.nodes[infer_formal].type_id), bindings) { matches = false; }
             infer_formal = p.nodes[infer_formal].next; infer_index += 1;
         }
@@ -3411,6 +3580,7 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
         n = p.nodes[node];
     }
     var callee = p.nodes[n.left];
+    if callee.kind == N_NAME { check_parameter_default_name(p, c, n.left, member); }
     if callee.expansion_binding == -2 { diagnose(p, callee.token, "const for binding is not a callable function"); return -1; }
     if callee.kind == N_FUNCTION_VALUE { check_expression(p, c, n.left, -1); callee = p.nodes[n.left]; }
     if callee.kind != N_NAME && callee.kind != N_FUNCTION_VALUE {
@@ -3519,15 +3689,15 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
 fn check_flow_frame(c: Checker&, count: i64&, frame: i64, active: bool) {
     if frame < 0 { return; }
     for index in 0..count {
-        if c.flow_cursors[index].frame == frame {
-            c.flow_cursors[index].active = c.flow_cursors[index].active || active; return;
-        }
+        // Lexical frames keep their scope filter. Only suspended callers
+        // outside that chain need all frame variables.
+        if c.flow_cursors[index].frame == frame { return; }
     }
     let cursor = CheckFlowCursor { frame: frame, index: c.scopes[frame].first_variable, active: active };
     if count == c.flow_cursors.len { c.flow_cursors.push(cursor); } else { c.flow_cursors[count] = cursor; }
     count += 1;
 }
-fn check_flow_save(p: Program&, c: Checker&, out: CheckSpan&, active_callers: bool = false) {
+fn check_flow_save(p: Program&, c: Checker&, out: CheckSpan&, active_callers: bool = true) {
     out.first = c.flow_work.len; out.count = 0;
     var cursor_count = 0; var scope = c.scope;
     while scope >= 0 {
@@ -3548,7 +3718,21 @@ fn check_flow_save(p: Program&, c: Checker&, out: CheckSpan&, active_callers: bo
             var index = c.flow_cursors[cursor].index;
             while index >= 0 {
                 let symbol = p.symbols[c.variables[index].symbol];
-                if c.flow_cursors[cursor].active || check_visible(c, symbol.scope, c.scope) { break; }
+                if c.flow_cursors[cursor].active {
+                    // Declaration-initialized immutable values keep stable
+                    // assignment facts. Delayed lets stay in every snapshot.
+                    var stable = false;
+                    if (symbol.flags & S_MUTABLE) == 0 && symbol.type_id >= 0 {
+                        stable = (symbol.flags & S_PARAMETER) != 0;
+                        if symbol.node >= 0 && p.nodes[symbol.node].kind == N_VARIABLE && p.nodes[symbol.node].right >= 0 { stable = true; }
+                        if stable {
+                            let kind = p.types[symbol.type_id].kind;
+                            stable = kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT ||
+                                kind == TY_STRUCT || kind == TY_ENUM || kind == TY_ARRAY || kind == TY_TUPLE;
+                        }
+                    }
+                    if !stable { break; }
+                } else if (symbol.flags & S_GLOBAL) != 0 || check_visible(c, symbol.scope, c.scope) { break; }
                 index = c.variables[index].next_frame;
             }
             c.flow_cursors[cursor].index = index;
@@ -3595,7 +3779,7 @@ fn check_join_control_exits(p: Program&, c: Checker&, target: i64, start: i64, f
     var merged = CheckSpan {}; var reachable = fallthrough;
     if fallthrough { check_flow_save(p, c, merged); }
     for index in start..c.exit_work.len {
-        let exit = c.exit_work[index]; if exit.target != target { continue; }
+        let exit = c.exit_work[index]; if exit.target != target || exit.backedge { continue; }
         if !reachable { merged = exit.flow; reachable = true; }
         else { var next = exit.flow; check_flow_join(p, c, merged, next, true, true); check_flow_save(p, c, merged); }
     }
@@ -3912,6 +4096,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         if expected >= 0 && p.types[expected].kind == TY_REF && (p.types[expected].flags & TF_OPTIONAL) != 0 { result = expected; }
         else { result = check_type(p, TY_REF, TYPE_VOID, 0, -1, TF_OPTIONAL); }
     } else if n.kind == N_NAME {
+        check_parameter_default_name(p, c, node, false);
         if n.expansion_binding == -2 { diagnose(p, n.token, "const for binding is not a value or callable function"); }
         else if p.tokens[n.token].kind == T_SELF { diagnose(p, n.token, "self requires a relative reference field initializer"); }
         else {
@@ -3986,10 +4171,13 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         let op = n.integer;
         if op == T_ANDAND || op == T_OROR {
             check_condition(p, c, n.left);
-            var before = CheckSpan {}; check_flow_save(p, c, before);
-            let reachable = c.reachable; check_narrow_condition(p, c, n.left, op == T_ANDAND); check_condition(p, c, n.right);
-            var after = CheckSpan {}; check_flow_save(p, c, after);
-            check_flow_join(p, c, before, after, reachable, c.reachable); c.reachable = reachable;
+            var before = CheckSpan {}; check_flow_save(p, c, before, true);
+            var globals = CheckSpan {}; check_logical_globals(p, c, globals);
+            let reachable = c.reachable; check_narrow_condition(p, c, n.left, op == T_ANDAND);
+            var narrowed = CheckList {}; check_logical_capture(c, narrowed, before); check_logical_capture(c, narrowed, globals);
+            check_condition(p, c, n.right); check_logical_record(c, node, narrowed);
+            var after = CheckSpan {}; check_flow_save(p, c, after, true);
+            check_flow_join(p, c, before, after, reachable, c.reachable); check_flow_restore(c, globals); check_logical_apply(c, node); c.reachable = reachable;
             result = TYPE_BOOL;
         } else {
             var lt = -1; var rt = -1;
@@ -4008,7 +4196,8 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                         let lr = check_conversion(p, c, n.left, lt, rt); let rl = check_conversion(p, c, n.right, rt, lt);
                         var lc = false; var rc = false;
                         if check_integer(lt) && check_integer(rt) {
-                            lc = check_integer_constants(p, c, n.left); rc = check_integer_constants(p, c, n.right);
+                            lc = check_integer_constants(p, c, n.left) || check_flex_integer(p, c, n.left).flexible;
+                            rc = check_integer_constants(p, c, n.right) || check_flex_integer(p, c, n.right).flexible;
                         }
                         if lc && !rc {
                             if lr < 0 { diagnose(p, n.token, "integer constants do not all fit the other operand's type"); }
@@ -4187,14 +4376,20 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
     return result;
 }
 
-recursive fn check_loop_continue(p: Program&, node: i64, target: i64) -> bool {
-    if node < 0 { return false; }
-    let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return false; }
-    if n.kind == N_CONTINUE && n.symbol == target { return true; }
-    var child = n.first;
-    while child >= 0 { if check_loop_continue(p, child, target) { return true; } child = p.nodes[child].next; }
-    return check_loop_continue(p, n.left, target) || check_loop_continue(p, n.right, target) || check_loop_continue(p, n.third, target);
+fn check_loop_backedge(p: Program&, c: Checker&, node: i64, entry: CheckSpan, edge: CheckSpan, weakened: CheckList&) {
+    var before_at = entry.first; var after_at = edge.first;
+    while before_at < entry.first + entry.count && after_at < edge.first + edge.count {
+        let before = c.flow_work[before_at]; let after = c.flow_work[after_at];
+        if before.symbol < after.symbol { before_at += 1; continue; }
+        if after.symbol < before.symbol { after_at += 1; continue; }
+        if !before.maybeassigned && after.maybeassigned && (p.symbols[before.symbol].flags & S_MUTABLE) == 0 {
+            diagnose(p, p.nodes[node].token, "let binding may already be assigned on a loop backedge");
+        }
+        if before.narrowed >= 0 && !check_same_type(p, before.narrowed, after.narrowed) {
+            check_list_push(c, weakened, before.symbol);
+        }
+        before_at += 1; after_at += 1;
+    }
 }
 recursive fn check_loop(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     let n = p.nodes[node]; let saved = check_enter(c, c.function_node); let exit_start = c.exit_work.len;
@@ -4275,14 +4470,14 @@ recursive fn check_loop(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     check_flow_save(p, c, entry);
     if n.kind == N_WHILE { check_narrow_condition(p, c, n.left, true); }
     check_expression(p, c, n.right, TYPE_VOID);
-    var repeated = c.reachable || check_loop_continue(p, n.right, node);
-    if n.kind == N_FOR { let count = check_constant(p, c, n.left, 0); if count.valid && count.value <= 1 { repeated = false; } }
+    if c.reachable {
+        var edge = CheckSpan {}; check_flow_save(p, c, edge);
+        c.exit_work.push(CheckExit { target: node, flow: edge, backedge: true });
+    }
     var weakened = CheckList {};
-    if repeated {
-        for index in initial_entry.first..initial_entry.first + initial_entry.count {
-            let before = c.flow_work[index]; let vi = check_variable_index(c, before.symbol);
-            if before.narrowed >= 0 && vi >= 0 && !check_same_type(p, before.narrowed, c.variables[vi].narrowed) { check_list_push(c, weakened, before.symbol); }
-        }
+    for index in exit_start..c.exit_work.len {
+        let edge = c.exit_work[index];
+        if edge.target == node && edge.backedge { check_loop_backedge(p, c, node, initial_entry, edge.flow, weakened); }
     }
     if weakened.count > 0 {
         check_flow_restore(c, entry);
@@ -4340,6 +4535,9 @@ recursive fn check_jump(p: Program&, c: Checker&, node: i64) {
         c.loop_stack[li].breaks = true;
         var exit_flow = CheckSpan {}; check_flow_save(p, c, exit_flow); c.exit_work.push(CheckExit { target: target.node, flow: exit_flow });
         if n.left >= 0 { check_copy_roots(c, target.node, n.left); }
+    } else if c.reachable {
+        var exit_flow = CheckSpan {}; check_flow_save(p, c, exit_flow);
+        c.exit_work.push(CheckExit { target: target.node, flow: exit_flow, backedge: true });
     }
     c.reachable = false;
 }
@@ -4859,6 +5057,19 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     var entry_flow = CheckSpan {}; check_flow_save(p, c, entry_flow, true); let exit_start = c.exit_work.len; let effect_start = c.effects.len;
     let saved_scope = c.scope; let saved_function = c.function_node; let saved_result = c.result_type;
     let saved_slot = c.next_slot; let saved_reachable = c.reachable; let saved_returns = c.returns; let saved_defaults = c.default_fields;
+    let saved_parameter_function = c.parameter_default_function; let saved_parameter_floor = c.parameter_default_floor;
+    c.parameter_default_function = -1; c.parameter_default_floor = -1;
+    if c.parameter_default_contexts.len > 0 {
+        var context_node = function_node; var context_found = false;
+        while context_node >= 0 && !context_found {
+            for context in c.parameter_default_contexts {
+                if context.node == context_node {
+                    c.parameter_default_function = context.function_node; c.parameter_default_floor = context.floor; context_found = true; break;
+                }
+            }
+            context_node = p.nodes[context_node].origin;
+        }
+    }
     if n.kind == N_FUNCTION && (n.flags & F_DEFAULT) == 0 { c.default_fields = CheckList {}; }
     c.scope = n.scope; c.function_node = function_node; c.result_type = p.types[n.type_id].element;
     c.next_slot = check_list_count(p, n.first); c.reachable = true; c.returns = false;
@@ -4899,7 +5110,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
         let entry = c.flow_work[entry_index]; if entry.assigned { continue; }
         var assigned = true; var maybeassigned = entry.maybeassigned; var exits = 0;
         for index in exit_start..c.exit_work.len {
-            let exit = c.exit_work[index]; if exit.target != function_node { continue; }
+            let exit = c.exit_work[index]; if exit.target != function_node || exit.backedge { continue; }
             exits += 1; var found = false;
             for flow_index in exit.flow.first..exit.flow.first + exit.flow.count {
                 let flow = c.flow_work[flow_index]; if flow.symbol != entry.symbol { continue; }
@@ -4922,6 +5133,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     check_flow_restore(c, entry_flow);
     c.scope = saved_scope; c.function_node = saved_function; c.result_type = saved_result;
     c.next_slot = saved_slot; c.reachable = saved_reachable; c.returns = saved_returns; c.default_fields = saved_defaults;
+    c.parameter_default_function = saved_parameter_function; c.parameter_default_floor = saved_parameter_floor;
 }
 recursive fn check_statement(p: Program&, c: Checker&, node: i64) {
     let n = p.nodes[node];
@@ -5293,7 +5505,9 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_exit_work: CheckExit[>..] = [];
     var checker_interval_work: CheckInterval[>..] = [];
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks };
+    var parameter_default_contexts: CheckDefaultCapture[>..] = [];
+    var logical_kills: CheckLogicalKill[>..] = [];
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     for source in p.sources { if source.root >= 0 { check_top_declarations(p, c, p.nodes[source.root].first); } }
     let declarations = p.symbols.len;

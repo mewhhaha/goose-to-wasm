@@ -92,6 +92,10 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
+## Snapshot 38 results
+
+The [dated example results](results/2026-11-05/flow-and-copying/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. The native column uses this compiler's C backend. Sorting took 163.7 ms with minimal AOT and 113.5 ms natively. Snapshot 37 was measured separately; these runs do not establish a matched runtime improvement.
+
 ## Example programs
 
 The [example benchmark guide](examples.md) covers fresh-process builds and execution of the ten example programs.

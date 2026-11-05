@@ -1,0 +1,33 @@
+{
+  "status": "failed",
+  "started_utc": "2026-11-05T05:58:01.379693+00:00",
+  "cpu_affinity": [
+    7
+  ],
+  "load_start": [
+    2.1923828125,
+    4.91796875,
+    3.76318359375
+  ],
+  "coordination": "All three active coding agents acknowledged quiescence; no agent heavy builds or tests during this window. Shared machine, CPU7 affinity.",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-38/bench/examples.py",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-38/bin/goose",
+        "--compile-samples",
+        "5",
+        "--samples",
+        "5",
+        "--warmups",
+        "1",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-38"
+      ],
+      "exit_code": 1,
+      "seconds": 0.14071142097236589
+    }
+  ]
+}

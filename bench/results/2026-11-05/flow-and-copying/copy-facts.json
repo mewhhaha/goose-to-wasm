@@ -1,0 +1,21 @@
+{
+  "PASSED": "4,772",
+  "TOTAL": "5,043",
+  "FAILED": "271",
+  "MACHINE": "AMD Ryzen 7 3800X pinned to CPU 7",
+  "SAMPLES": "Five",
+  "DIRECT_BUILD_RANGE": "49.9\u2013129.2",
+  "NATIVE_BUILD_RANGE": "246.4\u20131,696.6",
+  "BENCHMARK_CONTEXT": "The native column uses this compiler's C backend. Sorting took 163.7 ms with minimal AOT and 113.5 ms natively. Snapshot 37 was measured separately; these runs do not establish a matched runtime improvement.",
+  "BOOTSTRAP_STATUS": "Snapshot 38 passed C-only fixed-point verification.",
+  "CHANGE_SCOPE": "It fixes copying array arguments, integer inference, varint records and flow checks for loops, defaults and nested calls, and reduces generated Wasm code.",
+  "CONFORMANCE_CONTEXT": "Against snapshot 37, 40 of 5,028 shared checks improved and none regressed; 15 new flow and result-channel checks all passed.",
+  "WASM_CORPUS_CONTEXT": "The curated Wasm corpus passed 1,952/1,952 checks each in Wasmtime and V8.",
+  "KNOWN_GAPS": "Remaining gaps include 47 accepted invalid programs and 224 runtime contracts that fail to compile or execute. Variable images, lifetimes and control flow remain incomplete.",
+  "GENERATED_C_SHA256": "75453510d74da0fce4d2b2acca7e3157c7833e01b1d5acbee712f08efa3fc8a3",
+  "COMPILER_SHA256": "46a68ed99cb3f01ce0cf642666ea88888f3552f3dbad990e9e097cbabf30df51",
+  "RUNTIME_WARMUPS": "1",
+  "METHOD_AND_IDENTITIES": "Both targets use the same qualified Goose compiler; native C uses GCC 16.2.1 at O2. Wasmtime 50.0.1 preparation is measured separately.",
+  "COHORT_CONTEXT": "The separately collected host cohort uses the example cohort's artifacts; runtime columns below come from the host cohort.",
+  "EXAMPLE_ROWS": "| squares | 49.868 | 246.424 | 0.812 | 0.733 |\n| tour | 62.015 | 893.985 | 0.947 | 0.900 |\n| functions | 127.857 | 1523.215 | 1.061 | 0.818 |\n| errors | 77.476 | 712.534 | 0.845 | 0.859 |\n| sieve | 72.255 | 382.594 | 2.644 | 1.350 |\n| sorting | 129.158 | 1696.557 | 163.744 | 113.491 |\n| sudoku | 72.101 | 459.664 | 11.540 | 8.740 |\n| maze | 85.623 | 692.626 | 1.056 | 0.912 |\n| vm | 79.683 | 584.061 | 1.006 | 0.803 |\n| life | 73.875 | 544.492 | 26.604 | 20.779 |"
+}

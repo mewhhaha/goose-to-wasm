@@ -16,7 +16,7 @@ struct LifePair { owner: i64, pointee: i64, answer: bool }
 struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
 struct LifeFuture { node: i64, frame: i64, loop_scope: i64 = -1 }
 struct LifeHold { value: LifeValue, node: i64, kind: i64 = 0, frame: i64 = 0 }
-struct LifeTemp { root: i64, frame: i64 }
+struct LifeTemp { frame: i64 }
 struct LifeRead { node: i64, symbol: i64, answer: bool, next: i64 = -1 }
 struct LifeKill { root: i64, field: i64, active: bool = true }
 struct LifeAtom { set: i64, next: i64 = -1 }
@@ -308,9 +308,9 @@ fn life_cell(p: Program&, l: Lifetimes&, symbol: i64) -> i64 {
     l.symbol_cells[symbol] = index; l.frames[frame].first_cell = index;
     return index;
 }
-fn life_note_temp(p: Program&, l: Lifetimes&, root: i64) {
-    if l.discovery || life_size_class(p, l.roots[root].type_id) == 0 { return; }
-    let value = LifeTemp { root: root, frame: l.frame };
+fn life_note_temp(p: Program&, l: Lifetimes&, type_id: i64) {
+    if l.discovery || life_size_class(p, type_id) == 0 { return; }
+    let value = LifeTemp { frame: l.frame };
     if l.temp_count == l.temps.len { l.temps.push(value); } else { l.temps[l.temp_count] = value; }
     l.temp_count += 1;
 }
@@ -318,12 +318,12 @@ fn life_temporary(p: Program&, l: Lifetimes&, node: i64) -> i64 {
     var found = l.node_roots[node];
     while found >= 0 {
         let root = l.roots[found];
-        if root.frame == l.frame { life_note_temp(p, l, found); return life_single(l, found); }
+        if root.frame == l.frame { life_note_temp(p, l, root.type_id); return life_single(l, found); }
         found = root.next_node;
     }
     let root = l.roots.len;
     l.roots.push(LifeRoot { frame: l.frame, node: node, type_id: p.nodes[node].type_id, depth: life_depth(l, l.scope) + 1, temporary: true, next_node: l.node_roots[node] });
-    l.node_roots[node] = root; life_note_temp(p, l, root);
+    l.node_roots[node] = root; life_note_temp(p, l, p.nodes[node].type_id);
     return life_single(l, root);
 }
 
@@ -538,7 +538,7 @@ fn life_size_class(p: Program&, ty: i64) -> i64 {
     var work: i64[>..] = [ty]; var at = 0; var result = 0;
     while at < work.len {
         let t = p.types[work[at]]; at += 1;
-        if t.kind == TY_REF || t.kind == TY_SLICE { continue; }
+        if t.kind == TY_REF || t.kind == TY_SLICE { if t.kind == TY_REF && t.length_storage == 0 { result = 1; } continue; }
         if t.storage == 1 { result = 1; }
         if t.kind == TY_ARRAY {
             if t.array_kind == A_GROW || t.array_kind == A_GROWSHRINK { return 2; }
@@ -1450,13 +1450,18 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
                         while formal >= 0 && ordinal < index { formal = p.nodes[formal].next; ordinal += 1; }
                         if formal >= 0 {
                             let ty = p.nodes[formal].type_id;
-                            life_receive(p, l, argument, value, ty); life_copy(p, l, argument, ty);
+                            life_receive(p, l, argument, value, ty); life_copy(p, l, argument, ty); life_note_temp(p, l, ty);
                             if life_is_ref(p, ty) { expected = ty; }
                         }
                     }
                     arm = p.nodes[arm].next;
                 }
-            } else { life_receive(p, l, argument, value, expected); life_copy(p, l, argument, expected); }
+            } else {
+                life_receive(p, l, argument, value, expected); life_copy(p, l, argument, expected);
+                // A by-value nonfixed parameter owns a statement temporary,
+                // including when its source is a fixed-size slice or literal.
+                life_note_temp(p, l, expected);
+            }
             value = life_coerce(p, l, value, expected); parameter = p.nodes[parameter].next;
         }
         if (builtin == 0 || builtin == 1 || builtin == 2 && index > 0) && !life_storage_path(p, argument) { life_copy(p, l, argument, value.type_id); }

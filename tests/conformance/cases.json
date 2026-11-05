@@ -46057,6 +46057,132 @@
       "expect": {},
       "debug": false,
       "provenance": "independently specified: local bindings, annotated globals and casts retain unsigned type"
+    },
+    {
+      "id": "corpus/flow/flow_loop_assignments",
+      "source": "tests/fixtures/flow_loop_assignments.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "3 9 11 13 3 17 3\n",
+        "exit": 0
+      },
+      "provenance": "independent flow and delayed-assignment contracts"
+    },
+    {
+      "id": "native/flow/flow_loop_assignments",
+      "source": "tests/fixtures/flow_loop_assignments.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "3 9 11 13 3 17 3\n",
+        "exit": 0
+      },
+      "provenance": "independent flow and delayed-assignment contracts"
+    },
+    {
+      "id": "corpus/flow/flow_qualified_optional",
+      "source": "tests/fixtures/flow_qualified_optional.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "10\nok\n",
+        "exit": 0
+      },
+      "provenance": "independent flow and delayed-assignment contracts"
+    },
+    {
+      "id": "native/flow/flow_qualified_optional",
+      "source": "tests/fixtures/flow_qualified_optional.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "10\nok\n",
+        "exit": 0
+      },
+      "provenance": "independent flow and delayed-assignment contracts"
+    },
+    {
+      "id": "contracts/errors_tc/flow_qualified_optional_after_branch",
+      "source": "tests/fixtures/flow_qualified_optional_after_branch.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independent optional-flow and repeated immutable-assignment contracts"
+    },
+    {
+      "id": "contracts/errors_tc/flow_loop_callback_assignment",
+      "source": "tests/fixtures/flow_loop_callback_assignment.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independent optional-flow and repeated immutable-assignment contracts"
+    },
+    {
+      "id": "contracts/errors_tc/flow_loop_forwarded_assignment",
+      "source": "tests/fixtures/flow_loop_forwarded_assignment.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independent optional-flow and repeated immutable-assignment contracts"
+    },
+    {
+      "id": "corpus/result-channels",
+      "source": "native/tests/results.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "native result channels ok\n",
+        "exit": 0
+      },
+      "provenance": "independent natural multi-result and destination-count assertions"
+    },
+    {
+      "id": "native/result-channels",
+      "source": "native/tests/results.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "native result channels ok\n",
+        "exit": 0
+      },
+      "provenance": "independent natural multi-result and destination-count assertions"
     }
   ],
   "legacy_math_capture": {

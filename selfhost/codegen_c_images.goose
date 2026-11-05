@@ -52,7 +52,10 @@ fn ci_fields(p: Program&, out: u8[>..]&, id: i64, operation: i64) {
             else { out.format("memcpy(g_address(g_offset(dest,", cc_field_offset(p, id, field), ")),image,", n.aux, ");image+=", n.aux, ";\n"); }
         } else {
             if operation == 0 { out.format("size=g_image_add(size,g_image_size_", n.type_id, "("); }
-            else if operation == 1 { out.format("image=g_image_skip_", n.type_id, "(image);\n"); }
+            else if operation == 1 {
+                if cc_image_type(p, id) { out.format("image=g_physical_skip_", n.type_id, "(image);\n"); }
+                else { out.format("image=g_image_skip_", n.type_id, "(image);\n"); }
+            }
             else if operation == 2 { out.format("image=g_image_write_", n.type_id, "(image,"); }
             else { out.format("image=g_image_unpack_", n.type_id, "("); }
             if operation != 1 {
@@ -136,7 +139,11 @@ fn ci_emit_type(p: Program&, out: u8[>..]&, id: i64) {
         else if operation == 1 { out.format("static const uint8_t *g_image_skip_", id, "(const uint8_t *image){const uint8_t *start=image;\n"); }
         else if operation == 2 { out.format("static uint8_t *g_image_write_", id, "(uint8_t *image,GRef source){uint8_t *start=image;\n"); }
         else { out.format("static const uint8_t *g_image_unpack_", id, "(GRef dest,const uint8_t *image){const uint8_t *start=image;\n"); }
-        if direct {
+        if cc_image_type(p, id) && operation != 1 {
+            if operation == 0 { out.append("GImage value;memcpy(&value,g_address(source),sizeof value);return g_image_span(value);\n"); }
+            else if operation == 2 { out.append("GImage value;memcpy(&value,g_address(source),sizeof value);int64_t bytes=g_image_span(value);if(bytes)memmove(image,value.base,(size_t)bytes);return image+bytes;\n"); }
+            else { out.format("const uint8_t *end=g_image_skip_", id, "(image);g_image_copy_into(dest,(GImage){(uint8_t*)image,(uint8_t*)end,NULL});return end;\n"); }
+        } else if direct {
             let bytes = cc_frame_size(p, id);
             if operation == 0 { out.format("return ", bytes, ";\n"); }
             else if operation == 1 { out.format("return image+", bytes, ";\n"); }
@@ -198,6 +205,9 @@ fn ci_emit_type(p: Program&, out: u8[>..]&, id: i64) {
             if operation == 0 { out.append("return 0;\n"); } else { out.append("return image;\n"); }
         }
         out.append("}\n");
+    }
+    if cc_image_type(p, id) {
+        out.format("static const uint8_t *g_image_read_", id, "(GRef dest,const uint8_t *image,int64_t region_base){return g_image_unpack_", id, "(dest,image);}\n"); return;
     }
     out.format("static const uint8_t *g_image_read_", id, "(GRef dest,const uint8_t *image,int64_t region_base){\n",
         "const uint8_t *end=g_image_skip_", id, "(image);int64_t bytes=end-image;\n",

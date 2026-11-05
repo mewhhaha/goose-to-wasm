@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "started_utc": "2026-11-05T05:58:42.492722+00:00",
+  "cpu_affinity": [
+    7
+  ],
+  "load_start": [
+    1.171875,
+    4.314453125,
+    3.607421875
+  ],
+  "coordination": "All three active coding agents acknowledged quiescence; no agent heavy builds or tests during this window. Shared machine, CPU7 affinity.",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-38/bench/examples.py",
+        "--goose",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-38/bin/goose",
+        "--compile-samples",
+        "5",
+        "--samples",
+        "5",
+        "--warmups",
+        "1",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-38"
+      ],
+      "exit_code": 0,
+      "seconds": 74.41047374298796
+    },
+    {
+      "command": [
+        "python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-38/bench/wasmtime_host.py",
+        "--host",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime",
+        "--aot-host",
+        "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot",
+        "--example-report",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-38/report.json",
+        "--samples",
+        "5",
+        "--prepare-samples",
+        "5",
+        "--warmups",
+        "1",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-host-38"
+      ],
+      "exit_code": 0,
+      "seconds": 36.63061720103724
+    }
+  ],
+  "ended_utc": "2026-11-05T06:00:33.534643+00:00",
+  "load_end": [
+    1.529296875,
+    3.46728515625,
+    3.37890625
+  ]
+}

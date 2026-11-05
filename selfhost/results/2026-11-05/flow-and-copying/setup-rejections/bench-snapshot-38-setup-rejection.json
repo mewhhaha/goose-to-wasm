@@ -1,0 +1,5 @@
+{
+  "status": "rejected setup: no measurement collected",
+  "cause": "copytree followed benchmark snapshot build symlink into generated outputs; stopped before use",
+  "repair": "copy only source subdirectories; preserve build symlink without traversal"
+}

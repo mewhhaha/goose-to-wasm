@@ -1,4 +1,47 @@
 /* Canonical value images and private resizable transfer envelopes. */
+typedef struct { uint8_t *base,*end;GRegion *region; } GImage;
+static GImage g_image(int64_t slot) {
+    GArray owner=g_array(slot);return (GImage){owner.data,owner.data,owner.region};
+}
+static uint8_t *g_image_space(GRegion *region,int64_t bytes) {
+    if(!region || !region->base || bytes<0)g_panic("invalid image reservation");
+    uintptr_t base=(uintptr_t)region->base,top=(uintptr_t)region->stack.top;
+    if(top<base || top-base>region->usable || (uint64_t)bytes>region->usable-(top-base))g_panic("image region exhausted");
+    return region->stack.top;
+}
+static void g_image_advance(GRegion *region,uint8_t *end) {
+    g_image_space(region,0);
+    uintptr_t base=(uintptr_t)region->base,top=(uintptr_t)region->stack.top,next=(uintptr_t)end;
+    if(next<top || next-base>region->usable)g_panic("invalid image cursor");
+    region->stack.top=end;
+    uint64_t used=(uint64_t)(next-base);if(used>region->high_water)region->high_water=used;
+}
+static int64_t g_image_span(GImage image) {
+    uintptr_t base=(uintptr_t)image.base,end=(uintptr_t)image.end;
+    if(end<base || end-base>INT64_MAX)g_panic("invalid image span");
+    return (int64_t)(end-base);
+}
+static void g_image_finish(GRef destination,uint8_t *end) {
+    GImage image;memcpy(&image,g_address(destination),sizeof image);
+    if((uintptr_t)end<(uintptr_t)image.base)g_panic("invalid image end");
+    g_image_advance(image.region,end);image.end=end;
+    memcpy(g_address(destination),&image,sizeof image);g_header_changed(destination);
+}
+static void g_image_commit(GRef destination,uint8_t *end,int64_t count) {
+    GArray owner;memcpy(&owner,g_address(destination),sizeof owner);
+    if(count<0 || (uintptr_t)end<(uintptr_t)owner.data)g_panic("invalid image count");
+    g_image_advance(owner.region,end);owner.len=count;
+    memcpy(g_address(destination),&owner,sizeof owner);g_header_changed(destination);
+}
+static void g_image_copy_into(GRef destination,GImage source) {
+    GImage image;memcpy(&image,g_address(destination),sizeof image);
+    int64_t bytes=g_image_span(source);
+    if(!image.region || !image.region->base)g_panic("image has no receiving region");
+    uintptr_t base=(uintptr_t)image.region->base,start=(uintptr_t)image.base;
+    if(start<base || start-base>image.region->usable || (uint64_t)bytes>image.region->usable-(start-base))g_panic("image region exhausted");
+    if(bytes)memmove(image.base,source.base,(size_t)bytes);
+    image.region->stack.top=image.base;g_image_finish(destination,image.base+bytes);
+}
 static int64_t g_image_add(int64_t total,int64_t bytes) {
     if(total<0 || bytes<0 || bytes>INT64_MAX-total)g_panic("image size overflow");
     return total+bytes;

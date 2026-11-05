@@ -6,7 +6,7 @@ recursive fn validation_size_class(p: Program&, type_id: i64, depth: i64 = 0) ->
     if type_id < 0 || depth > 64 { return 0; }
     let t = p.types[type_id];
     if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { return 0; }
-    if t.storage == 1 { return 1; }
+    if t.storage == 1 || t.kind == TY_REF && t.length_storage == 0 { return 1; }
     if t.kind == TY_ARRAY {
         if t.array_kind == A_GROW || t.array_kind == A_GROWSHRINK { return 2; }
         if t.array_kind == A_VAR || t.array_kind == A_LIMITED && t.count < 0 { return 1; }

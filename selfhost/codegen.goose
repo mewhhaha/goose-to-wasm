@@ -35,7 +35,7 @@ struct CgModule {
     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
     region_bytes: i64 = 0, region_cursor_address: i64 = 0,
     start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
-    format_f32: i64 = -1, format_f64: i64 = -1,
+    format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
 }
 struct CgExit { label: i64, again: i64 = -1, node: i64 = -1, result: i64 = -1, type_id: i64 = 0, scratch: i64 = -1, regions: i64 = -1, publication: i64 = -1 }
 let CG_TEMPORARY: i64 = 0;
@@ -61,7 +61,7 @@ struct CgBody {
     function: i64 = -1, function_index: i64 = -1, params: i64 = 0, serial: i64 = 0,
     region_live: i64 = 0, region_peak: i64 = 0, region_mark: i64 = -1, publication_mark: i64 = -1,
     frame: i64 = -1, frame_bytes: i64 = 0, effect: i64 = 0, effect_metadata: i64 = -1, done: i64 = -1, frame_free: bool = false,
-    heap_mark: i64 = -1, forward_mark: i64 = -1, scratch: bool = false, elements: bool = false, raw_node: i64 = -1, active_node: i64 = -1, active_destination: i64 = -1,
+    diagnostic_line: i64 = -1, heap_mark: i64 = -1, forward_mark: i64 = -1, scratch: bool = false, elements: bool = false, raw_node: i64 = -1, active_node: i64 = -1, active_destination: i64 = -1,
 }
 fn cg_align(value: i64, alignment: i64) -> i64 {
     if alignment <= 1 { return value; }
@@ -249,7 +249,8 @@ fn cg_abort(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
     wb_i32(f.code, cg_data(m, text)); wb_i32(f.code, text.len);
     var line = 0;
     if node >= 0 && p.nodes[node].token >= 0 { line = p.tokens[p.nodes[node].token].line; }
-    wb_i32(f.code, line); wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0);
+    if f.diagnostic_line >= 0 { cg_get(f, f.diagnostic_line); } else { wb_i32(f.code, line); }
+    wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0);
 }
 fn cg_trap_if(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
     cg_begin(f, 0x04, 0x40); cg_abort(p, m, f, node, text); cg_end(f);
@@ -2276,7 +2277,19 @@ recursive fn cg_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, 
     }
     cg_end(f); cg_array_set_length(p, m, f, id, base, count);
 }
+fn cg_raw_append_type(p: Program&, id: i64) -> bool {
+    return cg_type_kind(p, id) == TY_ARRAY && p.types[id].array_kind == A_GROW &&
+           p.types[id].element == TYPE_U8 && p.types[id].length_storage < 0 && p.types[id].size == 24;
+}
 fn cg_format_bytes(p: Program&, m: CgModule&, f: CgBody&, id: i64, output: i64, data: i64, length: i64, node: i64) {
+    if m.raw_append >= 0 && !f.scratch && cg_raw_append_type(p, id) {
+        cg_get(f, output); cg_get(f, data); cg_get(f, length);
+        var line = 0; if node >= 0 && p.nodes[node].token >= 0 { line = p.tokens[p.nodes[node].token].line; }
+        wb_i32(f.code, line); wb_op(f.code, 0x10, m.raw_append); return;
+    }
+    cg_format_bytes_inline(p, m, f, id, output, data, length, node);
+}
+fn cg_format_bytes_inline(p: Program&, m: CgModule&, f: CgBody&, id: i64, output: i64, data: i64, length: i64, node: i64) {
     cg_array_length(p, m, f, id, output); let old = cg_save(f, 0x7f);
     cg_get(f, old); wb_byte(f.code, 0xad); cg_get(f, length); wb_byte(f.code, 0xad); wb_byte(f.code, 0x7c); let wide = cg_save(f, 0x7e);
     cg_get(f, wide); wb_i64(f.code, 4294967295); wb_byte(f.code, 0x56); cg_trap_if(p, m, f, node, "formatted output length overflow"); cg_get(f, wide); wb_byte(f.code, 0xa7); let count = cg_save(f, 0x7f);
@@ -2960,6 +2973,12 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
     else { wb_body(out, locals, code); }
     m.region_functions[function_index].own = f.region_peak;
 }
+fn cg_emit_raw_append(p: Program&, m: CgModule&, out: u8[>..]&) {
+    var code: u8[>..] = []; var locals: i64[>..] = []; var slots: i64[>..] = []; var offsets: i64[>..] = [];
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = [];
+    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3 };
+    cg_format_bytes_inline(p, m, f, m.raw_append_type, 0, 1, 2, -1); wb_byte(code, 0x0b); wb_body(out, locals, code);
+}
 fn cg_allocate(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if !f.scratch { wb_op(f.code, 0x10, m.allocator); return; }
     let bytes = cg_save(f, 0x7f); wb_op(f.code, 0x23, 0); let base = cg_save(f, 0x7f);
@@ -3232,6 +3251,20 @@ recursive fn cg_float_format_demand(p: Program&, node: i64) -> i64 {
     demand |= cg_float_format_demand(p, n.left) | cg_float_format_demand(p, n.right) | cg_float_format_demand(p, n.third);
     var child = n.first; while child >= 0 { demand |= cg_float_format_demand(p, child); child = p.nodes[child].next; } return demand;
 }
+recursive fn cg_raw_append_demand(p: Program&, m: CgModule&, node: i64) -> i64 {
+    if node < 0 { return 0; } let n = p.nodes[node];
+    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || n.kind == N_PATTERN { return 0; }
+    var count = 0;
+    if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
+        let builtin = p.symbols[n.symbol].index; var output = -1; var arg = n.first;
+        if builtin == 1 { output = n.type_id; }
+        else if builtin == 2 && arg >= 0 { output = p.nodes[arg].type_id; arg = p.nodes[arg].next; }
+        while cg_type_kind(p, output) == TY_REF { output = p.types[output].element; }
+        if arg >= 0 && cg_raw_append_type(p, output) { count = 1; if m.raw_append_type < 0 { m.raw_append_type = output; } }
+    }
+    count += cg_raw_append_demand(p, m, n.left) + cg_raw_append_demand(p, m, n.right) + cg_raw_append_demand(p, m, n.third);
+    var child = n.first; while child >= 0 { count += cg_raw_append_demand(p, m, child); child = p.nodes[child].next; } return count;
+}
 fn cg_collect(p: Program&, m: CgModule&) {
     cg_scan_effect_targets(p);
     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
@@ -3294,6 +3327,10 @@ fn cg_collect(p: Program&, m: CgModule&) {
         var frames = false; for type_id in 0..p.types.len { if cg_frame_owner(p, type_id) { frames = true; } }
         if frames { m.prefix_helper = thunk_base; thunk_base += 1; }
     }
+    var raw_appends = 0;
+    for item in m.functions { raw_appends += cg_raw_append_demand(p, m, p.nodes[item.node].right); }
+    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 { raw_appends += cg_raw_append_demand(p, m, p.nodes[symbol.node].right); } }
+    if raw_appends > 1 { m.raw_append = thunk_base; thunk_base += 1; }
     for item, i in m.functions { m.functions[i].thunk = thunk_base + i; }
     if m.functions.len == 1 && m.imports.len == 9 && p.entry == m.functions[0].node && m.functions[0].capture_count == 0 {
         let entry = m.functions[0].node;
@@ -3350,7 +3387,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; }
-    var body_count = m.functions.len * 2 + 3; if m.resolver >= 0 { body_count++; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
+    var body_count = m.functions.len * 2 + 3; if m.resolver >= 0 { body_count++; } if m.header_helper >= 0 { body_count++; } if m.prefix_helper >= 0 { body_count++; } if m.raw_append >= 0 { body_count++; } if m.scalar { body_count = m.functions.len + 1; }
     var code: u8[>..] = []; wb_u(code, body_count);
     var body: u8[>..] = [];
     for item, index in m.functions { body.clear(); cg_emit_function(p, m, item.node, index, item.elements, body); wb_u(code, body.len); wb_raw(code, body); }
@@ -3361,16 +3398,18 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
         if m.resolver >= 0 { body.clear(); cg_resolver_body(body); wb_u(code, body.len); wb_raw(code, body); }
         if m.header_helper >= 0 { body.clear(); cg_header_publish_body(body); wb_u(code, body.len); wb_raw(code, body); }
         if m.prefix_helper >= 0 { body.clear(); cg_prefix_mapping_body(body); wb_u(code, body.len); wb_raw(code, body); }
+        if m.raw_append >= 0 { body.clear(); cg_emit_raw_append(p, m, body); wb_u(code, body.len); wb_raw(code, body); }
         for item, i in m.functions { body.clear(); cg_emit_thunk(p, m, i, body); wb_u(code, body.len); wb_raw(code, body); }
     }
     cg_bound_regions(p, m); cg_layout_regions(p, m);
     if m.next_data >= m.stack_limit { cg_fail(p, -1, "wasm: static storage overlaps the activation arena"); }
     if p.diagnostics.len > 0 { return; }
     var empty: u8[>..] = []; var one_i32: u8[>..] = [0x7f]; var one_i64: u8[>..] = [0x7e]; var one_f64: u8[>..] = [0x7c];
-    let start_signature = cg_signature(m, empty, empty); var allocator_signature = -1; var wrap_signature = -1; var header_signature = -1; var prefix_signature = -1;
+    let start_signature = cg_signature(m, empty, empty); var allocator_signature = -1; var wrap_signature = -1; var header_signature = -1; var prefix_signature = -1; var append_signature = -1;
     if !m.scalar { allocator_signature = cg_signature(m, one_i32, one_i32); wrap_signature = cg_signature(m, one_f64, one_i64); }
     if m.header_helper >= 0 { var pair_i32: u8[>..] = [0x7f, 0x7f]; header_signature = cg_signature(m, pair_i32, empty); }
     if m.prefix_helper >= 0 { var pair_i32: u8[>..] = [0x7f, 0x7f]; prefix_signature = cg_signature(m, pair_i32, one_i32); }
+    if m.raw_append >= 0 { var append_args: u8[>..] = [0x7f, 0x7f, 0x7f, 0x7f]; append_signature = cg_signature(m, append_args, empty); }
     var module: u8[>..] = [0, 97, 115, 109, 1, 0, 0, 0]; var section: u8[>..] = [];
     wb_u(section, m.signatures.len);
     for sig in m.signatures { wb_raw(section, m.signature_bytes[sig.start..sig.start + sig.count]); } wb_section(module, 1, section); section.clear();
@@ -3382,7 +3421,7 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     wb_section(module, 2, section); section.clear();
     wb_u(section, body_count); for item in m.functions { wb_u(section, item.signature); }
     wb_u(section, start_signature);
-    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } for item in m.functions { wb_u(section, item.closure_signature); } }
+    if !m.scalar { wb_u(section, allocator_signature); wb_u(section, wrap_signature); if m.resolver >= 0 { wb_u(section, allocator_signature); } if m.header_helper >= 0 { wb_u(section, header_signature); } if m.prefix_helper >= 0 { wb_u(section, prefix_signature); } if m.raw_append >= 0 { wb_u(section, append_signature); } for item in m.functions { wb_u(section, item.closure_signature); } }
     wb_section(module, 3, section); section.clear();
     if !m.scalar { wb_u(section, 1); wb_byte(section, 0x70); wb_byte(section, 0); wb_u(section, m.functions.len); wb_section(module, 4, section); section.clear(); }
     var initial_pages = p.initial_pages; let static_pages = (m.next_data + 65535) / 65536;
