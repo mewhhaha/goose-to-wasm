@@ -2,6 +2,7 @@ struct Value { n: varint, pad 3, sentinel: u32 }
 struct Nested { head: u8, value: Value, tail: i16 }
 struct References { n: varint, value: i64&, text: const u8[:], sentinel: u16 }
 enum Choice { Number { value: varint, tail: i64 }, Empty }
+enum Views { Empty, Links { value: i64&, text: const u8[:] } }
 fn field(value: Value&) -> const varint& { value.n }
 fn identity<T>(value: T&) -> T& { value }
 fn make(value: i64) -> Value { Value { value, 0x12345678 } }
@@ -28,5 +29,8 @@ fn main() {
     let references = References { 300, integer, "text", 1234 };
     let copied = copied_refs(references);
     assert(copied.n == 300 && copied.value .== integer && copied.text == "text" && copied.sentinel == 1234);
+    let views: Views.. = Views.Links { integer, "view" };
+    integer = 23;
+    match views { Empty => assert(false), Links links => assert(links.value .== integer && links.value == 23 && links.text == "view") }
     print("native canonical images ok");
 }

@@ -1,0 +1,1 @@
+fn main(){ reusable var pool:i64[>..]=[10,20]; let wide:u64=1; pool.free(wide); print(pool.alloc_index(30)); let index:i64=0; let ref:i64& = index; pool.free(ref); print(pool.alloc_index(40)); print(pool); }

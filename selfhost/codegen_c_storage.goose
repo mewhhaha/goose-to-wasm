@@ -9,6 +9,7 @@ struct CcDestination {
 }
 struct CcReceiving { ordinal: i64, destination: i64, symbol: i64 = -1, call: i64 = -1 }
 struct CcChannels { value: i64, address: i64 }
+struct CcCursor { symbol: i64, index: i64, address: i64, type_id: i64 }
 let CC_NATIVE: i64 = 0;
 let CC_REGISTER: i64 = 1;
 let CC_IMAGE: i64 = 2;
@@ -23,7 +24,7 @@ recursive fn cc_size_class(p: Program&, id: i64) -> i64 {
         if t.array_kind == A_VAR || t.array_kind == A_LIMITED { return 1; } return 2;
     }
     if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { return 0; }
-    var field = -1; var result = 0;
+    var field = -1; var result = 0; if t.kind == TY_ENUM { result = 1; }
     if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
     while field >= 0 {
         let n = p.nodes[field];
@@ -32,29 +33,49 @@ recursive fn cc_size_class(p: Program&, id: i64) -> i64 {
     }
     return result;
 }
-recursive fn cc_encoded_fields(p: Program&, id: i64) -> bool {
-    if id < 0 { return false; } let t = p.types[id];
+fn cc_image_type(p: Program&, id: i64) -> bool {
+    let kind = cc_kind(p, id);
+    if kind == TY_ARRAY { return p.types[id].array_kind == A_VAR || p.types[id].array_kind == A_LIMITED && p.types[id].count < 0; }
+    return (kind == TY_STRUCT || kind == TY_ENUM) && cc_size_class(p, id) == 1 && (kind == TY_ENUM || cc_image_fields(p, id));
+}
+recursive fn cc_image_fields(p: Program&, id: i64) -> bool {
+    let t = p.types[id];
+    if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) != 0 { return true; }
     if t.kind == TY_INT { return t.storage != 0; }
     if t.kind == TY_REF { return t.length_storage == 0; }
-    if t.kind == TY_ARRAY { return cc_encoded_fields(p, t.element); }
+    if t.kind == TY_ARRAY { return t.array_kind == A_VAR || t.array_kind == A_LIMITED && t.count < 0 || cc_image_fields(p, t.element); }
     var field = -1;
     if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
-    while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 && cc_encoded_fields(p, n.type_id) { return true; } field = n.next; }
+    while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 && cc_image_fields(p, n.type_id) { return true; } field = n.next; }
     return false;
 }
-fn cc_image_type(p: Program&, id: i64) -> bool {
-    let kind = cc_kind(p, id); return (kind == TY_STRUCT || kind == TY_ENUM) && cc_size_class(p, id) == 1 && cc_encoded_fields(p, id);
-}
-recursive fn cc_image_constructible(p: Program&, id: i64) -> bool {
-    let t = p.types[id];
-    if t.kind == TY_REF { return t.length_storage < 0; }
-    if t.kind == TY_ARRAY { return t.array_kind == A_FIXED && cc_image_constructible(p, t.element); }
-    var field = -1;
-    if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
-    while field >= 0 {
-        let n = p.nodes[field]; if (n.flags & F_PAD) == 0 && !cc_image_constructible(p, n.type_id) { return false; } field = n.next;
+fn cc_image_constructible(p: Program&, id: i64) -> bool {
+    let root = p.types[id];
+    if root.kind == TY_REF { return root.length_storage < 0; }
+    if root.kind != TY_ARRAY && root.kind != TY_STRUCT && root.kind != TY_ENUM { return true; }
+    var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    while work.len > 0 {
+        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true; let t = p.types[current];
+        if t.kind == TY_REF { if t.length_storage >= 0 { return false; } continue; }
+        if t.kind == TY_ARRAY {
+            if t.array_kind != A_FIXED && t.array_kind != A_VAR && t.array_kind != A_LIMITED { return false; }
+            if cc_fixed_storage(p, t.element) { continue; }
+            if t.array_kind != A_VAR { return false; } work.push(t.element); continue;
+        }
+        var field = -1;
+        if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
+        while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 { work.push(n.type_id); } field = n.next; }
     }
     return true;
+}
+recursive fn cc_variable_prefix_frame(p: Program&, id: i64) -> bool {
+    if cc_size_class(p, id) != 2 { return false; } let t = p.types[id];
+    if t.kind != TY_STRUCT && t.kind != TY_ENUM { return false; } var field = p.nodes[t.declaration].first;
+    while field >= 0 {
+        let n = p.nodes[field];
+        if (n.flags & F_PAD) == 0 && (cc_size_class(p, n.type_id) == 1 && !cc_image_type(p, n.type_id) || cc_variable_prefix_frame(p, n.type_id)) { return true; } field = n.next;
+    }
+    return false;
 }
 
 recursive fn cc_region_width(p: Program&, type_id: i64) -> i64 {
@@ -138,18 +159,20 @@ fn cc_field_offset(p: Program&, type_id: i64, field: i64) -> i64 {
     return offset;
 }
 
-recursive fn cc_frame_borrows(p: Program&, type_id: i64) -> bool {
+fn cc_frame_borrows(p: Program&, type_id: i64) -> bool {
     if type_id < 0 { return false; }
-    let t = p.types[type_id];
-    if t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_FN { return true; }
-    if t.kind == TY_ARRAY { return cc_frame_borrows(p, t.element); }
-    if t.kind == TY_STRUCT && t.declaration >= 0 {
-        var field = p.nodes[t.declaration].first;
-        while field >= 0 { if cc_frame_borrows(p, p.nodes[field].type_id) { return true; } field = p.nodes[field].next; }
-    }
-    if t.kind == TY_TUPLE {
-        var field = t.first;
-        while field >= 0 { if cc_frame_borrows(p, p.nodes[field].type_id) { return true; } field = p.nodes[field].next; }
+    let root = p.types[type_id];
+    if root.kind == TY_REF || root.kind == TY_SLICE || root.kind == TY_FN { return true; }
+    if root.kind != TY_ARRAY && root.kind != TY_STRUCT && root.kind != TY_ENUM && root.kind != TY_TUPLE { return false; }
+    var work: i64[>..] = [type_id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    while work.len > 0 {
+        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true; let t = p.types[current];
+        if t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_FN { return true; }
+        if t.kind == TY_ARRAY { work.push(t.element); }
+        var field = -1;
+        if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
+        else if t.kind == TY_TUPLE { field = t.first; }
+        while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 { work.push(n.type_id); } field = n.next; }
     }
     return false;
 }
@@ -186,6 +209,15 @@ fn cc_indirect(p: Program&, type_id: i64) -> bool {
 }
 fn cc_receives(p: Program&, type_id: i64) -> bool {
     return cc_region_width(p, type_id) > 0 || cc_result_indirect(p, type_id);
+}
+fn cc_array_kind(p: Program&, type_id: i64) -> i64 {
+    if cc_kind(p, type_id) == TY_SLICE { return A_SLICE; }
+    return p.types[type_id].array_kind;
+}
+fn cc_prefix(p: Program&, type_id: i64) -> i64 {
+    if p.types[type_id].array_kind == A_VAR && p.types[type_id].length_storage > 0 { return p.types[type_id].length_storage; }
+    let t = p.types[type_id]; if t.array_kind != A_LIMITED || t.count < 0 { return 0; }
+    if t.length_storage > 0 { return t.length_storage; } return 1;
 }
 fn cc_pool_mode(p: Program&, symbol: i64) -> i64 {
     if symbol < 0 || p.symbols[symbol].node < 0 { return 0; }

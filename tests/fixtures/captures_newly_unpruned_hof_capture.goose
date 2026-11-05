@@ -1,0 +1,1 @@
+fn stop(x:i64&){abort("unused");}fn stop(x:i64?){print("empty");}fn apply<F>(){F();}fn main(){var a=11;var b=22;var branch=true;var n=7;var opt:i64?=n;fn work(){if branch{stop(opt);print(a);}else{print(b);}}if false{if opt{apply(work);}}opt .= null;apply(work);}

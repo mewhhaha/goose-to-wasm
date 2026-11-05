@@ -1,0 +1,1 @@
+fn stop(x:i64&){abort("unused");}fn stop(x:i64?){print("empty");}fn main(){var n=7;var opt:i64?=n;var other:i64?=n;recursive fn work(i:i64)->i64{if i>0{work(i-1);}other .= null;stop(opt);print("tail");return 0;}if false{if opt{work(0);}}opt .= null;work(0);}

@@ -18,6 +18,9 @@ struct CheckVariable {
     symbol: i64, assigned: bool = false, maybeassigned: bool = false,
     readonly: bool = false, narrowed: i64 = -1, next_frame: i64 = -1, literal_use: i64 = -1, writable_use: i64 = -1,
 }
+struct CheckEnvironment {
+    symbol: i64, assigned: bool, maybeassigned: bool, narrowed: i64, readonly: bool, next: i64 = -1,
+}
 struct CheckRoot { value: i64, root: i64, kind: i64 = 0, next: i64 = -1 }
 struct CheckEffect { function_node: i64, root: i64, kind: i64 }
 struct CheckReturnRoot { function_node: i64, index: i64, root: i64, kind: i64 = 0 }
@@ -33,6 +36,9 @@ struct CheckDefaultCapture { node: i64, function_node: i64, floor: i64 }
 struct Checker {
     scopes: CheckScope[>..]&, variables: CheckVariable[>..]&, variable_lookup: i64[>..]&,
     roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&,
+    environments: CheckEnvironment[>..]&, environment_heads: i64[>..]&,
+    syntax_nodes: Node[>..]&, syntax_lookup: i64[>..]&,
+    clone_syntax: bool = false, syntax_body: i64 = -1, syntax_function: i64 = -1, optional_globals: bool = false,
     return_roots: CheckReturnRoot[>..]&,
     specializations: CheckSpecialization[>..]&, bindings: TypeBinding[>..]&,
     contextual_floats: CheckContextFloat[>..]&, contextual_lookup: i64[>..]&,
@@ -596,6 +602,44 @@ recursive fn check_substitute(p: Program&, c: Checker&, ty: i64, bindings: Check
     }
     return ty;
 }
+fn check_clone_node(p: Program&, c: Checker&, node: i64) -> Node {
+    if c.clone_syntax && node < c.syntax_lookup.len && c.syntax_lookup[node] >= 0 { return c.syntax_nodes[c.syntax_lookup[node]]; }
+    return p.nodes[node];
+}
+fn check_function_syntax(p: Program&, c: Checker&, function_node: i64) {
+    let n = p.nodes[function_node]; var preserve = c.optional_globals || n.origin >= 0;
+    var original = function_node;
+    while original >= 0 && !preserve {
+        let f = p.nodes[original]; let symbol = f.symbol;
+        if f.kind == N_FUNCTION_VALUE { preserve = true; }
+        if symbol >= 0 {
+            let s = p.symbols[symbol];
+            if s.owner >= 0 || s.scope > 0 && c.scopes[s.scope].namespace_node < 0 { preserve = true; }
+        }
+        original = f.origin;
+    }
+    var parameter = n.first;
+    while parameter >= 0 && !preserve {
+        let ty = p.nodes[parameter].type_id;
+        if ty >= 0 && p.types[ty].kind == TY_FN { preserve = true; }
+        parameter = p.nodes[parameter].next;
+    }
+    if !preserve || n.right < 0 { return; }
+    while c.syntax_lookup.len <= function_node { c.syntax_lookup.push(-1); }
+    if c.syntax_lookup[function_node] < 0 {
+        c.syntax_lookup[function_node] = c.syntax_nodes.len; c.syntax_nodes.push(n);
+    }
+    let original_body = c.syntax_nodes[c.syntax_lookup[function_node]].right;
+    var pending: i64[>..] = [original_body];
+    while pending.len > 0 {
+        let node = pending.pop(); if node < 0 { continue; }
+        while c.syntax_lookup.len <= node { c.syntax_lookup.push(-1); }
+        if c.syntax_lookup[node] >= 0 { continue; }
+        let value = p.nodes[node]; c.syntax_lookup[node] = c.syntax_nodes.len; c.syntax_nodes.push(value);
+        if value.kind == N_IMPORT { continue; }
+        pending.push(value.first); pending.push(value.left); pending.push(value.right); pending.push(value.third); pending.push(value.next);
+    }
+}
 recursive fn check_clone(p: Program&, c: Checker&, node: i64, bindings: CheckList&) -> i64 {
     if node < 0 { return -1; }
     if c.expanding {
@@ -605,7 +649,10 @@ recursive fn check_clone(p: Program&, c: Checker&, node: i64, bindings: CheckLis
             return -1;
         }
     }
-    var copy = p.nodes[node];
+    let saved_syntax = c.clone_syntax;
+    if node == c.syntax_body { c.clone_syntax = true; }
+    var copy = check_clone_node(p, c, node);
+    if node == c.syntax_function { copy.right = c.syntax_body; }
     copy.type_id = check_substitute(p, c, copy.type_id, bindings);
     copy.coerced_type = check_substitute(p, c, copy.coerced_type, bindings);
     if copy.kind == N_PARAM {
@@ -624,35 +671,35 @@ recursive fn check_clone(p: Program&, c: Checker&, node: i64, bindings: CheckLis
     copy.first = -1; copy.last = -1; copy.left = -1; copy.right = -1; copy.third = -1; copy.next = -1;
     let id = p.nodes.len; p.nodes.push(copy);
     var child = old_first;
-    while child >= 0 { append_child(p, id, check_clone(p, c, child, bindings)); child = p.nodes[child].next; }
+    while child >= 0 { append_child(p, id, check_clone(p, c, child, bindings)); child = check_clone_node(p, c, child).next; }
     p.nodes[id].left = check_clone(p, c, old_left, bindings);
     if copy.kind == N_RECORD { p.nodes[id].right = old_right; }
     else { p.nodes[id].right = check_clone(p, c, old_right, bindings); }
     p.nodes[id].third = check_clone(p, c, old_third, bindings);
-    if c.expanding && c.expansion_nodes > 100000 { return id; }
+    if c.expanding && c.expansion_nodes > 100000 { c.clone_syntax = saved_syntax; return id; }
     // left and third may own lists (function results and generic parameters).
     if copy.kind == N_FUNCTION || copy.kind == N_FUNCTION_VALUE || copy.kind == N_TYPE_FN || copy.kind == N_CONST_FOR {
         var old = old_left; var tail = p.nodes[id].left;
-        if old >= 0 { old = p.nodes[old].next; }
+        if old >= 0 { old = check_clone_node(p, c, old).next; }
         while old >= 0 {
-            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = p.nodes[old].next;
+            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
         }
     }
     if copy.kind == N_FUNCTION || copy.kind == N_STRUCT || copy.kind == N_ENUM {
         var old = old_third; var tail = p.nodes[id].third;
-        if old >= 0 { old = p.nodes[old].next; }
+        if old >= 0 { old = check_clone_node(p, c, old).next; }
         while old >= 0 {
-            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = p.nodes[old].next;
+            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
         }
     }
     if copy.kind == N_VARIABLE {
         var old = old_right; var tail = p.nodes[id].right;
-        if old >= 0 { old = p.nodes[old].next; }
+        if old >= 0 { old = check_clone_node(p, c, old).next; }
         while old >= 0 {
-            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = p.nodes[old].next;
+            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
         }
     }
-    return id;
+    c.clone_syntax = saved_syntax; return id;
 }
 
 struct CheckConstant {
@@ -3061,7 +3108,11 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
                 }
             } else if builtin == 26 { result = check_loaded_type(p, element); check_copy_roots(c, node, check_list_at(c, args, 0)); }
             else if builtin == 27 || builtin == 28 || builtin == 32 {
-                check_value(p, c, check_list_at(c, args, 1), TYPE_I64);
+                if builtin == 32 {
+                    let index = check_list_at(c, args, 1);
+                    let ty = check_numeric_value_type(p, check_value(p, c, index, -1));
+                    if c.reachable && !check_integer(ty) { diagnose(p, p.nodes[index].token, "free requires an integer index"); }
+                } else { check_value(p, c, check_list_at(c, args, 1), TYPE_I64); }
                 if builtin == 28 && args.count == 3 { check_value(p, c, check_list_at(c, args, 2), element); }
             } else if builtin == 33 || builtin == 34 || builtin == 35 {
                 let view = check_type(p, TY_SLICE, element, -1, -1, 0);
@@ -3156,6 +3207,50 @@ recursive fn check_prepare_function(p: Program&, c: Checker&, function_node: i64
     c.scope = saved_scope; c.function_node = saved_function; c.next_slot = saved_slot;
 }
 fn check_has_generic(p: Program&, ty: i64, depth: i64) -> bool { return check_type_property(p, ty, 0) != 0; }
+fn check_environment_head(c: Checker&, function_node: i64) -> i64 {
+    if function_node < 0 || function_node >= c.environment_heads.len { return -1; }
+    return c.environment_heads[function_node];
+}
+fn check_environment_add(p: Program&, c: Checker&, value: CheckEnvironment) {
+    let function_node = c.function_node;
+    if function_node < 0 || value.symbol < 0 { return; }
+    let symbol = p.symbols[value.symbol];
+    if symbol.owner == function_node || (symbol.flags & (S_TYPE | S_FUNCTION)) != 0 { return; }
+    if (symbol.flags & S_GLOBAL) != 0 && (symbol.type_id < 0 || p.types[symbol.type_id].kind != TY_REF || (p.types[symbol.type_id].flags & TF_OPTIONAL) == 0) { return; }
+    let head = check_environment_head(c, function_node); var at = head;
+    while at >= 0 { let old = c.environments[at]; if old.symbol == value.symbol { return; } at = old.next; }
+    while c.environment_heads.len <= function_node { c.environment_heads.push(-1); }
+    var entry = value; entry.next = head;
+    let id = c.environments.len; c.environments.push(entry); c.environment_heads[function_node] = id;
+}
+fn check_environment_note(p: Program&, c: Checker&, symbol: i64) {
+    let vi = check_variable_index(c, symbol); if vi < 0 { return; }
+    let v = c.variables[vi];
+    check_environment_add(p, c, CheckEnvironment { symbol: symbol, assigned: v.assigned, maybeassigned: v.maybeassigned, narrowed: v.narrowed, readonly: v.readonly });
+}
+fn check_environment_callee(p: Program&, c: Checker&, function_node: i64) {
+    if function_node == c.function_node { return; }
+    var at = check_environment_head(c, function_node);
+    while at >= 0 { let value = c.environments[at]; at = value.next; check_environment_add(p, c, value); }
+}
+fn check_environment_same(p: Program&, c: Checker&, function_node: i64, token: i64) -> bool {
+    var active = false;
+    for index in 0..c.checking_count { if c.checking[index] == function_node { active = true; } }
+    var at = check_environment_head(c, function_node);
+    while at >= 0 {
+        let previous = c.environments[at]; at = previous.next;
+        let vi = check_variable_index(c, previous.symbol); if vi < 0 { return false; }
+        let current = c.variables[vi];
+        if active {
+            if previous.narrowed >= 0 && !check_same_type(p, previous.narrowed, current.narrowed) {
+                diagnose(p, token, "recursive call requires a captured optional to remain narrowed");
+            }
+        } else if current.assigned != previous.assigned ||
+           (p.symbols[previous.symbol].flags & S_MUTABLE) == 0 && current.maybeassigned != previous.maybeassigned ||
+           !check_same_type(p, current.narrowed, previous.narrowed) || current.readonly != previous.readonly { return false; }
+    }
+    return true;
+}
 fn check_function_reached(p: Program&, c: Checker&, function_node: i64, token: i64) -> bool {
     var declaration = function_node; var depth = 0;
     while declaration >= 0 && p.nodes[declaration].kind == N_FUNCTION && depth < 64 {
@@ -3174,7 +3269,7 @@ fn check_function_reached(p: Program&, c: Checker&, function_node: i64, token: i
 
 recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, bindings: CheckList&, token: i64) -> i64 {
     if !check_function_reached(p, c, original, token) { return -1; }
-    if bindings.count == 0 { return p.nodes[original].symbol; }
+    if bindings.count == 0 && check_environment_same(p, c, original, token) { return p.nodes[original].symbol; }
     for spec in c.specializations {
         if spec.original != original || spec.binding_count != bindings.count { continue; }
         var equal = true;
@@ -3182,13 +3277,19 @@ recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, 
             let old = c.bindings[spec.binding_start + i];
             if old.parameter != b.parameter || !check_binding_same(p, old.value, b.value) { equal = false; }
         }
-        if equal { return spec.symbol; }
+        if equal && check_environment_same(p, c, p.symbols[spec.symbol].node, token) { return spec.symbol; }
     }
     var same_declaration = 0;
     for active_index in 0..c.checking_count { let active = c.checking[active_index]; if active == original || p.nodes[active].origin == original { same_declaration += 1; } }
     if same_declaration >= 16 || c.inference_depth >= 64 { diagnose(p, token, "function specialization does not reach a finite set"); return -1; }
     c.inference_depth += 1;
+    let saved_syntax = c.clone_syntax; let saved_body = c.syntax_body; let saved_function = c.syntax_function;
+    c.clone_syntax = false; c.syntax_function = original; c.syntax_body = p.nodes[original].right;
+    if original < c.syntax_lookup.len && c.syntax_lookup[original] >= 0 {
+        c.syntax_body = c.syntax_nodes[c.syntax_lookup[original]].right;
+    }
     let copy = check_clone(p, c, original, bindings);
+    c.clone_syntax = saved_syntax; c.syntax_body = saved_body; c.syntax_function = saved_function;
     p.nodes[copy].type_id = -1; p.nodes[copy].third = -1; p.nodes[copy].origin = original;
     p.nodes[copy].flags &= ~F_GENERIC;
     if p.nodes[original].kind == N_FUNCTION_VALUE {
@@ -3573,6 +3674,7 @@ recursive fn check_narrow_context_float(p: Program&, c: Checker&, node: i64) -> 
 }
 
 fn check_apply_call_effects(p: Program&, c: Checker&, node: i64, function_node: i64, args: CheckList&) {
+    check_environment_callee(p, c, function_node);
     let roots_end = c.return_roots.len;
     for i in 0..roots_end {
         let rr = c.return_roots[i];
@@ -4256,7 +4358,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                         check_variable(p, c, s.node);
                     }
                     result = p.symbols[symbol].type_id;
-                    let vi = check_variable_index(c, symbol);
+                    let vi = check_variable_index(c, symbol); check_environment_note(p, c, symbol);
                     if vi >= 0 && c.variables[vi].narrowed >= 0 { result = c.variables[vi].narrowed; }
                     if vi >= 0 && !c.variables[vi].assigned { diagnose(p, n.token, "value is read before it is definitely assigned"); }
                     check_capture(p, c, symbol); check_copy_roots(c, node, -symbol - 10);
@@ -5085,6 +5187,7 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
         if ty >= 0 && (n.flags & F_CONST) != 0 { ty = check_const_type(p, ty); }
         p.nodes[binding].type_id = ty;
         let symbol = check_declare(p, c, binding, c.scope); p.symbols[symbol].type_id = ty;
+        if (p.symbols[symbol].flags & S_GLOBAL) != 0 && ty >= 0 && p.types[ty].kind == TY_REF && (p.types[ty].flags & TF_OPTIONAL) != 0 { c.optional_globals = true; }
         if index == 0 { p.nodes[node].symbol = symbol; p.nodes[node].type_id = ty; }
         let vi = check_variable_index(c, symbol);
         if vi >= 0 {
@@ -5100,12 +5203,53 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
                 diagnose(p, n.token, "reusable pool elements require fixed size");
             }
         }
-        if init < 0 && ty >= 0 && (check_size_class(p, ty, 0) != 0 || p.types[ty].kind == TY_REF) {
-            diagnose(p, n.token, "nonfixed values and references must be constructed at declaration");
+        if init < 0 && ty >= 0 && check_size_class(p, ty, 0) != 0 {
+            diagnose(p, n.token, "nonfixed values must be constructed at declaration");
         }
     }
     c.scope = saved_scope; c.function_node = saved_function;
 }
+recursive fn check_compound_aggregate(p: Program&, c: Checker&, node: i64, type_id: i64) {
+    let n = p.nodes[node];
+    if check_bottom(p, n.left) {
+        p.nodes[node] = Node { kind: N_EXPR_STMT, token: n.token, next: n.next, left: n.left, type_id: TYPE_VOID,
+            flags: F_CHECKED | F_DIVERGES | F_REACHABLE, scope: n.scope }; return;
+    }
+    let root = check_place_root(p, n.left); let vi = check_variable_index(c, root);
+    if vi >= 0 && !c.variables[vi].assigned { diagnose(p, n.token, "compound assignment reads uninitialized storage"); }
+    check_assignment_target(p, c, n.left, n.right, false);
+    // Preserve the evaluated location and its old value before the RHS.
+    // The final assignment uses ordinary aggregate arithmetic in both backends.
+    var value_type = type_id;
+    if (p.types[value_type].flags & TF_CONST) != 0 { var mutable = p.types[value_type]; mutable.flags &= ~TF_CONST; value_type = add_type(p, mutable); }
+    let reference_type = check_type(p, TY_REF, value_type, 0, -1, 0);
+    let target_name = operation_name(p, n.token, "__goose_update_target");
+    let old_name = operation_name(p, n.token, "__goose_update_old");
+    let target = new_node(p, N_VARIABLE, target_name); p.nodes[target].left = operation_type(p, reference_type, n.token);
+    var address = n.left;
+    if p.types[p.nodes[n.left].type_id].kind != TY_REF {
+        address = new_node(p, N_UNARY, n.token); p.nodes[address].integer = T_BITAND; p.nodes[address].left = n.left;
+        p.nodes[address].type_id = reference_type; p.nodes[address].flags = F_CHECKED | F_SYNTHETIC;
+        check_copy_roots(c, address, n.left); check_add_root(c, address, root, check_reference_kind(p, n.left));
+    }
+    p.nodes[target].right = address;
+    let old = new_node(p, N_VARIABLE, old_name); p.nodes[old].left = operation_type(p, value_type, n.token);
+    p.nodes[old].right = operation_ident(p, target_name);
+    var op = T_PLUS;
+    if n.integer == T_MINUSEQ { op = T_MINUS; } else if n.integer == T_MULEQ { op = T_MUL; }
+    else if n.integer == T_DIVEQ { op = T_DIV; } else if n.integer == T_MODEQ { op = T_MOD; }
+    let binary = operation_binary(p, op, operation_ident(p, old_name), n.right, n.token);
+    let assign = new_node(p, N_ASSIGN, n.token); p.nodes[assign].integer = T_ASSIGN;
+    p.nodes[assign].left = operation_ident(p, target_name); p.nodes[assign].right = binary;
+    p.nodes[node] = Node { kind: N_BLOCK, token: n.token, next: n.next, scope: n.scope, flags: F_SYNTHETIC | (n.flags & (F_REACHABLE | F_TAIL)) };
+    append_child(p, node, target); append_child(p, node, old); append_child(p, node, assign);
+    check_block(p, c, node, TYPE_VOID);
+    if check_bottom(p, n.right) {
+        p.nodes[assign] = Node { kind: N_EXPR_STMT, token: n.token, left: n.right, type_id: TYPE_VOID,
+            flags: F_CHECKED | F_DIVERGES | F_REACHABLE, scope: p.nodes[assign].scope };
+    }
+}
+
 recursive fn check_assignment(p: Program&, c: Checker&, node: i64) {
     let n = p.nodes[node];
     if n.kind == N_MULTI_ASSIGN {
@@ -5126,15 +5270,25 @@ recursive fn check_assignment(p: Program&, c: Checker&, node: i64) {
     let target = p.nodes[n.left]; var ty = -1;
     if target.kind == N_NAME {
         let symbol = check_lookup_name(p, c, n.left);
-        if symbol >= 0 { p.nodes[n.left].symbol = symbol; ty = p.symbols[symbol].type_id; p.nodes[n.left].type_id = ty; }
+        if symbol >= 0 { check_environment_note(p, c, symbol); p.nodes[n.left].symbol = symbol; ty = p.symbols[symbol].type_id; p.nodes[n.left].type_id = ty; }
         else { diagnose(p, target.token, "assignment target is unknown"); }
     } else { ty = check_expression(p, c, n.left, -1); }
     if ty < 0 { return; }
     let rebind = n.integer == T_DOTASSIGN;
+    if p.types[ty].kind == TY_REF && !rebind {
+        // Writing through a reference reads the binding before its RHS runs.
+        if target.kind == N_NAME { ty = check_expression(p, c, n.left, -1); }
+        if ty >= 0 && (p.types[ty].flags & TF_OPTIONAL) != 0 { diagnose(p, n.token, "optional reference must be narrowed before writing through it"); }
+    }
+    if ty < 0 { return; }
     var value_type = ty;
     if p.types[ty].kind == TY_REF && !rebind { value_type = p.types[ty].element; }
     if rebind && p.types[ty].kind != TY_REF && p.types[ty].kind != TY_SLICE && target.kind != N_INDEX && target.kind != N_MEMBER {
         diagnose(p, n.token, ".= requires a reference or slice binding");
+    }
+    if n.right >= 0 && (n.integer == T_PLUSEQ || n.integer == T_MINUSEQ || n.integer == T_MULEQ || n.integer == T_DIVEQ || n.integer == T_MODEQ) &&
+       (p.types[value_type].kind == TY_ARRAY || p.types[value_type].kind == TY_STRUCT) && operation_numeric_class(p, value_type) > 0 {
+        check_compound_aggregate(p, c, node, value_type); return;
     }
     if n.right >= 0 {
         if n.integer == T_SHLEQ || n.integer == T_SHREQ {
@@ -5205,6 +5359,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
         }
     }
     if n.right < 0 { p.nodes[function_node].flags |= F_CHECKED; return; }
+    check_function_syntax(p, c, function_node);
     var entry_flow = CheckSpan {}; check_flow_save(p, c, entry_flow, true); let exit_start = c.exit_work.len; let effect_start = c.effects.len;
     let saved_scope = c.scope; let saved_function = c.function_node; let saved_result = c.result_type;
     let saved_slot = c.next_slot; let saved_reachable = c.reachable; let saved_returns = c.returns; let saved_defaults = c.default_fields;
@@ -5646,6 +5801,8 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_variables: CheckVariable[>..] = [];
     var checker_variable_lookup: i64[>..] = [];
     var checker_roots: CheckRoot[>..] = []; var checker_root_nodes: i64[>..] = []; var checker_root_symbols: i64[>..] = [];
+    var checker_environments: CheckEnvironment[>..] = []; var checker_environment_heads: i64[>..] = [];
+    var checker_syntax_nodes: Node[>..] = []; var checker_syntax_lookup: i64[>..] = [];
     var checker_effects: CheckEffect[>..] = [];
     var checker_return_roots: CheckReturnRoot[>..] = [];
     var checker_specializations: CheckSpecialization[>..] = [];
@@ -5661,7 +5818,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
     var parameter_default_contexts: CheckDefaultCapture[>..] = [];
     var logical_kills: CheckLogicalKill[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, environments: checker_environments, environment_heads: checker_environment_heads, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     for source in p.sources { if source.root >= 0 { check_top_declarations(p, c, p.nodes[source.root].first); } }
     let declarations = p.symbols.len;

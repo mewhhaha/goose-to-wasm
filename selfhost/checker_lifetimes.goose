@@ -1782,7 +1782,13 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
                 at = alt.next;
             }
         }
-        if n.right >= 0 { life_store(p, l, node, places, value, binding, through); }
+        if n.right >= 0 {
+            if binding && ty >= 0 && p.types[ty].kind == TY_REF && p.types[ty].length_storage >= 0 && p.types[ty].pool >= 0 {
+                life_relative_store(p, l, node, places, value);
+                life_effect(l, LifeEffect { kind: 9, node: node, value: value, places: places });
+            }
+            life_store(p, l, node, places, value, binding, through);
+        }
         return out;
     }
     if n.kind == N_MULTI_ASSIGN {

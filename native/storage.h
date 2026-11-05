@@ -25,7 +25,7 @@ static GS_TLS GRegion g_fixed_region;
 typedef struct { unsigned char *data,*previous; } GFixed;
 
 typedef struct { GRef base; int64_t len; } GSlice;
-typedef struct { unsigned char *data; int64_t len; union { GRegion *region; int64_t cap; }; } GArray;
+typedef struct { unsigned char *data; int64_t len; GRegion *region; } GArray;
 typedef struct GClosure { void *function; int64_t count; GRef captures[]; } GClosure;
 typedef struct GAllocation { struct GAllocation *next; void *data; } GAllocation;
 static GS_TLS GAllocation *g_allocations;
@@ -71,11 +71,15 @@ static void g_transfer_drop(void);
 static void g_region_stats(void) {
 #if GS_STACK_STATS
     uint64_t live=0,high_water=0;
+    int64_t stacks=gs_nstks;
+    if(g_fixed_region.base)stacks++;
     for(int64_t i=0;i<g_region_count;i++) {
         GRegion *region=&g_regions[i];
+        if(region->base)stacks++;
         if(region->base && region->stack.top)live+=(uint64_t)(region->stack.top-region->base);
         high_water+=region->high_water;
     }
+    gs_stack_stats(stacks);
     fprintf(stderr,"native region stats: plan=%lld reserved=%ld peak_slot=%lld live_bytes=%llu sum_region_high_water_bytes=%llu legacy_bytes=%llu\n",
         (long long)g_region_count,gs_nregions,(long long)g_region_peak,(unsigned long long)live,
         (unsigned long long)high_water,(unsigned long long)g_legacy_bytes);
@@ -132,7 +136,7 @@ static void g_fixed_release(GFixed *value) {
 }
 static GArray g_array(int64_t slot) {
     GRegion *region=g_region(slot);region->capacity=0;region->width=0;region->freelist=NULL;region->free_count=0;region->free_mode=0;
-    region->entry=region->stack.top;GArray value={region->stack.top,0,{.region=region}};return value;
+    region->entry=region->stack.top;GArray value={region->stack.top,0,region};return value;
 }
 static void g_mark_regions(int64_t base,int64_t count,GWatermark *marks) {
     if(base<0 || count<0 || base>g_region_count-count)g_panic("invalid native region watermark");
@@ -164,6 +168,9 @@ static void g_map_header(GPublication *link,uintptr_t source,uintptr_t target) {
 }
 static GRef g_ref(const void *p) { return (GRef)(uintptr_t)p; }
 static unsigned char *g_address(GRef ref) { if(!ref)g_panic("null reference");return (unsigned char *)(uintptr_t)ref; }
+static GRegion *g_array_region(GRef header) {
+    GArray value;memcpy(&value,g_address(header),sizeof value);return value.region;
+}
 static GRef g_offset(GRef ref,int64_t offset) {
     if(offset<0)g_panic("negative reference offset");
     if(!ref && offset)g_panic("null reference");return ref+(uintptr_t)offset;
@@ -177,29 +184,41 @@ static GRef g_moving(GRef root,int64_t offset) {
 static uint64_t g_read_length(const void *p,int n) { uint64_t v=0; memcpy(&v,p,n); return v; }
 static void g_write_length(void *p,int n,uint64_t v) { memcpy(p,&v,n); }
 static int64_t g_len(GRef r,int kind,int64_t fixed,int prefix) {
+    if(kind==2 && fixed<0)return (int64_t)g_read_length(g_address(r)+4,4);
+    if(kind==1) {
+        uint64_t count;if(prefix)count=g_read_length(g_address(r),prefix);else count=gs_uleb_read(g_address(r));
+        if(count>INT64_MAX)g_panic("array length exceeds native range");return (int64_t)count;
+    }
     if(kind==5) { GSlice s; memcpy(&s,g_address(r),sizeof s); return s.len; }
     if(kind==0) return fixed;
     if(kind==2 && fixed>=0) return (int64_t)g_read_length(g_address(r),prefix);
     GArray a; memcpy(&a,g_address(r),sizeof a); return a.len;
 }
 static int64_t g_cap(GRef r,int kind,int64_t fixed) {
+    if(kind==2 && fixed<0)return (int64_t)g_read_length(g_address(r),4);
     if(kind==0) return fixed;
     if(kind==2 && fixed>=0) return fixed;
-    GArray a; memcpy(&a,g_address(r),sizeof a);if(kind==1 || kind==2)return a.cap;if(!a.region)return 0;return a.region->capacity;
+    GArray a; memcpy(&a,g_address(r),sizeof a);if(!a.region)return 0;return a.region->capacity;
 }
 static GS_INLINE GRef g_element_at(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end,const char *file,int line) {
     int64_t len=g_len(r,kind,fixed,prefix);
     if(index<0 || index>len || (!allow_end && index==len))g_index_fail(index,len,file,line);
     if(width && index>INT64_MAX/width) g_panic("array offset overflow");
+    if(kind==1 || kind==2) {
+        int64_t bytes=prefix;
+        if(kind==1 && !bytes)bytes=gs_uleb_size(g_address(r));
+        if(kind==2 && fixed<0)bytes=8;
+        if(width && index>(INT64_MAX-bytes)/width)g_panic("array offset overflow");return g_offset(r,bytes+index*width);
+    }
     if(kind==5) { GSlice s; memcpy(&s,g_address(r),sizeof s); return g_offset(s.base,index*width); }
     if(kind==0) return g_offset(r,index*width);
-    if(kind==2 && fixed>=0) return g_offset(r,prefix+index*width);
     return g_moving(r,index*width);
 }
 static GS_INLINE GRef g_element(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end) {
     return g_element_at(r,kind,fixed,prefix,width,index,allow_end,NULL,0);
 }
 static GRef g_slot(GRef header,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
+    if(kind==2 && fixed<0)return g_offset(header,8+index*width);
     if(kind==0)return g_offset(header,index*width);
     if(kind==2 && fixed>=0)return g_offset(header,prefix+index*width);
     return g_moving(header,index*width);
@@ -209,27 +228,13 @@ static GSlice g_view(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
 }
 static void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t count) {
     if(count<0 || (width && count>INT64_MAX/width)) g_panic("invalid capacity");
-    if(kind==1 && prefix>0 && prefix<8 && (uint64_t)count>((UINT64_C(1)<<(prefix*8))-1)) g_panic("array length exceeds storage range");
-    if(kind==2 && fixed>=0) { if(count>fixed) g_panic("limited array capacity exceeded"); return; }
-    if(kind!=1 && kind!=3 && kind!=4 && kind!=2) g_panic("array cannot grow");
+    if(kind==2) { if(count>g_cap(r,kind,fixed)) g_panic("limited array capacity exceeded"); return; }
+    if(kind!=3 && kind!=4) g_panic("array cannot grow");
     GArray a; memcpy(&a,g_address(r),sizeof a);
-    if(kind==2) {
-        if(!a.data) {a.data=g_alloc((size_t)count*(size_t)width);a.cap=count;memcpy(g_address(r),&a,sizeof a);return;}
-        if(count>a.cap)g_panic("limited array capacity exceeded");return;
-    }
-    if(kind==1) {
-        if(count>a.cap) {
-            unsigned char *data=g_alloc((size_t)count*(size_t)width);
-            if(a.len)memcpy(data,a.data,(size_t)a.len*(size_t)width);
-            a.data=data;a.cap=count;memcpy(g_address(r),&a,sizeof a);
-        }
-        return;
-    }
     if(!a.region)g_panic("array has no receiving region");
-    if(kind==2 && a.region->width && count>a.region->capacity)g_panic("limited array capacity exceeded");
     uint64_t bytes=(uint64_t)count*(uint64_t)width;
     size_t offset=(size_t)(a.data-a.region->base);
-    if(bytes>a.region->usable || offset>a.region->usable-bytes)g_panic("data stack region exhausted");
+    if(bytes>a.region->usable || offset>a.region->usable-bytes)g_panic("data stack overflow");
     if(count>a.region->capacity)a.region->capacity=count;
     a.region->width=width;
     a.region->stack.top=a.data+(size_t)a.region->capacity*(size_t)width;
@@ -238,7 +243,8 @@ static void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int
 
 }
 static void g_set_len(GRef r,int kind,int64_t fixed,int prefix,int64_t count) {
-    if(kind==2 && fixed>=0) g_write_length(g_address(r),prefix,(uint64_t)count);
+    if(kind==2 && fixed<0){if(count<0 || count>g_cap(r,kind,fixed))g_panic("limited array capacity exceeded");g_write_length(g_address(r)+4,4,(uint64_t)count);}
+    else if(kind==2 && fixed>=0) g_write_length(g_address(r),prefix,(uint64_t)count);
     else { GArray a; memcpy(&a,g_address(r),sizeof a); a.len=count;if(a.region && (kind==3 || kind==4))a.region->stack.top=a.data+(size_t)count*(size_t)a.region->width;memcpy(g_address(r),&a,sizeof a);g_header_changed(r); }
 }
 static void g_begin_builder(GRef ref) {
