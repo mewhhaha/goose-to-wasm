@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "full_before": {
+    "selected": 5043,
+    "passed": 4798,
+    "failed": 245
+  },
+  "full_after": {
+    "selected": 5043,
+    "passed": 4798,
+    "failed": 245
+  },
+  "every_case_level_status_identical": true,
+  "curated_v8": {
+    "selected": 1952,
+    "passed": 1952,
+    "failed": 0
+  },
+  "local_fixture_entries_before": 3483,
+  "local_fixture_entries_after": 14,
+  "original_fixture_entries_before": 3483,
+  "original_fixture_entries_after": 3483,
+  "before_driver_sha256": "30f37b2e5931c4033dc8f04d176d0b751f5f61514b9ac7780d906d87f9c49c41",
+  "after_driver_sha256": "3fa9de0089f1a3aad25bd797a6b163d8377f6fb2adfb44baf20757597b34a87d",
+  "method": "Compiler40 and identical frozen case payloads. After-run uses a source-only copy in separate tmpfs storage; correctness coverage, not timing evidence. Only unused fixture extraction changes."
+}

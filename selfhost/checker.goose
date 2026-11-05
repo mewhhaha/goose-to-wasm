@@ -214,24 +214,43 @@ fn check_const_type(p: Program&, ty: i64) -> i64 {
     }
     return add_type(p, copy);
 }
-fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64) -> i64 {
+fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
     if scope < 0 || scope >= c.scopes.len { return -1; }
     var id = c.scopes[scope].first_symbol;
     while id >= 0 {
-        if same_name(p, p.symbols[id].name_token, token) { return id; }
-        id = p.symbols[id].scope_next;
+        let symbol = p.symbols[id];
+        if same_name(p, symbol.name_token, token) {
+            if role == 0 || (symbol.flags & role) != 0 { return id; }
+            if role == S_FUNCTION && symbol.node >= 0 {
+                let kind = p.nodes[symbol.node].kind;
+                if (symbol.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) == 0 && kind != N_NAMESPACE || kind == N_TYPE_PARAM { return id; }
+            }
+        }
+        id = symbol.scope_next;
     }
     return -1;
 }
 
-fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64) -> i64 {
+fn check_global_value(p: Program&, symbol: i64) -> i64 {
+    var current = symbol; var function_symbol = -1;
+    while current >= 0 {
+        let flags = p.symbols[current].flags;
+        if (flags & S_GLOBAL) != 0 { return current; }
+        if function_symbol < 0 && (flags & S_FUNCTION) != 0 { function_symbol = current; }
+        current = p.symbols[current].next;
+    }
+    if function_symbol >= 0 { return function_symbol; }
+    return symbol;
+}
+
+fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
     var current = scope;
     while current > 0 && c.scopes[current].namespace_node < 0 {
         let function_node = c.scopes[current].function_node; var end = current;
         while end > 0 && c.scopes[end].namespace_node < 0 && c.scopes[end].function_node == function_node { end = c.scopes[end].parent; }
         var at = current; var parameter = -1; var function_symbol = -1; var type_symbol = -1;
         while at != end {
-            let found = check_lookup_scope(p, c, token, at);
+            let found = check_lookup_scope(p, c, token, at, role);
             if found >= 0 {
                 let symbol = p.symbols[found];
                 if (symbol.flags & S_FUNCTION) != 0 { if function_symbol < 0 { function_symbol = found; } }
@@ -248,27 +267,32 @@ fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64) -> i64 {
         current = end;
     }
     loop {
-        let found = check_lookup_scope(p, c, token, current);
+        var found = check_lookup_scope(p, c, token, current, role);
+        if role == 0 { found = check_global_value(p, found); }
         if found >= 0 { return found; }
         if current <= 0 { return -1; }
         current = c.scopes[current].parent;
     }
 }
-fn check_lookup_name(p: Program&, c: Checker&, node: i64) -> i64 {
+fn check_lookup_name(p: Program&, c: Checker&, node: i64, role: i64 = 0) -> i64 {
     let n = p.nodes[node];
     if n.aux <= 1 || n.integer < 0 || n.integer >= p.tokens.len {
-        return check_lookup(p, c, n.token, c.scope);
+        return check_lookup(p, c, n.token, c.scope, role);
     }
     var at = n.integer; var scope = c.scope;
     if p.tokens[at].kind == T_COLONCOLON { scope = 0; at += 1; }
-    var symbol = check_lookup(p, c, at, scope);
+    var first_role = role; if at < n.token { first_role = 0; }
+    var symbol = check_lookup(p, c, at, scope, first_role);
     at += 1;
     while at < n.token {
         if p.tokens[at].kind == T_COLONCOLON { at += 1; }
         if symbol < 0 { return -1; }
         let declaration = p.symbols[symbol].node;
         if declaration < 0 || p.nodes[declaration].kind != N_NAMESPACE { return -1; }
-        symbol = check_lookup_scope(p, c, at, p.nodes[declaration].scope);
+        var member_role = role; if at < n.token { member_role = 0; }
+        let member_scope = p.nodes[declaration].scope;
+        symbol = check_lookup_scope(p, c, at, member_scope, member_role);
+        if member_role == 0 { symbol = check_global_value(p, symbol); }
         at += 1;
     }
     return symbol;
@@ -297,12 +321,18 @@ fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
     if (n.flags & F_VAR) != 0 { flags |= S_MUTABLE; }
     if (n.flags & F_EXTERN) != 0 { flags |= S_EXTERN; }
     if c.function_node < 0 && (scope == 0 || scope >= 0 && c.scopes[scope].namespace_node >= 0) && (flags & (S_FUNCTION | S_TYPE)) == 0 && n.kind != N_NAMESPACE && n.kind != N_FIELD && n.kind != N_VARIANT { flags |= S_GLOBAL; }
-    if previous >= 0 {
-        let old = p.symbols[previous];
+    var collision = previous;
+    while collision >= 0 {
+        let old = p.symbols[collision];
         let namespace_merge = n.kind == N_NAMESPACE && old.node >= 0 && p.nodes[old.node].kind == N_NAMESPACE;
-        if !namespace_merge && !((flags & S_FUNCTION) != 0 && (old.flags & S_FUNCTION) != 0) {
-            diagnose(p, n.token, "duplicate declaration in this scope");
+        let overload = (flags & S_FUNCTION) != 0 && (old.flags & S_FUNCTION) != 0;
+        let separate_global_roles = (scope == 0 || scope >= 0 && c.scopes[scope].namespace_node >= 0) &&
+            (flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 && (old.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 &&
+            (flags & (S_FUNCTION | S_TYPE)) != (old.flags & (S_FUNCTION | S_TYPE));
+        if !namespace_merge && !overload && !separate_global_roles {
+            diagnose(p, n.token, "duplicate declaration in this scope"); break;
         }
+        collision = old.next;
     }
     if (flags & (S_FUNCTION | S_TYPE)) == 0 && n.kind != N_NAMESPACE && n.kind != N_FIELD && n.kind != N_VARIANT {
         slot = c.next_slot; c.next_slot += 1;
@@ -388,7 +418,10 @@ fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
         if property == 4 && t.kind == TY_ARRAY && t.array_kind == A_GROWSHRINK { return 1; }
         if property == 5 && (t.kind == TY_SLICE || t.kind == TY_FN || t.kind == TY_REF && (t.length_storage < 0 || t.pool >= 0)) { return 1; }
         if property == 2 {
-            if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { continue; }
+            if t.kind == TY_ENUM {
+                if (t.flags & F_VARIABLE_MODE) == 0 { continue; }
+                if result < 1 { result = 1; }
+            }
             if t.storage == 1 || t.kind == TY_REF && t.length_storage == 0 { result = 1; continue; }
             if t.kind == TY_ARRAY {
                 if t.array_kind == A_GROW || t.array_kind == A_GROWSHRINK { return 2; }
@@ -864,7 +897,7 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
             }
             if result < 0 && token_is(p, n.token, "void") { result = TYPE_VOID; }
             if result < 0 {
-                let symbol = check_lookup_name(p, c, syntax);
+                let symbol = check_lookup_name(p, c, syntax, S_TYPE);
                 if symbol >= 0 && (p.symbols[symbol].flags & S_TYPE) != 0 {
                     let declaration = p.symbols[symbol].node;
                     p.nodes[syntax].symbol = symbol;
@@ -1128,6 +1161,70 @@ recursive fn check_layout_nominal(p: Program&, c: Checker&, type_id: i64) {
         for id in 0..end { if p.types[id].kind == TY_ENUM && p.types[id].declaration == declaration && (p.types[id].flags & F_VARIABLE_MODE) != 0 { check_variable_enum_type(p, c, id); } }
     }
 }
+fn check_enum_fixed_reason(p: Program&, type_id: i64) -> i64 {
+    let t = p.types[type_id];
+    if t.kind != TY_ENUM || (t.flags & F_VARIABLE_MODE) != 0 { return 0; }
+    var reason = 0; var variant = t.first;
+    while variant >= 0 {
+        let payload = p.nodes[variant].type_id;
+        if payload >= 0 && !check_has_generic(p, payload, 0) {
+            if check_size_class(p, payload, 0) > 0 { return 1; }
+            if check_type_property(p, payload, 6) != 0 { reason = 2; }
+        }
+        variant = p.nodes[variant].next;
+    }
+    return reason;
+}
+struct CheckTypeUse { type_id: i64, token: i64 }
+fn check_validate_type_uses(p: Program&) {
+    var pending: CheckTypeUse[>..] = []; var seen: bool[>..] = [];
+    seen.resize(p.types.len, false);
+    for n in p.nodes {
+        if (n.flags & F_CHECKED) == 0 { continue; }
+        if n.kind == N_VARIABLE || n.kind == N_ARRAY || n.kind == N_FILL || n.kind == N_CAST {
+            pending.push(CheckTypeUse { type_id: n.type_id, token: n.token });
+        }
+        if n.kind == N_VARIABLE || n.kind == N_FOR {
+            var binding = n.first;
+            while binding >= 0 {
+                pending.push(CheckTypeUse { type_id: p.nodes[binding].type_id, token: p.nodes[binding].token });
+                binding = p.nodes[binding].next;
+            }
+        }
+        if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE {
+            pending.push(CheckTypeUse { type_id: n.type_id, token: n.token });
+        }
+    }
+    for t in p.types {
+        if t.kind != TY_STRUCT { continue; }
+        var field = t.first;
+        while field >= 0 {
+            pending.push(CheckTypeUse { type_id: p.nodes[field].type_id, token: p.nodes[field].token });
+            field = p.nodes[field].next;
+        }
+    }
+    var at = 0;
+    while at < pending.len {
+        let use = pending[at]; at += 1;
+        if use.type_id < 0 || seen[use.type_id] { continue; }
+        seen[use.type_id] = true; let t = p.types[use.type_id];
+        if t.kind == TY_ENUM {
+            let reason = check_enum_fixed_reason(p, use.type_id);
+            if reason == 1 { diagnose(p, use.token, "fixed-mode enum requires fixed-size payloads; use variable mode (E..)"); }
+            if reason == 2 { diagnose(p, use.token, "fixed-mode enum payloads cannot hold self-relative references; use variable mode (E..)"); }
+        }
+        if t.kind == TY_ARRAY || t.kind == TY_SLICE || t.kind == TY_REF || t.kind == TY_FN {
+            pending.push(CheckTypeUse { type_id: t.element, token: use.token });
+        }
+        if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_FN || t.kind == TY_TUPLE {
+            var field = t.first;
+            while field >= 0 {
+                pending.push(CheckTypeUse { type_id: p.nodes[field].type_id, token: use.token });
+                field = p.nodes[field].next;
+            }
+        }
+    }
+}
 recursive fn check_nominal_instance(p: Program&, c: Checker&, declaration: i64, arguments: i64, token: i64) -> i64 {
     let saved_scope = c.scope;
     let outer_scope = p.nodes[declaration].scope;
@@ -1290,7 +1387,7 @@ fn check_read_value_type(p: Program&, c: Checker&, node: i64, ty: i64) -> i64 {
 
 fn check_value_annotation(p: Program&, c: Checker&, syntax: i64, ty: i64) -> i64 {
     if syntax < 0 || p.nodes[syntax].kind != N_TYPE_NAME { return ty; }
-    let symbol = check_lookup_name(p, c, syntax);
+    let symbol = check_lookup_name(p, c, syntax, S_TYPE);
     if symbol >= 0 && p.symbols[symbol].node >= 0 && p.nodes[p.symbols[symbol].node].kind == N_TYPE_PARAM { return check_loaded_type(p, ty); }
     return ty;
 }
@@ -2353,7 +2450,7 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
                 }
             }
         } else {
-            let symbol = check_lookup_name(p, c, n.left);
+            let symbol = check_lookup_name(p, c, n.left, S_TYPE);
             var declaration = -1; if symbol >= 0 { declaration = p.symbols[symbol].node; }
             if declaration >= 0 && p.nodes[declaration].kind == N_STRUCT && p.nodes[declaration].third >= 0 && name.first < 0 {
                 ty = check_infer_record_type(p, c, declaration, node, expected);
@@ -3043,7 +3140,7 @@ recursive fn check_prepare_function(p: Program&, c: Checker&, function_node: i64
     while ret >= 0 {
         let result_type = check_resolve_type(p, c, ret);
         if result_type >= 0 && p.types[result_type].kind == TY_REF && p.nodes[ret].kind == N_TYPE_NAME && p.nodes[ret].left < 0 {
-            let binding = check_lookup_name(p, c, ret);
+            let binding = check_lookup_name(p, c, ret, S_TYPE);
             if binding >= 0 && p.symbols[binding].node >= 0 && p.nodes[p.symbols[binding].node].kind == N_TYPE_PARAM { p.nodes[ret].type_id = check_loaded_type(p, result_type); }
         }
         ret = p.nodes[ret].next;
@@ -3642,7 +3739,7 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     }
     var first = -1; var bound_function = false;
     if (n.flags & F_SYNTHETIC) != 0 && n.symbol >= 0 { first = n.symbol; bound_function = true; }
-    else if callee.kind == N_NAME { first = check_lookup_name(p, c, n.left); }
+    else if callee.kind == N_NAME { first = check_lookup_name(p, c, n.left, S_FUNCTION); }
     else { first = callee.symbol; }
     if first >= 0 && (p.symbols[first].flags & S_FUNCTION) == 0 {
         let ty = p.symbols[first].type_id;
@@ -4283,7 +4380,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                     if p.nodes[variant].first >= 0 { diagnose(p, n.token, "enum variant payload requires a constructor"); }
                     p.nodes[node].kind = N_RECORD; p.nodes[node].left = -1; p.nodes[node].symbol = variant;
                     result = enum_type;
-                    if check_size_class(p, enum_type, 0) != 0 || check_type_property(p, enum_type, 3) != 0 {
+                    if check_enum_fixed_reason(p, enum_type) != 0 {
                         var variable = p.types[enum_type]; variable.flags |= F_VARIABLE_MODE;
                         result = add_type(p, variable); check_layout_nominal(p, c, result);
                     }
@@ -4759,6 +4856,7 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
             else {
                 var ty = payload;
                 if (p.nodes[binder].flags & F_REFERENCE) != 0 {
+                    if (p.types[source].flags & F_VARIABLE_MODE) == 0 { diagnose(p, pattern.token, "fixed-mode enum payloads cannot bind by reference"); }
                     let intrinsic = (p.nodes[binder].flags & F_SYNTHETIC) != 0 && c.function_node >= 0 && (p.nodes[c.function_node].flags & (F_SYNTHETIC | F_FORMAT_RAW)) == (F_SYNTHETIC | F_FORMAT_RAW);
                     if check_size_class(p, source, 0) == 2 && !intrinsic { diagnose(p, pattern.token, "resizable enum payloads cannot bind by reference"); }
                     ty = check_type(p, TY_REF, payload, 0, -1, 0);
@@ -5462,7 +5560,7 @@ recursive fn check_alias_names(p: Program&, c: Checker&, node: i64) {
     if node < 0 { return; }
     let n = p.nodes[node];
     if n.kind == N_TYPE_NAME && n.left < 0 && check_primitive_token(p.tokens[n.token].kind) < 0 {
-        let symbol = check_lookup_name(p, c, node);
+        let symbol = check_lookup_name(p, c, node, S_TYPE);
         if symbol < 0 { diagnose(p, n.token, "unknown type name in alias"); }
         else if p.symbols[symbol].node >= 0 && p.nodes[p.symbols[symbol].node].kind == N_ALIAS { check_alias_declaration(p, c, p.symbols[symbol].node); }
     }
@@ -5483,7 +5581,7 @@ recursive fn check_qualified_body_types(p: Program&, c: Checker&, node: i64) {
     let n = p.nodes[node]; let saved = c.scope;
     if (n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_NAMESPACE) && n.scope >= 0 { c.scope = n.scope; }
     if n.kind == N_TYPE_NAME && n.left < 0 {
-        let symbol = check_lookup_name(p, c, node);
+        let symbol = check_lookup_name(p, c, node, S_TYPE);
         if n.aux > 1 && symbol < 0 { diagnose(p, n.token, "unknown qualified type name"); }
         if symbol >= 0 && p.symbols[symbol].node >= 0 && p.nodes[p.symbols[symbol].node].kind == N_STRUCT && (n.flags & F_VARIABLE_MODE) != 0 {
             diagnose(p, n.token, "variable mode applies only to an enum type");
@@ -5616,7 +5714,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
             diagnose(p, s.name_token, "empty array element type was never determined");
         }
     }
-    check_validate_program(p);
+    check_validate_type_uses(p); check_validate_program(p);
     var scope_parents: i64[>..] = []; var scope_depths: i64[>..] = [];
     var scope_lifetimes: i64[>..] = []; var scope_functions: i64[>..] = [];
     for scope in c.scopes { scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_lifetimes.push(scope.lifetime); scope_functions.push(scope.function_node); }

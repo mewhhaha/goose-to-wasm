@@ -1877,7 +1877,10 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
     if n.kind == N_MATCH {
         let future = l.future_count; var branch = n.first;
         while branch >= 0 { life_push_future(l, p.nodes[branch].right); branch = p.nodes[branch].next; }
-        let source = life_eval(p, l, n.left); l.future_count = future; var arm = n.first;
+        var source = life_eval(p, l, n.left); l.future_count = future; var arm = n.first;
+        if source.type_id >= 0 && p.types[source.type_id].kind == TY_REF {
+            source = life_load(p, l, p.types[source.type_id].element, source.refs);
+        }
         while arm >= 0 {
             let a = p.nodes[arm]; let pattern = p.nodes[a.left];
             if pattern.left >= 0 && p.nodes[pattern.left].symbol >= 0 {

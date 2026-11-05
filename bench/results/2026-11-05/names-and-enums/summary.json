@@ -1,0 +1,213 @@
+{
+  "schema": "goose-compiler-benchmarks-v1",
+  "source_base_commit": "350bcf08fda461423102e762ce05f44cc6439a82",
+  "compiler_snapshot": "40",
+  "source_sha256": {
+    "checker.goose": "99c38a4953e1cae84ca43599f54991adf02ab49cc017a8b61ec0d09257f958d1",
+    "checker_lifetimes.goose": "a8bb776619ee8ee63caab21a4ac98345a5f1e64a42a59954e24ec8c2449ca40e",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_rendering.goose": "a389a9416ae458c44a275d47dcb4d8a5debdb493a68cdccb896e17e5ce321ac2",
+    "checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38",
+    "codegen.goose": "d52c2430721cbb64025ce6239b3edc5c4a401d2f334744f84d4fc4adbedb35fa",
+    "codegen_c.goose": "f840dc3b316c076bb0121f8f51bb8438218d3c10f81c2a000ebfaecd11632c9a",
+    "codegen_c_images.goose": "22d8e69400282c20ee668d61e8a6e24a813033660609bf659332426d3dc71d18",
+    "codegen_c_storage.goose": "4cb22ab028b2390abbd8eb6a9a6dc526b90171560d9469cc37258feb44e55c5f",
+    "codegen_c_threads.goose": "698c1d3ac2495541499c241a4d6e97d6a69cd70f490c66b78372fa09d40d8470",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "model.goose": "1d7bd3f5961a7c31a80b6871afe2941a466c02cddd8c49f525fc73b5b5a3b75b",
+    "optimizer.goose": "adb9821476d8318659c19f8995270a528ae38666322dc8ac0e7fb66686ce1b3c",
+    "parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "sources.goose": "55df17c30952b28a4e8bc38d11e0ecd4353eb47a48fc6fc27454229b5354c37b",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "14551b8a2907c6d12cf4ead3e636d0ffd4bf9a0f8a6b8d37f8b7093941086fb6",
+    "native/relative.h": "b6685302f66ad9b0feb8982736363dcfe12bc50b4aa034eb10297e11c7859416",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/images.h": "bd3a72dbcb7681c414e182250b39b42a2ec06e2c1cc5687d3579387524f4a7d1",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "stdlib_sha256": {
+    "base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e"
+  },
+  "bootstrap_c_sha256": "54ca14dd2ce2012c45950fcae3c03c77069e5a909ee30ee238052d2e00346e43",
+  "compiler_sha256": "89b89d0667c2b92e01f38c29a3e1910d18e5ef7fe4e13c12a6daff1ecce15940",
+  "compiler_builds": "Both measured cohorts use the exact qualified executable.",
+  "examples_status": "passed",
+  "host_status": "passed",
+  "compile_samples": 5,
+  "runtime_samples": 5,
+  "preparation_samples": 5,
+  "compiler_comparison": "Both targets use the Goose-written compiler. Native uses its C backend at GCC O2. Prior snapshots are separately collected references.",
+  "rows": [
+    {
+      "name": "squares",
+      "build_ms": {
+        "direct": 49.004816999999996,
+        "native": 241.759689
+      },
+      "process_ms": {
+        "direct/python": 68.436295,
+        "direct/native": 4.191544,
+        "direct/native-serial": 3.8283739999999997,
+        "direct/precompiled": 1.006552,
+        "direct/precompiled-minimal": 0.813526,
+        "native/native-C": 0.7203189999999999
+      }
+    },
+    {
+      "name": "tour",
+      "build_ms": {
+        "direct": 61.025808,
+        "native": 884.0073590000001
+      },
+      "process_ms": {
+        "direct/python": 124.49395000000001,
+        "direct/native": 58.752815,
+        "direct/native-serial": 56.372502999999995,
+        "direct/precompiled": 1.2676180000000001,
+        "direct/precompiled-minimal": 0.955155,
+        "native/native-C": 0.876866
+      }
+    },
+    {
+      "name": "functions",
+      "build_ms": {
+        "direct": 126.06096699999999,
+        "native": 1502.1498159999999
+      },
+      "process_ms": {
+        "direct/python": 244.572223,
+        "direct/native": 179.071702,
+        "direct/native-serial": 176.750473,
+        "direct/precompiled": 1.2890689999999998,
+        "direct/precompiled-minimal": 1.082277,
+        "native/native-C": 0.827252
+      }
+    },
+    {
+      "name": "errors",
+      "build_ms": {
+        "direct": 80.81417,
+        "native": 791.383355
+      },
+      "process_ms": {
+        "direct/python": 120.039665,
+        "direct/native": 54.416706000000005,
+        "direct/native-serial": 53.925945000000006,
+        "direct/precompiled": 1.109267,
+        "direct/precompiled-minimal": 0.843162,
+        "native/native-C": 0.8561369999999999
+      }
+    },
+    {
+      "name": "sieve",
+      "build_ms": {
+        "direct": 70.234771,
+        "native": 379.609409
+      },
+      "process_ms": {
+        "direct/python": 90.07996899999999,
+        "direct/native": 25.266588,
+        "direct/native-serial": 24.451819999999998,
+        "direct/precompiled": 2.8710150000000003,
+        "direct/precompiled-minimal": 2.6558260000000002,
+        "native/native-C": 1.3468799999999999
+      }
+    },
+    {
+      "name": "sorting",
+      "build_ms": {
+        "direct": 127.35765299999998,
+        "native": 1663.377434
+      },
+      "process_ms": {
+        "direct/python": 377.865171,
+        "direct/native": 310.353359,
+        "direct/native-serial": 311.618422,
+        "direct/precompiled": 159.715632,
+        "direct/precompiled-minimal": 161.697299,
+        "native/native-C": 112.620828
+      }
+    },
+    {
+      "name": "sudoku",
+      "build_ms": {
+        "direct": 71.91874800000001,
+        "native": 453.727575
+      },
+      "process_ms": {
+        "direct/python": 95.94301,
+        "direct/native": 30.620863,
+        "direct/native-serial": 30.160678,
+        "direct/precompiled": 11.602045,
+        "direct/precompiled-minimal": 11.377689,
+        "native/native-C": 8.713637
+      }
+    },
+    {
+      "name": "maze",
+      "build_ms": {
+        "direct": 84.413929,
+        "native": 684.1043970000001
+      },
+      "process_ms": {
+        "direct/python": 150.67308400000002,
+        "direct/native": 85.376252,
+        "direct/native-serial": 83.462084,
+        "direct/precompiled": 1.2607549999999998,
+        "direct/precompiled-minimal": 1.0396450000000002,
+        "native/native-C": 0.810008
+      }
+    },
+    {
+      "name": "vm",
+      "build_ms": {
+        "direct": 78.855542,
+        "native": 576.760871
+      },
+      "process_ms": {
+        "direct/python": 139.28322300000002,
+        "direct/native": 73.227328,
+        "direct/native-serial": 71.107712,
+        "direct/precompiled": 1.100631,
+        "direct/precompiled-minimal": 1.015179,
+        "native/native-C": 0.7928670000000001
+      }
+    },
+    {
+      "name": "life",
+      "build_ms": {
+        "direct": 73.217969,
+        "native": 528.952043
+      },
+      "process_ms": {
+        "direct/python": 125.42840299999999,
+        "direct/native": 58.728708,
+        "direct/native-serial": 57.76048,
+        "direct/precompiled": 26.608188000000002,
+        "direct/precompiled-minimal": 26.379424,
+        "native/native-C": 20.471448
+      }
+    }
+  ]
+}

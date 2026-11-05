@@ -13,6 +13,7 @@ recursive fn validation_size_class(p: Program&, type_id: i64, depth: i64 = 0) ->
         return validation_size_class(p, t.element, depth + 1);
     }
     var result = 0;
+    if t.kind == TY_ENUM { result = 1; }
     if t.kind == TY_STRUCT || t.kind == TY_ENUM {
         var field = t.first;
         while field >= 0 {

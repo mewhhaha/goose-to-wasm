@@ -44,15 +44,19 @@ def main():
         parser.error('upstream source bundle changed')
     upstream = out / 'upstream'
     upstream.mkdir()
-    with tarfile.open(archive) as bundle:
-        for member in bundle:
-            relative = Path(member.name)
-            if relative.is_absolute() or '..' in relative.parts or not member.isfile():
-                parser.error('unexpected upstream archive member: ' + member.name)
-            path = upstream / relative
-            path.parent.mkdir(parents=True, exist_ok=True)
-            with bundle.extractfile(member) as source, path.open('wb') as target:
-                shutil.copyfileobj(source, target)
+    needs_upstream = any(
+        args.filter in case['id'] and case['source'].startswith('upstream:')
+        for case in manifest['cases'])
+    if needs_upstream:
+        with tarfile.open(archive) as bundle:
+            for member in bundle:
+                relative = Path(member.name)
+                if relative.is_absolute() or '..' in relative.parts or not member.isfile():
+                    parser.error('unexpected upstream archive member: ' + member.name)
+                path = upstream / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with bundle.extractfile(member) as source, path.open('wb') as target:
+                    shutil.copyfileobj(source, target)
     shutil.copytree(library, upstream / 'stdlib')
     host = args.host
     if host is None and (ROOT / 'build/bin/goose-wasmtime').exists():
@@ -68,7 +72,8 @@ def main():
         pins[str(host)] = digest(host)
     report = {'schema': 'goose-conformance-v1', 'status': 'running',
               'configuration': {'compiler': str(compiler), 'manifest': str(args.manifest), 'levels': args.levels,
-                  'filter': args.filter, 'engine': args.engine, 'host': str(host), 'frontend_only': args.frontend_only},
+                  'filter': args.filter, 'engine': args.engine, 'host': str(host), 'frontend_only': args.frontend_only,
+                  'upstream_extracted': needs_upstream},
               'method': 'Only the compiler under test runs. Sources, stdin, expected stdout, exit status and '
                         'failure phases are frozen data. No expected-output update mode, reference fallback, '
                         'expected failures or silent skips. Compilations with identical inputs share an artifact '

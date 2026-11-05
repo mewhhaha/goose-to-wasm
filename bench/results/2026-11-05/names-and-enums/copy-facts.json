@@ -1,0 +1,21 @@
+{
+  "PASSED": "4,798",
+  "TOTAL": "5,043",
+  "FAILED": "245",
+  "MACHINE": "AMD Ryzen 7 3800X pinned to CPU 7",
+  "SAMPLES": "Five",
+  "DIRECT_BUILD_RANGE": "49.0\u2013127.4",
+  "NATIVE_BUILD_RANGE": "241.8\u20131,663.4",
+  "BENCHMARK_CONTEXT": "The native column uses this compiler's C backend. Sorting took 161.7 ms with minimal AOT and 112.6 ms natively. Snapshot 39 was measured separately; these runs do not establish a matched runtime improvement.",
+  "BOOTSTRAP_STATUS": "Snapshot 40 passed C-only fixed-point verification.",
+  "CHANGE_SCOPE": "It separates global value, type and function names, and fixes enum storage checks and reference matches.",
+  "CONFORMANCE_CONTEXT": "Against snapshot 39, 16 of 5,043 shared checks improved and none regressed.",
+  "WASM_CORPUS_CONTEXT": "The curated Wasm corpus passed 1,952/1,952 checks each in Wasmtime and V8.",
+  "KNOWN_GAPS": "Remaining gaps include 41 accepted invalid programs and 204 runtime contracts that fail to compile or execute. Variable images, lifetimes and control flow remain incomplete.",
+  "GENERATED_C_SHA256": "54ca14dd2ce2012c45950fcae3c03c77069e5a909ee30ee238052d2e00346e43",
+  "COMPILER_SHA256": "89b89d0667c2b92e01f38c29a3e1910d18e5ef7fe4e13c12a6daff1ecce15940",
+  "RUNTIME_WARMUPS": "1",
+  "METHOD_AND_IDENTITIES": "Both targets use the same qualified Goose compiler; native C uses GCC 16.2.1 at O2. Wasmtime 50.0.1 preparation is measured separately.",
+  "COHORT_CONTEXT": "The separately collected host cohort uses the example cohort's artifacts; runtime columns below come from the host cohort.",
+  "EXAMPLE_ROWS": "| squares | 49.005 | 241.760 | 0.814 | 0.720 |\n| tour | 61.026 | 884.007 | 0.955 | 0.877 |\n| functions | 126.061 | 1502.150 | 1.082 | 0.827 |\n| errors | 80.814 | 791.383 | 0.843 | 0.856 |\n| sieve | 70.235 | 379.609 | 2.656 | 1.347 |\n| sorting | 127.358 | 1663.377 | 161.697 | 112.621 |\n| sudoku | 71.919 | 453.728 | 11.378 | 8.714 |\n| maze | 84.414 | 684.104 | 1.040 | 0.810 |\n| vm | 78.856 | 576.761 | 1.015 | 0.793 |\n| life | 73.218 | 528.952 | 26.379 | 20.471 |"
+}
