@@ -1,0 +1,96 @@
+{
+  "status": "qualified_receiver_abi",
+  "scope": "Per-natural-ordinal aggregate receivers; N_RESULT projection; nonlocal direct destinations; natural count snapshots; reference-to-array origin preservation. Encoded variable images/varint storage remain unsupported.",
+  "source_root": "/home/jacobt/src/goose-to-wasm/build/completion-runs/native-results-H16/source",
+  "compiler": "/home/jacobt/src/goose-to-wasm/build/completion-runs/native-results-H16/build/goose",
+  "compiler_sha256": "4ccff2fe303627bcd4571b92796bc3e8f1fd7ffb9746df241cee96df1975bd3c",
+  "gates": {
+    "native-full": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/native-results-H16/native-full/report.json",
+      "sha256": "b36e494c8104218b50649e0237b4671cee6749e0ce0cdedf82e53389e0b5ad50",
+      "status": "failed",
+      "summary": {
+        "selected": 3056,
+        "passed": 2740,
+        "failed": 316
+      }
+    },
+    "comparison": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/native-results-H16/comparison.json",
+      "sha256": "fb23fdd3615e66471c35f383333095465757dbe8f9eaeb357de6b7b0a7ef9424",
+      "status": null,
+      "summary": null
+    },
+    "own-O0-O2-ASan-UBSan": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/native-results-H16/result-probes/report.json",
+      "sha256": "b803e9f0e958cadb13dfdc6984d4cb194f97a955fa12bba058d51e36caffea9e",
+      "status": "passed",
+      "summary": null
+    },
+    "selfemit-Clang-C2-selfcheck": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/native-results-H16/selfemit/report.json",
+      "sha256": "1d5a8a422af7af1c64ece1bfaae11053c3c7b3e91f97763b8006d292e5ab8977",
+      "status": "passed",
+      "summary": null
+    }
+  },
+  "delivery_pending": [
+    "Parent coherent full-suite qualification",
+    "Parent canonical three-generation C-only proof"
+  ],
+  "frontend": "DE checker/lifetimes/rendering/validator/operations plus DG lifetimes, minimal CR+N_RESULT58 model. Root later numeric corrections are separate overlays.",
+  "source_sha256": {
+    "native/README.md": "662eb07f6a8091551901e3222f02972a190797c030e966ad6410b5e65e688e73",
+    "native/images.h": "3586abac5c2c3a3442353aa13ec1f994a8edd21261092970437119c9f3f03d8c",
+    "native/pack.py": "2e2acae72b9ec2db4f19ce58d5c54472f01a4e083886a678c2f3496fa96e6f80",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/relative.h": "b6685302f66ad9b0feb8982736363dcfe12bc50b4aa034eb10297e11c7859416",
+    "native/runtime/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "native/runtime/NOTICE": "803282561ca75117bd789df6d7d47af30ee958cf0a7c5cdd603e68b8fa374003",
+    "native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4",
+    "native/runtime/manifest.json": "4381fbca7f703469cf6bd7e76ef4bc81a110640e5a877f36d60786ee3cda440e",
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "14551b8a2907c6d12cf4ead3e636d0ffd4bf9a0f8a6b8d37f8b7093941086fb6",
+    "native/tests/check.py": "d884ace7d7254e24f82015009eb278692f28844779b1fb2d079fc64a37021b9f",
+    "native/tests/fixed_values.c": "fd7bafbd0d44e113c2a9cf0678ce28ed0993a1e27231057e6191f997960d3b19",
+    "native/tests/images.goose": "a25c40131590039b71918b573d814f82a150ef6bad10cf0adae7452c17a5d339",
+    "native/tests/large_values.goose": "78501c63e2fb92257e92415d36808e080196171d824e7982b1b2b3fd79e27da8",
+    "native/tests/ordinary_regions.goose": "2ffa3461685b4822d3e440c0fbe90ae30c55f80f8f18327e7d0aa788a7415e24",
+    "native/tests/pools.c": "1e1d20e1d105b7837f2231b7339ca8cd5694fb69a1b204df5efd5e93e18e5559",
+    "native/tests/receiving_views.goose": "97316e9d22b2c1e24934f7830a786e1239504182e37e7c8149e03ad22a8bf0c2",
+    "native/tests/relative.c": "df2915990cdb28ccff508c4285aeb7f0b247b1bf4bda81239ca5ca578e0b5214",
+    "native/tests/relative.goose": "de3659f3e7cb74e294ddbcb05777b3f6e9f13a0ab09566ddadff396a853a401d",
+    "native/tests/relative_overflow.goose": "b6f04ea9ecee8cef4c92b2f51cfce70000b73c659ee54da8b5aa2a3027050a23",
+    "native/tests/results.goose": "32c6cd8288c73c17d84d72260643b04b5f4f39fc3931278ffb2c815073c8aa82",
+    "native/tests/runtime_threads_lifecycle.c": "2d4d9d70637bd73570ca511c7cbb95be96b19d6e73a7c38020e47a87a31cb386",
+    "native/tests/runtime_trim_memory.c": "ec39bbb051fb0d138a0f16504455349a210550dec69321c497bae6fc514e9d1f",
+    "native/tests/source-manifest.json": "ed037a52a76daf8c2fdf0da268653dc4ea396ebf1e79bc4337e79801423f82c9",
+    "native/tests/threads_adapter.c": "c18cfcc1bcea1f02255ea3cace712203c20160c2025c78fb391f666e6eb578f9",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7",
+    "selfhost/checker.goose": "5852f8929e0869c9e4d515042bd61877b554b2bae5cc0d8b3bed27edcb994651",
+    "selfhost/checker_lifetimes.goose": "f1befe6eb10b3c665c771ac461a057674689b8434036dda2e4da113ec117ff54",
+    "selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "selfhost/checker_rendering.goose": "f50fae974e6a75355257ec8411adadd3e96be6521cf7ddbca5a6c626285debd8",
+    "selfhost/checker_validation.goose": "1efa190d357c04f8469cad64a03969de825f608a9b1eb66e188e68c9c6e32b24",
+    "selfhost/codegen.goose": "591dde67d5436993f728c397fe57f8b90c3c46dd354529bf4b19b4639e7a9bde",
+    "selfhost/codegen_c.goose": "7e14353bb72598a96b7c59c17b8f4ba77fc5a973b6c370cabebf71003f36bfc8",
+    "selfhost/codegen_c_images.goose": "5489ff84b064b7effdb7a19988b1b68586a0e607f131a70a659f55eac1bf821f",
+    "selfhost/codegen_c_storage.goose": "7855c80c8d162d240ca8e09fbac23de8292d85164d62f2a17d9e02d6615b50b6",
+    "selfhost/codegen_c_threads.goose": "698c1d3ac2495541499c241a4d6e97d6a69cd70f490c66b78372fa09d40d8470",
+    "selfhost/driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "selfhost/expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "selfhost/lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "selfhost/model.goose": "183a265206fa76a57e182e6eeefd05df1c0fa2fceb2fea2ace48e07983f329a5",
+    "selfhost/optimizer.goose": "adb9821476d8318659c19f8995270a528ae38666322dc8ac0e7fb66686ce1b3c",
+    "selfhost/parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a",
+    "selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "selfhost/sources.goose": "55df17c30952b28a4e8bc38d11e0ecd4353eb47a48fc6fc27454229b5354c37b",
+    "selfhost/thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "selfhost/wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+  }
+}

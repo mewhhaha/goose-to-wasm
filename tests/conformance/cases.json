@@ -45984,6 +45984,79 @@
         0
       ],
       "provenance": "upstream source signature; execution requires external implementation"
+    },
+    {
+      "id": "corpus/constant-operands/value-kinds",
+      "source": "tests/fixtures/constant_operand_kinds.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "301 64\n301 64\n8 8\n302 64\n8 8\n-9223372036854775808\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified from integer operand and named-constant rules"
+    },
+    {
+      "id": "native/constant-operands/value-kinds",
+      "source": "tests/fixtures/constant_operand_kinds.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "301 64\n301 64\n8 8\n302 64\n8 8\n-9223372036854775808\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified from integer operand and named-constant rules"
+    },
+    {
+      "id": "contracts/errors_tc/constant_operand_local_unsigned",
+      "source": "tests/fixtures/constant_operand_local_unsigned.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "stdin": "",
+      "expect": {},
+      "debug": false,
+      "provenance": "independently specified: local bindings, annotated globals and casts retain unsigned type"
+    },
+    {
+      "id": "contracts/errors_tc/constant_operand_global_unsigned",
+      "source": "tests/fixtures/constant_operand_global_unsigned.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "stdin": "",
+      "expect": {},
+      "debug": false,
+      "provenance": "independently specified: local bindings, annotated globals and casts retain unsigned type"
+    },
+    {
+      "id": "contracts/errors_tc/constant_operand_cast_unsigned",
+      "source": "tests/fixtures/constant_operand_cast_unsigned.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "stdin": "",
+      "expect": {},
+      "debug": false,
+      "provenance": "independently specified: local bindings, annotated globals and casts retain unsigned type"
     }
   ],
   "legacy_math_capture": {

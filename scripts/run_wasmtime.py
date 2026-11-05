@@ -102,6 +102,15 @@ def run_module(data: bytes, stdin: str, *, timing: bool = True) -> dict:
     def write64(caller, pointer, value):
         write_bytes(caller, pointer, struct.pack("<Q", value))
 
+    def format_float(caller, pointer, value, bits):
+        text = goose_float(value, bits).encode()
+        if len(text) > 32:
+            raise RuntimeError("formatted float exceeds host buffer")
+        pointer &= 0xffffffff
+        memory_bytes(caller, pointer, 32)
+        write_bytes(caller, pointer, text)
+        return len(text)
+
     def iovecs(caller, pointer, count):
         data = memory_bytes(caller, pointer, count * 16)
         return struct.iter_unpack("<QQ", data)
@@ -179,6 +188,8 @@ def run_module(data: bytes, stdin: str, *, timing: bool = True) -> dict:
         ("goose", "print_u64"): (lambda value: chunks.append(str(value & ((1 << 64) - 1)).encode()), False),
         ("goose", "print_f64"): (lambda value: chunks.append(goose_float(value).encode()), False),
         ("goose", "print_f32"): (lambda value: chunks.append(goose_float(value, 32).encode()), False),
+        ("goose", "format_f64"): (lambda c, p, v: format_float(c, p, v, 64), True),
+        ("goose", "format_f32"): (lambda c, p, v: format_float(c, p, v, 32), True),
         ("goose", "print_bool"): (lambda value: chunks.append(b"true" if value else b"false"), False),
         ("goose", "newline"): (lambda: chunks.append(b"\n"), False),
         ("goose", "abort"): (abort, True),

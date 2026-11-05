@@ -7,7 +7,12 @@ struct CcDestination {
     entry: i64 = -1, start: i64 = -1, receiver: i64 = -1,
     publication: i64 = -1, construction: i64 = -1,
 }
-struct CcReceiving { ordinal: i64, destination: i64, symbol: i64 = -1 }
+struct CcReceiving { ordinal: i64, destination: i64, symbol: i64 = -1, call: i64 = -1 }
+struct CcChannels { value: i64, address: i64 }
+let CC_NATIVE: i64 = 0;
+let CC_REGISTER: i64 = 1;
+let CC_IMAGE: i64 = 2;
+let CC_CHANNELS: i64 = 3;
 
 recursive fn cc_region_width(p: Program&, type_id: i64) -> i64 {
     if type_id < 0 { return 0; }
@@ -206,7 +211,18 @@ fn cc_result_location(p: Program&, type_id: i64) -> bool {
     }
     return (kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM) && cc_fixed_storage(p, type_id) && cc_relative_fields(p, type_id);
 }
-fn cc_result_indirect(p: Program&, type_id: i64) -> bool { return cc_indirect(p, type_id) || cc_result_location(p, type_id); }
+fn cc_tuple_channels(p: Program&, type_id: i64) -> bool {
+    if cc_kind(p, type_id) != TY_TUPLE { return false; }
+    if cc_indirect(p, type_id) { return true; }
+    var field = p.types[type_id].first;
+    while field >= 0 {
+        let kind = cc_kind(p, p.nodes[field].type_id);
+        if kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM || kind == TY_TUPLE { return true; }
+        field = p.nodes[field].next;
+    }
+    return false;
+}
+fn cc_result_indirect(p: Program&, type_id: i64) -> bool { return cc_tuple_channels(p, type_id) || cc_indirect(p, type_id) || cc_result_location(p, type_id); }
 fn cc_helper_indirect(p: Program&, type_id: i64) -> bool {
     let kind = cc_kind(p, type_id);
     return cc_indirect(p, type_id) || (kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM || kind == TY_TUPLE) && cc_relative_fields(p, type_id, true);

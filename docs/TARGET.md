@@ -228,10 +228,18 @@ be used after initialization. Imports under module `goose` are:
 | `print_i64`, `print_u64` | `(i64) -> ()` | Decimal integer output |
 | `print_f64` | `(f64) -> ()` | Goose-compatible float output |
 | `print_f32` | `(f32) -> ()` | Goose-compatible float output |
+| `format_f64` | `(i32,f64) -> i32` | Format a float into a caller-owned byte buffer |
+| `format_f32` | `(i32,f32) -> i32` | Format a float into a caller-owned byte buffer |
 | `print_bool` | `(i32) -> ()` | Boolean output |
 | `newline` | `() -> ()` | End a print operation |
 | `abort` | `(i32,i32,i32) -> ()` | Message pointer/length and source line; must terminate execution |
 | `exit` | `(i32) -> ()` | Terminate with the requested exit status |
+
+The `format_f32` and `format_f64` imports are emitted only when reachable string
+formatting needs that width. The first argument points to 32 writable bytes in
+exported memory. The host writes the same text as `print_f32` or `print_f64`,
+without a terminator, and returns its byte length. Hosts check the full buffer
+range before writing. Other modules retain their existing imports.
 
 Scalar `extern fn` declarations ordinarily become imports under `env`, with their
 C symbol names. Exact standard numeric signatures for `sqrt`/`gs_sqrt`, `floor`,

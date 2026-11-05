@@ -1,0 +1,113 @@
+{
+  "status": "qualified isolated Wasm consumer checkpoint, not complete upstream parity",
+  "source_snapshot": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/projection-di-source",
+  "source_pins": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/projection-final/source-sha256.json",
+  "compiler_build": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/projection-di-build/report.json",
+  "backend_sha256": {
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/projection-final/codegen.goose": "e4b838b3eb7f30d2d924e2a646e06e1d3da9baa9a2ad1ba61ba859f984f6846e",
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/projection-final/wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+  },
+  "gates": {
+    "corpus-projection-di": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/corpus-projection-di/report.json",
+      "sha256": "71f72f81875083825704e17439efa64a98bbe05594bc782b444cbda8efc7c87b",
+      "summary": {
+        "selected": 1944,
+        "passed": 1944,
+        "failed": 0
+      }
+    },
+    "corpus-projection-di-v8": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/corpus-projection-di-v8/report.json",
+      "sha256": "466a0c613c985e673f682c2fd0f98418deebcd3103e384cf3aa05cac2d50a4e5",
+      "summary": {
+        "selected": 1944,
+        "passed": 1944,
+        "failed": 0
+      }
+    },
+    "examples-projection-di": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/examples-projection-di/report.json",
+      "sha256": "0367fa29e5338ff44ac7392f5259f273b84159177b640d9589cc7eaf75c74e9b",
+      "summary": {
+        "selected": 20,
+        "passed": 20,
+        "failed": 0
+      }
+    },
+    "examples-projection-di-v8": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/examples-projection-di-v8/report.json",
+      "sha256": "88a54cdd34c9c4f32fdc21d6a8267ac6d200b8ace22ca7f9b5284d87535c3498",
+      "summary": {
+        "selected": 20,
+        "passed": 20,
+        "failed": 0
+      }
+    },
+    "wide-di-v8": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/wide-di-v8/report.json",
+      "sha256": "8ba0d8e72b354eeb374d8d9a5128884a248b0cb0de09343c3a1698c356aada8c",
+      "summary": {
+        "selected": 4,
+        "passed": 4,
+        "failed": 0
+      }
+    },
+    "wide-di-wasmtime": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/wide-di-wasmtime/report.json",
+      "sha256": "859743f72ba8402b94d531015a6b2ce42ab07ad1ef1f8bb88dd039a698147907",
+      "summary": {
+        "selected": 4,
+        "passed": 4,
+        "failed": 0
+      }
+    },
+    "di-compat-focus": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/pools-projection/di-compat-focus.json",
+      "sha256": "94dfd4c956d756421916a2ea79a409994404c3dee92de1088892e46970cec27c",
+      "passed": 26
+    },
+    "di-projection-focus": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/pools-projection/di-projection-focus.json",
+      "sha256": "34ad3d70989a2ee5a3ab1b0746e39c164a836ed380194a182ba88f9812bdabbd",
+      "passed": 8
+    },
+    "di-formal-focus": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/pools-projection/di-formal-focus.json",
+      "sha256": "0262c23fc18a7744ccfa4edd9c10be44202020c22466dc048b05accdaa8a3e8c",
+      "passed": 5
+    },
+    "frontend310": {
+      "report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/pools-projection/di-310-check.json",
+      "sha256": "2cb4c6c9d765c7baa4ad2303fa635fcd009a163fb71d0fa5ea10a9289f9f86ee",
+      "passed": 310
+    }
+  },
+  "review": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-backend/projection-final/REVIEW.md",
+  "host_sha256": {
+    "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445",
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca",
+    "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-host": "b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed"
+  },
+  "wide_enum": {
+    "before_bytes": 3561414,
+    "after_bytes": 35495,
+    "before_v8": "default and no-tier-up timed out inside first _start call; disabling lazy compilation moved stall to instantiate",
+    "after_v8_seconds_range": [
+      0.0309,
+      0.1152
+    ],
+    "after_wasmtime_seconds_range": [
+      0.0099,
+      0.0134
+    ]
+  },
+  "known_unimplemented": [
+    "slice-pool builtins33..35",
+    "variable-pointee borrowed image references (full relative_destination_results later Row.next)",
+    "general physical-image codecs/from_bytes",
+    "direct Wasm threads",
+    "frexp/ldexp extern adapters needed by json runtime"
+  ]
+}

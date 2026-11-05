@@ -162,6 +162,7 @@ let N_TUPLE: i64 = 54;
 let N_TYPEOF: i64 = 55;
 let N_TYPE_DEDUCED: i64 = 56;
 let N_SELF: i64 = 57;
+let N_RESULT: i64 = 58;
 
 let TY_UNKNOWN: i64 = 0;
 let TY_VOID: i64 = 1;

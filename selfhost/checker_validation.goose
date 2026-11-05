@@ -199,6 +199,83 @@ fn validation_element_layout(p: Program&, type_id: i64, token: i64) {
     }
 }
 
+fn validation_array_type(p: Program&, node: i64) -> i64 {
+    if node < 0 { return -1; }
+    var type_id = p.nodes[node].type_id;
+    while type_id >= 0 && p.types[type_id].kind == TY_REF { type_id = p.types[type_id].element; }
+    if type_id >= 0 && (p.types[type_id].kind == TY_ARRAY || p.types[type_id].kind == TY_SLICE) { return type_id; }
+    return -1;
+}
+fn validation_array_operation(p: Program&, node: i64) {
+    let n = p.nodes[node];
+    if n.kind == N_INDEX {
+        if (n.flags & F_SYNTHETIC) != 0 { return; }
+        let array = validation_array_type(p, n.left);
+        if array >= 0 && validation_size_class(p, p.types[array].element) > 0 {
+            diagnose(p, n.token, "arrays of variable-size elements can only be iterated, not indexed");
+        }
+        return;
+    }
+    if n.kind != N_CALL || n.symbol < 0 || (p.symbols[n.symbol].flags & S_BUILTIN) == 0 { return; }
+    let builtin = p.symbols[n.symbol].index;
+    if builtin == 26 || builtin == 27 {
+        let array = validation_array_type(p, n.first);
+        if array >= 0 && validation_size_class(p, p.types[array].element) > 0 {
+            diagnose(p, n.token, "pop and pop_n require fixed-size elements");
+        }
+    } else if builtin == 24 || builtin == 30 || builtin == 31 {
+        if n.first < 0 { return; }
+        let array = validation_array_type(p, n.first);
+        if array < 0 || validation_size_class(p, p.types[array].element) == 0 { return; }
+        let value = p.nodes[n.first].next;
+        if value >= 0 && validation_storage_value(p, value) {
+            diagnose(p, p.nodes[value].token, "non-fixed storage requires explicit copy when constructing an element");
+        }
+    }
+}
+recursive fn validation_frozen(p: Program&, type_id: i64, depth: i64 = 0) -> bool {
+    if type_id < 0 || depth > 64 { return false; }
+    if validation_size_class(p, type_id) == 2 { return false; }
+    let t = p.types[type_id];
+    if t.storage == 1 || t.kind == TY_REF && t.length_storage == 0 { return true; }
+    if t.kind == TY_ARRAY { return t.array_kind == A_VAR; }
+    if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { return false; }
+    if t.kind == TY_STRUCT || t.kind == TY_ENUM {
+        var field = t.first;
+        while field >= 0 {
+            if validation_frozen(p, p.nodes[field].type_id, depth + 1) { return true; }
+            field = p.nodes[field].next;
+        }
+    }
+    return false;
+}
+fn validation_temporary_write(p: Program&, node: i64, rebind: bool) -> bool {
+    var current = node; var slot = rebind;
+    while current >= 0 {
+        let n = p.nodes[current];
+        if n.type_id >= 0 && (p.types[n.type_id].kind == TY_REF || p.types[n.type_id].kind == TY_SLICE) && !slot { return false; }
+        if n.kind == N_IF || n.kind == N_MATCH || n.kind == N_BLOCK || n.kind == N_LOOP {
+            return (n.flags & F_REFERENCE_CONTEXT) == 0;
+        }
+        if n.kind != N_MEMBER && n.kind != N_INDEX && n.kind != N_SLICE && n.kind != N_UNARY { return false; }
+        current = n.left; slot = false;
+    }
+    return false;
+}
+fn validation_assignment(p: Program&, node: i64) {
+    let n = p.nodes[node];
+    if n.kind != N_ASSIGN || n.left < 0 { return; }
+    if validation_temporary_write(p, n.left, n.integer == T_DOTASSIGN) {
+        diagnose(p, n.token, "a control-flow value is a read-only temporary"); return;
+    }
+    var type_id = p.nodes[n.left].type_id;
+    if n.integer == T_DOTASSIGN && type_id >= 0 && (p.types[type_id].kind == TY_REF || p.types[type_id].kind == TY_SLICE) { return; }
+    while type_id >= 0 && p.types[type_id].kind == TY_REF { type_id = p.types[type_id].element; }
+    if validation_frozen(p, type_id) {
+        diagnose(p, n.token, "variable-size storage is frozen at construction: rebuild its container");
+    }
+}
+
 let V_NONFIXED: i64 = 1;
 let V_REFERENCE: i64 = 2;
 let V_INDEX: i64 = 4;
@@ -518,12 +595,58 @@ fn validation_index_owners(p: Program&) {
         }
     }
 }
+fn validation_checkfree(p: Program&, function: i64) -> bool {
+    var current = function; var depth = 0;
+    while current >= 0 && depth < 64 {
+        let n = p.nodes[current];
+        if (n.flags & F_CHECKFREE) != 0 { return true; }
+        if n.symbol < 0 { return false; }
+        current = p.symbols[n.symbol].owner; depth += 1;
+    }
+    return false;
+}
+fn validation_checkfree_target(p: Program&, call: i64, symbol: i64, work: i64[>..]&) {
+    if symbol < 0 || (p.symbols[symbol].flags & (S_BUILTIN | S_FUNCTION)) != S_FUNCTION { return; }
+    let function = p.symbols[symbol].node;
+    if function < 0 || (p.nodes[function].flags & F_EXTERN) != 0 { return; }
+    if (p.nodes[function].flags & F_SYNTHETIC) != 0 {
+        work.push(p.nodes[function].right); return;
+    }
+    if !validation_checkfree(p, function) {
+        diagnose(p, p.nodes[call].token, "a checkfree function can call only checkfree functions and blocks written in checkfree functions");
+    }
+}
+fn validation_checkfree_calls(p: Program&, function: i64) {
+    if !validation_checkfree(p, function) { return; }
+    var work: i64[>..] = [p.nodes[function].right];
+    var seen: bool[>..] = []; seen.resize(p.nodes.len, false);
+    while work.len > 0 {
+        let node = work.pop();
+        if node < 0 || node >= p.nodes.len || seen[node] { continue; }
+        seen[node] = true; let n = p.nodes[node];
+        if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT ||
+           n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT { continue; }
+        if n.kind == N_CALL {
+            validation_checkfree_target(p, node, n.symbol, work);
+            if (n.flags & F_DISPATCH) != 0 {
+                var arm = n.third;
+                while arm >= 0 { validation_checkfree_target(p, node, p.nodes[arm].symbol, work); arm = p.nodes[arm].next; }
+            }
+        }
+        var child = n.first;
+        while child >= 0 { work.push(child); child = p.nodes[child].next; }
+        work.push(n.left); work.push(n.right);
+        if n.kind != N_CALL { work.push(n.third); }
+    }
+}
+
 fn check_validate_program(p: Program&) {
     let count = p.nodes.len;
     for node in 0..count {
         let n = p.nodes[node];
         if n.kind == N_FUNCTION && (n.flags & F_THREAD) != 0 { validation_thread_signature(p, node); }
         if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_TYPE_FN { validation_function(p, node); }
+        if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & F_CHECKED) != 0 { validation_checkfree_calls(p, node); }
         if n.kind == N_TYPE_ARRAY { validation_element_layout(p, n.type_id, n.token); }
         if (n.flags & F_CHECKED) == 0 || n.type_id < 0 { continue; }
         validation_element_layout(p, n.type_id, n.token);
@@ -531,6 +654,7 @@ fn check_validate_program(p: Program&) {
            (n.kind == N_BLOCK || n.kind == N_IF || n.kind == N_LOOP || n.kind == N_MATCH) {
             diagnose(p, n.token, "a function value must be a function name or block literal");
         }
+        validation_array_operation(p, node); validation_assignment(p, node);
         if n.kind == N_CALL { validation_thread_call(p, node); }
         if n.kind == N_VARIABLE {
             validation_value_type(p, n.type_id, n.token);

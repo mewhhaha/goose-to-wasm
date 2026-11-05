@@ -5,7 +5,6 @@ Run commands from the repository root. Bootstrap needs Python 3 and a native C c
 ## Build and run
 
 ```sh
-source build/performance-env.sh
 python scripts/bootstrap.py --verify
 python scripts/goose_wasm.py build examples/squares.goose -o build/squares.wasm
 node scripts/run_wasm.mjs build/squares.wasm

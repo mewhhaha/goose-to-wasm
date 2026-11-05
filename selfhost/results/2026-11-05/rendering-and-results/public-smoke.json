@@ -1,0 +1,139 @@
+{
+  "status": "passed",
+  "environment": "PATH contains only /usr/bin,/bin and the installed Node directory; TMPDIRunset; no performance-env prerequisite.",
+  "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+  "compiler_sha256": "64405ed8523e9871c209cc98fe3423be785a92fb4cb36d859b814bae4da4ce62",
+  "source_sha256": {
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "sources.goose": "55df17c30952b28a4e8bc38d11e0ecd4353eb47a48fc6fc27454229b5354c37b",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a",
+    "optimizer.goose": "adb9821476d8318659c19f8995270a528ae38666322dc8ac0e7fb66686ce1b3c",
+    "model.goose": "183a265206fa76a57e182e6eeefd05df1c0fa2fceb2fea2ace48e07983f329a5",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "codegen_c_threads.goose": "698c1d3ac2495541499c241a4d6e97d6a69cd70f490c66b78372fa09d40d8470",
+    "codegen_c_storage.goose": "7855c80c8d162d240ca8e09fbac23de8292d85164d62f2a17d9e02d6615b50b6",
+    "codegen_c_images.goose": "5489ff84b064b7effdb7a19988b1b68586a0e607f131a70a659f55eac1bf821f",
+    "codegen_c.goose": "7e14353bb72598a96b7c59c17b8f4ba77fc5a973b6c370cabebf71003f36bfc8",
+    "codegen.goose": "e4b838b3eb7f30d2d924e2a646e06e1d3da9baa9a2ad1ba61ba859f984f6846e",
+    "checker_validation.goose": "8fa8d0b988f00af33767b52fc29ee46b62aaaaf5893d1a5613792d47f5fb1f44",
+    "checker_rendering.goose": "a389a9416ae458c44a275d47dcb4d8a5debdb493a68cdccb896e17e5ce321ac2",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_lifetimes.goose": "35aff6f1ab1499089a233d0ba294830a64054de03c5bfa79fdf414c10733ef50",
+    "checker.goose": "2c01520fd0ea4cf3d07981648bda0a2e038f4a9e68b17aaab3d68e0df7855245"
+  },
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/examples/squares.goose",
+        "--backend",
+        "direct",
+        "--no-cache",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/squares.wasm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.05297560500912368,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/squares.wasm (1852 bytes)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/squares.wasm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.058390785998199135,
+      "stdout": "sum=140\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/examples/squares.goose",
+        "--backend",
+        "native",
+        "--no-cache",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/squares-native"
+      ],
+      "exit_code": 0,
+      "seconds": 0.25155318598262966,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/squares-native (23432 bytes)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/squares-native"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0010200380347669125,
+      "stdout": "sum=140\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float.goose",
+        "--backend",
+        "direct",
+        "--no-cache",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float.wasm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.051327753986697644,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float.wasm (9644 bytes)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float.wasm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.026675248984247446,
+      "stdout": "0.1/1.25\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float.goose",
+        "--backend",
+        "native",
+        "--no-cache",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float-native"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3628979349741712,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float-native (27832 bytes)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-37/build/smoke/float-native"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0010247869649901986,
+      "stdout": "0.1/1.25\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "scope": "Demand-only float-to-text host imports; caller32-byte scratch, exactexisting printformatter, fullrangechecks and no trailing NUL.",
+  "source_sha256": {
+    "scripts/run_wasm.mjs": "ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445",
+    "scripts/run_wasmtime.py": "2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca",
+    "host/wasmtime.cpp": "8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4",
+    "docs/TARGET.md": "b78e4913d3cbe55c590dc0dea7328c7c7d3d64404ba0cc9077e42f1a876634f4",
+    "tests/test_native_wasmtime.py": "de521af3b08e03c61e3c9f721389c3038176d9d274857d302dddfa93bc97fd9d"
+  },
+  "new_buffer_tests": 2,
+  "qualified_suites": {
+    "native_host": 16,
+    "minimal_aot": 20,
+    "python_host": 3
+  },
+  "native_host": "build/wasmtime-host/wasmtime-host.json",
+  "minimal_host": "build/wasmtime-host/wasmtime-aot.json"
+}

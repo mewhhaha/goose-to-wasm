@@ -105,6 +105,57 @@ class NativeHost(unittest.TestCase):
         reference=self.compare(path)
         self.assertTrue(reference.stdout.endswith(b'-9223372036854775808\n18446744073709551615\n'))
 
+    def test_float_format_buffers_preserve_width_and_sentinels(self):
+        rng = random.Random(99413)
+        statements = []
+        for width, samples in ((64, [0, 1, 0x8000000000000000, 0x7ff0000000000000,
+                                     0xfff0000000000000, 0x7ff8000000000001, 0x7fefffffffffffff]),
+                               (32, [0, 1, 0x80000000, 0x7f800000, 0xff800000,
+                                     0x7fc00001, 0x7f7fffff, 0x3dcccccd])):
+            samples += [rng.getrandbits(width) for _ in range(16)]
+            for bits in samples:
+                if bits >= 1 << (width - 1):
+                    bits -= 1 << width
+                value = f'(f{width}.reinterpret_i{width} (i{width}.const {bits}))'
+                statements.append(f'''
+                  (memory.fill (i32.const 65504) (i32.const 35) (i32.const 32))
+                  (local.set $n (call $format{width} (i32.const 65504) {value}))
+                  (call $write (i32.const 65503) (i32.const 1))
+                  (call $write (i32.const 65504) (local.get $n))
+                  (call $write (i32.add (i32.const 65504) (local.get $n)) (i32.const 1))
+                  (call $print{width} {value}) (call $newline)''')
+        path = self.module('''(module
+          (import "goose" "format_f64" (func $format64 (param i32 f64) (result i32)))
+          (import "goose" "format_f32" (func $format32 (param i32 f32) (result i32)))
+          (import "goose" "print_f64" (func $print64 (param f64)))
+          (import "goose" "print_f32" (func $print32 (param f32)))
+          (import "goose" "write" (func $write (param i32 i32)))
+          (import "goose" "newline" (func $newline))
+          (memory (export "memory") 1) (data (i32.const 65503) "~")
+          (func (export "_start") (local $n i32) ''' + '\n'.join(statements) + '))')
+        result = self.compare(path)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for line in result.stdout.splitlines():
+            self.assertTrue(line.startswith(b'~'))
+            formatted, printed = line[1:].split(b'#')
+            self.assertEqual(formatted, printed)
+        self.assertIn(b'~0.1#0.1\n', result.stdout)
+        node = self.execute(['node', ROOT / 'scripts/run_wasm.mjs', path])
+        self.assertEqual((node.returncode, node.stdout, node.stderr), (0, result.stdout, b''))
+
+    def test_float_format_checks_the_full_buffer_range(self):
+        for width in (32, 64):
+            for pointer in (65505, -1):
+                path = self.module(f'''(module
+                  (import "goose" "format_f{width}" (func $format (param i32 f{width}) (result i32)))
+                  (memory (export "memory") 1)
+                  (func (export "_start") (drop (call $format (i32.const {pointer}) (f{width}.const 0)))))''')
+                result = self.compare(path, diagnostic=b'outside exported memory')
+                self.assertEqual(result.returncode, 1)
+                node = self.execute(['node', ROOT / 'scripts/run_wasm.mjs', path])
+                self.assertEqual(node.returncode, 1)
+                self.assertIn(b'outside exported memory', node.stderr)
+
     def test_stdout_bytes_and_output_before_abort_or_exit(self):
         for finish in ['(call $exit (i32.const 7))','(call $abort (i32.const 0) (i32.const 5) (i32.const 42))']:
             path=self.module('''(module

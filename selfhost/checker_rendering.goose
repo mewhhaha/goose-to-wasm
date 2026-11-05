@@ -126,7 +126,7 @@ fn render_escape(p: Program&, body: i64, out: i64, value: i64, token: i64) {
     append_child(p, loop_node, new_node(p, N_BINDING, byte));
     let loop_body = new_node(p, N_BLOCK, token); p.nodes[loop_node].right = loop_body; append_child(p, body, loop_node);
     var tail = loop_body;
-    for code in [10, 13, 9, 0, 92, 34, 39] {
+    for code in [10, 13, 9, 92, 34] {
         let branch = new_node(p, N_IF, token);
         p.nodes[branch].left = operation_binary(p, T_EQ, operation_ident(p, byte), operation_integer(p, code, token), token);
         let yes = new_node(p, N_BLOCK, token); let no = new_node(p, N_BLOCK, token);
@@ -134,29 +134,29 @@ fn render_escape(p: Program&, body: i64, out: i64, value: i64, token: i64) {
         if code == 10 { render_text(p, yes, out, "\\n", token); }
         else if code == 13 { render_text(p, yes, out, "\\r", token); }
         else if code == 9 { render_text(p, yes, out, "\\t", token); }
-        else if code == 0 { render_text(p, yes, out, "\\0", token); }
         else if code == 92 { render_text(p, yes, out, "\\\\", token); }
-        else if code == 34 { render_text(p, yes, out, "\\\"", token); }
-        else { render_text(p, yes, out, "\\'", token); }
+        else { render_text(p, yes, out, "\\\"", token); }
         tail = no;
     }
-    let control = operation_binary(p, T_OROR,
-        operation_binary(p, T_LT, operation_ident(p, byte), operation_integer(p, 32, token), token),
-        operation_binary(p, T_EQ, operation_ident(p, byte), operation_integer(p, 127, token), token), token);
-    let branch = new_node(p, N_IF, token); p.nodes[branch].left = control;
-    let yes = new_node(p, N_BLOCK, token); let no = new_node(p, N_BLOCK, token);
-    p.nodes[branch].right = yes; p.nodes[branch].third = no; append_child(p, tail, branch);
-    render_text(p, yes, out, "\\x", token);
-    let digits = new_node(p, N_ARRAY, token);
-    for shift in [4, 0] {
-        let nibble = operation_binary(p, T_BITAND,
-            operation_binary(p, T_SHR, operation_ident(p, byte), operation_integer(p, shift, token), token), operation_integer(p, 15, token), token);
-        let digit = new_node(p, N_INDEX, token); p.nodes[digit].left = render_literal(p, token, "0123456789abcdef"); p.nodes[digit].right = nibble;
-        append_child(p, digits, digit);
-    }
-    render_raw(p, yes, out, digits, token); render_raw_byte(p, no, out, byte, token);
+    render_raw_byte(p, tail, out, byte, token);
     render_text(p, body, out, "\"", token);
 }
+fn render_empty_enum(p: Program&, body: i64, out: i64, value: i64, type_id: i64, token: i64) {
+    let t = p.types[type_id]; let match_node = new_node(p, N_MATCH, token);
+    p.nodes[match_node].left = operation_ident(p, value);
+    var variant = t.first;
+    while variant >= 0 {
+        let v = p.nodes[variant]; let arm = new_node(p, N_ARM, v.token);
+        let pattern = new_node(p, N_PATTERN, v.token); p.nodes[arm].left = pattern;
+        append_child(p, pattern, operation_ident(p, v.token));
+        var label: u8[>..] = [];
+        label.append(token_text(p, p.nodes[t.declaration].token)); label.push('.'); label.append(token_text(p, v.token));
+        p.nodes[arm].right = render_literal(p, token, label); append_child(p, match_node, arm);
+        variant = v.next;
+    }
+    render_raw(p, body, out, match_node, token);
+}
+
 recursive fn render_function(p: Program&, cache: RenderKey[>..]&, hooks: const i64[:],
                              type_id: i64, parameter_type: i64, quoted: bool = false, variant: bool = false) -> i64 {
     for key in cache {
@@ -241,6 +241,9 @@ recursive fn render_function(p: Program&, cache: RenderKey[>..]&, hooks: const i
         }
         render_text(p, body, out, " }", token);
     } else if t.kind == TY_ENUM {
+        var empty = t.first >= 0; var variant = t.first;
+        while variant >= 0 { if p.nodes[variant].first >= 0 { empty = false; } variant = p.nodes[variant].next; }
+        if empty { render_empty_enum(p, body, out, value, type_id, token); return function_node; }
         let match_node = new_node(p, N_MATCH, token); p.nodes[match_node].left = operation_ident(p, value); append_child(p, body, match_node);
         var arm_variant = t.first;
         while arm_variant >= 0 {
@@ -249,7 +252,11 @@ recursive fn render_function(p: Program&, cache: RenderKey[>..]&, hooks: const i
             append_child(p, pattern, operation_ident(p, v.token));
             let arm_body = new_node(p, N_BLOCK, token); p.nodes[arm].right = arm_body; append_child(p, match_node, arm);
             if v.first >= 0 {
-                p.nodes[pattern].left = new_node(p, N_BINDING, payload);
+                let binding = new_node(p, N_BINDING, payload);
+                if (t.flags & F_VARIABLE_MODE) != 0 {
+                    p.nodes[binding].flags |= F_REFERENCE | F_SYNTHETIC;
+                }
+                p.nodes[pattern].left = binding;
                 let child = render_function(p, cache, hooks, v.type_id, render_reference(p, v.type_id, const_flags), true, true);
                 render_call(p, arm_body, p.nodes[child].token, out, operation_ident(p, payload));
             } else { render_variant_label(p, arm_body, out, v.type_id, token, true); }

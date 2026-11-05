@@ -26,7 +26,7 @@ fn operation_member(p: Program&, base: i64, field: i64) -> i64 {
     let node = new_node(p, N_MEMBER, field); p.nodes[node].left = operation_ident(p, base); return node;
 }
 fn operation_index(p: Program&, base: i64, index: i64) -> i64 {
-    let node = new_node(p, N_INDEX, base); p.nodes[node].left = operation_ident(p, base); p.nodes[node].right = operation_ident(p, index); return node;
+    let node = new_node(p, N_INDEX, base); p.nodes[node].flags = F_SYNTHETIC; p.nodes[node].left = operation_ident(p, base); p.nodes[node].right = operation_ident(p, index); return node;
 }
 fn operation_binary(p: Program&, op: i64, left: i64, right: i64, token: i64) -> i64 {
     let node = new_node(p, N_BINARY, token); p.nodes[node].left = left; p.nodes[node].right = right; p.nodes[node].integer = op; return node;

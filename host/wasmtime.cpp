@@ -201,7 +201,7 @@ struct Memory {
         return result;
     }
 };
-enum class Op { Write, I64, U64, F64, F32, Bool, Newline, Abort, Exit, Input, InputF64,
+enum class Op { Write, I64, U64, F64, F32, FormatF64, FormatF32, Bool, Newline, Abort, Exit, Input, InputF64,
                 Clock, Barrier, Sink, Growth, ArgsSizes, Args, EnvSizes, Env, Time, FdWrite, FdRead, Close, Seek };
 struct Spec { const char *module, *name, *params, *results; Op op; };
 static constexpr Spec imports[] = {
@@ -210,6 +210,7 @@ static constexpr Spec imports[] = {
     {"goose", "print_f32", "f", "", Op::F32}, {"goose", "print_bool", "i", "", Op::Bool},
     {"goose", "newline", "", "", Op::Newline}, {"goose", "abort", "iii", "", Op::Abort},
     {"goose", "exit", "i", "", Op::Exit}, {"env", "bench_input", "", "I", Op::Input},
+    {"goose", "format_f64", "iF", "i", Op::FormatF64}, {"goose", "format_f32", "if", "i", Op::FormatF32},
     {"env", "bench_input_f64", "", "F", Op::InputF64}, {"env", "bench_clock", "", "I", Op::Clock},
     {"env", "bench_barrier", "I", "I", Op::Barrier}, {"env", "bench_sink", "I", "", Op::Sink},
     {"env", "emscripten_notify_memory_growth", "i", "", Op::Growth},
@@ -252,6 +253,17 @@ static wasm_trap_t *callback(void *env, wasmtime_caller_t *caller, const wasmtim
         case Op::U64: state.output += std::to_string(uint64_t(a[0].of.i64)); break;
         case Op::F64: state.output += goose_float(a[0].of.f64); break;
         case Op::F32: state.output += goose_float(a[0].of.f32); break;
+        case Op::FormatF64: case Op::FormatF32: {
+            string text;
+            if (spec.op == Op::FormatF64) text = goose_float(a[1].of.f64);
+            else text = goose_float(a[1].of.f32);
+            if (text.size() > 32) fail("formatted float exceeds host buffer");
+            Memory memory(caller);
+            auto pointer = uint32_t(a[0].of.i32);
+            memory.range(pointer, 32);
+            memory.write(pointer, text);
+            r[0].of.i32 = int32_t(text.size()); break;
+        }
         case Op::Bool:
             if (a[0].of.i32) state.output += "true";
             else state.output += "false";

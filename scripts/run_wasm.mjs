@@ -85,6 +85,12 @@ export async function runModule(bytes, input = "") {
     return new Uint8Array(memory.buffer, start, size);
   };
   const memoryBytes = (pointer, length) => Buffer.from(memoryView(pointer, length));
+  const formatFloat = (pointer, value, bits) => {
+    const text = Buffer.from(gooseFloat(value, bits));
+    if (text.length > 32) throw new Error("formatted float exceeds host buffer");
+    memoryView(pointer, 32).set(text);
+    return text.length;
+  };
   const write64 = (pointer, value) => {
     const bytes = memoryView(pointer, 8);
     new DataView(bytes.buffer, bytes.byteOffset, 8).setBigUint64(0, BigInt(value), true);
@@ -108,6 +114,8 @@ export async function runModule(bytes, input = "") {
       print_u64: (value) => append(BigInt.asUintN(64, value).toString()),
       print_f64: (value) => append(gooseFloat(value, 64)),
       print_f32: (value) => append(gooseFloat(value, 32)),
+      format_f64: (pointer, value) => formatFloat(pointer, value, 64),
+      format_f32: (pointer, value) => formatFloat(pointer, value, 32),
       print_bool: (value) => append(value ? "true" : "false"),
       newline: () => append("\n"),
       abort: (pointer, length, line) => {
