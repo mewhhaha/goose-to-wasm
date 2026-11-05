@@ -1457,7 +1457,10 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64) 
             if receiver.type_id >= 0 {
                 let element = p.types[receiver.type_id].element;
                 var constructing = life_size_class(p, element) > 0 || life_relative_storage(p, element, true);
-                if builtin == 25 && p.nodes[argument].next >= 0 && life_fresh(p, p.nodes[argument].next) { constructing = true; }
+                if builtin == 25 && p.nodes[argument].next >= 0 {
+                    let source = p.nodes[argument].next; let kind = p.nodes[source].kind;
+                    if kind != N_ARRAY && kind != N_FILL && life_fresh(p, source) { constructing = true; }
+                }
                 if (builtin == 24 || builtin == 25 || builtin == 30 || builtin == 31) && constructing { life_hold(l, receiver, node, 1); }
                 if receiver.in_elements && (builtin >= 24 || builtin == 2) || builtin == 16 { life_hold(l, receiver, argument, 3); }
             }
@@ -1567,7 +1570,8 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64) 
         let fill = life_coerce(p, l, life_item(l, arguments, 2), element);
         life_store(p, l, node, receiver.place, fill);
     } else if builtin == 26 {
-        out = life_load(p, l, n.type_id, receiver.place, true);
+        var storage = n.type_id; if receiver.type_id >= 0 { storage = p.types[receiver.type_id].element; }
+        out = life_load(p, l, storage, receiver.place, true); out.type_id = n.type_id;
     } else if builtin == 33 || builtin == 34 { out.refs = receiver.place; }
     if !life_is_ref(p, out.type_id) && out.type_id >= 0 && p.types[out.type_id].kind != TY_VOID {
         out.place = destination; if out.place == 0 { out.place = life_temporary(p, l, node); }
@@ -1624,7 +1628,15 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
         }
         places = life_interior(l, places);
         if n.kind == N_SLICE { out.refs = places; out.contents = life_contents(l, places); out.place = places; }
-        else { out = life_load(p, l, n.type_id, places, true); }
+        else {
+            var storage = n.type_id;
+            if n.kind == N_MEMBER && n.symbol >= 0 { storage = p.nodes[n.symbol].type_id; }
+            if n.kind == N_INDEX {
+                var array = base.type_id; if array >= 0 && p.types[array].kind == TY_REF { array = p.types[array].element; }
+                if array >= 0 && (p.types[array].kind == TY_ARRAY || p.types[array].kind == TY_SLICE) { storage = p.types[array].element; }
+            }
+            out = life_load(p, l, storage, places, true); out.type_id = n.type_id;
+        }
         out.in_elements = base.in_elements || n.kind == N_INDEX || n.kind == N_SLICE;
         out.element_array = base.element_array;
         if out.element_array < 0 && (n.kind == N_INDEX || n.kind == N_SLICE) {
@@ -1868,9 +1880,11 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
                 let symbol = p.nodes[binding].symbol; let cell = life_cell(p, l, symbol);
                 if cell >= 0 {
                     var places = source.place; if life_is_ref(p, source.type_id) { places = source.refs; }
-                    var value = life_load(p, l, p.symbols[symbol].type_id, places, true);
                     var source_type = source.type_id;
                     if source_type >= 0 && p.types[source_type].kind == TY_REF { source_type = p.types[source_type].element; }
+                    var storage = p.symbols[symbol].type_id;
+                    if index == 0 && source_type >= 0 && (p.types[source_type].kind == TY_ARRAY || p.types[source_type].kind == TY_SLICE) && p.types[source_type].element >= 0 && p.types[p.types[source_type].element].kind == TY_REF { storage = p.types[source_type].element; }
+                    var value = life_load(p, l, storage, places, true); value.type_id = p.symbols[symbol].type_id;
                     if source_type >= 0 && p.symbols[symbol].type_id >= 0 && p.types[p.symbols[symbol].type_id].kind == TY_REF {
                         let element = p.types[source_type].element;
                         if !life_is_ref(p, element) || p.types[p.symbols[symbol].type_id].element == element { value.refs = life_interior(l, places); }

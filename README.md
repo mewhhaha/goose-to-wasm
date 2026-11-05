@@ -4,7 +4,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose. It emit
 
 ## Benchmarks
 
-**2026-11-05 · AMD Ryzen 7 3800X · lower is better.** Medians of five samples for ten examples, using Goose compiler snapshot 32. All outputs passed their checks. Cold builds include driver startup; direct Wasm builds took 48.9–119.9 ms and native C builds took 242.7–1,670.9 ms. Separately collected snapshot 27 builds took 50.4–114.6 ms and 247.0–1,337.3 ms, respectively.
+**2026-11-05 · AMD Ryzen 7 3800X · lower is better.** Medians of five samples for ten examples using Goose compiler snapshot 34. Every output passed its check. Cold builds include driver startup; direct Wasm builds took 50.2–126.0 ms and native C builds took 255.9–1,702.4 ms. Separately collected snapshot 32 builds took 48.9–119.9 ms and 242.7–1,670.9 ms, respectively.
 
 ![Goose compiler cold build times for ten examples](bench/charts/goose-examples-compilation.svg)
 
@@ -14,11 +14,11 @@ Runtime measures process launch to exit, including startup and output. The panel
 
 ![Wasmtime preparation times for ten examples](bench/charts/goose-host-preparation.svg)
 
-The native column uses this Goose compiler's C backend, which has its own overhead; it is not a native performance ceiling. Sorting native execution took 113.6 ms; the separately collected snapshot 27 host run took 1,157.2 ms. [Results, inputs and method](bench/results/2026-11-05/threads-pools-and-access/README.md) · [Earlier C++ compiler results](bench/results/2026-11-04/leaf-and-loads/README.md) · [Historical example results](bench/examples.md)
+The native column uses this Goose compiler's C backend, which has its own overhead; it is not a native performance ceiling. In the host run, Sorting took 162.0 ms with minimal AOT and 113.2 ms natively. [Results, inputs and method](bench/results/2026-11-05/fixed-relative-and-bindings/README.md) · [Earlier C++ compiler results](bench/results/2026-11-04/leaf-and-loads/README.md) · [Historical example results](bench/examples.md)
 
 ## How it was built
 
-The compiler implements source loading, parsing, checking, specialization, optimization and code generation in Goose. Bootstrap compiles a frozen C seed with a native C compiler, then uses it to build the Goose source. Snapshot 32 passed C-only fixed-point verification. In a matched Sorting experiment, an access inlining hint reduced runtime from 1.193 s to 0.113 s while increasing C build time from 1.216 s to 1.576 s.
+The compiler implements source loading, parsing, checking, specialization, optimization and code generation in Goose. Bootstrap compiles a frozen C seed with a native C compiler, then uses it to build the Goose source. Snapshot 34 passed C-only fixed-point verification. It adds fixed-width relative places, corrects generated C for seven previously invalid programs, and improves binding and float inference.
 
 ```sh
 source build/performance-env.sh
@@ -27,6 +27,6 @@ python scripts/goose_wasm.py build examples/squares.goose -o build/squares.wasm
 node scripts/run_wasm.mjs build/squares.wasm
 ```
 
-Correctness is checked against frozen source and output contracts without running a reference compiler. Snapshot 32 passed 4,558 of 5,021 contract rows; 463 failed. The curated Wasm corpus passed 1,944 checks each in Wasmtime and V8. Packed relative cells, general variable images and frontend gaps remain.
+Correctness is checked against frozen source and output contracts without running a reference compiler. Snapshot 34 passed 4,681 of 5,021 contract rows; 340 failed; 123 checks improved over snapshot 32 with no regressions. The curated Wasm corpus passed 1,944 checks each in Wasmtime and V8. Variable images, varints, natural result projection and frontend lifetime gaps remain.
 
 [Compiler and bootstrap](selfhost/README.md) · [Guide](docs/GUIDE.md) · [Examples](examples/README.md) · [Conformance runner](tests/conformance.py)

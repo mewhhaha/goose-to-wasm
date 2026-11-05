@@ -270,6 +270,7 @@ struct Node {
     origin: i64 = -1, captures: i64 = -1,
     named_results: i64 = -1,
     coerced_type: i64 = -1,
+    expansion_binding: i64 = -1,
 }
 struct Type {
     kind: i64 = 0, element: i64 = -1, count: i64 = 0,

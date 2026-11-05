@@ -12,6 +12,7 @@ struct TypeBinding { parameter: i64, value: i64, next: i64 = -1 }
 struct CheckList { first: i64 = -1, last: i64 = -1, count: i64 = 0 }
 struct CheckSpan { first: i64 = 0, count: i64 = 0 }
 struct CheckInteger { value: i64, next: i64 = -1 }
+struct CheckContextFloat { node: i64, original: i64, bindings: CheckList }
 struct CheckChoice { symbol: i64 = -1, bindings: CheckList, ambiguous: bool = false, hof: bool = false, converting: bool = false }
 struct CheckVariable {
     symbol: i64, assigned: bool = false, maybeassigned: bool = false,
@@ -30,11 +31,12 @@ struct Checker {
     roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&,
     return_roots: CheckReturnRoot[>..]&,
     specializations: CheckSpecialization[>..]&, bindings: TypeBinding[>..]&,
+    contextual_floats: CheckContextFloat[>..]&, contextual_lookup: i64[>..]&,
     checking: i64[>..]&, loop_stack: CheckLoop[>..]&,
     integer_work: CheckInteger[>..]&, binding_work: TypeBinding[>..]&, flow_work: CheckFlow[>..]&, flow_cursors: CheckFlowCursor[>..]&, exit_work: CheckExit[>..]&, interval_work: CheckInterval[>..]&, render_cache: RenderKey[>..]&, render_hooks: i64[>..]&,
     scope: i64 = 0, function_node: i64 = -1, result_type: i64 = -1,
     next_slot: i64 = 0, reachable: bool = true,
-    returns: bool = false, initializing_globals: bool = false, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {}, context_keys: CheckList = CheckList {},
+    returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {}, context_keys: CheckList = CheckList {},
 }
 
 fn check_push_loop(c: Checker&, value: CheckLoop) {
@@ -166,7 +168,8 @@ recursive fn check_same_type(p: Program&, a: i64, b: i64) -> bool {
 fn check_type(p: Program&, kind: i64, element: i64, count: i64, declaration: i64, flags: i64) -> i64 {
     for t, id in p.types {
         if t.kind == kind && t.element == element && t.count == count &&
-           t.declaration == declaration && t.flags == flags { return id; }
+           t.declaration == declaration && t.flags == flags &&
+           (kind != TY_REF || t.length_storage < 0 && t.pool < 0) { return id; }
     }
     var ty = Type { kind: kind, element: element, count: count, declaration: declaration, flags: flags };
     if kind == TY_REF || kind == TY_FN { ty.size = p.pointer_bytes; ty.align = p.pointer_bytes; }
@@ -371,6 +374,7 @@ fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
         if property == 0 && t.kind == TY_GENERIC { return 1; }
         if property == 1 && (t.kind == TY_REF || t.kind == TY_SLICE) { return 1; }
         if property == 3 && t.kind == TY_REF && t.length_storage >= 0 { return 1; }
+        if property == 6 && t.kind == TY_REF && t.length_storage >= 0 && t.pool < 0 { return 1; }
         if property == 4 && t.kind == TY_ARRAY && t.array_kind == A_GROWSHRINK { return 1; }
         if property == 5 && (t.kind == TY_SLICE || t.kind == TY_FN || t.kind == TY_REF && (t.length_storage < 0 || t.pool >= 0)) { return 1; }
         if property == 2 {
@@ -384,7 +388,7 @@ fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
         var traverse_element = t.kind == TY_ARRAY;
         var traverse_fields = t.kind == TY_STRUCT || t.kind == TY_ENUM;
         if property == 0 { traverse_element = traverse_element || t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_FN || t.kind == TY_TUPLE; traverse_fields = traverse_fields || t.kind == TY_FN || t.kind == TY_TUPLE; }
-        if property == 1 || property == 3 || property == 4 || property == 5 { traverse_fields = traverse_fields || t.kind == TY_TUPLE; }
+        if property == 1 || property == 3 || property == 4 || property == 5 || property == 6 { traverse_fields = traverse_fields || t.kind == TY_TUPLE; }
         if traverse_element && t.element >= 0 {
             var seen = false; for old in work { if old == t.element { seen = true; } }
             if !seen { work.push(t.element); }
@@ -545,6 +549,13 @@ recursive fn check_substitute(p: Program&, c: Checker&, ty: i64, bindings: Check
 }
 recursive fn check_clone(p: Program&, c: Checker&, node: i64, bindings: CheckList&) -> i64 {
     if node < 0 { return -1; }
+    if c.expanding {
+        c.expansion_nodes += 1;
+        if c.expansion_nodes > 100000 {
+            if c.expansion_nodes == 100001 { diagnose(p, p.nodes[node].token, "const for expansion exceeds 100000 generated nodes"); }
+            return -1;
+        }
+    }
     var copy = p.nodes[node];
     copy.type_id = check_substitute(p, c, copy.type_id, bindings);
     copy.coerced_type = check_substitute(p, c, copy.coerced_type, bindings);
@@ -569,6 +580,7 @@ recursive fn check_clone(p: Program&, c: Checker&, node: i64, bindings: CheckLis
     if copy.kind == N_RECORD { p.nodes[id].right = old_right; }
     else { p.nodes[id].right = check_clone(p, c, old_right, bindings); }
     p.nodes[id].third = check_clone(p, c, old_third, bindings);
+    if c.expanding && c.expansion_nodes > 100000 { return id; }
     // left and third may own lists (function results and generic parameters).
     if copy.kind == N_FUNCTION || copy.kind == N_FUNCTION_VALUE || copy.kind == N_TYPE_FN || copy.kind == N_CONST_FOR {
         var old = old_left; var tail = p.nodes[id].left;
@@ -655,6 +667,16 @@ recursive fn check_constant(p: Program&, c: Checker&, node: i64, depth: i64) -> 
         var type_id = TYPE_I64; if (n.flags & F_UNSIGNED) != 0 { type_id = TYPE_U64; }
         if n.type_id >= 0 && check_integer(check_numeric_value_type(p, n.type_id)) { type_id = check_numeric_value_type(p, n.type_id); }
         return CheckConstant { valid: true, value: n.integer, type_id: type_id, literal: true };
+    }
+    if n.kind == N_CAST && (n.flags & F_SYNTHETIC) != 0 {
+        let destination = check_numeric_value_type(p, check_resolve_type(p, c, n.right));
+        if check_integer(destination) {
+            var value = check_constant(p, c, n.left, depth + 1);
+            let complement = check_complement_input(p, c, n.left);
+            if complement.valid && complement.value <= check_max(destination) { value = CheckConstant { valid: true, value: check_constant_wrap(~complement.value, destination), type_id: destination }; }
+            if value.valid && check_constant_fits(value, destination) { value.type_id = destination; value.literal = false; return value; }
+        }
+        return CheckConstant {};
     }
     if n.kind == N_NAME {
         var symbol = n.symbol; if symbol < 0 { symbol = check_lookup_name(p, c, node); }
@@ -799,6 +821,7 @@ recursive fn check_array_element(p: Program&, c: Checker&, element: i64, array_k
 
 recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
     if syntax < 0 { return -1; }
+    if p.nodes[syntax].expansion_binding == -3 { diagnose(p, p.nodes[syntax].token, "const for binding is not a type or cannot take type arguments"); return -1; }
     if p.nodes[syntax].type_id >= 0 { return p.nodes[syntax].type_id; }
     let n = p.nodes[syntax]; var result = -1;
     if n.kind == N_TYPE_NAME || n.kind == N_NAME {
@@ -914,7 +937,7 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
         while ret >= 0 { p.nodes[ret].type_id = check_value_annotation(p, c, ret, check_resolve_type(p, c, ret)); ret = p.nodes[ret].next; }
         result = add_type(p, Type { kind: TY_FN, element: check_tuple(p, n.left), declaration: syntax, first: n.first, size: p.pointer_bytes, align: p.pointer_bytes });
     } else if n.kind == N_TYPEOF {
-        result = check_expression(p, c, n.left, -1);
+        result = check_loaded_type(p, check_expression(p, c, n.left, -1));
     } else if n.kind == N_TYPE_DEDUCED {
         result = check_type(p, TY_GENERIC, -1, 0, syntax, 0);
     } else { diagnose(p, n.token, "invalid type syntax"); }
@@ -1215,12 +1238,23 @@ recursive fn check_bottom(p: Program&, node: i64) -> bool {
 }
 
 fn check_loaded_type(p: Program&, ty: i64) -> i64 {
+    if ty >= 0 && p.types[ty].kind == TY_INT && p.types[ty].storage == 1 { return TYPE_I64; }
     if ty >= 0 && p.types[ty].kind == TY_REF && p.types[ty].length_storage >= 0 {
-        var value = p.types[ty]; value.length_storage = -1; value.pool = -1; value.size = p.pointer_bytes; value.align = p.pointer_bytes;
-        return add_type(p, value);
+        let t = p.types[ty];
+        return check_type(p, TY_REF, t.element, t.count, t.declaration, t.flags);
     }
     return ty;
 }
+fn check_read_value_type(p: Program&, c: Checker&, node: i64, ty: i64) -> i64 {
+    // Varint storage can still bind a reference to its encoded cell.
+    // Numeric decay follows that decision in check_value.
+    var value = ty;
+    if ty >= 0 && p.types[ty].kind == TY_REF { value = check_loaded_type(p, ty); }
+    if ty >= 0 && p.types[ty].kind == TY_REF && p.types[ty].length_storage >= 0 && p.types[ty].pool < 0 && check_readonly(p, c, node) { value = check_const_type(p, value); }
+    if value != ty && node >= 0 { p.nodes[node].type_id = value; }
+    return value;
+}
+
 fn check_value_annotation(p: Program&, c: Checker&, syntax: i64, ty: i64) -> i64 {
     if syntax < 0 || p.nodes[syntax].kind != N_TYPE_NAME { return ty; }
     let symbol = check_lookup_name(p, c, syntax);
@@ -1621,6 +1655,7 @@ recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64
         p.nodes[expression] = Node { kind: N_INTEGER, token: original.token, next: original.next, type_id: expected, integer: constant.value, flags: flags | F_CHECKED | F_SYNTHETIC, scope: original.scope };
         return expected;
     }
+    if source == TYPE_F64 && expected == TYPE_F32 && check_narrow_context_float(p, c, expression) { return expected; }
     if check_conversion(p, c, expression, source, expected) < 0 {
         diagnose(p, p.nodes[expression].token, "value cannot implicitly convert to the required type"); return source;
     }
@@ -1677,6 +1712,7 @@ recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64
 recursive fn check_value(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     var ty = check_expression(p, c, node, expected);
     if !c.reachable { return -1; }
+    ty = check_read_value_type(p, c, node, ty);
     if ty >= 0 && p.types[ty].kind == TY_REF && (expected < 0 || p.types[expected].kind != TY_REF) {
         let element = p.types[ty].element;
         if expected >= 0 || (p.types[ty].flags & TF_OPTIONAL) == 0 && (check_size_class(p, element, 0) == 0 || p.types[element].storage == 1) {
@@ -1740,19 +1776,19 @@ recursive fn check_narrow_condition(p: Program&, c: Checker&, node: i64, sense: 
     if n.kind != N_NAME || !sense || n.symbol < 0 { return; }
     let declared = p.symbols[n.symbol].type_id; let vi = check_variable_index(c, n.symbol);
     if declared < 0 || vi < 0 || p.types[declared].kind != TY_REF { return; }
-    var copy = p.types[declared]; copy.flags &= ~TF_OPTIONAL;
+    var copy = p.types[check_loaded_type(p, declared)]; copy.flags &= ~TF_OPTIONAL;
     c.variables[vi].narrowed = add_type(p, copy);
 }
 
 recursive fn check_condition(p: Program&, c: Checker&, node: i64) {
-    let ty = check_expression(p, c, node, -1);
+    let ty = check_read_value_type(p, c, node, check_expression(p, c, node, -1));
     if !c.reachable || ty == TYPE_BOOL { return; }
     if ty >= 0 && p.types[ty].kind == TY_REF {
         if (p.types[ty].flags & TF_OPTIONAL) != 0 { return; }
         let n = p.nodes[node];
         if n.kind == N_NAME && n.symbol >= 0 {
             let declared = p.symbols[n.symbol].type_id;
-            if declared >= 0 && p.types[declared].kind == TY_REF && (p.types[declared].flags & TF_OPTIONAL) != 0 { p.nodes[node].type_id = declared; return; }
+            if declared >= 0 && p.types[declared].kind == TY_REF && (p.types[declared].flags & TF_OPTIONAL) != 0 { p.nodes[node].type_id = check_loaded_type(p, declared); return; }
         }
         let element = p.types[ty].element;
         if element >= 0 && p.types[element].kind == TY_BOOL { check_wrap_unary(p, node, T_MUL, TYPE_BOOL); p.nodes[node].aux = element; return; }
@@ -1853,6 +1889,8 @@ recursive fn check_default(p: Program&, c: Checker&, ty: i64, token: i64, depth:
 
 recursive fn check_array(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     let n = p.nodes[node]; var element = -1; var count = check_list_count(p, n.first);
+    if n.kind == N_ARRAY && n.first < 0 && (n.flags & F_DEFAULT) != 0 && n.type_id >= 0 && p.types[n.type_id].kind == TY_SLICE &&
+       (expected < 0 || p.types[expected].kind == TY_SLICE) { return n.type_id; }
     if n.third >= 0 { check_value(p, c, n.third, TYPE_I64); }
     if expected >= 0 && (p.types[expected].kind == TY_ARRAY || p.types[expected].kind == TY_SLICE) {
         element = p.types[expected].element;
@@ -2118,6 +2156,7 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
     var used = CheckList {}; var supplied_bindings = CheckList {}; var source_order = n.right;
     while binding >= 0 {
         let b = p.nodes[binding]; var field = -1;
+        if b.aux >= 0 && !check_operation_same(p, ty, b.aux) { diagnose(p, b.token, "const for field accessor belongs to a different aggregate type"); }
         if b.kind == N_EMPTY { binding = b.next; continue; }
         if b.token >= 0 {
             if (b.flags & F_DEFAULT) == 0 { seen_named = true; } field = first;
@@ -2372,12 +2411,21 @@ fn check_render_parameter(p: Program&, c: Checker&, node: i64, type_id: i64) -> 
 recursive fn check_lower_rendering(p: Program&, c: Checker&, node: i64, builtin: i64, args: CheckList&) -> i64 {
     var hooks_exist = false;
     for symbol in p.symbols { if symbol.node >= 0 && symbol.owner < 0 && token_is(p, symbol.name_token, "format") && (symbol.flags & S_BUILTIN) == 0 { hooks_exist = true; break; } }
-    if !hooks_exist { return -2; }
+    let wasm_default = p.pointer_bytes == 4 && (builtin == 1 || builtin == 2);
+    if !hooks_exist && !wasm_default { return -2; }
     let output_type = render_output_type(p); let array_type = p.types[output_type].element;
     while c.render_hooks.len < p.types.len { let type_id = c.render_hooks.len; c.render_hooks.push(-1); c.render_hooks[type_id] = check_render_hook(p, c, type_id); }
     var first = 0; if builtin == 2 { first = 1; }
     var needed = false;
-    for index in first..args.count { let argument = check_list_at(c, args, index); if check_render_has_hook(p, c.render_hooks, p.nodes[argument].type_id) { needed = true; } }
+    for index in first..args.count {
+        let argument = check_list_at(c, args, index); var ty = p.nodes[argument].type_id;
+        if check_render_has_hook(p, c.render_hooks, ty) { needed = true; }
+        while ty >= 0 && p.types[ty].kind == TY_REF { ty = p.types[ty].element; }
+        if wasm_default && ty >= 0 {
+            let t = p.types[ty];
+            if t.kind == TY_STRUCT || t.kind == TY_ENUM || (t.kind == TY_ARRAY || t.kind == TY_SLICE) && t.element != TYPE_U8 { needed = true; }
+        }
+    }
     if !needed { return -2; }
     let original = p.nodes[node]; let out = operation_name(p, original.token, "__goose_render_builder");
     let body = new_node(p, N_BLOCK, original.token); let builder = new_node(p, N_VARIABLE, out); p.nodes[builder].flags = F_VAR;
@@ -2536,7 +2584,7 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         else { result = check_value(p, c, argument, -1); }
         if result >= 0 && p.types[result].kind == TY_SLICE { diagnose(p, n.token, "copy takes a stored value or reference, not a slice"); }
         if !check_addressable(p, argument) && !(source >= 0 && p.types[source].kind == TY_REF) { diagnose(p, n.token, "copy of a temporary is unnecessary: its value is already fresh"); }
-        if check_type_property(p, result, 3) != 0 { diagnose(p, n.token, "copying values containing relative references is unsupported"); }
+        if check_type_property(p, result, 6) != 0 { diagnose(p, n.token, "copying values containing self-relative references is unsupported"); }
         if result >= 0 && check_size_class(p, result, 0) == 2 && (p.types[result].kind == TY_ENUM || p.types[result].kind == TY_STRUCT && p.types[result].pool >= 0) { diagnose(p, n.token, "copying a resizable enum or variant is unsupported"); }
         check_copy_roots(c, node, argument);
     } else if builtin == 7 || builtin == 8 {
@@ -2591,6 +2639,19 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         return check_expression(p, c, node, -1);
     } else if builtin == 19 {
         diagnose(p, n.token, "embed_shader requires shader compilation tool integration"); result = TYPE_STRING;
+    } else if builtin == 16 || builtin == 17 {
+        let source = check_list_at(c, args, 0); let storage = check_array_receiver(p, c, source, false);
+        if storage < 0 { return -1; }
+        let element = p.types[storage].element;
+        if element < 0 { diagnose(p, n.token, "a byte image requires a concrete source type"); }
+        if check_type_property(p, element, 5) != 0 { diagnose(p, n.token, "byte images cannot contain slices, plain references, pool-relative references or function values"); }
+        if builtin == 16 {
+            if args.count == 2 { check_byte_output(p, c, check_list_at(c, args, 1)); }
+            else { result = check_array_type(p, TYPE_U8, -1, A_GROW, 0); check_add_root(c, node, -2); }
+        } else {
+            result = check_type(p, TY_SLICE, TYPE_U8, -1, -1, TF_CONST);
+            check_copy_roots(c, node, source); check_add_root(c, node, check_place_root(p, source), 1);
+        }
     } else {
         let write = builtin == 2 || builtin >= 24;
         let receiver = check_array_receiver(p, c, check_list_at(c, args, 0), write);
@@ -2598,17 +2659,6 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         var element = p.types[receiver].element; let array_kind = p.types[receiver].array_kind;
         if builtin == 21 || builtin == 22 || builtin == 23 { result = TYPE_I64; }
         if builtin == 22 && array_kind != A_LIMITED { diagnose(p, n.token, "cap is available only on limited arrays"); }
-        if builtin == 16 || builtin == 17 {
-            if element < 0 { diagnose(p, n.token, "a byte image requires a concrete array element type"); }
-            if check_type_property(p, element, 5) != 0 { diagnose(p, n.token, "byte images cannot contain slices, plain references, pool-relative references or function values"); }
-            if builtin == 16 {
-                if args.count == 2 { check_byte_output(p, c, check_list_at(c, args, 1)); }
-                else { result = check_array_type(p, TYPE_U8, -1, A_GROW, 0); check_add_root(c, node, -2); }
-            } else {
-                result = check_type(p, TY_SLICE, TYPE_U8, -1, -1, TF_CONST);
-                check_copy_roots(c, node, check_list_at(c, args, 0)); check_add_root(c, node, check_place_root(p, check_list_at(c, args, 0)), 1);
-            }
-        }
         if builtin == 23 {
             if array_kind == A_VAR || array_kind == A_SLICE { diagnose(p, n.token, "index_of requires a fixed-stride array owner"); }
             let ref_type = check_type(p, TY_REF, element, 0, -1, 0);
@@ -2627,12 +2677,13 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
                 let root = check_place_root(p, check_list_at(c, args, 0));
                 if check_contains_refs(p, element, 0) { check_store_roots(p, c, root, check_list_at(c, args, 1)); }
                 if builtin == 30 { result = TYPE_I64; }
-                else if element >= 0 && p.types[element].kind == TY_REF { result = element; check_copy_roots(c, node, check_list_at(c, args, 1)); }
+                else if element >= 0 && p.types[element].kind == TY_REF { result = check_loaded_type(p, element); check_copy_roots(c, node, check_list_at(c, args, 1)); }
                 else { var flags = 0; if element >= 0 && p.types[element].storage == 1 { flags |= TF_CONST; } result = check_type(p, TY_REF, element, 0, -1, flags); check_add_root(c, node, root, 1); }
             } else if builtin == 25 {
                 let source_node = check_list_at(c, args, 1);
                 if element >= 0 && (p.nodes[source_node].kind == N_ARRAY || p.nodes[source_node].kind == N_FILL) {
-                    let expected_run = check_type(p, TY_SLICE, element, -1, -1, 0);
+                    var expected_run = check_type(p, TY_SLICE, element, -1, -1, 0);
+                    if check_size_class(p, element, 0) == 1 && p.types[element].storage != 1 { expected_run = check_array_type(p, element, -1, A_VAR, 0); }
                     check_expression(p, c, source_node, expected_run);
                 }
                 let source = check_array_receiver(p, c, source_node, false);
@@ -2641,7 +2692,7 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
                     else if !check_same_type(p, element, p.types[source].element) { diagnose(p, n.token, "append requires the same element type"); }
                     if check_contains_refs(p, element, 0) { check_store_roots(p, c, check_place_root(p, check_list_at(c, args, 0)), check_list_at(c, args, 1)); }
                 }
-            } else if builtin == 26 { result = element; check_copy_roots(c, node, check_list_at(c, args, 0)); }
+            } else if builtin == 26 { result = check_loaded_type(p, element); check_copy_roots(c, node, check_list_at(c, args, 0)); }
             else if builtin == 27 || builtin == 28 || builtin == 32 {
                 check_value(p, c, check_list_at(c, args, 1), TYPE_I64);
                 if builtin == 28 && args.count == 3 { check_value(p, c, check_list_at(c, args, 2), element); }
@@ -2653,7 +2704,7 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
                     check_value(p, c, check_list_at(c, args, count_index), TYPE_I64);
                     let default_value = check_default(p, c, element, n.token, 0);
                     p.nodes[node].aux = default_value;
-                    if builtin == 34 && check_type_property(p, element, 3) != 0 { diagnose(p, n.token, "realloc_slice cannot move elements containing self-relative references"); }
+                    if builtin == 34 && check_type_property(p, element, 6) != 0 { diagnose(p, n.token, "realloc_slice cannot move elements containing self-relative references"); }
                     result = view; check_add_root(c, node, check_place_root(p, check_list_at(c, args, 0)), 1);
                 }
             }
@@ -2719,7 +2770,14 @@ recursive fn check_prepare_function(p: Program&, c: Checker&, function_node: i64
         param = p.nodes[param].next;
     }
     var ret = n.left;
-    while ret >= 0 { check_resolve_type(p, c, ret); ret = p.nodes[ret].next; }
+    while ret >= 0 {
+        let result_type = check_resolve_type(p, c, ret);
+        if result_type >= 0 && p.types[result_type].kind == TY_REF && p.nodes[ret].kind == N_TYPE_NAME && p.nodes[ret].left < 0 {
+            let binding = check_lookup_name(p, c, ret);
+            if binding >= 0 && p.symbols[binding].node >= 0 && p.nodes[p.symbols[binding].node].kind == N_TYPE_PARAM { p.nodes[ret].type_id = check_loaded_type(p, result_type); }
+        }
+        ret = p.nodes[ret].next;
+    }
     var result = -1; if n.left >= 0 { result = check_tuple(p, n.left); }
     if result < 0 && (n.flags & F_RECURSIVE) != 0 && n.right >= 0 && check_obvious_void_body(p, n.right) { result = TYPE_VOID; }
     if n.kind == N_FUNCTION_VALUE && n.left < 0 && n.aux >= 0 { result = n.aux; }
@@ -2998,6 +3056,121 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
     return CheckChoice { symbol: best, bindings: best_bindings, ambiguous: ambiguous, hof: best_hof, converting: best_converting };
 }
 
+fn check_context_float(c: Checker&, node: i64) -> i64 {
+    if node < 0 || node >= c.contextual_lookup.len { return -1; }
+    return c.contextual_lookup[node];
+}
+fn check_names_generic(p: Program&, c: Checker&, type_id: i64, generic: i64) -> bool {
+    var work = CheckList {}; var visited = CheckList {}; check_list_push(c, work, type_id);
+    var cursor = work.first;
+    while cursor >= 0 {
+        let ty = c.integer_work[cursor].value; cursor = c.integer_work[cursor].next;
+        if ty < 0 { continue; }
+        var seen = false;
+        for index in 0..visited.count { if check_list_at(c, visited, index) == ty { seen = true; break; } }
+        if seen { continue; } check_list_push(c, visited, ty);
+        let t = p.types[ty];
+        if t.kind == TY_GENERIC && t.declaration == generic { return true; }
+        if t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_ARRAY || t.kind == TY_FN { check_list_push(c, work, t.element); }
+        if t.kind == TY_FN || t.kind == TY_TUPLE {
+            var part = t.first;
+            while part >= 0 { check_list_push(c, work, p.nodes[part].type_id); part = p.nodes[part].next; }
+        }
+        if t.kind == TY_STRUCT || t.kind == TY_ENUM {
+            var nominal = ty; if t.kind == TY_STRUCT && t.pool >= 0 { nominal = t.pool; }
+            var argument = p.types[nominal].arguments;
+            while argument >= 0 { check_list_push(c, work, p.nodes[argument].type_id); argument = p.nodes[argument].next; }
+        }
+    }
+    return false;
+}
+fn check_same_bindings(p: Program&, c: Checker&, left: CheckList&, right: CheckList&) -> bool {
+    if left.count != right.count { return false; }
+    for index in 0..left.count {
+        let binding = check_binding_at(c, left, index); var found = false;
+        for other in 0..right.count {
+            let candidate = check_binding_at(c, right, other);
+            if candidate.parameter == binding.parameter && check_binding_same(p, candidate.value, binding.value) { found = true; break; }
+        }
+        if !found { return false; }
+    }
+    return true;
+}
+recursive fn check_context_float_choice(p: Program&, c: Checker&, node: i64, callee: Node, args: CheckList&, candidates: CheckList&, natural: CheckChoice, expected: i64) -> CheckChoice {
+    if natural.symbol < 0 || natural.ambiguous { return natural; }
+    let original = p.symbols[natural.symbol].node; let fnnode = p.nodes[original];
+    if fnnode.kind != N_FUNCTION || (fnnode.flags & F_EXTERN) != 0 || fnnode.left < 0 || p.nodes[fnnode.left].next >= 0 { return natural; }
+    let result = p.nodes[fnnode.left].type_id;
+    if result < 0 || p.types[result].kind != TY_GENERIC { return natural; }
+    let generic = p.types[result].declaration;
+    var own = false; var parameter = fnnode.third; var ordinal = 0;
+    while parameter >= 0 {
+        if parameter == generic {
+            if ordinal < check_list_count(p, callee.first) { return natural; }
+            own = true; break;
+        }
+        parameter = p.nodes[parameter].next; ordinal += 1;
+    }
+    if !own { return natural; }
+    var narrowed = CheckList {}; var floating = false;
+    var original_bindings = natural.bindings;
+    for index in 0..original_bindings.count {
+        var binding = check_binding_at(c, original_bindings, index);
+        if binding.parameter == generic {
+            if binding.value != TYPE_F64 { return natural; }
+            binding.value = TYPE_F32; floating = true;
+        }
+        check_binding_push(c, narrowed, binding);
+    }
+    if !floating { return natural; }
+    var trial_args = CheckList {}; var formal = fnnode.first; var index = 0; var changed = false;
+    while formal >= 0 {
+        let ft = p.nodes[formal].type_id;
+        let mentions = check_names_generic(p, c, ft, generic);
+        if mentions && (ft < 0 || p.types[ft].kind != TY_GENERIC || index >= args.count) { return natural; }
+        if index < args.count {
+            let argument = check_list_at(c, args, index); var trial = argument;
+            if mentions {
+                let at = check_numeric_value_type(p, p.nodes[argument].type_id);
+                let integer = check_integer(at) && (check_literal_tree(p, argument, 0) || check_constant(p, c, argument, 0).valid);
+                if !check_float_literal_tree(p, argument, 0) && !integer && check_context_float(c, argument) < 0 { return natural; }
+                trial = new_node(p, N_NAME, p.nodes[argument].token);
+                p.nodes[trial].type_id = TYPE_F32; p.nodes[trial].flags = F_CHECKED;
+                changed = true;
+            }
+            check_list_push(c, trial_args, trial);
+        }
+        index += 1; formal = p.nodes[formal].next;
+    }
+    while index < args.count { check_list_push(c, trial_args, check_list_at(c, args, index)); index += 1; }
+    if !changed { return natural; }
+    let trial = check_choose_call(p, c, callee, trial_args, candidates, false); var trial_bindings = trial.bindings;
+    if trial.symbol != natural.symbol || trial.ambiguous || !check_same_bindings(p, c, narrowed, trial_bindings) { return natural; }
+    while c.contextual_lookup.len <= node { c.contextual_lookup.push(-1); }
+    let key = c.contextual_floats.len;
+    c.contextual_floats.push(CheckContextFloat { node: node, original: original, bindings: narrowed }); c.contextual_lookup[node] = key;
+    if expected == TYPE_F32 { return trial; }
+    return natural;
+}
+recursive fn check_narrow_context_float(p: Program&, c: Checker&, node: i64) -> bool {
+    let key = check_context_float(c, node);
+    if key < 0 || p.nodes[node].kind != N_CALL { return false; }
+    let context = c.contextual_floats[key]; var bindings = context.bindings;
+    check_bind_effect_context(p, c, context.original, bindings, p.nodes[node].token);
+    let symbol = check_specialize_function(p, c, context.original, bindings, p.nodes[node].token);
+    if symbol < 0 { return false; }
+    let function_node = p.symbols[symbol].node;
+    p.nodes[node].symbol = symbol; p.nodes[p.nodes[node].left].symbol = symbol;
+    var parameter = p.nodes[function_node].first; var argument = p.nodes[node].first;
+    while parameter >= 0 && argument >= 0 {
+        check_value(p, c, argument, p.nodes[parameter].type_id);
+        check_slot_value(p, c, argument, p.nodes[parameter].type_id);
+        parameter = p.nodes[parameter].next; argument = p.nodes[argument].next;
+    }
+    p.nodes[node].type_id = p.types[p.symbols[symbol].type_id].element;
+    return p.nodes[node].type_id == TYPE_F32;
+}
+
 fn check_apply_call_effects(p: Program&, c: Checker&, node: i64, function_node: i64, args: CheckList&) {
     let roots_end = c.return_roots.len;
     for i in 0..roots_end {
@@ -3139,6 +3312,7 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
         n = p.nodes[node];
     }
     var callee = p.nodes[n.left];
+    if callee.expansion_binding == -2 { diagnose(p, callee.token, "const for binding is not a callable function"); return -1; }
     if callee.kind == N_FUNCTION_VALUE { check_expression(p, c, n.left, -1); callee = p.nodes[n.left]; }
     if callee.kind != N_NAME && callee.kind != N_FUNCTION_VALUE {
         diagnose(p, n.token, "call target must name a function or function value"); return -1;
@@ -3195,6 +3369,8 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
         if best < 0 { diagnose(p, n.token, "no overload matches this call's argument types and count"); return -1; }
     }
     if ambiguous { diagnose(p, n.token, "ambiguous call: equally specific overloads match"); return -1; }
+    let contextual = check_context_float_choice(p, c, node, callee, args, candidates, choice, expected);
+    best = contextual.symbol; best_bindings = contextual.bindings;
     let original = p.symbols[best].node;
     // A block call produces its own temporary value. Only numeric literal
     // widths adapt here; a destination never turns its slice or owner tail
@@ -3403,8 +3579,8 @@ recursive fn check_predeclare(p: Program&, c: Checker&, first: i64) {
 }
 recursive fn check_inferred_result(p: Program&, c: Checker&, node: i64, target: i64) -> i64 {
     if node < 0 { return TYPE_VOID; }
-    let n = p.nodes[node]; var ty = n.type_id;
-    if ty < 0 { return ty; }
+    let n = p.nodes[node]; var ty = check_read_value_type(p, c, node, n.type_id);
+    if ty < 0 || ty == TYPE_VOID { return ty; }
     if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 && n.last >= 0 {
         ty = check_inferred_result(p, c, n.last, target); p.nodes[node].type_id = ty; check_copy_roots(c, node, n.last); return ty;
     }
@@ -3636,7 +3812,8 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         if expected >= 0 && p.types[expected].kind == TY_REF && (p.types[expected].flags & TF_OPTIONAL) != 0 { result = expected; }
         else { result = check_type(p, TY_REF, TYPE_VOID, 0, -1, TF_OPTIONAL); }
     } else if n.kind == N_NAME {
-        if p.tokens[n.token].kind == T_SELF { diagnose(p, n.token, "self requires a relative reference field initializer"); }
+        if n.expansion_binding == -2 { diagnose(p, n.token, "const for binding is not a value or callable function"); }
+        else if p.tokens[n.token].kind == T_SELF { diagnose(p, n.token, "self requires a relative reference field initializer"); }
         else {
             let symbol = check_lookup_name(p, c, node);
             if symbol < 0 { diagnose(p, n.token, "unknown name"); }
@@ -3669,7 +3846,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             if !check_addressable(p, n.left) && !(ty >= 0 && p.types[ty].kind == TY_REF) { diagnose(p, n.token, "reference requires addressable storage"); }
             var flags = 0; if check_readonly(p, c, n.left, true) { flags |= TF_CONST; }
             if ty >= 0 && p.types[ty].kind == TY_REF {
-                result = ty; check_copy_roots(c, node, n.left);
+                result = check_read_value_type(p, c, n.left, ty); check_copy_roots(c, node, n.left);
             } else {
                 if ty >= 0 && p.types[ty].storage == 1 { flags |= TF_CONST; }
                 result = check_type(p, TY_REF, ty, 0, -1, flags);
@@ -3772,6 +3949,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             if ty >= 0 && p.types[ty].kind == TY_REF {
                 let element = p.types[ty].element; check_wrap_unary(p, n.left, T_MUL, element); ty = element;
             }
+            if n.aux >= 0 && !check_operation_same(p, ty, n.aux) { diagnose(p, n.token, "const for field accessor belongs to a different aggregate type"); }
             let builtin = check_builtin_kind(p, n.token);
             if ty >= 0 && (p.types[ty].kind == TY_ARRAY || p.types[ty].kind == TY_SLICE) && (builtin == 21 || builtin == 22) {
                 let name = new_node(p, N_NAME, n.token);
@@ -3824,7 +4002,10 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
     } else if n.kind == N_ARRAY || n.kind == N_FILL { result = check_array(p, c, node, expected); }
     else if n.kind == N_RECORD { result = check_record(p, c, node, expected); }
     else if n.kind == N_CAST {
-        let source = check_value(p, c, n.left, -1); let destination = check_resolve_type(p, c, n.right);
+        let destination = check_resolve_type(p, c, n.right); var source = -1;
+        if (n.flags & (F_SYNTHETIC | F_UNSIGNED)) == (F_SYNTHETIC | F_UNSIGNED) && destination >= 0 && p.types[destination].kind == TY_REF {
+            source = check_expression(p, c, n.left, -1);
+        } else { source = check_value(p, c, n.left, -1); }
         if source >= 0 && destination >= 0 {
             let sk = p.types[source].kind; let dk = p.types[destination].kind;
             if p.types[destination].index_type >= 0 && p.types[destination].pool >= 0 {
@@ -3950,6 +4131,7 @@ recursive fn check_loop(p: Program&, c: Checker&, node: i64, expected: i64) -> i
                 }
             }
             if ty >= 0 && p.types[ty].kind == TY_REF && p.types[ty].length_storage >= 0 && p.types[ty].pool < 0 && check_readonly(p, c, n.left) { ty = check_const_type(p, ty); }
+            ty = check_loaded_type(p, ty);
             p.nodes[binding].type_id = ty;
             let symbol = check_declare(p, c, binding, c.scope); p.symbols[symbol].type_id = ty;
             let vi = check_variable_index(c, symbol); c.variables[vi].assigned = true; c.variables[vi].maybeassigned = true;
@@ -4078,6 +4260,29 @@ fn check_pattern_spelling(p: Program&, first: i64, last: i64, previous: CheckInt
     for offset in 0..last - first + 1 { if !same_name(p, first + offset, previous.token_first + offset) { return false; } }
     return true;
 }
+recursive fn check_tail_contains(p: Program&, node: i64, target: i64) -> bool {
+    if node < 0 { return false; }
+    if node == target { return true; }
+    let n = p.nodes[node];
+    if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { return check_tail_contains(p, n.last, target); }
+    if n.kind == N_IF { return check_tail_contains(p, n.right, target) || check_tail_contains(p, n.third, target); }
+    if n.kind == N_MATCH {
+        var arm = n.first;
+        while arm >= 0 { if p.nodes[arm].kind == N_ARM && check_tail_contains(p, p.nodes[arm].right, target) { return true; } arm = p.nodes[arm].next; }
+    }
+    return false;
+}
+recursive fn check_valueless_tail(p: Program&, node: i64) -> bool {
+    if node < 0 { return false; }
+    let n = p.nodes[node];
+    if n.kind == N_IF { return n.third < 0 || check_valueless_tail(p, n.right) || check_valueless_tail(p, n.third); }
+    if n.kind == N_BLOCK { return (n.flags & F_TAIL) != 0 && check_valueless_tail(p, n.last); }
+    if n.kind == N_MATCH {
+        var arm = n.first;
+        while arm >= 0 { if p.nodes[arm].kind == N_ARM && check_valueless_tail(p, p.nodes[arm].right) { return true; } arm = p.nodes[arm].next; }
+    }
+    return false;
+}
 recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     let n = p.nodes[node]; var source = check_value(p, c, n.left, -1);
     if source >= 0 && p.types[source].kind == TY_REF && (p.types[source].flags & TF_OPTIONAL) != 0 { diagnose(p, n.token, "optional reference must be narrowed before matching"); }
@@ -4088,6 +4293,12 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
     if !enum_match && !check_integer(source) && source != TYPE_BOOL { diagnose(p, n.token, "match requires an integer, bool or enum"); }
     if enum_match { check_layout_nominal(p, c, source); }
     check_expand_children(p, c, node);
+    var arm_expected = expected; var statement = expected == TYPE_VOID;
+    if expected < 0 && c.function_node >= 0 && check_tail_contains(p, p.nodes[c.function_node].right, node) {
+        var arm = p.nodes[node].first;
+        while arm >= 0 { if p.nodes[arm].kind == N_ARM && check_valueless_tail(p, p.nodes[arm].right) { statement = true; } arm = p.nodes[arm].next; }
+        if statement { arm_expected = TYPE_VOID; }
+    }
     var entry = CheckSpan {}; check_flow_save(p, c, entry);
     var merged = CheckSpan {}; var merged_reachable = false; var any_reachable = false;
     var result = -1; var result_node = -1; var wildcard = false;
@@ -4106,7 +4317,10 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
         var item = pattern.first; var payload = -1;
         while item >= 0 {
             let pat = p.nodes[item];
+            if pat.expansion_binding == -2 { diagnose(p, pat.token, "const for binding is not a variant pattern"); }
+            if !enum_match && pat.type_id >= 0 && p.types[pat.type_id].kind == TY_STRUCT && p.types[pat.type_id].pool >= 0 { diagnose(p, pat.token, "const for variant pattern requires its enum as the scrutinee"); }
             if enum_match {
+                if pat.type_id >= 0 && p.types[pat.type_id].kind == TY_STRUCT && p.types[pat.type_id].pool >= 0 && p.types[p.types[pat.type_id].pool].declaration != p.types[source].declaration { diagnose(p, pat.token, "const for variant pattern belongs to a different enum type"); }
                 var variant = p.types[source].first;
                 while variant >= 0 { if same_name(p, p.nodes[variant].token, pat.token) { break; } variant = p.nodes[variant].next; }
                 if variant < 0 { diagnose(p, pat.token, "match pattern names no variant of this enum"); }
@@ -4182,7 +4396,8 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
             }
         }
         if a.third >= 0 { check_condition(p, c, a.third); }
-        let ty = check_expression(p, c, a.right, expected);
+        var ty = check_expression(p, c, a.right, arm_expected);
+        if statement && ty >= 0 { ty = TYPE_VOID; }
         if c.reachable {
             result = check_join_type(p, c, result_node, result, a.right, ty, n.token); result_node = a.right;
             var branch = CheckSpan {}; check_flow_save(p, c, branch);
@@ -4334,7 +4549,7 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
     for index in 0..names.count { let binding = check_list_at(c, names, index);
         var ty = annotation; var init = -1;
         if tuple >= 0 && component >= 0 {
-            ty = p.nodes[component].type_id; init = check_list_at(c, values, 0); component = p.nodes[component].next;
+            ty = check_loaded_type(p, p.nodes[component].type_id); init = check_list_at(c, values, 0); component = p.nodes[component].next;
             if (n.flags & F_REFERENCE) == 0 {
                 if ty >= 0 && p.types[ty].kind == TY_REF && (p.types[ty].flags & TF_OPTIONAL) == 0 {
                     let element = p.types[ty].element;
@@ -4346,7 +4561,7 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
         else if index < values.count {
             init = check_list_at(c, values, index);
             if (n.flags & F_REFERENCE) != 0 && annotation < 0 {
-                ty = check_expression(p, c, init, -1);
+                ty = check_read_value_type(p, c, init, check_expression(p, c, init, -1));
                 if ty >= 0 && p.types[ty].kind != TY_REF && p.types[ty].kind != TY_SLICE {
                     if !check_addressable(p, init) { diagnose(p, n.token, ".= initialization requires storage, reference or slice"); }
                     else {
@@ -4360,7 +4575,7 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
                 }
             } else {
                 if annotation < 0 && p.nodes[init].kind == N_UNARY && p.nodes[init].integer == T_BITAND {
-                    ty = check_expression(p, c, init, -1);
+                    ty = check_read_value_type(p, c, init, check_expression(p, c, init, -1));
                 } else {
                     ty = check_value(p, c, init, annotation);
                     if annotation < 0 { ty = check_index_value(p, init, ty); }
@@ -4601,37 +4816,132 @@ fn check_name_literal(p: Program&, token: i64) -> i64 {
     let id = new_node(p, N_STRING, tid); p.nodes[id].type_id = TYPE_STRING;
     return id;
 }
-recursive fn check_expand_replace(p: Program&, node: i64, name: i64, value: i64, accessor: i64, actual: i64, type_id: i64) {
+fn check_expansion_type(p: Program&, node: i64, type_id: i64) {
+    let n = p.nodes[node];
+    if type_id < 0 || n.first >= 0 || (n.flags & F_VARIABLE_MODE) != 0 && p.types[type_id].kind != TY_ENUM {
+        p.nodes[node].type_id = -1; p.nodes[node].expansion_binding = -3; return;
+    }
+    var result = type_id;
+    if (n.flags & TF_CONST) != 0 { result = check_const_type(p, result); }
+    if (n.flags & F_VARIABLE_MODE) != 0 { var qualified = p.types[result]; qualified.flags |= F_VARIABLE_MODE; result = add_type(p, qualified); }
+    p.nodes[node].type_id = result; p.nodes[node].expansion_binding = -1;
+}
+recursive fn check_expand_replace(p: Program&, node: i64, binding: i64, value: i64, accessor: i64, actual: i64, type_id: i64, owner: i64, pattern: bool = false) {
     if node < 0 { return; }
     let n = p.nodes[node];
-    if n.kind == N_NAME && same_name(p, n.token, name) && value >= 0 {
-        let next = n.next; p.nodes[node] = p.nodes[value]; p.nodes[node].next = next; return;
+    if n.expansion_binding == binding && binding >= 0 {
+        if n.kind == N_NAME {
+            if value >= 0 { let next = n.next; p.nodes[node] = p.nodes[value]; p.nodes[node].next = next; return; }
+            p.nodes[node].expansion_binding = -2;
+        } else if n.kind == N_TYPE_NAME && accessor < 0 { check_expansion_type(p, node, type_id); }
     }
-    if accessor >= 0 && same_name(p, n.token, accessor) {
-        if n.kind == N_MEMBER || n.kind == N_BINDING {
-            p.nodes[node].token = actual;
-        } else if n.kind == N_TYPE_NAME {
-            if type_id >= 0 { p.nodes[node].type_id = type_id; }
-            else { diagnose(p, n.token, "field accessor is not a type"); }
-        } else if n.kind == N_NAME {
-            if type_id >= 0 {
-                p.nodes[node].token = actual;
-                p.nodes[node].type_id = type_id;
-                if p.types[type_id].declaration >= 0 && p.nodes[p.types[type_id].declaration].kind == N_VARIANT {
-                    p.nodes[node].symbol = p.types[type_id].declaration;
-                    if p.nodes[p.types[type_id].declaration].first < 0 {
-                        p.nodes[node].kind = N_RECORD; p.nodes[node].flags |= F_CHECKED;
-                    }
-                }
-            } else { diagnose(p, n.token, "field accessor requires member or initializer-label position"); }
+    if n.expansion_binding == accessor && accessor >= 0 {
+        if type_id < 0 {
+            if n.kind == N_MEMBER || n.kind == N_BINDING { p.nodes[node].token = actual; p.nodes[node].aux = owner; p.nodes[node].expansion_binding = -1; }
+            else if n.kind == N_TYPE_NAME { p.nodes[node].type_id = -1; p.nodes[node].expansion_binding = -3; }
+            else if n.kind == N_NAME { p.nodes[node].expansion_binding = -2; }
+        } else if n.kind == N_TYPE_NAME { check_expansion_type(p, node, type_id); }
+        else if n.kind == N_NAME {
+            if pattern { p.nodes[node].token = actual; p.nodes[node].type_id = type_id; p.nodes[node].expansion_binding = -1; }
+            else if p.types[type_id].declaration >= 0 && p.nodes[p.types[type_id].declaration].kind == N_VARIANT && p.nodes[p.types[type_id].declaration].first < 0 {
+                p.nodes[node] = Node { kind: N_RECORD, token: n.token, next: n.next, type_id: type_id, symbol: p.types[type_id].declaration, flags: F_CHECKED };
+            } else { p.nodes[node].expansion_binding = -2; }
         }
     }
-    if type_id >= 0 && accessor < 0 && n.kind == N_TYPE_NAME && same_name(p, n.token, name) { p.nodes[node].type_id = type_id; }
+    if n.kind == N_IMPORT { return; }
     var child = n.first;
-    while child >= 0 { let next = p.nodes[child].next; check_expand_replace(p, child, name, value, accessor, actual, type_id); child = next; }
-    check_expand_replace(p, n.left, name, value, accessor, actual, type_id);
-    check_expand_replace(p, n.right, name, value, accessor, actual, type_id);
-    check_expand_replace(p, n.third, name, value, accessor, actual, type_id);
+    while child >= 0 { let next = p.nodes[child].next; check_expand_replace(p, child, binding, value, accessor, actual, type_id, owner, n.kind == N_PATTERN); child = next; }
+    for first in [n.left, n.right, n.third] {
+        var part = first;
+        while part >= 0 { let next = p.nodes[part].next; check_expand_replace(p, part, binding, value, accessor, actual, type_id, owner); part = next; }
+    }
+}
+fn check_expansion_integer(p: Program&, c: Checker&, node: i64) -> bool {
+    var work = CheckList {}; var visited = CheckList {}; check_list_push(c, work, node); var cursor = work.first;
+    while cursor >= 0 {
+        let id = c.integer_work[cursor].value; cursor = c.integer_work[cursor].next;
+        if id < 0 { return false; }
+        var seen = false; for index in 0..visited.count { if check_list_at(c, visited, index) == id { seen = true; break; } }
+        if seen { continue; } check_list_push(c, visited, id);
+        let n = p.nodes[id];
+        if n.kind == N_INTEGER { continue; }
+        if n.kind == N_NAME {
+            var symbol = n.symbol; if symbol < 0 { symbol = check_lookup_name(p, c, id); }
+            if symbol < 0 || (p.symbols[symbol].flags & (S_GLOBAL | S_MUTABLE)) != S_GLOBAL { return false; }
+            let declaration = p.symbols[symbol].node;
+            if declaration < 0 || p.nodes[declaration].kind != N_VARIABLE { return false; }
+            let annotation = p.nodes[declaration].left;
+            if annotation >= 0 && !check_integer(check_numeric_value_type(p, check_resolve_type(p, c, annotation))) { return false; }
+            check_list_push(c, work, p.nodes[declaration].right); continue;
+        }
+        if n.kind == N_UNARY && (n.integer == T_MINUS || n.integer == T_BITNOT) { check_list_push(c, work, n.left); continue; }
+        if n.kind == N_BINARY && (n.integer == T_PLUS || n.integer == T_MINUS || n.integer == T_MUL || n.integer == T_DIV || n.integer == T_MOD || n.integer == T_BITAND || n.integer == T_BITOR || n.integer == T_XOR || n.integer == T_SHL || n.integer == T_SHR) {
+            check_list_push(c, work, n.left); check_list_push(c, work, n.right); continue;
+        }
+        if n.kind == N_CAST && (n.flags & F_SYNTHETIC) != 0 && check_integer(check_numeric_value_type(p, check_resolve_type(p, c, n.right))) { check_list_push(c, work, n.left); continue; }
+        if n.kind == N_MEMBER && (token_is(p, n.token, "len") || token_is(p, n.token, "cap")) { continue; }
+        if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 && (p.symbols[n.symbol].index == 21 || p.symbols[n.symbol].index == 22) { continue; }
+        return false;
+    }
+    return true;
+}
+fn check_expansion_fixed(p: Program&, value: i64, type_id: i64, token: i64) -> i64 {
+    let result = new_node(p, N_CAST, token); p.nodes[result].left = value;
+    p.nodes[result].right = operation_type(p, type_id, token); p.nodes[result].flags = F_SYNTHETIC;
+    return result;
+}
+recursive fn check_expansion_constant(p: Program&, c: Checker&, node: i64, visiting: CheckList&) -> i64 {
+    if node < 0 { return -1; }
+    let n = p.nodes[node]; var bindings = CheckList {};
+    if n.kind == N_NAME {
+        var symbol = n.symbol; if symbol < 0 { symbol = check_lookup_name(p, c, node); }
+        if symbol >= 0 && (p.symbols[symbol].flags & (S_GLOBAL | S_MUTABLE)) == S_GLOBAL {
+            let declaration = p.symbols[symbol].node;
+            if declaration >= 0 && p.nodes[declaration].kind == N_VARIABLE && check_list_count(p, p.nodes[declaration].right) == 1 {
+                for index in 0..visiting.count { if check_list_at(c, visiting, index) == symbol { diagnose(p, n.token, "cycle in const for constant initializer"); return -1; } }
+                check_list_push(c, visiting, symbol);
+                let value = check_expansion_constant(p, c, p.nodes[declaration].right, visiting); if value < 0 { return -1; }
+                let written = p.nodes[declaration].left;
+                if written < 0 { return value; }
+                let ty = check_numeric_value_type(p, check_resolve_type(p, c, written));
+                let v = p.nodes[value];
+                if check_float(ty) && (v.kind == N_INTEGER || v.kind == N_FLOAT) {
+                    let f = new_node(p, N_FLOAT, n.token); var number = v.float_value;
+                    if v.kind == N_INTEGER { if (v.flags & F_UNSIGNED) != 0 { number = (v.integer as! u64) as f64; } else { number = v.integer as f64; } }
+                    if ty == TYPE_F32 {
+                        if v.kind == N_INTEGER { if (v.flags & F_UNSIGNED) != 0 { number = ((v.integer as! u64) as f32) as f64; } else { number = (v.integer as f32) as f64; } }
+                        else { number = (number as! f32) as f64; }
+                    }
+                    p.nodes[f].float_value = number; return check_expansion_fixed(p, f, ty, n.token);
+                }
+                if check_integer(ty) && v.kind == N_INTEGER { return check_expansion_fixed(p, value, ty, n.token); }
+                return value;
+            }
+        }
+    }
+    if n.kind == N_BOOL || n.kind == N_FLOAT || n.kind == N_STRING { return check_clone(p, c, node, bindings); }
+    if n.kind == N_UNARY && n.integer == T_MINUS && p.nodes[n.left].kind == N_FLOAT {
+        let value = new_node(p, N_FLOAT, n.token); p.nodes[value].float_value = -p.nodes[n.left].float_value; return value;
+    }
+    if n.kind == N_CAST && (n.flags & F_SYNTHETIC) != 0 {
+        let value = check_expansion_constant(p, c, n.left, visiting);
+        let ty = check_resolve_type(p, c, n.right);
+        if value >= 0 && ty >= 0 { return check_expansion_fixed(p, value, ty, n.token); }
+    }
+    var constant = CheckConstant {};
+    if check_expansion_integer(p, c, node) { constant = check_constant(p, c, node, 0); }
+    if constant.valid {
+        let complement = check_complement_input(p, c, node);
+        if complement.valid {
+            let input = new_node(p, N_INTEGER, n.token); p.nodes[input].integer = complement.value;
+            let value = new_node(p, N_UNARY, n.token); p.nodes[value].integer = T_BITNOT; p.nodes[value].left = input; return value;
+        }
+        let value = new_node(p, N_INTEGER, n.token); p.nodes[value].integer = constant.value;
+        if constant.type_id == TYPE_U64 && constant.value < 0 { p.nodes[value].flags |= F_UNSIGNED; }
+        if !constant.literal { return check_expansion_fixed(p, value, constant.type_id, n.token); }
+        return value;
+    }
+    diagnose(p, n.token, "const for source requires a scalar or string constant or supported integer computation"); return -1;
 }
 recursive fn check_expand_const_for(p: Program&, c: Checker&, node: i64) -> i64 {
     let n = p.nodes[node]; let body = p.nodes[n.right];
@@ -4640,13 +4950,14 @@ recursive fn check_expand_const_for(p: Program&, c: Checker&, node: i64) -> i64 
     let first_binding = n.first; var second_binding = -1;
     if first_binding >= 0 { second_binding = p.nodes[first_binding].next; }
     if first_binding < 0 { diagnose(p, n.token, "const for has no binding"); return result; }
-    var entries = CheckList {};
+    var entries = CheckList {}; var owner = -1;
     if n.integer == 0 || n.integer == 2 {
         var entry = n.left;
         while entry >= 0 { check_list_push(c, entries, entry); entry = p.nodes[entry].next; }
     } else {
         let type_id = check_resolve_type(p, c, n.left);
         if type_id < 0 { return result; }
+        owner = type_id;
         check_layout_nominal(p, c, type_id);
         if n.integer == 1 && p.types[type_id].kind != TY_STRUCT || n.integer == 3 && p.types[type_id].kind != TY_ENUM {
             diagnose(p, n.token, "reflection source has the wrong nominal type"); return result;
@@ -4657,27 +4968,24 @@ recursive fn check_expand_const_for(p: Program&, c: Checker&, node: i64) -> i64 
             field = p.nodes[field].next;
         }
     }
-    if entries.count > 4096 { diagnose(p, n.token, "const for expansion exceeds its finite implementation limit"); return result; }
+    if c.expansion_nodes > 100000 { return result; }
     for entry_index in 0..entries.count { let entry = check_list_at(c, entries, entry_index);
         var bindings = CheckList {}; var value = -1; var accessor = -1; var actual = -1; var ty = -1;
         if n.integer == 0 {
             check_constant_names(p, c, entry);
-            let constant = check_constant(p, c, entry, 0);
-            if constant.valid {
-                if check_complement_input(p, c, entry).valid { value = check_clone(p, c, entry, bindings); }
-                else { value = new_node(p, N_INTEGER, p.nodes[entry].token); p.nodes[value].integer = constant.value; }
-            } else if p.nodes[entry].kind == N_STRING || p.nodes[entry].kind == N_BOOL || p.nodes[entry].kind == N_FLOAT {
-                value = check_clone(p, c, entry, bindings);
-            } else { diagnose(p, p.nodes[entry].token, "const for list entry is not a compile-time constant"); continue; }
+            var visiting = CheckList {}; value = check_expansion_constant(p, c, entry, visiting);
+            if value < 0 { continue; }
         } else if n.integer == 2 { ty = check_resolve_type(p, c, entry); }
         else {
             value = check_name_literal(p, p.nodes[entry].token); actual = p.nodes[entry].token;
             if second_binding < 0 { diagnose(p, n.token, "reflection expansion requires name and accessor bindings"); continue; }
-            accessor = p.nodes[second_binding].token;
+            accessor = p.nodes[second_binding].expansion_binding;
             if n.integer == 3 { ty = p.nodes[entry].type_id; }
         }
-        let copy = check_clone(p, c, n.right, bindings);
-        check_expand_replace(p, copy, p.nodes[first_binding].token, value, accessor, actual, ty);
+        let was_expanding = c.expanding; c.expanding = true;
+        let copy = check_clone(p, c, n.right, bindings); c.expanding = was_expanding;
+        if copy < 0 || c.expansion_nodes > 100000 { break; }
+        check_expand_replace(p, copy, p.nodes[first_binding].expansion_binding, value, accessor, actual, ty, owner);
         if body.kind == N_BLOCK {
             // A marker prevents a jump from crossing an expansion boundary.
             p.nodes[copy].flags |= F_NONLOCAL;
@@ -4695,6 +5003,7 @@ recursive fn check_expand_children(p: Program&, c: Checker&, node: i64) {
         let next = p.nodes[child].next;
         if p.nodes[child].kind == N_CONST_FOR {
             let expansion = check_expand_const_for(p, c, child);
+            if p.nodes[expansion].kind != N_BLOCK { check_expand_children(p, c, expansion); }
             var item = p.nodes[expansion].first;
             while item >= 0 {
                 let after = p.nodes[item].next; p.nodes[item].next = -1;
@@ -4845,6 +5154,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_effects: CheckEffect[>..] = [];
     var checker_return_roots: CheckReturnRoot[>..] = [];
     var checker_specializations: CheckSpecialization[>..] = [];
+    var checker_contextual_floats: CheckContextFloat[>..] = []; var checker_contextual_lookup: i64[>..] = [];
     var checker_bindings: TypeBinding[>..] = [];
     var checker_checking: i64[>..] = [];
     var checker_loop_stack: CheckLoop[>..] = [];
@@ -4854,7 +5164,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_exit_work: CheckExit[>..] = [];
     var checker_interval_work: CheckInterval[>..] = [];
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     for source in p.sources { if source.root >= 0 { check_top_declarations(p, c, p.nodes[source.root].first); } }
     let declarations = p.symbols.len;

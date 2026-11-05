@@ -79,3 +79,5 @@ Function `aux` preserves an extern library string token. Malformed retained synt
 uses `F_BROKEN` and always has an accompanying diagnostic.
 
 Checked record bindings are ordered by declaration. If supplied named fields invert, `right` retains an immutable `N_TYPE_ARG` list whose `integer` values are their original field ordinals; generic and optimizer clones share this metadata. `F_PROPERTY` identifies a syntactic length/capacity read lowered to a builtin call.
+
+`Node.expansion_binding` stores a definition-site const-for binder ID, or -1. Binder declarations store their original node ID; clones preserve this ID. Parsing tags uses before specialization, with independent value/type shadowing and field-accessor positions.

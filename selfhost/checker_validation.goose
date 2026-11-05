@@ -111,7 +111,23 @@ recursive fn validation_element_owner(p: Program&, node: i64, depth: i64 = 0) ->
     if n.kind == N_UNARY && (n.integer == T_BITAND || n.integer == T_MUL) {
         return validation_element_owner(p, n.left, depth + 1);
     }
-    if n.kind == N_INDEX { return validation_root(p, n.left); }
+    if n.kind == N_INDEX {
+        var array = p.nodes[n.left].type_id;
+        while array >= 0 && p.types[array].kind == TY_REF { array = p.types[array].element; }
+        if array >= 0 && (p.types[array].kind == TY_ARRAY || p.types[array].kind == TY_SLICE) {
+            let storage = p.types[array].element;
+            if storage >= 0 && p.types[storage].kind == TY_REF && p.types[storage].length_storage >= 0 {
+                return ValidationRoot { symbol: p.types[storage].pool };
+            }
+        }
+        return validation_root(p, n.left);
+    }
+    if n.kind == N_MEMBER && n.symbol >= 0 && n.symbol < p.nodes.len && p.nodes[n.symbol].kind == N_FIELD {
+        let storage = p.nodes[n.symbol].type_id;
+        if storage >= 0 && p.types[storage].kind == TY_REF && p.types[storage].length_storage >= 0 {
+            return ValidationRoot { symbol: p.types[storage].pool };
+        }
+    }
     if n.kind == N_NAME && n.symbol >= 0 {
         let symbol = p.symbols[n.symbol];
         if symbol.type_id >= 0 && p.types[symbol.type_id].kind == TY_REF &&
@@ -155,6 +171,31 @@ fn validation_varint(p: Program&, type_id: i64) -> bool {
 fn validation_value_type(p: Program&, type_id: i64, token: i64) {
     if validation_varint(p, type_id) {
         diagnose(p, token, "varint is a storage type: only fields and array elements");
+    }
+}
+
+fn validation_zero_layout(p: Program&, type_id: i64) -> bool {
+    if type_id < 0 { return false; }
+    let t = p.types[type_id];
+    if t.kind == TY_ARRAY && (t.array_kind == A_FIXED || t.array_kind == A_LIMITED) && t.count == 0 { return true; }
+    if t.kind != TY_STRUCT || t.declaration < 0 || t.size < 0 || p.nodes[t.declaration].kind != N_VARIANT { return false; }
+    var field = t.first;
+    while field >= 0 {
+        let f = p.nodes[field];
+        if (f.flags & F_PAD) == 0 || f.aux > 0 { return false; }
+        field = f.next;
+    }
+    return true;
+}
+
+fn validation_element_layout(p: Program&, type_id: i64, token: i64) {
+    if type_id < 0 { return; }
+    let t = p.types[type_id];
+    if (t.kind == TY_ARRAY || t.kind == TY_SLICE) && validation_zero_layout(p, t.element) {
+        diagnose(p, token, "array and slice elements cannot use zero-length arrays or empty variant types");
+    }
+    if (t.kind == TY_ARRAY || t.kind == TY_SLICE) && t.element >= 0 && p.types[t.element].kind == TY_FN {
+        diagnose(p, token, "function values cannot be stored in arrays or slices");
     }
 }
 
@@ -483,7 +524,13 @@ fn check_validate_program(p: Program&) {
         let n = p.nodes[node];
         if n.kind == N_FUNCTION && (n.flags & F_THREAD) != 0 { validation_thread_signature(p, node); }
         if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_TYPE_FN { validation_function(p, node); }
+        if n.kind == N_TYPE_ARRAY { validation_element_layout(p, n.type_id, n.token); }
         if (n.flags & F_CHECKED) == 0 || n.type_id < 0 { continue; }
+        validation_element_layout(p, n.type_id, n.token);
+        if p.types[n.type_id].kind == TY_FN &&
+           (n.kind == N_BLOCK || n.kind == N_IF || n.kind == N_LOOP || n.kind == N_MATCH) {
+            diagnose(p, n.token, "a function value must be a function name or block literal");
+        }
         if n.kind == N_CALL { validation_thread_call(p, node); }
         if n.kind == N_VARIABLE {
             validation_value_type(p, n.type_id, n.token);
@@ -539,7 +586,12 @@ fn check_validate_program(p: Program&) {
             }
         }
         if validation_builtin(p, node, 23) { validation_index_of(p, node); }
-        if n.kind == N_ARRAY || n.kind == N_FILL { validation_array_length(p, node); }
+        if n.kind == N_ARRAY || n.kind == N_FILL {
+            if p.types[n.type_id].kind == TY_ARRAY && p.types[n.type_id].element < 0 {
+                diagnose(p, n.token, "empty array element type was never determined");
+            }
+            validation_array_length(p, node);
+        }
     }
     validation_index_owners(p);
     for t in p.types {
@@ -549,6 +601,9 @@ fn check_validate_program(p: Program&) {
             let type_id = p.nodes[field].type_id;
             if type_id >= 0 && p.types[type_id].kind == TY_FN {
                 diagnose(p, p.nodes[field].token, "function values cannot be stored in fields");
+            }
+            if validation_zero_layout(p, type_id) {
+                diagnose(p, p.nodes[field].token, "field cannot use a zero-length array or an empty variant type");
             }
             field = p.nodes[field].next;
         }

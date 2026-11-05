@@ -1,5 +1,6 @@
 import model;
 import lexer;
+import expansion_bind;
 
 // Cursors and table IDs survive recursion and table growth; borrowed elements do not.
 struct ParseCursor {
@@ -9,6 +10,7 @@ struct ParseCursor {
     namespace_token: i64 = -1, file_namespace: i64 = -1,
     declaration_seen: bool = false, function: i64 = -1,
     tentative: bool = false, failed: bool = false,
+    has_expansion: bool = false,
 }
 fn parse_kind(p: Program&, c: ParseCursor&) -> i64 {
     if c.at >= c.end { return T_EOF; }
@@ -582,6 +584,7 @@ recursive fn parse_match(p: Program&, c: ParseCursor&) -> i64 {
     if p.nodes[id].first < 0 { parse_error(p, c, "match must have at least one arm"); } return id;
 }
 recursive fn parse_const_for(p: Program&, c: ParseCursor&, context: i64) -> i64 {
+    c.has_expansion = true;
     let token = parse_expect(p, c, T_CONST, "expected const"); parse_expect(p, c, T_FOR, "expected for after const");
     let id = parse_node(p, N_CONST_FOR, token);
     parse_expect(p, c, T_LT, "expected < after const for");
@@ -947,5 +950,6 @@ fn parse_source(p: Program&, source_id: i64) -> i64 {
             }
         }
     }
+    if c.has_expansion { bind_expansion_names(p, root); }
     return root;
 }

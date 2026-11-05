@@ -1,0 +1,43 @@
+{
+  "started_utc": "2026-11-05T03:17:26Z",
+  "cpu": 7,
+  "cpu_affinity_parent": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "load_before": [
+    1.83056640625,
+    2.384765625,
+    2.52880859375
+  ],
+  "host": {
+    "system": "Linux",
+    "node": "cachyos-x8664",
+    "release": "7.3.0-4-cachyos",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri, 23 Oct 2026 15:03:58 +0000",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "other_work": "Fullqualificationcomplete;allthreeagentsconfirmedquiescent beforestart.",
+  "finished_utc": "2026-11-05T03:22:13Z",
+  "load_after": [
+    0.5498046875,
+    1.45849609375,
+    2.1142578125
+  ],
+  "status": "passed"
+}

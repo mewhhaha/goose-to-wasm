@@ -123,7 +123,9 @@ fn cc_thread_regions(p: Program&, function: i64) -> i64 {
 fn cc_thread_emit_globals(p: Program&, out: u8[>..]&) {
     out.append("typedef struct {\nunsigned char empty;\n");
     for s, symbol in p.symbols {
-        if (s.flags & S_GLOBAL) != 0 && s.type_id >= 0 { out.format("g_t", s.type_id, " v", symbol, ";\n"); }
+        if (s.flags & S_GLOBAL) != 0 && s.type_id >= 0 {
+            cc_storage_type(p, out, s.type_id); out.format(" v", symbol, ";\n");
+        }
     }
     out.append("} GGlobals;\nstatic GGlobals g_main_globals;\n");
     for s, symbol in p.symbols {
@@ -177,7 +179,8 @@ fn cc_thread_emit_workers(p: Program&, out: u8[>..]&) {
                     " __attribute__((cleanup(g_fixed_release)))=g_fixed_begin(sizeof(g_t", type_id, "),1);\n",
                     "#define g_argument", ordinal, " (*(g_t", type_id, "*)g_argument_fixed", ordinal, ".data)\n");
             } else {
-                out.format("g_t", type_id, " g_argument", ordinal, ";memset(&g_argument", ordinal,
+                cc_storage_type(p, out, type_id);
+                out.format(" g_argument", ordinal, ";memset(&g_argument", ordinal,
                     ",0,sizeof g_argument", ordinal, ");\n");
             }
             cc_thread_emit_receive(p, out, type_id, "g_argument", ordinal, slot);
@@ -201,7 +204,10 @@ fn cc_thread_emit_workers(p: Program&, out: u8[>..]&) {
         while formal >= 0 {
             out.append(",");
             if cc_indirect(p, p.nodes[formal].type_id) { out.append("&"); }
-            out.format("g_argument", ordinal); ordinal++; formal = p.nodes[formal].next;
+            if cc_relative_cell(p, p.nodes[formal].type_id) {
+                out.format("g_load_", p.nodes[formal].type_id, "(g_ref(&g_argument", ordinal, "))");
+            } else { out.format("g_argument", ordinal); }
+            ordinal++; formal = p.nodes[formal].next;
         }
         out.append(");\n}\n");
         formal = n.first; ordinal = 0;

@@ -133,9 +133,9 @@ def main():
         binary = output / ("threads-adapter-" + mode)
         run("threads-adapter-" + mode + "-compile", [*compiler, "-std=gnu11", "-pthread", *options, adapter, *LIBS, "-o", binary])
         run("threads-adapter-" + mode + "-run", [binary], "native thread adapters ok\n")
-    for header in ("storage.h", "pools.h"):
+    for header in ("storage.h", "pools.h", "relative.h"):
         report["inputs_sha256"][header] = sha((HERE.parent / header).read_bytes())
-    for stem, expected in (("fixed_values", "native fixed values ok\n"), ("pools", "native pools ok\n")):
+    for stem, expected in (("fixed_values", "native fixed values ok\n"), ("pools", "native pools ok\n"), ("relative", "native relative cells ok\n")):
         fixture = HERE / (stem + ".c")
         report["inputs_sha256"][fixture.name] = sha(fixture.read_bytes())
         for mode, options in (("release", ["-O2"]), ("sanitized", ["-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer"])):

@@ -38,3 +38,9 @@ Large aggregate values use a scoped fixed-value region and address parameters.
 `tests/large_values.goose` checks receiving, recursion, nonlocal returns and
 loop reuse. The C checks also cover fixed-value watermarks and independent
 copies of slot and span freelists under ASan/UBSan.
+
+Fixed relative cells retain their encoded width; expression and result values
+use decoded addresses. `tests/relative.goose` covers final destinations, array
+fills, relative declarations and original-address views. `relative_overflow.goose`
+checks a narrow argument before later arguments run. Varint references,
+variable relative images and relative `from_bytes` validation remain pending.

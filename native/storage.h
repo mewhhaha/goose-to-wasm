@@ -199,6 +199,11 @@ static GS_INLINE GRef g_element_at(GRef r,int kind,int64_t fixed,int prefix,int6
 static GS_INLINE GRef g_element(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t index,int allow_end) {
     return g_element_at(r,kind,fixed,prefix,width,index,allow_end,NULL,0);
 }
+static GRef g_slot(GRef header,int kind,int64_t fixed,int prefix,int64_t width,int64_t index) {
+    if(kind==0)return g_offset(header,index*width);
+    if(kind==2 && fixed>=0)return g_offset(header,prefix+index*width);
+    return g_moving(header,index*width);
+}
 static GSlice g_view(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
     GSlice s={g_element(r,kind,fixed,prefix,width,0,1),g_len(r,kind,fixed,prefix)}; return s;
 }

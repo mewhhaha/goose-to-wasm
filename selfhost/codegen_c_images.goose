@@ -12,6 +12,7 @@ fn ci_prefix(p: Program&, id: i64) -> i64 {
 recursive fn ci_direct(p: Program&, id: i64) -> bool {
     let t = p.types[id];
     if t.storage != 0 || cc_region_width(p, id) > 0 { return false; }
+    if cc_relative_cell(p, id) { return true; }
     if t.kind == TY_VOID || t.kind == TY_INT || t.kind == TY_FLOAT || t.kind == TY_BOOL { return true; }
     if t.kind == TY_ARRAY { return t.array_kind == A_FIXED && ci_direct(p, t.element); }
     if (t.kind == TY_STRUCT && t.declaration >= 0) || t.kind == TY_TUPLE {

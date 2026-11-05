@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "compiler_sha256": "4b09ef65f70d8f76f2b3ff47e53904303bfded4ec04ea813673fc4fb5510a962",
+  "bootstrap_c_sha256": "aa304a36cc7e7cdcdc31a7dd0ac88d83e9199c9d8441578e65be74bcba08ae42",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/dev/shm/goose-completion-work/public-34/scripts/goose_wasm.py",
+        "build",
+        "/dev/shm/goose-completion-work/public-34/examples/squares.goose",
+        "--backend",
+        "direct",
+        "--no-cache",
+        "-o",
+        "/dev/shm/goose-completion-work/public-34/build/smoke/squares.wasm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0947076579905115,
+      "stdout": "/dev/shm/goose-completion-work/public-34/build/smoke/squares.wasm (1659 bytes)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "/dev/shm/goose-completion-work/public-34/scripts/run_wasm.mjs",
+        "/dev/shm/goose-completion-work/public-34/build/smoke/squares.wasm"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11905398196540773,
+      "stdout": "sum=140\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "/dev/shm/goose-completion-work/public-34/scripts/goose_wasm.py",
+        "build",
+        "/dev/shm/goose-completion-work/public-34/examples/squares.goose",
+        "--backend",
+        "native",
+        "--no-cache",
+        "-o",
+        "/dev/shm/goose-completion-work/public-34/build/smoke/squares"
+      ],
+      "exit_code": 0,
+      "seconds": 0.32324664597399533,
+      "stdout": "/dev/shm/goose-completion-work/public-34/build/smoke/squares (23432 bytes)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/dev/shm/goose-completion-work/public-34/build/smoke/squares"
+      ],
+      "exit_code": 0,
+      "seconds": 0.0008105909801088274,
+      "stdout": "sum=140\n",
+      "stderr": ""
+    }
+  ]
+}
