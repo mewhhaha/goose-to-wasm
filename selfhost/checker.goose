@@ -7,7 +7,7 @@ import checker_rendering;
 
 // Stable IDs are the only links held while tables grow. Scope, flow and
 // provenance are checker work tables; checked nodes contain backend contracts.
-struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, lifetime: i64 = 0, first_symbol: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1 }
+struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, lifetime: i64 = 0, first_symbol: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1 }
 struct TypeBinding { parameter: i64, value: i64, next: i64 = -1 }
 struct CheckList { first: i64 = -1, last: i64 = -1, count: i64 = 0 }
 struct CheckSpan { first: i64 = 0, count: i64 = 0 }
@@ -28,6 +28,7 @@ struct CheckSpecialization { original: i64, symbol: i64, binding_start: i64, bin
 struct CheckFlow { symbol: i64, assigned: bool, maybeassigned: bool, narrowed: i64 = -1 }
 struct CheckFlowCursor { frame: i64, index: i64, active: bool = false }
 struct CheckExit { target: i64, flow: CheckSpan, backedge: bool = false }
+struct CheckOuterExit { target: i64, flow: CheckSpan, next: i64 = -1 }
 struct CheckLoop { node: i64, scope: i64, function_node: i64, result: i64 = -1, breaks: bool = false, expected: i64 = -1, returning: bool = false }
 struct CheckLogicalKill { node: i64, symbol: i64 }
 
@@ -37,6 +38,7 @@ struct Checker {
     scopes: CheckScope[>..]&, variables: CheckVariable[>..]&, variable_lookup: i64[>..]&,
     roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&,
     environments: CheckEnvironment[>..]&, environment_heads: i64[>..]&,
+    outer_exits: CheckOuterExit[>..]&,
     syntax_nodes: Node[>..]&, syntax_lookup: i64[>..]&,
     clone_syntax: bool = false, syntax_body: i64 = -1, syntax_function: i64 = -1, optional_globals: bool = false,
     return_roots: CheckReturnRoot[>..]&,
@@ -2734,6 +2736,7 @@ recursive fn check_render_hook(p: Program&, c: Checker&, type_id: i64) -> i64 {
             if array < 0 || p.types[array].kind != TY_ARRAY || p.types[array].array_kind != A_GROW || p.types[array].element != TYPE_U8 { continue; }
             var value = p.nodes[second].type_id;
             if value >= 0 && p.types[value].kind == TY_REF && (p.types[value].flags & TF_OPTIONAL) == 0 && p.types[value].length_storage < 0 { value = p.types[value].element; }
+            if value >= 0 && t.kind == TY_SLICE && (p.types[value].flags & TF_CONST) != (t.flags & TF_CONST) { continue; }
             if value >= 0 && check_operation_same(p, value, type_id) { return index; }
         }
         if namespace_scope == 0 { break; } round += 1;
@@ -3382,12 +3385,18 @@ recursive fn check_function_shadowed(p: Program&, c: Checker&, candidate: i64, c
     return false;
 }
 
+fn check_function_declaration(p: Program&, function_node: i64) -> i64 {
+    var declaration = function_node;
+    while declaration >= 0 && p.nodes[declaration].origin >= 0 { declaration = p.nodes[declaration].origin; }
+    return declaration;
+}
+
 recursive fn check_effect_targets(p: Program&, c: Checker&, function_node: i64, targets: CheckList&, visited: CheckList&) {
     for index in 0..visited.count { if check_list_at(c, visited, index) == function_node { return; } }
     check_list_push(c, visited, function_node);
     var own_targets = CheckList {};
     check_effect_target_nodes(p, c, p.nodes[function_node].right, function_node, own_targets, visited);
-    for index in 0..own_targets.count { let target = check_list_at(c, own_targets, index); if !same_name(p, target, p.nodes[function_node].token) { check_list_push(c, targets, target); } }
+    for index in 0..own_targets.count { let target = check_list_at(c, own_targets, index); if target != check_function_declaration(p, function_node) { check_list_push(c, targets, target); } }
 }
 recursive fn check_effect_target_nodes(p: Program&, c: Checker&, node: i64, function_node: i64, targets: CheckList&, visited: CheckList&) {
     if node < 0 { return; }
@@ -3395,7 +3404,7 @@ recursive fn check_effect_target_nodes(p: Program&, c: Checker&, node: i64, func
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { return; }
     if n.kind == N_RETURN && n.symbol >= 0 && n.symbol != p.nodes[function_node].symbol {
         let target = p.symbols[n.symbol].node;
-        if target >= 0 { check_list_push(c, targets, p.nodes[target].token); }
+        if target >= 0 { check_list_push(c, targets, check_function_declaration(p, target)); }
     }
     if n.kind == N_CALL && n.symbol >= 0 {
         let target = p.symbols[n.symbol].node;
@@ -3435,12 +3444,12 @@ fn check_bind_effect_context(p: Program&, c: Checker&, function_node: i64, bindi
     var targets = CheckList {}; var visited = CheckList {};
     check_effect_targets(p, c, checked, targets, visited);
     for index in 0..targets.count {
-        let name = check_list_at(c, targets, index); var active = -1; var cursor = c.checking_count - 1;
-        while cursor >= 0 { let candidate = c.checking[cursor]; if same_name(p, p.nodes[candidate].token, name) { active = candidate; break; } cursor -= 1; }
+        let target = check_list_at(c, targets, index); var active = -1; var cursor = c.checking_count - 1;
+        while cursor >= 0 { let candidate = c.checking[cursor]; if check_function_declaration(p, candidate) == target { active = candidate; break; } cursor -= 1; }
         if active < 0 { diagnose(p, token, "nonlocal return target is not active at this call"); continue; }
         var key = -1; var keys = c.context_keys;
-        for key_index in 0..keys.count { let candidate = check_list_at(c, keys, key_index); if p.nodes[candidate].origin == function_node && same_name(p, p.nodes[candidate].integer, name) { key = candidate; break; } }
-        if key < 0 { key = new_node(p, N_TYPE_PARAM, -1); p.nodes[key].origin = function_node; p.nodes[key].integer = name; check_list_push(c, c.context_keys, key); }
+        for key_index in 0..keys.count { let candidate = check_list_at(c, keys, key_index); if p.nodes[candidate].origin == function_node && p.nodes[candidate].integer == target { key = candidate; break; } }
+        if key < 0 { key = new_node(p, N_TYPE_PARAM, -1); p.nodes[key].origin = function_node; p.nodes[key].integer = target; check_list_push(c, c.context_keys, key); }
         let marker = check_type(p, TY_GENERIC, -1, 0, active, 0);
         check_bind_generic(p, c, key, marker, bindings);
     }
@@ -3673,8 +3682,67 @@ recursive fn check_narrow_context_float(p: Program&, c: Checker&, node: i64) -> 
     return p.nodes[node].type_id == TYPE_F32;
 }
 
+fn check_record_outer_exits(p: Program&, c: Checker&, function_node: i64, entry: CheckSpan&, exit_start: i64) {
+    if (p.nodes[function_node].flags & F_NONLOCAL) == 0 { return; }
+    let scope = p.nodes[function_node].scope; let exit_end = c.exit_work.len;
+    for exit_index in exit_start..exit_end {
+        let exit = c.exit_work[exit_index]; if exit.backedge || exit.target == function_node { continue; }
+        var active = false;
+        for index in 0..c.checking_count - 1 { if c.checking[index] == exit.target { active = true; break; } }
+        if !active { continue; }
+        var summary = c.scopes[scope].outer_exits;
+        while summary >= 0 && c.outer_exits[summary].target != exit.target { summary = c.outer_exits[summary].next; }
+        let first = summary < 0;
+        if first {
+            summary = c.outer_exits.len;
+            c.outer_exits.push(CheckOuterExit { target: exit.target, flow: CheckSpan { first: c.flow_work.len }, next: c.scopes[scope].outer_exits });
+            c.scopes[scope].outer_exits = summary;
+        }
+        var ordinal = 0;
+        for entry_index in entry.first..entry.first + entry.count {
+            let initial = c.flow_work[entry_index]; if initial.assigned { continue; }
+            var assigned = false; var maybeassigned = false;
+            for at in exit.flow.first..exit.flow.first + exit.flow.count {
+                let value = c.flow_work[at]; if value.symbol != initial.symbol { continue; }
+                assigned = value.assigned; maybeassigned = value.maybeassigned && !initial.maybeassigned; break;
+            }
+            if first {
+                c.flow_work.push(CheckFlow { symbol: initial.symbol, assigned: assigned, maybeassigned: maybeassigned });
+                c.outer_exits[summary].flow.count += 1;
+            } else {
+                let at = c.outer_exits[summary].flow.first + ordinal;
+                c.flow_work[at].assigned = c.flow_work[at].assigned && assigned;
+                c.flow_work[at].maybeassigned = c.flow_work[at].maybeassigned || maybeassigned;
+            }
+            ordinal += 1;
+        }
+    }
+}
+fn check_replay_outer_exits(p: Program&, c: Checker&, function_node: i64) {
+    let scope = p.nodes[function_node].scope; if scope < 0 { return; }
+    var at = c.scopes[scope].outer_exits;
+    while at >= 0 {
+        let summary = c.outer_exits[at]; at = summary.next;
+        var active = false;
+        for index in 0..c.checking_count { if c.checking[index] == summary.target { active = true; break; } }
+        if !active { continue; }
+        var flow = CheckSpan {}; check_flow_save(p, c, flow);
+        for index in flow.first..flow.first + flow.count {
+            let value = c.flow_work[index];
+            for old_index in summary.flow.first..summary.flow.first + summary.flow.count {
+                let added = c.flow_work[old_index]; if added.symbol != value.symbol { continue; }
+                c.flow_work[index].assigned = value.assigned || added.assigned;
+                c.flow_work[index].maybeassigned = value.maybeassigned || added.maybeassigned; break;
+            }
+        }
+        c.exit_work.push(CheckExit { target: summary.target, flow: flow });
+        p.nodes[summary.target].flags |= F_RETURNS; p.nodes[summary.target].flags &= ~F_DIVERGES;
+    }
+}
+
 fn check_apply_call_effects(p: Program&, c: Checker&, node: i64, function_node: i64, args: CheckList&) {
     check_environment_callee(p, c, function_node);
+    check_replay_outer_exits(p, c, function_node);
     let roots_end = c.return_roots.len;
     for i in 0..roots_end {
         let rr = c.return_roots[i];
@@ -3804,15 +3872,63 @@ recursive fn check_try_dispatch(p: Program&, c: Checker&, node: i64, expected: i
     return result;
 }
 
+fn check_array_member_builtin(builtin: i64) -> bool {
+    return builtin == 2 || builtin == 16 || builtin == 17 || builtin >= 23;
+}
+
+recursive fn check_member_function(p: Program&, c: Checker&, token: i64, receiver: i64) -> i64 {
+    var ty = receiver;
+    while ty >= 0 && p.types[ty].kind == TY_REF { ty = p.types[ty].element; }
+    if ty >= 0 && p.types[ty].kind == TY_STRUCT {
+        check_layout_nominal(p, c, ty); var field = p.types[ty].first;
+        while field >= 0 {
+            if (p.nodes[field].flags & F_PAD) == 0 && same_name(p, p.nodes[field].token, token) {
+                diagnose(p, token, "a field is not callable"); return -2;
+            }
+            field = p.nodes[field].next;
+        }
+    }
+    // Member syntax passes variables. Type parameters hide every function
+    // set; local functions then precede the receiver and caller namespaces.
+    var scope = c.scope; var local = -1;
+    while scope > 0 && c.scopes[scope].namespace_node < 0 {
+        let parameter = check_lookup_scope(p, c, token, scope, S_TYPE);
+        if parameter >= 0 && p.nodes[p.symbols[parameter].node].kind == N_TYPE_PARAM {
+            diagnose(p, token, "a type parameter cannot be called as a member"); return -2;
+        }
+        if local < 0 { local = check_lookup_scope(p, c, token, scope, S_FUNCTION | S_BUILTIN); }
+        scope = c.scopes[scope].parent;
+    }
+    if local >= 0 { return local; }
+    if ty >= 0 && p.types[ty].kind == TY_STRUCT && p.types[ty].pool >= 0 { ty = p.types[ty].pool; }
+    if ty >= 0 && (p.types[ty].kind == TY_STRUCT || p.types[ty].kind == TY_ENUM) {
+        var nominal_scope = p.nodes[p.types[ty].declaration].scope;
+        while nominal_scope > 0 && c.scopes[nominal_scope].namespace_node < 0 { nominal_scope = c.scopes[nominal_scope].parent; }
+        if nominal_scope > 0 {
+            let nominal = check_lookup_scope(p, c, token, nominal_scope, S_FUNCTION | S_BUILTIN);
+            if nominal >= 0 { return nominal; }
+        }
+    }
+    return check_lookup(p, c, token, scope, S_FUNCTION);
+}
+
 recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     var n = p.nodes[node];
     let original_callee = p.nodes[n.left];
-    var member = false;
+    var member = false; var member_symbol = -1;
     if original_callee.kind == N_MEMBER {
+        if original_callee.aux >= 0 { diagnose(p, original_callee.token, "const for field accessor is not callable"); return -1; }
         member = true;
         let receiver = original_callee.left;
+        var ty = check_single_expression(p, c, receiver);
+        while ty >= 0 && p.types[ty].kind == TY_REF { ty = p.types[ty].element; }
+        let builtin = check_builtin_kind(p, original_callee.token);
+        if !(check_array_member_builtin(builtin) && ty >= 0 && (p.types[ty].kind == TY_ARRAY || p.types[ty].kind == TY_SLICE)) {
+            member_symbol = check_member_function(p, c, original_callee.token, ty);
+            if member_symbol == -2 { return -1; }
+        }
         let name = new_node(p, N_NAME, original_callee.token);
-        p.nodes[name].scope = original_callee.scope; p.nodes[name].aux = 1;
+        p.nodes[name].scope = original_callee.scope; p.nodes[name].aux = 1; p.nodes[name].first = original_callee.first;
         p.nodes[receiver].next = n.first;
         p.nodes[node].first = receiver; p.nodes[node].left = name;
         n = p.nodes[node];
@@ -3827,10 +3943,14 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     let builtin = check_builtin_kind(p, callee.token);
     if (n.flags & F_SYNTHETIC) != 0 && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 { return check_builtin(p, c, node, p.symbols[n.symbol].index); }
     if (n.flags & F_FORMAT_RAW) != 0 && builtin >= 0 && builtin <= 2 { return check_builtin(p, c, node, builtin); }
-    if member && builtin >= 21 && n.first >= 0 {
+    if member && check_array_member_builtin(builtin) && n.first >= 0 {
         var receiver = check_single_expression(p, c, n.first);
+        let optional = receiver >= 0 && p.types[receiver].kind == TY_REF && (p.types[receiver].flags & TF_OPTIONAL) != 0;
         while receiver >= 0 && p.types[receiver].kind == TY_REF { receiver = p.types[receiver].element; }
-        if receiver >= 0 && (p.types[receiver].kind == TY_ARRAY || p.types[receiver].kind == TY_SLICE) { return check_builtin(p, c, node, builtin); }
+        if receiver >= 0 && (p.types[receiver].kind == TY_ARRAY || p.types[receiver].kind == TY_SLICE) {
+            if optional { diagnose(p, callee.token, "optional receiver must be narrowed before a builtin member call"); return -1; }
+            return check_builtin(p, c, node, builtin);
+        }
     }
     var args = CheckList {}; var argument = n.first;
     while argument >= 0 {
@@ -3841,6 +3961,7 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     }
     var first = -1; var bound_function = false;
     if (n.flags & F_SYNTHETIC) != 0 && n.symbol >= 0 { first = n.symbol; bound_function = true; }
+    else if member { first = member_symbol; }
     else if callee.kind == N_NAME { first = check_lookup_name(p, c, n.left, S_FUNCTION); }
     else { first = callee.symbol; }
     if first >= 0 && (p.symbols[first].flags & S_FUNCTION) == 0 {
@@ -3870,7 +3991,8 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     if best < 0 || choice.converting {
         let dispatched = check_try_dispatch(p, c, node, expected, args, candidates);
         if dispatched >= 0 || (p.nodes[node].flags & F_DISPATCH) != 0 { return dispatched; }
-        if builtin >= 0 && (callee.aux <= 1 || callee.integer >= 0 && p.tokens[callee.integer].kind == T_COLONCOLON) {
+        if builtin >= 0 && (!member || first < 0) && (callee.aux <= 1 || callee.integer >= 0 && p.tokens[callee.integer].kind == T_COLONCOLON) {
+            if member && (builtin == 21 || builtin == 22) { diagnose(p, callee.token, "a property is not callable"); return -1; }
             return check_builtin(p, c, node, builtin);
         }
         if best < 0 { diagnose(p, n.token, "no overload matches this call's argument types and count"); return -1; }
@@ -4866,6 +4988,7 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
     if !enum_match && !check_integer(source) && source != TYPE_BOOL { diagnose(p, n.token, "match requires an integer, bool or enum"); }
     if enum_match { check_layout_nominal(p, c, source); }
     check_expand_children(p, c, node);
+    if p.nodes[node].first < 0 { diagnose(p, n.token, "match has no arms: its const for generated none"); }
     var arm_expected = expected; var statement = expected == TYPE_VOID;
     if expected < 0 && c.function_node >= 0 && check_tail_contains(p, p.nodes[c.function_node].right, node) {
         var arm = p.nodes[node].first;
@@ -5014,10 +5137,16 @@ recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
     if target < 0 { diagnose(p, n.token, "return is only valid inside a function"); return; }
     if n.left >= 0 {
         target = -1;
+        let functions = check_lookup_name(p, c, n.left, S_FUNCTION | S_BUILTIN);
         var i = c.checking_count - 1;
-        while i >= 0 {
-            let fnnode = c.checking[i];
-            if same_name(p, p.nodes[fnnode].token, p.nodes[n.left].token) { target = fnnode; break; }
+        while i >= 0 && target < 0 {
+            let fnnode = c.checking[i]; var candidate = functions;
+            while candidate >= 0 {
+                let symbol = p.symbols[candidate];
+                if (symbol.flags & S_FUNCTION) != 0 && p.nodes[fnnode].kind == N_FUNCTION &&
+                   check_function_declaration(p, fnnode) == check_function_declaration(p, symbol.node) { target = fnnode; break; }
+                candidate = symbol.next;
+            }
             i -= 1;
         }
         if target < 0 { diagnose(p, n.token, "nonlocal return does not name an active enclosing function"); return; }
@@ -5413,6 +5542,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
         diagnose(p, n.token, "function can reach its end without returning every result");
     }
     if c.reachable { var exit_flow = CheckSpan {}; check_flow_save(p, c, exit_flow); c.exit_work.push(CheckExit { target: function_node, flow: exit_flow }); }
+    check_record_outer_exits(p, c, function_node, entry_flow, exit_start);
     for entry_index in entry_flow.first..entry_flow.first + entry_flow.count {
         let entry = c.flow_work[entry_index]; if entry.assigned { continue; }
         var assigned = true; var maybeassigned = entry.maybeassigned; var exits = 0;
@@ -5425,7 +5555,17 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
             }
             if !found { assigned = false; }
         }
+        // Assignments on nonlocal exits belong to their target's join.
+        if !maybeassigned {
+            for effect_index in effect_start..c.effects.len {
+                let effect = c.effects[effect_index];
+                if effect.function_node == function_node && effect.root == entry.symbol && effect.kind == 6 {
+                    c.effects[effect_index].kind = 0;
+                }
+            }
+        }
         if exits > 0 {
+            if maybeassigned && !entry.maybeassigned { check_note_effect(c, entry.symbol, 6); }
             let vi = check_variable_index(c, entry.symbol);
             if vi >= 0 { c.variables[vi].assigned = assigned; c.variables[vi].maybeassigned = maybeassigned; }
             if assigned { check_note_effect(c, entry.symbol, 4); }
@@ -5802,6 +5942,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_variable_lookup: i64[>..] = [];
     var checker_roots: CheckRoot[>..] = []; var checker_root_nodes: i64[>..] = []; var checker_root_symbols: i64[>..] = [];
     var checker_environments: CheckEnvironment[>..] = []; var checker_environment_heads: i64[>..] = [];
+    var checker_outer_exits: CheckOuterExit[>..] = [];
     var checker_syntax_nodes: Node[>..] = []; var checker_syntax_lookup: i64[>..] = [];
     var checker_effects: CheckEffect[>..] = [];
     var checker_return_roots: CheckReturnRoot[>..] = [];
@@ -5818,7 +5959,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
     var parameter_default_contexts: CheckDefaultCapture[>..] = [];
     var logical_kills: CheckLogicalKill[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, environments: checker_environments, environment_heads: checker_environment_heads, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     for source in p.sources { if source.root >= 0 { check_top_declarations(p, c, p.nodes[source.root].first); } }
     let declarations = p.symbols.len;

@@ -224,8 +224,7 @@ recursive fn render_function(p: Program&, cache: RenderKey[>..]&, hooks: const i
         let child = render_function(p, cache, hooks, t.element, render_reference(p, t.element, const_flags), true);
         render_call(p, loop_body, p.nodes[child].token, out, operation_ident(p, item)); render_text(p, body, out, "]", token);
     } else if t.kind == TY_STRUCT {
-        var empty = true; var field = t.first;
-        while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 { empty = false; } field = p.nodes[field].next; }
+        let empty = t.first < 0; var field = t.first;
         if t.pool >= 0 && p.nodes[t.declaration].kind == N_VARIANT { render_variant_label(p, body, out, type_id, token, empty); }
         else { render_label(p, body, out, type_id, token); }
         if empty && t.pool >= 0 { return function_node; }

@@ -2293,11 +2293,15 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
 recursive fn cc_match(p: Program&, f: CcBody&, node: i64) -> i64 {
     let n = p.nodes[node]; var source_type = p.nodes[n.left].type_id;
     while cc_kind(p, source_type) == TY_REF { source_type = p.types[source_type].element; }
-    var place = cc_base(p, f, n.left); var current = p.nodes[n.left].type_id;
+    var scrutinee = cc_base_place(p, f, n.left); var current = p.nodes[n.left].type_id;
     while cc_kind(p, current) == TY_REF && cc_kind(p, p.types[current].element) == TY_REF {
-        current = p.types[current].element; place = cc_load(p, f, place, current);
+        current = p.types[current].element;
+        let address = cc_read(p, f, scrutinee, current, node); let pointee = p.types[current].element;
+        scrutinee = CcPlace { type_id: pointee, address: address };
+        if cc_image_type(p, pointee) { scrutinee.form = CC_IMAGE; }
     }
-    let source = cc_load(p, f, place, source_type); let result = cc_temp(p, f, n.type_id); let done = f.serial; f.serial++;
+    let place = scrutinee.address; let source = cc_read(p, f, scrutinee, source_type, node);
+    let result = cc_result_temp(p, f, node, n.type_id); let done = f.serial; f.serial++;
     let enum_match = cc_kind(p, source_type) == TY_ENUM;
     var arm = n.first;
     while arm >= 0 {

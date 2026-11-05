@@ -147,6 +147,9 @@ def main():
                 source = upstream / source_name[len('upstream:'):]
                 cwd = upstream
             pins[str(source)] = digest(source)
+            for dependency in case.get('dependencies', []):
+                path = ROOT / dependency
+                pins[str(path)] = digest(path)
             for level in args.levels:
                 if level not in case['levels']:
                     continue

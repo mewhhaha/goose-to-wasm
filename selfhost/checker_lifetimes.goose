@@ -2,10 +2,11 @@ import model;
 
 // Provenance is a property of an evaluated value, not of its syntax. All
 // links are stable arena IDs; recursive visits borrow the arenas below.
+// Binding bounds retain caller-storage depth without changing alias roots.
 // Stored edges retain their pointee type: an array reference in one field
 // must not become an element reference when another field is read.
-struct LifeAlt { root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, next: i64 = -1 }
-struct LifeSet { first: i64 = -1, count: i64 = 0 }
+struct LifeAlt { root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0, next: i64 = -1 }
+struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0 }
 struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1 }
 struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i64 = 0, self_pools: i64 = 0, relative_roots: i64 = 0, tuple: i64 = -1, in_elements: bool = false, element_array: i64 = -1 }
 struct LifeItem { value: LifeValue, next: i64 = -1 }
@@ -207,7 +208,7 @@ fn life_equal(l: Lifetimes&, a: i64, b: i64) -> bool {
         let x = l.alts[at]; let found = life_find(l, b, x.root);
         if found < 0 { return false; }
         let y = l.alts[found];
-        if x.exact != y.exact || x.from != y.from || x.slotread != y.slotread || x.byteview != y.byteview || x.target_type != y.target_type { return false; }
+        if x.exact != y.exact || x.from != y.from || x.slotread != y.slotread || x.byteview != y.byteview || x.target_type != y.target_type || x.bound != y.bound { return false; }
         at = x.next;
     }
     return true;
@@ -218,6 +219,7 @@ fn life_insert(l: Lifetimes&, set: i64, alt: LifeAlt) {
         l.alts[old].exact = l.alts[old].exact && alt.exact;
         l.alts[old].slotread = l.alts[old].slotread && alt.slotread;
         l.alts[old].byteview = l.alts[old].byteview || alt.byteview;
+        if alt.bound > l.alts[old].bound { l.alts[old].bound = alt.bound; }
         if l.alts[old].from != alt.from { l.alts[old].from = -1; }
         if l.alts[old].target_type != alt.target_type { l.alts[old].target_type = -1; }
         return;
@@ -225,21 +227,21 @@ fn life_insert(l: Lifetimes&, set: i64, alt: LifeAlt) {
     let index = l.alts.len; var entry = alt; entry.next = l.sets[set].first;
     l.alts.push(entry); l.sets[set].first = index; l.sets[set].count += 1;
 }
-fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1) -> i64 {
+fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0) -> i64 {
     var at = l.roots[root].atoms;
     while at >= 0 {
         let entry = l.atoms[at]; let alt = l.alts[l.sets[entry.set].first];
-        if alt.exact == exact && alt.from == from && alt.slotread == slotread && alt.byteview == byteview && alt.target_type == target_type { return entry.set; }
+        if alt.exact == exact && alt.from == from && alt.slotread == slotread && alt.byteview == byteview && alt.target_type == target_type && alt.bound == bound { return entry.set; }
         at = entry.next;
     }
     let set = l.sets.len; l.sets.push(LifeSet {});
-    life_insert(l, set, LifeAlt { root: root, exact: exact, from: from, slotread: slotread, byteview: byteview, target_type: target_type });
+    life_insert(l, set, LifeAlt { root: root, exact: exact, from: from, slotread: slotread, byteview: byteview, target_type: target_type, bound: bound });
     let atom = l.atoms.len; l.atoms.push(LifeAtom { set: set, next: l.roots[root].atoms }); l.roots[root].atoms = atom;
     return set;
 }
 fn life_interior(l: Lifetimes&, roots: i64) -> i64 {
     var out = 0; var at = l.sets[roots].first;
-    while at >= 0 { let alt = l.alts[at]; out = life_join(l, out, life_single(l, alt.root, alt.exact, alt.from, false, alt.byteview)); at = alt.next; }
+    while at >= 0 { let alt = l.alts[at]; out = life_join(l, out, life_single(l, alt.root, alt.exact, alt.from, false, alt.byteview, -1, alt.bound)); at = alt.next; }
     return out;
 }
 
@@ -252,7 +254,7 @@ fn life_join(l: Lifetimes&, a: i64, b: i64) -> i64 {
         if existing < 0 { subset = false; break; }
         let old = l.alts[existing];
         if old.exact && !incoming.exact || old.slotread && !incoming.slotread ||
-           !old.byteview && incoming.byteview || old.from >= 0 && old.from != incoming.from || old.target_type >= 0 && old.target_type != incoming.target_type { subset = false; break; }
+           !old.byteview && incoming.byteview || old.from >= 0 && old.from != incoming.from || old.target_type >= 0 && old.target_type != incoming.target_type || old.bound < incoming.bound { subset = false; break; }
         probe = incoming.next;
     }
     if subset { return a; }
@@ -275,6 +277,20 @@ fn life_depth(l: Lifetimes&, scope: i64) -> i64 {
     }
     if scope < 0 || scope >= l.depths.len { return frame.base; }
     return frame.base + 2 * (l.depths[scope] - declaration);
+}
+fn life_alt_depth(l: Lifetimes&, alt: LifeAlt) -> i64 {
+    let depth = l.roots[alt.root].depth;
+    if alt.bound > depth { return alt.bound; }
+    return depth;
+}
+fn life_binding_depth(l: Lifetimes&, set: i64) -> i64 {
+    var result = 0; var at = l.sets[set].first;
+    while at >= 0 {
+        let depth = life_alt_depth(l, l.alts[at]);
+        if depth > result { result = depth; }
+        at = l.alts[at].next;
+    }
+    return result;
 }
 fn life_set_depth(l: Lifetimes&, set: i64) -> i64 {
     var result = 0; var at = l.sets[set].first;
@@ -327,14 +343,25 @@ fn life_temporary(p: Program&, l: Lifetimes&, node: i64) -> i64 {
     return life_single(l, root);
 }
 
+fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
+    if depth == 0 || sources == 0 { return sources; }
+    if l.sets[sources].bound_depth == depth { return l.sets[sources].bound_result; }
+    var result = 0; var at = l.sets[sources].first;
+    while at >= 0 {
+        var alt = l.alts[at]; if depth > alt.bound { alt.bound = depth; }
+        result = life_join(l, result, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound)); at = alt.next;
+    }
+    l.sets[sources].bound_depth = depth; l.sets[sources].bound_result = result;
+    return result;
+}
 fn life_contents(l: Lifetimes&, places: i64) -> i64 {
     var result = 0; var at = l.sets[places].first;
-    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, l.roots[alt.root].contents); at = alt.next; }
+    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, life_bound(l, l.roots[alt.root].contents, alt.bound)); at = alt.next; }
     return result;
 }
 fn life_live_contents(l: Lifetimes&, places: i64) -> i64 {
     var result = 0; var at = l.sets[places].first;
-    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, l.roots[alt.root].live_contents); at = alt.next; }
+    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, life_bound(l, l.roots[alt.root].live_contents, alt.bound)); at = alt.next; }
     return result;
 }
 fn life_value_roots(p: Program&, value: LifeValue) -> i64 {
@@ -691,7 +718,7 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
                     let alt = l.alts[ai]; ai = alt.next; let storage = l.roots[alt.root];
                     if !alt.byteview && (!life_contains(p, l, storage.type_id, t.element) || alt.target_type >= 0 && !life_same(p, alt.target_type, t.element)) { continue; }
                     if (alt.byteview || life_contains(p, l, element, t.element)) &&
-                       life_overlaps(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview), target, slot_safe) { return true; }
+                       life_overlaps(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, -1, alt.bound), target, slot_safe) { return true; }
                     if life_holds(p, t.element) {
                         var seen = false; for old in work { if old.root == alt.root && old.type_id == t.element { seen = true; } }
                         if !seen { work.push(LifeWalk { root: alt.root, type_id: t.element }); }
@@ -907,7 +934,7 @@ fn life_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64, globals
             var at = l.sets[cell.refs].first;
             while at >= 0 {
                 let alt = l.alts[at];
-                if l.roots[alt.root].depth <= depth { out = life_join(l, out, life_single(l, alt.root, alt.exact, alt.from)); }
+                if l.roots[alt.root].depth <= depth { out = life_join(l, out, life_single(l, alt.root, alt.exact, alt.from, false, false, -1, alt.bound)); }
                 at = alt.next;
             }
         }
@@ -927,7 +954,7 @@ fn life_class_candidates(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -
         let cell = l.cells[ci]; let ty = p.symbols[cell.symbol].type_id;
         if cell.parameter && ty >= 0 && p.types[ty].kind == TY_REF && life_contains(p, l, p.types[ty].element, pointee) {
             var at = l.sets[cell.refs].first;
-            while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { result = life_join(l, result, life_single(l, alt.root, alt.exact)); } at = alt.next; }
+            while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { result = life_join(l, result, life_single(l, alt.root, alt.exact, -1, false, false, -1, alt.bound)); } at = alt.next; }
         }
         ci = cell.next_frame;
     }
@@ -959,7 +986,11 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
             if (r.target_type < 0 || life_same(p, r.target_type, t.element)) && (r.root == 0 || r.byteview || !r.exact || life_contains(p, l, owner.type_id, t.element)) {
                 var slotread = true;
                 if root.type_id >= 0 && life_is_ref(p, root.type_id) { slotread = r.slotread; }
-                result = life_join(l, result, life_single(l, r.root, r.exact, alt.root, slotread, r.byteview, r.target_type));
+                var bound = r.bound;
+                // Caller storage bounds a read-back's lifetime, while the
+                // actual referent remains available for alias/shrink checks.
+                if alt.bound > bound { bound = alt.bound; }
+                result = life_join(l, result, life_single(l, r.root, r.exact, alt.root, slotread, r.byteview, r.target_type, bound));
             }
             item = r.next;
         }
@@ -977,13 +1008,13 @@ fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool =
         while at >= 0 {
             let alt = l.alts[at]; let root = l.roots[alt.root];
             if root.symbol >= 0 && (p.symbols[root.symbol].flags & (S_GLOBAL | S_MUTABLE)) == (S_GLOBAL | S_MUTABLE) {
-                out.contents = life_join(l, out.contents, life_single(l, alt.root, false, -1, slot));
+                out.contents = life_join(l, out.contents, life_single(l, alt.root, false, -1, slot, false, -1, alt.bound));
             }
             at = alt.next;
         }
         if slot {
             var contents = 0; at = l.sets[out.contents].first;
-            while at >= 0 { let alt = l.alts[at]; contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, true, alt.byteview, alt.target_type)); at = alt.next; }
+            while at >= 0 { let alt = l.alts[at]; contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, true, alt.byteview, alt.target_type, alt.bound)); at = alt.next; }
             out.contents = contents;
         }
     }
@@ -1004,7 +1035,7 @@ fn life_stored_roots(p: Program&, l: Lifetimes&, value: LifeValue) -> i64 {
     var contents = 0; var at = l.sets[sources].first;
     while at >= 0 {
         let alt = l.alts[at];
-        contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, p.types[value.type_id].element));
+        contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, p.types[value.type_id].element, alt.bound));
         at = alt.next;
     }
     return contents;
@@ -1075,13 +1106,22 @@ fn life_store(p: Program&, l: Lifetimes&, node: i64, places: i64, value: LifeVal
         if binding && owner.symbol >= 0 && life_is_ref(p, p.symbols[owner.symbol].type_id) {
             let cell = life_cell(p, l, owner.symbol);
             if cell >= 0 {
+                // Revisited declarations start a fresh destination binding;
+                // the source's caller-storage constraint remains in sources.
+                if p.nodes[node].kind == N_VARIABLE || p.nodes[node].kind == N_BINDING {
+                    l.cells[cell].committed = false; l.cells[cell].initial = 0;
+                }
                 var added = false; at = l.sets[sources].first;
-                while at >= 0 { let source = l.alts[at]; if life_find(l, l.cells[cell].initial, source.root) < 0 { added = true; } at = source.next; }
+                while at >= 0 {
+                    let source = l.alts[at]; let previous = life_find(l, l.cells[cell].initial, source.root);
+                    if previous < 0 || source.bound != l.alts[previous].bound { added = true; }
+                    at = source.next;
+                }
                 if sources != 0 && added {
                     let growshrink = life_gs_value(p, l, value);
                     if l.cells[cell].committed && !l.cells[cell].growshrink && growshrink { life_error(p, l, node, "reference binding cannot start pointing into grow-shrink elements after its first binding"); }
                     if !l.cells[cell].committed { l.cells[cell].growshrink = growshrink; }
-                    let depth = life_set_depth(l, sources);
+                    let depth = life_binding_depth(l, sources);
                     if l.cells[cell].committed && depth != l.cells[cell].depth {
                         life_scope_error(p, l, node, "reference or slice binding changes its committed root lifetime depth");
                     }
@@ -1228,7 +1268,7 @@ fn life_classes_equal(p: Program&, l: Lifetimes&, left: i64, right: i64) -> bool
 
 fn life_clear_reads(l: Lifetimes&, roots: i64) -> i64 {
     var result = 0; var at = l.sets[roots].first;
-    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, life_single(l, alt.root, alt.exact, -1, false, alt.byteview, alt.target_type)); at = alt.next; }
+    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, life_single(l, alt.root, alt.exact, -1, false, alt.byteview, alt.target_type, alt.bound)); at = alt.next; }
     return result;
 }
 recursive fn life_cycle_value(l: Lifetimes&, value: LifeValue) -> LifeValue {
@@ -1292,6 +1332,36 @@ fn life_cycle_call(p: Program&, l: Lifetimes&, target: i64, call: i64, destinati
             life_error(p, l, call, "a recursive cycle's reference result requires an explicit result type");
         }
     }
+}
+
+// The caller's storage bounds a parameter read unless this call owns a
+// private view of the holder's known contents. Lexical/callback reach keeps
+// possibly aliased holders on their storage class instead.
+fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, function_node: i64, lexical: i64) -> i64 {
+    if type_id >= 0 && p.types[type_id].kind == TY_REF && p.types[type_id].element >= 0 && p.types[p.types[type_id].element].kind == TY_SLICE { return sources; }
+    var reach = 0; var ci = l.frames[lexical].first_cell;
+    while ci >= 0 {
+        let cell = l.cells[ci]; if cell.live && l.roots[cell.root].depth > reach { reach = l.roots[cell.root].depth; }
+        ci = cell.next_frame;
+    }
+    var view = false;
+    if type_id >= 0 && p.types[type_id].kind == TY_REF && p.types[type_id].length_storage < 0 &&
+       (p.nodes[function_node].flags & F_RECURSIVE) == 0 && l.sets[sources].count == 1 {
+        let alt = l.alts[l.sets[sources].first]; let root = l.roots[alt.root]; let element = p.types[type_id].element;
+        if root.depth > reach && (alt.exact || root.temporary) && element >= 0 {
+            if life_holds(p, element) && !root.temporary && root.type_id >= 0 && !life_is_ref(p, root.type_id) && l.sets[root.contents].count == 1 {
+                view = l.alts[l.sets[root.contents].first].exact;
+            }
+        }
+    }
+    if view { return sources; }
+    var result = 0; var at = l.sets[sources].first;
+    while at >= 0 {
+        let alt = l.alts[at]; let depth = l.roots[alt.root].depth;
+        result = life_join(l, result, life_bound(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound), depth));
+        at = alt.next;
+    }
+    return result;
 }
 
 recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call: i64, arguments: i64, destination: i64, selected_result: i64 = -1) -> LifeValue {
@@ -1388,7 +1458,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
             let value = life_coerce(p, l, life_item(l, arguments, index), p.nodes[formal].type_id);
             l.cells[cell].initialized = true;
             l.cells[cell].live = true;
-            let roots = life_value_roots(p, value);
+            let roots = life_parameter_roots(p, l, life_value_roots(p, value), p.nodes[formal].type_id, function_node, lexical);
             if life_is_ref(p, p.nodes[formal].type_id) {
                 let next = life_join(l, l.cells[cell].refs, roots);
                 if !life_equal(l, next, l.cells[cell].refs) { l.cells[cell].refs = next; l.revision += 1; }
@@ -1557,7 +1627,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
         out.refs = receiver.place;
         if receiver.type_id >= 0 && p.types[receiver.type_id].kind == TY_SLICE { out.refs = receiver.refs; }
         var bytes = 0; var at = l.sets[out.refs].first;
-        while at >= 0 { let alt = l.alts[at]; bytes = life_join(l, bytes, life_single(l, alt.root, alt.exact, alt.from, false, true)); at = alt.next; }
+        while at >= 0 { let alt = l.alts[at]; bytes = life_join(l, bytes, life_single(l, alt.root, alt.exact, alt.from, false, true, -1, alt.bound)); at = alt.next; }
         out.refs = bytes;
     } else if builtin == 24 || builtin == 30 || builtin == 31 {
         var element = -1; if receiver.type_id >= 0 { element = p.types[receiver.type_id].element; }
