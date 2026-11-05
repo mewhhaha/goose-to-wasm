@@ -254,7 +254,7 @@ let S_CAPTURE: i64 = 128;
 struct Source {
     path_start: i64 = 0, path_len: i64 = 0,
     text_start: i64 = 0, text_len: i64 = 0,
-    token_start: i64 = 0, token_end: i64 = 0, root: i64 = -1,
+    token_start: i64 = 0, token_end: i64 = 0, root: i64 = -1, next_decl: i64 = -1,
 }
 struct Token {
     kind: i64 = 0, source: i64 = 0, start: i64 = 0, end: i64 = 0,
@@ -300,7 +300,7 @@ struct Program {
     text: u8[>..]&, messages: u8[>..]&, sources: Source[>..]&,
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
     symbols: Symbol[>..]&, diagnostics: Diagnostic[>..]&,
-    entry: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
+    entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     optimization: i64 = 0, debug: bool = false,
     pointer_bytes: i64 = 4,
     library: bool = false,

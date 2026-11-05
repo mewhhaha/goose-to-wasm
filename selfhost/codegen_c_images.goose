@@ -28,23 +28,24 @@ fn ci_prefix(p: Program&, id: i64) -> i64 {
     if t.array_kind == A_LIMITED && t.count >= 0 { if t.length_storage > 0 { return t.length_storage; } return 1; }
     return 0;
 }
-recursive fn ci_direct(p: Program&, id: i64) -> bool {
+recursive fn ci_direct(p: Program&, id: i64, static_views: bool = false) -> bool {
     let t = p.types[id];
     if t.storage != 0 || cc_region_width(p, id) > 0 { return false; }
+    if static_views && (t.kind == TY_SLICE || t.kind == TY_REF && t.length_storage < 0) { return true; }
     if cc_relative_cell(p, id) { return true; }
     if t.kind == TY_VOID || t.kind == TY_INT || t.kind == TY_FLOAT || t.kind == TY_BOOL { return true; }
-    if t.kind == TY_ARRAY { return t.array_kind == A_FIXED && ci_direct(p, t.element); }
+    if t.kind == TY_ARRAY { return t.array_kind == A_FIXED && ci_direct(p, t.element, static_views); }
     if (t.kind == TY_STRUCT && t.declaration >= 0) || t.kind == TY_TUPLE {
         var field = t.first; if t.kind == TY_STRUCT { field = p.nodes[t.declaration].first; }
         while field >= 0 {
-            let n = p.nodes[field]; if (n.flags & F_PAD) == 0 && !ci_direct(p, n.type_id) { return false; }
+            let n = p.nodes[field]; if (n.flags & F_PAD) == 0 && !ci_direct(p, n.type_id, static_views) { return false; }
             field = n.next;
         }
         return true;
     }
     if t.kind == TY_ENUM && t.declaration >= 0 && (t.flags & F_VARIABLE_MODE) == 0 {
         var variant = p.nodes[t.declaration].first;
-        while variant >= 0 { if !ci_direct(p, p.nodes[variant].type_id) { return false; } variant = p.nodes[variant].next; }
+        while variant >= 0 { if !ci_direct(p, p.nodes[variant].type_id, static_views) { return false; } variant = p.nodes[variant].next; }
         return true;
     }
     return false;
@@ -151,8 +152,8 @@ fn ci_enum(p: Program&, out: u8[>..]&, id: i64, operation: i64) {
     } else if operation == 0 { out.append("return size;\n"); }
     else { out.append("return image;\n"); }
 }
-fn ci_emit_type(p: Program&, out: u8[>..]&, id: i64) {
-    let t = p.types[id]; let direct = ci_direct(p, id);
+fn ci_emit_type(p: Program&, out: u8[>..]&, id: i64, static_views: bool = false) {
+    let t = p.types[id]; let direct = ci_direct(p, id, static_views);
     let run = t.kind == TY_ARRAY && (t.array_kind == A_GROW || t.array_kind == A_GROWSHRINK) && cc_size_class(p, t.element) == 1;
     for operation in 0..4 {
         if operation == 0 { out.format("static int64_t g_image_size_", id, "(GRef source){\n"); }
@@ -240,7 +241,7 @@ fn ci_emit_type(p: Program&, out: u8[>..]&, id: i64) {
         }
         out.append("}\n");
     }
-    if cc_image_type(p, id) || run {
+    if cc_image_type(p, id) || run || static_views && direct {
         out.format("static const uint8_t *g_image_read_", id, "(GRef dest,const uint8_t *image,int64_t region_base){return g_image_unpack_", id, "(dest,image);}\n"); return;
     }
     out.format("static const uint8_t *g_image_read_", id, "(GRef dest,const uint8_t *image,int64_t region_base){\n",
@@ -389,5 +390,27 @@ fn cc_index_lengths(p: Program&, out: u8[>..]&, definitions: bool = false) {
         while cc_kind(p, array) == TY_REF { out.append("memcpy(&base,g_address(base),sizeof base);\n"); array = p.types[array].element; direct = false; }
         if direct && cc_image_type(p, array) { out.append("base=g_ref(((GImage*)g_address(base))->base);\n"); }
         out.append("return g_len(base,"); ci_array_args(p, out, array); out.append(");}\n");
+    }
+}
+
+// The same typed codec engine, with a private worker-global view policy.
+// Scoped aliases rename only typed entry points; public verification stays separate.
+fn cc_global_image_emit(p: Program&, out: u8[>..]&, used: const bool[:]) {
+    for operation in ["size", "skip", "write", "unpack", "read"] {
+        for t, id in p.types {
+            if used[id] && cc_concrete(p, id) { out.format("#define g_image_", operation, "_", id, " g_global_image_", operation, "_", id, "\n"); }
+        }
+    }
+    for t, id in p.types {
+        if !used[id] || !cc_concrete(p, id) { continue; }
+        out.format("static int64_t g_image_size_", id, "(GRef);\n",
+            "static const uint8_t *g_image_skip_", id, "(const uint8_t*);\n",
+            "static uint8_t *g_image_write_", id, "(uint8_t*,GRef);\n",
+            "static const uint8_t *g_image_unpack_", id, "(GRef,const uint8_t*);\n",
+            "static const uint8_t *g_image_read_", id, "(GRef,const uint8_t*,int64_t);\n");
+    }
+    for t, id in p.types { if used[id] && cc_concrete(p, id) { ci_emit_type(p, out, id, true); } }
+    for operation in ["size", "skip", "write", "unpack", "read"] {
+        for t, id in p.types { if used[id] && cc_concrete(p, id) { out.format("#undef g_image_", operation, "_", id, "\n"); } }
     }
 }

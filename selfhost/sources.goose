@@ -3,7 +3,7 @@ import lexer;
 import parser;
 import os;
 
-struct SourceRequest { start: i64, length: i64, token: i64 = -1, package: i64 = -1 }
+struct SourceRequest { start: i64, length: i64, token: i64 = -1, package: i64 = -1, source: i64 = -1, index: i64 = -1 }
 struct SourcePackage { name: i64, start: i64, length: i64 }
 
 fn source_directory(path: const u8[:], out: u8[>..]&) {
@@ -50,11 +50,15 @@ fn source_request(p: Program&, pending: SourceRequest[>..]&, seen: SourceRequest
     var normalized: u8[>..] = [];
     source_normalize(path, normalized);
     for request in seen {
-        if same_bytes(p.text[request.start..request.start + request.length], normalized) { return; }
+        if same_bytes(p.text[request.start..request.start + request.length], normalized) {
+            // A queued shared dependency must run before its new importer.
+            if request.source == -1 { pending.push(request); }
+            return;
+        }
     }
     let start = p.text.len;
     p.text.append(normalized);
-    let request = SourceRequest { start: start, length: normalized.len, token: token, package: package };
+    let request = SourceRequest { start: start, length: normalized.len, token: token, package: package, index: seen.len };
     pending.push(request); seen.push(request);
 }
 fn source_package(p: Program&, packages: SourcePackage[>..]&, name: i64) -> i64 {
@@ -175,15 +179,23 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
     var seen: SourceRequest[>..] = [];
     var packages: SourcePackage[>..] = [];
     source_request(p, pending, seen, root, -1);
+    p.first_decl_source = -1; var last_source = -1;
     while pending.len > 0 {
         let request = pending.pop();
+        if request.source >= 0 {
+            if last_source >= 0 { p.sources[last_source].next_decl = request.source; }
+            else { p.first_decl_source = request.source; }
+            last_source = request.source; continue;
+        }
+        if seen[request.index].source != -1 { continue; }
         var path: u8[>..] = [];
         path.append(p.text[request.start..request.start + request.length]);
         var contents: u8[>..] = [];
         if !read_file(path, contents) {
+            seen[request.index].source = -2;
             diagnose(p, request.token, "cannot open source file"); continue;
         }
-        let source_id = p.sources.len;
+        let source_id = p.sources.len; seen[request.index].source = source_id;
         let start = p.text.len;
         p.text.append(contents);
         p.sources.push(Source { path_start: request.start, path_len: request.length,
@@ -191,6 +203,8 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
         lex_source(p, source_id);
         if tokens_only { continue; }
         let module = parse_source(p, source_id);
+        pending.push(SourceRequest { start: 0, length: 0, source: source_id });
+        let imports_start = pending.len;
         var directory: u8[>..] = [];
         source_directory(path, directory);
         var declaration = p.nodes[module].first;
@@ -213,6 +227,13 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
             }
             previous = declaration;
             declaration = next;
+        }
+        // The LIFO work list visits imports in written order, then appends
+        // this source's postvisit marker to the declaration schedule.
+        var left = imports_start; var right = pending.len - 1;
+        while left < right {
+            let swap = pending[left]; pending[left] = pending[right]; pending[right] = swap;
+            left += 1; right -= 1;
         }
     }
 }

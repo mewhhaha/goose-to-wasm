@@ -322,3 +322,10 @@ recursive fn cc_field_defaults(p: Program&, type_id: i64) -> bool {
     }
     return false;
 }
+
+// The frontend exports -2 only for exact static/null roots and rejects
+// relative cells in these globals. Owning fields still need private copies.
+fn cc_static_global(p: Program&, symbol: i64) -> bool {
+    let s = p.symbols[symbol];
+    return (s.flags & (S_GLOBAL | S_MUTABLE)) == S_GLOBAL && s.provenance == -2 && cc_frame_borrows(p, s.type_id);
+}

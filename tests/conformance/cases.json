@@ -48091,6 +48091,2683 @@
         "exit": 0
       },
       "provenance": "independently specified; retained batch42 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/readonly_reference/native",
+      "source": "tests/fixtures/contracts/nonnegative/readonly_reference.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly ref\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/readonly_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/readonly_reference.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly ref\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/global_typed_chain/native",
+      "source": "tests/fixtures/contracts/nonnegative/global_typed_chain.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "typed chain\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/global_typed_chain/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/global_typed_chain.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "typed chain\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/length_capacity/native",
+      "source": "tests/fixtures/contracts/nonnegative/length_capacity.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/length_capacity/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/length_capacity.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/readonly_slice_references/native",
+      "source": "tests/fixtures/contracts/nonnegative/readonly_slice_references.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly slice\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/readonly_slice_references/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/readonly_slice_references.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly slice\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/comparison_then_readonly/native",
+      "source": "tests/fixtures/contracts/nonnegative/comparison_then_readonly.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "after readonly\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/comparison_then_readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/comparison_then_readonly.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "after readonly\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/block_chain/native",
+      "source": "tests/fixtures/contracts/nonnegative/block_chain.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "block chain\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/block_chain/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/block_chain.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "block chain\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/conditional_literals/native",
+      "source": "tests/fixtures/contracts/nonnegative/conditional_literals.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "constant branches\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/conditional_literals/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/conditional_literals.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "constant branches\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/bottom_branch/native",
+      "source": "tests/fixtures/contracts/nonnegative/bottom_branch.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "bottom branch\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/bottom_branch/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/bottom_branch.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "bottom branch\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/value_slice_is_copy/native",
+      "source": "tests/fixtures/contracts/nonnegative/value_slice_is_copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value copy\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/value_slice_is_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/value_slice_is_copy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value copy\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/literal_eligibility_unchanged/native",
+      "source": "tests/fixtures/contracts/nonnegative/literal_eligibility_unchanged.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "width unchanged\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/literal_eligibility_unchanged/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/literal_eligibility_unchanged.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "width unchanged\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/explicit_conversion/native",
+      "source": "tests/fixtures/contracts/nonnegative/explicit_conversion.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "explicit conversion\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/explicit_conversion/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/explicit_conversion.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "explicit conversion\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/readonly_helper/native",
+      "source": "tests/fixtures/contracts/nonnegative/readonly_helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly helper\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/readonly_helper/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/readonly_helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly helper\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/mutable_value/native",
+      "source": "tests/fixtures/contracts/nonnegative/mutable_value.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/mutable_value/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/mutable_value.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/computed_initializer/native",
+      "source": "tests/fixtures/contracts/nonnegative/computed_initializer.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/computed_initializer/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/computed_initializer.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/cast_initializer/native",
+      "source": "tests/fixtures/contracts/nonnegative/cast_initializer.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/cast_initializer/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/cast_initializer.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/negative_zero_initializer/native",
+      "source": "tests/fixtures/contracts/nonnegative/negative_zero_initializer.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/negative_zero_initializer/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/negative_zero_initializer.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/conditional_typed_names/native",
+      "source": "tests/fixtures/contracts/nonnegative/conditional_typed_names.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/conditional_typed_names/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/conditional_typed_names.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/parameter_value/native",
+      "source": "tests/fixtures/contracts/nonnegative/parameter_value.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/parameter_value/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/parameter_value.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_before/native",
+      "source": "tests/fixtures/contracts/nonnegative/writable_before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_before/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/writable_before.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_after/native",
+      "source": "tests/fixtures/contracts/nonnegative/writable_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_after/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/writable_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/ancestor_writable_before/native",
+      "source": "tests/fixtures/contracts/nonnegative/ancestor_writable_before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/ancestor_writable_before/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/ancestor_writable_before.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/ancestor_writable_after/native",
+      "source": "tests/fixtures/contracts/nonnegative/ancestor_writable_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/ancestor_writable_after/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/ancestor_writable_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_slice_before/native",
+      "source": "tests/fixtures/contracts/nonnegative/writable_slice_before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_slice_before/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/writable_slice_before.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_slice_after/native",
+      "source": "tests/fixtures/contracts/nonnegative/writable_slice_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/writable_slice_after/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/writable_slice_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/helper_writable_before/native",
+      "source": "tests/fixtures/contracts/nonnegative/helper_writable_before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/helper_writable_before/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/helper_writable_before.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/helper_writable_after/native",
+      "source": "tests/fixtures/contracts/nonnegative/helper_writable_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/helper_writable_after/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/helper_writable_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/arithmetic_unchanged/native",
+      "source": "tests/fixtures/contracts/nonnegative/arithmetic_unchanged.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/arithmetic_unchanged/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/arithmetic_unchanged.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/u64_literal_does_not_override_fit/native",
+      "source": "tests/fixtures/contracts/nonnegative/u64_literal_does_not_override_fit.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/u64_literal_does_not_override_fit/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/u64_literal_does_not_override_fit.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/delayed_let_not_proven/native",
+      "source": "tests/fixtures/contracts/nonnegative/delayed_let_not_proven.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/delayed_let_not_proven/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/delayed_let_not_proven.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/expanded_literals/native",
+      "source": "tests/fixtures/contracts/nonnegative/expanded_literals.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "expanded literals\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/expanded_literals/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/expanded_literals.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "expanded literals\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/complement_conversion_not_proven/native",
+      "source": "tests/fixtures/contracts/nonnegative/complement_conversion_not_proven.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/complement_conversion_not_proven/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/complement_conversion_not_proven.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/explicit_unchecked_after_write/native",
+      "source": "tests/fixtures/contracts/nonnegative/explicit_unchecked_after_write.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "explicit unchecked\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/explicit_unchecked_after_write/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/explicit_unchecked_after_write.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "explicit unchecked\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/shadowed_binding/native",
+      "source": "tests/fixtures/contracts/nonnegative/shadowed_binding.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "shadowed proof\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/nonnegative/nonnegative/shadowed_binding/wasm-direct",
+      "source": "tests/fixtures/contracts/nonnegative/shadowed_binding.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "shadowed proof\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/scalar_storage/native",
+      "source": "tests/fixtures/contracts/identity/scalar_storage.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "scalar identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/scalar_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/scalar_storage.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "scalar identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/aggregate_storage/native",
+      "source": "tests/fixtures/contracts/identity/aggregate_storage.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "aggregate identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/aggregate_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/aggregate_storage.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "aggregate identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/ref_plain_both/native",
+      "source": "tests/fixtures/contracts/identity/ref_plain_both.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "ref plain identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/ref_plain_both/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/ref_plain_both.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "ref plain identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/optional_narrowed/native",
+      "source": "tests/fixtures/contracts/identity/optional_narrowed.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "optional identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/optional_narrowed/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/optional_narrowed.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "optional identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/index_evaluation_order/native",
+      "source": "tests/fixtures/contracts/identity/index_evaluation_order.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "index order\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/index_evaluation_order/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/index_evaluation_order.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "index order\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/field_evaluation_order/native",
+      "source": "tests/fixtures/contracts/identity/field_evaluation_order.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "field order\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/field_evaluation_order/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/field_evaluation_order.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "field order\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/slice_slot/native",
+      "source": "tests/fixtures/contracts/identity/slice_slot.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "slice slot identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/slice_slot/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/slice_slot.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "slice slot identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/null_and_storage/native",
+      "source": "tests/fixtures/contracts/identity/null_and_storage.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "null identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/null_and_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/null_and_storage.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "null identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/const_storage/native",
+      "source": "tests/fixtures/contracts/identity/const_storage.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "const identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/const_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/const_storage.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "const identity\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/literal_temporary/native",
+      "source": "tests/fixtures/contracts/identity/literal_temporary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/literal_temporary/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/literal_temporary.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/computed_temporary/native",
+      "source": "tests/fixtures/contracts/identity/computed_temporary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/computed_temporary/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/computed_temporary.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/block_temporary/native",
+      "source": "tests/fixtures/contracts/identity/block_temporary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/block_temporary/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/block_temporary.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/call_temporary/native",
+      "source": "tests/fixtures/contracts/identity/call_temporary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/call_temporary/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/call_temporary.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/array_temporary/native",
+      "source": "tests/fixtures/contracts/identity/array_temporary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/array_temporary/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/array_temporary.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/mismatched_pointees/native",
+      "source": "tests/fixtures/contracts/identity/mismatched_pointees.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/mismatched_pointees/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/mismatched_pointees.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/slice_value/native",
+      "source": "tests/fixtures/contracts/identity/slice_value.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/identity/identity/slice_value/wasm-direct",
+      "source": "tests/fixtures/contracts/identity/slice_value.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/match-global-write-before/native",
+      "source": "tests/fixtures/contracts/match-reliance/match-global-write-before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/match-global-write-before/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/match-global-write-before.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/match-global-write-after/native",
+      "source": "tests/fixtures/contracts/match-reliance/match-global-write-after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/match-global-write-after/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/match-global-write-after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/writer_before_construct/native",
+      "source": "tests/fixtures/contracts/match-reliance/writer_before_construct.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/writer_before_construct/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/writer_before_construct.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/nested_writer_before/native",
+      "source": "tests/fixtures/contracts/match-reliance/nested_writer_before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/nested_writer_before/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/nested_writer_before.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/nested_writer_after/native",
+      "source": "tests/fixtures/contracts/match-reliance/nested_writer_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/nested_writer_after/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/nested_writer_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/ancestor_writer_after/native",
+      "source": "tests/fixtures/contracts/match-reliance/ancestor_writer_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/ancestor_writer_after/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/ancestor_writer_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/nested_positive/native",
+      "source": "tests/fixtures/contracts/match-reliance/nested_positive.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 5 9\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/nested_positive/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/nested_positive.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 5 9\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/predicate_not_contributor/native",
+      "source": "tests/fixtures/contracts/match-reliance/predicate_not_contributor.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 true\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/predicate_not_contributor/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/predicate_not_contributor.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 true\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/selector_not_contributor/native",
+      "source": "tests/fixtures/contracts/match-reliance/selector_not_contributor.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 true\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/selector_not_contributor/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/selector_not_contributor.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 true\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/return_arm_not_contributor/native",
+      "source": "tests/fixtures/contracts/match-reliance/return_arm_not_contributor.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-1 5\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/return_arm_not_contributor/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/return_arm_not_contributor.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-1 5\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/prefix_not_contributor/native",
+      "source": "tests/fixtures/contracts/match-reliance/prefix_not_contributor.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-1\n5 true\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/prefix_not_contributor/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/prefix_not_contributor.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-1\n5 true\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/readonly_matches/native",
+      "source": "tests/fixtures/contracts/match-reliance/readonly_matches.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly match\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/readonly_matches/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/readonly_matches.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "readonly match\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/if_writer_after/native",
+      "source": "tests/fixtures/contracts/match-reliance/if_writer_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/if_writer_after/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/if_writer_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/inner_match_in_if_positive/native",
+      "source": "tests/fixtures/contracts/match-reliance/inner_match_in_if_positive.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 5 7\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/inner_match_in_if_positive/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/inner_match_in_if_positive.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 5 7\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/if_match_writer_before/native",
+      "source": "tests/fixtures/contracts/match-reliance/if_match_writer_before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/if_match_writer_before/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/if_match_writer_before.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/if_match_writer_after/native",
+      "source": "tests/fixtures/contracts/match-reliance/if_match_writer_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/match-reliance/match-reliance/if_match_writer_after/wasm-direct",
+      "source": "tests/fixtures/contracts/match-reliance/if_match_writer_after.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": [
+          "writable reference"
+        ]
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/static_aliases",
+      "source": "tests/fixtures/contracts/static-globals/static_aliases.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "main static identities ok\nworker static identities ok\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/owning_snapshots",
+      "source": "tests/fixtures/contracts/static-globals/owning_snapshots.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "private owners and shared static views ok\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/mutable_static_view",
+      "source": "tests/fixtures/contracts/static-globals/mutable_static_view.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/external_view",
+      "source": "tests/fixtures/contracts/static-globals/external_view.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/queue_view",
+      "source": "tests/fixtures/contracts/static-globals/queue_view.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/argument_view",
+      "source": "tests/fixtures/contracts/static-globals/argument_view.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/serialize_views",
+      "source": "tests/fixtures/contracts/static-globals/serialize_views.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/mutated-static-holder",
+      "source": "tests/fixtures/contracts/static-globals/mutated_static_holder.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/external-reference",
+      "source": "tests/fixtures/contracts/static-globals/external_reference.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/static-globals/native/static-globals/null-owner-refs",
+      "source": "tests/fixtures/contracts/static-globals/null_owner_refs.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "null owner refs ok\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/counts/native",
+      "source": "tests/fixtures/contracts/count-refs/counts.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "integer count snapshots passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/counts/wasm-direct",
+      "source": "tests/fixtures/contracts/count-refs/counts.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "integer count snapshots passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/encoded/native",
+      "source": "tests/fixtures/contracts/count-refs/encoded.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "encoded integer counts passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/encoded/wasm-direct",
+      "source": "tests/fixtures/contracts/count-refs/encoded.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "encoded integer counts passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/sequences/native",
+      "source": "tests/fixtures/contracts/count-refs/sequences.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "sequence loops preserved\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/sequences/wasm-direct",
+      "source": "tests/fixtures/contracts/count-refs/sequences.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "sequence loops preserved\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/optional-count/native",
+      "source": "tests/fixtures/contracts/count-refs/optional-count.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/optional-count/wasm-direct",
+      "source": "tests/fixtures/contracts/count-refs/optional-count.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/noninteger-count/native",
+      "source": "tests/fixtures/contracts/count-refs/noninteger-count.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/noninteger-count/wasm-direct",
+      "source": "tests/fixtures/contracts/count-refs/noninteger-count.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/reference-binder/native",
+      "source": "tests/fixtures/contracts/count-refs/reference-binder.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/count-refs/reference-binder/wasm-direct",
+      "source": "tests/fixtures/contracts/count-refs/reference-binder.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/owning/native",
+      "source": "tests/fixtures/contracts/literal-construction/owning.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal construction passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/owning/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/owning.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal construction passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/overload/native",
+      "source": "tests/fixtures/contracts/literal-construction/overload.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal owning overload passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/overload/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/overload.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal owning overload passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/varint_owner/native",
+      "source": "tests/fixtures/contracts/literal-construction/varint_owner.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "varint owning construction passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/varint_owner/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/varint_owner.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "varint owning construction passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/reference/native",
+      "source": "tests/fixtures/contracts/literal-construction/reference.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": ": error:"
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/reference/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/reference.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": ": error:"
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/varint_view/native",
+      "source": "tests/fixtures/contracts/literal-construction/varint_view.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": ": error:"
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/varint_view/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/varint_view.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": ": error:"
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/comparison/native",
+      "source": "tests/fixtures/contracts/literal-construction/comparison.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal comparison views passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/comparison/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/comparison.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal comparison views passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/append/native",
+      "source": "tests/fixtures/contracts/literal-construction/append.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal append construction passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/append/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/append.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "literal append construction passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/callee_view/native",
+      "source": "tests/fixtures/contracts/literal-construction/callee_view.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": ": error:"
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/literal-construction/literal-construction/callee_view/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-construction/callee_view.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stderr_contains": ": error:"
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/chain/native",
+      "source": "tests/fixtures/contracts/global-init/chain/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/chain/a.goose",
+        "tests/fixtures/contracts/global-init/chain/b.goose",
+        "tests/fixtures/contracts/global-init/chain/c.goose",
+        "tests/fixtures/contracts/global-init/chain/trace.goose"
+      ],
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1234\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/chain/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/chain/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/chain/a.goose",
+        "tests/fixtures/contracts/global-init/chain/b.goose",
+        "tests/fixtures/contracts/global-init/chain/c.goose",
+        "tests/fixtures/contracts/global-init/chain/trace.goose"
+      ],
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1234\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/diamond/native",
+      "source": "tests/fixtures/contracts/global-init/diamond/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/diamond/common.goose",
+        "tests/fixtures/contracts/global-init/diamond/left.goose",
+        "tests/fixtures/contracts/global-init/diamond/right.goose",
+        "tests/fixtures/contracts/global-init/diamond/trace.goose"
+      ],
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1234\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/diamond/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/diamond/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/diamond/common.goose",
+        "tests/fixtures/contracts/global-init/diamond/left.goose",
+        "tests/fixtures/contracts/global-init/diamond/right.goose",
+        "tests/fixtures/contracts/global-init/diamond/trace.goose"
+      ],
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1234\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/siblings/native",
+      "source": "tests/fixtures/contracts/global-init/siblings/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/siblings/left.goose",
+        "tests/fixtures/contracts/global-init/siblings/right.goose",
+        "tests/fixtures/contracts/global-init/siblings/trace.goose"
+      ],
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4567\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/siblings/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/siblings/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/siblings/left.goose",
+        "tests/fixtures/contracts/global-init/siblings/right.goose",
+        "tests/fixtures/contracts/global-init/siblings/trace.goose"
+      ],
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4567\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/cycle/native",
+      "source": "tests/fixtures/contracts/global-init/cycle/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/cycle/a.goose",
+        "tests/fixtures/contracts/global-init/cycle/b.goose",
+        "tests/fixtures/contracts/global-init/cycle/trace.goose"
+      ],
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "123\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/cycle/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/cycle/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/cycle/a.goose",
+        "tests/fixtures/contracts/global-init/cycle/b.goose",
+        "tests/fixtures/contracts/global-init/cycle/trace.goose"
+      ],
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "123\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/post-init/native",
+      "source": "tests/fixtures/contracts/global-init/post-init.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "post-init mutations passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/plain-write/native",
+      "source": "tests/fixtures/contracts/global-init/plain-write.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/compound-write/native",
+      "source": "tests/fixtures/contracts/global-init/compound-write.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/parameter-write/native",
+      "source": "tests/fixtures/contracts/global-init/parameter-write.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/self-write/native",
+      "source": "tests/fixtures/contracts/global-init/self-write.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/callee-read/native",
+      "source": "tests/fixtures/contracts/global-init/callee-read.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/rebind-write/native",
+      "source": "tests/fixtures/contracts/global-init/rebind-write.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/import-before-root/native",
+      "source": "tests/fixtures/contracts/global-init/import-before-root/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/import-before-root/early.goose"
+      ],
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/post-init/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/post-init.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "post-init mutations passed\n",
+        "exit": 0
+      },
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/plain-write/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/plain-write.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/compound-write/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/compound-write.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/parameter-write/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/parameter-write.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/self-write/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/self-write.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/callee-read/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/callee-read.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/rebind-write/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/rebind-write.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/global-init/import-before-root/wasm-direct",
+      "source": "tests/fixtures/contracts/global-init/import-before-root/main.goose",
+      "dependencies": [
+        "tests/fixtures/contracts/global-init/import-before-root/early.goose"
+      ],
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified; retained batch43 correctness control"
     }
   ],
   "legacy_math_capture": {

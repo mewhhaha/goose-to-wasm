@@ -120,6 +120,22 @@ fn cc_thread_regions(p: Program&, function: i64) -> i64 {
     return count;
 }
 
+fn cc_thread_static_types(p: Program&, used: bool[>..]&) {
+    used.resize(p.types.len, false); var work: i64[>..] = []; var globals: bool[>..] = [];
+    for n, function in p.nodes {
+        if !cc_thread_function(p, function) { continue; } thread_globals(p, function, globals);
+        for named, symbol in globals { if named && cc_static_global(p, symbol) { work.push(p.symbols[symbol].type_id); } }
+    }
+    while work.len > 0 {
+        let id = work.pop(); if id < 0 || used[id] { continue; } used[id] = true; let t = p.types[id];
+        if t.kind == TY_ARRAY { work.push(t.element); }
+        var field = -1;
+        if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
+        else if t.kind == TY_TUPLE { field = t.first; }
+        while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 { work.push(n.type_id); } field = n.next; }
+    }
+}
+
 fn cc_thread_emit_globals(p: Program&, out: u8[>..]&) {
     out.append("typedef struct {\nunsigned char empty;\n");
     for s, symbol in p.symbols {
@@ -147,8 +163,9 @@ fn cc_thread_emit_global_images(p: Program&, out: u8[>..]&, function: i64, packe
     for used, symbol in globals {
         if !used { continue; }
         let type_id = p.symbols[symbol].type_id;
-        out.format("g_image_write_", type_id, "(g_transfer_append(&g_packet", packet,
-            ",g_image_size_", type_id, "(g_ref(&g_s", symbol, "))),g_ref(&g_s", symbol, "));\n");
+        var prefix: const u8[:] = "g_image_"; if cc_static_global(p, symbol) { prefix = "g_global_image_"; }
+        out.format(prefix, "write_", type_id, "(g_transfer_append(&g_packet", packet,
+            ",", prefix, "size_", type_id, "(g_ref(&g_s", symbol, "))),g_ref(&g_s", symbol, "));\n");
         if cc_pool_mode(p, symbol) > 0 {
             out.format("g_pool_image_write(g_transfer_append(&g_packet", packet,
                 ",g_pool_image_size(g_ref(&g_s", symbol, "))),g_ref(&g_s", symbol, "));\n");
@@ -156,10 +173,11 @@ fn cc_thread_emit_global_images(p: Program&, out: u8[>..]&, function: i64, packe
     }
 }
 
-fn cc_thread_emit_receive(p: Program&, out: u8[>..]&, type_id: i64, name: const u8[:], id: i64, slot: i64) {
+fn cc_thread_emit_receive(p: Program&, out: u8[>..]&, type_id: i64, name: const u8[:], id: i64, slot: i64, static_views: bool = false) {
     let width = cc_region_width(p, type_id);
     if width > 0 { out.format("g_init_", type_id, "(g_ref(&", name, id, "),", slot, ");\n"); }
-    out.format("g_image_read_", type_id, "(g_ref(&", name, id, "),g_transfer_next(&g_cursor,NULL),", slot + width, ");\n");
+    var prefix: const u8[:] = "g_image_"; if static_views { prefix = "g_global_image_"; }
+    out.format(prefix, "read_", type_id, "(g_ref(&", name, id, "),g_transfer_next(&g_cursor,NULL),", slot + width, ");\n");
 }
 
 fn cc_thread_emit_workers(p: Program&, out: u8[>..]&) {
@@ -190,7 +208,7 @@ fn cc_thread_emit_workers(p: Program&, out: u8[>..]&) {
         for used, symbol in globals {
             if !used { continue; }
             let type_id = p.symbols[symbol].type_id;
-            cc_thread_emit_receive(p, out, type_id, "g_s", symbol, slot);
+            cc_thread_emit_receive(p, out, type_id, "g_s", symbol, slot, cc_static_global(p, symbol));
             slot += cc_transfer_width(p, type_id);
             let mode = cc_pool_mode(p, symbol);
             if mode > 0 {

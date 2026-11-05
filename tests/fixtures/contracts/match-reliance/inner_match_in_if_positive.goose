@@ -1,0 +1,1 @@
+let K=3;let L=5;fn choose(flag:bool,tag:i64)->i64{let n=if flag{match tag{0=>K,_=>L}}else{7};let u:u64=18446744073709551615;assert(u>n);return n;}fn main(){print(choose(true,0)," ",choose(true,1)," ",choose(false,0));}

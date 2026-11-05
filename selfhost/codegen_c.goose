@@ -1294,16 +1294,27 @@ recursive fn cc_loop(p: Program&, f: CcBody&, node: i64) -> i64 {
     if n.kind == N_FOR {
         let binding = n.first; let index_binding = p.nodes[binding].next;
         let iterable = p.nodes[n.left]; var counter = -1; var end = -1; var base = -1; var array = iterable.type_id; var cursor = -1; var origin = -1;
+        var count_type = iterable.type_id;
+        while cc_kind(p, count_type) == TY_REF { count_type = p.types[count_type].element; }
         if iterable.kind == N_RANGE {
             counter = cc_to(p, f, iterable.left, TYPE_I64); end = cc_to(p, f, iterable.right, TYPE_I64);
-        } else if cc_kind(p, array) == TY_INT {
-            end = cc_to(p, f, n.left, TYPE_I64); counter = cc_temp(p, f, TYPE_I64);
+        } else if cc_kind(p, count_type) == TY_INT {
+            if cc_kind(p, iterable.type_id) == TY_REF {
+                var place = cc_base_place(p, f, n.left);
+                while cc_kind(p, place.type_id) == TY_REF {
+                    let address = cc_read(p, f, place, place.type_id, n.left);
+                    place = CcPlace { type_id: p.types[place.type_id].element, address: address };
+                }
+                let value = cc_read(p, f, place, count_type, n.left);
+                end = cc_convert(p, f, value, count_type, TYPE_I64, n.left);
+            } else { end = cc_to(p, f, n.left, TYPE_I64); }
+            counter = cc_temp(p, f, TYPE_I64);
         } else {
             if cc_kind(p, array) == TY_REF { array = p.types[array].element; }
             base = cc_base(p, f, n.left); counter = cc_temp(p, f, TYPE_I64); end = cc_temp(p, f, TYPE_I64);
             cc_set(f, end); cc_text(f.out, "g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array, false); cc_text(f.out, ");\n");
         }
-        if base < 0 && (iterable.kind == N_RANGE && p.nodes[iterable.left].kind == N_INTEGER && p.nodes[iterable.left].integer == 0 || cc_kind(p, iterable.type_id) == TY_INT) {
+        if base < 0 && (iterable.kind == N_RANGE && p.nodes[iterable.left].kind == N_INTEGER && p.nodes[iterable.left].integer == 0 || cc_kind(p, count_type) == TY_INT) {
             cc_loop_cursors(p, f, n.right, p.nodes[binding].symbol);
         }
         let cursor_end = f.cursors.len;
@@ -2816,7 +2827,10 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         if t.kind != TY_VOID && cc_concrete(p, id) { cc_emit_init(p, out, id); cc_emit_map(p, out, id); cc_emit_store(p, out, id); }
         cc_emit_clone(p, out, id); cc_emit_equal(p, out, id); cc_emit_print(p, out, id); cc_emit_nested(p, out, id);
     }
-    if images { cc_image_emit(p, out, used); }
+    if images {
+        cc_image_emit(p, out, used);
+        if threads { var static_types: bool[>..] = []; cc_thread_static_types(p, static_types); cc_global_image_emit(p, out, static_types); }
+    }
     for t, type_id in p.types {
         if !used[type_id] || t.kind != TY_TUPLE { continue; }
         cc_id(out, "static void g_publish_channels_", type_id); cc_text(out, "(void *p,const void *source){GRef *a=p;const GRef *b=source;\n");
