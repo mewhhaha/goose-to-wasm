@@ -1,0 +1,1 @@
+fn main(){var fs:bool[>..]=[true,false];var b:u8=7;var s:f32=0.5;var n:i32=9;for c in fs{let a=if c{b}else{100};let d=if c{100}else{b};let f=if c{s}else{n*0.1};let g=if c{n*0.1}else{s};print(a*3," ",d*3," ",f," ",g);}}

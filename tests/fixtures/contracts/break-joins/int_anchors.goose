@@ -1,0 +1,1 @@
+fn width(x:u8)->i64{8} fn width(x:i64)->i64{64} fn main(){var fs:bool[>..]=[true,false];var b:u8=7;for c in fs{let a=loop{if c{break 3;}break b;};let d=loop{if c{break b;}break 3;};print(width(a)," ",a," ",width(d)," ",d);}}

@@ -227,10 +227,11 @@ fn cc_pool_mode(p: Program&, symbol: i64) -> i64 {
 }
 
 fn cc_relative_cell(p: Program&, type_id: i64) -> bool {
-    return cc_kind(p, type_id) == TY_REF && p.types[type_id].length_storage > 0;
+    return cc_kind(p, type_id) == TY_REF && p.types[type_id].length_storage >= 0;
 }
 fn cc_storage_type(p: Program&, out: u8[>..]&, type_id: i64) {
-    if cc_relative_cell(p, type_id) { out.format("uint", p.types[type_id].length_storage * 8, "_t"); }
+    if cc_relative_cell(p, type_id) && p.types[type_id].length_storage == 0 { out.append("GVarRelative"); }
+    else if cc_relative_cell(p, type_id) { out.format("uint", p.types[type_id].length_storage * 8, "_t"); }
     else { out.format("g_t", type_id); }
 }
 fn cc_place_type(p: Program&, node: i64) -> i64 {

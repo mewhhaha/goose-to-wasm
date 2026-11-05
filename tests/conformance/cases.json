@@ -50768,6 +50768,2576 @@
         2
       ],
       "provenance": "independently specified; retained batch43 correctness control"
+    },
+    {
+      "id": "corpus/contracts/default-return/param-forwarded/native",
+      "source": "tests/fixtures/contracts/default-return/param-forwarded.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/param-forwarded/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-forwarded.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/field-forwarded/native",
+      "source": "tests/fixtures/contracts/default-return/field-forwarded.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/field-forwarded/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-forwarded.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/param-explicit-direct/native",
+      "source": "tests/fixtures/contracts/default-return/param-explicit-direct.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/param-explicit-direct/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-explicit-direct.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/field-explicit-direct/native",
+      "source": "tests/fixtures/contracts/default-return/field-explicit-direct.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/field-explicit-direct/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-explicit-direct.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/param-named-helper/native",
+      "source": "tests/fixtures/contracts/default-return/param-named-helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-named-helper/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-named-helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-named-helper/native",
+      "source": "tests/fixtures/contracts/default-return/field-named-helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-named-helper/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-named-helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-local-helper/native",
+      "source": "tests/fixtures/contracts/default-return/param-local-helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "9\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-local-helper/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-local-helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "9\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-local-helper/native",
+      "source": "tests/fixtures/contracts/default-return/field-local-helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "10\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-local-helper/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-local-helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "10\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-unused-helper/native",
+      "source": "tests/fixtures/contracts/default-return/param-unused-helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "12\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-unused-helper/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-unused-helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "12\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-unused-helper/native",
+      "source": "tests/fixtures/contracts/default-return/field-unused-helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "14\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-unused-helper/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-unused-helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "14\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-break/native",
+      "source": "tests/fixtures/contracts/default-return/param-break.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "15\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-break/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-break.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "15\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-break/native",
+      "source": "tests/fixtures/contracts/default-return/field-break.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "16\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-break/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-break.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "16\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/ordinary-callback/native",
+      "source": "tests/fixtures/contracts/default-return/ordinary-callback.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "17\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/ordinary-callback/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/ordinary-callback.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "17\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/ordinary-explicit/native",
+      "source": "tests/fixtures/contracts/default-return/ordinary-explicit.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "18\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/ordinary-explicit/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/ordinary-explicit.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "18\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-nested-default/native",
+      "source": "tests/fixtures/contracts/default-return/param-nested-default.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/param-nested-default/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-nested-default.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/field-nested-default/native",
+      "source": "tests/fixtures/contracts/default-return/field-nested-default.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/field-nested-default/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-nested-default.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control"
+    },
+    {
+      "id": "corpus/contracts/default-return/default-effects/native",
+      "source": "tests/fixtures/contracts/default-return/default-effects.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "1 2 2\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/default-effects/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/default-effects.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified control",
+      "expect": {
+        "stdout": "1 2 2\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-helper-capture/native",
+      "source": "tests/fixtures/contracts/default-return/param-helper-capture.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "19\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-helper-capture/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-helper-capture.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "19\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-helper-capture/native",
+      "source": "tests/fixtures/contracts/default-return/field-helper-capture.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "20\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-helper-capture/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-helper-capture.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "20\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-explicit-callback/native",
+      "source": "tests/fixtures/contracts/default-return/param-explicit-callback.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "21\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/param-explicit-callback/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/param-explicit-callback.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "21\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-explicit-callback/native",
+      "source": "tests/fixtures/contracts/default-return/field-explicit-callback.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "22\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/default-return/field-explicit-callback/wasm-direct",
+      "source": "tests/fixtures/contracts/default-return/field-explicit-callback.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "independently specified lexical and dynamic scope controls",
+      "expect": {
+        "stdout": "22\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-explicit/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-explicit.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-explicit/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-explicit.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-implicit-argument/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-implicit-argument.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-implicit-argument/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-implicit-argument.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-local-ref/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-local-ref.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-local-ref/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-local-ref.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-nested/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-nested.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-nested/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-nested.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-auto-ref/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-auto-ref.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-auto-ref/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-auto-ref.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-outer/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-outer.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-outer/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-outer.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/both-const/native",
+      "source": "tests/fixtures/contracts/readonly-elements/both-const.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/both-const/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/both-const.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/mutable-explicit/native",
+      "source": "tests/fixtures/contracts/readonly-elements/mutable-explicit.goose",
+      "phase": "success",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "ABC\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/mutable-explicit/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/mutable-explicit.goose",
+      "phase": "success",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "ABC\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/mutable-implicit/native",
+      "source": "tests/fixtures/contracts/readonly-elements/mutable-implicit.goose",
+      "phase": "success",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "ABC\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/mutable-implicit/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/mutable-implicit.goose",
+      "phase": "success",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "ABC\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/mutable-auto-ref/native",
+      "source": "tests/fixtures/contracts/readonly-elements/mutable-auto-ref.goose",
+      "phase": "success",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "Abc\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/mutable-auto-ref/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/mutable-auto-ref.goose",
+      "phase": "success",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "Abc\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-descriptor-repoint/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-descriptor-repoint.goose",
+      "phase": "success",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "c\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-descriptor-repoint/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-descriptor-repoint.goose",
+      "phase": "success",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "c\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-read/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-read.goose",
+      "phase": "success",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "97\n98\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-element-read/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-element-read.goose",
+      "phase": "success",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "97\n98\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-outer-read/native",
+      "source": "tests/fixtures/contracts/readonly-elements/const-outer-read.goose",
+      "phase": "success",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "97\n98\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/const-outer-read/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/const-outer-read.goose",
+      "phase": "success",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified two-layer readonly control",
+      "expect": {
+        "stdout": "97\n98\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/repeated-ref-syntax/native",
+      "source": "tests/fixtures/contracts/readonly-elements/nested-ref.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "reference annotation is idempotent per frozen spec and N_TYPE_REF"
+    },
+    {
+      "id": "corpus/contracts/readonly-elements/repeated-ref-syntax/wasm-direct",
+      "source": "tests/fixtures/contracts/readonly-elements/nested-ref.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "reference annotation is idempotent per frozen spec and N_TYPE_REF"
+    },
+    {
+      "id": "corpus/contracts/relative-cells/native/var-relative/scalar-abi",
+      "source": "tests/fixtures/contracts/relative-cells/scalar_abi.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "scalar varint relative ABI ok\n",
+        "exit": 0
+      },
+      "provenance": "Independent scalar relative-reference admission, identity, tuple result, captured parameter, optional reset and dynamic dispatch assertions."
+    },
+    {
+      "id": "corpus/contracts/relative-cells/native/var-relative/recursive-nonfixed-rejected",
+      "source": "tests/fixtures/contracts/relative-cells/rejected_recursive_varparam.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent preservation control: recursive cycle cannot retain a nonfixed relative parameter; no frontend exemption."
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-explicit/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-explicit.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-explicit/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-explicit.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-implicit/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-implicit.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-implicit/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-implicit.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-through-ref/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-through-ref.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-through-ref/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-through-ref.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-alias/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-alias.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-alias/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-alias.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-rebind-alias/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-rebind-alias.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-rebind-alias/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-rebind-alias.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-const-ref/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-const-ref.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-const-ref/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-const-ref.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-generic/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-generic.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-generic/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-generic.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-identity/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-identity.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-identity/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-identity.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/adt-explicit/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/adt-explicit.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/adt-explicit/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/adt-explicit.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/adt-implicit/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/adt-implicit.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/adt-implicit/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/adt-implicit.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/relative-prefix/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/relative-prefix.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/relative-prefix/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/relative-prefix.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/standalone-stack/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/standalone-stack.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/standalone-stack/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/standalone-stack.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/tail-explicit/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/tail-explicit.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/tail-explicit/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/tail-explicit.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/tail-implicit/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/tail-implicit.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/tail-implicit/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/tail-implicit.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/nested-frame/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/nested-frame.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/nested-frame/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/nested-frame.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/plain-ref-prefix/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/plain-ref-prefix.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/plain-ref-prefix/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/plain-ref-prefix.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/fixed-field/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/fixed-field.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "6\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/fixed-field/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/fixed-field.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "6\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/nonresizable-field/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/nonresizable-field.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/nonresizable-field/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/nonresizable-field.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/generic-frame/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/generic-frame.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/generic-frame/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/generic-frame.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-stack-reference/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-stack-reference.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-stack-reference/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-stack-reference.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-result-reference/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-result-reference.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-result-reference/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-result-reference.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified frozen-primary header-referenceability boundary"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-user-body/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-user-body.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-user-body/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-user-body.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-param-default/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-param-default.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-param-default/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-param-default.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-field-default/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-field-default.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-field-default/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-field-default.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-argument-body/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-argument-body.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-argument-body/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-argument-body.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-callback-body/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-callback-body.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-callback-body/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-callback-body.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "trusted rendering conversion must not authorize user, callback or default expression body references"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-valid-defaults/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-valid-defaults.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "B\n4\n",
+        "exit": 0
+      },
+      "provenance": "valid frame-tail references in formatter parameter/field defaults and callback remain writable"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/render-valid-defaults/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/render-valid-defaults.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "B\n4\n",
+        "exit": 0
+      },
+      "provenance": "valid frame-tail references in formatter parameter/field defaults and callback remain writable"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/whole-named/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/whole-named.goose",
+      "phase": "check",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "whole owner reference is valid; physical variable-prefix tail backend support separate"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/whole-named/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/whole-named.goose",
+      "phase": "check",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "whole owner reference is valid; physical variable-prefix tail backend support separate"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-inplace/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-inplace.goose",
+      "phase": "check",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "in-place tail operations remain valid without taking a header reference; physical backend support separate"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/prefix-inplace/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/prefix-inplace.goose",
+      "phase": "check",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "in-place tail operations remain valid without taking a header reference; physical backend support separate"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/adt-inplace/native",
+      "source": "tests/fixtures/contracts/frame-tail-reference/adt-inplace.goose",
+      "phase": "check",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "in-place tail operations remain valid without taking a header reference; physical backend support separate"
+    },
+    {
+      "id": "corpus/contracts/frame-tail-reference/adt-inplace/wasm-direct",
+      "source": "tests/fixtures/contracts/frame-tail-reference/adt-inplace.goose",
+      "phase": "check",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "in-place tail operations remain valid without taking a header reference; physical backend support separate"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/int_float_orders/native",
+      "source": "tests/fixtures/contracts/break-joins/int_float_orders.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2.5 1.0\n1.0 2.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/int_float_orders/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/int_float_orders.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2.5 1.0\n1.0 2.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/float_rounding/native",
+      "source": "tests/fixtures/contracts/break-joins/float_rounding.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.90000004 0.90000004\n0.5 0.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/float_rounding/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/float_rounding.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.90000004 0.90000004\n0.5 0.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/int_anchors/native",
+      "source": "tests/fixtures/contracts/break-joins/int_anchors.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "8 3 8 7\n8 7 8 3\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/int_anchors/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/int_anchors.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "8 3 8 7\n8 7 8 3\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/typed_names/native",
+      "source": "tests/fixtures/contracts/break-joins/typed_names.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "64 300 64 300 301\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/typed_names/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/typed_names.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "64 300 64 300 301\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/nested_targets/native",
+      "source": "tests/fixtures/contracts/break-joins/nested_targets.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2.5 9 1.5\n3\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/nested_targets/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/nested_targets.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2.5 9 1.5\n3\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/unreachable_break/native",
+      "source": "tests/fixtures/contracts/break-joins/unreachable_break.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 9\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/unreachable_break/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/unreachable_break.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 9\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/readonly_named/native",
+      "source": "tests/fixtures/contracts/break-joins/readonly_named.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n3 3\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/readonly_named/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/readonly_named.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n3 3\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/typed_f64_first/native",
+      "source": "tests/fixtures/contracts/break-joins/typed_f64_first.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.25\n0.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/typed_f64_first/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/typed_f64_first.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.25\n0.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/mixed_void_first",
+      "source": "tests/fixtures/contracts/break-joins/mixed_void_first.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1
+      },
+      "provenance": "Independent focused rejection control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/mixed_void_after",
+      "source": "tests/fixtures/contracts/break-joins/mixed_void_after.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1
+      },
+      "provenance": "Independent focused rejection control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/typed_f32_first",
+      "source": "tests/fixtures/contracts/break-joins/typed_f32_first.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1
+      },
+      "provenance": "Independent focused rejection control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/literal_overflow_after/native",
+      "source": "tests/fixtures/contracts/break-joins/literal_overflow_after.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/literal_overflow_after/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/literal_overflow_after.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused break-join contract"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/literal_overflow_before",
+      "source": "tests/fixtures/contracts/break-joins/literal_overflow_before.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1
+      },
+      "provenance": "Independent focused rejection control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/if_literal_anchors/native",
+      "source": "tests/fixtures/contracts/break-joins/if_literal_anchors.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "21 44 0.5 0.90000004\n44 21 0.90000004 0.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent typed-literal join and deferred operand adaptation control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/if_literal_anchors/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/if_literal_anchors.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "21 44 0.5 0.90000004\n44 21 0.90000004 0.5\n",
+        "exit": 0
+      },
+      "provenance": "Independent typed-literal join and deferred operand adaptation control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/early_operand_rounding/native",
+      "source": "tests/fixtures/contracts/break-joins/early_operand_rounding.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.45000002 0.45000002\n0.125 0.125\n",
+        "exit": 0
+      },
+      "provenance": "Independent typed-literal join and deferred operand adaptation control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/early_operand_rounding/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/early_operand_rounding.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.45000002 0.45000002\n0.125 0.125\n",
+        "exit": 0
+      },
+      "provenance": "Independent typed-literal join and deferred operand adaptation control"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/nested_typed_f32_first",
+      "source": "tests/fixtures/contracts/break-joins/nested_typed_f32_first.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "A nested early-block typed break settles the first destination context"
+    },
+    {
+      "id": "corpus/contracts/break-joins/break-join/nested_named_break_written",
+      "source": "tests/fixtures/contracts/break-joins/nested_named_break_written.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Merged integer literal ranges depend on named constants through nested exact-target breaks"
+    },
+    {
+      "id": "corpus/contracts/break-joins/accumulated-breaks/merged_ranges/native",
+      "source": "tests/fixtures/contracts/break-joins/merged_ranges.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300 1 8\n300 1 8\n300 1 8\n300 8 1\n300 8 1\n300 8 1\n1 300 8\n1 300 8\n1 300 8\n1 8 300\n1 8 300\n8 300 1\n8 1 300\n8 1 300\n3 1 8\n3 1 8\n3 1 8\n3 8 1\n3 8 1\n3 8 1\n1 3 8\n1 3 8\n1 3 8\n1 8 3\n1 8 3\n1 8 3\n8 3 1\n8 3 1\n8 3 1\n8 1 3\n8 1 3\n8 1 3\n300 1 2 8\n300 1 2 8\n300 1 2 8\n300 1 8 2\n300 1 8 2\n300 1 8 2\n300 2 1 8\n300 2 1 8\n300 2 1 8\n300 2 8 1\n300 2 8 1\n300 2 8 1\n300 8 1 2\n300 8 1 2\n300 8 1 2\n300 8 2 1\n300 8 2 1\n300 8 2 1\n1 300 2 8\n1 300 2 8\n1 300 2 8\n1 300 8 2\n1 300 8 2\n1 300 8 2\n1 2 300 8\n1 2 300 8\n1 2 300 8\n1 2 8 300\n1 2 8 300\n1 8 300 2\n1 8 2 300\n1 8 2 300\n2 300 1 8\n2 300 1 8\n2 300 1 8\n2 300 8 1\n2 300 8 1\n2 300 8 1\n2 1 300 8\n2 1 300 8\n2 1 300 8\n2 1 8 300\n2 1 8 300\n2 8 300 1\n2 8 1 300\n2 8 1 300\n8 300 1 2\n8 300 2 1\n8 1 300 2\n8 1 2 300\n8 1 2 300\n8 2 300 1\n8 2 1 300\n8 2 1 300\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/break-joins/accumulated-breaks/merged_ranges/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/merged_ranges.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300 1 8\n300 1 8\n300 1 8\n300 8 1\n300 8 1\n300 8 1\n1 300 8\n1 300 8\n1 300 8\n1 8 300\n1 8 300\n8 300 1\n8 1 300\n8 1 300\n3 1 8\n3 1 8\n3 1 8\n3 8 1\n3 8 1\n3 8 1\n1 3 8\n1 3 8\n1 3 8\n1 8 3\n1 8 3\n1 8 3\n8 3 1\n8 3 1\n8 3 1\n8 1 3\n8 1 3\n8 1 3\n300 1 2 8\n300 1 2 8\n300 1 2 8\n300 1 8 2\n300 1 8 2\n300 1 8 2\n300 2 1 8\n300 2 1 8\n300 2 1 8\n300 2 8 1\n300 2 8 1\n300 2 8 1\n300 8 1 2\n300 8 1 2\n300 8 1 2\n300 8 2 1\n300 8 2 1\n300 8 2 1\n1 300 2 8\n1 300 2 8\n1 300 2 8\n1 300 8 2\n1 300 8 2\n1 300 8 2\n1 2 300 8\n1 2 300 8\n1 2 300 8\n1 2 8 300\n1 2 8 300\n1 8 300 2\n1 8 2 300\n1 8 2 300\n2 300 1 8\n2 300 1 8\n2 300 1 8\n2 300 8 1\n2 300 8 1\n2 300 8 1\n2 1 300 8\n2 1 300 8\n2 1 300 8\n2 1 8 300\n2 1 8 300\n2 8 300 1\n2 8 1 300\n2 8 1 300\n8 300 1 2\n8 300 2 1\n8 1 300 2\n8 1 2 300\n8 1 2 300\n8 2 300 1\n8 2 1 300\n8 2 1 300\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n300 1 8\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/break-joins/accumulated-breaks/merged_range_signed_boundary",
+      "source": "tests/fixtures/contracts/break-joins/merged_range_signed_boundary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent primary-source signed boundary refusal"
+    },
+    {
+      "id": "corpus/contracts/break-joins/accumulated-breaks/settled_float_widths_exact/native",
+      "source": "tests/fixtures/contracts/break-joins/settled_float_widths_exact.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true true true true true\n0.10000000149011612 -0.10000000149011612 0.10000000149011612 0.10000000149011612 0.10000000149011612\n0.1\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/break-joins/accumulated-breaks/settled_float_widths_exact/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/settled_float_widths_exact.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true true true true true\n0.10000000149011612 -0.10000000149011612 0.10000000149011612 0.10000000149011612 0.10000000149011612\n0.1\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/break-joins/accumulated-breaks/settled_float_constant_if/native",
+      "source": "tests/fixtures/contracts/break-joins/settled_float_constant_if.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/break-joins/accumulated-breaks/settled_float_constant_if/wasm-direct",
+      "source": "tests/fixtures/contracts/break-joins/settled_float_constant_if.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/same-kind/native",
+      "source": "tests/fixtures/contracts/pool-rebind/same-kind.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "pool rebind kinds ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/same-kind/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/same-kind.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "pool rebind kinds ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/alias-pool-to-plain/native",
+      "source": "tests/fixtures/contracts/pool-rebind/alias-pool-to-plain.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/alias-pool-to-plain/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/alias-pool-to-plain.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/param-slot-to-slice/native",
+      "source": "tests/fixtures/contracts/pool-rebind/param-slot-to-slice.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/param-slot-to-slice/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/param-slot-to-slice.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/param-slice-to-slot/native",
+      "source": "tests/fixtures/contracts/pool-rebind/param-slice-to-slot.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/param-slice-to-slot/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/param-slice-to-slot.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/optional-plain/native",
+      "source": "tests/fixtures/contracts/pool-rebind/optional-plain.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "optional pool proof stays plain\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/optional-plain/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/optional-plain.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "optional pool proof stays plain\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/plain-only/native",
+      "source": "tests/fixtures/contracts/pool-rebind/plain-only.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "plain rebind ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/plain-only/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/plain-only.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "plain rebind ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/branch-pool/native",
+      "source": "tests/fixtures/contracts/pool-rebind/branch-pool.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "branch pool rebind ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/branch-pool/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/branch-pool.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "branch pool rebind ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/branch-plain/native",
+      "source": "tests/fixtures/contracts/pool-rebind/branch-plain.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/branch-plain/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/branch-plain.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/contextual-generic/native",
+      "source": "tests/fixtures/contracts/pool-rebind/contextual-generic.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "contextual plain call ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/contextual-generic/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/contextual-generic.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "contextual plain call ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/generic-pool/native",
+      "source": "tests/fixtures/contracts/pool-rebind/generic-pool.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "generic pool rebind ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/generic-pool/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/generic-pool.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing",
+      "expect": {
+        "stdout": "generic pool rebind ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/generic-plain/native",
+      "source": "tests/fixtures/contracts/pool-rebind/generic-plain.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/generic-plain/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/generic-plain.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "type-error",
+      "provenance": "Independent pool kind lifetime contract; actual source proof must survive contextual reference typing"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/slot-freelist/native",
+      "source": "tests/fixtures/contracts/pool-rebind/slot-freelist.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "expect": {
+        "stdout": "rebound slot freelist ok\n",
+        "exit": 0
+      },
+      "provenance": "After same-kind rebind allocation must use the new pool freelist; old pool remains separate"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/slot-freelist/wasm-direct",
+      "source": "tests/fixtures/contracts/pool-rebind/slot-freelist.goose",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "expect": {
+        "stdout": "rebound slot freelist ok\n",
+        "exit": 0
+      },
+      "provenance": "After same-kind rebind allocation must use the new pool freelist; old pool remains separate"
+    },
+    {
+      "id": "corpus/contracts/pool-rebind/pool-rebind/slice-freelist/native",
+      "source": "tests/fixtures/contracts/pool-rebind/slice-freelist.goose",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "phase": "run",
+      "expect": {
+        "stdout": "rebound slice freelist ok\n",
+        "exit": 0
+      },
+      "provenance": "After same-kind rebind allocation must use the new pool freelist; old pool remains separate"
     }
   ],
   "legacy_math_capture": {

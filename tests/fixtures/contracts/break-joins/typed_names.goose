@@ -1,0 +1,1 @@
+let K:i64=300;fn bump(r:i64&){r+=1;}fn width(x:u8)->i64{8}fn width(x:i64)->i64{64}fn main(){let local=300;var b:u8=7;var c:bool=true;let a=loop{if c{break K;}break b;};let d=loop{if c{break local;}break b;};bump(K);print(width(a)," ",a," ",width(d)," ",d," ",K);}
