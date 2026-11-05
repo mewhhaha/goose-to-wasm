@@ -1,5 +1,7 @@
 # Wasmtime host comparison
 
+The measurements below use the earlier C++ compiler. See the [current Goose compiler results](results/2026-11-05/threads-pools-and-access/README.md).
+
 The native C++ host uses the official static Wasmtime 50.0.1 SDK; Python uses its own bindings. The full host supports compilation, caching, precompiled modules and a resident worker. An optional minimal host loads trusted precompiled modules only. Host, callbacks and I/O differ, so timing differences are not Python startup alone. Direct Wasm uses memory32; C-to-Wasm uses memory64.
 
 ![Direct Wasm process times](charts/wasmtime-host-runtime.svg)
@@ -33,24 +35,20 @@ The lifecycle cohort uses the full host and measures uncached compilation, an em
 
 ## Reproduce
 
-Install the [toolchain and optional native host](../docs/GUIDE.md#optional-native-wasmtime-host), including the oracle SDK, then run:
+Install the [toolchain and optional native host](../docs/GUIDE.md#optional-wasmtime-host), then run:
 
 ```sh
 python bench/examples.py --output-dir build/example-benchmarks
 python bench/wasmtime_host.py --example-report build/example-benchmarks/report.json --aot-host build/bin/goose-wasmtime-aot
-python bench/wasmtime_host_charts.py build/wasmtime-host/bench/report.json --output-dir bench/charts
+python bench/wasmtime_host_charts.py build/wasmtime-host/bench/report.json --output-dir build/host-charts
 python bench/runtime_lifecycle.py --example-report build/example-benchmarks/report.json --output-dir build/runtime-lifecycle
 python bench/runtime_lifecycle_charts.py build/runtime-lifecycle/report.json --output build/runtime-lifecycle.svg
 ```
 
 Chart rendering requires Matplotlib. The lifecycle chart command requires a fresh output path and will not overwrite an existing file. The host benchmark's default output path can be changed with `--output-dir`; use its generated report path for chart rendering. See the [dated evidence](results/2026-11-04/direct-imports/README.md) for retained raw data and qualification.
 
-To regenerate the qualification baseline and replay from a fresh checkout:
+Check the current compiler and host against frozen source and output contracts:
 
 ```sh
-python bench/qualify_compiler.py --jobs 6 --output-dir build/differential-sharded
-python bench/qualify_wasmtime_host.py --baseline-dir build/differential-sharded --output-dir build/wasmtime-host-qualification
-python bench/qualify_wasmtime_host.py --baseline-dir build/differential-sharded --aot-host build/bin/goose-wasmtime-aot --backends direct --output-dir build/minimal-host-qualification
-python tests/test_native_wasmtime.py
-python tests/test_aot_wasmtime.py
+python tests/conformance.py --compiler build/bin/goose --output-dir build/conformance
 ```

@@ -126,6 +126,23 @@ def main():
     binary = output / "glue-linked"
     run("glue-linked-compile", [*compiler, *FLAGS, program, obj, *LIBS, "-o", binary])
     run("glue-linked-run", [binary], "runtime glue ok\n")
+    adapter = HERE / "threads_adapter.c"
+    report["inputs_sha256"][adapter.name] = sha(adapter.read_bytes())
+    report["inputs_sha256"]["threads.h"] = sha((HERE.parent / "threads.h").read_bytes())
+    for mode, options in (("release", ["-O2"]), ("sanitized", ["-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer"])):
+        binary = output / ("threads-adapter-" + mode)
+        run("threads-adapter-" + mode + "-compile", [*compiler, "-std=gnu11", "-pthread", *options, adapter, *LIBS, "-o", binary])
+        run("threads-adapter-" + mode + "-run", [binary], "native thread adapters ok\n")
+    for header in ("storage.h", "pools.h"):
+        report["inputs_sha256"][header] = sha((HERE.parent / header).read_bytes())
+    for stem, expected in (("fixed_values", "native fixed values ok\n"), ("pools", "native pools ok\n")):
+        fixture = HERE / (stem + ".c")
+        report["inputs_sha256"][fixture.name] = sha(fixture.read_bytes())
+        for mode, options in (("release", ["-O2"]), ("sanitized", ["-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer"])):
+            name = stem.replace("_", "-") + "-" + mode
+            binary = output / name
+            run(name + "-compile", [*compiler, "-std=gnu11", "-pthread", *options, fixture, *LIBS, "-o", binary])
+            run(name + "-run", [binary], expected)
     for path in (standalone, runtime, program):
         report["inputs_sha256"][path.name] = sha(path.read_bytes())
     (output / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

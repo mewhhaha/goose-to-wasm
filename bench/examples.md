@@ -1,4 +1,6 @@
-# Example benchmarks
+# Historical example benchmarks
+
+These measurements use the earlier C++ compiler. See the [current Goose compiler results](results/2026-11-05/threads-pools-and-access/README.md).
 
 Ten [example programs](../examples/README.md) compare direct Wasm, C-to-Wasm and native C at O2. These are fresh-process timings, distinct from the warmed computational regions in the [LangArena benchmarks](langarena/README.md).
 
@@ -28,14 +30,13 @@ The paths use the same algorithm but differ in lowering, memory layout and GCC v
 
 ## Reproduce
 
-With the [toolchain and native host installed](../docs/GUIDE.md#optional-native-wasmtime-host), including the oracle SDK, run from the repository root:
+With the [toolchain and native host installed](../docs/GUIDE.md#optional-wasmtime-host), run the current compiler from the repository root:
 
 ```sh
 python bench/examples.py --machine-label 'your machine' --output-dir build/example-benchmarks
-python bench/example_charts.py build/example-benchmarks/report.json
-cp bench/charts/examples-runtime.svg bench/charts/examples-python-runtime.svg
+python bench/example_charts.py build/example-benchmarks/report.json --output-dir build/example-charts
 python bench/wasmtime_host.py --example-report build/example-benchmarks/report.json --aot-host build/bin/goose-wasmtime-aot
-python bench/example_runtime_charts.py build/wasmtime-host/bench/report.json
+python bench/example_runtime_charts.py build/wasmtime-host/bench/report.json --output-dir build/example-charts
 ```
 
 Chart generation requires Matplotlib. For a correctness-only smoke run:

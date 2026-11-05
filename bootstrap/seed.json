@@ -2,27 +2,30 @@
   "schema": "goose-bootstrap-seed-v1",
   "language": "C11",
   "producer": "Goose-written compiler through C-only bootstrap",
-  "c_sha256": "c3d96198541323e5a137ca611e85cb3bd24b1f39c8012812a95cda4c4d7b0e9b",
-  "compressed_sha256": "5da5a99b3512eb795d955afc7b568b128f0b985611940a213feb0bb8e362f64a",
-  "source_bundle_sha256": "9dd96456af1b37c214c85681219284eeaf9685330c493cc5dbf4e3dc8963e53a",
+  "c_sha256": "2e7807d1540aa8983b6a20169d8839b87e51c73fb8b78eb8663ab6a0a093c2e6",
+  "compressed_sha256": "6f54cbc4d903d4d186467ca4e2ce5baea0f420e21bc79d20599c711dea2ad2bf",
+  "source_bundle_sha256": "ec52630116764bbe3c4b2895cc007d9c71f0199e2614950f786951db67848126",
   "source_sha256": {
     "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
-    "sources.goose": "ad9a1f96ac3850ad4268795c605c3c0576ba604b9f816baa0f60db1e13de4140",
-    "region_plan.goose": "c6985be85725a9be4aea5e8e39c203f0e88b803520f66ffb84ac6461986fe17b",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "sources.goose": "55df17c30952b28a4e8bc38d11e0ecd4353eb47a48fc6fc27454229b5354c37b",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
     "parser.goose": "8b36e4859a3e4659e858892903d8af3ad0bb9698f0faadfea45325c8da75309f",
-    "optimizer.goose": "53f1d9c79e513a5502ade415c79f3ad9d441b68c82dc0073b081d51bf682d78f",
-    "model.goose": "50be92752a4b70a253a64b51a63c33f0ffe5888e1781a0612b3b47b8dac00641",
+    "optimizer.goose": "adb9821476d8318659c19f8995270a528ae38666322dc8ac0e7fb66686ce1b3c",
+    "model.goose": "32d629250d502b51166d7cadb9b3e350bc3b36c987d49f01b3e4ddc1a9469dfa",
     "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
     "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
     "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
-    "codegen_c_storage.goose": "89764c641ac9351d6f0e46ecfba70abe7982f09d4c6263ea255a7c301246f866",
-    "codegen_c.goose": "500c1aeaebdbe5b351953f10d100207e2cb3d852c8df443bcf1978bf462b3b5b",
-    "codegen.goose": "b1f260833a5f534a1155df06f79a277faf2d6c4f415e673b824ce314e1fa4ff3",
-    "checker_validation.goose": "c8b10654d7757d0542c9d48c3627897d4d063e8098c4e01dbcf13b962b58aec5",
+    "codegen_c_threads.goose": "3ddacba39c122af8de70bb91756240ecc87571a76dd4654855eea3e7abdeff49",
+    "codegen_c_storage.goose": "eb04fe926e9544c6bb1e213509c8509d6dd314925672957d5dcbd06a39dcb5fd",
+    "codegen_c_images.goose": "4038e3225b39e7d79fffc83586467780794ca3ecffb80ce2b484feaf827c320d",
+    "codegen_c.goose": "1c3b3a20d077db0bbb15dcafbeb022f94df4b850b37f1a2d9902d65b4b2eb1ef",
+    "codegen.goose": "591dde67d5436993f728c397fe57f8b90c3c46dd354529bf4b19b4639e7a9bde",
+    "checker_validation.goose": "266c28cee1b9c9651e8bf4af67e6170c1795e0f76fca9ef34468a22ccf2c77b2",
     "checker_rendering.goose": "eb34ce6c2a888635029fd78fc2e975d63187e688b61dfc6173b387d9c1c2a4d2",
     "checker_operations.goose": "8e0935df3d292052a687e928116b4b252ad02963c8925eb60ff6f3afb74b1883",
-    "checker_lifetimes.goose": "0cc33a6205cca466766fe8e6e0f8a04245c7796a4402ec178b0878e5f6239d20",
-    "checker.goose": "34524b4568e0f73ac05cb750b5ad96aa61a73ac1958d02f115822a37e2545480"
+    "checker_lifetimes.goose": "07646e7366e463e3b8a93ec4efbdd931148441c01bef3b88e3ed2cfe1869bf30",
+    "checker.goose": "689db2193043bcee022a57e12d705d695c5f04202712485cd6c570f79d9df718"
   },
   "stdlib_sha256": {
     "vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
@@ -42,14 +45,17 @@
     "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
     "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
     "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
-    "native/storage.h": "7d2439e9169096485a94bd2d6a94f37684b370cfa354a864dbbf796a6a7bc73f"
+    "native/storage.h": "005d3b05bd34dd108301fd3e240dfcc2fe6a0e7b83e17ca618a5084c98730c2a",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/images.h": "3586abac5c2c3a3442353aa13ec1f994a8edd21261092970437119c9f3f03d8c",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
   },
   "proof": {
     "fixed_point": true,
-    "parent_seed_c_sha256": "eba3c7e808153594529be869c04ba9e5efa183c32766516fa5ff9509f15a138b",
-    "stage1_c_sha256": "a026fe41ab1d0c598b7b98469dfd916c714964ef7ba1ddf26642d00cda0fa41d",
-    "stage2_c_sha256": "c3d96198541323e5a137ca611e85cb3bd24b1f39c8012812a95cda4c4d7b0e9b",
-    "stage3_c_sha256": "c3d96198541323e5a137ca611e85cb3bd24b1f39c8012812a95cda4c4d7b0e9b"
+    "parent_seed_c_sha256": "2469d1713534a12f4e4e635b10fbae0db76b23ef5deb6151480ab4dfccb24f46",
+    "stage1_c_sha256": "2e7807d1540aa8983b6a20169d8839b87e51c73fb8b78eb8663ab6a0a093c2e6",
+    "stage2_c_sha256": "2e7807d1540aa8983b6a20169d8839b87e51c73fb8b78eb8663ab6a0a093c2e6",
+    "stage3_c_sha256": null
   },
   "note": "Final two C generations match. This seed is generated without a C++ compiler."
 }

@@ -1,7 +1,7 @@
 # Reproducible backend measurements
 
-Run the semantic differential suite before collecting performance results. Then,
-with the pinned native compiler, Emscripten, Node, and Wasmtime installed:
+Run the frozen source and output contracts before collecting performance results.
+Then, with a native C compiler, Node and Wasmtime installed:
 
 ```sh
 python3 bench/benchmark.py
@@ -16,20 +16,17 @@ checksum, sample count, median, MAD, quartiles, minimum, and maximum.
 | Backend | V8 | Wasmtime | Native process |
 | --- | --- | --- | --- |
 | Direct binary Wasm | Yes | Same module | — |
-| Goose C through Emscripten | Yes | Same standalone memory64 module | — |
 | Goose C through native C compiler | — | — | Yes |
 
-Both Wasm hosts implement the direct scalar host contract and the small WASI64
-service contract used by the standalone C oracle. The C oracle's LP64 pointers
-require 16-byte WASI iovecs; this host is deliberately not an ordinary WASI32
-runtime. Direct output uses memory32. This layout difference is part of the
-compared targets. The computational loops execute entirely in WebAssembly.
+Direct output uses memory32. Historical C-to-Wasm measurements used the earlier
+C++ compiler and memory64; they remain in dated evidence. The current compiler
+supports direct Wasm and native C.
 
 ## What is measured
 
 **Complete cold build:** a fresh driver process with `--no-cache`, including the
 Goose frontend, emission, and any C compilation/linking. The OS page cache is
-retained, as is Emscripten's installed system-library cache. “Cold” here does not
+retained. “Cold” here does not
 mean a reboot or flushed filesystem cache.
 Direct uses the same Goose `-O2` semantic passes as the C targets and emits
 binary Wasm directly. The C targets additionally run their compiler's `-O2`.

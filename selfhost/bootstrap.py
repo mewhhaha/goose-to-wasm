@@ -150,8 +150,10 @@ def main():
                     report['third_generation_c_sha256'] = digest(third)
                     if digest(following) != digest(third):
                         raise RuntimeError('self-hosted C output differs between generations')
-                    shutil.copyfile(second, executable)
-                    executable.chmod(0o755)
+                    pending = out / '.verified-goose'
+                    shutil.copyfile(second, pending)
+                    pending.chmod(0o755)
+                    pending.replace(executable)
                     report['executable_c_sha256'] = digest(following)
                 report['fixed_point'] = True
         report['input_sha256_after'] = {path: digest(path) for path in report['input_sha256']}

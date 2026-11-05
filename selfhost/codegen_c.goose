@@ -3,6 +3,8 @@ import std;
 import checker_rendering;
 import region_plan;
 import codegen_c_storage;
+import codegen_c_images;
+import codegen_c_threads;
 
 // Native C lowering shares the checked ID-based IR with the direct Wasm path.
 // Runtime text contains storage/OS/formatting only; it never invokes a compiler.
@@ -10,13 +12,16 @@ let cc_runtime_header = embed_file("../native/runtime/runtime.h");
 let cc_runtime_impl = embed_file("../native/runtime/runtime_impl.h");
 let cc_runtime_threads = embed_file("../native/runtime/runtime_threads.h");
 let cc_runtime = embed_file("../native/storage.h");
+let cc_runtime_pools = embed_file("../native/pools.h");
+let cc_runtime_images = embed_file("../native/images.h");
+let cc_runtime_workers = embed_file("../native/threads.h");
 
 struct CcExit { node: i64, done: i64, again: i64 = -1, result: i64 = -1, type_id: i64 = TYPE_VOID, regions: i64 = 0, again_regions: i64 = 0, publications: i64 = -1 }
 struct CcBody {
     out: u8[>..]&, exits: CcExit[>..]&, work: i64[>..]&, function: i64 = -1,
     serial: i64 = 0, result_type: i64 = TYPE_VOID,
     region_live: i64 = 0, region_peak: i64 = 0, function_index: i64 = -1, active_node: i64 = -1, receiver: i64 = -1,
-    calls: RegionCall[>..]&, indices: i64[>..]&, temp_regions: i64[>..]&, destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&,
+    calls: RegionCall[>..]&, indices: i64[>..]&, temp_regions: i64[>..]&, destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&, indirect: i64[>..]&,
 }
 fn cc_region_slot(f: CcBody&, width: i64) -> i64 {
     let slot = f.region_live; f.region_live += width;
@@ -120,6 +125,11 @@ fn cc_seed_symbol(p: Program&, f: CcBody&, symbol: i64) {
         cc_text(f.out, ","); cc_id(f.out, "g_named_links", links); cc_text(f.out, ");\n"); return;
     }
     cc_seed(p, f, type_id, "g_s", symbol);
+    let mode = cc_pool_mode(p, symbol);
+    if mode > 0 {
+        let slot = cc_region_slot(f, 1); cc_text(f.out, "g_pool_init(g_ref(&"); cc_id(f.out, "g_s", symbol); cc_text(f.out, "),");
+        cc_region_argument(f, slot); cc_text(f.out, ","); cc_number(f.out, mode); cc_text(f.out, ");\n");
+    }
 }
 fn cc_emit_map(p: Program&, out: u8[>..]&, id: i64) {
     let width = cc_region_width(p, id); if width == 0 { return; } let t = p.types[id];
@@ -169,9 +179,6 @@ fn cc_fail(p: Program&, node: i64, message: const u8[:]) {
     var token: i64 = -1; if node >= 0 && node < p.nodes.len { token = p.nodes[node].token; }
     diagnose(p, token, message);
 }
-fn cc_kind(p: Program&, type_id: i64) -> i64 {
-    if type_id < 0 || type_id >= p.types.len { return TY_UNKNOWN; } return p.types[type_id].kind;
-}
 fn cc_aggregate(p: Program&, type_id: i64) -> bool {
     let kind = cc_kind(p, type_id); return kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM || kind == TY_TUPLE;
 }
@@ -192,6 +199,12 @@ fn cc_array_args(p: Program&, out: u8[>..]&, type_id: i64, width: bool = true) {
     cc_number(out, t.count); cc_text(out, ","); cc_number(out, cc_prefix(p, type_id));
     if width { cc_text(out, ","); cc_number(out, cc_frame_size(p, t.element)); }
 }
+fn cc_fixed(out: u8[>..]&, type_id: i64, prefix: const u8[:], id: i64, zero: bool = true) {
+    cc_text(out, "GFixed g_fixed_"); cc_id(out, prefix, id); cc_text(out, " __attribute__((cleanup(g_fixed_release)))=g_fixed_begin(sizeof("); cc_type(out, type_id);
+    cc_text(out, "),"); if zero { cc_text(out, "1"); } else { cc_text(out, "0"); } cc_text(out, ");\n#define "); cc_id(out, prefix, id);
+    cc_text(out, " (*("); cc_type(out, type_id); cc_text(out, "*)"); cc_text(out, "g_fixed_"); cc_id(out, prefix, id); cc_text(out, ".data)\n");
+}
+fn cc_undef(out: u8[>..]&, prefix: const u8[:], id: i64) { cc_text(out, "#undef "); cc_id(out, prefix, id); cc_text(out, "\n"); }
 fn cc_temp(p: Program&, f: CcBody&, type_id: i64, zero: bool = true, seed: bool = true) -> i64 {
     if cc_kind(p, type_id) == TY_VOID { return -1; }
     if type_id < 0 { cc_fail(p, f.function, "c: expression lacks a checked type"); return -1; }
@@ -200,6 +213,10 @@ fn cc_temp(p: Program&, f: CcBody&, type_id: i64, zero: bool = true, seed: bool 
         cc_fail(p, f.function, "c: encoded integer/reference image layout requires packed-image lowering");
     }
     let id = f.serial; f.serial++;
+    if cc_indirect(p, type_id) {
+        cc_fixed(f.out, type_id, "g_v", id, zero); f.indirect.push(id);
+        if seed { cc_seed(p, f, type_id, "g_v", id); } return id;
+    }
     cc_type(f.out, type_id); cc_text(f.out, " "); cc_id(f.out, "g_v", id);
     if zero { cc_text(f.out, "="); cc_zero_initializer(p, f.out, type_id); }
     cc_text(f.out, ";\n"); if seed { cc_seed(p, f, type_id, "g_v", id); } return id;
@@ -389,10 +406,10 @@ fn cc_function_result(p: Program&, function: i64) -> i64 {
 }
 fn cc_function_type(p: Program&, out: u8[>..]&, type_id: i64) {
     let result = p.types[type_id].element;
-    cc_type(out, result); cc_text(out, " (*)(GClosure*,int64_t");
-    if cc_region_width(p, result) > 0 { cc_text(out, ","); cc_type(out, result); cc_text(out, "*"); }
+    if cc_indirect(p, result) { cc_text(out, "void"); } else { cc_type(out, result); } cc_text(out, " (*)(GClosure*,int64_t");
+    if cc_receives(p, result) { cc_text(out, ","); cc_type(out, result); cc_text(out, "*"); }
     var param = p.types[type_id].first;
-    while param >= 0 { cc_text(out, ","); cc_type(out, p.nodes[param].type_id); param = p.nodes[param].next; }
+    while param >= 0 { cc_text(out, ","); cc_type(out, p.nodes[param].type_id); if cc_indirect(p, p.nodes[param].type_id) { cc_text(out, "*"); } param = p.nodes[param].next; }
     cc_text(out, ")");
 }
 recursive fn cc_closure(p: Program&, f: CcBody&, function: i64, type_id: i64) -> i64 {
@@ -408,28 +425,6 @@ recursive fn cc_closure(p: Program&, f: CcBody&, function: i64, type_id: i64) ->
     return result;
 }
 
-fn cc_concrete(p: Program&, id: i64) -> bool {
-    let kind = cc_kind(p, id);
-    if kind == TY_UNKNOWN || kind == TY_GENERIC || kind == TY_NAME { return false; }
-    let t = p.types[id];
-    if kind == TY_ARRAY || kind == TY_SLICE || kind == TY_REF {
-        let element = cc_kind(p, t.element);
-        if element == TY_UNKNOWN || element == TY_GENERIC || element == TY_NAME { return false; }
-    }
-    if kind == TY_STRUCT || kind == TY_ENUM {
-        if t.declaration < 0 { return false; }
-        var field = p.nodes[t.declaration].first;
-        while field >= 0 {
-            if p.nodes[field].kind == N_VARIANT && p.nodes[field].type_id < 0 { return false; }
-            if p.nodes[field].kind == N_FIELD && (p.nodes[field].flags & F_PAD) == 0 {
-                let fk = cc_kind(p, p.nodes[field].type_id);
-                if fk == TY_UNKNOWN || fk == TY_GENERIC || fk == TY_NAME { return false; }
-            }
-            field = p.nodes[field].next;
-        }
-    }
-    return true;
-}
 fn cc_use_type(p: Program&, used: bool[:], work: i64[>..]&, type_id: i64) {
     if type_id < 0 || type_id >= used.len || used[type_id] { return; }
     used[type_id] = true; work.push(type_id);
@@ -463,6 +458,18 @@ fn cc_used_types(p: Program&, used: bool[:], work: i64[>..]&) {
         }
     }
 }
+fn cc_helper_name(p: Program&, out: u8[>..]&, prefix: const u8[:], id: i64) {
+    cc_text(out, prefix); if cc_indirect(p, id) { cc_text(out, "value_"); } cc_number(out, id);
+}
+fn cc_helper_value(p: Program&, out: u8[>..]&, id: i64, name: const u8[:]) {
+    if cc_indirect(p, id) { cc_text(out, "const "); } cc_type(out, id);
+    if cc_indirect(p, id) { cc_text(out, " *g_indirect_"); } else { cc_text(out, " "); } cc_text(out, name);
+}
+fn cc_helper_alias(p: Program&, out: u8[>..]&, id: i64, name: const u8[:], end: bool = false) {
+    if !cc_indirect(p, id) { return; }
+    if end { cc_text(out, "#undef "); cc_text(out, name); cc_text(out, "\n"); }
+    else { cc_text(out, "#define "); cc_text(out, name); cc_text(out, " (*g_indirect_"); cc_text(out, name); cc_text(out, ")\n"); }
+}
 fn cc_emit_types(p: Program&, out: u8[>..]&, used: const bool[:]) {
     for t, id in p.types {
         if !used[id] || !cc_concrete(p, id) { continue; }
@@ -488,12 +495,12 @@ fn cc_emit_types(p: Program&, out: u8[>..]&, used: const bool[:]) {
     }
     for t, id in p.types {
         if !used[id] || t.kind != TY_TUPLE { continue; }
-        cc_id(out, "struct g_tuple", id); cc_text(out, " {"); var field = t.first; var index = 0;
+        cc_text(out, "#pragma pack(push,1)\n"); cc_id(out, "struct g_tuple", id); cc_text(out, " {"); var field = t.first; var index = 0;
         while field >= 0 {
             cc_type(out, p.nodes[field].type_id); cc_text(out, " "); cc_id(out, "f", index); cc_text(out, ";");
             index++; field = p.nodes[field].next;
         }
-        cc_text(out, "};\n");
+        cc_text(out, "};\n#pragma pack(pop)\n");
     }
     for t, id in p.types {
         if !used[id] || !cc_concrete(p, id) || t.kind == TY_VOID { continue; }
@@ -502,16 +509,29 @@ fn cc_emit_types(p: Program&, out: u8[>..]&, used: const bool[:]) {
             cc_id(out, "static void g_init_", id); cc_text(out, "(GRef p,int64_t slot);\n");
             cc_id(out, "static void g_map_", id); cc_text(out, "(GRef source,GRef target,GPublication *links);\n");
         }
-        cc_text(out, "static "); cc_type(out, id); cc_id(out, " g_clone_", id); cc_text(out, "("); cc_type(out, id); cc_text(out, " v");
+        if cc_indirect(p, id) {
+            cc_text(out, "#define "); cc_id(out, "g_load_", id); cc_text(out, "(p) (*(const "); cc_type(out, id); cc_text(out, "*)g_address(p))\n");
+            cc_text(out, "#define "); cc_id(out, "g_store_", id); cc_text(out, "(p,v) "); cc_id(out, "g_store_value_", id); cc_text(out, "((p),&(v))\n");
+            cc_text(out, "#define "); cc_id(out, "g_equal_", id); cc_text(out, "(a,b) "); cc_id(out, "g_equal_value_", id); cc_text(out, "(&(a),&(b))\n");
+            cc_text(out, "#define "); cc_id(out, "g_print_", id); cc_text(out, "(out,v) "); cc_id(out, "g_print_value_", id); cc_text(out, "((out),&(v))\n");
+            cc_text(out, "#define "); cc_id(out, "g_nested_", id); cc_text(out, "(out,v) "); cc_id(out, "g_nested_value_", id); cc_text(out, "((out),&(v))\n");
+            cc_text(out, "#define "); cc_id(out, "g_clone_", id); cc_text(out, "(v"); if regions > 0 { cc_text(out, ",slot"); }
+            cc_text(out, ") (*"); cc_id(out, "g_clone_value_", id); cc_text(out, "(&(v)"); if regions > 0 { cc_text(out, ",(slot)"); } cc_text(out, "))\n");
+        }
+        cc_text(out, "static "); if cc_indirect(p, id) { cc_text(out, "const "); } cc_type(out, id);
+        if cc_indirect(p, id) { cc_text(out, " *"); } else { cc_text(out, " "); } cc_helper_name(p, out, "g_clone_", id); cc_text(out, "("); cc_helper_value(p, out, id, "v");
         if regions > 0 { cc_text(out, ",int64_t slot"); } cc_text(out, ");\n");
-        cc_text(out, "static int "); cc_id(out, "g_equal_", id); cc_text(out, "("); cc_type(out, id); cc_text(out, " a,"); cc_type(out, id); cc_text(out, " b);\n");
-        cc_text(out, "static void "); cc_id(out, "g_print_", id); cc_text(out, "(GArray *out,"); cc_type(out, id); cc_text(out, " v);\n");
-        cc_text(out, "static void "); cc_id(out, "g_nested_", id); cc_text(out, "(GArray *out,"); cc_type(out, id); cc_text(out, " v);\n");
-        cc_text(out, "static "); cc_type(out, id); cc_id(out, " g_load_", id); cc_text(out, "(GRef p) {"); cc_type(out, id);
-        cc_text(out, " v; memcpy(&v,g_address(p),sizeof v); return v;}\nstatic void "); cc_id(out, "g_store_", id); cc_text(out, "(GRef p,"); cc_type(out, id);
-        cc_text(out, " v);\n");
-        cc_id(out, "static void g_publish_", id); cc_text(out, "(void *p,const void *source){"); cc_type(out, id);
-        cc_text(out, " value;memcpy(&value,source,sizeof value);"); cc_id(out, "g_store_", id); cc_text(out, "(g_ref(p),value); }\n");
+        cc_text(out, "static int "); cc_helper_name(p, out, "g_equal_", id); cc_text(out, "("); cc_helper_value(p, out, id, "a"); cc_text(out, ","); cc_helper_value(p, out, id, "b"); cc_text(out, ");\n");
+        for prefix in ["g_print_", "g_nested_"] {
+            cc_text(out, "static void "); cc_helper_name(p, out, prefix, id); cc_text(out, "(GArray *out,"); cc_helper_value(p, out, id, "v"); cc_text(out, ");\n");
+        }
+        if !cc_indirect(p, id) {
+            cc_text(out, "static "); cc_type(out, id); cc_id(out, " g_load_", id); cc_text(out, "(GRef p) {"); cc_type(out, id);
+            cc_text(out, " v; memcpy(&v,g_address(p),sizeof v); return v;}\n");
+        }
+        cc_text(out, "static void "); cc_helper_name(p, out, "g_store_", id); cc_text(out, "(GRef p,"); cc_helper_value(p, out, id, "v"); cc_text(out, ");\n");
+        cc_id(out, "static void g_publish_", id); cc_text(out, "(void *p,const void *source){");
+        cc_id(out, "g_store_", id); cc_text(out, "(g_ref(p),"); cc_id(out, "g_load_", id); cc_text(out, "(g_ref(source)));}\n");
     }
 }
 fn cc_emit_init(p: Program&, out: u8[>..]&, id: i64) {
@@ -558,8 +578,8 @@ fn cc_emit_init(p: Program&, out: u8[>..]&, id: i64) {
 }
 fn cc_emit_store(p: Program&, out: u8[>..]&, id: i64) {
     let t = p.types[id]; let width = cc_region_width(p, id);
-    cc_id(out, "static void g_store_", id); cc_text(out, "(GRef p,"); cc_type(out, id); cc_text(out, " v){\n");
-    if !cc_needs_clone(p, id, 0) { cc_text(out, "memcpy(g_address(p),&v,sizeof v);}\n"); return; }
+    cc_text(out, "static void "); cc_helper_name(p, out, "g_store_", id); cc_text(out, "(GRef p,"); cc_helper_value(p, out, id, "v"); cc_text(out, "){\n"); cc_helper_alias(p, out, id, "v");
+    if !cc_needs_clone(p, id, 0) { cc_text(out, "memcpy(g_address(p),&v,sizeof v);}\n"); cc_helper_alias(p, out, id, "v", true); return; }
     if cc_owner(p, id) {
         cc_text(out, "GArray source,target;memcpy(&source,&v,sizeof source);memcpy(&target,g_address(p),sizeof target);\n");
         if t.array_kind == A_VAR || t.array_kind == A_LIMITED {
@@ -571,7 +591,9 @@ fn cc_emit_store(p: Program&, out: u8[>..]&, id: i64) {
             if t.array_kind == A_LIMITED { cc_text(out, "if(!target.region->width)reserve=source.region->capacity;\n"); }
             cc_text(out, "g_reserve(p,"); cc_array_args(p, out, id); cc_text(out, ",reserve);\n");
         }
-        if cc_needs_clone(p, t.element, 0) {
+        if t.array_kind == A_LIMITED {
+            cc_text(out, "if(source.cap)memmove(target.data,source.data,(size_t)source.cap*"); cc_number(out, cc_frame_size(p, t.element)); cc_text(out, ");\n");
+        } else if cc_needs_clone(p, t.element, 0) {
             cc_text(out, "for(int64_t i=0;i<source.len;i++){"); cc_id(out, "g_store_", t.element); cc_text(out, "(g_ref(target.data+i*");
             cc_number(out, cc_frame_size(p, t.element)); cc_text(out, "),"); cc_id(out, "g_load_", t.element);
             cc_text(out, "(g_ref(source.data+i*"); cc_number(out, cc_frame_size(p, t.element)); cc_text(out, ")));}\n");
@@ -583,7 +605,10 @@ fn cc_emit_store(p: Program&, out: u8[>..]&, id: i64) {
         var field = p.nodes[t.declaration].first;
         while field >= 0 {
             let n = p.nodes[field];
-            if (n.flags & F_PAD) == 0 {
+            if (n.flags & F_PAD) != 0 {
+                cc_text(out, "memcpy(g_address(g_offset(p,"); cc_number(out, cc_field_offset(p, id, field)); cc_text(out, ")),g_address(g_offset(g_ref(&v),");
+                cc_number(out, cc_field_offset(p, id, field)); cc_text(out, ")),"); cc_number(out, n.aux); cc_text(out, ");\n");
+            } else {
                 cc_id(out, "g_store_", n.type_id); cc_text(out, "(g_offset(p,"); cc_number(out, cc_field_offset(p, id, field)); cc_text(out, "),");
                 cc_id(out, "g_load_", n.type_id); cc_text(out, "(g_offset(g_ref(&v),"); cc_number(out, cc_field_offset(p, id, field)); cc_text(out, ")));\n");
             }
@@ -618,11 +643,19 @@ fn cc_emit_store(p: Program&, out: u8[>..]&, id: i64) {
             index++; part = p.nodes[part].next;
         }
     }
-    cc_text(out, "}\n");
+    cc_text(out, "}\n"); cc_helper_alias(p, out, id, "v", true);
 }
 fn cc_emit_clone(p: Program&, out: u8[>..]&, id: i64) {
     let t = p.types[id]; if !cc_concrete(p, id) || t.kind == TY_VOID { return; }
     let width = cc_region_width(p, id);
+    if cc_indirect(p, id) {
+        cc_text(out, "static const "); cc_type(out, id); cc_id(out, " *g_clone_value_", id); cc_text(out, "(const "); cc_type(out, id); cc_text(out, " *v");
+        if width > 0 { cc_text(out, ",int64_t slot"); } cc_text(out, "){\n");
+        if !cc_needs_clone(p, id, 0) { cc_text(out, "return v;}\n"); return; }
+        cc_type(out, id); cc_text(out, " *result=("); cc_type(out, id); cc_text(out, "*)g_fixed_alloc(sizeof *result);memset(result,0,sizeof *result);\n");
+        if width > 0 { cc_id(out, "g_init_", id); cc_text(out, "(g_ref(result),slot);\n"); }
+        cc_id(out, "g_store_", id); cc_text(out, "(g_ref(result),*v);return result;}\n"); return;
+    }
     cc_text(out, "static "); cc_type(out, id); cc_id(out, " g_clone_", id); cc_text(out, "("); cc_type(out, id); cc_text(out, " v");
     if width > 0 { cc_text(out, ",int64_t slot"); }
     cc_text(out, "){\n");
@@ -638,7 +671,7 @@ fn cc_print_field(p: Program&, out: u8[>..]&, type_id: i64, field: i64, separato
 }
 fn cc_emit_print(p: Program&, out: u8[>..]&, id: i64) {
     let t = p.types[id]; if !cc_concrete(p, id) || t.kind == TY_VOID { return; }
-    cc_text(out, "static void "); cc_id(out, "g_print_", id); cc_text(out, "(GArray *out,"); cc_type(out, id); cc_text(out, " v) {\ng_stack_check();\n");
+    cc_text(out, "static void "); cc_helper_name(p, out, "g_print_", id); cc_text(out, "(GArray *out,"); cc_helper_value(p, out, id, "v"); cc_text(out, ") {\n"); cc_helper_alias(p, out, id, "v"); cc_text(out, "g_stack_check();\n");
     if t.kind == TY_INT || t.kind == TY_FLOAT || t.kind == TY_BOOL {
         cc_text(out, "unsigned char b[128]; int64_t n=");
         if t.kind == TY_BOOL { cc_text(out, "gs_fmt_bool(b,v)"); }
@@ -686,9 +719,8 @@ fn cc_emit_print(p: Program&, out: u8[>..]&, id: i64) {
                 cc_bytes(out, token_text(p, p.nodes[variant].token)); cc_text(out, ");\n");
             }
             if field >= 0 {
-                cc_text(out, "{\n"); let payload = p.nodes[variant].type_id; cc_type(out, payload);
-                cc_text(out, " body;memcpy(&body,((unsigned char*)&v)+"); cc_number(out, t.length_storage); cc_text(out, ",sizeof body);");
-                cc_id(out, "g_print_", payload); cc_text(out, "(out,body); }\n");
+                let payload = p.nodes[variant].type_id; cc_id(out, "g_print_", payload); cc_text(out, "(out,"); cc_id(out, "g_load_", payload);
+                cc_text(out, "(g_offset(g_ref(&v),"); cc_number(out, t.length_storage); cc_text(out, ")));\n");
             }
             cc_text(out, "break;\n"); variant = p.nodes[variant].next;
         }
@@ -701,7 +733,7 @@ fn cc_emit_print(p: Program&, out: u8[>..]&, id: i64) {
             index++; part = p.nodes[part].next;
         }
     }
-    cc_text(out, "}\n");
+    cc_text(out, "}\n"); cc_helper_alias(p, out, id, "v", true);
 }
 
 recursive fn cc_default(p: Program&, f: CcBody&, type_id: i64) -> i64 {
@@ -791,9 +823,20 @@ recursive fn cc_binary(p: Program&, f: CcBody&, node: i64) -> i64 {
     let left = cc_to(p, f, n.left, operand); let right = cc_to(p, f, n.right, operand);
     return cc_binary_values(p, f, n.integer, left, right, operand, n.type_id, node);
 }
+fn cc_inline_argument(p: Program&, node: i64) -> bool {
+    let n = p.nodes[node]; if n.kind != N_VARIABLE { return false; }
+    var binding = n.first;
+    if binding < 0 { return n.origin >= 0 && p.nodes[n.origin].kind == N_PARAM; }
+    while binding >= 0 {
+        let b = p.nodes[binding]; if b.origin < 0 || p.nodes[b.origin].kind != N_PARAM { return false; } binding = b.next;
+    }
+    return true;
+}
 recursive fn cc_block(p: Program&, f: CcBody&, node: i64, destination: i64 = -1) -> i64 {
     let n = p.nodes[node]; var result = destination;
     if result < 0 && n.type_id >= 0 && cc_kind(p, n.type_id) != TY_VOID { result = cc_result_temp(p, f, node, n.type_id); }
+    var child = n.first;
+    while child >= 0 && cc_inline_argument(p, child) { cc_expr(p, f, child); child = p.nodes[child].next; }
     let region_mark = f.region_live; let receiving_mark = f.receiving.len;
     let publications = f.serial; f.serial++;
     cc_id(f.out, "GPublication *g_scope_publications", publications); cc_text(f.out, "=g_publication_top;\n");
@@ -805,7 +848,7 @@ recursive fn cc_block(p: Program&, f: CcBody&, node: i64, destination: i64 = -1)
         early = true; label = f.serial; f.serial++;
         f.exits.push(CcExit { node: node, done: label, result: result, type_id: n.type_id, regions: region_mark, publications: publications });
     }
-    cc_text(f.out, "{\n"); var child = n.first;
+    cc_text(f.out, "{\n");
     while child >= 0 {
         let kind = p.nodes[child].kind; let statement_mark = f.region_live;
         let terminates = kind == N_RETURN || kind == N_BREAK || kind == N_CONTINUE;
@@ -843,6 +886,7 @@ recursive fn cc_values(p: Program&, f: CcBody&, first: i64, type_id: i64, target
         while effect >= 0 { cc_expr(p, f, effect); effect = p.nodes[effect].next; }
         return -1;
     }
+    if p.nodes[first].next < 0 && cc_kind(p, p.nodes[first].type_id) == TY_TUPLE { return cc_to(p, f, first, type_id, true); }
     if cc_kind(p, type_id) != TY_TUPLE { return cc_to(p, f, first, type_id, true); }
     let result = cc_temp(p, f, type_id); var part = p.types[type_id].first; var value = first; var index = 0;
     while part >= 0 && value >= 0 {
@@ -926,7 +970,7 @@ recursive fn cc_loop(p: Program&, f: CcBody&, node: i64) -> i64 {
     } else {
         cc_text(f.out, "for(;;) {\n");
         if n.kind == N_WHILE {
-            let condition = cc_to(p, f, n.left, TYPE_BOOL); cc_text(f.out, "if(!"); cc_id(f.out, "g_v", condition); cc_text(f.out, ") break;\n");
+            let condition = cc_truth(p, f, n.left); cc_text(f.out, "if(!"); cc_id(f.out, "g_v", condition); cc_text(f.out, ") break;\n");
         }
         cc_expr(p, f, n.right); cc_id(f.out, "g_label", again); cc_text(f.out, ":;\n}\n");
     }
@@ -954,14 +998,15 @@ recursive fn cc_call(p: Program&, f: CcBody&, node: i64) -> i64 {
     if param >= 0 || arg >= 0 { cc_fail(p, node, "c: checked call argument arity mismatch"); return -1; }
     let natural_type = p.types[callable].element;
     let result = cc_result_temp(p, f, node, natural_type);
-    if result >= 0 { cc_set(f, result); }
+    if result >= 0 && !cc_indirect(p, natural_type) { cc_set(f, result); }
     if function >= 0 { cc_id(f.out, "g_fn", function); }
     else { cc_text(f.out, "(("); cc_function_type(p, f.out, callable); cc_text(f.out, ")"); cc_id(f.out, "g_v", closure); cc_text(f.out, "->function)"); }
     cc_text(f.out, "(");
     if closure >= 0 { cc_id(f.out, "g_v", closure); } else { cc_text(f.out, "NULL"); }
     cc_text(f.out, ","); cc_region_argument(f, f.region_live);
-    if cc_region_width(p, natural_type) > 0 { cc_text(f.out, ",&"); cc_id(f.out, "g_v", result); }
-    for i in 0..args_count { cc_text(f.out, ","); cc_id(f.out, "g_v", f.work[args_start + i]); } cc_text(f.out, ");\n");
+    if cc_receives(p, natural_type) { cc_text(f.out, ",&"); cc_id(f.out, "g_v", result); }
+    param = p.types[callable].first;
+    for i in 0..args_count { cc_text(f.out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(f.out, "&"); } cc_id(f.out, "g_v", f.work[args_start + i]); param = p.nodes[param].next; } cc_text(f.out, ");\n");
     if function >= 0 { cc_region_call(f, function, node); }
     else {
         for candidate, id in p.nodes { if cc_emittable(p, id) && candidate.type_id == callable { cc_region_call(f, id, node); } }
@@ -1014,12 +1059,13 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
         var closure = -1;
         if p.nodes[function].captures >= 0 { closure = cc_closure(p, f, function, callable); }
         let natural_type = p.types[callable].element; let natural = cc_result_temp(p, f, node, natural_type);
-        if natural >= 0 { cc_set(f, natural); }
+        if natural >= 0 && !cc_indirect(p, natural_type) { cc_set(f, natural); }
         cc_id(f.out, "g_fn", function); cc_text(f.out, "(");
         if closure >= 0 { cc_id(f.out, "g_v", closure); } else { cc_text(f.out, "NULL"); }
         cc_text(f.out, ","); cc_region_argument(f, f.region_live);
-        if cc_region_width(p, natural_type) > 0 { cc_text(f.out, ",&"); cc_id(f.out, "g_v", natural); }
-        for i in 0..count { cc_text(f.out, ","); cc_id(f.out, "g_v", f.work[args_start + i]); }
+        if cc_receives(p, natural_type) { cc_text(f.out, ",&"); cc_id(f.out, "g_v", natural); }
+        dispatch_parameter = p.types[callable].first;
+        for i in 0..count { cc_text(f.out, ","); if cc_indirect(p, p.nodes[dispatch_parameter].type_id) { cc_text(f.out, "&"); } cc_id(f.out, "g_v", f.work[args_start + i]); dispatch_parameter = p.nodes[dispatch_parameter].next; }
         cc_text(f.out, ");\n"); cc_region_call(f, function, node);
         let adapted = cc_convert(p, f, natural, natural_type, n.type_id, node);
         if result >= 0 && adapted >= 0 { let destination = cc_temporary_ref(f, result); cc_store(f, destination, adapted, n.type_id); }
@@ -1192,6 +1238,162 @@ recursive fn cc_assignment(p: Program&, f: CcBody&, node: i64) {
     }
     let value = cc_binary_values(p, f, op, old, right, type_id, type_id, node); cc_store(f, ref, value, type_id);
 }
+recursive fn cc_thread_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, args_start: i64, args_count: i64) -> i64 {
+    let n = p.nodes[node];
+    if builtin == 7 || builtin == 8 {
+        let worker = p.symbols[p.nodes[f.work[args_start]].symbol].node;
+        let packet = f.serial; f.serial++; cc_raw_array(f, "g_packet", packet);
+        var formal = p.nodes[worker].first; var ordinal = 1;
+        while formal >= 0 && ordinal < args_count {
+            let type_id = p.nodes[formal].type_id; let value = cc_to(p, f, f.work[args_start + ordinal], type_id);
+            cc_thread_emit_image(f.out, type_id, value, packet);
+            formal = p.nodes[formal].next; ordinal++;
+        }
+        cc_thread_emit_global_images(p, f.out, worker, packet);
+        let result = cc_temp(p, f, n.type_id); cc_set(f, result);
+        f.out.format("g_worker_start(g_worker_", worker, ",g_packet", packet, ".data,g_packet", packet, ".len,");
+        if builtin == 8 { f.out.append("1"); } else { f.out.append("0"); } f.out.append(");\n"); return result;
+    }
+    if builtin == 9 {
+        let id = cc_to(p, f, f.work[args_start], TYPE_I64); let result = cc_temp(p, f, n.type_id);
+        if args_count == 1 {
+            cc_set(f, result); f.out.format("gs_thread_wait(g_v", id, ",NULL,NULL,"); cc_location(p, f.out, node); f.out.append(");\n"); return result;
+        }
+        let message = f.serial; f.serial++; f.out.format("uint8_t *g_message", message, "=NULL;int64_t g_message_bytes", message, "=0;\n");
+        cc_set(f, result); f.out.format("gs_thread_wait(g_v", id, ",&g_message", message, ",&g_message_bytes", message, ","); cc_location(p, f.out, node); f.out.append(");\n");
+        f.out.format("if(g_message", message, "){\n");
+        let copied = f.serial; f.serial++; cc_raw_array(f, "g_wait_image", copied);
+        f.out.format("g_transfer_hold(g_message", message, ");g_bytes(&g_wait_image", copied, ",g_message", message, ",g_message_bytes", message, ");g_transfer_drop();\n");
+        let receiver = f.work[args_start + 1]; var type_id = p.nodes[receiver].type_id;
+        while cc_kind(p, type_id) == TY_REF { type_id = p.types[type_id].element; }
+        let target = cc_base(p, f, receiver);
+        f.out.format("g_append_bytes(g_v", target, ","); cc_array_args(p, f.out, type_id, false);
+        f.out.format(",g_wait_image", copied, ".data,g_wait_image", copied, ".len);}\n"); return result;
+    }
+    let type_id = cc_queue_type(p, node); let queue = cc_queue_key(p, type_id);
+    if builtin == 10 {
+        let value = cc_to(p, f, f.work[args_start], type_id); let packet = f.serial; f.serial++; cc_raw_array(f, "g_queue_image", packet);
+        let size = f.serial; f.serial++;
+        f.out.format("int64_t g_image_bytes", size, "=g_image_size_", type_id, "(g_ref(&g_v", value, "));\n",
+            "g_reserve(g_ref(&g_queue_image", packet, "),3,-1,0,1,g_image_bytes", size, ");\n",
+            "g_image_write_", type_id, "(g_queue_image", packet, ".data,g_ref(&g_v", value, "));\n");
+        let result = cc_temp(p, f, n.type_id); cc_set(f, result);
+        f.out.format("gs_qput(&g_queue_", queue, ",g_queue_image", packet, ".data,g_image_bytes", size, ");\n"); return result;
+    }
+    if builtin == 13 {
+        let limit = cc_to(p, f, f.work[args_start], TYPE_I64);
+        f.out.format("gs_qlimit(&g_queue_", queue, ",g_v", limit, ","); cc_location(p, f.out, node); f.out.append(");\n"); return -1;
+    }
+    let pair = builtin == 12 || args_count > 0;
+    var timeout = -1; if args_count > 0 { timeout = cc_to(p, f, f.work[args_start], TYPE_I64); }
+    let result = cc_result_temp(p, f, node, n.type_id); let message = f.serial; f.serial++;
+    f.out.format("gs_qnode *g_node", message, "=");
+    if builtin == 12 { f.out.format("gs_qpoll(&g_queue_", queue, ");\n"); }
+    else if timeout >= 0 { f.out.format("gs_qwait(&g_queue_", queue, ",g_v", timeout, ");\n"); }
+    else { f.out.format("gs_qget(&g_queue_", queue, ");\n"); }
+    if pair { f.out.format("g_v", result, ".f1=(g_node", message, "!=NULL);\n"); }
+    f.out.format("if(g_node", message, "){g_transfer_hold(g_node", message, ");\n");
+    let slot = cc_region_slot(f, 1);
+    f.out.format("g_image_read_", type_id, "(g_ref(&g_v", result); if pair { f.out.append(".f0"); }
+    f.out.format("),(const uint8_t*)(g_node", message, "+1),"); cc_region_argument(f, slot);
+    f.out.append(");g_transfer_drop();}\n"); return result;
+}
+recursive fn cc_truth(p: Program&, f: CcBody&, node: i64) -> i64 {
+    let mark = f.region_live; let value = cc_to(p, f, node, TYPE_BOOL);
+    cc_restore(f, mark); f.region_live = mark; return value;
+}
+fn cc_slice_type(p: Program&, element: i64) -> i64 {
+    for t, id in p.types { if t.kind == TY_SLICE && t.element == element { return id; } } return -1;
+}
+recursive fn cc_pool_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, args: i64, base: i64, type_id: i64) -> i64 {
+    let n = p.nodes[node]; let element = p.types[type_id].element; let width = cc_frame_size(p, element);
+    if builtin == 30 || builtin == 31 {
+        let value = cc_to(p, f, f.work[args + 1], element, true);
+        let index = cc_temp(p, f, TYPE_I64); cc_set(f, index); cc_text(f.out, "g_pool_take("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_number(f.out, width); cc_text(f.out, ");\n");
+        let target = cc_ref_temp(f); cc_set(f, target); cc_text(f.out, "g_moving("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index); cc_text(f.out, "*"); cc_number(f.out, width); cc_text(f.out, ");\n");
+        cc_store(f, target, value, element); cc_text(f.out, "g_pool_commit("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index); cc_text(f.out, ");\n");
+        if builtin == 30 { return cc_convert(p, f, index, TYPE_I64, n.type_id, node); }
+        if cc_kind(p, element) == TY_REF { return value; } return target;
+    }
+    if builtin == 32 {
+        let index = cc_to(p, f, f.work[args + 1], TYPE_I64); cc_text(f.out, "g_pool_free("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", index);
+        cc_text(f.out, ","); cc_location(p, f.out, node); cc_text(f.out, ");\n"); return -1;
+    }
+    let slice_type = cc_slice_type(p, element); var old = -1; var old_len = -1;
+    if builtin != 33 { old = cc_to(p, f, f.work[args + 1], slice_type); }
+    if builtin == 35 {
+        cc_text(f.out, "g_pool_slice_free("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_id(f.out, "g_v", old); cc_text(f.out, ","); cc_number(f.out, width);
+        cc_text(f.out, ","); cc_location(p, f.out, node); cc_text(f.out, ");\n"); return -1;
+    }
+    var count_arg = args + 1; if builtin == 34 { count_arg++; }
+    let count = cc_to(p, f, f.work[count_arg], TYPE_I64);
+    if builtin == 34 { old_len = cc_temp(p, f, TYPE_I64); cc_set(f, old_len); cc_id(f.out, "g_v", old); cc_text(f.out, ".len;\n"); }
+    let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "g_pool_slice_resize("); cc_id(f.out, "g_v", base); cc_text(f.out, ",");
+    if old >= 0 { cc_id(f.out, "g_v", old); } else { cc_text(f.out, "(GSlice){0}"); }
+    cc_text(f.out, ","); cc_id(f.out, "g_v", count); cc_text(f.out, ","); cc_number(f.out, width); cc_text(f.out, ","); cc_location(p, f.out, node); cc_text(f.out, ");\n");
+    let counter = f.serial; f.serial++;
+    cc_id(f.out, "for(int64_t g_i", counter); cc_text(f.out, "="); if old_len >= 0 { cc_id(f.out, "g_v", old_len); } else { cc_text(f.out, "0"); }
+    cc_text(f.out, ";"); cc_id(f.out, "g_i", counter); cc_text(f.out, "<"); cc_id(f.out, "g_v", count); cc_text(f.out, ";"); cc_id(f.out, "g_i", counter); cc_text(f.out, "++){\n");
+    let value = cc_default(p, f, element); let target = cc_ref_temp(f); cc_set(f, target); cc_text(f.out, "g_offset("); cc_id(f.out, "g_v", result); cc_text(f.out, ".base,");
+    cc_id(f.out, "g_i", counter); cc_text(f.out, "*"); cc_number(f.out, width); cc_text(f.out, ");\n"); cc_store(f, target, value, element); cc_text(f.out, "}\n"); return result;
+}
+fn cc_images_used(p: Program&) -> bool {
+    if cc_threads_used(p) { return true; }
+    for n in p.nodes {
+        if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
+            let builtin = p.symbols[n.symbol].index; if builtin == 16 || builtin == 18 { return true; }
+        }
+    }
+    return false;
+}
+recursive fn cc_from_bytes(p: Program&, f: CcBody&, node: i64, argument: i64) -> i64 {
+    let n = p.nodes[node]; let array = p.nodes[p.types[n.type_id].first].type_id; let element = p.types[array].element;
+    if !ci_verifiable(p, element) { cc_fail(p, node, "c: this element needs packed/relative image verification"); return -1; }
+    let input = cc_to(p, f, argument, TYPE_STRING); let result = cc_result_temp(p, f, node, n.type_id);
+    let target = cc_ref_temp(f); cc_set(f, target); cc_text(f.out, "g_ref(&"); cc_id(f.out, "g_v", result); cc_text(f.out, ".f0);\n");
+    if p.types[array].array_kind == A_GROW || p.types[array].array_kind == A_GROWSHRINK { cc_text(f.out, "g_begin_builder("); cc_id(f.out, "g_v", target); cc_text(f.out, ");\n"); }
+    let raw = f.serial; f.serial++;
+    f.out.format("const uint8_t *g_input", raw, "=g_image_slice_data(g_v", input, ");const uint8_t *g_end", raw, "=g_input", raw, "+g_v", input, ".len;\n",
+        "int64_t g_bytes", raw, "=0,g_count", raw, "=0;const uint8_t *g_payload", raw, "=g_image_count_check(g_input", raw, ",g_end", raw, ",0,&g_bytes", raw, ");\n",
+        "int g_ok", raw, "=g_payload", raw, " && g_bytes", raw, "==g_end", raw, "-g_payload", raw, ";\n",
+        "if(g_ok", raw, "){const uint8_t *cursor=g_payload", raw, ";while(cursor<g_end", raw, "){const uint8_t *next=g_image_check_", element,
+        "(cursor,g_end", raw, ");if(!next || next<=cursor){g_ok", raw, "=0;break;}cursor=next;g_count", raw, "++;}}\n",
+        "if(g_ok", raw, "){g_reserve(g_v", target, ","); cc_array_args(p, f.out, array); f.out.format(",g_count", raw, ");const uint8_t *cursor=g_payload", raw, ";\n",
+        "for(int64_t i=0;i<g_count", raw, ";i++)cursor=g_image_unpack_", element, "(g_ref(g_image_data(g_v", target, ","); ci_array_args(p, f.out, array);
+    f.out.format(")+i*", cc_frame_size(p, element), "),cursor);\n}else g_count", raw, "=0;\n",
+        "g_set_len(g_v", target, ","); cc_array_args(p, f.out, array, false); f.out.format(",g_count", raw, ");g_v", result, ".f1=g_ok", raw, ";\n"); return result;
+}
+recursive fn cc_byte_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, args: i64, count: i64, base: i64, type_id: i64) -> i64 {
+    let n = p.nodes[node]; let element = p.types[type_id].element;
+    if builtin == 17 {
+        if !ci_direct(p, element) { cc_fail(p, node, "c: bytes_of needs a physical variable image view"); return -1; }
+        let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "g_view("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ");\n");
+        cc_id(f.out, "g_v", result); cc_text(f.out, ".len*="); cc_number(f.out, cc_frame_size(p, element)); cc_text(f.out, ";\n"); return result;
+    }
+    if !ci_verifiable(p, element) && !ci_direct(p, element) { cc_fail(p, node, "c: this element needs packed/relative image serialization"); return -1; }
+    let view = cc_temp(p, f, TYPE_STRING); cc_set(f, view); cc_text(f.out, "g_view("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ");\n");
+    let raw = f.serial; f.serial++;
+    if ci_direct(p, element) { f.out.format("int64_t g_bytes", raw, "=g_image_product(g_v", view, ".len,", p.types[element].size, ");\n"); }
+    else { f.out.format("int64_t g_bytes", raw, "=0;for(int64_t i=0;i<g_v", view, ".len;i++)g_bytes", raw, "=g_image_add(g_bytes", raw, ",g_image_size_", element,
+        "(g_offset(g_v", view, ".base,i*", cc_frame_size(p, element), ")));\n"); }
+    f.out.format("uint8_t g_prefix", raw, "[10];int64_t g_prefix_size", raw, "=gs_uleb_write(g_prefix", raw, ",(uint64_t)g_bytes", raw, ");\n");
+    var result = -1; var destination = -1; var receiving_type = -1;
+    if count == 1 {
+        result = cc_result_temp(p, f, node, n.type_id); destination = cc_temporary_ref(f, result); receiving_type = n.type_id;
+        cc_text(f.out, "g_begin_builder("); cc_id(f.out, "g_v", destination); cc_text(f.out, ");\n");
+    } else {
+        let output = f.work[args + 1]; receiving_type = p.nodes[output].type_id; destination = cc_base(p, f, output);
+        while cc_kind(p, receiving_type) == TY_REF { receiving_type = p.types[receiving_type].element; }
+    }
+    cc_text(f.out, "g_append_bytes("); cc_id(f.out, "g_v", destination); cc_text(f.out, ","); cc_array_args(p, f.out, receiving_type, false);
+    f.out.format(",g_prefix", raw, ",g_prefix_size", raw, ");\nint64_t g_old", raw, "=g_len(g_v", destination, ","); cc_array_args(p, f.out, receiving_type, false);
+    f.out.format(");if(g_bytes", raw, ">INT64_MAX-g_old", raw, ")g_panic(\"image length overflow\");\ng_reserve(g_v", destination, ","); cc_array_args(p, f.out, receiving_type);
+    f.out.format(",g_old", raw, "+g_bytes", raw, ");\nuint8_t *g_write", raw, "=g_address(g_element(g_v", destination, ","); cc_array_args(p, f.out, receiving_type);
+    f.out.format(",g_old", raw, ",1));\n");
+    if ci_direct(p, element) { f.out.format("if(g_bytes", raw, ")memmove(g_write", raw, ",g_image_slice_data(g_v", view, "),(size_t)g_bytes", raw, ");\n"); }
+    else { f.out.format("for(int64_t i=0;i<g_v", view, ".len;i++)g_write", raw, "=g_image_write_", element, "(g_write", raw, ",g_offset(g_v", view, ".base,i*", cc_frame_size(p, element), "));\n"); }
+    cc_text(f.out, "g_set_len("); cc_id(f.out, "g_v", destination); cc_text(f.out, ","); cc_array_args(p, f.out, receiving_type, false); f.out.format(",g_old", raw, "+g_bytes", raw, ");\n"); return result;
+}
 recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64 {
     let n = p.nodes[node]; let args_start = f.work.len; var args_count = 0; var arg = n.first;
     while arg >= 0 { f.work.push(arg); args_count++; arg = p.nodes[arg].next; }
@@ -1243,24 +1445,18 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
         cc_text(f.out, ","); cc_id(f.out, "g_v", value); cc_text(f.out, ");g_abort_value("); cc_id(f.out, "g_message", message);
         cc_text(f.out, ","); cc_location(p, f.out, node); cc_text(f.out, ");\n"); return -1;
     }
-    if builtin == 5 { let value = cc_to(p, f, f.work[args_start + 0], TYPE_I32); cc_text(f.out, "exit("); cc_id(f.out, "g_v", value); cc_text(f.out, ");\n"); return -1; }
+    if builtin == 5 { let value = cc_to(p, f, f.work[args_start + 0], TYPE_I32); cc_text(f.out, "g_exit("); cc_id(f.out, "g_v", value); cc_text(f.out, ");\n"); return -1; }
     if builtin == 6 {
-        let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "sysconf(_SC_NPROCESSORS_ONLN);\n"); return result;
+        let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "gs_hardware_threads();\n"); return result;
     }
-    if builtin >= 7 && builtin <= 13 { cc_fail(p, node, "c: thread and queue lowering requires native runtime integration"); return -1; }
+    if builtin >= 7 && builtin <= 13 { return cc_thread_builtin(p, f, node, builtin, args_start, args_count); }
     if builtin == 19 || builtin == 20 { cc_fail(p, node, "c: embed builtin must be folded by the source driver"); return -1; }
-    if builtin == 18 { cc_fail(p, node, "c: from_bytes requires verified packed-image decoding"); return -1; }
+    if builtin == 18 { return cc_from_bytes(p, f, node, f.work[args_start]); }
     if args_count == 0 { cc_fail(p, node, "c: builtin has no receiver"); return -1; }
     let receiver = f.work[args_start + 0]; var type_id = p.nodes[receiver].type_id;
     if cc_kind(p, type_id) == TY_REF { type_id = p.types[type_id].element; }
     let base = cc_base(p, f, receiver); let t = p.types[type_id];
-    if builtin == 16 || builtin == 17 {
-        if t.kind != TY_ARRAY && t.kind != TY_SLICE { cc_fail(p, node, "c: byte image requires an array"); return -1; }
-        let result = cc_temp(p, f, n.type_id);
-        if cc_kind(p, n.type_id) != TY_SLICE { cc_fail(p, node, "c: owned byte serialization requires image construction"); return -1; }
-        cc_set(f, result); cc_text(f.out, "g_view("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ");\n");
-        cc_id(f.out, "g_v", result); cc_text(f.out, ".len*="); cc_number(f.out, cc_frame_size(p, t.element)); cc_text(f.out, ";\n"); return result;
-    }
+    if builtin == 16 || builtin == 17 { return cc_byte_builtin(p, f, node, builtin, args_start, args_count, base, type_id); }
     if builtin == 21 || builtin == 22 {
         let result = cc_temp(p, f, n.type_id); cc_set(f, result);
         if builtin == 21 { cc_text(f.out, "g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); }
@@ -1268,12 +1464,12 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
         cc_text(f.out, ");\n"); return result;
     }
     if builtin == 23 {
-        let value = cc_base(p, f, f.work[args_start + 1]); let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "-1;\n");
-        let counter = f.serial; f.serial++;
-        cc_id(f.out, "for(int64_t g_i", counter); cc_text(f.out, "=0;"); cc_id(f.out, "g_i", counter); cc_text(f.out, "<g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ");"); cc_id(f.out, "g_i", counter); cc_text(f.out, "++){if(g_address(g_element("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ","); cc_id(f.out, "g_i", counter); cc_text(f.out, ",0))==g_address("); cc_id(f.out, "g_v", value); cc_text(f.out, ")){"); cc_set(f, result); cc_id(f.out, "g_i", counter); cc_text(f.out, ";break;}}\n"); return result;
+        let value = cc_base(p, f, f.work[args_start + 1]); let result = cc_temp(p, f, n.type_id); cc_set(f, result);
+        cc_text(f.out, "(int64_t)(((uintptr_t)"); cc_id(f.out, "g_v", value); cc_text(f.out, "-(uintptr_t)g_element("); cc_id(f.out, "g_v", base);
+        cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ",0,1))/"); cc_number(f.out, cc_frame_size(p, t.element)); cc_text(f.out, ");\n"); return result;
     }
-    if builtin == 24 || builtin == 30 || builtin == 31 {
-        if builtin >= 30 { cc_fail(p, node, "c: reusable slot allocation needs freelist image lowering"); return -1; }
+    if builtin >= 30 && builtin <= 35 { return cc_pool_builtin(p, f, node, builtin, args_start, base, type_id); }
+    if builtin == 24 {
         let value = cc_to(p, f, f.work[args_start + 1], t.element, true); let result = cc_temp(p, f, n.type_id); cc_set(f, result);
         cc_text(f.out, "g_push("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ",&"); cc_id(f.out, "g_v", value); cc_text(f.out, ");\n"); return result;
     }
@@ -1333,7 +1529,11 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
 recursive fn cc_match(p: Program&, f: CcBody&, node: i64) -> i64 {
     let n = p.nodes[node]; var source_type = p.nodes[n.left].type_id;
     while cc_kind(p, source_type) == TY_REF { source_type = p.types[source_type].element; }
-    let source = cc_to(p, f, n.left, source_type); let result = cc_temp(p, f, n.type_id); let done = f.serial; f.serial++;
+    var place = cc_base(p, f, n.left); var current = p.nodes[n.left].type_id;
+    while cc_kind(p, current) == TY_REF && cc_kind(p, p.types[current].element) == TY_REF {
+        current = p.types[current].element; place = cc_load(p, f, place, current);
+    }
+    let source = cc_load(p, f, place, source_type); let result = cc_temp(p, f, n.type_id); let done = f.serial; f.serial++;
     let enum_match = cc_kind(p, source_type) == TY_ENUM;
     var arm = n.first;
     while arm >= 0 {
@@ -1357,7 +1557,7 @@ recursive fn cc_match(p: Program&, f: CcBody&, node: i64) -> i64 {
         if pattern.left >= 0 {
             let binder = p.nodes[pattern.left];
             if (binder.flags & F_REFERENCE) != 0 {
-                let place = cc_base(p, f, n.left); cc_id(f.out, "g_s", binder.symbol); cc_text(f.out, "=g_offset("); cc_id(f.out, "g_v", place); cc_text(f.out, ","); cc_number(f.out, p.types[source_type].length_storage); cc_text(f.out, ");\n");
+                cc_id(f.out, "g_s", binder.symbol); cc_text(f.out, "=g_offset("); cc_id(f.out, "g_v", place); cc_text(f.out, ","); cc_number(f.out, p.types[source_type].length_storage); cc_text(f.out, ");\n");
             } else {
                 cc_text(f.out, "memcpy(&"); cc_id(f.out, "g_s", binder.symbol); cc_text(f.out, ",((unsigned char*)&"); cc_id(f.out, "g_v", source); cc_text(f.out, ")+"); cc_number(f.out, p.types[source_type].length_storage); cc_text(f.out, ",sizeof("); cc_type(f.out, binder.type_id); cc_text(f.out, "));\n");
             }
@@ -1452,7 +1652,7 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
         let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "(GSlice){g_element("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array); cc_text(f.out, ","); cc_id(f.out, "g_v", low); cc_text(f.out, ",1),"); cc_id(f.out, "g_v", high); cc_text(f.out, "-"); cc_id(f.out, "g_v", low); cc_text(f.out, "};\n"); return result;
     }
     if n.kind == N_IF {
-        let condition = cc_to(p, f, n.left, TYPE_BOOL); let result = cc_result_temp(p, f, node, n.type_id);
+        let condition = cc_truth(p, f, n.left); let result = cc_result_temp(p, f, node, n.type_id);
         cc_text(f.out, "if("); cc_id(f.out, "g_v", condition); cc_text(f.out, "){\n");
         if result >= 0 {
             let destination = cc_temporary_ref(f, result); cc_construct_into(p, f, n.right, n.type_id, destination);
@@ -1521,16 +1721,17 @@ fn cc_runtime_extern(name: const u8[:]) -> const u8[:] {
 fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
     let name = cc_extern_name(p, function); let result_type = cc_function_result(p, function);
     let value = cc_kind(p, result_type) != TY_VOID;
-    if value { cc_text(out, "return "); }
     for exported, id in p.nodes {
         if id == function || (exported.flags & F_EXPORT) == 0 || !cc_emittable(p, id) { continue; }
         if !same_bytes(name, cc_extern_name(p, id)) { continue; }
+        if value && !cc_indirect(p, result_type) { cc_text(out, "return "); }
         cc_id(out, "g_fn", id); cc_text(out, "(NULL,g_base");
-        if cc_region_width(p, result_type) > 0 { cc_text(out, ",g_into"); }
+        if cc_receives(p, result_type) { cc_text(out, ",g_into"); }
         var param = p.nodes[function].first; var index = 0;
-        while param >= 0 { cc_text(out, ","); cc_param(p, out, function, index); index++; param = p.nodes[param].next; }
+        while param >= 0 { cc_text(out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(out, "&"); } cc_param(p, out, function, index); index++; param = p.nodes[param].next; }
         cc_text(out, ");\n"); return;
     }
+    if value { if cc_indirect(p, result_type) { cc_text(out, "*g_into="); } else { cc_text(out, "return "); } }
     let runtime = cc_runtime_extern(name);
     if runtime.len > 0 {
         cc_text(out, runtime); cc_text(out, "(");
@@ -1630,28 +1831,44 @@ fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
     }
 }
 fn cc_emit_signature(p: Program&, out: u8[>..]&, function: i64) {
-    cc_text(out, "static "); cc_type(out, cc_function_result(p, function)); cc_id(out, " g_fn", function); cc_text(out, "(GClosure *g_env,int64_t g_base");
+    cc_text(out, "static "); if cc_indirect(p, cc_function_result(p, function)) { cc_text(out, "void"); } else { cc_type(out, cc_function_result(p, function)); } cc_id(out, " g_fn", function); cc_text(out, "(GClosure *g_env,int64_t g_base");
     let result = cc_function_result(p, function);
-    if cc_region_width(p, result) > 0 { cc_text(out, ","); cc_type(out, result); cc_text(out, " *g_into"); }
+    if cc_receives(p, result) { cc_text(out, ","); cc_type(out, result); cc_text(out, " *g_into"); }
     var param = p.nodes[function].first;
     while param >= 0 {
-        cc_text(out, ","); cc_type(out, p.nodes[param].type_id); cc_text(out, " "); cc_id(out, "g_s", p.nodes[param].symbol); param = p.nodes[param].next;
+        cc_text(out, ","); cc_type(out, p.nodes[param].type_id);
+        if cc_indirect(p, p.nodes[param].type_id) { cc_text(out, " *"); cc_id(out, "g_parameter_", p.nodes[param].symbol); }
+        else { cc_text(out, " "); cc_id(out, "g_s", p.nodes[param].symbol); } param = p.nodes[param].next;
     }
     cc_text(out, ")");
 }
+fn cc_parameter_aliases(p: Program&, out: u8[>..]&, function: i64, end: bool = false) {
+    var param = p.nodes[function].first;
+    while param >= 0 {
+        let n = p.nodes[param];
+        if cc_indirect(p, n.type_id) {
+            if end { cc_undef(out, "g_s", n.symbol); }
+            else { cc_text(out, "#define "); cc_id(out, "g_s", n.symbol); cc_text(out, " (*"); cc_id(out, "g_parameter_", n.symbol); cc_text(out, ")\n"); }
+        }
+        param = n.next;
+    }
+}
 fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunction[>..]&, calls: RegionCall[>..]&, indices: i64[>..]&) {
-    let n = p.nodes[function]; cc_emit_signature(p, out, function); cc_text(out, " {\n");
-    if (n.flags & F_EXTERN) != 0 { cc_emit_extern(p, out, function); cc_text(out, "}\n"); return; }
-    var body: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = [];
+    let n = p.nodes[function]; cc_emit_signature(p, out, function); cc_text(out, " {\n"); cc_parameter_aliases(p, out, function);
+    if (n.flags & F_EXTERN) != 0 { cc_emit_extern(p, out, function); cc_text(out, "}\n"); cc_parameter_aliases(p, out, function, true); return; }
+    var body: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = [];
     let result_type = cc_function_result(p, function);
     var f = CcBody { out: body, exits: exits, work: work, function: function, result_type: result_type,
-        function_index: indices[function], calls: calls, indices: indices, temp_regions: temp_regions, destinations: destinations, receiving: receiving };
+        function_index: indices[function], calls: calls, indices: indices, temp_regions: temp_regions, destinations: destinations, receiving: receiving, indirect: indirect };
     let returns = cc_kind(p, result_type) != TY_VOID;
     let nonlocal = (n.flags & F_NONLOCAL) != 0;
     if returns {
-        if nonlocal { cc_text(body, "volatile "); }
-        cc_type(body, result_type); cc_text(body, " g_result="); cc_zero_initializer(p, body, result_type); cc_text(body, ";\n");
-        if cc_region_width(p, result_type) > 0 { cc_text(body, "memcpy((void*)&g_result,g_into,sizeof g_result);\n"); }
+        if cc_indirect(p, result_type) { cc_text(body, "#define g_result (*g_into)\n"); }
+        else {
+            if nonlocal { cc_text(body, "volatile "); }
+            cc_type(body, result_type); cc_text(body, " g_result="); cc_zero_initializer(p, body, result_type); cc_text(body, ";\n");
+            if cc_region_width(p, result_type) > 0 { cc_text(body, "memcpy((void*)&g_result,g_into,sizeof g_result);\n"); }
+        }
     }
     var result_ref = -1;
     if returns && cc_region_width(p, result_type) > 0 {
@@ -1669,10 +1886,12 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         }
         cc_text(body, "g_return_top=&g_frame;if(setjmp(g_frame.jump))goto g_return;\n");
     }
+    cc_text(body, "{\n");
     for symbol, id in p.symbols {
         if symbol.owner != function || (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) != 0 { continue; }
         if symbol.type_id < 0 || !cc_concrete(p, symbol.type_id) { cc_fail(p, symbol.node, "c: local variable lacks a concrete type"); continue; }
-        cc_type(body, symbol.type_id); cc_text(body, " "); cc_id(body, "g_s", id); cc_text(body, "="); cc_zero_initializer(p, body, symbol.type_id); cc_text(body, ";\n");
+        if cc_indirect(p, symbol.type_id) { cc_fixed(body, symbol.type_id, "g_s", id); }
+        else { cc_type(body, symbol.type_id); cc_text(body, " "); cc_id(body, "g_s", id); cc_text(body, "="); cc_zero_initializer(p, body, symbol.type_id); cc_text(body, ";\n"); }
     }
     if n.right >= 0 {
         var result = -1;
@@ -1682,18 +1901,25 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
             cc_id(body, "g_store_", result_type); cc_text(body, "(g_ref((void*)&g_result),"); cc_id(body, "g_v", result); cc_text(body, ");\n");
         }
     } else { cc_fail(p, function, "c: non-extern function has no body"); }
-    cc_text(body, "g_return:;\n");
+    cc_text(body, "}\ng_return:;\n");
     if nonlocal { cc_text(body, "g_return_top=g_frame.parent;\n"); }
     if returns && cc_region_width(p, result_type) > 0 { cc_text(body, "memcpy(g_into,(const void*)&g_result,sizeof g_result);\n"); }
     cc_text(body, "g_activation_leave(&g_activation);\n");
-    if returns { cc_text(body, "return g_result;\n"); } else { cc_text(body, "return;\n"); }
+    if returns && !cc_indirect(p, result_type) { cc_text(body, "return g_result;\n"); } else { cc_text(body, "return;\n"); }
     plans[indices[function]].own = f.region_peak;
     cc_text(out, "g_stack_check();\nGWatermark g_watermarks["); cc_number(out, f.region_peak + 1); cc_text(out, "];GActivation g_activation;\n");
     cc_text(out, "g_activation_enter(&g_activation,g_base,"); cc_number(out, f.region_peak); cc_text(out, ",g_watermarks);\n");
     cc_text(out, body); cc_text(out, "}\n");
+    if cc_indirect(p, result_type) { cc_text(out, "#undef g_result\n"); }
+    for id in indirect { cc_undef(out, "g_v", id); }
+    for symbol, id in p.symbols {
+        if symbol.owner == function && (symbol.flags & (S_PARAMETER | S_FUNCTION | S_TYPE)) == 0 && cc_indirect(p, symbol.type_id) { cc_undef(out, "g_s", id); }
+    }
+    cc_parameter_aliases(p, out, function, true);
 }
 fn cc_emit_export(p: Program&, out: u8[>..]&, function: i64) {
     let n = p.nodes[function]; if (n.flags & F_EXPORT) == 0 { return; }
+    let result = cc_function_result(p, function);
     cc_type(out, cc_function_result(p, function)); cc_id(out, " g_export", function); cc_text(out, "(");
     var param = n.first; var index = 0;
     while param >= 0 {
@@ -1708,16 +1934,20 @@ fn cc_emit_export(p: Program&, out: u8[>..]&, function: i64) {
         param = p.nodes[param].next; index++;
     }
     if index == 0 { cc_text(out, "void"); } cc_text(out, "){g_initialize();\n");
-    if cc_kind(p, cc_function_result(p, function)) != TY_VOID { cc_text(out, "return "); }
+    if cc_indirect(p, result) { cc_fixed(out, result, "g_export_result", function); }
+    else if cc_kind(p, result) != TY_VOID { cc_text(out, "return "); }
     if cc_region_width(p, cc_function_result(p, function)) > 0 { cc_fail(p, function, "c: exported owning results need a caller destination"); }
-    cc_id(out, "g_fn", function); cc_text(out, "(NULL,g_global_regions"); param = n.first;
-    while param >= 0 { cc_text(out, ","); cc_id(out, "g_s", p.nodes[param].symbol); param = p.nodes[param].next; }
-    cc_text(out, ");}\n");
+    cc_id(out, "g_fn", function); cc_text(out, "(NULL,g_global_regions");
+    if cc_indirect(p, result) { cc_text(out, ",&"); cc_id(out, "g_export_result", function); }
+    param = n.first;
+    while param >= 0 { cc_text(out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(out, "&"); } cc_id(out, "g_s", p.nodes[param].symbol); param = p.nodes[param].next; }
+    cc_text(out, ");"); if cc_indirect(p, result) { cc_text(out, "return "); cc_id(out, "g_export_result", function); cc_text(out, ";"); } cc_text(out, "}\n");
+    if cc_indirect(p, result) { cc_undef(out, "g_export_result", function); }
 }
 fn cc_emittable(p: Program&, function: i64) -> bool {
     let n = p.nodes[function];
     if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { return false; }
-    if (n.flags & F_GENERIC) != 0 || (n.flags & F_CHECKED) == 0 || n.type_id < 0 || cc_kind(p, n.type_id) != TY_FN { return false; }
+    if (n.flags & F_GENERIC) != 0 || (n.flags & F_CHECKED) == 0 || (n.flags & F_REACHABLE) == 0 || n.type_id < 0 || cc_kind(p, n.type_id) != TY_FN { return false; }
     if !cc_concrete(p, p.types[n.type_id].element) { return false; }
     var param = n.first;
     while param >= 0 { if !cc_concrete(p, p.nodes[param].type_id) { return false; } param = p.nodes[param].next; }
@@ -1737,43 +1967,61 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     }
     let initializer = plans.len; plans.push(RegionFunction { entry: true });
     var global_count = 0;
-    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 { global_count += cc_region_width(p, symbol.type_id); } }
-    let begin = out.len;
-    cc_text(out, "#define _GNU_SOURCE 1\n"); cc_text(out, cc_runtime_header); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
-    cc_text(out, cc_runtime); cc_text(out, cc_runtime_extra);
+    for symbol, s in p.symbols { if (symbol.flags & S_GLOBAL) != 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } } }
+    let threads = cc_threads_used(p); let images = cc_images_used(p); let begin = out.len;
+    cc_text(out, "#define _GNU_SOURCE 1\n"); if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
+    cc_text(out, cc_runtime); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra);
+    if images { cc_text(out, cc_runtime_images); } if threads { cc_text(out, cc_runtime_workers); }
     cc_text(out, "static void g_initialize(void);static int g_initialized;static int64_t g_global_regions;\n"); cc_emit_types(p, out, used);
     for t, id in p.types {
         if !used[id] { continue; }
         if t.kind != TY_VOID && cc_concrete(p, id) { cc_emit_init(p, out, id); cc_emit_map(p, out, id); cc_emit_store(p, out, id); }
         cc_emit_clone(p, out, id); cc_emit_equal(p, out, id); cc_emit_print(p, out, id); cc_emit_nested(p, out, id);
     }
+    if images { cc_image_emit(p, out, used); }
     for n, node in p.nodes { if cc_emittable(p, node) { cc_emit_signature(p, out, node); cc_text(out, ";\n"); } }
+    if threads {
+        cc_thread_emit_globals(p, out); cc_thread_emit_queues(p, out); cc_thread_emit_workers(p, out);
+    } else {
     for s, symbol in p.symbols {
         if (s.flags & S_GLOBAL) == 0 { continue; }
         if s.type_id < 0 || !cc_concrete(p, s.type_id) { cc_fail(p, s.node, "c: global lacks a concrete type"); continue; }
         cc_text(out, "static "); cc_type(out, s.type_id); cc_text(out, " "); cc_id(out, "g_s", symbol); cc_text(out, ";\n");
     }
+    }
+    if images { cc_index_lengths(p, out, true); }
     for n, node in p.nodes { if cc_emittable(p, node) { cc_emit_function(p, out, node, plans, calls, indices); cc_emit_export(p, out, node); } }
-    var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = [];
+    var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = [];
     var f = CcBody { out: initialization, exits: exits, work: work, function_index: initializer, calls: calls, indices: indices,
-        temp_regions: temp_regions, destinations: destinations, receiving: receiving };
+        temp_regions: temp_regions, destinations: destinations, receiving: receiving, indirect: indirect };
     var slot = 0;
     for s, symbol in p.symbols {
         if (s.flags & S_GLOBAL) == 0 { continue; }
         let width = cc_region_width(p, s.type_id); if width == 0 { continue; }
         cc_id(initialization, "g_init_", s.type_id); cc_text(initialization, "(g_ref(&"); cc_id(initialization, "g_s", symbol);
         cc_text(initialization, "),"); cc_number(initialization, slot); cc_text(initialization, ");\n"); slot += width;
+        let mode = cc_pool_mode(p, symbol);
+        if mode > 0 {
+            cc_id(initialization, "g_pool_init(g_ref(&g_s", symbol); cc_text(initialization, "),"); cc_number(initialization, slot); cc_text(initialization, ",");
+            cc_number(initialization, mode); cc_text(initialization, ");\n"); slot++;
+        }
     }
     for s in p.symbols { if (s.flags & S_GLOBAL) != 0 && s.node >= 0 { cc_variable(p, f, s.node); } }
     plans[initializer].own = f.region_peak;
     var stack: i64[>..] = []; var members: i64[>..] = [];
     var graph = RegionGraph { functions: plans, calls: calls, stack: stack, members: members };
-    let bound = region_bound(p, graph, global_count);
+    let bound = region_bound(p, graph, global_count); var snapshots = 0;
+    if threads { for n, node in p.nodes { if cc_thread_function(p, node) { let count = cc_thread_regions(p, node); if count > snapshots { snapshots = count; } } } }
     cc_text(out, "static void g_initialize(void){if(g_initialized)return;g_initialized=1;g_global_regions="); cc_number(out, global_count);
-    cc_text(out, ";g_runtime_start(g_argc,g_argv,"); cc_number(out, bound); cc_text(out, ");int64_t g_base=g_global_regions;\n");
+    if threads { cc_text(out, ";g_worker_regions="); cc_number(out, bound); }
+    cc_text(out, ";g_runtime_start(g_argc,g_argv,"); cc_number(out, bound); cc_text(out, ",");
+    var worker_bound = 0; if threads { worker_bound = bound + snapshots; } cc_number(out, worker_bound);
+    cc_text(out, ");int64_t g_base=g_global_regions;\n");
+    if threads { cc_text(out, "gs_gl=&g_main_globals;\n"); cc_thread_emit_queues(p, out, true); }
     cc_text(out, "GWatermark g_watermarks["); cc_number(out, f.region_peak + 1); cc_text(out, "];GActivation g_activation;\n");
     cc_text(out, "g_activation_enter(&g_activation,g_base,"); cc_number(out, f.region_peak); cc_text(out, ",g_watermarks);\n");
     cc_text(out, initialization); cc_text(out, "g_activation_leave(&g_activation);}\n");
+    for id in indirect { cc_undef(out, "g_v", id); }
     if !p.library {
         if p.entry < 0 || !cc_emittable(p, p.entry) { diagnose_at(p, 0, 0, 0, "c: program has no checked concrete entry function"); }
         else {
@@ -1787,14 +2035,16 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     if p.diagnostics.len > 0 { out.resize(begin); }
 }
 let cc_runtime_extra = """
-static void g_debug_fail(const char *file,int line,const char *format,...) {
-    fputs("goose runtime error: ",stderr); va_list args;va_start(args,format);
-    vfprintf(stderr,format,args);va_end(args);fprintf(stderr," (%s:%d)\n",file,line);exit(1);
+static GS_NORETURN void g_debug_fail(const char *file,int line,const char *format,...) {
+    char buffer[512];va_list args;va_start(args,format);
+    int count=vsnprintf(buffer,sizeof buffer,format,args);va_end(args);
+    if(count<0)gs_panic("cannot format native runtime error");
+    if((size_t)count<sizeof buffer)gs_abort_msg((const uint8_t*)buffer,count,file,line);
+    char *message=g_alloc((size_t)count+1);va_start(args,format);vsnprintf(message,(size_t)count+1,format,args);va_end(args);
+    gs_abort_msg((const uint8_t*)message,count,file,line);
 }
-static void g_abort_value(GArray message,const char *file,int line) {
-    fputs("goose runtime error: ",stderr);
-    if(message.len)fwrite(message.data,1,(size_t)message.len,stderr);
-    fprintf(stderr," (%s:%d)\n",file,line);exit(1);
+static GS_NORETURN void g_abort_value(GArray message,const char *file,int line) {
+    gs_abort_msg(message.data,message.len,file,line);
 }
 static __int128 g_signed_min(int bits) { return -((__int128)1<<(bits-1)); }
 static __int128 g_signed_max(int bits) { return ((__int128)1<<(bits-1))-1; }
@@ -1876,7 +2126,7 @@ fn cc_equal_fields(p: Program&, out: u8[>..]&, type_id: i64, first: i64) {
 }
 fn cc_emit_equal(p: Program&, out: u8[>..]&, id: i64) {
     let t = p.types[id]; if !cc_concrete(p, id) || t.kind == TY_VOID { return; }
-    cc_text(out, "static int "); cc_id(out, "g_equal_", id); cc_text(out, "("); cc_type(out, id); cc_text(out, " a,"); cc_type(out, id); cc_text(out, " b){\n");
+    cc_text(out, "static int "); cc_helper_name(p, out, "g_equal_", id); cc_text(out, "("); cc_helper_value(p, out, id, "a"); cc_text(out, ","); cc_helper_value(p, out, id, "b"); cc_text(out, "){\n"); cc_helper_alias(p, out, id, "a"); cc_helper_alias(p, out, id, "b");
     if t.kind == TY_ARRAY || t.kind == TY_SLICE {
         cc_text(out, "GRef ar=g_ref(&a),br=g_ref(&b);int64_t n=g_len(ar,"); cc_array_args(p, out, id, false); cc_text(out, ");if(n!=g_len(br,"); cc_array_args(p, out, id, false); cc_text(out, "))return 0;\nfor(int64_t i=0;i<n;i++){if(!");
         cc_id(out, "g_equal_", t.element); cc_text(out, "("); cc_id(out, "g_load_", t.element); cc_text(out, "(g_element(ar,"); cc_array_args(p, out, id); cc_text(out, ",i,0)),");
@@ -1888,7 +2138,9 @@ fn cc_emit_equal(p: Program&, out: u8[>..]&, id: i64) {
         var variant = p.nodes[t.declaration].first;
         while variant >= 0 {
             let payload = p.nodes[variant].type_id;
-            cc_text(out, "case "); cc_number(out, p.nodes[variant].integer); cc_text(out, ":{\n"); cc_type(out, payload); cc_text(out, " av,bv;memcpy(&av,((unsigned char*)&a)+"); cc_number(out, t.length_storage); cc_text(out, ",sizeof av);memcpy(&bv,((unsigned char*)&b)+"); cc_number(out, t.length_storage); cc_text(out, ",sizeof bv);return "); cc_id(out, "g_equal_", payload); cc_text(out, "(av,bv);}\n");
+            cc_text(out, "case "); cc_number(out, p.nodes[variant].integer); cc_text(out, ":return "); cc_id(out, "g_equal_", payload); cc_text(out, "(");
+            cc_id(out, "g_load_", payload); cc_text(out, "(g_offset(g_ref(&a),"); cc_number(out, t.length_storage); cc_text(out, "))," );
+            cc_id(out, "g_load_", payload); cc_text(out, "(g_offset(g_ref(&b),"); cc_number(out, t.length_storage); cc_text(out, ")));\n");
             variant = p.nodes[variant].next;
         }
         cc_text(out, "default:g_panic(\"corrupt ADT tag\");}return 0;\n");
@@ -1901,24 +2153,24 @@ fn cc_emit_equal(p: Program&, out: u8[>..]&, id: i64) {
         cc_text(out, "return 1;\n");
     } else if t.kind == TY_REF { cc_text(out, "return g_nullable_address(a)==g_nullable_address(b);\n"); }
     else { cc_text(out, "return a==b;\n"); }
-    cc_text(out, "}\n");
+    cc_text(out, "}\n"); cc_helper_alias(p, out, id, "a", true); cc_helper_alias(p, out, id, "b", true);
 }
 
 fn cc_emit_nested(p: Program&, out: u8[>..]&, id: i64) {
     let t = p.types[id]; if !cc_concrete(p, id) || t.kind == TY_VOID { return; }
-    cc_text(out, "static void "); cc_id(out, "g_nested_", id); cc_text(out, "(GArray *out,"); cc_type(out, id); cc_text(out, " v){\n");
+    cc_text(out, "static void "); cc_helper_name(p, out, "g_nested_", id); cc_text(out, "(GArray *out,"); cc_helper_value(p, out, id, "v"); cc_text(out, "){\n"); cc_helper_alias(p, out, id, "v");
     if (t.kind == TY_ARRAY || t.kind == TY_SLICE) && cc_kind(p, t.element) == TY_INT && p.types[t.element].count == 8 && (p.types[t.element].flags & TF_UNSIGNED) != 0 {
-        cc_text(out, "GRef r=g_ref(&v);int64_t n=g_len(r,"); cc_array_args(p, out, id, false); cc_text(out, ");if(n<0 || (uint64_t)n>(SIZE_MAX-2)/2)g_panic(\"text size overflow\");unsigned char *b=malloc((size_t)n*2+2);if(!b)g_panic(\"out of memory\");int64_t written=gs_fmt_quoted(b,g_address(g_element(r,"); cc_array_args(p, out, id); cc_text(out, ",0,1)),n);g_print_bytes(out,b,written);free(b);\n");
+        cc_text(out, "GRef r=g_ref(&v);int64_t n=g_len(r,"); cc_array_args(p, out, id, false); cc_text(out, ");if(n<0 || (uint64_t)n>(SIZE_MAX-2)/2)g_panic(\"text size overflow\");unsigned char *b=malloc((size_t)n*2+2);if(!b)gs_panic(\"out of memory\");int64_t written=gs_fmt_quoted(b,g_address(g_element(r,"); cc_array_args(p, out, id); cc_text(out, ",0,1)),n);g_print_bytes(out,b,written);free(b);\n");
     } else if t.kind == TY_REF && cc_kind(p, t.element) == TY_VOID {
         cc_text(out, "g_print_text(out,\"null\");\n");
     } else if t.kind == TY_REF {
         cc_text(out, "if(!v)g_print_text(out,\"null\");else "); cc_id(out, "g_nested_", t.element); cc_text(out, "(out,"); cc_id(out, "g_load_", t.element); cc_text(out, "(v));\n");
     } else { cc_id(out, "g_print_", id); cc_text(out, "(out,v);\n"); }
-    cc_text(out, "}\n");
+    cc_text(out, "}\n"); cc_helper_alias(p, out, id, "v", true);
 }
 
 fn cc_zero_initializer(p: Program&, out: u8[>..]&, type_id: i64) {
-    if cc_aggregate(p, type_id) && p.types[type_id].size == 0 { cc_text(out, "{}"); }
+    if cc_aggregate(p, type_id) { cc_text(out, "{}"); }
     else { cc_text(out, "{0}"); }
 }
 

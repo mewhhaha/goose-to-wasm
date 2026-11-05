@@ -1,0 +1,45 @@
+{
+  "started_utc": "2026-11-05T01:45:55Z",
+  "cpu": 7,
+  "cpu_affinity_parent": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "load_before": [
+    0.91943359375,
+    2.5302734375,
+    2.97265625
+  ],
+  "host": {
+    "system": "Linux",
+    "node": "cachyos-x8664",
+    "release": "7.3.0-4-cachyos",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri, 23 Oct 2026 15:03:58 +0000",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "other_work": "Root fullsuite complete; native/backend heavywork held; semantic holdrequested and noheavyprocessvisible beforestart.",
+  "all_agents_quiescent_acknowledged_utc": "2026-11-05T01:47:21Z",
+  "semantic_status": "Earlier job complete; held new heavy work, acknowledged after start.",
+  "finished_utc": "2026-11-05T01:50:08Z",
+  "load_after": [
+    1.4892578125,
+    1.97216796875,
+    2.634765625
+  ],
+  "status": "passed"
+}

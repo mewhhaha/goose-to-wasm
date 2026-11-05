@@ -99,3 +99,43 @@ recursive fn cc_frame_borrows(p: Program&, type_id: i64) -> bool {
     }
     return false;
 }
+
+fn cc_kind(p: Program&, type_id: i64) -> i64 {
+    if type_id < 0 || type_id >= p.types.len { return TY_UNKNOWN; } return p.types[type_id].kind;
+}
+fn cc_concrete(p: Program&, id: i64) -> bool {
+    let kind = cc_kind(p, id);
+    if kind == TY_UNKNOWN || kind == TY_GENERIC || kind == TY_NAME { return false; }
+    let t = p.types[id];
+    if kind == TY_ARRAY || kind == TY_SLICE || kind == TY_REF {
+        let element = cc_kind(p, t.element);
+        if element == TY_UNKNOWN || element == TY_GENERIC || element == TY_NAME { return false; }
+    }
+    if kind == TY_STRUCT || kind == TY_ENUM {
+        if t.declaration < 0 { return false; }
+        var field = p.nodes[t.declaration].first;
+        while field >= 0 {
+            if p.nodes[field].kind == N_VARIANT && p.nodes[field].type_id < 0 { return false; }
+            if p.nodes[field].kind == N_FIELD && (p.nodes[field].flags & F_PAD) == 0 {
+                let fk = cc_kind(p, p.nodes[field].type_id);
+                if fk == TY_UNKNOWN || fk == TY_GENERIC || fk == TY_NAME { return false; }
+            }
+            field = p.nodes[field].next;
+        }
+    }
+    return true;
+}
+
+fn cc_indirect(p: Program&, type_id: i64) -> bool {
+    let kind = cc_kind(p, type_id);
+    return (kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM || kind == TY_TUPLE) && cc_frame_size(p, type_id) > 4096;
+}
+fn cc_receives(p: Program&, type_id: i64) -> bool {
+    return cc_region_width(p, type_id) > 0 || cc_indirect(p, type_id);
+}
+fn cc_pool_mode(p: Program&, symbol: i64) -> i64 {
+    if symbol < 0 || p.symbols[symbol].node < 0 { return 0; }
+    let flags = p.nodes[p.symbols[symbol].node].flags;
+    if (flags & F_REUSABLE) == 0 { return 0; }
+    if (flags & F_REUSABLE_SLICES) != 0 { return 2; } return 1;
+}

@@ -256,7 +256,9 @@ fn cg_region_call(m: CgModule&, f: CgBody&, callee: i64, node: i64) {
 fn cg_bound_regions(p: Program&, m: CgModule&) {
     var stack: i64[>..] = []; var members: i64[>..] = [];
     var graph = RegionGraph { functions: m.region_functions, calls: m.region_calls, stack: stack, members: members };
-    let bound = region_bound(p, graph, m.global_region_count); m.region_count = bound;
+    let bound = region_bound(p, graph, m.global_region_count);
+    if bound > 4294967295 { region_diagnose(p, -1, "data-region count exceeds wasm32 limits"); return; }
+    m.region_count = bound;
 }
 fn cg_elements_function(m: CgModule&, symbol: i64) -> i64 {
     for item, index in m.functions { if item.symbol == symbol && item.elements { return index; } }
@@ -2750,6 +2752,7 @@ recursive fn cg_region_body_supported(p: Program&, function: i64, node: i64) -> 
 fn cg_array_regions_supported(p: Program&, m: CgModule&) -> bool {
     var owns = false;
     for symbol in p.symbols {
+        if symbol.owner >= 0 && (p.nodes[symbol.owner].flags & F_REACHABLE) == 0 { continue; }
         if symbol.node >= 0 && (p.nodes[symbol.node].kind == N_FIELD || p.nodes[symbol.node].kind == N_VARIANT) { continue; }
         if symbol.type_id >= 0 && (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 {
             if !cg_region_type_supported(p, symbol.type_id) { return false; }
@@ -2773,7 +2776,8 @@ fn cg_collect(p: Program&, m: CgModule&) {
         }
     }
     for n, node in p.nodes {
-        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || n.symbol < 0 || (n.flags & F_GENERIC) != 0 || (n.flags & F_CHECKED) == 0 { continue; }
+        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || n.symbol < 0 || (n.flags & F_GENERIC) != 0 ||
+           (n.flags & (F_CHECKED | F_REACHABLE)) != (F_CHECKED | F_REACHABLE) { continue; }
         if (n.flags & F_THREAD) != 0 { cg_fail(p, node, "wasm: threads are unsupported by the direct host ABI"); }
         if (n.flags & F_EXTERN) != 0 {
             if n.aux >= 0 { cg_fail(p, node, "wasm: dynamic-library externs are unsupported"); }

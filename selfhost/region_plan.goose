@@ -15,6 +15,12 @@ fn region_diagnose(p: Program&, node: i64, message: u8[:]) {
     var token = -1; if node >= 0 && node < p.nodes.len { token = p.nodes[node].token; }
     diagnose(p, token, message);
 }
+fn region_sum(p: Program&, node: i64, left: i64, right: i64) -> i64 {
+    if left < 0 || right < 0 || left > 9223372036854775807 - right {
+        region_diagnose(p, node, "data-region count is out of range"); return 0;
+    }
+    return left + right;
+}
 recursive fn region_component(p: Program&, graph: RegionGraph&, function: i64) {
     let serial = graph.serial; graph.serial += 1;
     graph.functions[function].index = serial; graph.functions[function].low = serial;
@@ -23,7 +29,7 @@ recursive fn region_component(p: Program&, graph: RegionGraph&, function: i64) {
     for index in 0..call_count {
         let call = graph.calls[index]; if call.caller != function { continue; }
         if call.callee < 0 || call.callee >= graph.functions.len {
-            region_diagnose(p, call.node, "wasm: region call has no function plan"); continue;
+            region_diagnose(p, call.node, "region call has no function plan"); continue;
         }
         if graph.functions[call.callee].index < 0 {
             region_component(p, graph, call.callee);
@@ -46,7 +52,7 @@ recursive fn region_component(p: Program&, graph: RegionGraph&, function: i64) {
             if graph.functions[call.callee].component == component {
                 if call.live != 0 { region_diagnose(p, call.node, "recursive call retains transient data regions"); }
             } else {
-                let required = call.live + graph.functions[call.callee].need;
+                let required = region_sum(p, call.node, call.live, graph.functions[call.callee].need);
                 if required > bound { bound = required; }
             }
         }
@@ -64,7 +70,5 @@ fn region_bound(p: Program&, graph: RegionGraph&, globals: i64) -> i64 {
     for index in 0..count { if graph.functions[index].index < 0 { region_component(p, graph, index); } }
     var bound = 0;
     for item in graph.functions { if item.entry && item.need > bound { bound = item.need; } }
-    bound += globals;
-    if bound < 0 || bound > 4294967295 { region_diagnose(p, -1, "data-region count exceeds wasm32 limits"); return 0; }
-    return bound;
+    return region_sum(p, -1, bound, globals);
 }

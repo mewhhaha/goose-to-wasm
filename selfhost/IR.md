@@ -1,12 +1,6 @@
 # Compiler contract
 
-This is a Goose implementation, bootstrapped by the pinned C++ oracle in
-`oracle.json`. The implementation must not invoke the oracle to compile user
-programs. Verification may invoke both implementations independently.
-
-The first writing pass covers the source-to-code pipeline together. Compilation,
-oracle comparisons and self-compilation follow that pass. A written phase is not
-evidence of language or output parity.
+The compiler is written in Goose and bootstrapped from a frozen C seed. Independent source and output contracts check behavior without running a reference compiler. Passing these checks does not establish language or output parity.
 
 Tables in `model.goose` use stable integer IDs. Never retain a reference to a table
 element across a push, recursive call or another mutation of that table. `Program`
@@ -42,7 +36,7 @@ expression lowering must not accidentally evaluate it.
 | Return | `first`: result expressions; `symbol`: target function when resolved |
 | Match | `left`: scrutinee; `first`: arms |
 | Arm | `left`: pattern; `right`: body; `third`: guard |
-| Array/record | `first`: elements/field bindings; array `right`: repeat count; record `left`: type |
+| Array/record | `first`: elements/field bindings; array `right`: repeat count; record `left`: type; checked record `right`: immutable source ordinal metadata |
 | Binding | `token`: field name; `right`: field initializer |
 | Checked self | `N_SELF` (57), only a direct field initializer; `type_id`: nonoptional relative-reference type; `symbol`: field node; `aux`: constructed owner type |
 
@@ -83,3 +77,5 @@ relative import. Namespace declarations are leaf directives; following top-level
 declarations preserve their namespace name token in `scope` until resolution.
 Function `aux` preserves an extern library string token. Malformed retained syntax
 uses `F_BROKEN` and always has an accompanying diagnostic.
+
+Checked record bindings are ordered by declaration. If supplied named fields invert, `right` retains an immutable `N_TYPE_ARG` list whose `integer` values are their original field ordinals; generic and optimizer clones share this metadata. `F_PROPERTY` identifies a syntactic length/capacity read lowered to a builtin call.

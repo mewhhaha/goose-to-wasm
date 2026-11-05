@@ -194,8 +194,16 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
         var directory: u8[>..] = [];
         source_directory(path, directory);
         var declaration = p.nodes[module].first;
+        var previous = -1;
         while declaration >= 0 {
             let next = p.nodes[declaration].next;
+            let n = p.nodes[declaration];
+            if source_id > 0 && n.kind == N_FUNCTION && token_is(p, n.token, "main") {
+                if previous < 0 { p.nodes[module].first = next; }
+                else { p.nodes[previous].next = next; }
+                if p.nodes[module].last == declaration { p.nodes[module].last = previous; }
+                declaration = next; continue;
+            }
             if p.nodes[declaration].kind == N_IMPORT {
                 var imported: u8[>..] = [];
                 var package = request.package;
@@ -203,6 +211,7 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
                     source_request(p, pending, seen, imported, p.nodes[declaration].token, package);
                 }
             }
+            previous = declaration;
             declaration = next;
         }
     }

@@ -17,10 +17,10 @@ Ten programs exercise the supported Goose subset. Nine come from [Goose samples 
 
 The [manifest](manifest.json) records exact adaptations, upstream paths and hashes. Expected output is in [expected/](expected/). The examples use the repository’s [Apache-2.0 license](../LICENSE).
 
-After [setup](../docs/GUIDE.md#quick-start-direct-compilation), run these commands from the repository root:
+After [setup](../docs/GUIDE.md#build-and-run), run these commands from the repository root:
 
 ```sh
-python scripts/goose_wasm.py build examples/maze.goose --backend direct --offline -O2 -o build/maze.wasm
+python scripts/goose_wasm.py build examples/maze.goose --backend direct -O2 -o build/maze.wasm
 node scripts/run_wasm.mjs build/maze.wasm
 python scripts/run_wasmtime.py build/maze.wasm
 ```
@@ -31,10 +31,10 @@ Check all ten at O2 with direct Wasm on both engines:
 python examples/run.py
 ```
 
-Run the full native, C-to-Wasm and direct matrix at O0 and O2 (requires the oracle SDK):
+Check native and direct output at O0 and O2:
 
 ```sh
-python examples/run.py --backends native c-wasm direct --levels 0 2 --output-dir build/examples-qualification
+python examples/run.py --backends native direct --levels 0 2 --output-dir build/examples-qualification
 ```
 
-The [retained qualification](../bench/results/2026-11-01/examples/qualification.json) records the results.
+The [historical qualification](../bench/results/2026-11-01/examples/qualification.json) used the earlier C++ compiler. [Current measurements](../bench/results/2026-11-05/threads-pools-and-access/README.md) use the Goose compiler.

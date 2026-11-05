@@ -1,5 +1,7 @@
 # Completing the direct compiler
 
+This historical plan describes the earlier C++ backend. The current Goose compiler uses [frozen source and output contracts](../tests/README.md).
+
 This execution plan follows an Astra xhigh review of the pinned Goose frontend,
 C emitter, language specification and current direct backend. Completion means
 qualified support for the pinned language and its supported host profile, with

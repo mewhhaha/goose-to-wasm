@@ -22,3 +22,19 @@ Run `python3 native/tests/check.py --output /dev/shm/native-runtime-check` for
 the upstream lifecycle and trim-memory contracts through direct headers and
 amalgamated C, plus an extern-support/OS smoke check. It records commands,
 input hashes, toolchain identity, timing and peak RSS in the output directory.
+
+Native lowering embeds `runtime.h`, `runtime_impl.h`, `runtime_threads.h` and
+`storage.h`. Grow/GrowShrink arrays use stable indexed regions, caller result
+destinations and scope watermarks. Native references are addresses. The old
+variable-image adapter, closure allocations and OS adapters remain pending
+their image/ABI migration; this is not a fully bounded runtime yet.
+
+`tests/ordinary_regions.goose` checks loop reuse, retained references, result
+ownership, recursive forwarding, nonlocal returns and trim/regrowth. Compile
+its emitted C with `-DGS_STACK_STATS=1` for region counts, final live bytes,
+the sum of each region's high-water bytes and retained legacy bytes.
+
+Large aggregate values use a scoped fixed-value region and address parameters.
+`tests/large_values.goose` checks receiving, recursion, nonlocal returns and
+loop reuse. The C checks also cover fixed-value watermarks and independent
+copies of slot and span freelists under ASan/UBSan.

@@ -189,7 +189,8 @@ recursive fn opt_clone(p: Program&, o: Optimizer&, node: i64, map_start: i64) ->
         var previous = p.nodes[result].left; var old = p.nodes[left].next;
         while old >= 0 { let copy = opt_clone(p, o, old, map_start); p.nodes[previous].next = copy; previous = copy; old = p.nodes[old].next; }
     }
-    p.nodes[result].right = opt_clone(p, o, right, map_start);
+    if n.kind == N_RECORD { p.nodes[result].right = right; }
+    else { p.nodes[result].right = opt_clone(p, o, right, map_start); }
     if n.kind == N_VARIABLE && right >= 0 {
         var previous = p.nodes[result].right; var old = p.nodes[right].next;
         while old >= 0 { let copy = opt_clone(p, o, old, map_start); p.nodes[previous].next = copy; previous = copy; old = p.nodes[old].next; }
