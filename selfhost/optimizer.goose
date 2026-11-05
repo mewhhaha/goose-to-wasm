@@ -55,18 +55,27 @@ fn opt_literal(p: Program&, node: i64) -> bool {
 fn opt_replace(p: Program&, destination: i64, source: i64) {
     let next = p.nodes[destination].next; let token = p.nodes[destination].token;
     let type_id = p.nodes[destination].type_id; let coerced_type = p.nodes[destination].coerced_type; let tail = p.nodes[destination].flags & F_TAIL;
-    p.nodes[destination] = p.nodes[source]; p.nodes[destination].next = next; p.nodes[destination].token = token;
+    let replacement = p.nodes[source];
+    p.nodes[destination] = replacement; p.nodes[destination].next = next; p.nodes[destination].token = token;
     p.nodes[destination].flags |= tail;
     if type_id >= 0 { p.nodes[destination].type_id = type_id; }
     if coerced_type >= 0 { p.nodes[destination].coerced_type = coerced_type; }
+    if replacement.kind == N_FLOAT {
+        let value = opt_float_value(p, replacement.type_id, replacement.float_value);
+        p.nodes[destination].float_value = opt_float_value(p, p.nodes[destination].type_id, value);
+    }
 }
 fn opt_set_integer(p: Program&, node: i64, value: i64, kind: i64) {
     let original = p.nodes[node];
     p.nodes[node] = Node { kind: kind, token: original.token, next: original.next, type_id: original.type_id, integer: value, flags: original.flags | F_CHECKED, scope: original.scope };
 }
+fn opt_float_value(p: Program&, type_id: i64, value: f64) -> f64 {
+    if check_numeric_value_type(p, type_id) == TYPE_F32 { return (value as! f32) as f64; }
+    return value;
+}
 fn opt_set_float(p: Program&, node: i64, value: f64) {
     let original = p.nodes[node];
-    p.nodes[node] = Node { kind: N_FLOAT, token: original.token, next: original.next, type_id: original.type_id, float_value: value, flags: original.flags | F_CHECKED, scope: original.scope };
+    p.nodes[node] = Node { kind: N_FLOAT, token: original.token, next: original.next, type_id: original.type_id, float_value: opt_float_value(p, original.type_id, value), flags: original.flags | F_CHECKED, scope: original.scope };
 }
 fn opt_empty(p: Program&, node: i64) {
     let original = p.nodes[node];
@@ -361,7 +370,6 @@ fn opt_fold_binary(p: Program&, o: Optimizer&, node: i64) {
         else if op == T_MUL { value = a * b; } else if op == T_DIV && b != 0.0 { value = a / b; }
         else { valid = false; }
         if valid && value == value && value > -1.0e308 && value < 1.0e308 {
-            if n.type_id == TYPE_F32 { value = (value as! f32) as f64; }
             opt_set_float(p, node, value); o.folded += 1;
         }
     }
@@ -370,6 +378,8 @@ fn opt_fold_binary(p: Program&, o: Optimizer&, node: i64) {
 recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
     if node < 0 || depth > 512 { return; }
     var n = p.nodes[node];
+    // Checked float literals keep their value when propagation widens their type.
+    if n.kind == N_FLOAT { p.nodes[node].float_value = opt_float_value(p, n.type_id, n.float_value); return; }
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { return; }
     if n.kind == N_NAME && n.symbol >= 0 {
         opt_fact(o, n.symbol); let fact = o.facts[n.symbol];
@@ -437,8 +447,7 @@ recursive fn opt_node(p: Program&, o: Optimizer&, node: i64, depth: i64) {
                 opt_set_integer(p, node, opt_wrap(source.integer as! u64, destination), N_INTEGER); o.folded += 1;
             }
         } else if source.kind == N_FLOAT && check_float(destination) {
-            var value = source.float_value; if destination == TYPE_F32 { value = (value as! f32) as f64; }
-            opt_set_float(p, node, value); o.folded += 1;
+            opt_set_float(p, node, source.float_value); o.folded += 1;
         } else if source.kind == N_INTEGER && check_float(destination) {
             var value = source.integer as f64;
             let unsigned = check_unsigned(check_numeric_value_type(p, source.type_id));

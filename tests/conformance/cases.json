@@ -53338,6 +53338,2098 @@
         "exit": 0
       },
       "provenance": "After same-kind rebind allocation must use the new pool freelist; old pool remains separate"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/stored_locals/native",
+      "source": "tests/fixtures/contracts/float-width/stored_locals.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n0.10000000149011612 0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/stored_locals/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/stored_locals.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n0.10000000149011612 0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/stored_globals/native",
+      "source": "tests/fixtures/contracts/float-width/stored_globals.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612 0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/stored_globals/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/stored_globals.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612 0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612 0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/control_choices/native",
+      "source": "tests/fixtures/contracts/float-width/control_choices.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 0.10000000149011612 0.10000000149011612\n-0.10000000149011612 -0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/control_choices/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/control_choices.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 0.10000000149011612 0.10000000149011612\n-0.10000000149011612 -0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n0.10000000149011612 -0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/mutation_and_borrows/native",
+      "source": "tests/fixtures/contracts/float-width/mutation_and_borrows.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612\n0.20000000298023224\n0.10000000149011612\n-0.20000000298023224\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/mutation_and_borrows/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/mutation_and_borrows.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612\n0.20000000298023224\n0.10000000149011612\n-0.20000000298023224\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/fitted_and_unfitted/native",
+      "source": "tests/fixtures/contracts/float-width/fitted_and_unfitted.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.9000000357627869 0.9 0.8999999761581421\n0.1 -0.1\n0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/fitted_and_unfitted/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/fitted_and_unfitted.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.9000000357627869 0.9 0.8999999761581421\n0.1 -0.1\n0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/stored_counter_values/native",
+      "source": "tests/fixtures/contracts/float-width/stored_counter_values.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true 0.10000000149011612 0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/stored_counter_values/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/stored_counter_values.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true 0.10000000149011612 0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEEbinary32 stored-value widening contract"
+    },
+    {
+      "id": "corpus/contracts/float-width/width-optimizer/f32_const_widen/native",
+      "source": "tests/fixtures/contracts/float-width/f32_const_widen.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact f32 rounding widened to f64; no compiler-produced oracle"
+    },
+    {
+      "id": "corpus/contracts/float-width/width-optimizer/f32_const_widen/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/f32_const_widen.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0.10000000149011612 0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact f32 rounding widened to f64; no compiler-produced oracle"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/original-counter/native",
+      "source": "tests/fixtures/contracts/float-width/settled_float_widths.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true true true true true\n0.10000000149011612 -0.10000000149011612 0.10000000149011612 0.10000000149011612 0.10000000149011612\n0.1\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/original-counter/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/settled_float_widths.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true true true true true\n0.10000000149011612 -0.10000000149011612 0.10000000149011612 0.10000000149011612 0.10000000149011612\n0.1\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary-source range and settled-width contracts"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/const_qualified_paths/native",
+      "source": "tests/fixtures/contracts/float-width/const_qualified_paths.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-0.10000000149011612 0.10000000149011612 -0.10000000149011612 -0.10000000149011612 -0.10000000149011612\n-0.10000000149011612 -0.10000000149011612 -0.10000000149011612\n-0.10000000149011612\n0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact stored const-qualifiedF32 value across explicit/implicit/call/IF widening"
+    },
+    {
+      "id": "corpus/contracts/float-width/named-float-width/const_qualified_paths/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/const_qualified_paths.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-0.10000000149011612 0.10000000149011612 -0.10000000149011612 -0.10000000149011612 -0.10000000149011612\n-0.10000000149011612 -0.10000000149011612 -0.10000000149011612\n-0.10000000149011612\n0.10000000149011612\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact stored const-qualifiedF32 value across explicit/implicit/call/IF widening"
+    },
+    {
+      "id": "corpus/contracts/float-width/ieee-boundaries/native",
+      "source": "tests/fixtures/contracts/float-width/boundaries.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "positive_zero 0\nnegative_zero 9223372036854775808\npositive_tenth 4591870180174331904\nnegative_tenth 13815242217029107712\nmin_subnormal 3936146074321813504\nnegative_min_subnormal 13159518111176589312\nhalf_min_subnormal 0\nnegative_half_min_subnormal 9223372036854775808\nmin_normal 4039728865751334912\nmax_finite 5183643170566569984\nnegative_max_finite 14407015207421345792\noverflow 9218868437227405312\nnegative_overflow 18442240474082181120\ntie_even 4607182418800017408\ntie_odd 4607182419873759232\nqualified_zero 9223372036854775808\nqualified_tenth 4591870180174331904\nglobal_zero 9223372036854775808\nglobal_tenth 4591870180174331904\nunfitted_wide 5183771782906367355\nunfitted_tenth 4591870180066957722\nunfitted_computation 4606281698874543309\nfitted_computation 4606281699196665856\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEE binary32 boundary patterns; source and expected-bit method reviewed by Astra."
+    },
+    {
+      "id": "corpus/contracts/float-width/ieee-boundaries/wasm-direct",
+      "source": "tests/fixtures/contracts/float-width/boundaries.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "positive_zero 0\nnegative_zero 9223372036854775808\npositive_tenth 4591870180174331904\nnegative_tenth 13815242217029107712\nmin_subnormal 3936146074321813504\nnegative_min_subnormal 13159518111176589312\nhalf_min_subnormal 0\nnegative_half_min_subnormal 9223372036854775808\nmin_normal 4039728865751334912\nmax_finite 5183643170566569984\nnegative_max_finite 14407015207421345792\noverflow 9218868437227405312\nnegative_overflow 18442240474082181120\ntie_even 4607182418800017408\ntie_odd 4607182419873759232\nqualified_zero 9223372036854775808\nqualified_tenth 4591870180174331904\nglobal_zero 9223372036854775808\nglobal_tenth 4591870180174331904\nunfitted_wide 5183771782906367355\nunfitted_tenth 4591870180066957722\nunfitted_computation 4606281698874543309\nfitted_computation 4606281699196665856\n",
+        "exit": 0
+      },
+      "provenance": "Independent exact IEEE binary32 boundary patterns; source and expected-bit method reviewed by Astra."
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_direct/native",
+      "source": "tests/fixtures/contracts/reference-values/index_direct.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_direct.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_explicit_reference/native",
+      "source": "tests/fixtures/contracts/reference-values/index_explicit_reference.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_explicit_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_explicit_reference.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_reference_branch/native",
+      "source": "tests/fixtures/contracts/reference-values/index_reference_branch.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_reference_branch/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_reference_branch.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/normal_reference_branch/native",
+      "source": "tests/fixtures/contracts/reference-values/normal_reference_branch.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "22\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/normal_reference_branch/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/normal_reference_branch.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "22\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/named_slice_slot/native",
+      "source": "tests/fixtures/contracts/reference-values/named_slice_slot.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "b\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/named_slice_slot/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/named_slice_slot.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "b\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/read_temporary_slice_slot/native",
+      "source": "tests/fixtures/contracts/reference-values/read_temporary_slice_slot.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "ab\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/read_temporary_slice_slot/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/read_temporary_slice_slot.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "ab\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/write_temporary_slice_contents/native",
+      "source": "tests/fixtures/contracts/reference-values/write_temporary_slice_contents.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/write_temporary_slice_contents/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/write_temporary_slice_contents.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/named_default_write/native",
+      "source": "tests/fixtures/contracts/reference-values/named_default_write.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 0, 0]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/named_default_write/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/named_default_write.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 0, 0]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/direct_default_read/native",
+      "source": "tests/fixtures/contracts/reference-values/direct_default_read.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/direct_default_read/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/direct_default_read.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/const_reference_join_read/native",
+      "source": "tests/fixtures/contracts/reference-values/const_reference_join_read.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/const_reference_join_read/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/const_reference_join_read.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_reference_join_write/native",
+      "source": "tests/fixtures/contracts/reference-values/mutable_reference_join_write.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_reference_join_write/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/mutable_reference_join_write.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_whole_local_move/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_whole_local_move.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_whole_local_move/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_whole_local_move.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_local_field_copy/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_local_field_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_copy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_parameter_field/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_parameter_field.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_parameter_field/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_parameter_field.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_local_field_tail/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_tail.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_local_field_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_tail.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/bare_block_slice_index_of/native",
+      "source": "tests/fixtures/contracts/reference-values/bare_block_slice_index_of.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/bare_block_slice_index_of/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/bare_block_slice_index_of.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/if_one_branch_slice_index_of/native",
+      "source": "tests/fixtures/contracts/reference-values/if_one_branch_slice_index_of.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/if_one_branch_slice_index_of/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/if_one_branch_slice_index_of.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/inferred_result_local_part/native",
+      "source": "tests/fixtures/contracts/reference-values/inferred_result_local_part.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/inferred_result_local_part/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/inferred_result_local_part.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/slice_ref_readonly_slot_temp/native",
+      "source": "tests/fixtures/contracts/reference-values/slice_ref_readonly_slot_temp.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/slice_ref_readonly_slot_temp/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/slice_ref_readonly_slot_temp.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/default_argument_write/native",
+      "source": "tests/fixtures/contracts/reference-values/default_argument_write.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/default_argument_write/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/default_argument_write.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/branch_join_const_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/branch_join_const_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/branch_join_const_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/branch_join_const_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_reference_branch_reverse/native",
+      "source": "tests/fixtures/contracts/reference-values/index_reference_branch_reverse.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_reference_branch_reverse/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_reference_branch_reverse.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_value_branch_reverse/native",
+      "source": "tests/fixtures/contracts/reference-values/index_value_branch_reverse.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_value_branch_reverse/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_value_branch_reverse.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_wrong_owner/native",
+      "source": "tests/fixtures/contracts/reference-values/index_wrong_owner.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_wrong_owner/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_wrong_owner.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_local_field_if/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_if.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_local_field_if/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_if.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_local_field_match/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_match.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_local_field_match/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_local_field_match.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_nonlocal_own_move/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_nonlocal_own_move.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/infer_nonlocal_own_move/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_nonlocal_own_move.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_nonlocal_nested_local/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_nonlocal_nested_local.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_nonlocal_nested_local/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_nonlocal_nested_local.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_nonlocal_local_field/native",
+      "source": "tests/fixtures/contracts/reference-values/infer_nonlocal_local_field.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/infer_nonlocal_local_field/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/infer_nonlocal_local_field.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_scalar_reference_branch/native",
+      "source": "tests/fixtures/contracts/reference-values/index_scalar_reference_branch.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_scalar_reference_branch/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_scalar_reference_branch.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_const_reference_branch/native",
+      "source": "tests/fixtures/contracts/reference-values/index_const_reference_branch.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_const_reference_branch/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_const_reference_branch.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_join_reverse/native",
+      "source": "tests/fixtures/contracts/reference-values/readonly_join_reverse.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_join_reverse/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/readonly_join_reverse.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_join_diverging/native",
+      "source": "tests/fixtures/contracts/reference-values/readonly_join_diverging.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_join_diverging/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/readonly_join_diverging.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_join_diverging/native",
+      "source": "tests/fixtures/contracts/reference-values/mutable_join_diverging.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_join_diverging/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/mutable_join_diverging.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_nested_slot_temp/native",
+      "source": "tests/fixtures/contracts/reference-values/readonly_nested_slot_temp.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_nested_slot_temp/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/readonly_nested_slot_temp.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/write_nested_temporary_contents/native",
+      "source": "tests/fixtures/contracts/reference-values/write_nested_temporary_contents.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/write_nested_temporary_contents/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/write_nested_temporary_contents.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_join_reverse/native",
+      "source": "tests/fixtures/contracts/reference-values/mutable_join_reverse.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1, 2, 3]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_join_reverse/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/mutable_join_reverse.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1, 2, 3]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_value_break_ref_tail/native",
+      "source": "tests/fixtures/contracts/reference-values/index_early_value_break_ref_tail.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_value_break_ref_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_early_value_break_ref_tail.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_ref_break_value_tail/native",
+      "source": "tests/fixtures/contracts/reference-values/index_early_ref_break_value_tail.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_ref_break_value_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_early_ref_break_value_tail.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_all_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_early_all_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_all_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_early_all_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_only_ref_break/native",
+      "source": "tests/fixtures/contracts/reference-values/index_early_only_ref_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_early_only_ref_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_early_only_ref_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_all_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_all_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_all_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_all_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_mixed/native",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_mixed.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_mixed/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_mixed.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_match_all_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_match_all_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_match_all_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_match_all_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_match_mixed/native",
+      "source": "tests/fixtures/contracts/reference-values/index_match_mixed.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_match_mixed/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_match_mixed.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_ref_tail/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_ref_tail.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_ref_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_ref_tail.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_ref_break/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_ref_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_ref_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_ref_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_value_break/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_value_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_value_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_value_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_value_tail/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_value_tail.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_value_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_value_tail.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_integer_match_all_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_integer_match_all_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_integer_match_all_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_integer_match_all_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_integer_match_mixed/native",
+      "source": "tests/fixtures/contracts/reference-values/index_integer_match_mixed.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_integer_match_mixed/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_integer_match_mixed.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_value/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_value.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_value/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_value.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_if_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_if_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_nested_early_if_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_early_if_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_early_break/native",
+      "source": "tests/fixtures/contracts/reference-values/readonly_early_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_early_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/readonly_early_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_loop_break/native",
+      "source": "tests/fixtures/contracts/reference-values/readonly_loop_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_loop_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/readonly_loop_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_only_break/native",
+      "source": "tests/fixtures/contracts/reference-values/readonly_only_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_only_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/readonly_only_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_nested_only_break/native",
+      "source": "tests/fixtures/contracts/reference-values/readonly_nested_only_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/readonly_nested_only_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/readonly_nested_only_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Source-authored readonly, reference identity or whole-local inference rejection contract."
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_early_break/native",
+      "source": "tests/fixtures/contracts/reference-values/mutable_early_break.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3][4, 5, 6]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_early_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/mutable_early_break.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3][4, 5, 6]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_loop_break/native",
+      "source": "tests/fixtures/contracts/reference-values/mutable_loop_break.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3][4, 5, 6]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/mutable_loop_break/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/mutable_loop_break.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 2, 3][4, 5, 6]\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_nested_reference_call/native",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_reference_call.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_nested_reference_call/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_nested_reference_call.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker storage/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_if_nested_early_scalar_value/native",
+      "source": "tests/fixtures/contracts/reference-values/index_if_nested_early_scalar_value.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_if_nested_early_scalar_value/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_if_nested_early_scalar_value.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_if_nested_early_scalar_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_if_nested_early_scalar_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_if_nested_early_scalar_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_if_nested_early_scalar_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_block_nested_early_scalar_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_block_nested_early_scalar_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_block_nested_early_scalar_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_block_nested_early_scalar_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_nested_plain_early_ref/native",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_nested_plain_early_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_nested_plain_early_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_nested_plain_early_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_nested_plain_early_value/native",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_nested_plain_early_value.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/index_loop_nested_plain_early_value/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_loop_nested_plain_early_value.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "build/source/test/typing/branch_reference_copies.goose:23-29; build/source/src/typecheck_exprs.h:936-958; build/source/src/typecheck_builtins.h:442-459"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_multi_reference_result/native",
+      "source": "tests/fixtures/contracts/reference-values/index_multi_reference_result.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker scalar projection/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_multi_reference_result/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_multi_reference_result.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent focused checker scalar projection/reference semantics"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_stored_explicit_reference/native",
+      "source": "tests/fixtures/contracts/reference-values/index_stored_explicit_reference.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent direct/stored element-reference contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_stored_explicit_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_stored_explicit_reference.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent direct/stored element-reference contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_const_direct/native",
+      "source": "tests/fixtures/contracts/reference-values/index_const_direct.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent direct/stored element-reference contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_const_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_const_direct.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent direct/stored element-reference contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_scalar_direct/native",
+      "source": "tests/fixtures/contracts/reference-values/index_scalar_direct.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent direct/stored element-reference contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/index_scalar_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/index_scalar_direct.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent direct/stored element-reference contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/normal_match_reference_argument/native",
+      "source": "tests/fixtures/contracts/reference-values/normal_match_reference_argument.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 2\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary branch-copy/reference-parameter contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/normal_match_reference_argument/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/normal_match_reference_argument.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 2\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary branch-copy/reference-parameter contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/match_branch_reference_copies/native",
+      "source": "tests/fixtures/contracts/reference-values/match_branch_reference_copies.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 5\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary branch-copy/reference-parameter contract"
+    },
+    {
+      "id": "corpus/contracts/reference-values/checker45/match_branch_reference_copies/wasm-direct",
+      "source": "tests/fixtures/contracts/reference-values/match_branch_reference_copies.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 5\n",
+        "exit": 0
+      },
+      "provenance": "Independent primary branch-copy/reference-parameter contract"
     }
   ],
   "legacy_math_capture": {

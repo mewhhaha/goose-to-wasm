@@ -1,0 +1,1 @@
+fn main(){var n:i32=9;let fitted:f32=n*0.1;let unfitted=n*0.1;let rounded=(n*0.1) as f32;print(fitted as f64," ",unfitted," ",rounded as f64);let plain=0.1;let negative=-0.1;print(plain," ",negative);let explicit=(0.1 as f32) as f64;print(explicit);}

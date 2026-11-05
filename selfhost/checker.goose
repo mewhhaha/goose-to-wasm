@@ -1416,6 +1416,7 @@ fn check_readonly(p: Program&, c: Checker&, node: i64, slot: bool = false) -> bo
         var root_at = check_root_head(c, current);
         while root_at >= 0 { let root = c.roots[root_at]; if root.root == -1 { return true; } root_at = root.next; }
         if n.kind == N_NAME { let vi = check_variable_index(c, n.symbol); return vi >= 0 && c.variables[vi].readonly; }
+        if n.kind == N_CALL || n.kind == N_FILL { return true; }
         if n.kind == N_MEMBER || n.kind == N_INDEX || n.kind == N_SLICE || n.kind == N_UNARY { current = n.left; place = false; }
         else { return false; }
     }
@@ -3214,8 +3215,17 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         if builtin == 22 && array_kind != A_LIMITED { diagnose(p, n.token, "cap is available only on limited arrays"); }
         if builtin == 23 {
             if array_kind == A_VAR || array_kind == A_SLICE { diagnose(p, n.token, "index_of requires a fixed-stride array owner"); }
-            let ref_type = check_type(p, TY_REF, element, 0, -1, 0);
-            check_value(p, c, check_list_at(c, args, 1), ref_type);
+            let argument = check_list_at(c, args, 1);
+            var actual = check_single_expression(p, c, argument);
+            actual = check_read_value_type(p, c, argument, actual);
+            if actual >= 0 && p.types[actual].kind != TY_REF && check_addressable(p, argument) && check_same_type(p, check_storage_type(p, argument), element) {
+                var flags = 0; if check_readonly(p, c, argument, true) { flags |= TF_CONST; }
+                let reference = check_type(p, TY_REF, element, 0, -1, flags);
+                actual = check_expect(p, c, argument, actual, reference);
+            }
+            if actual < 0 || p.types[actual].kind != TY_REF || (p.types[actual].flags & TF_OPTIONAL) != 0 || p.types[actual].length_storage >= 0 || !check_same_type(p, p.types[actual].element, element) {
+                diagnose(p, n.token, "index_of requires a reference to an element of its array owner");
+            }
         }
         if builtin >= 24 {
             if p.types[receiver].kind != TY_ARRAY || array_kind == A_FIXED || array_kind == A_VAR {
@@ -4287,6 +4297,25 @@ fn check_join_control_exits(p: Program&, c: Checker&, target: i64, start: i64, f
     if reachable { check_flow_restore(c, merged); }
     return reachable;
 }
+recursive fn check_branch_readonly(p: Program&, c: Checker&, node: i64) -> bool {
+    if node < 0 { return false; }
+    let n = p.nodes[node];
+    if n.kind == N_LOOP || n.kind == N_BLOCK && (n.flags & F_EARLY) != 0 {
+        var values = CheckList {}; check_collect_break_values(p, c, node, node, values, true);
+        if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 && (p.nodes[n.last].flags & F_DIVERGES) == 0 { check_list_push(c, values, n.last); }
+        for index in 0..values.count { if check_branch_readonly(p, c, check_list_at(c, values, index)) { return true; } }
+        return false;
+    }
+    if (n.flags & F_DIVERGES) != 0 { return false; }
+    if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { return check_branch_readonly(p, c, n.last); }
+    if n.kind == N_IF { return check_branch_readonly(p, c, n.right) || check_branch_readonly(p, c, n.third); }
+    if n.kind == N_MATCH {
+        var arm = n.first;
+        while arm >= 0 { if check_branch_readonly(p, c, p.nodes[arm].right) { return true; } arm = p.nodes[arm].next; }
+        return false;
+    }
+    return check_readonly(p, c, node);
+}
 fn check_join_type(p: Program&, c: Checker&, left_node: i64, left: i64, right_node: i64, right: i64, token: i64, adapt: bool = true) -> i64 {
     if left < 0 { return right; }
     if right < 0 { return left; }
@@ -4312,7 +4341,7 @@ fn check_join_type(p: Program&, c: Checker&, left_node: i64, left: i64, right_no
     }
     if (a.kind == TY_SLICE || b.kind == TY_SLICE) && (a.kind == TY_ARRAY || a.kind == TY_SLICE) && (b.kind == TY_ARRAY || b.kind == TY_SLICE) && check_same_type(p, a.element, b.element) {
         var flags = (a.flags | b.flags) & TF_CONST;
-        if left_node >= 0 && check_readonly(p, c, left_node) || right_node >= 0 && check_readonly(p, c, right_node) { flags |= TF_CONST; }
+        if check_branch_readonly(p, c, left_node) || check_branch_readonly(p, c, right_node) { flags |= TF_CONST; }
         let view = check_type(p, TY_SLICE, a.element, -1, -1, flags);
         if (left_node < 0 || check_conversion(p, c, left_node, left, view) >= 0) && (right_node < 0 || check_conversion(p, c, right_node, right, view) >= 0) {
             if adapt && left_node >= 0 { check_expect(p, c, left_node, left, view); }
@@ -4397,7 +4426,7 @@ recursive fn check_inferred_result(p: Program&, c: Checker&, node: i64, target: 
         let root = check_place_root(p, node); var borrowed = false;
         if root >= 0 {
             let symbol = p.symbols[root];
-            borrowed = symbol.owner != target || (symbol.flags & S_GLOBAL) != 0;
+            borrowed = n.kind != N_NAME || symbol.owner != target || (symbol.flags & S_GLOBAL) != 0;
             if symbol.type_id >= 0 && p.types[symbol.type_id].kind == TY_REF { borrowed = true; }
         }
         if borrowed {
@@ -4944,18 +4973,21 @@ fn check_loop_backedge(p: Program&, c: Checker&, node: i64, entry: CheckSpan, ed
         before_at += 1; after_at += 1;
     }
 }
-recursive fn check_collect_break_values(p: Program&, c: Checker&, node: i64, target: i64, values: CheckList&) {
+recursive fn check_collect_break_values(p: Program&, c: Checker&, node: i64, target: i64, values: CheckList&, divergence_flags: bool = false) {
     if node < 0 { return; } let n = p.nodes[node];
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { return; }
     if n.kind == N_BREAK && n.symbol == target {
-        if n.left < 0 || !check_bottom(p, n.left) { check_list_push(c, values, n.left); }
-        return;
+        if n.left >= 0 {
+            if divergence_flags && (p.nodes[n.left].flags & F_DIVERGES) != 0 { return; }
+            if !divergence_flags && check_bottom(p, n.left) { return; }
+        }
+        check_list_push(c, values, n.left); return;
     }
     var child = n.first;
-    while child >= 0 { check_collect_break_values(p, c, child, target, values); child = p.nodes[child].next; }
-    check_collect_break_values(p, c, n.left, target, values);
-    check_collect_break_values(p, c, n.right, target, values);
-    if n.kind != N_CALL { check_collect_break_values(p, c, n.third, target, values); }
+    while child >= 0 { check_collect_break_values(p, c, child, target, values, divergence_flags); child = p.nodes[child].next; }
+    check_collect_break_values(p, c, n.left, target, values, divergence_flags);
+    check_collect_break_values(p, c, n.right, target, values, divergence_flags);
+    if n.kind != N_CALL { check_collect_break_values(p, c, n.third, target, values, divergence_flags); }
 }
 recursive fn check_join_literal(p: Program&, c: Checker&, node: i64, depth: i64 = 0) -> bool {
     if node < 0 || depth > 64 { return false; } let n = p.nodes[node];
@@ -5364,7 +5396,7 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
             }
         }
         if a.third >= 0 { check_condition(p, c, a.third); }
-        var ty = check_expression(p, c, a.right, arm_expected);
+        var ty = check_value(p, c, a.right, arm_expected, c.tuple_context);
         if statement && ty >= 0 { ty = TYPE_VOID; }
         if c.reachable {
             result = check_join_type(p, c, result_node, result, a.right, ty, n.token); result_node = a.right;

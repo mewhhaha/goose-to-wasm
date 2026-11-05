@@ -1,0 +1,1 @@
+fn main() { var h: u8[>..] = []; h.append("abc"); var views: (u8[:])[>..] = []; views.push(h[0..1]); views.push(h[1..2]); var other: (u8[:])[>..] = []; other.push(h[0..1]); print(views.index_of(&other[0])); }

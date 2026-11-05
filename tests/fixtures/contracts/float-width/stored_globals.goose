@@ -1,0 +1,1 @@
+const CP:f32=0.1;const CN:f32=-0.1;let LP:f32=0.1;let LN:f32=-0.1;var VP:f32=0.1;var VN:f32=-0.1;const C64:f64=CP;let L64:f64=LN;var V64:f64=VP;fn main(){print(CP as f64," ",CN as f64," ",LP as f64," ",LN as f64," ",VP as f64," ",VN as f64);print(C64," ",L64," ",V64);const local:f32=0.1;var qualified:const f32=-0.1;print(local as f64," ",qualified as f64);}

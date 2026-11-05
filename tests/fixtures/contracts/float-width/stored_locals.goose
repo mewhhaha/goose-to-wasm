@@ -1,0 +1,1 @@
+fn main(){let p:f32=0.1;let n:f32=-0.1;var vp:f32=0.1;var vn:f32=-0.1;print(p as f64," ",n as f64," ",vp as f64," ",vn as f64);let a:f64=p;let b:f64=n;var c:f64=vp;var d:f64=vn;print(a," ",b," ",c," ",d);print((p) as f64," ",((n) as f64));let link=p;let widened:f64=link;print(widened," ",widened+0.0);}

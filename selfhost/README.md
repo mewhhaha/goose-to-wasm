@@ -12,7 +12,7 @@ python3 scripts/bootstrap.py --verify
 
 Bootstrap builds the checked-in C seed, uses it to compile the current Goose compiler to C, and builds that compiler. Verification compares consecutive generated C outputs. The installed compiler and standard library are in `build/bin`; `build/bootstrap/report.json` records inputs and commands. Use `--cc` to select a C compiler. Node is needed to run Wasm output.
 
-Snapshot 44 passed C-only fixed-point verification; its final two generated C outputs match. Generated C SHA-256: `bca2cbad6f35d44b315e2052b1a5dfbe06d2f90bab0d9f2eaa97e7be72486602`. Compiler executable SHA-256: `3130d2f26a8eb028cb192b88e402d30e35318799d0e06e0be811c91d5dcb2e34`.
+Snapshot 45 passed C-only fixed-point verification; its final two generated C outputs match. Generated C SHA-256: `89feb6d5fba53f3bd2c36f5e00be164a53588856d2dfad8f0f021f647e6edebb`. Compiler executable SHA-256: `45e640b7f929b101de2c4ca2fe8f2299217e91794900afd7f014aaea74bd5783`.
 
 ## Contracts
 
@@ -21,6 +21,6 @@ python3 tests/conformance.py --compiler build/bin/goose \
   --output-dir build/conformance --levels 0 2
 ```
 
-Use a fresh output directory. The suite checks frozen sources, outputs, exit statuses and failure phases without a reference compiler. **Conformance is partial:** snapshot 44 passed 5,915 of 6,061 rows; 146 failed. Against snapshot 43, 20 of 5,677 shared checks improved and none regressed. All 384 new source-authored checks passed. The 146 remaining failures comprise 18 invalid-program checks and 128 runtime contracts; none failed C compilation or execution. The curated Wasm corpus passed 2,454/2,454 checks each in Wasmtime and V8; all 516 curated native controls also passed. No C++ oracle was executed.
+Use a fresh output directory. The suite checks frozen sources, outputs, exit statuses and failure phases without a reference compiler. **Conformance is partial:** snapshot 45 passed 6,251 of 6,389 rows; 138 failed. Against snapshot 44, 8 of 6,061 shared checks improved and none regressed. All 328 new source-authored checks passed. The 138 remaining failures comprise 12 invalid-program checks and 126 runtime contracts; none failed C compilation or execution. The curated Wasm corpus passed 2,618/2,618 checks each in Wasmtime and V8; all 680 curated native controls also passed. No C++ oracle was executed.
 
-This batch corrects default-callback returns, readonly iteration, tail references, pool rebinding, scalar relative cells and numeric control values. The remaining failures are 18 accepted invalid programs and 128 runtime contracts rejected during Goose compilation. Every runtime check that reached execution passed. [Qualification details](results/2026-11-05/relative-cells-and-control-values/summary.json) · [Guide](../docs/GUIDE.md)
+This batch preserves float width, element-reference identity, readonly storage and whole-local result ownership. The remaining failures are 12 accepted invalid programs and 126 runtime contracts rejected during Goose compilation. Every runtime check that reached execution passed. [Qualification details](results/2026-11-05/constant-width-and-reference-checks/summary.json) · [Guide](../docs/GUIDE.md)

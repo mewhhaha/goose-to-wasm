@@ -1,0 +1,1 @@
+fn widen(x:f64)->f64{x}fn choose(c:bool)->f64{let p:f32=0.1;let n:f32=-0.1;if c{p}else{n}}fn main(){let p:f32=0.1;let n:f32=-0.1;var flags:bool[>..]=[true,false];for c in flags{print(choose(c)," ",widen(if c{p}else{n})," ",(if c{p}else{n}) as f64);}print((if true{p}else{n}) as f64," ",(if false{p}else{n}) as f64);print(((0.1 as f32) as f64)," ",((-0.1 as f32) as f64));}
