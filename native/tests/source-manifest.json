@@ -1,0 +1,16 @@
+{
+  "files": {
+    "runtime_threads_lifecycle.c": {
+      "sha256": "2d4d9d70637bd73570ca511c7cbb95be96b19d6e73a7c38020e47a87a31cb386",
+      "upstream_path": "test/threads/runtime_threads_lifecycle.c",
+      "upstream_sha256": "dd282b749ed8585ab24a8b34bfba214cf9cd47a16ee8e73cc961c7eb8477fffd"
+    },
+    "runtime_trim_memory.c": {
+      "sha256": "ec39bbb051fb0d138a0f16504455349a210550dec69321c497bae6fc514e9d1f",
+      "upstream_path": "test/runtime/runtime_trim_memory.c",
+      "upstream_sha256": "2ef48dd47493450206f2fd29ae72d861ea87b128ec9e9b801af2fead36424fb6"
+    }
+  },
+  "repository": "https://github.com/aardappel/goose.git",
+  "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"
+}

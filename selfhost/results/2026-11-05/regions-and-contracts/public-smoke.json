@@ -1,0 +1,27 @@
+{
+  "method": "Default staged-checkout bootstrap --verify, then default driver (no --goose override), both targets.",
+  "compiler_sha256": "f4ede2f12e2026b2591c0ec6bdb76731e1e1801bbf6f892a2ae0abc304a5a1bf",
+  "bootstrap_fixed_point": true,
+  "results": [
+    {
+      "backend": "direct",
+      "command": [
+        "node",
+        "/dev/shm/goose-completion-work/public-27/scripts/run_wasm.mjs",
+        "/dev/shm/goose-completion-work/public-27/squares.wasm"
+      ],
+      "exit": 0,
+      "stdout": "sum=140\n",
+      "stderr": ""
+    },
+    {
+      "backend": "native",
+      "command": [
+        "/dev/shm/goose-completion-work/public-27/squares-native"
+      ],
+      "exit": 0,
+      "stdout": "sum=140\n",
+      "stderr": ""
+    }
+  ]
+}

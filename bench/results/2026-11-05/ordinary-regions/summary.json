@@ -1,0 +1,192 @@
+{
+  "schema": "goose-compiler-benchmarks-v1",
+  "source_base_commit": "86f81e8766fc6ed4092c7761540059d7b08fc1ae",
+  "compiler_snapshot": "27",
+  "source_sha256": {
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
+    "sources.goose": "ad9a1f96ac3850ad4268795c605c3c0576ba604b9f816baa0f60db1e13de4140",
+    "region_plan.goose": "c6985be85725a9be4aea5e8e39c203f0e88b803520f66ffb84ac6461986fe17b",
+    "parser.goose": "8b36e4859a3e4659e858892903d8af3ad0bb9698f0faadfea45325c8da75309f",
+    "optimizer.goose": "53f1d9c79e513a5502ade415c79f3ad9d441b68c82dc0073b081d51bf682d78f",
+    "model.goose": "50be92752a4b70a253a64b51a63c33f0ffe5888e1781a0612b3b47b8dac00641",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "codegen_c_storage.goose": "89764c641ac9351d6f0e46ecfba70abe7982f09d4c6263ea255a7c301246f866",
+    "codegen_c.goose": "500c1aeaebdbe5b351953f10d100207e2cb3d852c8df443bcf1978bf462b3b5b",
+    "codegen.goose": "b1f260833a5f534a1155df06f79a277faf2d6c4f415e673b824ce314e1fa4ff3",
+    "checker_validation.goose": "c8b10654d7757d0542c9d48c3627897d4d063e8098c4e01dbcf13b962b58aec5",
+    "checker_rendering.goose": "eb34ce6c2a888635029fd78fc2e975d63187e688b61dfc6173b387d9c1c2a4d2",
+    "checker_operations.goose": "8e0935df3d292052a687e928116b4b252ad02963c8925eb60ff6f3afb74b1883",
+    "checker_lifetimes.goose": "0cc33a6205cca466766fe8e6e0f8a04245c7796a4402ec178b0878e5f6239d20",
+    "checker.goose": "34524b4568e0f73ac05cb750b5ad96aa61a73ac1958d02f115822a37e2545480"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "7d2439e9169096485a94bd2d6a94f37684b370cfa354a864dbbf796a6a7bc73f"
+  },
+  "bootstrap_c_sha256": "c3d96198541323e5a137ca611e85cb3bd24b1f39c8012812a95cda4c4d7b0e9b",
+  "compiler_sha256": "77b66a860a1fb7b653e2967f53881a748c36dbb3611fb24be567dbb5c60c7968",
+  "qualification_compiler_sha256": "51a972e0fe26a1ec626734404d6974a36b0ec7c5fa9cbaba65069c13a421755d",
+  "compiler_builds": "Benchmark compiler recompiles the verified C seed; qualification uses the selected fixed-point binary. Generated C bytes and C compiler flags match; both binary identities are retained.",
+  "examples_status": "passed",
+  "host_status": "passed",
+  "compile_samples": 5,
+  "runtime_samples": 5,
+  "preparation_samples": 5,
+  "compiler_comparison": "Both targets use the Goose-written compiler. Native is this compiler C backend at GCC O2, including its remaining code and startup overhead. Earlier C++ and snapshot23 results were collected separately.",
+  "rows": [
+    {
+      "name": "squares",
+      "build_ms": {
+        "direct": 50.407223,
+        "native": 246.964415
+      },
+      "process_ms": {
+        "direct/python": 70.090547,
+        "direct/native": 4.3888620000000005,
+        "direct/native-serial": 3.9320730000000004,
+        "direct/precompiled": 1.035198,
+        "direct/precompiled-minimal": 0.8336640000000001,
+        "native/native-C": 0.760726
+      }
+    },
+    {
+      "name": "tour",
+      "build_ms": {
+        "direct": 59.615005,
+        "native": 862.205964
+      },
+      "process_ms": {
+        "direct/python": 119.25528,
+        "direct/native": 50.551106999999995,
+        "direct/native-serial": 48.565262,
+        "direct/precompiled": 1.265415,
+        "direct/precompiled-minimal": 0.8959229999999999,
+        "native/native-C": 0.817203
+      }
+    },
+    {
+      "name": "functions",
+      "build_ms": {
+        "direct": 111.213703,
+        "native": 1266.200592
+      },
+      "process_ms": {
+        "direct/python": 247.950221,
+        "direct/native": 184.437387,
+        "direct/native-serial": 179.249035,
+        "direct/precompiled": 1.301515,
+        "direct/precompiled-minimal": 1.0844610000000001,
+        "native/native-C": 0.8402270000000001
+      }
+    },
+    {
+      "name": "errors",
+      "build_ms": {
+        "direct": 68.684253,
+        "native": 646.17155
+      },
+      "process_ms": {
+        "direct/python": 105.647985,
+        "direct/native": 38.198738000000006,
+        "direct/native-serial": 38.021731,
+        "direct/precompiled": 1.077157,
+        "direct/precompiled-minimal": 0.856278,
+        "native/native-C": 0.8245979999999999
+      }
+    },
+    {
+      "name": "sieve",
+      "build_ms": {
+        "direct": 61.493325,
+        "native": 370.785623
+      },
+      "process_ms": {
+        "direct/python": 86.31155,
+        "direct/native": 19.287170999999997,
+        "direct/native-serial": 18.553606000000002,
+        "direct/precompiled": 2.9501779999999997,
+        "direct/precompiled-minimal": 2.739086,
+        "native/native-C": 5.662923999999999
+      }
+    },
+    {
+      "name": "sorting",
+      "build_ms": {
+        "direct": 114.601062,
+        "native": 1337.321373
+      },
+      "process_ms": {
+        "direct/python": 408.978512,
+        "direct/native": 321.44762399999996,
+        "direct/native-serial": 321.318478,
+        "direct/precompiled": 171.616757,
+        "direct/precompiled-minimal": 169.62588300000002,
+        "native/native-C": 1157.2374240000001
+      }
+    },
+    {
+      "name": "sudoku",
+      "build_ms": {
+        "direct": 63.968861000000004,
+        "native": 431.53299
+      },
+      "process_ms": {
+        "direct/python": 98.070842,
+        "direct/native": 31.490606999999997,
+        "direct/native-serial": 31.054739,
+        "direct/precompiled": 12.34239,
+        "direct/precompiled-minimal": 11.867788000000001,
+        "native/native-C": 9.664891
+      }
+    },
+    {
+      "name": "maze",
+      "build_ms": {
+        "direct": 75.263209,
+        "native": 588.751327
+      },
+      "process_ms": {
+        "direct/python": 156.964506,
+        "direct/native": 88.52624,
+        "direct/native-serial": 86.810949,
+        "direct/precompiled": 1.2899420000000001,
+        "direct/precompiled-minimal": 1.0744719999999999,
+        "native/native-C": 0.94715
+      }
+    },
+    {
+      "name": "vm",
+      "build_ms": {
+        "direct": 71.348859,
+        "native": 521.036706
+      },
+      "process_ms": {
+        "direct/python": 143.625973,
+        "direct/native": 75.402164,
+        "direct/native-serial": 73.088746,
+        "direct/precompiled": 1.1269419999999999,
+        "direct/precompiled-minimal": 1.018155,
+        "native/native-C": 0.8099500000000001
+      }
+    },
+    {
+      "name": "life",
+      "build_ms": {
+        "direct": 64.85511600000001,
+        "native": 479.019732
+      },
+      "process_ms": {
+        "direct/python": 127.879502,
+        "direct/native": 60.249542000000005,
+        "direct/native-serial": 59.368006,
+        "direct/precompiled": 27.33079,
+        "direct/precompiled-minimal": 27.014919,
+        "native/native-C": 21.03341
+      }
+    }
+  ]
+}

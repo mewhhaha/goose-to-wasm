@@ -258,6 +258,7 @@ class Harness:
                 raise ValueError("compiler bytes differ from installed build metadata")
             self.report["compiler_source_sha256"] = metadata.get("source_sha256", {})
         paths += list((ROOT/"selfhost").glob("*.goose")) + list((ROOT/"stdlib").rglob("*.goose"))
+        paths += list((ROOT/"native").rglob("*.h"))
         paths += [Path(value) for value in self.tools.values() if Path(value).is_file()]
         for case in self.workloads:
             paths += list(Path(case["source"]).parent.glob("*.goose"))

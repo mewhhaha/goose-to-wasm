@@ -3446,7 +3446,7 @@
       ],
       "stdin": "",
       "expect": {
-        "stdout": "Text { \"é\\n\\r\\t\\\"\\\\\u0000\" }\n[\"A\\nB\", \"\\\"\\\\\\t\"]\n",
+        "stdout": "Text { \"\u00e9\\n\\r\\t\\\"\\\\\u0000\" }\n[\"A\\nB\", \"\\\"\\\\\\t\"]\n",
         "exit": 0
       },
       "debug": false,
@@ -3667,7 +3667,7 @@
       ],
       "stdin": "",
       "expect": {
-        "stdout": "Text { \"é\\n\\r\\t\\\"\\\\\u0000\" }\n[\"A\\nB\", \"\\\"\\\\\\t\"]\n",
+        "stdout": "Text { \"\u00e9\\n\\r\\t\\\"\\\\\u0000\" }\n[\"A\\nB\", \"\\\"\\\\\\t\"]\n",
         "exit": 0
       },
       "debug": true,
@@ -36147,7 +36147,7 @@
       ],
       "provenance": "pinned upstream source and expected output",
       "expect": {
-        "stdout": "5 café\n",
+        "stdout": "5 caf\u00e9\n",
         "exit": 0,
         "normalize": "trailing-newlines"
       }
@@ -45055,7 +45055,7 @@
       ],
       "provenance": "pinned upstream source and expected output",
       "expect": {
-        "stdout": "false true true true\nfalse\nlist true:\ntrue true true true\nlist true:\nZ.txt\na.txt\nsub\nωmega-日本-🐟.txt\nlist true:\nZ.txt\na.txt\nsub\nωmega-日本-🐟.txt\n5 true fish true true\ntrue false false\nlist true:\n9\nfalse false false kept\nfalse false\nfalse false false false\nfalse false\ntrue true\nlist true:\nZ.txt\na.txt\nfalse false kept\n",
+        "stdout": "false true true true\nfalse\nlist true:\ntrue true true true\nlist true:\nZ.txt\na.txt\nsub\n\u03c9mega-\u65e5\u672c-\ud83d\udc1f.txt\nlist true:\nZ.txt\na.txt\nsub\n\u03c9mega-\u65e5\u672c-\ud83d\udc1f.txt\n5 true fish true true\ntrue false false\nlist true:\n9\nfalse false false kept\nfalse false\nfalse false false false\nfalse false\ntrue true\nlist true:\nZ.txt\na.txt\nfalse false kept\n",
         "exit": 0,
         "normalize": "trailing-newlines"
       }
@@ -45724,6 +45724,270 @@
         "exit": 0
       },
       "provenance": "Independent expected behavior checked against pinned upstream native execution; limited formatting contract codegen_render.h482-528."
+    },
+    {
+      "id": "corpus/owned-aggregate-results/0",
+      "source": "tests/fixtures/aggregate_returns.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "0\n",
+      "expect": {
+        "stdout": "0 0 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n1 2 2 4 3\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n0 0 0\n",
+        "exit": 0
+      },
+      "provenance": "independently specified in retired test_backend_extensions.py"
+    },
+    {
+      "id": "corpus/owned-aggregate-results/1",
+      "source": "tests/fixtures/aggregate_returns.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "1\n",
+      "expect": {
+        "stdout": "1 101 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n2 4 4 8 6\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n1 2 3\n",
+        "exit": 0
+      },
+      "provenance": "independently specified in retired test_backend_extensions.py"
+    },
+    {
+      "id": "corpus/owned-aggregate-results/4",
+      "source": "tests/fixtures/aggregate_returns.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "4 410 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n5 10 10 20 15\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n4 8 12\n",
+        "exit": 0
+      },
+      "provenance": "independently specified in retired test_backend_extensions.py"
+    },
+    {
+      "id": "corpus/owned-aggregate-results/7",
+      "source": "tests/fixtures/aggregate_returns.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "7\n",
+      "expect": {
+        "stdout": "7 728 1000 2000\n8 16 [10, 11, 12] [20, 21, 22]\n8 16 16 32 24\n11 22 99 99 77\n[1, 2, 3] 9 [42, 2, 3]\n25\n19 7 14\n7 14 21\n",
+        "exit": 0
+      },
+      "provenance": "independently specified in retired test_backend_extensions.py"
+    },
+    {
+      "id": "corpus/math-intrinsics/0",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "2.5 0\n",
+      "expect": {
+        "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/1",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "-2.5 1\n",
+      "expect": {
+        "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/2",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "0 -1\n",
+      "expect": {
+        "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/3",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "-0.0 -9223372036854775808\n",
+      "expect": {
+        "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/4",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "nan 256\n",
+      "expect": {
+        "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/5",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "inf 65536\n",
+      "expect": {
+        "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/6",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "-inf 2147483647\n",
+      "expect": {
+        "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/7",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "1.401298464324817e-45 3\n",
+      "expect": {
+        "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/8",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "5e-324 127\n",
+      "expect": {
+        "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "corpus/math-intrinsics/9",
+      "source": "tests/fixtures/math_intrinsics.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "expect": {
+        "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+        "exit": 0
+      },
+      "provenance": "frozen upstream native observation; legacy-math-capture.json"
+    },
+    {
+      "id": "frontend/unknown-string-escape",
+      "source": "tests/fixtures/invalid_source.goose",
+      "phase": "parse-error",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "provenance": "language string escapes"
+    },
+    {
+      "id": "corpus/variable-prefix-record-array",
+      "source": "tests/fixtures/unsupported_varint_array.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "",
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      },
+      "provenance": "two literal array elements"
+    },
+    {
+      "id": "frontend/external-slice-signature",
+      "source": "tests/fixtures/unsupported_pointer_extern.goose",
+      "phase": "check",
+      "target": "native",
+      "levels": [
+        0
+      ],
+      "provenance": "upstream source signature; execution requires external implementation"
     }
-  ]
+  ],
+  "legacy_math_capture": {
+    "path": "tests/conformance/legacy-math-capture.json",
+    "sha256": "d856126c11fad1080b164ad73262ef9ba9b5da8c44a903072f059ed2f021cf12"
+  }
 }

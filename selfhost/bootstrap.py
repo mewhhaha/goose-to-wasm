@@ -8,9 +8,11 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,7 +33,9 @@ def save(path, value):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-dir', type=Path, default=ROOT / 'selfhost')
+    parser.add_argument('--seed-dir', type=Path, default=SEED)
     parser.add_argument('--stdlib', type=Path, default=ROOT / 'stdlib')
+    parser.add_argument('--native-dir', type=Path, default=ROOT / 'native')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'build' / 'selfhost')
     parser.add_argument('--cc', default=os.environ.get('CC', 'clang'))
     parser.add_argument('--verify', action='store_true', help='require identical next-generation C output')
@@ -60,9 +64,10 @@ def main():
         return result.stdout
 
     try:
-        pin = json.loads((SEED / 'seed.json').read_bytes())
-        compressed = SEED / 'seed.c.gz'
-        bundle = SEED / 'sources.tar.gz'
+        seed = args.seed_dir.resolve()
+        pin = json.loads((seed / 'seed.json').read_bytes())
+        compressed = seed / 'seed.c.gz'
+        bundle = seed / 'sources.tar.gz'
         if digest(compressed) != pin['compressed_sha256']:
             raise RuntimeError('bootstrap seed checksum differs')
         if digest(bundle) != pin['source_bundle_sha256']:
@@ -77,7 +82,7 @@ def main():
         cc = Path(cc).resolve()
         report.update(seed_c_sha256=pin['c_sha256'], cc=str(cc), cc_sha256=digest(cc),
                       bootstrap_source_sha256=pin['source_sha256'],
-                      input_sha256={str(p): digest(p) for p in [Path(__file__), SEED / 'seed.json', compressed, bundle, cc]})
+                      input_sha256={str(p): digest(p) for p in [Path(__file__), seed / 'seed.json', compressed, bundle, cc]})
         report['cc_version'] = command([cc, '--version'], 'cc-version').decode(errors='replace')
         seed_executable = out / 'seed'
         command([cc, '-std=gnu11', '-O2', c_source, '-lm', '-ldl', '-pthread', '-o', seed_executable], 'build-seed')
@@ -96,11 +101,32 @@ def main():
             library = out / 'stdlib'
             shutil.copytree(args.stdlib.resolve(), library)
             source_hashes = {p.name: digest(p) for p in sources.glob('*.goose')}
+            assets = {}
+            for source in sources.glob('*.goose'):
+                for match in re.finditer(r'\bembed_file\(\s*"\.\./native/([^"\n]+)"\s*\)', source.read_text()):
+                    relative = Path(match.group(1))
+                    if relative.is_absolute() or '..' in relative.parts:
+                        raise RuntimeError('invalid native runtime asset path: ' + str(relative))
+                    original = args.native_dir.resolve() / relative
+                    target = out / 'native' / relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(original, target)
+                    assets['native/' + relative.as_posix()] = digest(target)
+                    report['input_sha256'][str(original)] = digest(original)
             report.update(source_kind='current-goose-sources', source_sha256=source_hashes,
+                          asset_sha256=assets,
                           stdlib_sha256={str(p.relative_to(library)): digest(p) for p in library.rglob('*.goose')})
+            seed_library = pin.get('stdlib_sha256')
+            if seed_library is None:
+                seed_library = {}
+                with tarfile.open(bundle) as archive:
+                    for member in archive:
+                        if member.isfile() and member.name.startswith('stdlib/') and member.name.endswith('.goose'):
+                            data = archive.extractfile(member).read()
+                            seed_library[member.name.removeprefix('stdlib/')] = hashlib.sha256(data).hexdigest()
             generated = out / 'compiler.c'
             invocation = [sources / 'main.goose', '--stdlib', library, '--target', 'native', '-O0']
-            if source_hashes == pin['source_sha256']:
+            if source_hashes == pin['source_sha256'] and report['stdlib_sha256'] == seed_library and assets == pin.get('asset_sha256', {}):
                 shutil.copyfile(c_source, generated)
                 report['seed_matches_sources'] = True
                 shutil.copyfile(seed_executable, executable)

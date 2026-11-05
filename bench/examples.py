@@ -24,6 +24,7 @@ def input_paths(examples, goose):
              ROOT / "bootstrap/seed.json", ROOT / "bootstrap/seed.c.gz", ROOT / "bootstrap/sources.tar.gz",
              ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py"]
     paths += sorted((ROOT / "selfhost").glob("*.goose"))
+    paths += sorted((ROOT / "native").rglob("*.h"))
     for example in examples:
         paths += [ROOT / "examples" / example["file"], ROOT / "examples" / example["expected"]]
     roots = [goose.parent / "stdlib", ROOT / "stdlib"]

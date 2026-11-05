@@ -1,0 +1,38 @@
+{
+  "files": {
+    "LICENSE": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "upstream_path": "LICENSE"
+    },
+    "NOTICE": {
+      "sha256": "803282561ca75117bd789df6d7d47af30ee958cf0a7c5cdd603e68b8fa374003",
+      "upstream_path": null
+    },
+    "goose.h": {
+      "sha256": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4",
+      "upstream_path": "src/runtime/goose.h"
+    },
+    "runtime.h": {
+      "sha256": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+      "upstream_path": "src/runtime/runtime.h"
+    },
+    "runtime_ext.h": {
+      "sha256": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3",
+      "upstream_path": "src/runtime/runtime_ext.h"
+    },
+    "runtime_impl.h": {
+      "sha256": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+      "upstream_path": "src/runtime/runtime_impl.h"
+    },
+    "runtime_os.h": {
+      "sha256": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087",
+      "upstream_path": "src/runtime/runtime_os.h"
+    },
+    "runtime_threads.h": {
+      "sha256": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+      "upstream_path": "src/runtime/runtime_threads.h"
+    }
+  },
+  "repository": "https://github.com/aardappel/goose.git",
+  "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"
+}

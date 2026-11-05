@@ -214,6 +214,7 @@ def metadata(args, manifest) -> dict:
               ROOT / "scripts" / "run_wasm.mjs", ROOT / "scripts" / "run_wasmtime.py", ROOT / "toolchain.json", ROOT / "selfhost" / "bootstrap.py",
               ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz", ROOT / "bootstrap" / "sources.tar.gz",
               *sorted((ROOT / "selfhost").glob("*.goose")), *sorted((ROOT / "stdlib").rglob("*.goose")),
+              *sorted((ROOT / "native").rglob("*.h")),
               ROOT / "bench" / "host_input.c", *sorted((DATA / "ports").glob("*.goose"))]
     try:
         wasmtime = importlib.metadata.version("wasmtime")

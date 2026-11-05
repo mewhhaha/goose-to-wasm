@@ -44,8 +44,11 @@ expression lowering must not accidentally evaluate it.
 | Arm | `left`: pattern; `right`: body; `third`: guard |
 | Array/record | `first`: elements/field bindings; array `right`: repeat count; record `left`: type |
 | Binding | `token`: field name; `right`: field initializer |
+| Checked self | `N_SELF` (57), only a direct field initializer; `type_id`: nonoptional relative-reference type; `symbol`: field node; `aux`: constructed owner type |
 
-Checked expressions have `type_id`. Names refer to `Symbol` IDs in `symbol`.
+Checked expressions retain their natural `type_id`. `coerced_type` records a
+successful contextual enum adaptation; an explicit `copy` keeps its operand's
+adaptation separate. Names refer to `Symbol` IDs in `symbol`.
 Calls refer to their specialized function symbol. `Node.origin` records the
 unspecialized declaration; `Node.captures` points to a list of `N_BINDING` nodes
 whose `symbol` is the original captured symbol. Function `integer` is the optional
@@ -63,7 +66,12 @@ one packed i64 (pointer and length), references are i32, and owned array control
 are 24 bytes. Image layouts record `Type.storage` (0 raw, 1 variable integer),
 `length_storage` (-1 absent, 0 ULEB, positive fixed byte width), `padding`, `pool`,
 `index_type`, `prefix` and `tail`. Record offsets are packed and come from the
-checked layout; backends cannot substitute host C alignment.
+checked layout; backends cannot substitute host C alignment. Default `T[]`
+uses a four-byte unsigned length; explicit `T[varint]` uses ULEB. The
+`length_explicit` display flag preserves their spelling without changing type
+identity. A record constructor consumes `N_SELF` using its destination base;
+`self` is never lowered as an ordinary expression. Pool-relative self requires
+construction directly inside that pool.
 
 The driver loads transitive imports before semantic checking. `std` declarations
 may be recognized as builtins; ordinary source modules are parsed and checked.

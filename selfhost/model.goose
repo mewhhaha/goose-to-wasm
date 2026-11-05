@@ -267,6 +267,7 @@ struct Node {
     scope: i64 = -1, aux: i64 = -1,
     origin: i64 = -1, captures: i64 = -1,
     named_results: i64 = -1,
+    coerced_type: i64 = -1,
 }
 struct Type {
     kind: i64 = 0, element: i64 = -1, count: i64 = 0,
@@ -276,6 +277,7 @@ struct Type {
     storage: i64 = 0, length_storage: i64 = -1, padding: i64 = 0,
     pool: i64 = -1, index_type: i64 = -1, prefix: i64 = -1, tail: i64 = -1,
     arguments: i64 = -1,
+    length_explicit: bool = false,
 }
 struct Symbol {
     name_token: i64 = -1, type_id: i64 = -1, node: i64 = -1,

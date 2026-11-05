@@ -118,6 +118,7 @@ def metadata(args):
                       ROOT / "bootstrap" / "seed.json", ROOT / "bootstrap" / "seed.c.gz",
                       ROOT / "bootstrap" / "sources.tar.gz"]
     tracked_inputs += sorted((ROOT / "selfhost").glob("*.goose"))
+    tracked_inputs += sorted((ROOT / "native").rglob("*.h"))
     tracked_inputs += sorted((ROOT / "stdlib").rglob("*.goose"))
     return {"platform": platform.platform(), "machine": platform.machine(), "cpu": cpu,
             "supplied_machine_label": args.machine_label,

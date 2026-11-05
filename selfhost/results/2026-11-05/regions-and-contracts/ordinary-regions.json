@@ -1,0 +1,225 @@
+{
+  "schema": "goose-ordinary-regions-benchmark-v1",
+  "source": "/dev/shm/goose-completion-work/snapshot-27/native/tests/ordinary_regions.goose",
+  "source_sha256": "2ffa3461685b4822d3e440c0fbe90ae30c55f80f8f18327e7d0aa788a7415e24",
+  "method": "Five alternating fresh process runs on CPU7; equal source, Goose O0, Clang O2 and output checks. wait4 peak RSS includes launcher setup. Controls use two separately bootstrapped compiler snapshots.",
+  "compiler_sha256": {
+    "snapshot-26": "ce518f4f175b8afadc7c01fff14a79358f565538f9b849074f18f1db8677794e",
+    "snapshot-27": "51a972e0fe26a1ec626734404d6974a36b0ec7c5fa9cbaba65069c13a421755d"
+  },
+  "cc": "/usr/bin/clang-23",
+  "cc_sha256": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+  "cc_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+  "cpu_affinity": [
+    7
+  ],
+  "host": {
+    "system": "Linux",
+    "node": "cachyos-x8664",
+    "release": "7.3.0-4-cachyos",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri, 23 Oct 2026 15:03:58 +0000",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "stdlib_sha256": {
+    "base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e"
+  },
+  "commands": [
+    {
+      "command": [
+        "/dev/shm/goose-completion-work/c-only-bootstrap-26/goose",
+        "/dev/shm/goose-completion-work/snapshot-27/native/tests/ordinary_regions.goose",
+        "--target",
+        "native",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/stdlib",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-26.c"
+      ],
+      "seconds": 0.03435326897306368,
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-fno-strict-aliasing",
+        "-ffp-contract=off",
+        "-pthread",
+        "/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-26.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-26"
+      ],
+      "seconds": 0.14823047601385042,
+      "exit": 0,
+      "stdout": "",
+      "stderr": "/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-26.c:104:50: warning: 'memcpy' call operates on objects of type 'unsigned char' while the size is based on a different type 'unsigned char *' [-Wsizeof-pointer-memaccess]\n  104 |     if(ref&G_MOVING_REF)memcpy(&base,base,sizeof base);\n      |                                      ~~~~        ^~~~\n/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-26.c:104:50: note: did you mean to provide an explicit length?\n  104 |     if(ref&G_MOVING_REF)memcpy(&base,base,sizeof base);\n      |                                                  ^~~~\n1 warning generated.\n"
+    },
+    {
+      "command": [
+        "/dev/shm/goose-completion-work/c-only-bootstrap-27/goose",
+        "/dev/shm/goose-completion-work/snapshot-27/native/tests/ordinary_regions.goose",
+        "--target",
+        "native",
+        "--stdlib",
+        "/home/jacobt/src/goose-to-wasm/stdlib",
+        "-O0",
+        "-o",
+        "/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-27.c"
+      ],
+      "seconds": 0.011719545989762992,
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/clang-23",
+        "-std=gnu11",
+        "-O2",
+        "-fno-strict-aliasing",
+        "-ffp-contract=off",
+        "-pthread",
+        "/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-27.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/dev/shm/goose-completion-work/ordinary-regions-27/snapshot-27"
+      ],
+      "seconds": 0.25415065698325634,
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "runs": [
+    {
+      "snapshot": "snapshot-26",
+      "repeat": 0,
+      "seconds": 0.13504905998706818,
+      "user_seconds": 0.03295,
+      "system_seconds": 0.10073599999999999,
+      "peak_rss_kib": 324428,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-27",
+      "repeat": 0,
+      "seconds": 0.005405214033089578,
+      "user_seconds": 0.005166,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 22848,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-26",
+      "repeat": 1,
+      "seconds": 0.13181079499190673,
+      "user_seconds": 0.021983,
+      "system_seconds": 0.10894999999999999,
+      "peak_rss_kib": 324532,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-27",
+      "repeat": 1,
+      "seconds": 0.00580290996003896,
+      "user_seconds": 0.005166,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 22848,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-26",
+      "repeat": 2,
+      "seconds": 0.13016199099365622,
+      "user_seconds": 0.020929,
+      "system_seconds": 0.10848,
+      "peak_rss_kib": 324492,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-27",
+      "repeat": 2,
+      "seconds": 0.005413450009655207,
+      "user_seconds": 0.0034639999999999996,
+      "system_seconds": 0.001696,
+      "peak_rss_kib": 22848,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-26",
+      "repeat": 3,
+      "seconds": 0.1347310859709978,
+      "user_seconds": 0.024888999999999998,
+      "system_seconds": 0.10869999999999999,
+      "peak_rss_kib": 324412,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-27",
+      "repeat": 3,
+      "seconds": 0.007178173982538283,
+      "user_seconds": 0.006847,
+      "system_seconds": 0.0,
+      "peak_rss_kib": 22848,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-26",
+      "repeat": 4,
+      "seconds": 0.1373223009868525,
+      "user_seconds": 0.024863,
+      "system_seconds": 0.11137699999999999,
+      "peak_rss_kib": 324492,
+      "exit": 0
+    },
+    {
+      "snapshot": "snapshot-27",
+      "repeat": 4,
+      "seconds": 0.005425612966064364,
+      "user_seconds": 0.004181,
+      "system_seconds": 0.0010379999999999999,
+      "peak_rss_kib": 22848,
+      "exit": 0
+    }
+  ],
+  "artifacts": {
+    "snapshot-26": {
+      "c_sha256": "0a51d0d00a612e79a727b81f9a1f6136791cba4e6fc6954b3eafdbddbea12566",
+      "binary_sha256": "af2f374301e1c401cb704754639be6ebf21c555e5c68acf33048d4fe94d8f0c9"
+    },
+    "snapshot-27": {
+      "c_sha256": "12f5a029461d0c44999dc4631d08595c993503e837f9c7d4b0c4732d70fabc15",
+      "binary_sha256": "ce3a6666883552c819ac0eeff08727eb18863459c8a4392300bb34b6419651b9"
+    }
+  },
+  "summary": {
+    "snapshot-26": {
+      "median_seconds": 0.1347310859709978,
+      "median_peak_rss_kib": 324492
+    },
+    "snapshot-27": {
+      "median_seconds": 0.005425612966064364,
+      "median_peak_rss_kib": 22848
+    }
+  },
+  "status": "passed"
+}

@@ -1,0 +1,17 @@
+{
+  "source_reports": {
+    "examples.json": "6eedf39a2ad8ff0cb00713b8e7e41a776c055aa18ec399e277629e1b0375e651",
+    "host.json": "14ec3c34f5019bf77d51bb3104e9b6a451d245b3bda5245807471d5a36d6673a"
+  },
+  "charts": {
+    "goose-examples-compilation.svg": "9eb7539834d46c481f167e165e2f8c8b4f73802b510e25920a1d8ae13a96a148",
+    "goose-examples-runtime.svg": "5761a575e4113c64e7ed9a13b0db5756d412b1696e36709e1846b84114682e89",
+    "goose-host-preparation.svg": "9f9fedd6961b1bdab14ba064cccc46bf642edc4c7b4787794e49563b67094612"
+  },
+  "generators": {
+    "example_charts.py": "c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa",
+    "example_runtime_charts.py": "ea422d5b592e56db8184cca923b57ed75b7fccdf125e30f7d9a6c9d80963e406",
+    "wasmtime_host_charts.py": "740d680f99e8b36f1ec9fb502892dd9ce32efcf8e5d2f4b8c363b75c036778ff"
+  },
+  "visual_review": "All three SVGs rendered to PNG with CairoSVG and inspected; labels and legends are visible with no overlap."
+}

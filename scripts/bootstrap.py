@@ -18,7 +18,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-dir', type=Path, default=ROOT / 'build')
     parser.add_argument('--source-dir', type=Path, default=ROOT / 'selfhost')
+    parser.add_argument('--seed-dir', type=Path, default=ROOT / 'bootstrap')
     parser.add_argument('--stdlib', type=Path, default=ROOT / 'stdlib')
+    parser.add_argument('--native-dir', type=Path, default=ROOT / 'native')
     parser.add_argument('--cc', default=os.environ.get('CC', 'clang'))
     parser.add_argument('--verify', action='store_true', help='verify identical self-hosted C output')
     args = parser.parse_args()
@@ -29,7 +31,9 @@ def main():
     with tempfile.TemporaryDirectory(prefix='goose-bootstrap-') as directory:
         stage = Path(directory) / 'compiler'
         command = [sys.executable, str(ROOT / 'selfhost/bootstrap.py'),
+                   '--seed-dir', str(args.seed_dir.resolve()),
                    '--source-dir', str(args.source_dir.resolve()), '--stdlib', str(args.stdlib.resolve()),
+                   '--native-dir', str(args.native_dir.resolve()),
                    '--output-dir', str(stage), '--cc', args.cc]
         if args.verify:
             command.append('--verify')
@@ -56,6 +60,7 @@ def main():
         metadata = {'schema': 'goose-toolchain-v2', 'implementation': 'goose',
                     'compiler': str(install / 'goose'), 'compiler_sha256': report['executable_sha256'],
                     'source_sha256': report['source_sha256'], 'stdlib_sha256': report['stdlib_sha256'],
+                    'asset_sha256': report['asset_sha256'],
                     'cc': report['cc'], 'cc_sha256': report['cc_sha256'],
                     'seed_c_sha256': report['seed_c_sha256'],
                     'fixed_point': report.get('fixed_point', False)}

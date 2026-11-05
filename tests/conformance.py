@@ -153,7 +153,7 @@ def main():
                     action = 'parse'
                 elif phase == 'tokens':
                     action = 'tokens'
-                elif phase == 'type-error' or args.frontend_only:
+                elif phase in ('check', 'type-error') or args.frontend_only:
                     action = 'check'
                 if phase == 'type-error':
                     parsed = compile_case(case, source, level, 'parse')

@@ -90,7 +90,12 @@ recursive fn render_type_name(p: Program&, type_id: i64, out: u8[>..]&, depth: i
         if t.kind == TY_SLICE { out.append("[:]"); }
         else if t.array_kind == A_FIXED { out.push('['); out.format(t.count); out.push(']'); }
         else if t.array_kind == A_VAR {
-            out.push('['); if t.length_storage > 0 { out.push('u'); out.format(t.length_storage * 8); } out.push(']');
+            out.push('[');
+            if t.length_explicit {
+                if t.length_storage == 0 { out.append("varint"); }
+                else { out.push('u'); out.format(t.length_storage * 8); }
+            }
+            out.push(']');
         } else if t.array_kind == A_LIMITED { out.append("[.."); if t.count >= 0 { out.format(t.count); } out.push(']'); }
         else if t.array_kind == A_GROW { out.append("[>..]"); }
         else { out.append("[>..<]"); }
@@ -192,19 +197,15 @@ recursive fn render_function(p: Program&, cache: RenderKey[>..]&, hooks: const i
     } else if t.kind == TY_ARRAY || t.kind == TY_SLICE {
         if t.kind == TY_SLICE { const_flags = t.flags & TF_CONST; }
         let sequence = operation_name(p, token, "__goose_render_sequence");
-        var view_type = -1;
-        for candidate, id in p.types {
-            if candidate.kind == TY_SLICE && candidate.element == t.element && candidate.flags == const_flags { view_type = id; break; }
-        }
-        if view_type < 0 { view_type = add_type(p, Type { kind: TY_SLICE, element: t.element, count: -1, flags: const_flags, size: p.pointer_bytes * 2, align: p.pointer_bytes * 2, array_kind: A_SLICE }); }
         var source_value = operation_ident(p, value);
-        if t.kind == TY_SLICE && p.types[parameter_type].kind == TY_REF && (p.types[parameter_type].flags & TF_CONST) != 0 {
+        if t.kind == TY_SLICE && p.types[parameter_type].kind == TY_REF {
             let descriptor = new_node(p, N_CAST, token); p.nodes[descriptor].flags = F_SYNTHETIC | F_UNSIGNED;
             p.nodes[descriptor].left = source_value; p.nodes[descriptor].right = operation_type(p, render_reference(p, type_id), token);
             source_value = descriptor;
         }
         let snapshot = new_node(p, N_VARIABLE, sequence); p.nodes[snapshot].flags = F_SYNTHETIC;
-        p.nodes[snapshot].left = operation_type(p, view_type, token); p.nodes[snapshot].right = source_value; append_child(p, body, snapshot);
+        let view = new_node(p, N_SLICE, token); p.nodes[view].left = source_value;
+        p.nodes[snapshot].right = view; append_child(p, body, snapshot);
         let element = p.types[t.element];
         if element.kind == TY_INT && element.count == 8 && (element.flags & TF_UNSIGNED) != 0 {
             if quoted { render_escape(p, body, out, sequence, token); } else { render_raw(p, body, out, operation_ident(p, sequence), token); }

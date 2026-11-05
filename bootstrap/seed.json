@@ -2,33 +2,54 @@
   "schema": "goose-bootstrap-seed-v1",
   "language": "C11",
   "producer": "Goose-written compiler through C-only bootstrap",
-  "c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d",
-  "compressed_sha256": "440c7bc38731a9a013bc99582c9a99071550a65cc5048300672f7d11448bb594",
-  "source_bundle_sha256": "aa7c926d48021af4c338e2ca841f62ae6ee478fa8bd1c03b301f0a2bfd2cbf84",
+  "c_sha256": "c3d96198541323e5a137ca611e85cb3bd24b1f39c8012812a95cda4c4d7b0e9b",
+  "compressed_sha256": "5da5a99b3512eb795d955afc7b568b128f0b985611940a213feb0bb8e362f64a",
+  "source_bundle_sha256": "9dd96456af1b37c214c85681219284eeaf9685330c493cc5dbf4e3dc8963e53a",
   "source_sha256": {
     "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a",
     "sources.goose": "ad9a1f96ac3850ad4268795c605c3c0576ba604b9f816baa0f60db1e13de4140",
     "region_plan.goose": "c6985be85725a9be4aea5e8e39c203f0e88b803520f66ffb84ac6461986fe17b",
     "parser.goose": "8b36e4859a3e4659e858892903d8af3ad0bb9698f0faadfea45325c8da75309f",
-    "optimizer.goose": "91a7282ba020ab700a0ed034d4d931290e344fe3244eb4c9f14a991553947347",
-    "model.goose": "03e2d9481d30ec3eb032c229e72df6d91e6ec48df8e055ca9a477bfb5ebb0fa6",
+    "optimizer.goose": "53f1d9c79e513a5502ade415c79f3ad9d441b68c82dc0073b081d51bf682d78f",
+    "model.goose": "50be92752a4b70a253a64b51a63c33f0ffe5888e1781a0612b3b47b8dac00641",
     "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
     "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
-    "driver.goose": "4a41188a615d154b096c733d7459805fb24d585e6d2aea4ac154e01a3958e645",
-    "codegen_c.goose": "ccd16540922168884c3e91deb08d5277abf7860ed2aa890a544b356f89fb8fbd",
-    "codegen.goose": "3aae7e5b5347ee18544909d6c0ffbfe13a142d07c8f306c042832ab32b646a9f",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "codegen_c_storage.goose": "89764c641ac9351d6f0e46ecfba70abe7982f09d4c6263ea255a7c301246f866",
+    "codegen_c.goose": "500c1aeaebdbe5b351953f10d100207e2cb3d852c8df443bcf1978bf462b3b5b",
+    "codegen.goose": "b1f260833a5f534a1155df06f79a277faf2d6c4f415e673b824ce314e1fa4ff3",
     "checker_validation.goose": "c8b10654d7757d0542c9d48c3627897d4d063e8098c4e01dbcf13b962b58aec5",
-    "checker_rendering.goose": "7b4e82cc8931dfb726b01144dd1ba914b098bd1fde3a816db42dc3c3657496f0",
+    "checker_rendering.goose": "eb34ce6c2a888635029fd78fc2e975d63187e688b61dfc6173b387d9c1c2a4d2",
     "checker_operations.goose": "8e0935df3d292052a687e928116b4b252ad02963c8925eb60ff6f3afb74b1883",
-    "checker_lifetimes.goose": "f461d8b8667945f33339b302a885e4f7f3cac85c853462f48d397a79827592a1",
-    "checker.goose": "23d47997c4ae427074da589675f73cd92f3d19666707e81771151fb6a5ab4ebd"
+    "checker_lifetimes.goose": "0cc33a6205cca466766fe8e6e0f8a04245c7796a4402ec178b0878e5f6239d20",
+    "checker.goose": "34524b4568e0f73ac05cb750b5ad96aa61a73ac1958d02f115822a37e2545480"
+  },
+  "stdlib_sha256": {
+    "vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "7d2439e9169096485a94bd2d6a94f37684b370cfa354a864dbbf796a6a7bc73f"
   },
   "proof": {
     "fixed_point": true,
-    "parent_seed_c_sha256": "fcf32591a8f7c778fdb9f4357b3571a0e2e64165a83434b814714bfebb3f4637",
-    "stage1_c_sha256": "8fde140ff2215f0dfcc77923cff87c597b1a8244fd95d2ee709d4bf076002e19",
-    "stage2_c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d",
-    "stage3_c_sha256": "4514a74a0205bed3257a540129f21a328318772825ea5a3484164a207dce163d"
+    "parent_seed_c_sha256": "eba3c7e808153594529be869c04ba9e5efa183c32766516fa5ff9509f15a138b",
+    "stage1_c_sha256": "a026fe41ab1d0c598b7b98469dfd916c714964ef7ba1ddf26642d00cda0fa41d",
+    "stage2_c_sha256": "c3d96198541323e5a137ca611e85cb3bd24b1f39c8012812a95cda4c4d7b0e9b",
+    "stage3_c_sha256": "c3d96198541323e5a137ca611e85cb3bd24b1f39c8012812a95cda4c4d7b0e9b"
   },
-  "note": "The final two generations have identical C output. Build requires Python and a C compiler; no C++ frontend or runtime compiler fallback."
+  "note": "Final two C generations match. This seed is generated without a C++ compiler."
 }

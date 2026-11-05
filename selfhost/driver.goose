@@ -178,6 +178,7 @@ fn driver_ir(p: Program&) {
         out.append("{\"id\":"); driver_integer(out, i);
         driver_ir_field(out, "kind", n.kind); driver_ir_field(out, "token", n.token);
         driver_ir_field(out, "type_id", n.type_id); driver_ir_field(out, "symbol", n.symbol);
+        driver_ir_field(out, "coerced_type", n.coerced_type);
         driver_ir_field(out, "left", n.left); driver_ir_field(out, "right", n.right);
         driver_ir_field(out, "third", n.third); driver_ir_field(out, "first", n.first);
         driver_ir_field(out, "next", n.next); driver_ir_field(out, "aux", n.aux);

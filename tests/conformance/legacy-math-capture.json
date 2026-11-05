@@ -1,0 +1,70 @@
+{
+  "schema": "goose-legacy-observations-v1",
+  "upstream_revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+  "compiler_sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6",
+  "report_sha256": "6d00b06d0e754714cd2f1dc620875def1652990dda572707f1340d0b79887685",
+  "fixture_sha256": "74eeb9ef5a291d5da0261e3a985cf96384c4976064861dc5d4791663aa0b6e1e",
+  "method": "Retained upstream native O0 observations, checked equal to retained O2 observations. No candidate compiler generated expectations.",
+  "observations": [
+    {
+      "name": "O0/math_intrinsics/native/0",
+      "stdin": "2.5 0\n",
+      "stdout": "1.5811388300841898 1.5811388300841898 2.0 3.0 2.0 2.5 2.5\n1.5811388 1.5811388 2.0 3.0 2.0 2.5 2.5\n0.4 0.4\n64 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/1",
+      "stdin": "-2.5 1\n",
+      "stdout": "nan nan -3.0 -2.0 -2.0 2.5 2.5\nnan nan -3.0 -2.0 -2.0 2.5 2.5\n0.4 0.4\n63 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/2",
+      "stdin": "0 -1\n",
+      "stdout": "0.0 0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n0 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/3",
+      "stdin": "-0.0 -9223372036854775808\n",
+      "stdout": "-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 0.0\n-inf inf\n0 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/4",
+      "stdin": "nan 256\n",
+      "stdout": "nan nan nan nan nan nan nan\nnan nan nan nan nan nan nan\nnan nan\n55 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/5",
+      "stdin": "inf 65536\n",
+      "stdout": "inf inf inf inf inf inf inf\ninf inf inf inf inf inf inf\n0.0 0.0\n47 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/6",
+      "stdin": "-inf 2147483647\n",
+      "stdout": "nan nan -inf -inf -inf inf inf\nnan nan -inf -inf -inf inf inf\n0.0 0.0\n33 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/7",
+      "stdin": "1.401298464324817e-45 3\n",
+      "stdout": "3.743392130574644e-23 3.743392130574644e-23 0.0 1.0 0.0 1.401298464324817e-45 1.401298464324817e-45\n3.743392e-23 3.743392e-23 0.0 1.0 0.0 1e-45 1e-45\n7.1362384635298e+44 7.1362384635298e+44\n62 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/8",
+      "stdin": "5e-324 127\n",
+      "stdout": "2.2227587494850775e-162 2.2227587494850775e-162 0.0 1.0 0.0 5e-324 5e-324\n0.0 0.0 0.0 0.0 0.0 0.0 0.0\ninf inf\n57 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    },
+    {
+      "name": "O0/math_intrinsics/native/9",
+      "stdin": "3.4028234663852886e38 9223372036854775807\n",
+      "stdout": "1.844674352395373e+19 1.844674352395373e+19 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38 3.4028234663852886e+38\n1.8446743e+19 1.8446743e+19 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38 3.4028235e+38\n2.938736052218037e-39 2.938736052218037e-39\n1 104\n",
+      "sha256": "3d523fd1b205d1212b7994325712a42b7138dda93b54123d8642275706d5cba0"
+    }
+  ]
+}
