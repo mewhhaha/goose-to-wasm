@@ -1091,7 +1091,7 @@ recursive fn cc_block(p: Program&, f: CcBody&, node: i64, destination: i64 = -1)
     cc_text(f.out, "{\n");
     while child >= 0 {
         let kind = p.nodes[child].kind; let statement_mark = f.region_live;
-        let terminates = kind == N_RETURN || kind == N_BREAK || kind == N_CONTINUE;
+        let terminates = cc_diverges(p, child);
         if !terminates && p.nodes[child].next < 0 && (p.nodes[child].flags & F_TAIL) != 0 && result >= 0 {
             let destination = cc_temporary_ref(f, result); let value = cc_construct_into(p, f, child, n.type_id, destination, cc_value_form(p, n.type_id));
             if value < 0 { cc_fail(p, child, "c: block result has no value"); }

@@ -1,0 +1,119 @@
+{
+  "schema": "goose-compiler-qualification-v1",
+  "snapshot": "39",
+  "complete": false,
+  "bootstrap_status": "passed",
+  "bootstrap_c_sha256": "b840947e3a0b12bdf43f34ed4c7dbaa5a89daaf4f7f43d530703c1aa627e9e0c",
+  "source_sha256": {
+    "checker.goose": "c2340e4208a1fbcc52a8c0bda32b77f3fbc45914dd0b8129d6b5031bfc3e5ad5",
+    "checker_lifetimes.goose": "8f5ffd821aa1857ea319620633a4b46e43652dead999cfb36f2876af29105efb",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_rendering.goose": "a389a9416ae458c44a275d47dcb4d8a5debdb493a68cdccb896e17e5ce321ac2",
+    "checker_validation.goose": "955307fc78c549ffc9c5fb5b36c3a780dc0a37bc39313c9420b961622d119a12",
+    "codegen.goose": "d52c2430721cbb64025ce6239b3edc5c4a401d2f334744f84d4fc4adbedb35fa",
+    "codegen_c.goose": "f840dc3b316c076bb0121f8f51bb8438218d3c10f81c2a000ebfaecd11632c9a",
+    "codegen_c_images.goose": "22d8e69400282c20ee668d61e8a6e24a813033660609bf659332426d3dc71d18",
+    "codegen_c_storage.goose": "4cb22ab028b2390abbd8eb6a9a6dc526b90171560d9469cc37258feb44e55c5f",
+    "codegen_c_threads.goose": "698c1d3ac2495541499c241a4d6e97d6a69cd70f490c66b78372fa09d40d8470",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "model.goose": "1d7bd3f5961a7c31a80b6871afe2941a466c02cddd8c49f525fc73b5b5a3b75b",
+    "optimizer.goose": "adb9821476d8318659c19f8995270a528ae38666322dc8ac0e7fb66686ce1b3c",
+    "parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "sources.goose": "55df17c30952b28a4e8bc38d11e0ecd4353eb47a48fc6fc27454229b5354c37b",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "14551b8a2907c6d12cf4ead3e636d0ffd4bf9a0f8a6b8d37f8b7093941086fb6",
+    "native/relative.h": "b6685302f66ad9b0feb8982736363dcfe12bc50b4aa034eb10297e11c7859416",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/images.h": "bd3a72dbcb7681c414e182250b39b42a2ec06e2c1cc5687d3579387524f4a7d1",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "compiler_sha256": "252a3bd12fc0cec06b151a5756380dd9f083ffe1a0fa0ea4d52e2b5c6bf23421",
+  "fixed_point_scope": "Consecutive C generations match; the parent seed is verified snapshot38.",
+  "contracts": {
+    "selected": 5043,
+    "passed": 4782,
+    "failed": 261
+  },
+  "curated_v8": {
+    "selected": 1952,
+    "passed": 1952,
+    "failed": 0
+  },
+  "native_thread_checks": 52,
+  "existing_contract_gains": 10,
+  "existing_contract_regressions": 0,
+  "new_contract_rows": 0,
+  "new_contract_failures": 0,
+  "remaining_failure_phases": {
+    "type-error": 47,
+    "run": 214
+  },
+  "remaining_failure_groups": {
+    "upstream/errors_tc": 47,
+    "upstream/syntax": 10,
+    "upstream/typing": 44,
+    "upstream/lifetimes": 38,
+    "upstream/storage": 18,
+    "upstream/optimizer": 6,
+    "upstream/codegen": 70,
+    "upstream/stdlib": 20,
+    "upstream/runtime": 8
+  },
+  "gains": [
+    [
+      "upstream/lifetimes/shrink_rules",
+      2
+    ],
+    [
+      "upstream/codegen/named_result_destinations",
+      0
+    ],
+    [
+      "upstream/codegen/named_result_destinations",
+      2
+    ],
+    [
+      "upstream/typing/never_returns",
+      0
+    ],
+    [
+      "upstream/typing/never_returns",
+      2
+    ],
+    [
+      "upstream/typing/unreachable_statements",
+      0
+    ],
+    [
+      "upstream/typing/unreachable_statements",
+      2
+    ],
+    [
+      "upstream/typing/never_returns_arguments",
+      0
+    ],
+    [
+      "upstream/typing/never_returns_arguments",
+      2
+    ],
+    [
+      "upstream/stdlib/stdlib_dictionary",
+      2
+    ]
+  ],
+  "scope": [
+    "returned own-local aggregate construction with checked ownership metadata",
+    "nonlocal target contexts in ordinary and dispatched specializations",
+    "native lowering of divergent tail expressions"
+  ]
+}

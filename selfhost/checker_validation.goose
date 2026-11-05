@@ -71,6 +71,7 @@ fn validation_fresh_local(p: Program&, expression: i64, owner: i64) -> bool {
 }
 fn validation_control_value(p: Program&, expression: i64, owner: i64) {
     if expression < 0 || owner < 0 || (p.nodes[owner].flags & F_REFERENCE_CONTEXT) != 0 { return; }
+    if p.nodes[expression].kind == N_NAME && (p.nodes[expression].flags & F_RETURN_MOVE) != 0 { return; }
     if validation_storage_value(p, expression) && !validation_fresh_local(p, expression, owner) {
         diagnose(p, p.nodes[expression].token, "non-fixed storage requires explicit copy in a control-flow value");
     }
