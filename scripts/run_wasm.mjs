@@ -198,7 +198,11 @@ export async function runModule(bytes, input = "") {
   let error = "";
   try {
     const result = await WebAssembly.instantiate(bytes, imports);
-    instance = result.instance;
+    if (bytes instanceof WebAssembly.Module) {
+      instance = result;
+    } else {
+      instance = result.instance;
+    }
     if (typeof instance.exports.__set_stack_limits === "function") {
       instance.exports.emscripten_stack_init();
       instance.exports.__set_stack_limits(

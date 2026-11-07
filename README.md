@@ -4,13 +4,13 @@ A [Goose](https://github.com/aardappel/goose) compiler written entirely in Goose
 
 ## Benchmarks
 
-**Langbench Mandelbrot · 2026-11-07.** On the official single-thread input, median timed computation for the same Goose port was 2.50 s native, 37.96 s in Wasmtime and 54.78 s in V8. The local trial also compares upstream Goose native and C. [Results and method](bench/results/2026-11-07/langbench-trial/README.md)
+**Langbench Mandelbrot · 2026-11-07.** On the official single-thread input, median timed computation for the same Goose port was 2.42 s native, 35.21 s in resident Wasmtime and 42.54 s in resident V8. [Results and method](bench/results/2026-11-07/langbench-hot/README.md) The execution clock runs after preparation and warmup, excluding compilation, startup, instantiation and I/O.
 
-![Langbench Mandelbrot timed computation](bench/charts/langbench-runtime.svg)
+![Langbench Mandelbrot resident computation](bench/charts/langbench-hot-runtime.svg)
 
 ![Langbench Mandelbrot workload build times](bench/charts/langbench-compilation.svg)
 
-The upstream C workload includes thread setup and a row queue; the Goose port is scalar. V8 uses default tiering; this is not warmed throughput. This shared-host trial covers one workload, not the standard Docker campaign; small differences are inconclusive.
+The build chart uses five samples from the separately collected [original trial](bench/results/2026-11-07/langbench-trial/README.md). C includes thread setup and a row queue; the Goose port is scalar. This shared-host trial covers one workload; small differences are inconclusive.
 
 **2026-11-07 · AMD Ryzen 7 3800X pinned to CPU 7 · lower is better.** Five-sample medians for ten examples using snapshot 56. Cold direct Wasm builds took 50.9–137.2 ms; native C builds took 263.6–1853.6 ms. [Results and method](bench/results/2026-11-07/lifetime-containment-index/README.md)
 

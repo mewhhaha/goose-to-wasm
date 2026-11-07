@@ -1,0 +1,200 @@
+{
+  "schema": "goose-langbench-hot-metrics-v1",
+  "profiles": {
+    "small": {
+      "c-gcc": {
+        "runtime_ms": 76.752879,
+        "runtime_mad_ms": 0.095272,
+        "request_or_process_ms": 77.88817800610559
+      },
+      "c-clang": {
+        "runtime_ms": 82.703844,
+        "runtime_mad_ms": 0.032292,
+        "request_or_process_ms": 83.83658599632327
+      },
+      "upstream-goose-native": {
+        "runtime_ms": 76.68555,
+        "runtime_mad_ms": 0.074331,
+        "request_or_process_ms": 78.05583500157809
+      },
+      "goose-native": {
+        "runtime_ms": 78.34246,
+        "runtime_mad_ms": 0.077588,
+        "request_or_process_ms": 79.77997399575543
+      },
+      "goose-wasm-wasmtime": {
+        "runtime_ms": 1128.967387,
+        "runtime_mad_ms": 0.129716,
+        "request_or_process_ms": 1129.9751630067476
+      },
+      "goose-wasm-v8": {
+        "runtime_ms": 1365.78265,
+        "runtime_mad_ms": 2.381967,
+        "request_or_process_ms": 1366.4143010028056
+      }
+    },
+    "medium": {
+      "c-gcc": {
+        "runtime_ms": 601.257146,
+        "runtime_mad_ms": 1.231821,
+        "request_or_process_ms": 602.591812996252
+      },
+      "c-clang": {
+        "runtime_ms": 648.98029,
+        "runtime_mad_ms": 3.624612,
+        "request_or_process_ms": 650.0901100007468
+      },
+      "upstream-goose-native": {
+        "runtime_ms": 601.970982,
+        "runtime_mad_ms": 0.717625,
+        "request_or_process_ms": 603.2326510030543
+      },
+      "goose-native": {
+        "runtime_ms": 603.918477,
+        "runtime_mad_ms": 0.307607,
+        "request_or_process_ms": 605.4970180048258
+      },
+      "goose-wasm-wasmtime": {
+        "runtime_ms": 8802.9889,
+        "runtime_mad_ms": 17.71467,
+        "request_or_process_ms": 8804.001616001187
+      },
+      "goose-wasm-v8": {
+        "runtime_ms": 10653.631608,
+        "runtime_mad_ms": 37.27229,
+        "request_or_process_ms": 10654.115778997948
+      }
+    },
+    "official": {
+      "c-gcc": {
+        "runtime_ms": 2417.138184,
+        "runtime_mad_ms": 6.769505,
+        "request_or_process_ms": 2418.4989019995555
+      },
+      "c-clang": {
+        "runtime_ms": 2603.749254,
+        "runtime_mad_ms": 10.135558,
+        "request_or_process_ms": 2605.0613690022146
+      },
+      "upstream-goose-native": {
+        "runtime_ms": 2418.620261,
+        "runtime_mad_ms": 2.366998,
+        "request_or_process_ms": 2419.8962379959994
+      },
+      "goose-native": {
+        "runtime_ms": 2421.765407,
+        "runtime_mad_ms": 8.137848,
+        "request_or_process_ms": 2423.299693997251
+      },
+      "goose-wasm-wasmtime": {
+        "runtime_ms": 35206.451496,
+        "runtime_mad_ms": 31.739257,
+        "request_or_process_ms": 35207.46061499813
+      },
+      "goose-wasm-v8": {
+        "runtime_ms": 42542.66738,
+        "runtime_mad_ms": 89.195567,
+        "request_or_process_ms": 42543.17052599799
+      }
+    }
+  },
+  "paired_official_over_upstream_native": {
+    "c-gcc": {
+      "n": 7,
+      "median": 0.9992618537065903,
+      "mad": 0.001911088108253134,
+      "min": 0.9851229257419031,
+      "max": 1.0085648666540465,
+      "samples": [
+        0.9992921968327039,
+        0.9992618537065903,
+        1.0057945173633795,
+        1.0085648666540465,
+        0.9984539277491908,
+        0.9973507655983371,
+        0.9851229257419031
+      ]
+    },
+    "c-clang": {
+      "n": 7,
+      "median": 1.077053417605518,
+      "mad": 0.00791078144737889,
+      "min": 1.0644509515743135,
+      "max": 1.0887563809005016,
+      "samples": [
+        1.0774981105756671,
+        1.0644509515743135,
+        1.0887563809005016,
+        1.0775978221617408,
+        1.069142636158139,
+        1.077053417605518,
+        1.0660718654497199
+      ]
+    },
+    "upstream-goose-native": {
+      "n": 7,
+      "median": 1.0,
+      "mad": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "samples": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "goose-native": {
+      "n": 7,
+      "median": 0.9975664085864115,
+      "mad": 0.0007120795567689964,
+      "min": 0.9915084751517262,
+      "max": 1.0095536711128281,
+      "samples": [
+        1.004017059655162,
+        0.9968543290296425,
+        0.9975664085864115,
+        1.0095536711128281,
+        0.9971953566139725,
+        0.9979357230729823,
+        0.9915084751517262
+      ]
+    },
+    "goose-wasm-wasmtime": {
+      "n": 7,
+      "median": 14.570679338592164,
+      "mad": 0.01960129080468498,
+      "min": 14.4757914079807,
+      "max": 14.78197716450669,
+      "samples": [
+        14.583865802262377,
+        14.4757914079807,
+        14.78197716450669,
+        14.570679338592164,
+        14.55107804778748,
+        14.537194829196876,
+        14.575566389523594
+      ]
+    },
+    "goose-wasm-v8": {
+      "n": 7,
+      "median": 17.60038764227074,
+      "mad": 0.09239000045427304,
+      "min": 17.329589429973442,
+      "max": 17.88920981329217,
+      "samples": [
+        17.60038764227074,
+        17.507997641816466,
+        17.88920981329217,
+        17.772942488520915,
+        17.64349014908907,
+        17.565040711448834,
+        17.329589429973442
+      ]
+    }
+  },
+  "reference_report_sha256": "2ddd9806b63ecc140d0127b3e0dc2d4882376f558cf78675b97dc910ab697c16"
+}

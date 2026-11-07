@@ -1,26 +1,31 @@
 # Langbench Mandelbrot trial
 
-This local, single-thread trial adapts one workload from [langbench](https://github.com/leroyguillaume/langbench), pinned at `f00181bd514606b140bf76ac461694a438c88270`. It is not the standard Docker campaign. The profiles use 512×512 pixels and 500 iterations, 1024×1024 and 1000, and the official 2048×2048 and 1000; the official checksum is `1038538536`.
+This local, single-thread trial adapts one workload from [langbench](https://github.com/leroyguillaume/langbench), pinned at `f00181bd514606b140bf76ac461694a438c88270`. It is not the standard Docker campaign. Profiles use 512×512 pixels and 500 iterations, 1024×1024 and 1000, and the official 2048×2048 and 1000; the official checksum is `1038538536`.
 
-The unchanged upstream C workload is built with GCC and Clang. The same Goose port is compiled to native C by this compiler and by upstream Goose `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, then built with GCC; this compiler also emits Wasm for V8 and Wasmtime. The C reference uses `-std=c11 -O3 -march=x86-64-v3 -ffp-contract=off -fno-fast-math`; generated Goose C adds `-fno-strict-aliasing`. Goose `-O2` sets frontend optimization, not the downstream C optimization level.
+The upstream C workload is built with GCC and Clang. The same Goose port is compiled to native C by this compiler and upstream Goose `2e2bedef5b980bf013cac5aaa0095bfea64e5569`, then built with GCC; this compiler also emits Wasm for V8 and Wasmtime. The C reference uses `-std=c11 -O3 -march=x86-64-v3 -ffp-contract=off -fno-fast-math`; generated Goose C adds `-fno-strict-aliasing`. Goose `-O2` sets frontend optimization, not downstream C optimization.
 
-All runs use one thread and validate their checksum. The C program includes a pthread spawn and join and an atomic row queue inside the timed region; the scalar Goose port has neither. Comparisons within the Goose group have the closest source match; C comparisons also reflect the port difference.
+All runs validate their checksum. C includes a pthread spawn and join and an atomic row queue inside the timed region; the scalar Goose port has neither. Comparisons within the Goose group have the closest source match; C comparisons also reflect the port difference.
 
-Each fresh process computes once between monotonic clocks, excluding input, output, and startup. V8 may tier during that computation, so this is not warmed throughput. Process launch through exit is also measured; subtracting kernel time from process time does not isolate startup. Inputs arrive through C arguments or Goose stdin outside the timed region.
+## Resident execution
 
-The recorded trial uses five uncached workload builds per artifact and seven runtime samples per cell and profile, plus one discarded whole-process warmup. Build and run order are shuffled. Build times exclude constructing the compilers and toolchains; filesystem caches remain enabled. Results were collected on CPU 7 of a Ryzen 7 3800X with sibling CPU 15 and the schedutil governor on a shared host. Background load and frequency changes limit interpretation of small gaps. Exact commands, identities, checksums, samples, and observed host state are in the [dated report](../results/2026-11-07/langbench-trial/report.json).
+The recommended [resident trial](../results/2026-11-07/langbench-hot/README.md) reuses the artifacts from the [original trial](../results/2026-11-07/langbench-trial/README.md). Wasmtime deserializes a locally compiled, verified module once into a persistent Python engine; each request gets a fresh store, instance and imports. A persistent Node process constructs one V8 module, warms its functions with default tiering, and creates a fresh instance per request. Native controls use fresh processes and their internal clocks. After one full-kernel warmup per profile, seven measurements per cell and profile are interleaved.
+
+The source-level computation timer excludes engine compilation, startup, instantiation, input, output and IPC. Request wall time is recorded separately and is not process launch through exit for resident engines. The original fresh-process computation timer also excluded preparation, so differences between trials cannot be attributed simply to charging startup. V8's default tiering does not guarantee that an active long-running call switches to optimized code. The separately collected original build timings remain the compilation reference; the resident trial does not rebuild workloads.
 
 ## Reproduce
 
-Install GCC, Clang, Python, Node and the Python Wasmtime bindings, and build this project's compiler and standard library. Build upstream Goose from the pinned revision and point to its compiler and matching `stdlib`. The recorded clean build recipe and compiler identity are preserved with the dated results. From the repository root, on a machine where CPU 7 is available:
+Install Python, Node and the Python Wasmtime bindings. In a fresh checkout, restore the original trial's cached artifacts without overwriting source files, then run the resident trial from the repository root:
 
 ```sh
-source build/performance-env.sh
-python3 bench/langbench.py \
-  --upstream-goose build/langbench-native/goose \
-  --upstream-stdlib build/langbench-goose-source/stdlib \
-  --cpu 7 --samples 7 --compile-samples 5 \
-  --output-dir build/langbench-repeat
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt -r bench/requirements.txt
+tar -xzf bench/results/2026-11-07/langbench-trial/reproduction.tar.gz \
+  build/langbench-trial-2026-11-07/builds
+python3 bench/langbench_hot.py \
+  --reference-report bench/results/2026-11-07/langbench-trial/report.json \
+  --artifacts-dir build/langbench-trial-2026-11-07/builds \
+  --output-dir build/langbench-hot-repeat --cpu 7 --samples 7
 ```
 
-Choose an unused output directory and an available CPU for another machine. The report marks failed builds or checksums; use only qualified rows for comparisons.
+Artifacts and runtime identities are machine-specific; on another environment, build a new qualified original reference and point `--reference-report` and `--artifacts-dir` at it instead of assuming the archived native code or Python hash is portable. Choose an available CPU and unused output directory. The reports mark failed checks; use only qualified rows for comparisons. Shared-host load, SMT contention and CPU frequency can affect small differences.

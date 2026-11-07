@@ -8,6 +8,7 @@ The computational kernels execute entirely in compiled WebAssembly.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -68,9 +69,74 @@ class ProgramExit(Exception):
         self.code = code
 
 
-def run_module(data: bytes, stdin: str, *, timing: bool = True) -> dict:
+def create_config():
     import wasmtime
 
+    config = wasmtime.Config()
+    config.cranelift_opt_level = "speed"
+    config.wasm_memory64 = True
+    config.wasm_tail_call = True
+    config.wasm_exceptions = True
+    config.wasm_simd = True
+    config.wasm_bulk_memory = True
+    config.wasm_multi_value = True
+    config.wasm_threads = False
+    config.wasm_relaxed_simd = False
+    return config
+
+
+def create_engine(config=None):
+    import wasmtime
+
+    if config is None:
+        config = create_config()
+    return wasmtime.Engine(config)
+
+
+class PreparedModule:
+    def __init__(self, engine, module, source_sha256, serialized_sha256, preparation):
+        self.engine = engine
+        self.module = module
+        self.source_sha256 = source_sha256
+        self.serialized_sha256 = serialized_sha256
+        self.preparation = preparation
+
+
+def prepare_module(data: bytes, artifact: Path) -> PreparedModule:
+    """Compile and deserialize only our own just-written trusted local artifact."""
+    import wasmtime
+
+    started = time.perf_counter_ns()
+    engine = create_engine()
+    engine_ready = time.perf_counter_ns()
+    compiled = wasmtime.Module(engine, data)
+    compiled_at = time.perf_counter_ns()
+    serialized = bytes(compiled.serialize())
+    serialized_at = time.perf_counter_ns()
+    with artifact.open("xb") as stream:
+        stream.write(serialized)
+    digest = hashlib.sha256(serialized).hexdigest()
+    local = artifact.read_bytes()
+    if hashlib.sha256(local).hexdigest() != digest:
+        raise ValueError("just-written trusted Wasmtime artifact changed")
+    read_at = time.perf_counter_ns()
+    module = wasmtime.Module.deserialize(engine, local)
+    finished = time.perf_counter_ns()
+    return PreparedModule(engine, module, hashlib.sha256(data).hexdigest(), digest,
+                          {"engine_creation_ns": engine_ready - started,
+                           "module_compile_ns": compiled_at - engine_ready,
+                           "serialize_ns": serialized_at - compiled_at,
+                           "write_read_verify_ns": read_at - serialized_at,
+                           "deserialize_ns": finished - read_at,
+                           "total_ns": finished - started, "module_compile_count": 1,
+                           "module_deserialize_count": 1, "serialized_path": str(artifact)})
+
+
+def run_module(data: bytes, stdin: str, *, timing: bool = True, prepared: PreparedModule | None = None) -> dict:
+    import wasmtime
+
+    if prepared is not None and hashlib.sha256(data).hexdigest() != prepared.source_sha256:
+        raise ValueError("prepared module does not match source bytes")
     tokens = iter(stdin.split())
     chunks: list[bytes] = []
     errors: list[bytes] = []
@@ -211,24 +277,25 @@ def run_module(data: bytes, stdin: str, *, timing: bool = True) -> dict:
         ("wasi_snapshot_preview1", "fd_close"): (lambda fd: 0 if fd in (0, 1, 2) else 8, False),
         ("wasi_snapshot_preview1", "fd_seek"): (lambda fd, _offset, _whence, _out: 70 if fd in (0, 1, 2) else 8, False),
     }
-    config = wasmtime.Config()
-    config.cranelift_opt_level = "speed"
-    config.wasm_memory64 = True
-    config.wasm_tail_call = True
-    config.wasm_exceptions = True
-    config.wasm_simd = True
-    config.wasm_bulk_memory = True
-    config.wasm_multi_value = True
-    config.wasm_threads = False
-    config.wasm_relaxed_simd = False
+    config = None
+    if prepared is None:
+        config = create_config()
     started = time.perf_counter_ns()
     instantiated = started
     exit_code = 0
     error = ""
+    store = None
+    linker = None
     try:
-        engine = wasmtime.Engine(config)
+        if prepared is None:
+            engine = create_engine(config)
+        else:
+            engine = prepared.engine
         store = wasmtime.Store(engine)
-        module = wasmtime.Module(engine, data)
+        if prepared is None:
+            module = wasmtime.Module(engine, data)
+        else:
+            module = prepared.module
         linker = wasmtime.Linker(engine)
         defined = set()
         for imported in module.imports:
@@ -255,6 +322,11 @@ def run_module(data: bytes, stdin: str, *, timing: bool = True) -> dict:
         exit_code = 1
         error = str(failure)
     ended = time.perf_counter_ns()
+    if prepared is not None:
+        if linker is not None:
+            linker.close()
+        if store is not None:
+            store.close()
     result = {
         "stdout": b"".join(chunks), "stderr": b"".join(errors).decode(errors="replace") + error, "exit_code": exit_code,
     }

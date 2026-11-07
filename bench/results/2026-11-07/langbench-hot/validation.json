@@ -1,0 +1,25 @@
+{
+  "schema": "goose-langbench-hot-validation-v1",
+  "status": "passed",
+  "compiler_snapshot": 56,
+  "compiler_changed": false,
+  "new_workload_builds": 0,
+  "successful_runtime_observations": 144,
+  "measured_runtime_observations": 126,
+  "discarded_warmup_observations": 18,
+  "qualified_cells": 18,
+  "tests": {
+    "prepared_execution": 8,
+    "legacy_python_host": 3,
+    "cold_harness": 9
+  },
+  "wasmtime_processes": 1,
+  "wasmtime_module_compiles": 1,
+  "wasmtime_deserializations": 1,
+  "v8_processes": 1,
+  "v8_module_constructions": 1,
+  "v8_tier_verified": false,
+  "capsule_files": 35,
+  "capsule_bytes": 275981,
+  "capsule_sha256": "c303e3a115869ac7de81f6404329d4410e88be6cd253742915c6c13f6dce6cdb"
+}
