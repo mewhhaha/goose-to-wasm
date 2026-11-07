@@ -59509,6 +59509,886 @@
       },
       "provenance": "exact source copied from pinned main46 upstream archive; unchanged independent official stdout",
       "source_sha256": "67a43fbd9ef30748d2d652ed0a49bf5e5a23a150a4f9920a6fb9c482096b2fc0"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_target_mutual_cycle/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_target_mutual_cycle.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4242\n",
+        "exit": 0
+      },
+      "provenance": "NeedOnPath exact same target across delayed mutual recursion"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_target_mutual_cycle/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_target_mutual_cycle.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4242\n",
+        "exit": 0
+      },
+      "provenance": "NeedOnPath exact same target across delayed mutual recursion"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_target_recursive_activation/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_target_recursive_activation.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "429\n",
+        "exit": 0
+      },
+      "provenance": "Innermost repeated activation is the same specialization, so no blanket cycle rejection"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_target_recursive_activation/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_target_recursive_activation.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "429\n",
+        "exit": 0
+      },
+      "provenance": "Innermost repeated activation is the same specialization, so no blanket cycle rejection"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/ordinary_recursion_no_needs/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/ordinary_recursion_no_needs.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "10\n",
+        "exit": 0
+      },
+      "provenance": "Ordinary recursion has empty needs and remains valid"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/ordinary_recursion_no_needs/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/ordinary_recursion_no_needs.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "10\n",
+        "exit": 0
+      },
+      "provenance": "Ordinary recursion has empty needs and remains valid"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/fresh_generic_targets/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/fresh_generic_targets.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "77\n",
+        "exit": 0
+      },
+      "provenance": "Finished helper target mismatch must create a fresh specialization, independent of first use order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/fresh_generic_targets/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/fresh_generic_targets.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "77\n",
+        "exit": 0
+      },
+      "provenance": "Finished helper target mismatch must create a fresh specialization, independent of first use order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/fresh_generic_targets_reverse/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/fresh_generic_targets_reverse.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "77\n",
+        "exit": 0
+      },
+      "provenance": "Finished helper target mismatch must create a fresh specialization, independent of first use order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/fresh_generic_targets_reverse/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/fresh_generic_targets_reverse.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "77\n",
+        "exit": 0
+      },
+      "provenance": "Finished helper target mismatch must create a fresh specialization, independent of first use order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/recursive_changed_target_late_need/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/recursive_changed_target_late_need.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Active walk reuse must retain its exact target specialization; discovery order cannot legalize it"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/recursive_changed_target_late_need/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/recursive_changed_target_late_need.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Active walk reuse must retain its exact target specialization; discovery order cannot legalize it"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/recursive_changed_target_early_need/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/recursive_changed_target_early_need.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Active walk reuse must retain its exact target specialization; discovery order cannot legalize it"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/recursive_changed_target_early_need/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/recursive_changed_target_early_need.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Active walk reuse must retain its exact target specialization; discovery order cannot legalize it"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/cached_target_missing_later/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/cached_target_missing_later.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "ValidateNeeds rejects cached entry without any active target after original target exits"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/cached_target_missing_later/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/cached_target_missing_later.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "ValidateNeeds rejects cached entry without any active target after original target exits"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/target_missing_first/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/target_missing_first.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Missing enclosing target also rejects when illegal call is first"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/target_missing_first/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/target_missing_first.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Missing enclosing target also rejects when illegal call is first"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/unrelated_outer_target/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/unrelated_outer_target.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2121\n",
+        "exit": 0
+      },
+      "provenance": "Need propagates through intervening named functions while binding exact unrelated outer declaration"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/unrelated_outer_target/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/unrelated_outer_target.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2121\n",
+        "exit": 0
+      },
+      "provenance": "Need propagates through intervening named functions while binding exact unrelated outer declaration"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/two_target_obligations/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/two_target_obligations.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11\n0\n22\n",
+        "exit": 0
+      },
+      "provenance": "Distinct exact target obligations coexist; AddNeed set is not a single target slot"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/two_target_obligations/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/two_target_obligations.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11\n0\n22\n",
+        "exit": 0
+      },
+      "provenance": "Distinct exact target obligations coexist; AddNeed set is not a single target slot"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/funval_return_target_own_frame/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/funval_return_target_own_frame.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1717\n",
+        "exit": 0
+      },
+      "provenance": "Function value is unnamed on path, so cannot shadow explicit target declaration"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/funval_return_target_own_frame/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/funval_return_target_own_frame.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1717\n",
+        "exit": 0
+      },
+      "provenance": "Function value is unnamed on path, so cannot shadow explicit target declaration"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/funval_plain_lexical_return/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/funval_plain_lexical_return.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1919\n",
+        "exit": 0
+      },
+      "provenance": "Plain FV return has lexical target and still contributes exact nonlocal obligations"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/funval_plain_lexical_return/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/funval_plain_lexical_return.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1919\n",
+        "exit": 0
+      },
+      "provenance": "Plain FV return has lexical target and still contributes exact nonlocal obligations"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/funval_starts_recursive_target/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/funval_starts_recursive_target.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6\n",
+        "exit": 0
+      },
+      "provenance": "FV runs in caller search spec: AddNeed(s==target) is inert; recursive visit may target search on both calls"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/funval_starts_recursive_target/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/funval_starts_recursive_target.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6\n",
+        "exit": 0
+      },
+      "provenance": "FV runs in caller search spec: AddNeed(s==target) is inert; recursive visit may target search on both calls"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/original_return_from_cached_specialization/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/original_return_from_cached_specialization.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Unchanged original negative; primary NeedOnPath exact-specialization violation"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/original_return_from_cached_specialization/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/original_return_from_cached_specialization.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Unchanged original negative; primary NeedOnPath exact-specialization violation"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/original_return_from_recursive_specialization/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/original_return_from_recursive_specialization.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Unchanged original negative; primary NeedOnPath exact-specialization violation"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/original_return_from_recursive_specialization/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/original_return_from_recursive_specialization.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Unchanged original negative; primary NeedOnPath exact-specialization violation"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/diamond_same_target/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/diamond_same_target.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": "AddNeed2506 terminates through cached diamond with same exact enclosing specialization"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/diamond_same_target/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/diamond_same_target.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": "AddNeed2506 terminates through cached diamond with same exact enclosing specialization"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/diamond_changed_target_left/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/diamond_changed_target_left.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "NeedOnPath2481 validates earlier cached diamond edges independently of first route order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/diamond_changed_target_left/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/diamond_changed_target_left.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "NeedOnPath2481 validates earlier cached diamond edges independently of first route order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/diamond_changed_target_right/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/diamond_changed_target_right.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "NeedOnPath2481 validates earlier cached diamond edges independently of first route order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/diamond_changed_target_right/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/diamond_changed_target_right.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "NeedOnPath2481 validates earlier cached diamond edges independently of first route order"
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_leaf_different_declarations/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_leaf_different_declarations.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "17 23\n",
+        "exit": 0
+      },
+      "provenance": "NeedOnPath uses exact declaration identity, not shared target leaf name",
+      "dependencies": [
+        "tests/fixtures/contracts/nonlocal-targets/a.goose",
+        "tests/fixtures/contracts/nonlocal-targets/b_valid.goose"
+      ]
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_leaf_different_declarations/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_leaf_different_declarations.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "17 23\n",
+        "exit": 0
+      },
+      "provenance": "NeedOnPath uses exact declaration identity, not shared target leaf name",
+      "dependencies": [
+        "tests/fixtures/contracts/nonlocal-targets/a.goose",
+        "tests/fixtures/contracts/nonlocal-targets/b_valid.goose"
+      ]
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_leaf_cannot_supply_missing_target/native",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_leaf_cannot_supply_missing_target.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "NeedOnPath requires the needed declaration; an unrelated same-leaf target cannot satisfy cached obligation",
+      "dependencies": [
+        "tests/fixtures/contracts/nonlocal-targets/a.goose",
+        "tests/fixtures/contracts/nonlocal-targets/b_invalid.goose"
+      ]
+    },
+    {
+      "id": "corpus/contracts/nonlocal-targets/same_leaf_cannot_supply_missing_target/wasm-direct",
+      "source": "tests/fixtures/contracts/nonlocal-targets/same_leaf_cannot_supply_missing_target.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "NeedOnPath requires the needed declaration; an unrelated same-leaf target cannot satisfy cached obligation",
+      "dependencies": [
+        "tests/fixtures/contracts/nonlocal-targets/a.goose",
+        "tests/fixtures/contracts/nonlocal-targets/b_invalid.goose"
+      ]
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_if/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_if.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11 22\n",
+        "exit": 0
+      },
+      "provenance": "All-return IF must emit both branches without allocating a result"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_if/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_if.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11 22\n",
+        "exit": 0
+      },
+      "provenance": "All-return IF must emit both branches without allocating a result"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_match_tuple/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_match_tuple.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 true 9 false\n",
+        "exit": 0
+      },
+      "provenance": "Tuple exits flow to caller return channel, no MATCH result allocation"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_match_tuple/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_match_tuple.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 true 9 false\n",
+        "exit": 0
+      },
+      "provenance": "Tuple exits flow to caller return channel, no MATCH result allocation"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_assignment/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_assignment.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "Assignment RHS all-return construct executes exits and never writes destination"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_assignment/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_assignment.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "Assignment RHS all-return construct executes exits and never writes destination"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_nonlocal_condition/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_nonlocal_condition.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 6 2\n",
+        "exit": 0
+      },
+      "provenance": "No-value control flow still evaluates condition once and emits exact nonlocal exits"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_nonlocal_condition/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_nonlocal_condition.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 6 2\n",
+        "exit": 0
+      },
+      "provenance": "No-value control flow still evaluates condition once and emits exact nonlocal exits"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_nonfixed/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_nonfixed.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "left right\n",
+        "exit": 0
+      },
+      "provenance": "Resizable return constructs in caller receiving channel; no phantom IF result"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/all_return_nonfixed/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/all_return_nonfixed.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "left right\n",
+        "exit": 0
+      },
+      "provenance": "Resizable return constructs in caller receiving channel; no phantom IF result"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/single_live_result/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/single_live_result.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11 22 33 44\n",
+        "exit": 0
+      },
+      "provenance": "Mixed diverging/value branches still allocate and deliver their live result"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/single_live_result/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/single_live_result.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11 22 33 44\n",
+        "exit": 0
+      },
+      "provenance": "Mixed diverging/value branches still allocate and deliver their live result"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/false_guard_exit/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/false_guard_exit.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 8 2\n",
+        "exit": 0
+      },
+      "provenance": "Guard desugaring preserves false branch, effect count and return routing"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/false_guard_exit/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/false_guard_exit.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 8 2\n",
+        "exit": 0
+      },
+      "provenance": "Guard desugaring preserves false branch, effect count and return routing"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/reachable_missing_result/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/reachable_missing_result.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Reachable valueless path remains invalid; never globally suppress unknown checked type"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/reachable_missing_result/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/reachable_missing_result.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Reachable valueless path remains invalid; never globally suppress unknown checked type"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/compound_positive/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/positive.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "10 20\n30 40\n1 2 3 4\n50 60\n5 6 7 8\n70 81 90 101\n11 12 13 14\n12\n",
+        "exit": 0
+      },
+      "provenance": "Source-authored divergent/live-result/tuple/effect/typed-void control; preserve reachable conversion diagnostics"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/compound_positive/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/positive.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "10 20\n30 40\n1 2 3 4\n50 60\n5 6 7 8\n70 81 90 101\n11 12 13 14\n12\n",
+        "exit": 0
+      },
+      "provenance": "Source-authored divergent/live-result/tuple/effect/typed-void control; preserve reachable conversion diagnostics"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/compound_negative/native",
+      "source": "tests/fixtures/contracts/divergent-native-results/negative.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Source-authored divergent/live-result/tuple/effect/typed-void control; preserve reachable conversion diagnostics"
+    },
+    {
+      "id": "corpus/contracts/divergent-native-results/compound_negative/wasm-direct",
+      "source": "tests/fixtures/contracts/divergent-native-results/negative.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Source-authored divergent/live-result/tuple/effect/typed-void control; preserve reachable conversion diagnostics"
     }
   ],
   "legacy_math_capture": {

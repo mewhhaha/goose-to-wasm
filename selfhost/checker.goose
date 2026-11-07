@@ -25,6 +25,9 @@ struct CheckEnvironment {
 struct CheckRoot { value: i64, root: i64, kind: i64 = 0, next: i64 = -1 }
 struct CheckEffect { function_node: i64, root: i64, kind: i64 }
 struct CheckReturnRoot { function_node: i64, index: i64, root: i64, kind: i64 = 0 }
+struct CheckNeed { function_node: i64, target: i64 }
+struct CheckNeedFrame { function_node: i64, parent: i64 }
+struct CheckNeedEdge { function_node: i64, token: i64, path: i64 }
 struct CheckSpecialization { original: i64, symbol: i64, binding_start: i64, binding_count: i64 }
 struct CheckFlow { symbol: i64, assigned: bool, maybeassigned: bool, narrowed: i64 = -1 }
 struct CheckFlowCursor { frame: i64, index: i64, active: bool = false }
@@ -46,6 +49,7 @@ struct Checker {
     clone_syntax: bool = false, syntax_body: i64 = -1, syntax_function: i64 = -1, optional_globals: bool = false,
     return_roots: CheckReturnRoot[>..]&,
     specializations: CheckSpecialization[>..]&, bindings: TypeBinding[>..]&,
+    needs: CheckNeed[>..]&, need_frames: CheckNeedFrame[>..]&, need_edges: CheckNeedEdge[>..]&, need_path: i64 = -1,
     contextual_floats: CheckContextFloat[>..]&, contextual_lookup: i64[>..]&,
     checking: i64[>..]&, loop_stack: CheckLoop[>..]&,
     integer_work: CheckInteger[>..]&, binding_work: TypeBinding[>..]&, flow_work: CheckFlow[>..]&, flow_cursors: CheckFlowCursor[>..]&, exit_work: CheckExit[>..]&, interval_work: CheckInterval[>..]&, render_cache: RenderKey[>..]&, render_hooks: i64[>..]&,
@@ -54,7 +58,7 @@ struct Checker {
     parameter_default_contexts: CheckDefaultCapture[>..]&,
     logical_kills: CheckLogicalKill[>..]&,
     parameter_default_function: i64 = -1, parameter_default_floor: i64 = -1,
-    returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {}, context_keys: CheckList = CheckList {},
+    returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {},
 }
 
 fn check_push_loop(c: Checker&, value: CheckLoop) {
@@ -3473,9 +3477,72 @@ fn check_function_reached(p: Program&, c: Checker&, function_node: i64, token: i
     return true;
 }
 
+fn check_need_active(c: Checker&, function_node: i64) -> bool {
+    for index in 0..c.checking_count { if c.checking[index] == function_node { return true; } }
+    return false;
+}
+fn check_need_target(p: Program&, c: Checker&, target: i64, path: i64) -> i64 {
+    let declaration = check_function_declaration(p, target); var cursor = path;
+    while cursor >= 0 {
+        let frame = c.need_frames[cursor];
+        if p.nodes[frame.function_node].kind == N_FUNCTION && check_function_declaration(p, frame.function_node) == declaration { return cursor; }
+        cursor = frame.parent;
+    }
+    return -1;
+}
+fn check_need_context(p: Program&, c: Checker&, function_node: i64) -> bool {
+    for need in c.needs {
+        if need.function_node != function_node { continue; }
+        let found = check_need_target(p, c, need.target, c.need_path);
+        if found >= 0 && c.need_frames[found].function_node != need.target { return false; }
+    }
+    return true;
+}
+fn check_need_error(p: Program&, c: Checker&, function_node: i64, target: i64, token: i64, path: i64, found: i64) {
+    var message: u8[>..] = [];
+    if found < 0 { message.format("call requires an enclosing nonlocal return target"); }
+    else { message.format("recursive call changes the enclosing specialization of a long-distance return"); }
+    message.format(" [callee#", function_node, " target#", target, " innermost#", found, " path");
+    var cursor = path;
+    while cursor >= 0 { let frame = c.need_frames[cursor]; message.format(" ", frame.function_node); cursor = frame.parent; }
+    message.format("]"); diagnose(p, token, message);
+}
+recursive fn check_need_on_path(p: Program&, c: Checker&, function_node: i64, target: i64, token: i64, path: i64) {
+    let found = check_need_target(p, c, target, path);
+    if found < 0 { check_need_error(p, c, function_node, target, token, path, -1); return; }
+    if c.need_frames[found].function_node != target { check_need_error(p, c, function_node, target, token, path, c.need_frames[found].function_node); return; }
+    var cursor = path;
+    while cursor != found {
+        let frame = c.need_frames[cursor]; check_add_need(p, c, frame.function_node, target); cursor = frame.parent;
+    }
+}
+recursive fn check_add_need(p: Program&, c: Checker&, function_node: i64, target: i64) {
+    if function_node < 0 || function_node == target { return; }
+    for need in c.needs { if need.function_node == function_node && need.target == target { return; } }
+    c.needs.push(CheckNeed { function_node: function_node, target: target });
+    let end = c.need_edges.len;
+    for index in 0..end {
+        let edge = c.need_edges[index];
+        if edge.function_node == function_node { check_need_on_path(p, c, function_node, target, edge.token, edge.path); }
+    }
+}
+fn check_reuse_needs(p: Program&, c: Checker&, function_node: i64, token: i64) -> bool {
+    if !check_need_context(p, c, function_node) && !check_need_active(c, function_node) { return false; }
+    c.need_edges.push(CheckNeedEdge { function_node: function_node, token: token, path: c.need_path });
+    let end = c.needs.len;
+    for index in 0..end {
+        let need = c.needs[index];
+        if need.function_node == function_node { check_need_on_path(p, c, function_node, need.target, token, c.need_path); }
+    }
+    return true;
+}
+
 recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, bindings: CheckList&, token: i64) -> i64 {
     if !check_function_reached(p, c, original, token) { return -1; }
-    if bindings.count == 0 && check_environment_same(p, c, original, token) { return p.nodes[original].symbol; }
+    if bindings.count == 0 && check_environment_same(p, c, original, token) {
+        if (p.nodes[original].flags & F_CHECKED) == 0 && !check_need_active(c, original) { return p.nodes[original].symbol; }
+        if check_reuse_needs(p, c, original, token) { return p.nodes[original].symbol; }
+    }
     for spec in c.specializations {
         if spec.original != original || spec.binding_count != bindings.count { continue; }
         var equal = true;
@@ -3483,7 +3550,7 @@ recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, 
             let old = c.bindings[spec.binding_start + i];
             if old.parameter != b.parameter || !check_binding_same(p, old.value, b.value) { equal = false; }
         }
-        if equal && check_environment_same(p, c, p.symbols[spec.symbol].node, token) { return spec.symbol; }
+        if equal && check_environment_same(p, c, p.symbols[spec.symbol].node, token) && check_reuse_needs(p, c, p.symbols[spec.symbol].node, token) { return spec.symbol; }
     }
     var same_declaration = 0;
     for active_index in 0..c.checking_count { let active = c.checking[active_index]; if active == original || p.nodes[active].origin == original { same_declaration += 1; } }
@@ -3592,70 +3659,6 @@ fn check_function_declaration(p: Program&, function_node: i64) -> i64 {
     var declaration = function_node;
     while declaration >= 0 && p.nodes[declaration].origin >= 0 { declaration = p.nodes[declaration].origin; }
     return declaration;
-}
-
-recursive fn check_effect_targets(p: Program&, c: Checker&, function_node: i64, targets: CheckList&, visited: CheckList&) {
-    for index in 0..visited.count { if check_list_at(c, visited, index) == function_node { return; } }
-    check_list_push(c, visited, function_node);
-    var own_targets = CheckList {};
-    check_effect_target_nodes(p, c, p.nodes[function_node].right, function_node, own_targets, visited);
-    for index in 0..own_targets.count { let target = check_list_at(c, own_targets, index); if target != check_function_declaration(p, function_node) { check_list_push(c, targets, target); } }
-}
-recursive fn check_effect_target_nodes(p: Program&, c: Checker&, node: i64, function_node: i64, targets: CheckList&, visited: CheckList&) {
-    if node < 0 { return; }
-    let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { return; }
-    if n.kind == N_RETURN && n.symbol >= 0 && n.symbol != p.nodes[function_node].symbol {
-        let target = p.symbols[n.symbol].node;
-        if target >= 0 { check_list_push(c, targets, check_function_declaration(p, target)); }
-    }
-    if n.kind == N_CALL && n.symbol >= 0 {
-        let target = p.symbols[n.symbol].node;
-        if target >= 0 && (p.nodes[target].flags & F_NONLOCAL) != 0 { check_effect_targets(p, c, target, targets, visited); }
-        if (n.flags & F_DISPATCH) != 0 {
-            var arm = n.third;
-            while arm >= 0 { let symbol = p.nodes[arm].symbol; if symbol >= 0 && p.symbols[symbol].node >= 0 { check_effect_targets(p, c, p.symbols[symbol].node, targets, visited); } arm = p.nodes[arm].next; }
-        }
-    }
-    var child = n.first;
-    while child >= 0 { check_effect_target_nodes(p, c, child, function_node, targets, visited); child = p.nodes[child].next; }
-    check_effect_target_nodes(p, c, n.left, function_node, targets, visited); check_effect_target_nodes(p, c, n.right, function_node, targets, visited);
-    if n.kind != N_CALL { check_effect_target_nodes(p, c, n.third, function_node, targets, visited); }
-}
-fn check_bind_effect_context(p: Program&, c: Checker&, function_node: i64, bindings: CheckList&, token: i64) {
-    if (p.nodes[function_node].flags & F_NONLOCAL) == 0 { return; }
-    var checked = function_node;
-    if (p.nodes[checked].flags & F_CHECKED) == 0 {
-        checked = -1;
-        for spec in c.specializations {
-            if spec.original != function_node { continue; }
-            let candidate = p.symbols[spec.symbol].node;
-            if (p.nodes[candidate].flags & F_CHECKED) == 0 { continue; }
-            var matches = true;
-            for index in 0..bindings.count {
-                let binding = check_binding_at(c, bindings, index); var found = false;
-                for at in 0..spec.binding_count {
-                    let previous = c.bindings[spec.binding_start + at];
-                    if previous.parameter == binding.parameter && check_binding_same(p, previous.value, binding.value) { found = true; break; }
-                }
-                if !found { matches = false; break; }
-            }
-            if matches { checked = candidate; break; }
-        }
-        if checked < 0 { return; }
-    }
-    var targets = CheckList {}; var visited = CheckList {};
-    check_effect_targets(p, c, checked, targets, visited);
-    for index in 0..targets.count {
-        let target = check_list_at(c, targets, index); var active = -1; var cursor = c.checking_count - 1;
-        while cursor >= 0 { let candidate = c.checking[cursor]; if check_function_declaration(p, candidate) == target { active = candidate; break; } cursor -= 1; }
-        if active < 0 { diagnose(p, token, "nonlocal return target is not active at this call"); continue; }
-        var key = -1; var keys = c.context_keys;
-        for key_index in 0..keys.count { let candidate = check_list_at(c, keys, key_index); if p.nodes[candidate].origin == function_node && p.nodes[candidate].integer == target { key = candidate; break; } }
-        if key < 0 { key = new_node(p, N_TYPE_PARAM, -1); p.nodes[key].origin = function_node; p.nodes[key].integer = target; check_list_push(c, c.context_keys, key); }
-        let marker = check_type(p, TY_GENERIC, -1, 0, active, 0);
-        check_bind_generic(p, c, key, marker, bindings);
-    }
 }
 
 // Borrowing matching storage is an exact call match. Conversion and AST
@@ -3903,7 +3906,6 @@ recursive fn check_narrow_context_float(p: Program&, c: Checker&, node: i64) -> 
     let key = check_context_float(c, node);
     if key < 0 || p.nodes[node].kind != N_CALL { return false; }
     let context = c.contextual_floats[key]; var bindings = context.bindings;
-    check_bind_effect_context(p, c, context.original, bindings, p.nodes[node].token);
     let symbol = check_specialize_function(p, c, context.original, bindings, p.nodes[node].token);
     if symbol < 0 { return false; }
     let function_node = p.symbols[symbol].node;
@@ -4067,7 +4069,6 @@ recursive fn check_try_dispatch(p: Program&, c: Checker&, node: i64, expected: i
             binding = p.nodes[binding].next;
         }
         let original = p.symbols[p.nodes[arm].symbol].node;
-        check_bind_effect_context(p, c, original, bindings, call.token);
         let symbol = check_specialize_function(p, c, original, bindings, call.token);
         if symbol < 0 { return -1; }
         let function_node = p.symbols[symbol].node; check_function(p, c, function_node);
@@ -4267,7 +4268,6 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     if p.nodes[original].kind == N_FUNCTION_VALUE && p.nodes[original].left < 0 && check_numeric(expected) {
         check_bind_generic(p, c, original, expected, best_bindings);
     }
-    check_bind_effect_context(p, c, original, best_bindings, n.token);
     best = check_specialize_function(p, c, original, best_bindings, n.token);
     if best < 0 { return -1; }
     let function_node = p.symbols[best].node;
@@ -5571,7 +5571,11 @@ recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
         if target != c.function_node { p.nodes[c.function_node].flags |= F_NONLOCAL; }
     }
     let symbol = p.nodes[target].symbol; p.nodes[node].symbol = symbol;
-    if target != c.function_node { p.nodes[node].flags |= F_NONLOCAL; }
+    if target != c.function_node {
+        p.nodes[node].flags |= F_NONLOCAL;
+        var index = c.checking_count - 1;
+        while index >= 0 && c.checking[index] != target { check_add_need(p, c, c.checking[index], target); index -= 1; }
+    }
     var expected = c.result_type;
     if target != c.function_node { expected = p.types[p.nodes[target].type_id].element; }
     var expected_part = -1;
@@ -5957,6 +5961,8 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     if n.kind == N_FUNCTION && (n.flags & F_DEFAULT) == 0 { c.default_fields = CheckList {}; }
     c.scope = n.scope; c.function_node = function_node; c.result_type = p.types[n.type_id].element;
     c.next_slot = check_list_count(p, n.first); c.reachable = true; c.returns = false;
+    let saved_need_path = c.need_path; c.need_path = c.need_frames.len;
+    c.need_frames.push(CheckNeedFrame { function_node: function_node, parent: saved_need_path });
     check_push_function(c, function_node);
     var body_node = n.right; check_expression(p, c, body_node, c.result_type);
     var recursive_path = false; var backedges = c.backedges;
@@ -6024,7 +6030,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     if c.result_type >= 0 && p.types[c.result_type].kind == TY_ARRAY && p.types[c.result_type].element < 0 { diagnose(p, n.token, "cannot infer a result element type from an empty array"); }
     p.types[n.type_id].element = c.result_type;
     p.nodes[function_node].flags |= F_CHECKED;
-    c.checking_count -= 1;
+    c.checking_count -= 1; c.need_path = saved_need_path;
     check_flow_restore(c, entry_flow);
     c.scope = saved_scope; c.function_node = saved_function; c.result_type = saved_result;
     c.next_slot = saved_slot; c.reachable = saved_reachable; c.returns = saved_returns; c.default_fields = saved_defaults; c.returning = saved_returning;
@@ -6398,6 +6404,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_effects: CheckEffect[>..] = [];
     var checker_return_roots: CheckReturnRoot[>..] = [];
     var checker_specializations: CheckSpecialization[>..] = [];
+    var checker_needs: CheckNeed[>..] = []; var checker_need_frames: CheckNeedFrame[>..] = []; var checker_need_edges: CheckNeedEdge[>..] = [];
     var checker_contextual_floats: CheckContextFloat[>..] = []; var checker_contextual_lookup: i64[>..] = [];
     var checker_bindings: TypeBinding[>..] = [];
     var checker_checking: i64[>..] = [];
@@ -6410,7 +6417,7 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
     var parameter_default_contexts: CheckDefaultCapture[>..] = [];
     var logical_kills: CheckLogicalKill[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     var source_id = p.first_decl_source;
     while source_id >= 0 {

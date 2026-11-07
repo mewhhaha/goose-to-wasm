@@ -2464,7 +2464,9 @@ recursive fn cc_match(p: Program&, f: CcBody&, node: i64) -> i64 {
         if cc_image_type(p, pointee) { scrutinee.form = CC_IMAGE; }
     }
     let place = scrutinee.address; let source = cc_read(p, f, scrutinee, source_type, node);
-    let result = cc_result_temp(p, f, node, n.type_id); let done = f.serial; f.serial++;
+    var result = -1;
+    if n.type_id >= 0 || !cc_diverges(p, node) { result = cc_result_temp(p, f, node, n.type_id); }
+    let done = f.serial; f.serial++;
     let enum_match = cc_kind(p, source_type) == TY_ENUM;
     var arm = n.first;
     while arm >= 0 {
@@ -2613,7 +2615,8 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
         let result = cc_temp(p, f, n.type_id); cc_set(f, result); cc_text(f.out, "(GSlice){g_element("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, array); cc_text(f.out, ","); cc_id(f.out, "g_v", low); cc_text(f.out, ",1),"); cc_id(f.out, "g_v", high); cc_text(f.out, "-"); cc_id(f.out, "g_v", low); cc_text(f.out, "};\n"); return result;
     }
     if n.kind == N_IF {
-        let condition = cc_truth(p, f, n.left); let result = cc_result_temp(p, f, node, n.type_id);
+        let condition = cc_truth(p, f, n.left); var result = -1;
+        if n.type_id >= 0 || !cc_diverges(p, node) { result = cc_result_temp(p, f, node, n.type_id); }
         cc_text(f.out, "if("); cc_id(f.out, "g_v", condition); cc_text(f.out, "){\n");
         if result >= 0 {
             let destination = cc_temporary_ref(f, result); cc_construct_into(p, f, n.right, n.type_id, destination, cc_value_form(p, n.type_id));

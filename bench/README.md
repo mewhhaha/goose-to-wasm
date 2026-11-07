@@ -92,9 +92,9 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 47 results
+## Snapshot 48 results
 
-The [dated example results](results/2026-11-07/pending-elements-and-payloads/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. The native column uses this compiler's C backend. Snapshot 46 was measured separately; these runs do not establish a matched runtime improvement.
+The [dated example results](results/2026-11-07/exact-nonlocal-targets/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. The native column uses this compiler's C backend. Sorting's Wasm module is unchanged from snapshot 47; minimal AOT samples ranged 162.2–181.0 ms. Snapshot 47 was measured separately; no matched runtime improvement is established.
 
 ## Example programs
 
