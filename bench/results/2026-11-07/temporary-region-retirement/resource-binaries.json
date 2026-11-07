@@ -1,0 +1,4656 @@
+[
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/2/program.wasm",
+    "sha256": "91a41794eb8414db4c24ec114f24de4e9dad4bba6d2057789bde8491d43a5d67",
+    "bytes": 10239,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43248
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1312
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43248,
+    "stack_limit": 44576,
+    "initial_live_regions": 0,
+    "case": "outer-owner-and-view/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/3/program.wasm",
+    "sha256": "01ba4ab82818dd8e668459c564e7e5b938e1b451c62948feecd028b91900cb62",
+    "bytes": 17311,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43248
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1312
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43248,
+    "stack_limit": 44576,
+    "initial_live_regions": 0,
+    "case": "outer-owner-and-view/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/6/program.wasm",
+    "sha256": "a65c891f625e979035bd4fc644b78a7b88a1fa9f3bb86282f823449a186efb48",
+    "bytes": 10608,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43256
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1276
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43256,
+    "stack_limit": 44560,
+    "initial_live_regions": 0,
+    "case": "foreach-head-nested-temporaries/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/7/program.wasm",
+    "sha256": "4974c0503a008eafb514276183d3518e5ee4a49c250c372376eeed9ebb793070",
+    "bytes": 17690,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43256
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1276
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43256,
+    "stack_limit": 44560,
+    "initial_live_regions": 0,
+    "case": "foreach-head-nested-temporaries/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/10/program.wasm",
+    "sha256": "5495f55dd13f42926aa1e7b3bf449018b926f81852d38e85c8393a6e18210929",
+    "bytes": 19978,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1424
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 32408
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 3
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1400
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 3,
+    "region_bytes": 32408,
+    "stack_limit": 33848,
+    "initial_live_regions": 1,
+    "case": "caller-and-global-receivers/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/11/program.wasm",
+    "sha256": "bd4d7dd6fb0402029f2fc10dbc2e533448522f43ce78cbac000fd10bbf5956bb",
+    "bytes": 34163,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1424
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 32408
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 3
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1400
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 3,
+    "region_bytes": 32408,
+    "stack_limit": 33848,
+    "initial_live_regions": 1,
+    "case": "caller-and-global-receivers/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/14/program.wasm",
+    "sha256": "008268adaad3b094c796005d8d07667b086e5926b2851e6143e698afdd5503c8",
+    "bytes": 23596,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1312
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43248
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1292
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43248,
+    "stack_limit": 44576,
+    "initial_live_regions": 0,
+    "case": "break-and-return-results/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/15/program.wasm",
+    "sha256": "bc391dd700c9553225d98b15bcebd4865f3afee6e320c90671fe3512c60e973b",
+    "bytes": 62511,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1312
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43248
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1292
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43248,
+    "stack_limit": 44576,
+    "initial_live_regions": 0,
+    "case": "break-and-return-results/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/18/program.wasm",
+    "sha256": "24251fd534a629d396895a4289cfc480eea83397d712f79489c1e4d5f29b1b7c",
+    "bytes": 10854,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64888
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1292
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64888,
+    "stack_limit": 66184,
+    "initial_live_regions": 0,
+    "case": "continue-and-break/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/19/program.wasm",
+    "sha256": "3f7a7af90528ec28e7c99815957da1f3a23ba43327f061f12f2b05d6d8c5179a",
+    "bytes": 17937,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64888
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1292
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64888,
+    "stack_limit": 66184,
+    "initial_live_regions": 0,
+    "case": "continue-and-break/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/22/program.wasm",
+    "sha256": "c296eb9b4600c410c70ff7ea3cafbc3d0b6f5c4e9cdfc4f65d95749e9bc06812",
+    "bytes": 17274,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1360
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43232
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1352
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43232,
+    "stack_limit": 44608,
+    "initial_live_regions": 0,
+    "case": "nonlocal-return-receiver/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/23/program.wasm",
+    "sha256": "3842f85fc1b164740c12ca77986bcc0148f135ca216a6cf4aa56bca611520337",
+    "bytes": 35878,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1360
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43232
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1352
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43232,
+    "stack_limit": 44608,
+    "initial_live_regions": 0,
+    "case": "nonlocal-return-receiver/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/26/program.wasm",
+    "sha256": "c942e99f45ef731eb835d0fdce1e1fa4580718c404965e908a9140487e036933",
+    "bytes": 15285,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43256
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1276
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43256,
+    "stack_limit": 44560,
+    "initial_live_regions": 0,
+    "case": "multichannel-receivers/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/27/program.wasm",
+    "sha256": "933dc55ac39190c1ab6e3a6aabf876e42e7cb41ea754458167cad4f006a011c2",
+    "bytes": 21601,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43256
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1276
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44560
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43256,
+    "stack_limit": 44560,
+    "initial_live_regions": 0,
+    "case": "multichannel-receivers/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/30/program.wasm",
+    "sha256": "aa51dd1198e028936f7b0f512851a0b7c789cda55932b72c1118132a23abd9b9",
+    "bytes": 9091,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "exact-reference-binder/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/31/program.wasm",
+    "sha256": "48b690d9ff01a342808ad2832958e8fd8bb7df358a18ad32195cc8450a195ff0",
+    "bytes": 12522,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "exact-reference-binder/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/34/program.wasm",
+    "sha256": "f7bcaa0cffe5b10de18662163042c332b96766899b09f19d39346d02e359827c",
+    "bytes": 9095,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "exact-value-binder/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/35/program.wasm",
+    "sha256": "d3014548af94297a7fe73180386d5b64e05c63f0c0998ee2bf36c389842cf970",
+    "bytes": 12526,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "exact-value-binder/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/38/program.wasm",
+    "sha256": "d2ba168085410abc8671bf3467602a10c738b6866ee58d48c304683bfb20723d",
+    "bytes": 9089,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "one-iteration/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/39/program.wasm",
+    "sha256": "0dafecd77ca18e5663a8ad0f3795ed5aaa681dcab4b5da59fcb03a9ed452eb0e",
+    "bytes": 12520,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "one-iteration/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/50/program.wasm",
+    "sha256": "66f62e4be393276f200e26f1df8adef8269839026c74c7abf824ca7f97cdc16c",
+    "bytes": 9947,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "global-initializer-demand/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/51/program.wasm",
+    "sha256": "ca5b134ab5b343f370d59de4b60aac8eef85fe9355814212c44d6be6f4b993f0",
+    "bytes": 13388,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64872
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1320
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66200
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64872,
+    "stack_limit": 66200,
+    "initial_live_regions": 0,
+    "case": "global-initializer-demand/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/54/program.wasm",
+    "sha256": "800614b59eb5553c0ddfbf1051aa21232c7d1bf0283d77a2a228bc04bbe40198",
+    "bytes": 1025,
+    "memories": [
+      {
+        "minimum_pages": 16,
+        "maximum_pages": 256
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1096
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 8388608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "dead-type-only-demand/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/55/program.wasm",
+    "sha256": "800614b59eb5553c0ddfbf1051aa21232c7d1bf0283d77a2a228bc04bbe40198",
+    "bytes": 1025,
+    "memories": [
+      {
+        "minimum_pages": 16,
+        "maximum_pages": 256
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1096
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 8388608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "dead-type-only-demand/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/58/program.wasm",
+    "sha256": "1866acf58cca38d3ab8989fd4e0ef06cab1666262fdfec469463f4f64c44d9a7",
+    "bytes": 11822,
+    "memories": [
+      {
+        "minimum_pages": 16,
+        "maximum_pages": 256
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1232
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 8388608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "unsupported-fallback/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/59/program.wasm",
+    "sha256": "7a5a9b02fb20dedb7616d74cbaf82e66c07ec98db98880f42e8732f098f8044e",
+    "bytes": 15424,
+    "memories": [
+      {
+        "minimum_pages": 16,
+        "maximum_pages": 256
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1232
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 8388608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "unsupported-fallback/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/62/program.wasm",
+    "sha256": "469b9143053f06e17f3c18727508aeff5bdcafdfec8c6531bf6a5d88651e5440",
+    "bytes": 1345,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1144
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 65536
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "constant-fill-no-owner/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/63/program.wasm",
+    "sha256": "469b9143053f06e17f3c18727508aeff5bdcafdfec8c6531bf6a5d88651e5440",
+    "bytes": 1345,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1144
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 65536
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "constant-fill-no-owner/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/66/program.wasm",
+    "sha256": "ae3b9f4dd4bca68dd14ac7bc2478d6ebe5c9dca54c67476d2de656f9bcb91e7f",
+    "bytes": 2932,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64888
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1288
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64888,
+    "stack_limit": 66184,
+    "initial_live_regions": 0,
+    "case": "live-memory-limit-constant/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/67/program.wasm",
+    "sha256": "ae3b9f4dd4bca68dd14ac7bc2478d6ebe5c9dca54c67476d2de656f9bcb91e7f",
+    "bytes": 2932,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1296
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64888
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1288
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66184
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64888,
+    "stack_limit": 66184,
+    "initial_live_regions": 0,
+    "case": "live-memory-limit-constant/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/70/program.wasm",
+    "sha256": "a50ee6beb13ab3148e3259d7cc073ee67c31fb1b9b386eb2bc2fee44b77e7371",
+    "bytes": 10770,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1344
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66208
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66208
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64864
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66208
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64864,
+    "stack_limit": 66208,
+    "initial_live_regions": 0,
+    "case": "global-two-scalars/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/71/program.wasm",
+    "sha256": "9e35bc7ff42c6d11c3493f727e4d8f01e7a4701de9090b0dae195be46aed5202",
+    "bytes": 14211,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1344
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66208
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66208
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64864
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66208
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64864,
+    "stack_limit": 66208,
+    "initial_live_regions": 0,
+    "case": "global-two-scalars/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/74/program.wasm",
+    "sha256": "6dc521126523d152b3bf38b8d4cb637fd7155829e310aefd136e4673f8eeca78",
+    "bytes": 39556,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1584
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66328
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66328
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64744
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1568
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66328
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64744,
+    "stack_limit": 66328,
+    "initial_live_regions": 0,
+    "case": "global-many-scalars/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/75/program.wasm",
+    "sha256": "b4beac6fe23bc8348c21649b23435b095a7368b3c46c62c47c9e5dd5b4455d20",
+    "bytes": 42997,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1584
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66328
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66328
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64744
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1568
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66328
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64744,
+    "stack_limit": 66328,
+    "initial_live_regions": 0,
+    "case": "global-many-scalars/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/78/program.wasm",
+    "sha256": "ca3ffe6ebb1577eb8e99f79bfb4a48e8c39ca2cb115e05ce85fcfcd4aa10ebe7",
+    "bytes": 18849,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1488
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43192
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1472
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43192,
+    "stack_limit": 44688,
+    "initial_live_regions": 1,
+    "case": "global-owner-view/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/79/program.wasm",
+    "sha256": "057d314dfbdfa05e358e7de279da9984ae55f9780029340f98883f0a16cd1730",
+    "bytes": 25196,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1488
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43192
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1472
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43192,
+    "stack_limit": 44688,
+    "initial_live_regions": 1,
+    "case": "global-owner-view/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/82/program.wasm",
+    "sha256": "391c9c8be74c8214b60c66896bda045ed49f90560b4448684d6d9a02fffd67f6",
+    "bytes": 44813,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1616
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66344
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66344
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64728
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1604
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66344
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64728,
+    "stack_limit": 66344,
+    "initial_live_regions": 0,
+    "case": "global-many-large-main/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/83/program.wasm",
+    "sha256": "02b8cc16eaedd7f719efca38dc0d5fddd0e33e5cdc7080180902ada14f46e7a4",
+    "bytes": 47903,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1616
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66344
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66344
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 64728
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1604
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 66344
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 1,
+    "region_bytes": 64728,
+    "stack_limit": 66344,
+    "initial_live_regions": 0,
+    "case": "global-many-large-main/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/86/program.wasm",
+    "sha256": "62343c0e197d8dc677ca882e35f96eca340f25efb9da6971ac7db87bcfd79bdb",
+    "bytes": 18910,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1488
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43192
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1472
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43192,
+    "stack_limit": 44688,
+    "initial_live_regions": 1,
+    "case": "global-initializer-publication/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/87/program.wasm",
+    "sha256": "68bc4c52eab6bc507001a084a6953057342c15368aba4882b493fc447f496360",
+    "bytes": 28763,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1488
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43192
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1472
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44688
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43192,
+    "stack_limit": 44688,
+    "initial_live_regions": 1,
+    "case": "global-initializer-publication/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/90/program.wasm",
+    "sha256": "756f62e5c11415d1c6b5b283aa732de6d8125b6dc28f8a8c666c248fc7953821",
+    "bytes": 26394,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1392
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44624
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44624
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43224
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1372
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44624
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43224,
+    "stack_limit": 44624,
+    "initial_live_regions": 0,
+    "case": "forwarded-nonlocal-tuple/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/91/program.wasm",
+    "sha256": "48a04b0c7480b705333f12b72298a7e292e8f5ad8b095c6823469384268bb6d4",
+    "bytes": 61962,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1392
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44624
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44624
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43224
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1372
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44624
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43224,
+    "stack_limit": 44624,
+    "initial_live_regions": 0,
+    "case": "forwarded-nonlocal-tuple/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/94/program.wasm",
+    "sha256": "28a160eb17d99c6e60471cd5476fa8c641ef7c1c31b87bc1494e76b7e1366754",
+    "bytes": 1220,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1096
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 65536
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "dead-statement-demand/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/95/program.wasm",
+    "sha256": "923f3d17210a4d3cf40631b1f61278428087cd66d1a9c2ebb13aec5b3fc30100",
+    "bytes": 1233,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1096
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 65536
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 5,
+    "memory_mode": "fallback",
+    "case": "dead-statement-demand/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/98/program.wasm",
+    "sha256": "9ee877e2ccd43dc3682b75769601a037d886dcd61aeb0abc57abcbb6abc4ccd7",
+    "bytes": 3932,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43248
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1308
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43248,
+    "stack_limit": 44576,
+    "initial_live_regions": 0,
+    "case": "builtin-str-demand/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/99/program.wasm",
+    "sha256": "9ee877e2ccd43dc3682b75769601a037d886dcd61aeb0abc57abcbb6abc4ccd7",
+    "bytes": 3932,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43248
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1308
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43248,
+    "stack_limit": 44576,
+    "initial_live_regions": 0,
+    "case": "builtin-str-demand/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/102/program.wasm",
+    "sha256": "173d0da307322b13a72b748540ec3618bd99c7116f20378f1f42fab6417be83e",
+    "bytes": 5542,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1376
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43232
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1360
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43232,
+    "stack_limit": 44608,
+    "initial_live_regions": 0,
+    "case": "builtin-to-bytes-demand/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/103/program.wasm",
+    "sha256": "173d0da307322b13a72b748540ec3618bd99c7116f20378f1f42fab6417be83e",
+    "bytes": 5542,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1376
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43232
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1360
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43232,
+    "stack_limit": 44608,
+    "initial_live_regions": 0,
+    "case": "builtin-to-bytes-demand/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/106/program.wasm",
+    "sha256": "cd82ea16dced0292fce993afeee38af1bc4915b597085ff5efcd1c7e68eebbf6",
+    "bytes": 7462,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1360
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43232
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1344
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43232,
+    "stack_limit": 44608,
+    "initial_live_regions": 0,
+    "case": "discarded-tuple-before-recursion/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/107/program.wasm",
+    "sha256": "cd82ea16dced0292fce993afeee38af1bc4915b597085ff5efcd1c7e68eebbf6",
+    "bytes": 7462,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1360
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43232
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1344
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44608
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43232,
+    "stack_limit": 44608,
+    "initial_live_regions": 0,
+    "case": "discarded-tuple-before-recursion/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/110/program.wasm",
+    "sha256": "b0a1962f50c4ab105f44aa2f7347ae50e0b2c8ca1b1eb9a82bf435e52318ceb2",
+    "bytes": 19058,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1424
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 32408
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 3
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1400
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 33848
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 3,
+    "region_bytes": 32408,
+    "stack_limit": 33848,
+    "initial_live_regions": 1,
+    "case": "discarded-tuple-argument-order-and-view/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/111/program.wasm",
+    "sha256": "0d68dd4fffd5ae5b816bd2c7126f342160e14fac63db96176f02d6028ffe633e",
+    "bytes": 30694,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1424
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 23032
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 23032
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 21608
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 5
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1400
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 23032
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 5,
+    "region_bytes": 21608,
+    "stack_limit": 23032,
+    "initial_live_regions": 1,
+    "case": "discarded-tuple-argument-order-and-view/wasm-direct",
+    "level": 2
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/122/program.wasm",
+    "sha256": "ad1a98d9abaa7deef957b29bdb37f0a9e304cf4c081203926d468864d18bd81d",
+    "bytes": 9461,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 43248
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 2
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1308
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 44576
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 2,
+    "region_bytes": 43248,
+    "stack_limit": 44576,
+    "initial_live_regions": 0,
+    "case": "original-anonymous-multiple/wasm-direct",
+    "level": 0
+  },
+  {
+    "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/temporary-retirement-54-v4/candidate-wasmtime/artifacts/123/program.wasm",
+    "sha256": "d98fe21e491c499edef316018f88f6de8dab3ba5ffccc9398fc12ef921cb8890",
+    "bytes": 18324,
+    "memories": [
+      {
+        "minimum_pages": 1,
+        "maximum_pages": 2
+      }
+    ],
+    "globals": [
+      {
+        "index": 0,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1328
+      },
+      {
+        "index": 1,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 27296
+      },
+      {
+        "index": 2,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 3,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 4,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 5,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      },
+      {
+        "index": 6,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 27296
+      },
+      {
+        "index": 7,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 25944
+      },
+      {
+        "index": 8,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 4
+      },
+      {
+        "index": 9,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 1308
+      },
+      {
+        "index": 10,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 27296
+      },
+      {
+        "index": 11,
+        "wasm_type": 127,
+        "mutable": 1,
+        "initial": 0
+      }
+    ],
+    "defined_global_count": 12,
+    "memory_mode": "regions",
+    "region_count": 4,
+    "region_bytes": 25944,
+    "stack_limit": 27296,
+    "initial_live_regions": 0,
+    "case": "original-anonymous-multiple/wasm-direct",
+    "level": 2
+  }
+]

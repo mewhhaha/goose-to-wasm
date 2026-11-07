@@ -63578,6 +63578,827 @@
         "stdout": "5 7\n",
         "exit": 0
       }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/outer-owner-and-view/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/outer-owner-and-view.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000 24\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/outer-owner-and-view/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/outer-owner-and-view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000 24\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/foreach-head-nested-temporaries/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/foreach-head-nested-temporaries.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "240000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/foreach-head-nested-temporaries/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/foreach-head-nested-temporaries.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "240000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/caller-and-global-receivers/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/caller-and-global-receivers.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "120 2460 120 14460\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/caller-and-global-receivers/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/caller-and-global-receivers.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "120 2460 120 14460\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/break-and-return-results/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/break-and-return-results.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "195000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/break-and-return-results/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/break-and-return-results.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "195000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/continue-and-break/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/continue-and-break.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "70000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/continue-and-break/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/continue-and-break.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "70000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/nonlocal-return-receiver/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/nonlocal-return-receiver.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/nonlocal-return-receiver/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/nonlocal-return-receiver.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/multichannel-receivers/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/multichannel-receivers.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "180000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/multichannel-receivers/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/multichannel-receivers.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "180000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/exact-reference-binder/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/repeated_region_values.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000 10000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/exact-reference-binder/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/repeated_region_values.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000 10000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/exact-value-binder/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/repeated_region_values_by_value.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000 10000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/exact-value-binder/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/repeated_region_values_by_value.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000 10000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/one-iteration/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/one_region_value.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/one-iteration/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/one_region_value.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6 1\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/unchanged-temporary-escape-rejection/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/escape_ref.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/unchanged-temporary-escape-rejection/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/escape_ref.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-initializer-demand/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-initializer-demand.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 60000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-initializer-demand/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-initializer-demand.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 60000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/dead-type-only-demand/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/dead-type-only-demand.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/dead-type-only-demand/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/dead-type-only-demand.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/unsupported-fallback/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/unsupported-fallback.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/unsupported-fallback/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/unsupported-fallback.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/constant-fill-no-owner/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/constant-fill-no-owner.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/constant-fill-no-owner/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/constant-fill-no-owner.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "60000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/live-memory-limit-constant/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/live-memory-limit-constant.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "200000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/live-memory-limit-constant/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/live-memory-limit-constant.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-two-scalars/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-two-scalars.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6 60000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-two-scalars/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-two-scalars.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6 60000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-many-scalars/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-many-scalars.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "96 60000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-many-scalars/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-many-scalars.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "96 60000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-owner-view/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-owner-view.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "70 8 9 123 41 6 240\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-owner-view/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-owner-view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "70 8 9 123 41 6 240\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-many-large-main/native",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-many-large-main.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "96 1024000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-retirement/global-many-large-main/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-retirement/global-many-large-main.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "96 1024000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/global-initializer-publication/native",
+      "source": "tests/fixtures/contracts/temporary-region-review/global-initializer-publication.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "70 8 9 9 10 22 6 60000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/global-initializer-publication/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-review/global-initializer-publication.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "70 8 9 9 10 22 6 60000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/forwarded-nonlocal-tuple/native",
+      "source": "tests/fixtures/contracts/temporary-region-review/forwarded-nonlocal-tuple.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "220000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/forwarded-nonlocal-tuple/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-review/forwarded-nonlocal-tuple.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "220000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/dead-statement-demand/native",
+      "source": "tests/fixtures/contracts/temporary-region-review/dead-statement-demand.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/dead-statement-demand/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-review/dead-statement-demand.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/builtin-str-demand/native",
+      "source": "tests/fixtures/contracts/temporary-region-review/builtin-demand-probe.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "38890\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/builtin-str-demand/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-review/builtin-demand-probe.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "38890\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/builtin-to-bytes-demand/native",
+      "source": "tests/fixtures/contracts/temporary-region-review/to-bytes-demand-probe.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "40000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-region-review/builtin-to-bytes-demand/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-region-review/to-bytes-demand-probe.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "40000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/discarded-tuple-before-recursion/native",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/discarded-tuple-before-recursion.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "8000 8000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/discarded-tuple-before-recursion/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/discarded-tuple-before-recursion.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "8000 8000\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/discarded-tuple-argument-order-and-view/native",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/discarded-tuple-argument-order-and-view.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "12 25 25\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/discarded-tuple-argument-order-and-view/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/discarded-tuple-argument-order-and-view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "12 25 25\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/earlier-argument-temporary-still-live/native",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/earlier-argument-temporary-still-live.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/earlier-argument-temporary-still-live/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/earlier-argument-temporary-still-live.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/original-anonymous-multiple/native",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/anonymous_multiple.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n4 17\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-tuple-retirement-review/original-anonymous-multiple/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-tuple-retirement-review/anonymous_multiple.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n4 17\n",
+        "exit": 0
+      },
+      "maximum_pages": 2
     }
   ],
   "legacy_math_capture": {

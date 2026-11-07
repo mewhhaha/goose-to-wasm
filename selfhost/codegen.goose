@@ -1881,7 +1881,7 @@ recursive fn cg_may_region(p: Program&, node: i64) -> bool {
     if node < 0 { return false; } let n = p.nodes[node];
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { return false; }
     var id = n.type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
-    if cg_has_owner(p, id) { return true; }
+    if cg_region_owned_result(p, id) { return true; }
     if cg_may_region(p, n.left) || cg_may_region(p, n.right) || cg_may_region(p, n.third) { return true; }
     var child = n.first; while child >= 0 { if cg_may_region(p, child) { return true; } child = p.nodes[child].next; } return false;
 }
@@ -2958,7 +2958,14 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
         cg_parameter_copies(p, m, f); let id = cg_result_type(p, function); var first = -1; if f.results.len > 0 { first = f.results[0]; }
         cg_block_into(p, m, f, p.nodes[function].right, id, first);
     } else {
-        for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 { cg_declaration(p, m, f, symbol.node); } }
+        for symbol in p.symbols {
+            if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 {
+                let live = f.region_live; var regions = -1;
+                if m.regions_enabled { regions = cg_mark_regions(f); }
+                cg_declaration(p, m, f, symbol.node);
+                cg_restore_regions(f, regions); f.region_live = live;
+            }
+        }
         if p.entry < 0 { if !p.library { cg_fail(p, -1, "wasm: program has no checked main function"); } }
         else {
             let symbol = p.nodes[p.entry].symbol; let index = cg_function(m, symbol);
@@ -3192,17 +3199,27 @@ recursive fn cg_effect_result_supported(p: Program&, id: i64) -> bool {
     if cg_image_owner(p, id) { if !cg_record_effect_supported(p, id) { return false; } array = cg_image_tail_type(p, id); }
     return cg_owner(p, array) && (p.types[array].array_kind != A_VAR || p.types[array].length_storage != 0) && p.types[p.types[array].element].storage != 1;
 }
-recursive fn cg_region_body_supported(p: Program&, function: i64, node: i64) -> bool {
+recursive fn cg_region_body_supported(p: Program&, function: i64, node: i64, owns: bool&) -> bool {
     if node < 0 { return true; } let n = p.nodes[node];
     if n.kind == N_PATTERN || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT || (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && node != function { return true; }
     if !cg_region_type_supported(p, n.type_id) { return false; }
+    let constructs = n.kind == N_CALL || cg_result_channels(p, node) || n.kind == N_ARRAY || n.kind == N_FILL || n.kind == N_RECORD || n.kind == N_CAST;
+    if constructs && cg_region_owned_result(p, n.type_id) { owns = true; }
     if n.kind == N_RETURN && n.symbol >= 0 {
         let target = p.symbols[n.symbol].node;
         if target != function && !cg_effect_result_supported(p, cg_result_type(p, target)) { return false; }
 
     }
-    if !cg_region_body_supported(p, function, n.left) || !cg_region_body_supported(p, function, n.right) || !cg_region_body_supported(p, function, n.third) { return false; }
-    var child = n.first; while child >= 0 { if !cg_region_body_supported(p, function, child) { return false; } child = p.nodes[child].next; } return true;
+    if !cg_region_body_supported(p, function, n.left, owns) || !cg_region_body_supported(p, function, n.right, owns) || !cg_region_body_supported(p, function, n.third, owns) { return false; }
+    var child = n.first; var emitted = true;
+    while child >= 0 {
+        var child_owns = false;
+        if !cg_region_body_supported(p, function, child, child_owns) { return false; }
+        if emitted && child_owns { owns = true; }
+        if cg_terminal(p, child) { emitted = false; }
+        child = p.nodes[child].next;
+    }
+    return true;
 }
 fn cg_array_regions_supported(p: Program&, m: CgModule&) -> bool {
     var owns = false;
@@ -3212,11 +3229,14 @@ fn cg_array_regions_supported(p: Program&, m: CgModule&) -> bool {
         if symbol.type_id >= 0 && (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) == 0 {
             if !cg_region_type_supported(p, symbol.type_id) { return false; }
             if cg_has_owner(p, symbol.type_id) { owns = true; }
+            if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 &&
+               !cg_region_body_supported(p, -1, p.nodes[symbol.node].right, owns) { return false; }
         }
     }
     for item in m.functions {
         let result = cg_result_type(p, item.node);
-        if !cg_region_type_supported(p, result) || !cg_region_body_supported(p, item.node, p.nodes[item.node].right) { return false; }
+        if !cg_region_type_supported(p, result) || !cg_region_body_supported(p, item.node, p.nodes[item.node].right, owns) { return false; }
+        if cg_region_owned_result(p, result) { owns = true; }
     }
     return owns;
 }
