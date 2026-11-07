@@ -8,9 +8,9 @@
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>Example compilation</dc:title>
-    <dc:description>Complete uncached builds, including C compiler/linker work for the native backend. Environment: {"bootstrap_seed_sha256": {"seed.c.gz": "1597b1371b99aa0628f902b4925d6ec7f0d476520d363edf317b8ee018eeaa2b", "seed.json": "de39bbb8d34e781ec4ee210aabe17429da4e3df18d6a3d1a376e15e6aad66cbf", "sources.tar.gz": "a8f194f67a1705e02bd6b52a5648f408324018e335c8360810b5f6f25f238e59"}, "compiler_sha256": "7a2ec7fe06f0c46b79ee298de14c4b207270b2408a883138939258982d84a391", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [7], "env_overrides": {"CC": null, "CFLAGS": null, "GOOSE_STDLIB": null, "NODE_OPTIONS": null}, "input_sha256": {"/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb", "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/benchmark.py": "096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/examples.py": "fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/process.py": "ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/seed.c.gz": "1597b1371b99aa0628f902b4925d6ec7f0d476520d363edf317b8ee018eeaa2b", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/seed.json": "de39bbb8d34e781ec4ee210aabe17429da4e3df18d6a3d1a376e15e6aad66cbf", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/sources.tar.gz": "a8f194f67a1705e02bd6b52a5648f408324018e335c8360810b5f6f25f238e59", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/errors.out": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/life.out": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/maze.out": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sieve.out": "08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sudoku.out": "33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/vm.out": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/manifest.json": "e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/goose_wasm.py": "4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/run_wasm.mjs": "ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/run_wasmtime.py": "2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/bootstrap.py": "d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker.goose": "4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_lifetimes.goose": "2480c7db81705d6f9f8f06e19255059cf8a294144395123892a158fa63a3ae47", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen.goose": "659b71875189f7acd638f611041cab1b7b14da4823f860737556afd741ae434f", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c.goose": "e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/model.goose": "1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/optimizer.goose": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145", "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "", "tool_paths": {"cc": "/usr/bin/gcc", "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node", "python": "/usr/bin/python3.14", "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so"}, "toolchain_pin": {"bootstrap": {"language": "C11", "seed": "bootstrap/seed.json", "source": "selfhost/main.goose"}, "implementation": "goose", "minimum_python": "3.11", "node": "24.22.1", "schema": "goose-to-wasm-toolchain-v2", "upstream_contract": {"repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"}, "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}</dc:description>
+    <dc:description>Complete uncached builds, including C compiler/linker work for the native backend. Environment: {"bootstrap_seed_sha256": {"seed.c.gz": "a2d68516bbc73c3588dd7308ff802e91c7e9e8c0dbc482ad0c26e2d3f3289043", "seed.json": "3285b4e2f280070fa9e5d3a95c2f82eb94aa553372683e75e8918758bf9a3937", "sources.tar.gz": "6c0756700ec02617618420be8d26c13267015145b4b034441a82124f7fc619ca"}, "compiler_sha256": "c7c51ab1fee6c71f84d3b5fb6cbdde2aa6ceb8659ab203c1e52c93ab7d6cc1ad", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [7], "env_overrides": {"CC": null, "CFLAGS": null, "GOOSE_STDLIB": null, "NODE_OPTIONS": null}, "input_sha256": {"/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb", "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/benchmark.py": "096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/examples.py": "fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/process.py": "ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/seed.c.gz": "a2d68516bbc73c3588dd7308ff802e91c7e9e8c0dbc482ad0c26e2d3f3289043", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/seed.json": "3285b4e2f280070fa9e5d3a95c2f82eb94aa553372683e75e8918758bf9a3937", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/sources.tar.gz": "6c0756700ec02617618420be8d26c13267015145b4b034441a82124f7fc619ca", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/errors.out": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/life.out": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/maze.out": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sieve.out": "08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sudoku.out": "33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/vm.out": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/manifest.json": "e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/goose_wasm.py": "4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/run_wasm.mjs": "ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/run_wasmtime.py": "2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/bootstrap.py": "d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker.goose": "4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_lifetimes.goose": "0a65c6d9a92c4886ca21ea6dd0ce3d69868aae722e23a694814e3c089ce62be6", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen.goose": "632747b97c8c477d13adfd170e4ab09d7f902040d2199c4061e243c05314ffbe", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c.goose": "e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/model.goose": "1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/optimizer.goose": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145", "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "", "tool_paths": {"cc": "/usr/bin/gcc", "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node", "python": "/usr/bin/python3.14", "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so"}, "toolchain_pin": {"bootstrap": {"language": "C11", "seed": "bootstrap/seed.json", "source": "selfhost/main.goose"}, "implementation": "goose", "minimum_python": "3.11", "node": "24.22.1", "schema": "goose-to-wasm-toolchain-v2", "upstream_contract": {"repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"}, "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}</dc:description>
     <dc:format>image/svg+xml</dc:format>
-    <dc:source>/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/report.json sha256:3eb70049922c9fc70daea56732f2211d9e8eef7fbfe23671b2b39bd4db855a3d; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/example_charts.py sha256:c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/examples.py sha256:fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/benchmark.py sha256:096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/process.py sha256:ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/goose_wasm.py sha256:4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/bootstrap.py sha256:d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/seed.json sha256:de39bbb8d34e781ec4ee210aabe17429da4e3df18d6a3d1a376e15e6aad66cbf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/seed.c.gz sha256:1597b1371b99aa0628f902b4925d6ec7f0d476520d363edf317b8ee018eeaa2b; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/sources.tar.gz sha256:a8f194f67a1705e02bd6b52a5648f408324018e335c8360810b5f6f25f238e59; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/run_wasm.mjs sha256:ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/run_wasmtime.py sha256:2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker.goose sha256:4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_lifetimes.goose sha256:2480c7db81705d6f9f8f06e19255059cf8a294144395123892a158fa63a3ae47; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_operations.goose sha256:30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_rendering.goose sha256:38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_validation.goose sha256:f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen.goose sha256:659b71875189f7acd638f611041cab1b7b14da4823f860737556afd741ae434f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c.goose sha256:e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_images.goose sha256:4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_storage.goose sha256:218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_threads.goose sha256:04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/driver.goose sha256:c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/expansion_bind.goose sha256:504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/lexer.goose sha256:d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/main.goose sha256:aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/model.goose sha256:1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/optimizer.goose sha256:2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/parser.goose sha256:0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/region_plan.goose sha256:ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/sources.goose sha256:6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/thread_plan.goose sha256:522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/wasm.goose sha256:9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/images.h sha256:fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/pools.h sha256:76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/relative.h sha256:4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runs.h sha256:b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/goose.h sha256:16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime.h sha256:5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_ext.h sha256:bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_impl.h sha256:717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_os.h sha256:27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_threads.h sha256:b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/storage.h sha256:899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/threads.h sha256:9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; compiler sha256:7a2ec7fe06f0c46b79ee298de14c4b207270b2408a883138939258982d84a391</dc:source>
+    <dc:source>/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/report.json sha256:f8fbe55f2192ca41ea2e8fa6915be9407fba317c16bffb4d276d5eb2a77dfd44; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/example_charts.py sha256:c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/examples.py sha256:fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/benchmark.py sha256:096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/process.py sha256:ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/goose_wasm.py sha256:4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/bootstrap.py sha256:d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/seed.json sha256:3285b4e2f280070fa9e5d3a95c2f82eb94aa553372683e75e8918758bf9a3937; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/seed.c.gz sha256:a2d68516bbc73c3588dd7308ff802e91c7e9e8c0dbc482ad0c26e2d3f3289043; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/sources.tar.gz sha256:6c0756700ec02617618420be8d26c13267015145b4b034441a82124f7fc619ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/run_wasm.mjs sha256:ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/run_wasmtime.py sha256:2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker.goose sha256:4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_lifetimes.goose sha256:0a65c6d9a92c4886ca21ea6dd0ce3d69868aae722e23a694814e3c089ce62be6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_operations.goose sha256:30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_rendering.goose sha256:38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_validation.goose sha256:f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen.goose sha256:632747b97c8c477d13adfd170e4ab09d7f902040d2199c4061e243c05314ffbe; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c.goose sha256:e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_images.goose sha256:4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_storage.goose sha256:218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_threads.goose sha256:04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/driver.goose sha256:c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/expansion_bind.goose sha256:504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/lexer.goose sha256:d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/main.goose sha256:aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/model.goose sha256:1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/optimizer.goose sha256:2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/parser.goose sha256:0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/region_plan.goose sha256:ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/sources.goose sha256:6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/thread_plan.goose sha256:522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/wasm.goose sha256:9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/images.h sha256:fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/pools.h sha256:76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/relative.h sha256:4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runs.h sha256:b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/goose.h sha256:16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime.h sha256:5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_ext.h sha256:bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_impl.h sha256:717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_os.h sha256:27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_threads.h sha256:b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/storage.h sha256:899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/threads.h sha256:9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; compiler sha256:c7c51ab1fee6c71f84d3b5fb6cbdde2aa6ceb8659ab203c1e52c93ab7d6cc1ad</dc:source>
     <dc:creator>
      <cc:Agent>
       <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
@@ -116,346 +116,335 @@ L 987.84 408.24
     </g>
     <g id="ytick_2">
      <g id="line2d_13">
-      <path d="M 75.6 348.048002
-L 987.84 348.048002
+      <path d="M 75.6 346.664229
+L 987.84 346.664229
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_14"/>
      <g id="text_12">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="351.84683" transform="rotate(-0 67.6 351.84683)">500</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="350.463058" transform="rotate(-0 67.6 350.463058)">500</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_15">
-      <path d="M 75.6 287.856004
-L 987.84 287.856004
+      <path d="M 75.6 285.088459
+L 987.84 285.088459
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_16"/>
      <g id="text_13">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="291.654832" transform="rotate(-0 67.6 291.654832)">1,000</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="288.887287" transform="rotate(-0 67.6 288.887287)">1,000</text>
      </g>
     </g>
     <g id="ytick_4">
      <g id="line2d_17">
-      <path d="M 75.6 227.664006
-L 987.84 227.664006
+      <path d="M 75.6 223.512688
+L 987.84 223.512688
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_18"/>
      <g id="text_14">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="231.462834" transform="rotate(-0 67.6 231.462834)">1,500</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="227.311516" transform="rotate(-0 67.6 227.311516)">1,500</text>
      </g>
     </g>
     <g id="ytick_5">
      <g id="line2d_19">
-      <path d="M 75.6 167.472008
-L 987.84 167.472008
+      <path d="M 75.6 161.936918
+L 987.84 161.936918
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_20"/>
      <g id="text_15">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="171.270837" transform="rotate(-0 67.6 171.270837)">2,000</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="165.735746" transform="rotate(-0 67.6 165.735746)">2,000</text>
      </g>
     </g>
-    <g id="ytick_6">
-     <g id="line2d_21">
-      <path d="M 75.6 107.280011
-L 987.84 107.280011
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_22"/>
-     <g id="text_16">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="111.078839" transform="rotate(-0 67.6 111.078839)">2,500</text>
-     </g>
-    </g>
-    <g id="text_17">
+    <g id="text_16">
      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #475569" x="26.569531" y="254.52" transform="rotate(-90 26.569531 254.52)">milliseconds</text>
     </g>
    </g>
    <g id="patch_3">
     <path d="M 95.037034 408.24
 L 123.000352 408.24
-L 123.000352 402.187064
-L 95.037034 402.187064
+L 123.000352 402.186664
+L 95.037034 402.186664
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_4">
     <path d="M 185.357827 408.24
 L 213.321144 408.24
-L 213.321144 400.751681
-L 185.357827 400.751681
+L 213.321144 400.663097
+L 185.357827 400.663097
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_5">
     <path d="M 275.678619 408.24
 L 303.641936 408.24
-L 303.641936 392.342224
-L 275.678619 392.342224
+L 303.641936 392.327439
+L 275.678619 392.327439
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_6">
     <path d="M 365.999411 408.24
 L 393.962728 408.24
-L 393.962728 398.607565
-L 365.999411 398.607565
+L 393.962728 398.589752
+L 365.999411 398.589752
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_7">
     <path d="M 456.320203 408.24
 L 484.28352 408.24
-L 484.28352 399.505393
-L 456.320203 399.505393
+L 484.28352 399.425579
+L 456.320203 399.425579
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_8">
     <path d="M 546.640995 408.24
 L 574.604312 408.24
-L 574.604312 392.2213
-L 546.640995 392.2213
+L 574.604312 392.134065
+L 546.640995 392.134065
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_9">
     <path d="M 636.961787 408.24
 L 664.925104 408.24
-L 664.925104 399.397298
-L 636.961787 399.397298
+L 664.925104 399.288374
+L 636.961787 399.288374
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_10">
     <path d="M 727.282579 408.24
 L 755.245896 408.24
-L 755.245896 397.715381
-L 727.282579 397.715381
+L 755.245896 397.650295
+L 727.282579 397.650295
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_11">
     <path d="M 817.603371 408.24
 L 845.566688 408.24
-L 845.566688 398.450322
-L 817.603371 398.450322
+L 845.566688 398.41588
+L 817.603371 398.41588
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_12">
     <path d="M 907.924163 408.24
 L 935.88748 408.24
-L 935.88748 399.12566
-L 907.924163 399.12566
+L 935.88748 399.091541
+L 907.924163 399.091541
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #087f8c"/>
    </g>
    <g id="patch_13">
     <path d="M 127.55252 408.24
 L 155.515837 408.24
-L 155.515837 377.989025
-L 127.55252 377.989025
+L 155.515837 377.762969
+L 127.55252 377.762969
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_14">
     <path d="M 217.873312 408.24
 L 245.836629 408.24
-L 245.836629 295.695056
-L 217.873312 295.695056
+L 245.836629 298.941178
+L 217.873312 298.941178
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_15">
     <path d="M 308.194104 408.24
 L 336.157421 408.24
-L 336.157421 212.590091
-L 308.194104 212.590091
+L 336.157421 212.990402
+L 308.194104 212.990402
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_16">
     <path d="M 398.514896 408.24
 L 426.478213 408.24
-L 426.478213 321.317418
-L 398.514896 321.317418
+L 426.478213 320.500267
+L 398.514896 320.500267
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_17">
     <path d="M 488.835688 408.24
 L 516.799005 408.24
-L 516.799005 359.480461
-L 488.835688 359.480461
+L 516.799005 360.247903
+L 488.835688 360.247903
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_18">
     <path d="M 579.15648 408.24
 L 607.119797 408.24
-L 607.119797 186.225855
-L 579.15648 186.225855
+L 607.119797 185.477829
+L 579.15648 185.477829
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_19">
     <path d="M 669.477272 408.24
 L 697.440589 408.24
-L 697.440589 351.680358
-L 669.477272 351.680358
+L 697.440589 351.298101
+L 669.477272 351.298101
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_20">
     <path d="M 759.798064 408.24
 L 787.761381 408.24
-L 787.761381 321.205337
-L 759.798064 321.205337
+L 787.761381 320.704015
+L 759.798064 320.704015
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_21">
     <path d="M 850.118856 408.24
 L 878.082173 408.24
-L 878.082173 336.956746
-L 850.118856 336.956746
+L 878.082173 336.556735
+L 850.118856 336.556735
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="patch_22">
     <path d="M 940.439648 408.24
 L 968.402966 408.24
-L 968.402966 345.122077
-L 940.439648 345.122077
+L 968.402966 344.676069
+L 940.439648 344.676069
 z
 " clip-path="url(#p27fe2b42cb)" style="fill: #727b8e"/>
    </g>
    <g id="LineCollection_1">
-    <path d="M 109.018693 402.249518
-L 109.018693 402.12461
+    <path d="M 109.018693 402.200222
+L 109.018693 402.173106
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 199.339485 400.764334
-L 199.339485 400.739029
+    <path d="M 199.339485 400.670654
+L 199.339485 400.655539
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 289.660277 392.402953
-L 289.660277 392.281495
+    <path d="M 289.660277 392.346419
+L 289.660277 392.308458
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 379.981069 398.65425
-L 379.981069 398.56088
+    <path d="M 379.981069 398.607192
+L 379.981069 398.572312
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 470.301861 399.509474
-L 470.301861 399.501311
+    <path d="M 470.301861 399.43684
+L 470.301861 399.414318
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 560.622653 392.28418
-L 560.622653 392.158421
+    <path d="M 560.622653 392.176312
+L 560.622653 392.091819
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 650.943446 399.419135
-L 650.943446 399.375461
+    <path d="M 650.943446 399.295272
+L 650.943446 399.281477
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 741.264238 397.731784
-L 741.264238 397.698979
+    <path d="M 741.264238 397.666144
+L 741.264238 397.634446
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 831.58503 398.50674
-L 831.58503 398.393904
+    <path d="M 831.58503 398.432621
+L 831.58503 398.399138
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 921.905822 399.191868
-L 921.905822 399.059451
+    <path d="M 921.905822 399.106767
+L 921.905822 399.076315
 " clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
-   <g id="line2d_23">
+   <g id="line2d_21">
     <defs>
      <path id="m630ef24590" d="M 2 0
 L -2 -0
 " style="stroke: #334155"/>
     </defs>
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="109.018693" y="402.249518" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="199.339485" y="400.764334" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="289.660277" y="392.402953" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="379.981069" y="398.65425" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="470.301861" y="399.509474" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="560.622653" y="392.28418" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="650.943446" y="399.419135" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="741.264238" y="397.731784" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="831.58503" y="398.50674" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="921.905822" y="399.191868" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="109.018693" y="402.200222" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="199.339485" y="400.670654" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="289.660277" y="392.346419" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="379.981069" y="398.607192" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="470.301861" y="399.43684" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="560.622653" y="392.176312" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="650.943446" y="399.295272" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="741.264238" y="397.666144" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="831.58503" y="398.432621" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="921.905822" y="399.106767" style="fill: #1f77b4; stroke: #334155"/>
+    </g>
+   </g>
+   <g id="line2d_22">
+    <g clip-path="url(#p27fe2b42cb)">
+     <use xlink:href="#m630ef24590" x="109.018693" y="402.173106" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="199.339485" y="400.655539" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="289.660277" y="392.308458" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="379.981069" y="398.572312" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="470.301861" y="399.414318" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="560.622653" y="392.091819" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="650.943446" y="399.281477" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="741.264238" y="397.634446" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="831.58503" y="398.399138" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="921.905822" y="399.076315" style="fill: #1f77b4; stroke: #334155"/>
+    </g>
+   </g>
+   <g id="LineCollection_2">
+    <path d="M 141.534178 377.800136
+L 141.534178 377.725802
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 231.85497 299.187506
+L 231.85497 298.69485
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 322.175762 213.264852
+L 322.175762 212.715952
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 412.496554 320.688149
+L 412.496554 320.312384
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 502.817347 360.292661
+L 502.817347 360.203145
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 593.138139 185.498267
+L 593.138139 185.457391
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 683.458931 351.381279
+L 683.458931 351.214923
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 773.779723 320.773978
+L 773.779723 320.634052
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 864.100515 336.579635
+L 864.100515 336.533834
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 954.421307 344.691073
+L 954.421307 344.661065
+" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+   </g>
+   <g id="line2d_23">
+    <g clip-path="url(#p27fe2b42cb)">
+     <use xlink:href="#m630ef24590" x="141.534178" y="377.800136" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="231.85497" y="299.187506" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="322.175762" y="213.264852" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="412.496554" y="320.688149" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="502.817347" y="360.292661" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="593.138139" y="185.498267" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="683.458931" y="351.381279" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="773.779723" y="320.773978" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="864.100515" y="336.579635" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="954.421307" y="344.691073" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_24">
     <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="109.018693" y="402.12461" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="199.339485" y="400.739029" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="289.660277" y="392.281495" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="379.981069" y="398.56088" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="470.301861" y="399.501311" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="560.622653" y="392.158421" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="650.943446" y="399.375461" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="741.264238" y="397.698979" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="831.58503" y="398.393904" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="921.905822" y="399.059451" style="fill: #1f77b4; stroke: #334155"/>
-    </g>
-   </g>
-   <g id="LineCollection_2">
-    <path d="M 141.534178 378.125825
-L 141.534178 377.852226
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 231.85497 299.583403
-L 231.85497 291.806708
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 322.175762 213.324409
-L 322.175762 211.855773
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 412.496554 321.588945
-L 412.496554 321.045891
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 502.817347 360.837334
-L 502.817347 358.123589
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 593.138139 186.994318
-L 593.138139 185.457391
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 683.458931 351.819887
-L 683.458931 351.540829
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 773.779723 321.344443
-L 773.779723 321.06623
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 864.100515 337.10858
-L 864.100515 336.804912
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 954.421307 345.254572
-L 954.421307 344.989582
-" clip-path="url(#p27fe2b42cb)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-   </g>
-   <g id="line2d_25">
-    <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="141.534178" y="378.125825" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="231.85497" y="299.583403" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="322.175762" y="213.324409" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="412.496554" y="321.588945" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="502.817347" y="360.837334" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="593.138139" y="186.994318" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="683.458931" y="351.819887" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="773.779723" y="321.344443" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="864.100515" y="337.10858" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="954.421307" y="345.254572" style="fill: #1f77b4; stroke: #334155"/>
-    </g>
-   </g>
-   <g id="line2d_26">
-    <g clip-path="url(#p27fe2b42cb)">
-     <use xlink:href="#m630ef24590" x="141.534178" y="377.852226" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="231.85497" y="291.806708" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="322.175762" y="211.855773" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="412.496554" y="321.045891" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="502.817347" y="358.123589" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="141.534178" y="377.725802" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="231.85497" y="298.69485" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="322.175762" y="212.715952" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="412.496554" y="320.312384" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="502.817347" y="360.203145" style="fill: #1f77b4; stroke: #334155"/>
      <use xlink:href="#m630ef24590" x="593.138139" y="185.457391" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="683.458931" y="351.540829" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="773.779723" y="321.06623" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="864.100515" y="336.804912" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m630ef24590" x="954.421307" y="344.989582" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="683.458931" y="351.214923" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="773.779723" y="320.634052" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="864.100515" y="336.533834" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="954.421307" y="344.661065" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="patch_23">
@@ -463,77 +452,77 @@ L 954.421307 344.989582
 L 987.84 408.24
 " style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
+   <g id="text_17">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(111.096818 399.499715) rotate(-90)">49.2 ±0.11</text>
+   </g>
    <g id="text_18">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(111.096818 399.451219) rotate(-90)">50.3 ±0.52</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(201.41761 397.982148) rotate(-90)">61.5 ±0.061</text>
    </g>
    <g id="text_19">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(201.41761 398.065638) rotate(-90)">62.2 ±0.11</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(291.738402 389.635066) rotate(-90)">129 ±0.15</text>
    </g>
    <g id="text_20">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(291.738402 389.608103) rotate(-90)">132 ±0.5</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(382.059194 395.898921) rotate(-90)">78.4 ±0.14</text>
    </g>
    <g id="text_21">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(382.059194 395.887489) rotate(-90)">80 ±0.39</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(472.379986 396.740927) rotate(-90)">71.6 ±0.091</text>
    </g>
    <g id="text_22">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(472.379986 396.82792) rotate(-90)">72.6 ±0.034</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(562.700778 389.418428) rotate(-90)">131 ±0.34</text>
    </g>
    <g id="text_23">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(562.700778 389.485029) rotate(-90)">133 ±0.52</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(653.021571 396.608086) rotate(-90)">72.7 ±0.056</text>
    </g>
    <g id="text_24">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(653.021571 396.702069) rotate(-90)">73.5 ±0.18</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(743.342363 394.961055) rotate(-90)">86 ±0.13</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(743.342363 395.025588) rotate(-90)">87.4 ±0.14</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(833.663155 395.725747) rotate(-90)">79.8 ±0.14</text>
    </g>
    <g id="text_26">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(833.663155 395.720513) rotate(-90)">81.3 ±0.47</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(923.983947 396.402924) rotate(-90)">74.3 ±0.12</text>
    </g>
    <g id="text_27">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(923.983947 396.38606) rotate(-90)">75.7 ±0.55</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(143.612303 375.052411) rotate(-90)">247 ±0.3</text>
    </g>
    <g id="text_28">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(143.612303 375.178835) rotate(-90)">251 ±1.1</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(233.933095 296.021459) rotate(-90)">888 ±2</text>
    </g>
    <g id="text_29">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(233.933095 289.133316) rotate(-90)">935 ±32</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(324.253887 210.04256) rotate(-90)">1.59e+03 ±2.2</text>
    </g>
    <g id="text_30">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(324.253887 209.182382) rotate(-90)">1.63e+03 ±6.1</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(414.574679 317.638992) rotate(-90)">712 ±1.5</text>
    </g>
    <g id="text_31">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(414.574679 318.3725) rotate(-90)">722 ±2.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(504.895472 357.529754) rotate(-90)">390 ±0.36</text>
    </g>
    <g id="text_32">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(504.895472 355.450198) rotate(-90)">405 ±11</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(595.216264 182.784) rotate(-90)">1.81e+03 ±0.17</text>
    </g>
    <g id="text_33">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(595.216264 182.784) rotate(-90)">1.84e+03 ±6.4</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(685.537056 348.541532) rotate(-90)">462 ±0.68</text>
    </g>
    <g id="text_34">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(685.537056 348.867438) rotate(-90)">470 ±1.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(775.857848 317.960661) rotate(-90)">711 ±0.57</text>
    </g>
    <g id="text_35">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(775.857848 318.392839) rotate(-90)">723 ±1.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(866.17864 333.860443) rotate(-90)">582 ±0.19</text>
    </g>
    <g id="text_36">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(866.17864 334.131521) rotate(-90)">592 ±1.3</text>
-   </g>
-   <g id="text_37">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(956.499432 342.316191) rotate(-90)">524 ±1.1</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(956.499432 341.987674) rotate(-90)">516 ±0.12</text>
    </g>
   </g>
-  <g id="text_38">
+  <g id="text_37">
    <text style="font-weight: 700; font-size: 20px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="75.6" y="27.72" transform="rotate(-0 75.6 27.72)">Example compilation</text>
   </g>
-  <g id="text_39">
+  <g id="text_38">
    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="75.6" y="47.88" transform="rotate(-0 75.6 47.88)">Complete ordinary uncached Goose builds · O2 · lower is better</text>
   </g>
-  <g id="text_40">
+  <g id="text_39">
    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="75.6" y="466.2" transform="rotate(-0 75.6 466.2)">2026-11-07 · AMD Ryzen 7 3800X 8-Core Processor · 5 measured samples · labels: median ±MAD</text>
   </g>
-  <g id="text_41">
+  <g id="text_40">
    <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="75.6" y="483.84" transform="rotate(-0 75.6 483.84)">Complete uncached builds, including C compiler/linker work for the native backend.</text>
   </g>
   <g id="legend_1">
@@ -545,7 +534,7 @@ L 78.444 71.038281
 z
 " style="fill: #087f8c"/>
    </g>
-   <g id="text_42">
+   <g id="text_41">
     <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="109.244" y="78.738281" transform="rotate(-0 109.244 78.738281)">Direct Wasm</text>
    </g>
    <g id="patch_25">
@@ -556,7 +545,7 @@ L 201.033844 71.038281
 z
 " style="fill: #727b8e"/>
    </g>
-   <g id="text_43">
+   <g id="text_42">
     <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="231.833844" y="78.738281" transform="rotate(-0 231.833844 78.738281)">Goose → C → native</text>
    </g>
   </g>

@@ -1163,7 +1163,9 @@ recursive fn cg_set_values(p: Program&, m: CgModule&, f: CgBody&, first: i64, ty
         if cg_raw_slot(f, first_slot) && ordinal == 0 { f.raw_node = item; }
         cg_to(p, m, f, item, id); f.raw_node = saved_raw;
         if cg_diverges(p, item) { return; }
-        if cg_aggregate(p, id) && ordinal + 1 < count {
+        // Every aggregate channel owns its value, including the last one.
+        // Views of an inline call or a control construct consume this copy.
+        if cg_aggregate(p, id) {
             let source = cg_save(f, 0x7f); let snapshot = cg_temporary(p, f, id);
             if cg_named_owner(p, f, item, id) {
                 cg_get(f, snapshot); cg_get(f, source); wb_i32(f.code, cg_size(p, id)); wb_copy(f.code);

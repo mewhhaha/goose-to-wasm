@@ -1972,12 +1972,20 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
             if receiving == 0 && n.type_id >= 0 && (p.types[n.type_id].kind == TY_ARRAY || p.types[n.type_id].kind == TY_STRUCT || p.types[n.type_id].kind == TY_ENUM) { receiving = life_temporary(p, l, node); }
             life_control_destination(l, node, receiving, selected_result);
         }
-        let saved = l.scope; if n.scope >= 0 { l.scope = n.scope; }
+        // A for sequence belongs to the enclosing statement; its temporary
+        // storage encloses the binder/body scope that the statement opens.
+        let saved = l.scope; if n.kind != N_FOR && n.scope >= 0 { l.scope = n.scope; }
         let held = l.hold_count; let sequence = l.sequence_frame;
         if n.kind == N_FOR { l.sequence_frame = l.frame; }
         let future = l.future_count; life_push_future(l, n.right);
         let source = life_eval(p, l, n.left); l.sequence_frame = sequence; l.future_count = future;
         if n.kind == N_FOR {
+            let sequence_node = p.nodes[n.left];
+            if (sequence_node.kind == N_ARRAY || sequence_node.kind == N_FILL) && life_size_class(p, source.type_id) > 0 {
+                life_error(p, l, n.left, "an array literal of variable-size elements requires a construction context before iteration");
+            }
+            if !life_is_ref(p, source.type_id) && !life_storage_path(p, n.left) { life_copy(p, l, n.left, source.type_id); }
+            if n.scope >= 0 { l.scope = n.scope; }
             life_hold(l, source, n.left);
             var binding = n.first; var index = 0;
             while binding >= 0 {

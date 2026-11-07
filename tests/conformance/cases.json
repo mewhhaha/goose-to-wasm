@@ -62982,6 +62982,602 @@
         0,
         2
       ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/statement_ref/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/statement_ref.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "9 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/statement_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/statement_ref.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "9 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/statement_view/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/statement_view.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/statement_view/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/statement_view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "6\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/escape_ref/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/escape_ref.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/escape_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/escape_ref.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/inline_view_inside/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/inline_view_inside.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/inline_view_inside/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/inline_view_inside.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/static_contents/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/static_contents.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "two\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/static_contents/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/static_contents.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "two\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/borrowed_shrink/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/borrowed_shrink.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/borrowed_shrink/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/borrowed_shrink.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/caller_escape/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/caller_escape/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/original_temporary_bindings/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/temporary_bindings.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11\nround\nalpha k1 alpha\n4 beta two\nbeta\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/original_temporary_bindings/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/temporary_bindings.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11\nround\nalpha k1 alpha\n4 beta two\nbeta\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/original_viewed_copies/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/viewed_copies.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "101\n10\n10\n10\n1\n10\n10\n10\n10\n10\n10\n10\n10\n123123\n10\n10\nfalse\n10\n10\n10\n123\n10\n123\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/original_viewed_copies/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/viewed_copies.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "101\n10\n10\n10\n1\n10\n10\n10\n10\n10\n10\n10\n10\n123123\n10\n10\nfalse\n10\n10\n10\n123\n10\n123\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/caller_contents_anchored/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/caller_contents_anchored.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "8 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/caller_contents_anchored/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/caller_contents_anchored.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "8 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/inline_view_escape_anchored/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/inline_view_escape_anchored.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/inline_view_escape_anchored/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/inline_view_escape_anchored.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/caller_contents_alias/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/caller_contents_alias.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "10 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/caller_contents_alias/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/caller_contents_alias.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "10 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/fixed_control_copy/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/fixed_control_copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n1\n1\n1\n4\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/fixed_control_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/fixed_control_copy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n1\n1\n1\n4\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/fixed_inline_copy/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/fixed_inline_copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n1\n1\n1\n1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/fixed_inline_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/fixed_inline_copy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n1\n1\n1\n1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/borrowed_control_storage/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/borrowed_control_storage.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11 3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/borrowed_control_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/borrowed_control_storage.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "11 3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/multi_result_copy/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/multi_result_copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 3 8 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/multi_result_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/multi_result_copy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 3 8 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/repeated_statement_values/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/repeated_statement_values.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "12000 2000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/repeated_statement_values/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/repeated_statement_values.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "12000 2000\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/fresh_relative_sequence/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/fresh_relative_sequence.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/fresh_relative_sequence/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/fresh_relative_sequence.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/preserve_variable_literal_for/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/variable_literal_for.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/preserve_variable_literal_for/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/variable_literal_for.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/preserve_relref_copy_temp_for/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/relref_copy_temp_for.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/preserve_relref_copy_temp_for/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/relref_copy_temp_for.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/mixed_ref_value_channels_bound/native",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/mixed_ref_value_channels_bound.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-values-and-copies/mixed_ref_value_channels_bound/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-values-and-copies/mixed_ref_value_channels_bound.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-copy-review/slice-and-owned-holder/native",
+      "source": "tests/fixtures/contracts/temporary-copy-review/slice-and-owned-holder.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "9 3 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-copy-review/slice-and-owned-holder/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-copy-review/slice-and-owned-holder.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "9 3 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-copy-review/fixed-relative-last-channel/native",
+      "source": "tests/fixtures/contracts/temporary-copy-review/fixed-relative-last-channel.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/temporary-copy-review/fixed-relative-last-channel/wasm-direct",
+      "source": "tests/fixtures/contracts/temporary-copy-review/fixed-relative-last-channel.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 7\n",
+        "exit": 0
+      }
     }
   ],
   "legacy_math_capture": {

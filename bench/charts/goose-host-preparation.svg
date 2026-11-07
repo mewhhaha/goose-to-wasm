@@ -8,9 +8,9 @@
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
     <dc:title>Wasmtime preparation</dc:title>
-    <dc:description>{"aot_host_build": {"aot_profiles": ["minimal"], "command": ["/usr/bin/clang++", "-DRUNTIME_ONLY", "-std=c++20", "-O2", "-Wall", "-Wextra", "-Werror", "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a", "-Wl,--gc-sections", "-static-libstdc++", "-static-libgcc", "-lpthread", "-ldl", "-lm", "-o", "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot"], "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n", "host_sha256": "a0117cb54b3a163b44cf7c61c80244eb5056ea41ba6274cbebd7258885fd56b4", "input_sha256": {"/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/conf.h": "6f20d874a7fd2b53428604c50da9854b0e71ca4cd02b55c1f45aaf342f4d0d4b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a": "7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c", "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4", "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "1a6e46aefd7a8fb3c124a7f471e4ea84e5392bac536a4c41f8ceb7ea43b89300", "/home/jacobt/src/goose-to-wasm/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2"}, "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a", "library_sha256": "7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c", "linkage": "sdk-static", "runtime_only": true, "schema": "goose-native-wasmtime-host-v1", "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz", "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "static_cxx_runtime": true, "supported_modes": ["precompiled"], "target": "linux-x86_64", "version": "50.0.1"}, "configuration": {"aot_host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot", "cc": "gcc", "emcc": "emcc", "example_report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/report.json", "examples": [], "goose": "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/goose", "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime", "machine_label": "", "node": "node", "output_dir": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-host-52", "prepare_samples": 5, "samples": 5, "smoke": false, "warmups": 1}, "environment": {"bootstrap_seed_sha256": {"seed.c.gz": "1597b1371b99aa0628f902b4925d6ec7f0d476520d363edf317b8ee018eeaa2b", "seed.json": "de39bbb8d34e781ec4ee210aabe17429da4e3df18d6a3d1a376e15e6aad66cbf", "sources.tar.gz": "a8f194f67a1705e02bd6b52a5648f408324018e335c8360810b5f6f25f238e59"}, "compiler_sha256": "7a2ec7fe06f0c46b79ee298de14c4b207270b2408a883138939258982d84a391", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [7], "cpu_flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es", "host_controls": {"LD_LIBRARY_PATH": null, "LD_PRELOAD": null, "OMP_NUM_THREADS": null, "RAYON_NUM_THREADS": null, "WASMTIME_BACKTRACE_DETAILS": null}, "input_sha256": {"bench/benchmark.py": "096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf", "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d", "bench/process.py": "ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72", "bootstrap/seed.c.gz": "1597b1371b99aa0628f902b4925d6ec7f0d476520d363edf317b8ee018eeaa2b", "bootstrap/seed.json": "de39bbb8d34e781ec4ee210aabe17429da4e3df18d6a3d1a376e15e6aad66cbf", "bootstrap/sources.tar.gz": "a8f194f67a1705e02bd6b52a5648f408324018e335c8360810b5f6f25f238e59", "native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284", "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95", "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba", "native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6", "native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4", "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132", "native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3", "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1", "native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087", "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285", "native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869", "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7", "scripts/goose_wasm.py": "4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082", "scripts/run_wasm.mjs": "ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445", "scripts/run_wasmtime.py": "2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca", "selfhost/bootstrap.py": "d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63", "selfhost/checker.goose": "4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed", "selfhost/checker_lifetimes.goose": "2480c7db81705d6f9f8f06e19255059cf8a294144395123892a158fa63a3ae47", "selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f", "selfhost/checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c", "selfhost/checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38", "selfhost/codegen.goose": "659b71875189f7acd638f611041cab1b7b14da4823f860737556afd741ae434f", "selfhost/codegen_c.goose": "e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819", "selfhost/codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14", "selfhost/codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6", "selfhost/codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70", "selfhost/driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9", "selfhost/expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb", "selfhost/lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80", "selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e", "selfhost/model.goose": "1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c", "selfhost/optimizer.goose": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699", "selfhost/parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a", "selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb", "selfhost/sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e", "selfhost/thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e", "selfhost/wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a", "stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "", "toolchain_pin": {"bootstrap": {"language": "C11", "seed": "bootstrap/seed.json", "source": "selfhost/main.goose"}, "implementation": "goose", "minimum_python": "3.11", "node": "24.22.1", "schema": "goose-to-wasm-toolchain-v2", "upstream_contract": {"repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"}, "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}, "host_build": {"aot_profiles": ["full", "minimal"], "command": ["/usr/bin/clang++", "-std=c++20", "-O2", "-Wall", "-Wextra", "-Werror", "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "-Wl,--gc-sections", "-static-libstdc++", "-static-libgcc", "-lpthread", "-ldl", "-lm", "-o", "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"], "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n", "host_sha256": "b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed", "input_sha256": {"/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h": "025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4", "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "1a6e46aefd7a8fb3c124a7f471e4ea84e5392bac536a4c41f8ceb7ea43b89300", "/home/jacobt/src/goose-to-wasm/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2"}, "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "linkage": "sdk-static", "runtime_only": false, "schema": "goose-native-wasmtime-host-v1", "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz", "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "static_cxx_runtime": true, "supported_modes": ["ordinary", "cached", "precompiled", "worker"], "target": "linux-x86_64", "version": "50.0.1"}, "method": "Fresh ordinary launch-to-exit samples with checked golden bytes. Python and native Wasmtime share the pinned version; their library bytes and build/linkage identities are recorded separately and may differ. Native serial changes only compiler parallelism, not Wasm threads. Precompiled uses the native default configuration and an explicitly prepared, trusted local artifact. When supplied, the minimal companion runs artifacts from both backends prepared by the full host with --aot-profile minimal and default compiler parallelism. The minimal profile excludes exception handling and GC; every selected artifact must compile and qualify under that profile. Preparation includes fresh host launch, Wasm compilation, serialization and file writing. Guest source, Wasm and native-C artifact bytes are unchanged. After input hashes and artifact qualification, selected executable, Wasm and AOT inodes are fsynced, advised DONTNEED where supported, then sequentially read in 1 MiB blocks before warmups. Dependencies and shared libraries are outside this primary-file normalization. Phases run sequentially; runtime modes are shuffled within each example/round block. Separate preparation commands never overlap runtime sampling. No headline runner writes a timing file.", "note": "Complete preparation cost for trusted native artifacts; guest execution is separate. Goose compilation is unchanged and separate. Wasmtime 50.0.1 \u00b7 compilation profile and parallelism recorded separately."}</dc:description>
+    <dc:description>{"aot_host_build": {"aot_profiles": ["minimal"], "command": ["/usr/bin/clang++", "-DRUNTIME_ONLY", "-std=c++20", "-O2", "-Wall", "-Wextra", "-Werror", "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a", "-Wl,--gc-sections", "-static-libstdc++", "-static-libgcc", "-lpthread", "-ldl", "-lm", "-o", "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot"], "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n", "host_sha256": "a0117cb54b3a163b44cf7c61c80244eb5056ea41ba6274cbebd7258885fd56b4", "input_sha256": {"/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/conf.h": "6f20d874a7fd2b53428604c50da9854b0e71ca4cd02b55c1f45aaf342f4d0d4b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a": "7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c", "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4", "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "1a6e46aefd7a8fb3c124a7f471e4ea84e5392bac536a4c41f8ceb7ea43b89300", "/home/jacobt/src/goose-to-wasm/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2"}, "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a", "library_sha256": "7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c", "linkage": "sdk-static", "runtime_only": true, "schema": "goose-native-wasmtime-host-v1", "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz", "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "static_cxx_runtime": true, "supported_modes": ["precompiled"], "target": "linux-x86_64", "version": "50.0.1"}, "configuration": {"aot_host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot", "cc": "gcc", "emcc": "emcc", "example_report": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/report.json", "examples": [], "goose": "/home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/goose", "host": "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime", "machine_label": "", "node": "node", "output_dir": "/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-host-53", "prepare_samples": 5, "samples": 5, "smoke": false, "warmups": 1}, "environment": {"bootstrap_seed_sha256": {"seed.c.gz": "a2d68516bbc73c3588dd7308ff802e91c7e9e8c0dbc482ad0c26e2d3f3289043", "seed.json": "3285b4e2f280070fa9e5d3a95c2f82eb94aa553372683e75e8918758bf9a3937", "sources.tar.gz": "6c0756700ec02617618420be8d26c13267015145b4b034441a82124f7fc619ca"}, "compiler_sha256": "c7c51ab1fee6c71f84d3b5fb6cbdde2aa6ceb8659ab203c1e52c93ab7d6cc1ad", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [7], "cpu_flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sev sev_es", "host_controls": {"LD_LIBRARY_PATH": null, "LD_PRELOAD": null, "OMP_NUM_THREADS": null, "RAYON_NUM_THREADS": null, "WASMTIME_BACKTRACE_DETAILS": null}, "input_sha256": {"bench/benchmark.py": "096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf", "bench/host_input.c": "26f658dadb1c458334199ee1051a675417ec63d842c6b54fa84f7db250feb60d", "bench/process.py": "ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72", "bootstrap/seed.c.gz": "a2d68516bbc73c3588dd7308ff802e91c7e9e8c0dbc482ad0c26e2d3f3289043", "bootstrap/seed.json": "3285b4e2f280070fa9e5d3a95c2f82eb94aa553372683e75e8918758bf9a3937", "bootstrap/sources.tar.gz": "6c0756700ec02617618420be8d26c13267015145b4b034441a82124f7fc619ca", "native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284", "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95", "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba", "native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6", "native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4", "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132", "native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3", "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1", "native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087", "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285", "native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869", "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7", "scripts/goose_wasm.py": "4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082", "scripts/run_wasm.mjs": "ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445", "scripts/run_wasmtime.py": "2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca", "selfhost/bootstrap.py": "d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63", "selfhost/checker.goose": "4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed", "selfhost/checker_lifetimes.goose": "0a65c6d9a92c4886ca21ea6dd0ce3d69868aae722e23a694814e3c089ce62be6", "selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f", "selfhost/checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c", "selfhost/checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38", "selfhost/codegen.goose": "632747b97c8c477d13adfd170e4ab09d7f902040d2199c4061e243c05314ffbe", "selfhost/codegen_c.goose": "e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819", "selfhost/codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14", "selfhost/codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6", "selfhost/codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70", "selfhost/driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9", "selfhost/expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb", "selfhost/lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80", "selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e", "selfhost/model.goose": "1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c", "selfhost/optimizer.goose": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699", "selfhost/parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a", "selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb", "selfhost/sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e", "selfhost/thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e", "selfhost/wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a", "stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "", "toolchain_pin": {"bootstrap": {"language": "C11", "seed": "bootstrap/seed.json", "source": "selfhost/main.goose"}, "implementation": "goose", "minimum_python": "3.11", "node": "24.22.1", "schema": "goose-to-wasm-toolchain-v2", "upstream_contract": {"repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"}, "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}, "host_build": {"aot_profiles": ["full", "minimal"], "command": ["/usr/bin/clang++", "-std=c++20", "-O2", "-Wall", "-Wextra", "-Werror", "-I/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "-Wl,--gc-sections", "-static-libstdc++", "-static-libgcc", "-lpthread", "-ldl", "-lm", "-o", "/home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime"], "cxx_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n", "host_sha256": "b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed", "input_sha256": {"/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h": "33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h": "37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h": "c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h": "10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h": "90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h": "a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h": "eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h": "7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h": "c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h": "aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h": "5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h": "caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h": "178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h": "9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h": "89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h": "525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h": "04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h": "29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h": "08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h": "db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h": "025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h": "214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h": "c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h": "de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h": "6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h": "0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h": "7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h": "37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h": "9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h": "5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h": "4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h": "3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h": "95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h": "8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h": "92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h": "521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h": "e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h": "6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h": "1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h": "0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h": "e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h": "47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h": "8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h": "ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h": "16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h": "fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h": "33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h": "7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f", "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "/home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json": "1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110", "/home/jacobt/src/goose-to-wasm/host/wasmtime.cpp": "8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4", "/home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py": "1a6e46aefd7a8fb3c124a7f471e4ea84e5392bac536a4c41f8ceb7ea43b89300", "/home/jacobt/src/goose-to-wasm/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a": "9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a": "ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb", "/usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a": "96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2"}, "library": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a", "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648", "linkage": "sdk-static", "runtime_only": false, "schema": "goose-native-wasmtime-host-v1", "sdk_archive": "/home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz", "sdk_archive_sha256": "e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d", "static_cxx_runtime": true, "supported_modes": ["ordinary", "cached", "precompiled", "worker"], "target": "linux-x86_64", "version": "50.0.1"}, "method": "Fresh ordinary launch-to-exit samples with checked golden bytes. Python and native Wasmtime share the pinned version; their library bytes and build/linkage identities are recorded separately and may differ. Native serial changes only compiler parallelism, not Wasm threads. Precompiled uses the native default configuration and an explicitly prepared, trusted local artifact. When supplied, the minimal companion runs artifacts from both backends prepared by the full host with --aot-profile minimal and default compiler parallelism. The minimal profile excludes exception handling and GC; every selected artifact must compile and qualify under that profile. Preparation includes fresh host launch, Wasm compilation, serialization and file writing. Guest source, Wasm and native-C artifact bytes are unchanged. After input hashes and artifact qualification, selected executable, Wasm and AOT inodes are fsynced, advised DONTNEED where supported, then sequentially read in 1 MiB blocks before warmups. Dependencies and shared libraries are outside this primary-file normalization. Phases run sequentially; runtime modes are shuffled within each example/round block. Separate preparation commands never overlap runtime sampling. No headline runner writes a timing file.", "note": "Complete preparation cost for trusted native artifacts; guest execution is separate. Goose compilation is unchanged and separate. Wasmtime 50.0.1 \u00b7 compilation profile and parallelism recorded separately."}</dc:description>
     <dc:format>image/svg+xml</dc:format>
-    <dc:source>/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-host-52/report.json sha256:b8f5edbe9e9d5bc9041f23806e5b7f1551df73ed8c02b6871539b8b84b214f5d; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/wasmtime_host_charts.py sha256:740d680f99e8b36f1ec9fb502892dd9ce32efcf8e5d2f4b8c363b75c036778ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/example_charts.py sha256:c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime sha256:b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot sha256:a0117cb54b3a163b44cf7c61c80244eb5056ea41ba6274cbebd7258885fd56b4; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot.json sha256:18877f6e490ba775f27ae74e31118b2a0619410b35fbb6255f4dbd4db85307cc; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json sha256:3724d4564911e06d40987d969c643e5b338726972f653b40d4da10cee2f1b392; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/benchmark.py sha256:096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/examples.py sha256:fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/process.py sha256:ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bench/wasmtime_host.py sha256:4171354ddea55ec428675ce68766ece51dfb77f26e56d71da401c64dd1251582; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/seed.c.gz sha256:1597b1371b99aa0628f902b4925d6ec7f0d476520d363edf317b8ee018eeaa2b; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/seed.json sha256:de39bbb8d34e781ec4ee210aabe17429da4e3df18d6a3d1a376e15e6aad66cbf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/bootstrap/sources.tar.gz sha256:a8f194f67a1705e02bd6b52a5648f408324018e335c8360810b5f6f25f238e59; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/images.h sha256:fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/pools.h sha256:76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/relative.h sha256:4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runs.h sha256:b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/goose.h sha256:16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime.h sha256:5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_ext.h sha256:bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_impl.h sha256:717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_os.h sha256:27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/runtime/runtime_threads.h sha256:b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/storage.h sha256:899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/native/threads.h sha256:9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/goose_wasm.py sha256:4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/run_wasm.mjs sha256:ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/scripts/run_wasmtime.py sha256:2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/bootstrap.py sha256:d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker.goose sha256:4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_lifetimes.goose sha256:2480c7db81705d6f9f8f06e19255059cf8a294144395123892a158fa63a3ae47; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_operations.goose sha256:30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_rendering.goose sha256:38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/checker_validation.goose sha256:f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen.goose sha256:659b71875189f7acd638f611041cab1b7b14da4823f860737556afd741ae434f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c.goose sha256:e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_images.goose sha256:4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_storage.goose sha256:218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/codegen_c_threads.goose sha256:04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/driver.goose sha256:c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/expansion_bind.goose sha256:504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/lexer.goose sha256:d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/main.goose sha256:aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/model.goose sha256:1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/optimizer.goose sha256:2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/parser.goose sha256:0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/region_plan.goose sha256:ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/sources.goose sha256:6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/thread_plan.goose sha256:522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/selfhost/wasm.goose sha256:9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-52/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/errors/direct/3/program.wasm sha256:c96e50140e7ffe1b1bc9ceaa7fd52fd229638bc000b0a8c34459e97357ea8043; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/errors/native/3/program.bin sha256:0228c6ae823240157d5f8f54e989b72bf53de50551fbdf7ac9698a13d94cf0ac; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/functions/direct/0/program.wasm sha256:3535c0967864408c810770f8ced3dfd2bb947790c3bf46a7cdd096b935119778; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/functions/native/1/program.bin sha256:d60fa8232427511916ebce528108d539366f384ed77dc857e2295e9399022ba9; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/life/direct/0/program.wasm sha256:1100dd6cfe8b97809ee859bbe2a4f6f50f2e42b4e87bf7febc381c3bcc8b69d3; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/life/native/2/program.bin sha256:56be59bad2dfd0bea9ed5123af6ed6d846df6d900a633c861e7a4bc4325e7442; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/maze/direct/1/program.wasm sha256:637770d87a3f7ebfa0dbc665f9ef160f1f0cad902918db0e9056bb2d0d4a6f9a; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/maze/native/1/program.bin sha256:62df9fe826ff253dd299b382010ecd21eec63b70f750d74a895566d1486db55c; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/sieve/direct/1/program.wasm sha256:48d3b65a632b726471ec2add3797329778e124e8553f5f45bd49610fccaaa943; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/sieve/native/4/program.bin sha256:a1292d48be35868a1d7a611b5a7c9ebe49cef6538b49ae879b717b982d30e90b; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/sorting/direct/4/program.wasm sha256:f992dd464edde283e017df24d9b66a39f139f235f7dcaa830219187dcc09c277; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/sorting/native/2/program.bin sha256:2cdfe63519da75a4a12d96bebc5ecf89101712abc83e3b509b519c236f5e88bd; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/squares/direct/1/program.wasm sha256:6d7abf8390d59e60543f3af9cff3283c26b5ae31578f6c3a5910893db59a2ca3; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/squares/native/2/program.bin sha256:018cee3f19e22c01654f7129f9db2977897371bdbf9cead05fe89b889a8569b3; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/sudoku/direct/3/program.wasm sha256:7ba0d856ba50689e9e94a6d25f8e02c9efc136be67b8af1512db685bbb08a9f3; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/sudoku/native/3/program.bin sha256:3d346ae10e899eb62e839929748666986c65a957aca42a0592863739b3630a81; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/tour/direct/1/program.wasm sha256:af699248f2d3d75f8f87cb8b2e51e443e6a6d3e2a058897bf320122083337621; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/tour/native/0/program.bin sha256:3ee9031af58ab655f5a64233c026a9508bee876b8e816beb352a86836734f737; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/vm/direct/1/program.wasm sha256:efaa092866e784b102455292cc67c58fec6d51f045947c114e9fdea21517f69a; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/compile/vm/native/4/program.bin sha256:a74e45f2e34db34eeb8c2f95361bc100ea44c5508714e3e8ea070e071ac72d04; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-52/report.json sha256:3eb70049922c9fc70daea56732f2211d9e8eef7fbfe23671b2b39bd4db855a3d; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-52/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz sha256:e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h sha256:33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h sha256:37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h sha256:c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h sha256:10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h sha256:90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h sha256:a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h sha256:eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h sha256:7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h sha256:c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h sha256:aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h sha256:5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h sha256:caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h sha256:178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h sha256:9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h sha256:89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h sha256:525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h sha256:04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h sha256:29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h sha256:08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h sha256:db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h sha256:025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h sha256:214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h sha256:c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h sha256:de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h sha256:6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h sha256:0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h sha256:7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h sha256:37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h sha256:9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h sha256:5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h sha256:4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h sha256:3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h sha256:95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h sha256:8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h sha256:92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h sha256:521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h sha256:e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h sha256:6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h sha256:1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h sha256:0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h sha256:e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h sha256:47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h sha256:8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h sha256:ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h sha256:16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h sha256:fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h sha256:33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h sha256:7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/doc-wasm.h sha256:33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasi.h sha256:37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasm.h sha256:c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime.h sha256:10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/anyref.h sha256:90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/arrayref.h sha256:a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/async.h sha256:eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component.h sha256:7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/component.h sha256:c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/func.h sha256:aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/instance.h sha256:5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/linker.h sha256:caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types.h sha256:178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/component.h sha256:9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/func.h sha256:89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/instance.h sha256:525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/module.h sha256:04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/resource.h sha256:29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/val.h sha256:08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/val.h sha256:db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/conf.h sha256:6f20d874a7fd2b53428604c50da9854b0e71ca4cd02b55c1f45aaf342f4d0d4b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/config.h sha256:214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/engine.h sha256:c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/eqref.h sha256:de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/error.h sha256:6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/exnref.h sha256:0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/extern.h sha256:7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/externref.h sha256:37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/func.h sha256:9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/global.h sha256:5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/instance.h sha256:4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/linker.h sha256:3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/memory.h sha256:95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/module.h sha256:8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/profiling.h sha256:92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/sharedmemory.h sha256:521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/store.h sha256:e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/structref.h sha256:6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/table.h sha256:1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/tag.h sha256:0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/trap.h sha256:e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types.h sha256:47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/arrayref.h sha256:8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/exnref.h sha256:ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/structref.h sha256:16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/val.h sha256:fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/val.h sha256:33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/wat.h sha256:7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a sha256:7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c; /home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json sha256:1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110; /home/jacobt/src/goose-to-wasm/host/wasmtime.cpp sha256:8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4; /home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py sha256:1a6e46aefd7a8fb3c124a7f471e4ea84e5392bac536a4c41f8ceb7ea43b89300; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /usr/bin/clang-23 sha256:3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a sha256:9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a sha256:ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a sha256:96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2; native host sha256:b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed; Wasmtime 50.0.1 /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648; minimal AOT host sha256:a0117cb54b3a163b44cf7c61c80244eb5056ea41ba6274cbebd7258885fd56b4; minimal Wasmtime library /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a sha256:7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c</dc:source>
+    <dc:source>/home/jacobt/src/goose-to-wasm/build/completion-runs/goose-host-53/report.json sha256:dd1245b7f4fd99e888c1c7f66cb95fe7ff9952f1a9ad9aeb9220b9dcd34b6c99; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/wasmtime_host_charts.py sha256:740d680f99e8b36f1ec9fb502892dd9ce32efcf8e5d2f4b8c363b75c036778ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/example_charts.py sha256:c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime sha256:b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot sha256:a0117cb54b3a163b44cf7c61c80244eb5056ea41ba6274cbebd7258885fd56b4; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime-aot.json sha256:18877f6e490ba775f27ae74e31118b2a0619410b35fbb6255f4dbd4db85307cc; /home/jacobt/src/goose-to-wasm/build/bin/goose-wasmtime.json sha256:3724d4564911e06d40987d969c643e5b338726972f653b40d4da10cee2f1b392; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/benchmark.py sha256:096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/examples.py sha256:fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/process.py sha256:ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bench/wasmtime_host.py sha256:4171354ddea55ec428675ce68766ece51dfb77f26e56d71da401c64dd1251582; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/seed.c.gz sha256:a2d68516bbc73c3588dd7308ff802e91c7e9e8c0dbc482ad0c26e2d3f3289043; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/seed.json sha256:3285b4e2f280070fa9e5d3a95c2f82eb94aa553372683e75e8918758bf9a3937; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/bootstrap/sources.tar.gz sha256:6c0756700ec02617618420be8d26c13267015145b4b034441a82124f7fc619ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/images.h sha256:fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/pools.h sha256:76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/relative.h sha256:4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runs.h sha256:b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/goose.h sha256:16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime.h sha256:5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_ext.h sha256:bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_impl.h sha256:717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_os.h sha256:27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/runtime/runtime_threads.h sha256:b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/storage.h sha256:899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/native/threads.h sha256:9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/goose_wasm.py sha256:4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/run_wasm.mjs sha256:ad3f1925af6171137d078ecbb992d16119dac3c48ee01df2f5d1b1fd2eff7445; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/scripts/run_wasmtime.py sha256:2c50c0002f8b082447f98238f609485965d8f4615ff1f03cef9804b092bf60ca; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/bootstrap.py sha256:d36dcac32df1e938c9f389ab83ac9f6f1edcf449f02530e95c162f259b944a63; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker.goose sha256:4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_lifetimes.goose sha256:0a65c6d9a92c4886ca21ea6dd0ce3d69868aae722e23a694814e3c089ce62be6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_operations.goose sha256:30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_rendering.goose sha256:38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/checker_validation.goose sha256:f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen.goose sha256:632747b97c8c477d13adfd170e4ab09d7f902040d2199c4061e243c05314ffbe; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c.goose sha256:e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_images.goose sha256:4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_storage.goose sha256:218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/codegen_c_threads.goose sha256:04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/driver.goose sha256:c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/expansion_bind.goose sha256:504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/lexer.goose sha256:d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/main.goose sha256:aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/model.goose sha256:1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/optimizer.goose sha256:2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/parser.goose sha256:0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/region_plan.goose sha256:ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/sources.goose sha256:6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/thread_plan.goose sha256:522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/selfhost/wasm.goose sha256:9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/completion-runs/bench-snapshot-53/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/errors/direct/3/program.wasm sha256:34eb02c547f9ef57d5f7340d956d269ab339e3341e49113523588cb621d99e41; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/errors/native/3/program.bin sha256:de8def02185c40895b1c57e79d12b08be640238d2dcab66a45e3f91901af7713; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/functions/direct/0/program.wasm sha256:575e6e9658f4dca4c0683a2ac71864e7586dcd589960be6dc3de65577e6130e5; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/functions/native/1/program.bin sha256:348159b5bc6397df47005e76370ce8567dd7ac017d80236f600ccecb5b2c0d74; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/life/direct/0/program.wasm sha256:1100dd6cfe8b97809ee859bbe2a4f6f50f2e42b4e87bf7febc381c3bcc8b69d3; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/life/native/2/program.bin sha256:e2b7b790027f0919ed1e64d733e3c6e14fa2bcf32f958c207a72690af50c4b0b; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/maze/direct/1/program.wasm sha256:8f38f560ea2e4c976975bfc70c0ca4d4829f09cfda23b7bf3f5e90bc9c46e990; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/maze/native/1/program.bin sha256:5211bb898c1eecea3eeb823d72f6114b17ea4448d1cab2011c912152bd359332; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/sieve/direct/1/program.wasm sha256:48d3b65a632b726471ec2add3797329778e124e8553f5f45bd49610fccaaa943; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/sieve/native/4/program.bin sha256:612a0325b39006255bcc9e56b9a538eeb1113c86cf17c23725dec7e3bf221dea; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/sorting/direct/4/program.wasm sha256:717e7cc4df33979c83e43bbcc32b048a55f3877e1ed5473bc3760ce26283bbc1; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/sorting/native/2/program.bin sha256:dff9f5b83bbbfbf7cb54aad477ee69376843758a5b3f9fe5d1f30bcef347fd8b; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/squares/direct/1/program.wasm sha256:6d7abf8390d59e60543f3af9cff3283c26b5ae31578f6c3a5910893db59a2ca3; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/squares/native/2/program.bin sha256:018cee3f19e22c01654f7129f9db2977897371bdbf9cead05fe89b889a8569b3; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/sudoku/direct/3/program.wasm sha256:64aa736213c457e0f3a7b0f00985817ed08e5cccd42a77aeff1268812c827c54; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/sudoku/native/3/program.bin sha256:291108f2e96418386a60806a4ad1115d81fc3fd4a957111c018c1567e834aead; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/tour/direct/1/program.wasm sha256:9687d55a66d3ecdfac359d49647e207a7028243cb31096dcf12c578d55838a1a; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/tour/native/0/program.bin sha256:5d51eb3b42f55b2b9bfe4c3b2f045b3b4693d06e92823dcc029ade440d8653d8; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/vm/direct/1/program.wasm sha256:efaa092866e784b102455292cc67c58fec6d51f045947c114e9fdea21517f69a; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/compile/vm/native/4/program.bin sha256:709c42e740d7850620c07bcb0d9a27eeee327a525a57b3f7dd1be5161c84f73f; /home/jacobt/src/goose-to-wasm/build/completion-runs/goose-examples-53/report.json sha256:f8fbe55f2192ca41ea2e8fa6915be9407fba317c16bffb4d276d5eb2a77dfd44; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/install-53/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api.tar.xz sha256:e2c0c26e1aef52f82f0b9918ad6f34cc30f4b557aee3e261cb127a9462be8f4d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/doc-wasm.h sha256:33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasi.h sha256:37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasm.h sha256:c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime.h sha256:10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/anyref.h sha256:90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/arrayref.h sha256:a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/async.h sha256:eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component.h sha256:7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/component.h sha256:c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/func.h sha256:aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/instance.h sha256:5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/linker.h sha256:caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types.h sha256:178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/component.h sha256:9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/func.h sha256:89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/instance.h sha256:525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/module.h sha256:04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/resource.h sha256:29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/types/val.h sha256:08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/component/val.h sha256:db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/conf.h sha256:025c75489f406c4f3097c57944c01e5fa13840c23c28fe124c748e942f5cdaaa; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/config.h sha256:214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/engine.h sha256:c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/eqref.h sha256:de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/error.h sha256:6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/exnref.h sha256:0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/extern.h sha256:7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/externref.h sha256:37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/func.h sha256:9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/global.h sha256:5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/instance.h sha256:4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/linker.h sha256:3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/memory.h sha256:95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/module.h sha256:8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/profiling.h sha256:92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/sharedmemory.h sha256:521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/store.h sha256:e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/structref.h sha256:6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/table.h sha256:1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/tag.h sha256:0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/trap.h sha256:e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types.h sha256:47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/arrayref.h sha256:8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/exnref.h sha256:ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/structref.h sha256:16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/types/val.h sha256:fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/val.h sha256:33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/include/wasmtime/wat.h sha256:7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/doc-wasm.h sha256:33c6bca76dbc9ebcfd785798d8d7837ad4f34ca0df9beb1108408edf63a8d195; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasi.h sha256:37d15447efe4c47b445996c4bd9d879dfe02402bd96e36a9de5ca195670ce5ea; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasm.h sha256:c8c2ab4be578bf618512e0720f939d1c8b9b0121f007091dd3746e60290977d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime.h sha256:10790ac2d16b8c1d8e7de7768c7a177ce1b9778a82b48d6e7b4a306d36b9134b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/anyref.h sha256:90cca7935d268d9ae17032a143bc7fa5d5287edf8254a8c49ac69ca0277c900e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/arrayref.h sha256:a93ec80b4849edbd6c7bb2c8268b9f41ed4d97b5e0ad537e7521b4551d005521; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/async.h sha256:eea9b04b8c59244fc555a713eeefc88d442baade7506f5355b909fac4c5d3a41; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component.h sha256:7230a0a2ef79976c079225a193006289d5538b2d6cb7e6180649c4526b9dd898; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/component.h sha256:c70c86787fe9a684ef5cd09858d7084944690f4c8779df40422be4bd02bcf30f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/func.h sha256:aeae5c9c7dba0db1a7ea03fd4264a0bdc0bbd649c2b4925ad3c86d5a635725a4; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/instance.h sha256:5f2928c0fa8a5b016560d2582b489ddeca28a1200227a7cd351ab4b16d2c8c3f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/linker.h sha256:caa8228d65eec38ae44f7605d20a930daff8cbcafb038465d1fc8e99459f22d9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types.h sha256:178795777a58f5ec7138a5932498904ed37fd37a1935b58f739fbd9e48a16614; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/component.h sha256:9ff90206171ebdc06182c628382790f72d8e11d0d6e2acdc9074c4ec63d5be64; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/func.h sha256:89d65916a8e599cf2abe3fe5734648b2a84ac0701be196d07533a2cef1e1a280; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/instance.h sha256:525d7f53408a04f33f26389bd7a29e52a88fd9a0484a8697d66a2d6282fbb272; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/module.h sha256:04afb394852aa2d22e2dcf0ece8ee4e4a6ae436c7f979ca361d939baf3023592; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/resource.h sha256:29e8ea2ef512969f9bf82700d932d89cd78437c31c2a9c4b9919f2b0581fcdd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/types/val.h sha256:08d3b8fc7b78a4ccb9cc809d3200911a745d7593d9323a2db7d994f742b9c726; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/component/val.h sha256:db3a426f729b16706a3e7b48560a5288b7323efd3faea5b49ea49e31ad44ccd9; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/conf.h sha256:6f20d874a7fd2b53428604c50da9854b0e71ca4cd02b55c1f45aaf342f4d0d4b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/config.h sha256:214a7d6f6da810e5f8b8694694b16ca98e3857d9eea45f0555125a15f957d920; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/engine.h sha256:c1a02904ef0d4c660d2baa70477994bbc4cfe291aeebe7143bc1c8b316f77788; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/eqref.h sha256:de21b013eac94b2d43eba4bbac34d565c649e2573814868dbbe50e64622ca7be; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/error.h sha256:6905acdfe81f5a7d31c49ac1af8221b3d98b61d5341b91a4a8232f2466dce8f0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/exnref.h sha256:0f03df665b9a8b7ca9405ad638d4068c0ce7d5024165132acea94430bbc626d0; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/extern.h sha256:7486bc71ec8172152cc6d3d0e827946b4d0778f0b1495a1e377130c031d02031; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/externref.h sha256:37f55067f7227ba6dabc3d933812e0f757e711b6b927a89b47460956bf17d8a5; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/func.h sha256:9a4fee4a295a2b19a141cf84be4ceb9355bfc25394ae761d7f780ac49f2d65ad; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/global.h sha256:5e51effa5185ec774e47bb53323fbf5f0d0b621158f0a578b5528711d2f18129; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/instance.h sha256:4abeaef7a3942aa986d29e58b1ad169307d4ffd10e11a796e0f903933bec67b7; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/linker.h sha256:3ccb42d67c0724b7ce20302c45313f0a056b47a3d0754ce83e0c408f8994576d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/memory.h sha256:95c0c3b189ea7b0e8c5b523a18de0a19a1bef7db8c5702275a3a2d9e6cea9642; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/module.h sha256:8c0b889e5235a1017a4844d03628a7dd67090a5088ae289f87f699f6bd6be88e; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/profiling.h sha256:92ac5516a561bd062aaf302051373512970a0ea9641836a47993d32b1ab8b205; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/sharedmemory.h sha256:521d632a5f5ee3e28125b22fdf4f517edb2965a49ebd838278d620368377a1fe; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/store.h sha256:e58c070157b4e6f2de6af34eab5f2ee884bf9d577dd90dc3de4c056e8515651b; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/structref.h sha256:6db53ade4d6ff78404c55d4e096acef881f435a6d5f76cca7dddb5859f8b1a12; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/table.h sha256:1d4313d41a85989ae00c8c744c2e2415ac0694ea3bc3fb15d51cddf5fd74d1ba; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/tag.h sha256:0e6261f2f061b2c900b129b12de12e72e2bc37c32380ee95ef6f15e14baa395f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/trap.h sha256:e9d2736e3e66ed5afbb4c277af1071cd1246c091b10378a7290bf1b3b09a310d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types.h sha256:47facddf2717b2ff9b13bc9bdae50cf0cd421c3299622248820f3c4f154fb464; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/arrayref.h sha256:8b978b9ca57092c9b14c846efcb0f80515a1792e87af2e74169d3f2a7a7c8fe3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/exnref.h sha256:ff720e11ebec7936f9a439c66fd0de336176d4cecee01198dca936e2ca13383d; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/structref.h sha256:16c0dd4a06bce1efbddefb720dd09dc9ebf166ebaf5a654130f5b7be6ab71b19; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/types/val.h sha256:fbc78a085d0ac76a85f63f66986a2b77d0813146a7b715cf269c56115f84b3d3; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/val.h sha256:33ea4fc9b9288f536dc12b15130b25b88b59144c85d1e34c30a8ff8514170148; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/include/wasmtime/wat.h sha256:7533f9c25ee267c88ea64e21a7550bf28585183184a29c575ceb419eb711fe9f; /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a sha256:7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c; /home/jacobt/src/goose-to-wasm/host/wasmtime-sdk.json sha256:1a04dabb67145710b23197e57dadb166c76258764ca82aa85225c8f8e7717110; /home/jacobt/src/goose-to-wasm/host/wasmtime.cpp sha256:8b30e7e010695beeaf5f33f2fe4e62faa2f1ce54a6d413c6783933dba36ce9a4; /home/jacobt/src/goose-to-wasm/scripts/build_wasmtime_host.py sha256:1a6e46aefd7a8fb3c124a7f471e4ea84e5392bac536a4c41f8ceb7ea43b89300; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /usr/bin/clang-23 sha256:3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a sha256:9aa4a00e137eea9ed62e0e4fd656a956a398ebded9f6b2949375779612c02212; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a sha256:ce9071c5ca0e2f57a987bd5b96be24f3c274f9e6c72c1bfd45c11ca4861b89cb; /usr/lib/gcc/x86_64-pc-linux-gnu/16/libstdc++.a sha256:96e165b94c4b5f5d27fdaeefd143b432664451025737c27db1ac60d8e9312dd2; native host sha256:b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed; Wasmtime 50.0.1 /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/lib/libwasmtime.a sha256:811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648; minimal AOT host sha256:a0117cb54b3a163b44cf7c61c80244eb5056ea41ba6274cbebd7258885fd56b4; minimal Wasmtime library /home/jacobt/src/goose-to-wasm/build/wasmtime-host/wasmtime-v50.0.1-x86_64-linux-c-api/min/lib/libwasmtime.a sha256:7840020956da636cf901821a093ba207ae4e109a153a5e0ae50c9cbbd02c751c</dc:source>
     <dc:creator>
      <cc:Agent>
       <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
@@ -105,35 +105,35 @@ z
    <g id="matplotlib.axis_2">
     <g id="ytick_1">
      <g id="line2d_11">
-      <path d="M 86.4 447.009736
-L 1134.72 447.009736
+      <path d="M 86.4 444.166161
+L 1134.72 444.166161
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_12"/>
      <g id="text_11">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="450.808564" transform="rotate(-0 78.4 450.808564)">10</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="447.964989" transform="rotate(-0 78.4 447.964989)">10</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_13">
-      <path d="M 86.4 326.416538
-L 1134.72 326.416538
+      <path d="M 86.4 323.077752
+L 1134.72 323.077752
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_14"/>
      <g id="text_12">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="330.215367" transform="rotate(-0 78.4 330.215367)">100</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="326.87658" transform="rotate(-0 78.4 326.87658)">100</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_15">
-      <path d="M 86.4 205.823341
-L 1134.72 205.823341
+      <path d="M 86.4 201.989343
+L 1134.72 201.989343
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
      </g>
      <g id="line2d_16"/>
      <g id="text_13">
-      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="209.622169" transform="rotate(-0 78.4 209.622169)">1e+03</text>
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="78.4" y="205.788171" transform="rotate(-0 78.4 205.788171)">1e+03</text>
      </g>
     </g>
     <g id="ytick_4">
@@ -144,189 +144,189 @@ L -2 0
 " style="stroke: #475569; stroke-width: 0.6"/>
       </defs>
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="531.300764" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="528.803327" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_5">
      <g id="line2d_18">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="510.065356" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="507.480716" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_6">
      <g id="line2d_19">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="494.998594" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="492.352084" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_7">
      <g id="line2d_20">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="483.311906" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="480.617404" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_8">
      <g id="line2d_21">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="473.763186" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="471.029473" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_9">
      <g id="line2d_22">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="465.689859" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="462.922993" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_10">
      <g id="line2d_23">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="458.696424" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="455.90084" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_11">
      <g id="line2d_24">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="452.527778" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="449.706863" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_12">
      <g id="line2d_25">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="410.707566" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="407.714918" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_13">
      <g id="line2d_26">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="389.472158" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="386.392308" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_14">
      <g id="line2d_27">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="374.405397" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="371.263675" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_15">
      <g id="line2d_28">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="362.718708" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="359.528995" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_16">
      <g id="line2d_29">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="353.169989" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="349.941064" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_17">
      <g id="line2d_30">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="345.096661" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="341.834584" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_18">
      <g id="line2d_31">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="338.103227" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="334.812431" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_19">
      <g id="line2d_32">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="331.934581" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="328.618454" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_20">
      <g id="line2d_33">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="290.114369" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="286.626509" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_21">
      <g id="line2d_34">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="268.878961" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="265.303899" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_22">
      <g id="line2d_35">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="253.812199" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="250.175266" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_23">
      <g id="line2d_36">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="242.125511" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="238.440586" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_24">
      <g id="line2d_37">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="232.576791" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="228.852655" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_25">
      <g id="line2d_38">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="224.503463" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="220.746175" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_26">
      <g id="line2d_39">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="217.510029" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="213.724023" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_27">
      <g id="line2d_40">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="211.341383" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="207.530045" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_28">
      <g id="line2d_41">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="169.521171" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="165.5381" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_29">
      <g id="line2d_42">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="148.285763" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="144.21549" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
     <g id="ytick_30">
      <g id="line2d_43">
       <g>
-       <use xlink:href="#md84019238d" x="86.4" y="133.219001" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+       <use xlink:href="#md84019238d" x="86.4" y="129.086857" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
       </g>
      </g>
     </g>
@@ -337,273 +337,273 @@ L -2 0
    <g id="patch_3">
     <path d="M 107.864611 550.8
 L 129.287705 550.8
-L 129.287705 489.940435
-L 107.864611 489.940435
+L 129.287705 490.009928
+L 107.864611 490.009928
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_4">
     <path d="M 211.658671 550.8
 L 233.081765 550.8
-L 233.081765 350.410444
-L 211.658671 350.410444
+L 233.081765 350.756375
+L 211.658671 350.756375
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_5">
     <path d="M 315.45273 550.8
 L 336.875824 550.8
-L 336.875824 292.008106
-L 315.45273 292.008106
+L 336.875824 292.635863
+L 315.45273 292.635863
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_6">
     <path d="M 419.24679 550.8
 L 440.669884 550.8
-L 440.669884 375.26385
-L 419.24679 375.26385
+L 440.669884 374.229495
+L 419.24679 374.229495
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_7">
     <path d="M 523.040849 550.8
 L 544.463943 550.8
-L 544.463943 398.968081
-L 523.040849 398.968081
+L 544.463943 399.228331
+L 523.040849 399.228331
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_8">
     <path d="M 626.834909 550.8
 L 648.258002 550.8
-L 648.258002 300.604126
-L 626.834909 300.604126
+L 648.258002 300.702474
+L 626.834909 300.702474
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_9">
     <path d="M 730.628968 550.8
 L 752.052062 550.8
-L 752.052062 407.679224
-L 730.628968 407.679224
+L 752.052062 407.158269
+L 730.628968 407.158269
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_10">
     <path d="M 834.423027 550.8
 L 855.846121 550.8
-L 855.846121 330.786405
-L 834.423027 330.786405
+L 855.846121 331.103602
+L 834.423027 331.103602
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_11">
     <path d="M 938.217087 550.8
 L 959.640181 550.8
-L 959.640181 338.721741
-L 938.217087 338.721741
+L 959.640181 339.305024
+L 938.217087 339.305024
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_12">
     <path d="M 1042.011146 550.8
 L 1063.43424 550.8
-L 1063.43424 379.949905
-L 1042.011146 379.949905
+L 1063.43424 381.023261
+L 1042.011146 381.023261
 z
 " clip-path="url(#pef17345727)" style="fill: #087f8c"/>
    </g>
    <g id="patch_13">
     <path d="M 132.775186 550.8
 L 154.19828 550.8
-L 154.19828 493.262422
-L 132.775186 493.262422
+L 154.19828 493.026146
+L 132.775186 493.026146
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_14">
     <path d="M 236.569245 550.8
 L 257.992339 550.8
-L 257.992339 351.881393
-L 236.569245 351.881393
+L 257.992339 352.55796
+L 236.569245 352.55796
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_15">
     <path d="M 340.363305 550.8
 L 361.786398 550.8
-L 361.786398 292.671216
-L 340.363305 292.671216
+L 361.786398 292.702638
+L 340.363305 292.702638
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_16">
     <path d="M 444.157364 550.8
 L 465.580458 550.8
-L 465.580458 375.788764
-L 444.157364 375.788764
+L 465.580458 374.888978
+L 444.157364 374.888978
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_17">
     <path d="M 547.951423 550.8
 L 569.374517 550.8
-L 569.374517 400.870812
-L 547.951423 400.870812
+L 569.374517 400.792534
+L 547.951423 400.792534
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_18">
     <path d="M 651.745483 550.8
 L 673.168577 550.8
-L 673.168577 301.593301
-L 651.745483 301.593301
+L 673.168577 301.445687
+L 651.745483 301.445687
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_19">
     <path d="M 755.539542 550.8
 L 776.962636 550.8
-L 776.962636 408.879254
-L 755.539542 408.879254
+L 776.962636 407.740474
+L 755.539542 407.740474
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_20">
     <path d="M 859.333602 550.8
 L 880.756695 550.8
-L 880.756695 331.534904
-L 859.333602 331.534904
+L 880.756695 331.660012
+L 859.333602 331.660012
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_21">
     <path d="M 963.127661 550.8
 L 984.550755 550.8
-L 984.550755 340.197157
-L 963.127661 340.197157
+L 984.550755 340.598168
+L 963.127661 340.598168
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_22">
     <path d="M 1066.92172 550.8
 L 1088.344814 550.8
-L 1088.344814 381.551244
-L 1066.92172 381.551244
+L 1088.344814 382.434385
+L 1066.92172 382.434385
 z
 " clip-path="url(#pef17345727)" style="fill: #ce862a"/>
    </g>
    <g id="patch_23">
     <path d="M 157.68576 550.8
 L 179.108854 550.8
-L 179.108854 489.380549
-L 157.68576 489.380549
+L 179.108854 490.75392
+L 157.68576 490.75392
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_24">
     <path d="M 261.479819 550.8
 L 282.902913 550.8
-L 282.902913 350.531398
-L 261.479819 350.531398
+L 282.902913 351.00091
+L 261.479819 351.00091
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_25">
     <path d="M 365.273879 550.8
 L 386.696973 550.8
-L 386.696973 291.895219
-L 365.273879 291.895219
+L 386.696973 292.518569
+L 365.273879 292.518569
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_26">
     <path d="M 469.067938 550.8
 L 490.491032 550.8
-L 490.491032 375.358107
-L 469.067938 375.358107
+L 490.491032 374.463124
+L 469.067938 374.463124
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_27">
     <path d="M 572.861998 550.8
 L 594.285091 550.8
-L 594.285091 398.764733
-L 572.861998 398.764733
+L 594.285091 399.646379
+L 572.861998 399.646379
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_28">
     <path d="M 676.656057 550.8
 L 698.079151 550.8
-L 698.079151 300.872203
-L 676.656057 300.872203
+L 698.079151 300.933564
+L 676.656057 300.933564
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_29">
     <path d="M 780.450116 550.8
 L 801.87321 550.8
-L 801.87321 407.765616
-L 780.450116 407.765616
+L 801.87321 407.024091
+L 780.450116 407.024091
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_30">
     <path d="M 884.244176 550.8
 L 905.66727 550.8
-L 905.66727 330.59061
-L 884.244176 330.59061
+L 905.66727 331.122105
+L 884.244176 331.122105
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_31">
     <path d="M 988.038235 550.8
 L 1009.461329 550.8
-L 1009.461329 338.690643
-L 988.038235 338.690643
+L 1009.461329 339.427702
+L 988.038235 339.427702
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="patch_32">
     <path d="M 1091.832295 550.8
 L 1113.255389 550.8
-L 1113.255389 379.992184
-L 1091.832295 379.992184
+L 1113.255389 381.182289
+L 1091.832295 381.182289
 z
 " clip-path="url(#pef17345727)" style="fill: #7461a8"/>
    </g>
    <g id="LineCollection_1">
-    <path d="M 118.576158 490.372313
-L 118.576158 489.512089
+    <path d="M 118.576158 490.568086
+L 118.576158 489.457632
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 222.370218 350.755947
-L 222.370218 350.067204
+    <path d="M 222.370218 350.846351
+L 222.370218 350.666552
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 326.164277 292.315956
-L 326.164277 291.702056
+    <path d="M 326.164277 292.787646
+L 326.164277 292.484517
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 429.958337 375.451288
-L 429.958337 375.077081
+    <path d="M 429.958337 374.407216
+L 429.958337 374.052371
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 533.752396 399.217122
-L 533.752396 398.720219
+    <path d="M 533.752396 399.338542
+L 533.752396 399.11835
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 637.546455 300.73333
-L 637.546455 300.47524
+    <path d="M 637.546455 300.957223
+L 637.546455 300.448954
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 741.340515 407.773457
-L 741.340515 407.585161
+    <path d="M 741.340515 407.346207
+L 741.340515 406.971001
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 845.134574 331.033921
-L 845.134574 330.540053
+    <path d="M 845.134574 331.110531
+L 845.134574 331.096675
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 948.928634 338.767038
-L 948.928634 338.676483
+    <path d="M 948.928634 339.460643
+L 948.928634 339.149863
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 1052.722693 380.477222
-L 1052.722693 379.427845
+    <path d="M 1052.722693 381.145763
+L 1052.722693 380.901043
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_44">
@@ -613,150 +613,150 @@ L -2 -0
 " style="stroke: #334155"/>
     </defs>
     <g clip-path="url(#pef17345727)">
-     <use xlink:href="#m4b83c0f92f" x="118.576158" y="490.372313" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="222.370218" y="350.755947" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="326.164277" y="292.315956" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="429.958337" y="375.451288" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="533.752396" y="399.217122" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="637.546455" y="300.73333" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="741.340515" y="407.773457" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="845.134574" y="331.033921" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="948.928634" y="338.767038" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1052.722693" y="380.477222" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="118.576158" y="490.568086" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="222.370218" y="350.846351" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="326.164277" y="292.787646" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="429.958337" y="374.407216" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="533.752396" y="399.338542" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="637.546455" y="300.957223" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="741.340515" y="407.346207" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="845.134574" y="331.110531" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="948.928634" y="339.460643" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1052.722693" y="381.145763" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_45">
     <g clip-path="url(#pef17345727)">
-     <use xlink:href="#m4b83c0f92f" x="118.576158" y="489.512089" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="222.370218" y="350.067204" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="326.164277" y="291.702056" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="429.958337" y="375.077081" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="533.752396" y="398.720219" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="637.546455" y="300.47524" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="741.340515" y="407.585161" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="845.134574" y="330.540053" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="948.928634" y="338.676483" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1052.722693" y="379.427845" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="118.576158" y="489.457632" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="222.370218" y="350.666552" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="326.164277" y="292.484517" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="429.958337" y="374.052371" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="533.752396" y="399.11835" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="637.546455" y="300.448954" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="741.340515" y="406.971001" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="845.134574" y="331.096675" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="948.928634" y="339.149863" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1052.722693" y="380.901043" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="LineCollection_2">
-    <path d="M 143.486733 493.91405
-L 143.486733 492.618803
+    <path d="M 143.486733 494.189665
+L 143.486733 491.887815
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 247.280792 352.164878
-L 247.280792 351.599433
+    <path d="M 247.280792 352.63755
+L 247.280792 352.478491
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 351.074851 293.027377
-L 351.074851 292.317461
+    <path d="M 351.074851 292.836868
+L 351.074851 292.56875
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 454.868911 375.894442
-L 454.868911 375.683298
+    <path d="M 454.868911 375.140947
+L 454.868911 374.638211
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 558.66297 401.099601
-L 558.66297 400.643019
+    <path d="M 558.66297 401.650471
+L 558.66297 399.948369
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 662.45703 302.143262
-L 662.45703 301.049054
+    <path d="M 662.45703 301.510037
+L 662.45703 301.381415
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 766.251089 409.038026
-L 766.251089 408.720963
+    <path d="M 766.251089 407.799466
+L 766.251089 407.681548
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 870.045149 331.714379
-L 870.045149 331.356042
+    <path d="M 870.045149 331.890032
+L 870.045149 331.430995
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 973.839208 340.321549
-L 973.839208 340.073059
+    <path d="M 973.839208 340.67057
+L 973.839208 340.525866
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 1077.633267 381.648439
-L 1077.633267 381.454229
+    <path d="M 1077.633267 382.559359
+L 1077.633267 382.309707
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_46">
     <g clip-path="url(#pef17345727)">
-     <use xlink:href="#m4b83c0f92f" x="143.486733" y="493.91405" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="247.280792" y="352.164878" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="351.074851" y="293.027377" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="454.868911" y="375.894442" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="558.66297" y="401.099601" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="662.45703" y="302.143262" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="766.251089" y="409.038026" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="870.045149" y="331.714379" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="973.839208" y="340.321549" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1077.633267" y="381.648439" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="143.486733" y="494.189665" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="247.280792" y="352.63755" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="351.074851" y="292.836868" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="454.868911" y="375.140947" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="558.66297" y="401.650471" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="662.45703" y="301.510037" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="766.251089" y="407.799466" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="870.045149" y="331.890032" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="973.839208" y="340.67057" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1077.633267" y="382.559359" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_47">
     <g clip-path="url(#pef17345727)">
-     <use xlink:href="#m4b83c0f92f" x="143.486733" y="492.618803" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="247.280792" y="351.599433" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="351.074851" y="292.317461" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="454.868911" y="375.683298" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="558.66297" y="400.643019" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="662.45703" y="301.049054" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="766.251089" y="408.720963" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="870.045149" y="331.356042" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="973.839208" y="340.073059" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1077.633267" y="381.454229" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="143.486733" y="491.887815" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="247.280792" y="352.478491" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="351.074851" y="292.56875" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="454.868911" y="374.638211" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="558.66297" y="399.948369" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="662.45703" y="301.381415" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="766.251089" y="407.681548" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="870.045149" y="331.430995" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="973.839208" y="340.525866" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1077.633267" y="382.309707" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="LineCollection_3">
-    <path d="M 168.397307 489.604919
-L 168.397307 489.157135
+    <path d="M 168.397307 491.018569
+L 168.397307 490.490596
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 272.191366 350.661561
-L 272.191366 350.401559
+    <path d="M 272.191366 351.288472
+L 272.191366 350.714912
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 375.985426 292.056019
-L 375.985426 291.734911
+    <path d="M 375.985426 292.643101
+L 375.985426 292.394331
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 479.779485 375.660854
-L 479.779485 375.0571
+    <path d="M 479.779485 374.491016
+L 479.779485 374.435246
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 583.573545 399.23592
-L 583.573545 398.297748
+    <path d="M 583.573545 399.887453
+L 583.573545 399.406404
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 687.367604 300.901704
-L 687.367604 300.842717
+    <path d="M 687.367604 301.057908
+L 687.367604 300.809514
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 791.161663 407.862487
-L 791.161663 407.668924
+    <path d="M 791.161663 407.093191
+L 791.161663 406.955081
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 894.955723 330.841813
-L 894.955723 330.340605
+    <path d="M 894.955723 331.356549
+L 894.955723 330.888701
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 998.749782 338.86175
-L 998.749782 338.520093
+    <path d="M 998.749782 339.484493
+L 998.749782 339.370973
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
-    <path d="M 1102.543842 380.594344
-L 1102.543842 379.396869
+    <path d="M 1102.543842 381.274768
+L 1102.543842 381.089972
 " clip-path="url(#pef17345727)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
    </g>
    <g id="line2d_48">
     <g clip-path="url(#pef17345727)">
-     <use xlink:href="#m4b83c0f92f" x="168.397307" y="489.604919" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="272.191366" y="350.661561" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="375.985426" y="292.056019" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="479.779485" y="375.660854" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="583.573545" y="399.23592" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="687.367604" y="300.901704" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="791.161663" y="407.862487" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="894.955723" y="330.841813" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="998.749782" y="338.86175" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1102.543842" y="380.594344" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="168.397307" y="491.018569" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="272.191366" y="351.288472" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="375.985426" y="292.643101" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="479.779485" y="374.491016" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="583.573545" y="399.887453" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="687.367604" y="301.057908" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="791.161663" y="407.093191" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="894.955723" y="331.356549" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="998.749782" y="339.484493" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1102.543842" y="381.274768" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="line2d_49">
     <g clip-path="url(#pef17345727)">
-     <use xlink:href="#m4b83c0f92f" x="168.397307" y="489.157135" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="272.191366" y="350.401559" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="375.985426" y="291.734911" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="479.779485" y="375.0571" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="583.573545" y="398.297748" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="687.367604" y="300.842717" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="791.161663" y="407.668924" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="894.955723" y="330.340605" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="998.749782" y="338.520093" style="fill: #1f77b4; stroke: #334155"/>
-     <use xlink:href="#m4b83c0f92f" x="1102.543842" y="379.396869" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="168.397307" y="490.490596" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="272.191366" y="350.714912" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="375.985426" y="292.394331" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="479.779485" y="374.435246" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="583.573545" y="399.406404" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="687.367604" y="300.809514" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="791.161663" y="406.955081" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="894.955723" y="330.888701" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="998.749782" y="339.370973" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m4b83c0f92f" x="1102.543842" y="381.089972" style="fill: #1f77b4; stroke: #334155"/>
     </g>
    </g>
    <g id="patch_33">
@@ -765,94 +765,94 @@ L 1134.72 550.8
 " style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="text_15">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(120.654283 485.968605) rotate(-90)">4.41 ±0.036</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(120.654283 485.899598) rotate(-90)">4.18 ±0.044</text>
    </g>
    <g id="text_16">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(224.448343 346.52372) rotate(-90)">63.2 ±0.42</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(224.448343 347.108518) rotate(-90)">59.1 ±0.1</text>
    </g>
    <g id="text_17">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(328.242402 288.158572) rotate(-90)">193 ±1.1</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(328.242402 288.926482) rotate(-90)">178 ±0.51</text>
    </g>
    <g id="text_18">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(432.036462 371.533597) rotate(-90)">39.3 ±0.14</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(432.036462 370.494336) rotate(-90)">37.8 ±0.13</text>
    </g>
    <g id="text_19">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(535.830521 395.176735) rotate(-90)">25 ±0.12</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(535.830521 395.560315) rotate(-90)">23.5 ±0.049</text>
    </g>
    <g id="text_20">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(639.62458 296.931756) rotate(-90)">164 ±0.4</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(639.62458 296.890919) rotate(-90)">153 ±0.74</text>
    </g>
    <g id="text_21">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(743.41864 404.041677) rotate(-90)">21.2 ±0.038</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(743.41864 403.412966) rotate(-90)">20.2 ±0.072</text>
    </g>
    <g id="text_22">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(847.212699 326.996569) rotate(-90)">92 ±0.43</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(847.212699 327.53864) rotate(-90)">85.8 ±0.011</text>
    </g>
    <g id="text_23">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(951.006759 335.132999) rotate(-90)">79.1 ±0.068</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(951.006759 335.591828) rotate(-90)">73.4 ±0.22</text>
    </g>
    <g id="text_24">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1054.800818 375.884361) rotate(-90)">36 ±0.36</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1054.800818 377.343008) rotate(-90)">33.2 ±0.077</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(145.564858 489.075319) rotate(-90)">4.13 ±0.051</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(145.564858 488.32978) rotate(-90)">3.95 ±0.086</text>
    </g>
    <g id="text_26">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(249.358917 348.05595) rotate(-90)">61.5 ±0.33</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(249.358917 348.920456) rotate(-90)">57.1 ±0.086</text>
    </g>
    <g id="text_27">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(353.152976 288.773977) rotate(-90)">190 ±1.3</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(353.152976 289.010715) rotate(-90)">178 ±0.45</text>
    </g>
    <g id="text_28">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(456.947036 372.139814) rotate(-90)">39 ±0.079</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(456.947036 371.080176) rotate(-90)">37.3 ±0.18</text>
    </g>
    <g id="text_29">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(560.741095 397.099535) rotate(-90)">24.1 ±0.11</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(560.741095 396.390334) rotate(-90)">22.8 ±0.37</text>
    </g>
    <g id="text_30">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(664.535155 297.50557) rotate(-90)">161 ±1.7</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(664.535155 297.82338) rotate(-90)">151 ±0.18</text>
    </g>
    <g id="text_31">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(768.329214 405.177479) rotate(-90)">20.7 ±0.063</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(768.329214 404.123513) rotate(-90)">20 ±0.022</text>
    </g>
    <g id="text_32">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(872.123274 327.812558) rotate(-90)">90.7 ±0.31</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(872.123274 327.87296) rotate(-90)">84.9 ±0.37</text>
    </g>
    <g id="text_33">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(975.917333 336.529576) rotate(-90)">76.9 ±0.18</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(975.917333 336.967831) rotate(-90)">71.7 ±0.099</text>
    </g>
    <g id="text_34">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1079.711392 377.910745) rotate(-90)">34.9 ±0.065</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1079.711392 378.751672) rotate(-90)">32.3 ±0.077</text>
    </g>
    <g id="text_35">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(170.475432 485.613651) rotate(-90)">4.45 ±0.019</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(170.475432 486.932561) rotate(-90)">4.12 ±0.021</text>
    </g>
    <g id="text_36">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(274.269491 346.858075) rotate(-90)">63.1 ±0.16</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(274.269491 347.156877) rotate(-90)">58.8 ±0.32</text>
    </g>
    <g id="text_37">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(378.063551 288.191427) rotate(-90)">193 ±0.59</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(378.063551 288.836297) rotate(-90)">179 ±0.42</text>
    </g>
    <g id="text_38">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(481.85761 371.513616) rotate(-90)">39.3 ±0.23</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(481.85761 370.877212) rotate(-90)">37.6 ±0.02</text>
    </g>
    <g id="text_39">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(585.65167 394.754264) rotate(-90)">25.1 ±0.23</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(585.65167 395.84837) rotate(-90)">23.3 ±0.11</text>
    </g>
    <g id="text_40">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(689.445729 297.299234) rotate(-90)">163 ±0.092</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(689.445729 297.251479) rotate(-90)">152 ±0.36</text>
    </g>
    <g id="text_41">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(793.239788 404.12544) rotate(-90)">21.2 ±0.039</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(793.239788 403.397046) rotate(-90)">20.3 ±0.027</text>
    </g>
    <g id="text_42">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(897.033848 326.797121) rotate(-90)">92.3 ±0.44</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(897.033848 327.330666) rotate(-90)">85.8 ±0.38</text>
    </g>
    <g id="text_43">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1000.827907 334.976609) rotate(-90)">79.1 ±0.26</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1000.827907 335.812939) rotate(-90)">73.3 ±0.079</text>
    </g>
    <g id="text_44">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1104.621967 375.853385) rotate(-90)">36 ±0.41</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(1104.621967 377.531937) rotate(-90)">33.1 ±0.058</text>
    </g>
    <g id="text_45">
     <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="86.4" y="108.12" transform="rotate(-0 86.4 108.12)">Direct Wasm</text>

@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "scope": "Exact full-cohort Wasm artifacts compared; six changed after the lifetime/fixed-value copy patch and four retained identical bytes.",
+  "previous_report_sha256": "3eb70049922c9fc70daea56732f2211d9e8eef7fbfe23671b2b39bd4db855a3d",
+  "current_report_sha256": "f8fbe55f2192ca41ea2e8fa6915be9407fba317c16bffb4d276d5eb2a77dfd44",
+  "rows": [
+    {
+      "name": "errors",
+      "previous_sha256": "c96e50140e7ffe1b1bc9ceaa7fd52fd229638bc000b0a8c34459e97357ea8043",
+      "current_sha256": "34eb02c547f9ef57d5f7340d956d269ab339e3341e49113523588cb621d99e41",
+      "unchanged": false
+    },
+    {
+      "name": "functions",
+      "previous_sha256": "3535c0967864408c810770f8ced3dfd2bb947790c3bf46a7cdd096b935119778",
+      "current_sha256": "575e6e9658f4dca4c0683a2ac71864e7586dcd589960be6dc3de65577e6130e5",
+      "unchanged": false
+    },
+    {
+      "name": "life",
+      "previous_sha256": "1100dd6cfe8b97809ee859bbe2a4f6f50f2e42b4e87bf7febc381c3bcc8b69d3",
+      "current_sha256": "1100dd6cfe8b97809ee859bbe2a4f6f50f2e42b4e87bf7febc381c3bcc8b69d3",
+      "unchanged": true
+    },
+    {
+      "name": "maze",
+      "previous_sha256": "637770d87a3f7ebfa0dbc665f9ef160f1f0cad902918db0e9056bb2d0d4a6f9a",
+      "current_sha256": "8f38f560ea2e4c976975bfc70c0ca4d4829f09cfda23b7bf3f5e90bc9c46e990",
+      "unchanged": false
+    },
+    {
+      "name": "sieve",
+      "previous_sha256": "48d3b65a632b726471ec2add3797329778e124e8553f5f45bd49610fccaaa943",
+      "current_sha256": "48d3b65a632b726471ec2add3797329778e124e8553f5f45bd49610fccaaa943",
+      "unchanged": true
+    },
+    {
+      "name": "sorting",
+      "previous_sha256": "f992dd464edde283e017df24d9b66a39f139f235f7dcaa830219187dcc09c277",
+      "current_sha256": "717e7cc4df33979c83e43bbcc32b048a55f3877e1ed5473bc3760ce26283bbc1",
+      "unchanged": false
+    },
+    {
+      "name": "squares",
+      "previous_sha256": "6d7abf8390d59e60543f3af9cff3283c26b5ae31578f6c3a5910893db59a2ca3",
+      "current_sha256": "6d7abf8390d59e60543f3af9cff3283c26b5ae31578f6c3a5910893db59a2ca3",
+      "unchanged": true
+    },
+    {
+      "name": "sudoku",
+      "previous_sha256": "7ba0d856ba50689e9e94a6d25f8e02c9efc136be67b8af1512db685bbb08a9f3",
+      "current_sha256": "64aa736213c457e0f3a7b0f00985817ed08e5cccd42a77aeff1268812c827c54",
+      "unchanged": false
+    },
+    {
+      "name": "tour",
+      "previous_sha256": "af699248f2d3d75f8f87cb8b2e51e443e6a6d3e2a058897bf320122083337621",
+      "current_sha256": "9687d55a66d3ecdfac359d49647e207a7028243cb31096dcf12c578d55838a1a",
+      "unchanged": false
+    },
+    {
+      "name": "vm",
+      "previous_sha256": "efaa092866e784b102455292cc67c58fec6d51f045947c114e9fdea21517f69a",
+      "current_sha256": "efaa092866e784b102455292cc67c58fec6d51f045947c114e9fdea21517f69a",
+      "unchanged": true
+    }
+  ]
+}

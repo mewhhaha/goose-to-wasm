@@ -1,0 +1,168 @@
+{
+  "schema": "goose-compiler-qualification-v1",
+  "snapshot": "53",
+  "complete": false,
+  "bootstrap_status": "passed",
+  "bootstrap_c_sha256": "a25439f2b0d546555ace11d683b143e23d313394e8fcb160982d7a7e9a0e01b6",
+  "source_sha256": {
+    "checker.goose": "4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed",
+    "checker_lifetimes.goose": "0a65c6d9a92c4886ca21ea6dd0ce3d69868aae722e23a694814e3c089ce62be6",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
+    "checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38",
+    "codegen.goose": "632747b97c8c477d13adfd170e4ab09d7f902040d2199c4061e243c05314ffbe",
+    "codegen_c.goose": "e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819",
+    "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+    "codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6",
+    "codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "model.goose": "1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c",
+    "optimizer.goose": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699",
+    "parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869",
+    "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
+    "native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "compiler_sha256": "c7c51ab1fee6c71f84d3b5fb6cbdde2aa6ceb8659ab203c1e52c93ab7d6cc1ad",
+  "public_compiler_sha256": "a6d9762a7484cba04d20bbd9f86fc57bae7b276e96c8ae782ea07fdad4a6dbea",
+  "public_same_path_c_sha256": "a25439f2b0d546555ace11d683b143e23d313394e8fcb160982d7a7e9a0e01b6",
+  "fixed_point_scope": "Consecutive C generations match; the parent seed is verified snapshot52.",
+  "contracts": {
+    "selected": 7595,
+    "passed": 7493,
+    "failed": 102
+  },
+  "original_contract_rows": 5043,
+  "curated_v8_driver": {
+    "selected": 4504,
+    "passed": 4504,
+    "failed": 0
+  },
+  "curated_wasm_per_engine": 3190,
+  "curated_native_controls": 1314,
+  "native_thread_checks": 52,
+  "existing_contract_gains": 4,
+  "existing_contract_regressions": 0,
+  "new_contract_rows": 92,
+  "new_contract_failures": 0,
+  "remaining_failure_phases": {
+    "type-error": 6,
+    "run": 96
+  },
+  "remaining_runtime_failure_detail": {
+    "compiler_refusal": 96,
+    "c_compiler_failure": 0,
+    "executed_mismatch": 0
+  },
+  "remaining_failure_groups": {
+    "upstream/errors_tc": 6,
+    "upstream/typing": 14,
+    "upstream/lifetimes": 28,
+    "upstream/storage": 14,
+    "upstream/optimizer": 2,
+    "upstream/codegen": 26,
+    "upstream/stdlib": 10,
+    "upstream/syntax": 2
+  },
+  "gains": [
+    {
+      "case": "upstream/lifetimes/temporary_bindings",
+      "level": 0,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 14379,
+      "native_command": 14380,
+      "run_command": 14381,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/lifetimes/temporary_bindings",
+      "level": 2,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 14382,
+      "native_command": 14383,
+      "run_command": 14384,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/optimizer/viewed_copies",
+      "level": 0,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 2251,
+      "native_command": 2252,
+      "run_command": 2253,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/optimizer/viewed_copies",
+      "level": 2,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 2254,
+      "native_command": 2255,
+      "run_command": 2256,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    }
+  ],
+  "permanent_controls": {
+    "status": "migrated; composed53 execution pending",
+    "cases": 46,
+    "rows": 92,
+    "sources": {
+      "tests/fixtures/contracts/temporary-values-and-copies/statement_ref.goose": "0297058f06e7b94569fbc3322b043f6b06fb88c17c74745ba6d1ec28ee2829a5",
+      "tests/fixtures/contracts/temporary-values-and-copies/statement_view.goose": "abc211088e3846766e2bfe552129a8a29980d6e07c1cf1c4690130fea6f3c64b",
+      "tests/fixtures/contracts/temporary-values-and-copies/escape_ref.goose": "08ef57e908f5095fb236d9f215809c3a0e21605ec87dfe976e2e5b580b2c3e23",
+      "tests/fixtures/contracts/temporary-values-and-copies/inline_view_inside.goose": "dcd2a8c8469eea976fe78bbe7bd704b0119211c20b638aacacc228fae19c2ed6",
+      "tests/fixtures/contracts/temporary-values-and-copies/static_contents.goose": "40fedde4db4f1992e9155eea711991bdbeb73b9083ff5508f084cd13e0f24c2d",
+      "tests/fixtures/contracts/temporary-values-and-copies/borrowed_shrink.goose": "904500ff600236b8b563b0226edcb344abf1101c5160129591621d45318e5a66",
+      "tests/fixtures/contracts/temporary-values-and-copies/caller_escape.goose": "ccd7b7d5c51fea69caab1437eb3dfceaf44fe2532d770c8d04a89c2e5b0bf691",
+      "tests/fixtures/contracts/temporary-values-and-copies/temporary_bindings.goose": "3e92dc89f478f92e768ef237cb63cc6ff39258b9a26bda13543a4d8e18c7b2eb",
+      "tests/fixtures/contracts/temporary-values-and-copies/viewed_copies.goose": "88de7c90dbbc1377a52691ef57f8c1f5b9249037a51c4373efff1e1ae90d9690",
+      "tests/fixtures/contracts/temporary-values-and-copies/caller_contents_anchored.goose": "358c572a19b0b6da6bd38bd797890540c84fbebf4616f15cd5cda21bc149c1d3",
+      "tests/fixtures/contracts/temporary-values-and-copies/inline_view_escape_anchored.goose": "414ed1db5ec275a4b5f047aa84c924cabd5fb9b3fd94c7a38f6a4b6985020841",
+      "tests/fixtures/contracts/temporary-values-and-copies/caller_contents_alias.goose": "e9a0e6b31eb6409cd8c7b538b9a66905cac913559a4563e39e6545f930db0cba",
+      "tests/fixtures/contracts/temporary-values-and-copies/fixed_control_copy.goose": "b04af33aeef66d036e8e8b92b482ea847c2cc1bb2bc2f7c2914369c64fef8e05",
+      "tests/fixtures/contracts/temporary-values-and-copies/fixed_inline_copy.goose": "e10e04ab0d4cbf6de0da6c70e3923fa698b56bb37fa4ed0829aaf91b27a0fcc6",
+      "tests/fixtures/contracts/temporary-values-and-copies/borrowed_control_storage.goose": "a88e1e0e6a1d29dc42be354bc4eda9ecf2d9814f8298539233d2c649e7a30a68",
+      "tests/fixtures/contracts/temporary-values-and-copies/multi_result_copy.goose": "985ae47a6c58b7b48813df68e23fa46e6174fdf08285d809baa7eb430d1c4e41",
+      "tests/fixtures/contracts/temporary-values-and-copies/repeated_statement_values.goose": "4f49d5969304991c109f55181df0570e2aa0ea015749cf99eb5da453962de02f",
+      "tests/fixtures/contracts/temporary-values-and-copies/fresh_relative_sequence.goose": "b84dd146725e407ff1746b3f9d4283f69cfef9a2a449aeb7fa3000e9f4f425aa",
+      "tests/fixtures/contracts/temporary-values-and-copies/variable_literal_for.goose": "de58652f8bef7fb66c7da6260cf4b513de4554d60411b8641d11591ad1d7cfa7",
+      "tests/fixtures/contracts/temporary-values-and-copies/relref_copy_temp_for.goose": "2f3a3927ee11079f88445eaff17733fabe92dcaac71c680c5ab60a67b3426f30",
+      "tests/fixtures/contracts/temporary-values-and-copies/mixed_ref_value_channels_bound.goose": "48eb956b8392f63314d2c60117baf696d6ad07fb3f55f246fc1cf647705b6931",
+      "tests/fixtures/contracts/temporary-copy-review/slice-and-owned-holder.goose": "54aed43da44ebc559fcdd7f35924dac5c46e27eb69dfe5368ca77949323db951",
+      "tests/fixtures/contracts/temporary-copy-review/fixed-relative-last-channel.goose": "d0d292b21dff83782d29f40a63c7d788e420174254bc68001dd55a17a422f3a3"
+    }
+  },
+  "scope": [
+    "for-loop sequence temporaries use the enclosing statement lifetime while binders use the loop scope",
+    "ordinary sequence-copy contracts still reject non-fixed literal and relative-image copies",
+    "Wasm fixed aggregate value channels snapshot the final channel; explicit references, slices and construction receivers keep their existing paths"
+  ],
+  "native_runtime_reference": "Native header and permanent direct C test inputs match snapshot49 exactly; its qualified 45-command suite is reused. Checker, emission and runtime contracts are freshly qualified."
+}

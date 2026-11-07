@@ -1,0 +1,27 @@
+{
+  "schema": "benchmark-tool-label-correction-v1",
+  "status": "source labels corrected by append-only receipt; original measurements preserved",
+  "reason": "A snapshot-number substitution also changed a literal tool-version label in dated prose. Raw runtime reports, chart metadata and measured libraries use Wasmtime50.0.1.",
+  "records": [
+    {
+      "snapshot": 51,
+      "dated_path": "bench/results/2026-11-07/contextual-enum-dispatch",
+      "incorrect_label": "51.0.1",
+      "actual_engine": "50.0.1",
+      "host_report_sha256": "cb097c1a9c2f51620935bb6fc485d9bf05277081ae317ec6754819ca57823fd8",
+      "copy_facts_sha256": "e85220cf48f9b986a2def8c2058df4945d0ccf4906d94214d1fcdfe8a19e5c6b",
+      "host_sha256": "b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed",
+      "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648"
+    },
+    {
+      "snapshot": 52,
+      "dated_path": "bench/results/2026-11-07/literal-array-inference",
+      "incorrect_label": "52.0.1",
+      "actual_engine": "50.0.1",
+      "host_report_sha256": "b8f5edbe9e9d5bc9041f23806e5b7f1551df73ed8c02b6871539b8b84b214f5d",
+      "copy_facts_sha256": "1070524a7465d2c8323d4b7bc37df7c5481a4b0132f11706c9c61c81d198e67e",
+      "host_sha256": "b1b3bddd9ef78d349e59284507fed9097b5c700c6e1e40b8d4d8e9b8c1e0efed",
+      "library_sha256": "811fb5bc556e8e6cfca9ca8c7da87b072568a3eef8f22777132bb9928d822648"
+    }
+  ]
+}
