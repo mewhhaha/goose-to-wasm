@@ -13,7 +13,7 @@ struct LifeItem { value: LifeValue, next: i64 = -1 }
 struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1 }
 struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1 }
 struct LifeWalk { root: i64, type_id: i64 }
-struct LifePair { owner: i64, pointee: i64, answer: bool }
+struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
 struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
 struct LifeFuture { node: i64, frame: i64, loop_scope: i64 = -1 }
 struct LifeHold { value: LifeValue, node: i64, kind: i64 = 0, frame: i64 = 0 }
@@ -26,7 +26,7 @@ struct LifeFailure { node: i64, message: const u8[:] }
 struct Lifetimes {
     parents: const i64[:], depths: const i64[:], lifetime: const i64[:], functions: const i64[:],
     roots: LifeRoot[>..]&, sets: LifeSet[>..]&, alts: LifeAlt[>..]&, cells: LifeCell[>..]&,
-    frames: LifeFrame[>..]&, items: LifeItem[>..]&, pairs: LifePair[>..]&, exits: LifeExit[>..]&,
+    frames: LifeFrame[>..]&, items: LifeItem[>..]&, pairs: LifePair[>..]&, pair_heads: i64[>..]&, exits: LifeExit[>..]&,
     futures: LifeFuture[>..]&, holds: LifeHold[>..]&, temps: LifeTemp[>..]&, reads: LifeRead[>..]&,
     kills: LifeKill[>..]&,
     atoms: LifeAtom[>..]&,
@@ -150,9 +150,25 @@ fn life_same(p: Program&, a: i64, b: i64) -> bool {
     if x.kind == TY_REF || x.kind == TY_SLICE { return x.element == y.element; }
     return true;
 }
+fn life_pair_bucket(owner: i64, pointee: i64, count: i64) -> i64 {
+    let a = owner ^ (owner >> 14) ^ (owner >> 28) ^ (owner >> 42) ^ (owner >> 56);
+    let b = pointee ^ (pointee >> 14) ^ (pointee >> 28) ^ (pointee >> 42) ^ (pointee >> 56);
+    return (a ^ b ^ ((b & 8191) << 1) ^ (b >> 13)) & (count - 1);
+}
 fn life_contains(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -> bool {
     if owner < 0 || pointee < 0 { return false; }
-    for q in l.pairs { if q.owner == owner && q.pointee == pointee { return q.answer; } }
+    if l.pair_heads.len == 0 {
+        var count: i64 = 16;
+        while count < p.types.len && count < 16384 { count <<= 1; }
+        for i in 0..count { l.pair_heads.push(-1); }
+    }
+    let bucket = life_pair_bucket(owner, pointee, l.pair_heads.len);
+    var pair = l.pair_heads[bucket];
+    while pair >= 0 {
+        let q = l.pairs[pair];
+        if q.owner == owner && q.pointee == pointee { return q.answer; }
+        pair = q.next;
+    }
     var work: i64[>..] = [owner]; var at = 0; var answer = false;
     while at < work.len {
         let ty = work[at]; at += 1;
@@ -171,7 +187,9 @@ fn life_contains(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -> bool {
             }
         }
     }
-    l.pairs.push(LifePair { owner: owner, pointee: pointee, answer: answer });
+    let index = l.pairs.len;
+    l.pairs.push(LifePair { owner: owner, pointee: pointee, answer: answer, next: l.pair_heads[bucket] });
+    l.pair_heads[bucket] = index;
     return answer;
 }
 fn life_holds(p: Program&, ty: i64) -> bool {
@@ -2298,14 +2316,14 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     if p.diagnostics.len > 0 { return; }
     var roots: LifeRoot[>..] = [LifeRoot {}]; var sets: LifeSet[>..] = [LifeSet {}];
     var alts: LifeAlt[>..] = []; var cells: LifeCell[>..] = []; var frames: LifeFrame[>..] = [LifeFrame {}];
-    var items: LifeItem[>..] = []; var pairs: LifePair[>..] = []; var exits: LifeExit[>..] = [];
+    var items: LifeItem[>..] = []; var pairs: LifePair[>..] = []; var pair_heads: i64[>..] = []; var exits: LifeExit[>..] = [];
     var futures: LifeFuture[>..] = []; var holds: LifeHold[>..] = []; var temps: LifeTemp[>..] = []; var reads: LifeRead[>..] = []; var kills: LifeKill[>..] = []; var atoms: LifeAtom[>..] = []; var failures: LifeFailure[>..] = []; var effects: LifeEffect[>..] = [];
     var symbol_cells: i64[>..] = []; for symbol in p.symbols { symbol_cells.push(-1); }
     var node_roots: i64[>..] = []; var function_frames: i64[>..] = []; var read_heads: i64[>..] = []; var visited: i64[>..] = []; var summary_heads: i64[>..] = [];
     for node in p.nodes { node_roots.push(-1); function_frames.push(-1); read_heads.push(-1); visited.push(0); summary_heads.push(-1); summary_heads.push(-1); }
     summary_heads.push(-1);
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, lifetime: scope_lifetime, functions: scope_functions,
-        roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, exits: exits,
+        roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }

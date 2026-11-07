@@ -92,9 +92,9 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 55 results
+## Snapshot 56 results
 
-The [dated example results](results/2026-11-07/from-end-slice-bounds/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Paired minimal AOT process ratios versus snapshot 54 ranged 0.985–1.013, with a median workload ratio of 0.999; the native-control median was 1.001. Matched cold direct-build ratios ranged 0.987–1.005, with a median workload ratio of 0.997. All ten Wasm modules are byte-identical. No broad speedup is established.
+The [dated example results](results/2026-11-07/lifetime-containment-index/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Paired minimal AOT process ratios versus snapshot 55 ranged 0.930–1.022, with a median workload ratio of 0.988; the native-control median was 0.997. Matched cold direct-build ratios ranged 0.991–1.002, with a median workload ratio of 1.001. All ten Wasm modules are byte-identical. No broad speedup is established.
 
 ## Example programs
 

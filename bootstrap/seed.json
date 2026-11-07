@@ -2,12 +2,12 @@
   "schema": "goose-bootstrap-seed-v1",
   "language": "C11",
   "producer": "Goose-written compiler through C-only bootstrap",
-  "c_sha256": "eb9ba3b7cb5a8be6c29583c32589eb329d1f95283d4debf16cb8341050096499",
-  "compressed_sha256": "1ae57099f4a52f2a8350639bbad242890f514c0be57b1f089587f31f49eb36f7",
-  "source_bundle_sha256": "bce078e1cc6b9b06b516c65037a6793c1a5033be1f3e730d333ebdd08229c70a",
+  "c_sha256": "18fb5a123b4299622959748438fefdf4f19ff1edcefe8e9d24dcd7e138b76ade",
+  "compressed_sha256": "51c48841fa7f0f3049a2b9546fa9d690cc7a134ff7b4760e2ca30bb000b48be9",
+  "source_bundle_sha256": "3be780ee366bbc90a3ab7700b91a206a287181a62016fe191ae0f55734fd5b34",
   "source_sha256": {
     "checker.goose": "67e11828bac566eb2370f9f911a150397e8e0d3ee231a9bb00bd737c52c0fd2a",
-    "checker_lifetimes.goose": "0a65c6d9a92c4886ca21ea6dd0ce3d69868aae722e23a694814e3c089ce62be6",
+    "checker_lifetimes.goose": "3c78b81272dfef48c004ca2ea9a64ed7d9f3670c2b48808e23abbdbaa4268dab",
     "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
     "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
     "checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38",
@@ -55,9 +55,9 @@
   },
   "proof": {
     "fixed_point": true,
-    "parent_seed_c_sha256": "46792d91fb3a7da1d53ce009599a405482c3ceff4df47e74bdc6ff509b5b63f0",
-    "stage1_c_sha256": "eb9ba3b7cb5a8be6c29583c32589eb329d1f95283d4debf16cb8341050096499",
-    "stage2_c_sha256": "eb9ba3b7cb5a8be6c29583c32589eb329d1f95283d4debf16cb8341050096499",
+    "parent_seed_c_sha256": "eb9ba3b7cb5a8be6c29583c32589eb329d1f95283d4debf16cb8341050096499",
+    "stage1_c_sha256": "18fb5a123b4299622959748438fefdf4f19ff1edcefe8e9d24dcd7e138b76ade",
+    "stage2_c_sha256": "18fb5a123b4299622959748438fefdf4f19ff1edcefe8e9d24dcd7e138b76ade",
     "stage3_c_sha256": null
   },
   "note": "Final two C generations match. This seed is generated without a C++ compiler."

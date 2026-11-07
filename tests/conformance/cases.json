@@ -64937,6 +64937,66 @@
         "stdout": "",
         "exit": "nonzero"
       }
+    },
+    {
+      "id": "corpus/contracts/lifetime-containment-review/nested-nominal-pool-links/native",
+      "source": "tests/fixtures/contracts/lifetime-containment-review/nested-nominal-pool-links.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 9 14 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/lifetime-containment-review/nested-nominal-pool-links/wasm-direct",
+      "source": "tests/fixtures/contracts/lifetime-containment-review/nested-nominal-pool-links.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5 9 14 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/lifetime-containment-review/nominal-pool-reference-boundary/native",
+      "source": "tests/fixtures/contracts/lifetime-containment-review/nominal-pool-reference-boundary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "a relative reference pool cannot contain its pointee type"
+        ]
+      }
+    },
+    {
+      "id": "corpus/contracts/lifetime-containment-review/nominal-pool-reference-boundary/wasm-direct",
+      "source": "tests/fixtures/contracts/lifetime-containment-review/nominal-pool-reference-boundary.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "a relative reference pool cannot contain its pointee type"
+        ]
+      }
     }
   ],
   "legacy_math_capture": {
