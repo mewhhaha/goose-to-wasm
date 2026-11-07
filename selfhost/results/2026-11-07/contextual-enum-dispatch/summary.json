@@ -1,0 +1,159 @@
+{
+  "schema": "goose-compiler-qualification-v1",
+  "snapshot": "51",
+  "complete": false,
+  "bootstrap_status": "passed",
+  "bootstrap_c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
+  "source_sha256": {
+    "checker.goose": "1772eb3766cf41ca8abb1f3f6510839f4c89e3784e4bdda2666ecbe08b2f1f0e",
+    "checker_lifetimes.goose": "2480c7db81705d6f9f8f06e19255059cf8a294144395123892a158fa63a3ae47",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
+    "checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38",
+    "codegen.goose": "659b71875189f7acd638f611041cab1b7b14da4823f860737556afd741ae434f",
+    "codegen_c.goose": "e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819",
+    "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+    "codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6",
+    "codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "model.goose": "1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c",
+    "optimizer.goose": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699",
+    "parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869",
+    "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
+    "native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "compiler_sha256": "e67ea31056553e4d0752fd9ef66ba0a1d6216811d757340c6167f7240ebdd02f",
+  "public_compiler_sha256": "441e5d8ba5f853805b825d444006aa09aa1cdb378d02244b7722c3a3eeebbdd2",
+  "public_same_path_c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
+  "fixed_point_scope": "Consecutive C generations match; the parent seed is verified snapshot50.",
+  "contracts": {
+    "selected": 7435,
+    "passed": 7327,
+    "failed": 108
+  },
+  "original_contract_rows": 5043,
+  "curated_v8_driver": {
+    "selected": 4344,
+    "passed": 4344,
+    "failed": 0
+  },
+  "curated_wasm_per_engine": 3110,
+  "curated_native_controls": 1234,
+  "native_thread_checks": 52,
+  "existing_contract_gains": 4,
+  "existing_contract_regressions": 0,
+  "new_contract_rows": 64,
+  "new_contract_failures": 0,
+  "remaining_failure_phases": {
+    "type-error": 6,
+    "run": 102
+  },
+  "remaining_runtime_failure_detail": {
+    "compiler_refusal": 102,
+    "c_compiler_failure": 0,
+    "executed_mismatch": 0
+  },
+  "remaining_failure_groups": {
+    "upstream/errors_tc": 6,
+    "upstream/typing": 16,
+    "upstream/lifetimes": 30,
+    "upstream/storage": 14,
+    "upstream/optimizer": 4,
+    "upstream/codegen": 26,
+    "upstream/stdlib": 10,
+    "upstream/syntax": 2
+  },
+  "gains": [
+    {
+      "case": "upstream/typing/branch_reference_arguments",
+      "level": 0,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 5839,
+      "native_command": 5840,
+      "run_command": 5841,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/typing/branch_reference_arguments",
+      "level": 2,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 5842,
+      "native_command": 5843,
+      "run_command": 5844,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/typing/warnings_once",
+      "level": 0,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 9855,
+      "native_command": 9856,
+      "run_command": 9857,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/typing/warnings_once",
+      "level": 2,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 9858,
+      "native_command": 9859,
+      "run_command": 9860,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    }
+  ],
+  "permanent_controls": {
+    "status": "migrated; composed51 execution pending",
+    "cases": 32,
+    "rows": 64,
+    "sources": {
+      "tests/fixtures/contracts/enum-control-dispatch/dispatch_modes.goose": "31aa40972b49ab4bbf43fcc4c19b10f58cad0a7b99a06427096d37df340f7fdf",
+      "tests/fixtures/contracts/enum-control-dispatch/constructor_temporary.goose": "63b26ca9ffa40c58d1e86c6025d1b3351d9b08b5e8d6c0af8daaa484ae9300f5",
+      "tests/fixtures/contracts/enum-control-dispatch/fixed_mode_payload.goose": "a2ef2894b33ce223e69d8e4b4511e0dac30d55c24b471e77f6f0e238159f4709",
+      "tests/fixtures/contracts/enum-control-dispatch/const_payload.goose": "b9e4db3662bfcd3270261080dc63fc43346dd91c792d261b0dbe963de9ab92fa",
+      "tests/fixtures/contracts/enum-control-dispatch/control_copy.goose": "d5e369607b879957a2b40595c072d051b8813c9bcf211372a33edc9efc364db5",
+      "tests/fixtures/contracts/enum-control-dispatch/fixed_copy_independent.goose": "2f584d64efd122c4d43d872986391489abddff88114f9984fb7789cfe28c1d30",
+      "tests/fixtures/contracts/enum-control-dispatch/const_read_dispatch.goose": "5b2abe77f22ec387c4559603310a49bb596bca1352d17795fcf2c01686a2b2a4",
+      "tests/fixtures/contracts/enum-control-dispatch/branch_reference_arguments.goose": "67bdd45543dc18ec038b3537c891ac4ec599fe9955f8e1e8cf08b0b3fac1ab03",
+      "tests/fixtures/contracts/enum-control-dispatch/warnings_once.goose": "e2b762e500cd109fb5961bc8248d1c5a419a8f9ab115bd0f805ac87210f94c04",
+      "tests/fixtures/contracts/enum-control-dispatch/value_payload_dispatch_v3.goose": "950a533cc451f764d43c051620f38497e83ecce6c340d5af44938f00c6ea03f7",
+      "tests/fixtures/contracts/enum-control-dispatch/temporary_direct.goose": "29362a3abb7029c1eb36b347afcd53add8827339187b7146c2b47f9fbd43865a",
+      "tests/fixtures/contracts/enum-control-dispatch/temporary_control.goose": "364ffd1b59c3b7dee0b1937449b17823cd8b6c128a2414e8a96ffc794ac578b7",
+      "tests/fixtures/contracts/enum-control-dispatch/direct_and_ranking.goose": "5d741ce0aabcffc44f00b69b1a1786094b7e9ca43669de8b95145315737f37b7",
+      "tests/fixtures/contracts/enum-dispatch-review/mixed-case-modes.goose": "fa972d5f3ebfd14d87a8315a926d4126a5f05de8c7943445893c41c3c1a09194",
+      "tests/fixtures/contracts/enum-dispatch-review/readonly-break.goose": "51038fd53df9850015807da9e80618fb05b1ec8f7d82ecb78850797725e85ed6",
+      "tests/fixtures/contracts/enum-dispatch-review/readonly-source-value-copy.goose": "03b58dd5cb57f6690e11534e883cc531d8394204f42f0f37a304b6ff83219fe1"
+    }
+  },
+  "scope": [
+    "contextual borrowed enum arguments select cases using payload trial values and normalize the actual control scrutinee once"
+  ],
+  "native_runtime_reference": "Native header and permanent direct C test inputs match snapshot49 exactly; its qualified 45-command suite is reused. Checker, emission and runtime contracts are freshly qualified."
+}

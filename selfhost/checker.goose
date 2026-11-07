@@ -4041,24 +4041,48 @@ fn check_apply_call_effects(p: Program&, c: Checker&, node: i64, function_node: 
     if (p.nodes[function_node].flags & F_NONLOCAL) != 0 && c.function_node >= 0 { p.nodes[c.function_node].flags |= F_NONLOCAL; }
 }
 
+// Dispatch borrows every contributing storage branch, retaining its authority.
+recursive fn check_dispatch_readonly(p: Program&, c: Checker&, node: i64) -> bool {
+    if node < 0 || check_bottom(p, node) { return false; }
+    let n = p.nodes[node];
+    if n.kind == N_LOOP || n.kind == N_BLOCK && (n.flags & F_EARLY) != 0 {
+        var values = CheckList {}; check_collect_break_values(p, c, node, node, values);
+        if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 && !check_bottom(p, n.last) { check_list_push(c, values, n.last); }
+        for index in 0..values.count { if check_dispatch_readonly(p, c, check_list_at(c, values, index)) { return true; } }
+        return false;
+    }
+    if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { return check_dispatch_readonly(p, c, n.last); }
+    if n.kind == N_IF { return check_dispatch_readonly(p, c, n.right) || check_dispatch_readonly(p, c, n.third); }
+    if n.kind == N_MATCH {
+        var arm = n.first;
+        while arm >= 0 { if check_dispatch_readonly(p, c, p.nodes[arm].right) { return true; } arm = p.nodes[arm].next; }
+        return false;
+    }
+    return check_borrow_readonly(p, c, node);
+}
+
 recursive fn check_try_dispatch(p: Program&, c: Checker&, node: i64, expected: i64, args: CheckList&, candidates: CheckList&) -> i64 {
     let call = p.nodes[node]; let callee = p.nodes[call.left];
-    var position = -1; var selected_arms = -1; var selected_hof = false;
+    var position = -1; var selected_arms = -1; var selected_hof = false; var selected_byref = false;
     for index in 0..args.count {
         let argument = check_list_at(c, args, index); var enum_type = p.nodes[argument].type_id; var through_ref = false;
         if enum_type >= 0 && p.types[enum_type].kind == TY_REF { through_ref = true; enum_type = p.types[enum_type].element; }
         if enum_type < 0 || p.types[enum_type].kind != TY_ENUM { continue; }
         check_layout_nominal(p, c, enum_type);
+        let reference = check_type(p, TY_REF, enum_type, 0, -1, 0);
         let byref = (p.types[enum_type].flags & F_VARIABLE_MODE) != 0 &&
-            (through_ref || check_addressable(p, argument) && check_size_class(p, enum_type, 0) != 0);
+            (through_ref || check_size_class(p, enum_type, 0) != 0 && check_exact_borrow(p, c, argument, reference));
         let alternatives = new_node(p, N_EMPTY, call.token); var variant = p.types[enum_type].first; var complete = true; var all_hof = false;
         while variant >= 0 {
             let payload = p.nodes[variant].type_id; var trial_type = payload;
-            if byref { var flags = 0; if check_readonly(p, c, argument) { flags |= TF_CONST; } trial_type = check_type(p, TY_REF, payload, 0, -1, flags); }
+            if byref { var flags = 0; if check_dispatch_readonly(p, c, argument) { flags |= TF_CONST; } trial_type = check_type(p, TY_REF, payload, 0, -1, flags); }
             var trial_args = CheckList {};
             for at in 0..args.count {
                 let source = check_list_at(c, args, at); var copy = p.nodes[source]; copy.next = -1;
-                if at == index { copy.type_id = trial_type; }
+                if at == index {
+                    // Rank the payload, not the enum construct's source branches.
+                    copy = Node { kind: N_EMPTY, token: copy.token, type_id: trial_type, flags: F_CHECKED, scope: copy.scope };
+                }
                 if copy.kind == N_FUNCTION_VALUE { copy.kind = N_NAME; }
                 copy.flags |= F_CHECKED;
                 let trial = p.nodes.len; p.nodes.push(copy); check_copy_roots(c, trial, source); check_list_push(c, trial_args, trial);
@@ -4078,7 +4102,7 @@ recursive fn check_try_dispatch(p: Program&, c: Checker&, node: i64, expected: i
         }
         if !complete { continue; }
         if position >= 0 { diagnose(p, call.token, "case dispatch can select only one enum argument"); return -1; }
-        position = index; selected_arms = p.nodes[alternatives].first; selected_hof = all_hof;
+        position = index; selected_arms = p.nodes[alternatives].first; selected_hof = all_hof; selected_byref = byref;
     }
     if position < 0 { return -1; }
     var first_symbol = -1; var result = -1; var arm = selected_arms; var any_reference = false; var expected_parameters = -1; var may_return = false;
@@ -4117,8 +4141,9 @@ recursive fn check_try_dispatch(p: Program&, c: Checker&, node: i64, expected: i
     while parameter >= 0 && index < args.count {
         let argument = check_list_at(c, args, index);
         if index != position { check_value(p, c, argument, p.nodes[parameter].type_id); }
-        else if any_reference && p.types[p.nodes[argument].type_id].kind != TY_REF {
-            let reference = check_type(p, TY_REF, enum_type, 0, -1, 0); check_expect(p, c, argument, p.nodes[argument].type_id, reference);
+        else if selected_byref && p.types[p.nodes[argument].type_id].kind != TY_REF {
+            var flags = 0; if check_dispatch_readonly(p, c, argument) { flags |= TF_CONST; }
+            let reference = check_type(p, TY_REF, enum_type, 0, -1, flags); check_expect(p, c, argument, p.nodes[argument].type_id, reference);
         }
         if last < 0 { p.nodes[node].first = argument; } else { p.nodes[last].next = argument; }
         last = argument; parameter = p.nodes[parameter].next; index += 1;

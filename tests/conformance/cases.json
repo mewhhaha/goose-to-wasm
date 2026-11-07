@@ -62178,6 +62178,398 @@
         "exit": 0
       },
       "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/dispatch_modes/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/dispatch_modes.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n30\n3\n40\n4 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/dispatch_modes/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/dispatch_modes.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n30\n3\n40\n4 1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/constructor_temporary/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/constructor_temporary.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/constructor_temporary/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/constructor_temporary.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/fixed_mode_payload/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/fixed_mode_payload.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/fixed_mode_payload/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/fixed_mode_payload.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/const_payload/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/const_payload.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/const_payload/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/const_payload.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/control_copy/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/control_copy.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/control_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/control_copy.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/fixed_copy_independent/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/fixed_copy_independent.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1, 2] [9, 2]\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/fixed_copy_independent/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/fixed_copy_independent.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[1, 2] [9, 2]\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/const_read_dispatch/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/const_read_dispatch.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/const_read_dispatch/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/const_read_dispatch.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/original_branch_reference_arguments/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/branch_reference_arguments.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 3 4 3\n20 4\n5 5 5 5\n6 60\n99 7 7\n5 7 707\n80 5\n99 8 1 6 9\n7 9 9 6 1\n5 10\n10 30 40 60\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/original_branch_reference_arguments/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/branch_reference_arguments.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 3 4 3\n20 4\n5 5 5 5\n6 60\n99 7 7\n5 7 707\n80 5\n99 8 1 6 9\n7 9 9 6 1\n5 10\n10 30 40 60\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/original_warnings_once/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/warnings_once.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 3\n3\ntrue\n2 2\n3\n4\n1\n3\n6\n1 pt\n5\n3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/original_warnings_once/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/warnings_once.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 3\n3\ntrue\n2 2\n3\n4\n1\n3\n6\n1 pt\n5\n3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/value_payload_dispatch_v3/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/value_payload_dispatch_v3.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n4\n5\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/value_payload_dispatch_v3/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/value_payload_dispatch_v3.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n4\n5\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/temporary_direct/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/temporary_direct.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/temporary_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/temporary_direct.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/temporary_control/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/temporary_control.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/temporary_control/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/temporary_control.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/direct_and_ranking/native",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/direct_and_ranking.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 12\n5 16\n101 203\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-control-dispatch/direct_and_ranking/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-control-dispatch/direct_and_ranking.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 12\n5 16\n101 203\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-dispatch-review/mixed-case-modes/native",
+      "source": "tests/fixtures/contracts/enum-dispatch-review/mixed-case-modes.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 25\n3 45\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-dispatch-review/mixed-case-modes/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-dispatch-review/mixed-case-modes.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 25\n3 45\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-dispatch-review/readonly-break/native",
+      "source": "tests/fixtures/contracts/enum-dispatch-review/readonly-break.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-dispatch-review/readonly-break/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-dispatch-review/readonly-break.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/enum-dispatch-review/readonly-source-value-copy/native",
+      "source": "tests/fixtures/contracts/enum-dispatch-review/readonly-source-value-copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "101 202 1 2\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/enum-dispatch-review/readonly-source-value-copy/wasm-direct",
+      "source": "tests/fixtures/contracts/enum-dispatch-review/readonly-source-value-copy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "101 202 1 2\n",
+        "exit": 0
+      }
     }
   ],
   "legacy_math_capture": {

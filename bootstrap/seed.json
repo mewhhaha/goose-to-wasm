@@ -2,11 +2,11 @@
   "schema": "goose-bootstrap-seed-v1",
   "language": "C11",
   "producer": "Goose-written compiler through C-only bootstrap",
-  "c_sha256": "4ee44216acaf19cac7094015a574a354ea90c38a86f381da2417b82b80fd6065",
-  "compressed_sha256": "158c55efc48ff462f34646199a27048f397f433ad2d89407998b0cddbd4bc232",
-  "source_bundle_sha256": "b27571355bc0f18997fc90c8443abb4a528067b556c1f8a429c7a1702aaba124",
+  "c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
+  "compressed_sha256": "fb9b0f0e046a930e482bbab7c0ec1f9cda3645d0714e88c5ea302f360b959543",
+  "source_bundle_sha256": "e93ced4cb85c878030eac69b5be0bd5854c75ea202ed240e6a1906d59d682c5b",
   "source_sha256": {
-    "checker.goose": "d3a1b80cbf3711a874cf8ec7223f254ef9b7353236d71e374388e78ba92e28d7",
+    "checker.goose": "1772eb3766cf41ca8abb1f3f6510839f4c89e3784e4bdda2666ecbe08b2f1f0e",
     "checker_lifetimes.goose": "2480c7db81705d6f9f8f06e19255059cf8a294144395123892a158fa63a3ae47",
     "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
     "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
@@ -55,10 +55,10 @@
   },
   "proof": {
     "fixed_point": true,
-    "parent_seed_c_sha256": "6213108e2780136a86f62eda3e06abcd0f74443d8a2f626be3c60be3e1941080",
-    "stage1_c_sha256": "76e82cab281a07c5f5cb91020d452259b823b5ef0d403c363f0b70a9fabe043e",
-    "stage2_c_sha256": "4ee44216acaf19cac7094015a574a354ea90c38a86f381da2417b82b80fd6065",
-    "stage3_c_sha256": "4ee44216acaf19cac7094015a574a354ea90c38a86f381da2417b82b80fd6065"
+    "parent_seed_c_sha256": "4ee44216acaf19cac7094015a574a354ea90c38a86f381da2417b82b80fd6065",
+    "stage1_c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
+    "stage2_c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
+    "stage3_c_sha256": null
   },
   "note": "Final two C generations match. This seed is generated without a C++ compiler."
 }
