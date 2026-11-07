@@ -3727,6 +3727,39 @@ fn check_argument_inference(p: Program&, c: Checker&, node: i64, formal: i64, fu
     return actual;
 }
 
+// Literals constrain generics after typed inputs, as their scalar leaves do.
+recursive fn check_literal_argument(p: Program&, c: Checker&, node: i64, depth: i64 = 0) -> bool {
+    if node < 0 || depth > 64 { return false; }
+    if check_bottom(p, node) { return true; }
+    let n = p.nodes[node];
+    if n.kind == N_ARRAY || n.kind == N_FILL {
+        var child = n.first;
+        while child >= 0 { if !check_literal_argument(p, c, child, depth + 1) { return false; } child = p.nodes[child].next; }
+        return true;
+    }
+    if n.kind == N_LOOP || n.kind == N_BLOCK && (n.flags & F_EARLY) != 0 {
+        var values = CheckList {}; check_collect_break_values(p, c, node, node, values);
+        if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 && !check_bottom(p, n.last) { check_list_push(c, values, n.last); }
+        if values.count == 0 { return false; }
+        for index in 0..values.count { if !check_literal_argument(p, c, check_list_at(c, values, index), depth + 1) { return false; } }
+        return true;
+    }
+    if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { return check_literal_argument(p, c, n.last, depth + 1); }
+    if n.kind == N_IF { return n.third >= 0 && check_literal_argument(p, c, n.right, depth + 1) && check_literal_argument(p, c, n.third, depth + 1); }
+    if n.kind == N_MATCH {
+        var arm = n.first;
+        if arm < 0 { return false; }
+        while arm >= 0 { if !check_literal_argument(p, c, p.nodes[arm].right, depth + 1) { return false; } arm = p.nodes[arm].next; }
+        return true;
+    }
+    return n.kind == N_NULL || check_literal_tree(p, node, 0) || check_float_literal_tree(p, node, 0) || check_flex_integer(p, c, node).flexible;
+}
+fn check_float_argument(p: Program&, c: Checker&, node: i64) -> bool {
+    var leaf = p.nodes[node].type_id;
+    while leaf >= 0 && p.types[leaf].kind == TY_ARRAY { leaf = p.types[leaf].element; }
+    return check_float(check_numeric_value_type(p, leaf)) && check_literal_argument(p, c, node);
+}
+
 recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: CheckList&, candidates: CheckList&, no_defaults: bool) -> CheckChoice {
     var best = -1; var best_score = 9223372036854775807; var ambiguous = false; var best_hof = false; var best_converting = true;
     var best_bindings = CheckList {}; var typeless = false;
@@ -3749,7 +3782,7 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
         var infer_formal = p.nodes[fnnode].first; var infer_index = 0;
         while infer_formal >= 0 && infer_index < args.count {
             let argument = check_list_at(c, args, infer_index);
-            if !check_literal_tree(p, argument, 0) && !check_float_literal_tree(p, argument, 0) && !check_flex_integer(p, c, argument).flexible &&
+            if !check_literal_argument(p, c, argument) &&
                !check_unify(p, c, p.nodes[infer_formal].type_id, check_argument_inference(p, c, argument, p.nodes[infer_formal].type_id, fnnode, infer_formal), bindings) { matches = false; }
             infer_formal = p.nodes[infer_formal].next; infer_index += 1;
         }
@@ -3758,7 +3791,7 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
         infer_formal = p.nodes[fnnode].first; infer_index = 0;
         while infer_formal >= 0 && infer_index < args.count {
             let argument = check_list_at(c, args, infer_index); let actual = p.nodes[argument].type_id;
-            if check_float(check_numeric_value_type(p, actual)) && check_float_literal_tree(p, argument, 0) {
+            if check_float_argument(p, c, argument) {
                 check_unify(p, c, p.nodes[infer_formal].type_id, actual, bindings);
             }
             infer_formal = p.nodes[infer_formal].next; infer_index += 1;

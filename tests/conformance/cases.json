@@ -62570,6 +62570,418 @@
         "stdout": "101 202 1 2\n",
         "exit": 0
       }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/float_order/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/float_order.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1.5 1.5\n0.75\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/float_order/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/float_order.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1.5 1.5\n0.75\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/exact_and_explicit/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/exact_and_explicit.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "64 8 64\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/exact_and_explicit/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/exact_and_explicit.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "64 8 64\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/empty_null/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/empty_null.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 20 0\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/empty_null/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/empty_null.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 20 0\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/overflow/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/overflow.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/overflow/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/overflow.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/explicit_overflow/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/explicit_overflow.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/explicit_overflow/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/explicit_overflow.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_local/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_local.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_local/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_local.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_global/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_global.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_global/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_global.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_extern/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_extern.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_extern/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_extern.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_mutable/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_mutable.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/concrete_mutable/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/concrete_mutable.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/float_typed_integer/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/float_typed_integer.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/float_typed_integer/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/float_typed_integer.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/original_literal_array_arguments/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/literal_array_arguments.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "255007\n253\n3\n-3\n2.5\n6.0\n9009\n64\n8\n300\n202\n40\n1004\n4001\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/original_literal_array_arguments/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/literal_array_arguments.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "255007\n253\n3\n-3\n2.5\n6.0\n9009\n64\n8\n300\n202\n40\n1004\n4001\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/array_order_numeric/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/array_order_numeric.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 200\n2 200\n13\n7 10\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/array_order_numeric/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/array_order_numeric.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 200\n2 200\n13\n7 10\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/array_construct_order_numeric/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/array_construct_order_numeric.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 9\n6 9\n8 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/array_construct_order_numeric/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/array_construct_order_numeric.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 9\n6 9\n8 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/evaluation_order_numeric/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/evaluation_order_numeric.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 9 12\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/evaluation_order_numeric/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/evaluation_order_numeric.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 9 12\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/typed_array_order_numeric/native",
+      "source": "tests/fixtures/contracts/literal-array-constraints/typed_array_order_numeric.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 200\n2 200\n3 200\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-constraints/typed_array_order_numeric/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-constraints/typed_array_order_numeric.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 200\n2 200\n3 200\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-review/break-array-literals/native",
+      "source": "tests/fixtures/contracts/literal-array-review/break-array-literals.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 9\n6 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-review/break-array-literals/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-review/break-array-literals.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 9\n6 9\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/literal-array-review/concrete-break-leaf/native",
+      "source": "tests/fixtures/contracts/literal-array-review/concrete-break-leaf.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "corpus/contracts/literal-array-review/concrete-break-leaf/wasm-direct",
+      "source": "tests/fixtures/contracts/literal-array-review/concrete-break-leaf.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ]
     }
   ],
   "legacy_math_capture": {

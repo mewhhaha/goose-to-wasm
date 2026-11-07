@@ -92,9 +92,9 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 51 results
+## Snapshot 52 results
 
-The [dated example results](results/2026-11-07/contextual-enum-dispatch/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Both targets use this compiler. Previous snapshots were collected separately; no matched runtime speedup is claimed.
+The [dated example results](results/2026-11-07/literal-array-inference/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. All ten Wasm modules are byte-identical to snapshot 51. Interleaved direct-build ratios for snapshot 52/51 were 0.999–1.005, with a median workload ratio of 1.002. Runtime process cohorts were collected separately; no matched runtime speedup is claimed.
 
 ## Example programs
 

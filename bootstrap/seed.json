@@ -2,11 +2,11 @@
   "schema": "goose-bootstrap-seed-v1",
   "language": "C11",
   "producer": "Goose-written compiler through C-only bootstrap",
-  "c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
-  "compressed_sha256": "fb9b0f0e046a930e482bbab7c0ec1f9cda3645d0714e88c5ea302f360b959543",
-  "source_bundle_sha256": "e93ced4cb85c878030eac69b5be0bd5854c75ea202ed240e6a1906d59d682c5b",
+  "c_sha256": "11435d57daa506c1e9a161b4c20e9288d47feeb9730e7538bf792bcecc96789f",
+  "compressed_sha256": "1597b1371b99aa0628f902b4925d6ec7f0d476520d363edf317b8ee018eeaa2b",
+  "source_bundle_sha256": "a8f194f67a1705e02bd6b52a5648f408324018e335c8360810b5f6f25f238e59",
   "source_sha256": {
-    "checker.goose": "1772eb3766cf41ca8abb1f3f6510839f4c89e3784e4bdda2666ecbe08b2f1f0e",
+    "checker.goose": "4bf1b5ecbd98508cbe4ca1100c650542696fc2660578aae67d50cc9ef03175ed",
     "checker_lifetimes.goose": "2480c7db81705d6f9f8f06e19255059cf8a294144395123892a158fa63a3ae47",
     "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
     "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
@@ -55,9 +55,9 @@
   },
   "proof": {
     "fixed_point": true,
-    "parent_seed_c_sha256": "4ee44216acaf19cac7094015a574a354ea90c38a86f381da2417b82b80fd6065",
-    "stage1_c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
-    "stage2_c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
+    "parent_seed_c_sha256": "0f2560354854533bd498d6be60deed82752c50b6ef48819c6de9cba28fb8c146",
+    "stage1_c_sha256": "11435d57daa506c1e9a161b4c20e9288d47feeb9730e7538bf792bcecc96789f",
+    "stage2_c_sha256": "11435d57daa506c1e9a161b4c20e9288d47feeb9730e7538bf792bcecc96789f",
     "stage3_c_sha256": null
   },
   "note": "Final two C generations match. This seed is generated without a C++ compiler."

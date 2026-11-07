@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "scope": "All ten exact Wasm modules from the full measured51/52 cohorts are byte-identical; runtime process measurements remain separate cohorts.",
+  "previous_report_sha256": "91d4e046a2c4471c9f7086e59d1239f7208d7def8056f222ae6e41d4194d2be4",
+  "current_report_sha256": "3eb70049922c9fc70daea56732f2211d9e8eef7fbfe23671b2b39bd4db855a3d",
+  "wasm_sha256": {
+    "life": "1100dd6cfe8b97809ee859bbe2a4f6f50f2e42b4e87bf7febc381c3bcc8b69d3",
+    "maze": "637770d87a3f7ebfa0dbc665f9ef160f1f0cad902918db0e9056bb2d0d4a6f9a",
+    "sudoku": "7ba0d856ba50689e9e94a6d25f8e02c9efc136be67b8af1512db685bbb08a9f3",
+    "sieve": "48d3b65a632b726471ec2add3797329778e124e8553f5f45bd49610fccaaa943",
+    "squares": "6d7abf8390d59e60543f3af9cff3283c26b5ae31578f6c3a5910893db59a2ca3",
+    "sorting": "f992dd464edde283e017df24d9b66a39f139f235f7dcaa830219187dcc09c277",
+    "functions": "3535c0967864408c810770f8ced3dfd2bb947790c3bf46a7cdd096b935119778",
+    "vm": "efaa092866e784b102455292cc67c58fec6d51f045947c114e9fdea21517f69a",
+    "errors": "c96e50140e7ffe1b1bc9ceaa7fd52fd229638bc000b0a8c34459e97357ea8043",
+    "tour": "af699248f2d3d75f8f87cb8b2e51e443e6a6d3e2a058897bf320122083337621"
+  }
+}
