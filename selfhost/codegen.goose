@@ -350,6 +350,7 @@ recursive fn cg_convert(p: Program&, m: CgModule&, f: CgBody&, from: i64, to: i6
         if (p.types[from].flags & TF_OPTIONAL) != 0 { cg_fail(p, node, "wasm: optional reference must be narrowed before reading"); return; }
         cg_load(p, m, f, pointee, 0); cg_convert(p, m, f, pointee, to, node); return;
     }
+    if cg_type_kind(p, from) == TY_ARRAY && cg_type_kind(p, to) == TY_SLICE { cg_pack_view(p, m, f, from, node); return; }
     if cg_type_kind(p, to) == TY_ENUM && cg_enum_image(p, to) &&
        (cg_type_kind(p, from) == TY_ENUM && p.types[from].declaration == p.types[to].declaration ||
         cg_type_kind(p, from) == TY_STRUCT && p.types[from].pool >= 0 && p.types[p.types[from].pool].declaration == p.types[to].declaration) {
@@ -600,8 +601,7 @@ recursive fn cg_to(p: Program&, m: CgModule&, f: CgBody&, node: i64, id: i64) {
     }
     cg_expr(p, m, f, node); f.raw_node = saved_raw;
     if cg_diverges(p, node) { return; }
-    if cg_type_kind(p, from) == TY_ARRAY && cg_type_kind(p, id) == TY_SLICE { cg_pack_view(p, m, f, from, node); }
-    else { cg_convert(p, m, f, from, id, node); }
+    cg_convert(p, m, f, from, id, node);
 }
 recursive fn cg_truth_scope(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if !m.regions_enabled || !cg_may_region(p, node) { cg_truth(p, m, f, node); return; }

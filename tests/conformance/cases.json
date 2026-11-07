@@ -61212,6 +61212,972 @@
         "stdout": "15 new\n",
         "exit": 0
       }
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_struct_copy/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_struct_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 1\n",
+        "exit": 0
+      },
+      "provenance": "LoadType strips top const of copied owned values; original storage stays const"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_struct_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_struct_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 1\n",
+        "exit": 0
+      },
+      "provenance": "LoadType strips top const of copied owned values; original storage stays const"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_array_copy/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_array_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[9, 2] [1, 2]\n",
+        "exit": 0
+      },
+      "provenance": "Owned fixed-array copy is mutable without changing source or nested qualifiers"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_array_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_array_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[9, 2] [1, 2]\n",
+        "exit": 0
+      },
+      "provenance": "Owned fixed-array copy is mutable without changing source or nested qualifiers"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_reference_stays_readonly/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_reference_stays_readonly.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Const reference qualifier describes pointee and must survive loading"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_reference_stays_readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_reference_stays_readonly.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Const reference qualifier describes pointee and must survive loading"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_slice_stays_readonly/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_slice_stays_readonly.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Const slice qualifier describes viewed storage and must survive loading"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_slice_stays_readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_slice_stays_readonly.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Const slice qualifier describes viewed storage and must survive loading"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/original_const_global_folding/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_global_folding.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "22.1 22.1 1.0 7\n1.0 1.0 1.0 1.0\n[1099511627776, -5, 7, 1099511627776] [18446744073709551615, 7] [0.5, 0.5]\n1.0 1.0 1\n0.25 1.0 1.0\n5.0\n",
+        "exit": 0
+      },
+      "provenance": "Whole unchanged primary original with independent expected output",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/const_global_folding.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/original_const_global_folding/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_global_folding.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "22.1 22.1 1.0 7\n1.0 1.0 1.0 1.0\n[1099511627776, -5, 7, 1099511627776] [18446744073709551615, 7] [0.5, 0.5]\n1.0 1.0 1\n0.25 1.0 1.0\n5.0\n",
+        "exit": 0
+      },
+      "provenance": "Whole unchanged primary original with independent expected output",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/const_global_folding.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_nested_field_stays_readonly/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_nested_field_stays_readonly.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "LoadType702 removes only top const; nested const field is part of copied type"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_nested_field_stays_readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_nested_field_stays_readonly.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "LoadType702 removes only top const; nested const field is part of copied type"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_original_stays_readonly/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_original_stays_readonly.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Ident::Check109 retains original storage writability independently of plain loaded value"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_original_stays_readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_original_stays_readonly.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Ident::Check109 retains original storage writability independently of plain loaded value"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_copy_overload/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_copy_overload.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Ident::Check84 and LoadType702 expose plain owned value before candidate ranking; exact concrete beats generic"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_copy_overload/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_copy_overload.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Ident::Check84 and LoadType702 expose plain owned value before candidate ranking; exact concrete beats generic"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_reference_stays_readonly/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_reference_stays_readonly.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Loaded owned type becomes plain without changing source storage writability for reference binding"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_reference_stays_readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_reference_stays_readonly.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Loaded owned type becomes plain without changing source storage writability for reference binding"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_return_copy/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_return_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 1\n",
+        "exit": 0
+      },
+      "provenance": "LoadType702 normalizes owned call-result copy and preserves original const storage"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_return_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_return_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 1\n",
+        "exit": 0
+      },
+      "provenance": "LoadType702 normalizes owned call-result copy and preserves original const storage"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_varint_reference_storage/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_varint_reference_storage.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300\n",
+        "exit": 0
+      },
+      "provenance": "Owned top qualifier erasure retains varint storage identity for reference binding"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_varint_reference_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_varint_reference_storage.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "300\n",
+        "exit": 0
+      },
+      "provenance": "Owned top qualifier erasure retains varint storage identity for reference binding"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_member_owned_copy/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_member_owned_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 1\n",
+        "exit": 0
+      },
+      "provenance": "LoadType removes top const from an owned member copy while original const storage remains unchanged."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_member_owned_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_member_owned_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 1\n",
+        "exit": 0
+      },
+      "provenance": "LoadType removes top const from an owned member copy while original const storage remains unchanged."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_index_owned_copy/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_index_owned_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 1\n",
+        "exit": 0
+      },
+      "provenance": "Owned element copy loads plain; const source array remains readonly."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_index_owned_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_index_owned_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 1\n",
+        "exit": 0
+      },
+      "provenance": "Owned element copy loads plain; const source array remains readonly."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_const_struct_slots/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_struct_slots.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 2 2 8 9 2 1 2\n30 32 1\n3 cfg 4 7 2\n2 12 11\n3 7 11\nsome 5\nnothing\ndot 2\nbox 2x3\n4x5 6x7\n4\n[4, 5, 6] [1, 2, 3] 2.5 0.5 0.5 true 8\n3 5 11\n70 70 local copy 11 global\n",
+        "exit": 0
+      },
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/const_struct_slots.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_const_struct_slots/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_struct_slots.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 2 2 8 9 2 1 2\n30 32 1\n3 cfg 4 7 2\n2 12 11\n3 7 11\nsome 5\nnothing\ndot 2\nbox 2x3\n4x5 6x7\n4\n[4, 5, 6] [1, 2, 3] 2.5 0.5 0.5 true 8\n3 5 11\n70 70 local copy 11 global\n",
+        "exit": 0
+      },
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/const_struct_slots.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_const_var_assign/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_var_assign.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "def\nef 2\nst 532 0\n[2, 3] 2\n[4, 5, 6] [3, 4, 5] [1] [3, 4, 5] 3\n14\nx 5\nobal 12 [4, 5, 6]\ndef [\"y\"] 2\n6 [5, 6] 15 4 [7, 8, 9] true\n",
+        "exit": 0
+      },
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/const_var_assign.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_const_var_assign/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_var_assign.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "def\nef 2\nst 532 0\n[2, 3] 2\n[4, 5, 6] [3, 4, 5] [1] [3, 4, 5] 3\n14\nx 5\nobal 12 [4, 5, 6]\ndef [\"y\"] 2\n6 [5, 6] 15 4 [7, 8, 9] true\n",
+        "exit": 0
+      },
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/const_var_assign.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_branch_join_readonly_slot/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/branch_join_readonly_slot.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_branch_join_readonly_slot/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/branch_join_readonly_slot.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_push_whole_array_const/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/push_whole_array_const.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_push_whole_array_const/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/push_whole_array_const.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Exact unchanged primary whole-slot/readonly borrowing regression"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_field_address/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_field_address.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Addressing const-owned field contents yields readonly reference even though whole field assignment is legal"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_owned_field_address/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_owned_field_address.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Addressing const-owned field contents yields readonly reference even though whole field assignment is legal"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_slice_slot_reference_rebind/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_slice_slot_reference_rebind.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "def\n",
+        "exit": 0
+      },
+      "provenance": "Reference to mutable slice slot retains readonly pointee slice while allowing whole-slot replacement"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const_slice_slot_reference_rebind/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const_slice_slot_reference_rebind.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "def\n",
+        "exit": 0
+      },
+      "provenance": "Reference to mutable slice slot retains readonly pointee slice while allowing whole-slot replacement"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_forward_adaptation/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_adaptation.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-5 -6 1099511627776.0 -7.0\n200 -300 1.5 2.25\nP { 1, 2 } 5 abcd 6\nB { 3 } 4 B { 3 } 4\nA { 9 } 10 B { 7 } 8\n5 A { 6 } Text { \"hey\" } 11\nV { [1, 2, 3] } 3\nW { 12 } 13\nX { \"xs\" } 14\n1 abc 3\nhij 2\ndefg 3\nij 4\nlm 5\nhij! 2 [7, 8, 9, 0] 6\nij! 4 [4, 5, 0] 7\n[1, 2, 3] xyz\n30 -1.0 -2 40.0\nText { \"hey\" } 21 V { [1, 2, 4] } 4\nText { \"hey\" } 3 V { [1, 2, 3] } 3 Text { \"hey\" } 3\nText { \"early\" } 1 V { [9, 9] } 1 Text { \"far\" } 2\n",
+        "exit": 0
+      },
+      "provenance": "Whole unchanged primary reference/owned/tuple result forwarding regression",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/forward_adaptation.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/regression_forward_adaptation/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_adaptation.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-5 -6 1099511627776.0 -7.0\n200 -300 1.5 2.25\nP { 1, 2 } 5 abcd 6\nB { 3 } 4 B { 3 } 4\nA { 9 } 10 B { 7 } 8\n5 A { 6 } Text { \"hey\" } 11\nV { [1, 2, 3] } 3\nW { 12 } 13\nX { \"xs\" } 14\n1 abc 3\nhij 2\ndefg 3\nij 4\nlm 5\nhij! 2 [7, 8, 9, 0] 6\nij! 4 [4, 5, 0] 7\n[1, 2, 3] xyz\n30 -1.0 -2 40.0\nText { \"hey\" } 21 V { [1, 2, 4] } 4\nText { \"hey\" } 3 V { [1, 2, 3] } 3 Text { \"hey\" } 3\nText { \"early\" } 1 V { [9, 9] } 1 Text { \"far\" } 2\n",
+        "exit": 0
+      },
+      "provenance": "Whole unchanged primary reference/owned/tuple result forwarding regression",
+      "dependencies": [
+        "tests/fixtures/contracts/plain-values-and-views/forward_adaptation.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_mutable_reference_view/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_mutable_reference_view.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc zbc 7\n",
+        "exit": 0
+      },
+      "provenance": "Forwarded mutable reference component keeps its pointee authority independently of whole tuple-call temporary"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_mutable_reference_view/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_mutable_reference_view.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc zbc 7\n",
+        "exit": 0
+      },
+      "provenance": "Forwarded mutable reference component keeps its pointee authority independently of whole tuple-call temporary"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_readonly_reference_view/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_readonly_reference_view.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Readonly reference component cannot gain writable slice authority when forwarded"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_readonly_reference_view/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_readonly_reference_view.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Readonly reference component cannot gain writable slice authority when forwarded"
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/implicit-const-array-field/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/implicit-const-array-field.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary typecheck_exprs273-277: const-owned contents readonly on borrow, whole-slot assignment follows path."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/implicit-const-array-field/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/implicit-const-array-field.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary typecheck_exprs273-277: const-owned contents readonly on borrow, whole-slot assignment follows path."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/implicit-const-struct-field/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/implicit-const-struct-field.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary typecheck_exprs273-277: const-owned contents readonly on borrow, whole-slot assignment follows path."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/implicit-const-struct-field/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/implicit-const-struct-field.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary typecheck_exprs273-277: const-owned contents readonly on borrow, whole-slot assignment follows path."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const-owned-field-whole-assignment/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-whole-assignment.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 [4, 5]\n",
+        "exit": 0
+      },
+      "provenance": "Primary typecheck_exprs273-277: const-owned contents readonly on borrow, whole-slot assignment follows path."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const-owned-field-whole-assignment/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-whole-assignment.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 [4, 5]\n",
+        "exit": 0
+      },
+      "provenance": "Primary typecheck_exprs273-277: const-owned contents readonly on borrow, whole-slot assignment follows path."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/implicit_const_owned_ref_binding/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/implicit_const_owned_ref_binding.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary const owned contents remain readonly during implicit reference binding."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/implicit_const_owned_ref_binding/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/implicit_const_owned_ref_binding.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary const owned contents remain readonly during implicit reference binding."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const-owned-field-format-mutation/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-format-mutation.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary typecheck_exprs273-277, DecayRef688-714; format_const_write source guard: hook reference preserves readonly owned contents."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const-owned-field-format-mutation/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-format-mutation.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary typecheck_exprs273-277, DecayRef688-714; format_const_write source guard: hook reference preserves readonly owned contents."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const-owned-field-format-readonly/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-format-readonly.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Primary typecheck_exprs273-277, DecayRef688-714; format_const_write source guard: hook reference preserves readonly owned contents."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/const-owned-field-format-readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/const-owned-field-format-readonly.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Primary typecheck_exprs273-277, DecayRef688-714; format_const_write source guard: hook reference preserves readonly owned contents."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_fixed_empty/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_fixed_empty.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0 11\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_fixed_empty/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_fixed_empty.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0 11\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_limited_ref/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_limited_ref.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "ab 2 5 12\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_limited_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_limited_ref.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "ab 2 5 12\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_grow_ref/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_grow_ref.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc 3 13\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_grow_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_grow_ref.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc 3 13\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_slice_preserves_range/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_slice_preserves_range.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "azcd zc 14\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_slice_preserves_range/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_slice_preserves_range.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "azcd zc 14\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_variable_ref/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_variable_ref.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc 3 15\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_variable_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_variable_ref.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc 3 15\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_narrowed_optional/native",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_narrowed_optional.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc 3 16\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
+    },
+    {
+      "id": "corpus/contracts/plain-values-and-views/forward_narrowed_optional/wasm-direct",
+      "source": "tests/fixtures/contracts/plain-values-and-views/forward_narrowed_optional.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc 3 16\n",
+        "exit": 0
+      },
+      "provenance": "Primary destination-aware array/ref-to-slice adaptation preserves pointer and logical length; exact existing slice span remains."
     }
   ],
   "legacy_math_capture": {

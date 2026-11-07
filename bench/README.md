@@ -92,9 +92,9 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 49 results
+## Snapshot 50 results
 
-The [dated example results](results/2026-11-07/value-and-receiver-contracts/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Both targets use this compiler. These fresh process measurements do not establish a runtime speedup against separately collected prior snapshots.
+The [dated example results](results/2026-11-07/plain-values-and-forwarded-views/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. An interleaved direct-build check gave snapshot 50/49 ratios of 0.993–1.005, with a median workload ratio of 1.000. The higher cold-build numbers in the separate full cohort did not reproduce in that paired check. No matched runtime speedup is claimed.
 
 ## Example programs
 

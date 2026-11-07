@@ -221,13 +221,20 @@ fn check_array_type(p: Program&, element: i64, count: i64, array_kind: i64, flag
     }
     return add_type(p, Type { kind: TY_ARRAY, element: element, count: count, flags: flags, size: size, align: align, array_kind: array_kind, length_storage: length_storage });
 }
-fn check_const_type(p: Program&, ty: i64) -> i64 {
-    if ty < 0 || (p.types[ty].flags & TF_CONST) != 0 { return ty; }
-    var copy = p.types[ty]; copy.flags |= TF_CONST;
+fn check_type_const(p: Program&, ty: i64, readonly: bool) -> i64 {
+    if ty < 0 { return ty; }
+    var copy = p.types[ty];
+    if readonly { copy.flags |= TF_CONST; } else { copy.flags &= ~TF_CONST; }
+    if copy.flags == p.types[ty].flags { return ty; }
     for candidate, id in p.types {
         if candidate.kind == copy.kind && candidate.element == copy.element && candidate.count == copy.count && candidate.declaration == copy.declaration && candidate.first == copy.first && candidate.flags == copy.flags && candidate.array_kind == copy.array_kind && candidate.storage == copy.storage && candidate.length_storage == copy.length_storage && candidate.length_explicit == copy.length_explicit && candidate.pool == copy.pool && candidate.index_type == copy.index_type { return id; }
     }
     return add_type(p, copy);
+}
+fn check_const_type(p: Program&, ty: i64) -> i64 { return check_type_const(p, ty, true); }
+fn check_plain_value_type(p: Program&, ty: i64) -> i64 {
+    if ty < 0 || p.types[ty].kind == TY_REF || p.types[ty].kind == TY_SLICE { return ty; }
+    return check_type_const(p, ty, false);
 }
 fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
     if scope < 0 || scope >= c.scopes.len { return -1; }
@@ -1407,6 +1414,7 @@ fn check_readonly(p: Program&, c: Checker&, node: i64, slot: bool = false) -> bo
     while current >= 0 {
         let n = p.nodes[current]; var view = false;
         let storage = check_storage_type(p, current);
+        if storage >= 0 && p.types[storage].kind != TY_REF && p.types[storage].kind != TY_SLICE && (p.types[storage].flags & TF_CONST) != 0 && !(place && (n.kind == N_MEMBER || n.kind == N_INDEX)) { return true; }
         if storage >= 0 && (p.types[storage].storage == 1 || place && p.types[storage].kind == TY_REF && p.types[storage].length_storage == 0) { return true; }
         if n.type_id >= 0 { view = p.types[n.type_id].kind == TY_REF || p.types[n.type_id].kind == TY_SLICE; }
         if n.kind == N_STRING { return true; }
@@ -1426,6 +1434,11 @@ fn check_readonly(p: Program&, c: Checker&, node: i64, slot: bool = false) -> bo
     }
     return false;
 }
+fn check_borrow_readonly(p: Program&, c: Checker&, node: i64) -> bool {
+    if check_readonly(p, c, node, true) { return true; }
+    let actual = p.nodes[node].type_id;
+    return actual >= 0 && p.types[actual].kind != TY_REF && p.types[actual].kind != TY_SLICE && check_readonly(p, c, node);
+}
 fn check_argument_readonly(p: Program&, c: Checker&, node: i64, expected: i64) -> bool {
     let actual = p.nodes[node].type_id;
     if actual < 0 || expected < 0 { return false; }
@@ -1433,7 +1446,7 @@ fn check_argument_readonly(p: Program&, c: Checker&, node: i64, expected: i64) -
     if p.types[expected].kind == TY_REF && p.types[actual].kind != TY_REF {
         let storage = check_storage_type(p, node);
         if storage >= 0 && p.types[storage].storage == 1 { return true; }
-        return check_readonly(p, c, node, true);
+        return check_borrow_readonly(p, c, node);
     }
     return check_readonly(p, c, node);
 }
@@ -1482,12 +1495,12 @@ fn check_loaded_type(p: Program&, ty: i64) -> i64 {
         let t = p.types[ty];
         return check_type(p, TY_REF, t.element, t.count, t.declaration, t.flags);
     }
-    return ty;
+    return check_plain_value_type(p, ty);
 }
 fn check_read_value_type(p: Program&, c: Checker&, node: i64, ty: i64) -> i64 {
     // Varint storage can still bind a reference to its encoded cell.
     // Numeric decay follows that decision in check_value.
-    var value = ty;
+    var value = check_plain_value_type(p, ty);
     if ty >= 0 && p.types[ty].kind == TY_REF { value = check_loaded_type(p, ty); }
     if ty >= 0 && p.types[ty].kind == TY_REF && p.types[ty].length_storage >= 0 && p.types[ty].pool < 0 && check_readonly(p, c, node) { value = check_const_type(p, value); }
     if value != ty && node >= 0 { p.nodes[node].type_id = value; }
@@ -1858,6 +1871,7 @@ recursive fn check_branch_array_literal(p: Program&, node: i64) -> bool {
 }
 fn check_storage_type(p: Program&, node: i64) -> i64 {
     let n = p.nodes[node];
+    if n.kind == N_NAME && n.symbol >= 0 && n.symbol < p.symbols.len { return p.symbols[n.symbol].type_id; }
     if n.kind == N_MEMBER && n.symbol >= 0 { return p.nodes[n.symbol].type_id; }
     if n.kind == N_INDEX {
         var array = p.nodes[n.left].type_id;
@@ -1967,7 +1981,11 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
         if check_unsigned(source) == check_unsigned(destination) && sb < db { return 2; }
         if check_unsigned(source) && !check_unsigned(destination) && sb < db { return 2; }
     }
-    if s.kind == TY_REF && d.kind != TY_REF { return check_conversion(p, c, expression, s.element, destination); }
+    if s.kind == TY_REF && d.kind != TY_REF {
+        if d.kind == TY_SLICE && (s.flags & TF_CONST) != 0 && (d.flags & TF_CONST) == 0 && s.element >= 0 &&
+           (p.types[s.element].kind == TY_ARRAY || p.types[s.element].kind == TY_SLICE) { return -1; }
+        return check_conversion(p, c, expression, s.element, destination);
+    }
     if d.kind == TY_REF {
         if n.kind == N_NULL && (d.flags & TF_OPTIONAL) != 0 { return 1; }
         if s.kind == TY_REF && check_operation_same(p, s.element, d.element) {
@@ -1992,7 +2010,9 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
     if s.kind == TY_ARRAY && s.element < 0 && check_empty_tree(p, expression) && (d.kind == TY_ARRAY || d.kind == TY_SLICE) { return 2; }
     if d.kind == TY_SLICE && (s.kind == TY_ARRAY || s.kind == TY_SLICE) &&
        check_same_type(p, s.element, d.element) {
-        if (s.flags & TF_CONST) != 0 && (d.flags & TF_CONST) == 0 && n.kind != N_STRING { return -1; }
+        let actual = p.nodes[expression].type_id;
+        let whole = actual >= 0 && (p.types[actual].kind == TY_ARRAY || p.types[actual].kind == TY_SLICE);
+        if (d.flags & TF_CONST) == 0 && n.kind != N_STRING && ((s.flags & TF_CONST) != 0 || whole && check_readonly(p, c, expression)) { return -1; }
         return 2;
     }
     if d.kind == TY_ARRAY && (s.kind == TY_ARRAY || s.kind == TY_SLICE) && check_same_type(p, s.element, d.element) {
@@ -2104,7 +2124,7 @@ recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64
         p.nodes[expression].type_id = expected; return expected;
     }
     if p.types[expected].kind == TY_REF && p.types[source].kind != TY_REF && p.nodes[expression].kind != N_NULL {
-        if (p.types[expected].flags & TF_CONST) == 0 && check_readonly(p, c, expression, true) {
+        if (p.types[expected].flags & TF_CONST) == 0 && check_borrow_readonly(p, c, expression) {
             diagnose(p, p.nodes[expression].token, "writable reference cannot bind read-only storage");
         }
         let root = check_place_root(p, expression);
@@ -2909,7 +2929,7 @@ fn check_render_has_hook(p: Program&, hooks: const i64[:], type_id: i64) -> bool
 fn check_render_parameter(p: Program&, c: Checker&, node: i64, type_id: i64) -> i64 {
     if p.types[type_id].kind == TY_REF { return type_id; }
     if check_addressable(p, node) && check_operation_same(p, check_storage_type(p, node), type_id) {
-        var flags = 0; if check_readonly(p, c, node, true) { flags |= TF_CONST; }
+        var flags = 0; if check_borrow_readonly(p, c, node) { flags |= TF_CONST; }
         return render_reference(p, type_id, flags);
     }
     return check_const_type(p, type_id);
@@ -4745,6 +4765,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             return check_call(p, c, node, expected);
         }
         if (n.kind == N_ARRAY || n.kind == N_FILL) && expected >= 0 { return check_array(p, c, node, expected); }
+        if check_addressable(p, node) || n.kind == N_CALL { let loaded = check_plain_value_type(p, n.type_id); p.nodes[node].type_id = loaded; return loaded; }
         return n.type_id;
     }
     let entry_reachable = c.reachable;
@@ -4803,7 +4824,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             let ty = check_single_expression(p, c, n.left);
             if !check_addressable(p, n.left) && !(ty >= 0 && p.types[ty].kind == TY_REF) { diagnose(p, n.token, "reference requires addressable storage"); }
             check_require_referenceable(p, c, n.left);
-            var flags = 0; if check_readonly(p, c, n.left, true) { flags |= TF_CONST; }
+            var flags = 0; if check_borrow_readonly(p, c, n.left) { flags |= TF_CONST; }
             if ty >= 0 && p.types[ty].kind == TY_REF {
                 result = check_read_value_type(p, c, n.left, ty); check_copy_roots(c, node, n.left);
             } else {
@@ -5064,6 +5085,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
     else if n.kind == N_EMPTY { result = TYPE_VOID; }
     else if n.kind == N_EXPR_STMT { check_expression(p, c, n.left, TYPE_VOID); result = TYPE_VOID; }
     else { diagnose(p, n.token, "syntax node is not a valid expression"); }
+    if check_addressable(p, node) || n.kind == N_CALL { result = check_plain_value_type(p, result); }
     p.nodes[node].type_id = result;
     check_nonnegative_result(p, c, node, n, result);
     if entry_reachable && !c.reachable { p.nodes[node].flags |= F_DIVERGES; }
