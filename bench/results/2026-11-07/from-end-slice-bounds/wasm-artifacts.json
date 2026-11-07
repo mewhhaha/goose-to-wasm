@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "scope": "Exact qualified53/final54V3 full-cohort Wasm artifacts; path identities and source/tool pins retained.",
+  "previous_report_sha256": "7caca0043d8b9fc2911cd1c0617cf28dbab076451ea6b220536703faf07f9993",
+  "current_report_sha256": "227ed8d7175fd1d177951e66a21b844564301d9068f4610e5c15ce67e64c836c",
+  "rows": [
+    {
+      "name": "errors",
+      "previous_sha256": "da5ca7750cd4484de2710a0fd60074cf2eccbf9986d813e170ac7d1ae1f69fd3",
+      "current_sha256": "da5ca7750cd4484de2710a0fd60074cf2eccbf9986d813e170ac7d1ae1f69fd3",
+      "unchanged": true
+    },
+    {
+      "name": "functions",
+      "previous_sha256": "da8398cc00167af79244b12fc36823e0b22724e1eab1a5ba07609d0205aa4165",
+      "current_sha256": "da8398cc00167af79244b12fc36823e0b22724e1eab1a5ba07609d0205aa4165",
+      "unchanged": true
+    },
+    {
+      "name": "life",
+      "previous_sha256": "868fd2d69d1dcec2d7b9c63ac6d2e3314e830b5e2329e22c9dd5d08f2a464c7c",
+      "current_sha256": "868fd2d69d1dcec2d7b9c63ac6d2e3314e830b5e2329e22c9dd5d08f2a464c7c",
+      "unchanged": true
+    },
+    {
+      "name": "maze",
+      "previous_sha256": "d3a608ef469dc1ae9556a000a165c27aff1aa40818dcdaabc92446b9329e4726",
+      "current_sha256": "d3a608ef469dc1ae9556a000a165c27aff1aa40818dcdaabc92446b9329e4726",
+      "unchanged": true
+    },
+    {
+      "name": "sieve",
+      "previous_sha256": "a00684b7c0c0bae3ff3fddb79613176fdee932df20dc94a503b892f5dec74d48",
+      "current_sha256": "a00684b7c0c0bae3ff3fddb79613176fdee932df20dc94a503b892f5dec74d48",
+      "unchanged": true
+    },
+    {
+      "name": "sorting",
+      "previous_sha256": "cf30f6476fe0b2ff26c3bafe19ae1ee1924b225e65df7ba49dfd412abfb88575",
+      "current_sha256": "cf30f6476fe0b2ff26c3bafe19ae1ee1924b225e65df7ba49dfd412abfb88575",
+      "unchanged": true
+    },
+    {
+      "name": "squares",
+      "previous_sha256": "6d7abf8390d59e60543f3af9cff3283c26b5ae31578f6c3a5910893db59a2ca3",
+      "current_sha256": "6d7abf8390d59e60543f3af9cff3283c26b5ae31578f6c3a5910893db59a2ca3",
+      "unchanged": true
+    },
+    {
+      "name": "sudoku",
+      "previous_sha256": "9fd6c39f8227d751eba27a605ad927995ffaec15a1bb24d1827bcdeec71e8a3c",
+      "current_sha256": "9fd6c39f8227d751eba27a605ad927995ffaec15a1bb24d1827bcdeec71e8a3c",
+      "unchanged": true
+    },
+    {
+      "name": "tour",
+      "previous_sha256": "9687d55a66d3ecdfac359d49647e207a7028243cb31096dcf12c578d55838a1a",
+      "current_sha256": "9687d55a66d3ecdfac359d49647e207a7028243cb31096dcf12c578d55838a1a",
+      "unchanged": true
+    },
+    {
+      "name": "vm",
+      "previous_sha256": "c5180c7d314a02fed01ffb9f43e33f807d01b1e329ef8e87f9e72cb22569913f",
+      "current_sha256": "c5180c7d314a02fed01ffb9f43e33f807d01b1e329ef8e87f9e72cb22569913f",
+      "unchanged": true
+    }
+  ]
+}

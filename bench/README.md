@@ -92,9 +92,9 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 54 results
+## Snapshot 55 results
 
-The [dated example results](results/2026-11-07/temporary-region-retirement/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Paired minimal AOT process ratios versus snapshot 53 ranged 0.984–1.015, with a median workload ratio of 1.002; the native-control median was 1.003. These measurements do not establish a broad runtime speedup. Repeated 10,000-iteration temporary workloads, including str and to_bytes, now fit the same two-page Wasm limit. Thirty-two scalar startup initializers reuse one region instead of 33; an 8,192-byte main temporary then fits without increasing the limit. The guards also preserve live global owners and views and still reject a live value larger than the limit. Across 41 changed small modules in the targeted cohort, emitted size was 0.831–1.815 times baseline and median compile CPU was 1.076 times baseline. The 13 byte-identical controls had a median compile CPU ratio of 0.986. These are targeted costs of the final candidate, separate from the ten-example process comparison.
+The [dated example results](results/2026-11-07/from-end-slice-bounds/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Paired minimal AOT process ratios versus snapshot 54 ranged 0.985–1.013, with a median workload ratio of 0.999; the native-control median was 1.001. Matched cold direct-build ratios ranged 0.987–1.005, with a median workload ratio of 0.997. All ten Wasm modules are byte-identical. No broad speedup is established.
 
 ## Example programs
 

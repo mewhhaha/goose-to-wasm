@@ -5067,7 +5067,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             } else {
                 var flags = array.flags & TF_CONST; if check_readonly(p, c, n.left) { flags |= TF_CONST; }
                 result = check_type(p, TY_SLICE, array.element, -1, -1, flags);
-                if start.valid && end.valid && start.value > end.value { diagnose(p, n.token, "slice start exceeds its end"); }
+                if (n.flags & (F_FROM_END | F_TO_END)) == 0 && start.valid && end.valid && start.value > end.value { diagnose(p, n.token, "slice start exceeds its end"); }
                 if end.valid && end.value < 0 || end.valid && array.array_kind == A_FIXED && array.count >= 0 && end.value > array.count {
                     diagnose(p, n.token, "slice bound is outside the fixed array");
                 }

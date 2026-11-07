@@ -1,0 +1,136 @@
+{
+  "schema": "goose-compiler-qualification-v1",
+  "snapshot": "55",
+  "complete": false,
+  "bootstrap_status": "passed",
+  "bootstrap_c_sha256": "eb9ba3b7cb5a8be6c29583c32589eb329d1f95283d4debf16cb8341050096499",
+  "source_sha256": {
+    "checker.goose": "67e11828bac566eb2370f9f911a150397e8e0d3ee231a9bb00bd737c52c0fd2a",
+    "checker_lifetimes.goose": "0a65c6d9a92c4886ca21ea6dd0ce3d69868aae722e23a694814e3c089ce62be6",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
+    "checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38",
+    "codegen.goose": "c54e866326bff07e43060b8877676958e69ac3f8c6e1edc83f7dcd8588451e1b",
+    "codegen_c.goose": "e753807fb69ad1331132854bd3378077b11c07e9be09bd67036e71c5f9b99819",
+    "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+    "codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6",
+    "codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70",
+    "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "lexer.goose": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "model.goose": "1c3c7a05bdbcc2064fe5a51555c164f7e9eccf43dacf4494afea9faa04e7d82c",
+    "optimizer.goose": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699",
+    "parser.goose": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "wasm.goose": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869",
+    "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
+    "native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "compiler_sha256": "195c1d74e4b6f79829c93be239d3a3c7cf4606fcd8feb13ba14b15a397ce2a26",
+  "public_compiler_sha256": "67ed54db4d12c285b880529b907d52d9f180a6b38e2ca1e223123636fa8b812b",
+  "public_same_path_c_sha256": "eb9ba3b7cb5a8be6c29583c32589eb329d1f95283d4debf16cb8341050096499",
+  "fixed_point_scope": "Consecutive C generations match; the parent seed is verified snapshot54.",
+  "contracts": {
+    "selected": 7779,
+    "passed": 7679,
+    "failed": 100
+  },
+  "original_contract_rows": 5043,
+  "curated_v8_driver": {
+    "selected": 4688,
+    "passed": 4688,
+    "failed": 0
+  },
+  "curated_wasm_per_engine": 3282,
+  "curated_native_controls": 1406,
+  "native_thread_checks": 52,
+  "existing_contract_gains": 2,
+  "existing_contract_regressions": 0,
+  "new_contract_rows": 68,
+  "new_contract_failures": 0,
+  "remaining_failure_phases": {
+    "type-error": 6,
+    "run": 94
+  },
+  "remaining_runtime_failure_detail": {
+    "compiler_refusal": 94,
+    "c_compiler_failure": 0,
+    "executed_mismatch": 0
+  },
+  "remaining_failure_groups": {
+    "upstream/errors_tc": 6,
+    "upstream/typing": 14,
+    "upstream/lifetimes": 28,
+    "upstream/storage": 14,
+    "upstream/optimizer": 2,
+    "upstream/codegen": 26,
+    "upstream/stdlib": 10
+  },
+  "gains": [
+    {
+      "case": "upstream/syntax/parser_all",
+      "level": 0,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 6005,
+      "native_command": 6006,
+      "run_command": 6007,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    },
+    {
+      "case": "upstream/syntax/parser_all",
+      "level": 2,
+      "status": "pass",
+      "phase": "run",
+      "compile_command": 6008,
+      "native_command": 6009,
+      "run_command": 6010,
+      "stdout_equal": true,
+      "exit_equal": true,
+      "diagnostic_equal": true
+    }
+  ],
+  "permanent_controls": {
+    "status": "all migrated controls passed in current composed qualification",
+    "cases": 34,
+    "rows": 68,
+    "sources": {
+      "tests/fixtures/contracts/from-end-slices/fixed.goose": "7248c7238e7d707acff62d3340630bd62100c969d2433ae762f302637002f399",
+      "tests/fixtures/contracts/from-end-slices/grow.goose": "1ae5f258f334b0019b94bbd59018eb5d53b40df990a8110b7d31e77bc92f413f",
+      "tests/fixtures/contracts/from-end-slices/slice-argument.goose": "a3e72fd12b7c10ad31248bbd0e1fc4d9f900af604d50d7c52537e1ad3dfcf623",
+      "tests/fixtures/contracts/from-end-slices/ordinary-inverted.goose": "676726cbc4004adb8400c4ecb69d3d99a496f687c724c124e32d1cff41f084b2",
+      "tests/fixtures/contracts/from-end-slices/ordinary-negative.goose": "d9f0753ac89991d2801b7188502735a04d9d19bd863e6efba8175c056ec386b9",
+      "tests/fixtures/contracts/from-end-slices/negative-from-end.goose": "5ef8030fd896941e8064f23d750d08175dfa592097266619f07e8782ed6a3923",
+      "tests/fixtures/contracts/from-end-slices/negative-to-end.goose": "d1e3bcbb9a20a544a6d7db324297b68ca35d3765467f58b51d94db7f3c0c259d",
+      "tests/fixtures/contracts/from-end-slices/fixed-upper-too-large.goose": "cc6e5359b4bc935c1af6b6f3e321fc56bd808cb2b8cad9a4ea46fd4d55cd5b7c",
+      "tests/fixtures/contracts/from-end-slices/fixed-from-end-upper-too-large.goose": "e86eae09f6346874e1673b6d9d23c6fb234c91397aa7038f4843e63fb60ffe17",
+      "tests/fixtures/contracts/from-end-slices/invalid-from-end-index.goose": "1b0ac15df22cd1a3004ef8466d166d6ee8c88f680994b3707e384e4775828b56",
+      "tests/fixtures/contracts/from-end-slices/fixed-index-too-large.goose": "cbaaeeb56088e0419cd74bbffd11445034250efb0944350d630dc4ef20eb5160",
+      "tests/fixtures/contracts/from-end-slices/inverted-from-end.goose": "52ecf8066eff165fe77c7988c705cefa1e5830436fbc3fdc056d8875c29dc5cb",
+      "tests/fixtures/contracts/from-end-slices/from-end-low-too-large.goose": "7bd579c066f0e0c7f218f6bbc2129354580b185b062b49fab5e3059e78339ff0",
+      "tests/fixtures/contracts/from-end-slices/grow-from-end-high-too-large.goose": "224d8e215a57d0b4bd7f185f8efbeb0923ee2a3d5300000d05a7991cc64a4aee",
+      "tests/fixtures/contracts/from-end-slices/mixed-inverted.goose": "956c7cd08960ab4c09b5c4d064a000d1077317ee247c1ed03cd3964f556529bc",
+      "tests/fixtures/contracts/from-end-slice-review/slice-reference-mixed-bounds.goose": "7ee4c51d00d7529b98d43519c89224d2d64bab90773f43835312218f11ff6cfa",
+      "tests/fixtures/contracts/from-end-slice-review/dynamic-mixed-inverted-range.goose": "6f7ee2dcf9d1139aca524afc1202ab318219f094b4bf736c98a135343a780ff1"
+    }
+  },
+  "scope": [
+    "Compare raw constant slice endpoints only when neither uses a from-end offset.",
+    "Preserve normalized runtime range checks, ordinary static bound diagnostics, parser restrictions and BCE."
+  ],
+  "native_runtime_reference": "Native header and permanent direct C test inputs match snapshot49 exactly; its qualified 45-command suite is reused. Checker, emission and runtime contracts are freshly qualified."
+}

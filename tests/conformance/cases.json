@@ -64399,6 +64399,544 @@
         "exit": 0
       },
       "maximum_pages": 2
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed/native",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 45\n5 12345\n0 0\n0 0\n3 234\n3 234\n3 123\n3 345\n5 12345\n0 0\n0 0\n5 12345\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 45\n5 12345\n0 0\n0 0\n3 234\n3 234\n3 123\n3 345\n5 12345\n0 0\n0 0\n5 12345\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/grow/native",
+      "source": "tests/fixtures/contracts/from-end-slices/grow.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 45\n5 12345\n0 0\n0 0\n3 234\n3 234\n3 123\n3 345\n5 12345\n0 0\n0 0\n5 12345\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/grow/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/grow.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 45\n5 12345\n0 0\n0 0\n3 234\n3 234\n3 123\n3 345\n5 12345\n0 0\n0 0\n5 12345\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/slice-argument/native",
+      "source": "tests/fixtures/contracts/from-end-slices/slice-argument.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 45\n5 12345\n0 0\n0 0\n3 234\n3 234\n3 123\n3 345\n5 12345\n0 0\n0 0\n5 12345\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/slice-argument/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/slice-argument.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2 45\n5 12345\n0 0\n0 0\n3 234\n3 234\n3 123\n3 345\n5 12345\n0 0\n0 0\n5 12345\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/ordinary-inverted/native",
+      "source": "tests/fixtures/contracts/from-end-slices/ordinary-inverted.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice start exceeds its end"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/ordinary-inverted/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/ordinary-inverted.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice start exceeds its end"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/ordinary-negative/native",
+      "source": "tests/fixtures/contracts/from-end-slices/ordinary-negative.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "array index must be nonnegative"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/ordinary-negative/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/ordinary-negative.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "array index must be nonnegative"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/negative-from-end/native",
+      "source": "tests/fixtures/contracts/from-end-slices/negative-from-end.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "array index must be nonnegative"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/negative-from-end/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/negative-from-end.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "array index must be nonnegative"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/negative-to-end/native",
+      "source": "tests/fixtures/contracts/from-end-slices/negative-to-end.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice bound is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/negative-to-end/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/negative-to-end.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice bound is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed-upper-too-large/native",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed-upper-too-large.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice bound is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed-upper-too-large/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed-upper-too-large.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice bound is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed-from-end-upper-too-large/native",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed-from-end-upper-too-large.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice bound is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed-from-end-upper-too-large/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed-from-end-upper-too-large.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "slice bound is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/invalid-from-end-index/native",
+      "source": "tests/fixtures/contracts/from-end-slices/invalid-from-end-index.goose",
+      "phase": "parse-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "^ bounds are only valid in slices"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/invalid-from-end-index/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/invalid-from-end-index.goose",
+      "phase": "parse-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "^ bounds are only valid in slices"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed-index-too-large/native",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed-index-too-large.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "constant index is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/fixed-index-too-large/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/fixed-index-too-large.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "exit": 1,
+        "stderr_contains": [
+          "constant index is outside the fixed array"
+        ]
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/inverted-from-end/native",
+      "source": "tests/fixtures/contracts/from-end-slices/inverted-from-end.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/inverted-from-end/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/inverted-from-end.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/from-end-low-too-large/native",
+      "source": "tests/fixtures/contracts/from-end-slices/from-end-low-too-large.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/from-end-low-too-large/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/from-end-low-too-large.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/grow-from-end-high-too-large/native",
+      "source": "tests/fixtures/contracts/from-end-slices/grow-from-end-high-too-large.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/grow-from-end-high-too-large/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/grow-from-end-high-too-large.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/mixed-inverted/native",
+      "source": "tests/fixtures/contracts/from-end-slices/mixed-inverted.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slices/mixed-inverted/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slices/mixed-inverted.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      },
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "corpus/contracts/from-end-slice-review/slice-reference-mixed-bounds/native",
+      "source": "tests/fixtures/contracts/from-end-slice-review/slice-reference-mixed-bounds.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 160 2 90 1 60\n70 70\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/from-end-slice-review/slice-reference-mixed-bounds/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slice-review/slice-reference-mixed-bounds.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 160 2 90 1 60\n70 70\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/from-end-slice-review/dynamic-mixed-inverted-range/native",
+      "source": "tests/fixtures/contracts/from-end-slice-review/dynamic-mixed-inverted-range.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      }
+    },
+    {
+      "id": "corpus/contracts/from-end-slice-review/dynamic-mixed-inverted-range/wasm-direct",
+      "source": "tests/fixtures/contracts/from-end-slice-review/dynamic-mixed-inverted-range.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero"
+      }
     }
   ],
   "legacy_math_capture": {
