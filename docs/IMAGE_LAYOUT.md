@@ -1,10 +1,12 @@
 # Internal layout migration
 
-The `goose.direct` producer marker distinguishes external scalar `abi=1` from
+The scalar-proof path emits a `goose.direct` producer marker distinguishing
+external scalar `abi=1` from
 internal `layout=15;encoded-record-tails=terminal;encoded-arrays=combined;array-lengths=unsigned-uleb;varint-elements=sequential-grow;varint-records=sequential`, with
 `record-padding=fixed-alignment-variable-explicit` and
 `static-limited=compact-lengths;enum-tags=compact` and
-`variable-enums=active-payloads`, alongside
+`variable-enums=active-payloads`, with the bounded
+`resizable-payloads=descriptor-tail;resizable-prefix=frame` exception below, alongside
 `record-values=packed-single-tail;owner-control=24` and
 the unsigned array value and packed fixed-record/variant markers.
 Compiler identity invalidates cached complete modules when layouts change.
@@ -45,7 +47,8 @@ prefixes in their region and read that metadata through physical-mode accessors.
 Their fixed-layout elements retain the target representation.
 [Single-tail non-frame records](RECORD_IMAGES.md) now store packed prefixes and
 terminal array images together. Their aligned controls remain separate, and the
-outer variable enum now stores the compact tag and active payload only. Aligned
+outer variable enum stores the compact tag and active payload only, subject to
+the resizable frame exception below. Aligned
 owner envelopes retain separate persistent controls for each nonfixed variant,
 so saved typed views survive replacement. Inactive payloads consume no data bytes.
 [Varint array elements](VARINT_ARRAYS.md) use sequential cursors and raw encoded
@@ -67,3 +70,25 @@ before variable elements, nonfinal variable fields, relative references,
 serialization or general byte-overlap parity can qualify. Reference-containing
 overlaps expose platform-specific address bits; width changes alone do not make
 native/memory64 and wasm32 addresses equivalent.
+
+Resizable enum payloads that end in a growable array keep their fixed prefix and
+array count in the existing persistent variant descriptor. Their separate image
+contains the compact tag and the raw logical tail bytes; these bytes alone do not
+encode the count. Nested record and enum tails carry and rebase the same descriptor
+metadata on construction, assignment and result adaptation. No persistent control
+is reconstructed from raw tail bytes.
+
+A containing record with this metadata keeps its fixed fields canonical in its
+frame, so a tail replacement preserves references into that fixed prefix. A request
+for a contiguous physical snapshot packs the current frame prefix and tail into a
+new allocation. This can add allocation and copying work; this correctness repair
+makes no runtime speed claim. Resizable values remain excluded from array elements
+and serialized element images, and the region backend admission is unchanged.
+
+The extra producer feature fields describe this internal exception without changing
+external `abi=1`, the 24-byte owner control, or the ordinary `layout=15` image rules.
+That marker is emitted only by the scalar-proof path; owned-value modules omit it,
+including debug builds. Their cache safety rests on compiler identity and complete
+module bytes. The build driver disables source-build caching and records compiler
+and module SHA-256 identities. The Wasmtime host compares complete module bytes
+for its in-process cache, so changed owned-value code receives a distinct identity.

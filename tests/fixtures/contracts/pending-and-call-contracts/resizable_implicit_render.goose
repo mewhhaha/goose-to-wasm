@@ -1,0 +1,2 @@
+enum Value { A { items: i64[>..] } }
+fn main() { var v: Value.. = Value.A { items: [1, 2] }; print(v); }

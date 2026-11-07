@@ -92,9 +92,9 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 46 results
+## Snapshot 47 results
 
-The [dated example results](results/2026-11-05/bounded-images-and-early-results/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. The native column uses this compiler's C backend. Snapshot 45 was measured separately; sorting took longer in both columns in this run. These runs do not establish a matched runtime improvement.
+The [dated example results](results/2026-11-07/pending-elements-and-payloads/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. The native column uses this compiler's C backend. Snapshot 46 was measured separately; these runs do not establish a matched runtime improvement.
 
 ## Example programs
 

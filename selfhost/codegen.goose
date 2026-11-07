@@ -486,8 +486,8 @@ fn cg_field_place(p: Program&, m: CgModule&, f: CgBody&, object_type: i64, node:
     if cg_byte_record(p, object_type) {
         let header = cg_save(f, 0x7f); let address = cg_byte_field(p, m, f, object_type, header, selected, node); cg_get(f, address); return;
     }
-    if cg_record_image(p, object_type) && selected != p.types[object_type].tail {
-        let owner = cg_save(f, 0x7f); let image = cg_record_image_base(p, f, object_type, owner);
+    if cg_record_image(p, object_type) && !cg_frame_metadata(p, object_type) && selected != p.types[object_type].tail {
+        let owner = cg_save(f, 0x7f); let image = cg_record_image_base(p, m, f, object_type, owner, node);
         var field = p.types[object_type].first; var offset = 0;
         while field >= 0 && field != selected {
         if (p.nodes[field].flags & F_PAD) != 0 { offset += p.nodes[field].aux; }
@@ -4022,14 +4022,14 @@ fn cg_record_effect_supported(p: Program&, id: i64) -> bool {
     if !cg_owner(p, current) || p.types[current].array_kind != A_VAR && p.types[current].array_kind != A_LIMITED { return false; }
     return p.types[current].length_storage != 0 && p.types[p.types[current].element].storage == 0;
 }
-fn cg_record_physical_base(p: Program&, f: CgBody&, id: i64, owner: i64) -> i64 {
+fn cg_record_physical_base(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, node: i64) -> i64 {
     if cg_byte_record(p, id) { cg_get(f, owner); wb_mem(f.code, 0x28, 2, 16); return cg_save(f, 0x7f); }
-    return cg_record_image_base(p, f, id, owner);
+    return cg_record_image_base(p, m, f, id, owner, node);
 }
 fn cg_finish_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, start: i64, land: bool, node: i64) {
     let header = cg_region_header(p, f, id, owner);
     if land {
-        let base = cg_record_physical_base(p, f, id, owner); let finish = cg_region_cursor(f, header);
+        let base = cg_record_physical_base(p, m, f, id, owner, node); let finish = cg_region_cursor(f, header);
         cg_get(f, finish); cg_get(f, start); wb_byte(f.code, 0x6b); let bytes = cg_save(f, 0x7f);
         cg_get(f, base); wb_byte(f.code, 0xad); cg_get(f, bytes); wb_byte(f.code, 0xad); wb_byte(f.code, 0x7c); let top64 = cg_save(f, 0x7e);
         cg_get(f, start); cg_get(f, finish); wb_byte(f.code, 0x4b); cg_get(f, top64); cg_get(f, header); wb_mem(f.code, 0x28, 2, 8); wb_byte(f.code, 0xad); wb_byte(f.code, 0x56); wb_byte(f.code, 0x72); cg_trap_if(p, m, f, node, "invalid record image landing span");
@@ -4040,7 +4040,7 @@ fn cg_finish_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner:
 }
 fn cg_construct_image_captured(p: Program&, m: CgModule&, f: CgBody&, id: i64, source: i64, destination: i64, node: i64) {
     let target = f.construction_destinations[destination]; let header = cg_region_header(p, f, id, target.header);
-    cg_decode_record(p, m, f, id, source, node); let base = cg_record_physical_base(p, f, id, source); var bytes = -1;
+    cg_decode_record(p, m, f, id, source, node); let base = cg_record_physical_base(p, m, f, id, source, node); var bytes = -1;
     if cg_byte_record(p, id) { cg_get(f, source); wb_mem(f.code, 0x28, 2, 4); bytes = cg_save(f, 0x7f); }
     else { bytes = cg_record_image_bytes(p, m, f, id, source, node); }
     cg_get(f, bytes); wb_byte(f.code, 0xad); let wide = cg_save(f, 0x7e); let top = cg_region_reserve(p, m, f, header, wide, node); let cursor = cg_region_cursor(f, header);
@@ -4755,7 +4755,7 @@ fn cg_scalar_metadata(p: Program&, m: CgModule&, module: u8[>..]&) {
     }
     wb_u(names, m.start); wb_name(names, "_start"); wb_byte(section, 1); wb_u(section, names.len); wb_raw(section, names); wb_section(module, 0, section);
     section.clear(); wb_name(section, "goose.direct");
-    wb_name(section, "abi=1;layout=15;encoded-record-tails=terminal;encoded-arrays=combined;array-lengths=unsigned-uleb;varint-elements=sequential-grow;varint-records=sequential;record-padding=fixed-alignment-variable-explicit;static-limited=compact-lengths;enum-tags=compact;variable-enums=active-payloads;record-values=packed-single-tail;owner-control=24;array-values=unsigned-prefixes;variant-payloads=packed-fields;fixed-records=packed-fields;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
+    wb_name(section, "abi=1;layout=15;encoded-record-tails=terminal;encoded-arrays=combined;array-lengths=unsigned-uleb;varint-elements=sequential-grow;varint-records=sequential;record-padding=fixed-alignment-variable-explicit;static-limited=compact-lengths;enum-tags=compact;variable-enums=active-payloads;resizable-payloads=descriptor-tail;resizable-prefix=frame;record-values=packed-single-tail;owner-control=24;array-values=unsigned-prefixes;variant-payloads=packed-fields;fixed-records=packed-fields;memory=wasm32;slices=packed-ptr32-len32;features=bulk-memory,multi-value,sign-ext");
     wb_section(module, 0, section);
 }
 fn cg_decimal(out: u8[>..]&, value: i64) {
@@ -4885,6 +4885,46 @@ fn cg_copy_byte_record(p: Program&, m: CgModule&, f: CgBody&, id: i64, destinati
 fn cg_enum_image(p: Program&, id: i64) -> bool {
     return cg_type_kind(p, id) == TY_ENUM && (p.types[id].flags & F_VARIABLE_MODE) != 0;
 }
+recursive fn cg_frame_metadata(p: Program&, id: i64) -> bool {
+    if cg_frame_owner(p, id) { return true; }
+    if cg_record_image(p, id) { return cg_frame_metadata(p, cg_image_tail_type(p, id)); }
+    if !cg_enum_image(p, id) { return false; }
+    var variant = p.types[id].first;
+    while variant >= 0 { if cg_frame_metadata(p, p.nodes[variant].type_id) { return true; } variant = p.nodes[variant].next; }
+    return false;
+}
+fn cg_frame_array_bytes(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, node: i64) -> i64 {
+    let tail = cg_region_header(p, f, id, owner); let array = cg_frame_tail_type(p, id);
+    cg_owner_read_base(p, m, f, tail, node); let base = cg_save(f, 0x7f);
+    cg_owner_read_length(p, m, f, tail, node);
+    if p.types[p.types[array].element].storage == 1 {
+        wb_byte(f.code, 0xad); let count = cg_save(f, 0x7e); let end = cg_walk_elements(p, m, f, base, count, node);
+        cg_get(f, end); cg_get(f, base); wb_byte(f.code, 0x6b);
+    } else { wb_i32(f.code, cg_size(p, p.types[array].element)); wb_byte(f.code, 0x6c); }
+    return cg_save(f, 0x7f);
+}
+recursive fn cg_rebase_enum_frame(p: Program&, f: CgBody&, id: i64, owner: i64, image: i64, bytes: i64) {
+    cg_get(f, image); var load = 0x2d; if p.types[id].length_storage == 2 { load = 0x2f; }
+    wb_mem(f.code, load, 0, 0); let tag = cg_save(f, 0x7f); var variant = p.types[id].first;
+    while variant >= 0 {
+        let payload = p.nodes[variant].type_id;
+        if cg_frame_metadata(p, payload) {
+            cg_get(f, tag); wb_i32(f.code, p.nodes[variant].integer); wb_byte(f.code, 0x46); cg_begin(f, 0x04, 0x40);
+            cg_get(f, owner); wb_i32(f.code, p.nodes[variant].aux); wb_byte(f.code, 0x6a); let place = cg_save(f, 0x7f);
+            if cg_record_image(p, payload) {
+                cg_get(f, image); wb_i32(f.code, p.types[id].length_storage); wb_byte(f.code, 0x6a); let payload_image = cg_save(f, 0x7f);
+                cg_get(f, bytes); wb_i32(f.code, p.types[id].length_storage); wb_byte(f.code, 0x6b); let payload_bytes = cg_save(f, 0x7f);
+                cg_rebase_record_image(p, f, payload, place, payload_image, payload_bytes);
+            } else {
+            let tail = cg_region_header(p, f, payload, place);
+            for word in [0, 16] { cg_get(f, tail); cg_get(f, image); wb_i32(f.code, p.types[id].length_storage); wb_byte(f.code, 0x6a); wb_mem(f.code, 0x36, 2, word); }
+            cg_get(f, tail); cg_get(f, image); cg_get(f, bytes); wb_byte(f.code, 0x6a); wb_mem(f.code, 0x36, 2, 8);
+            }
+            cg_end(f);
+        }
+        variant = p.nodes[variant].next;
+    }
+}
 fn cg_seed_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, image: i64, limit: i64, node: i64) {
     if cg_byte_record(p, id) {
         for offset in [0, 16] { cg_get(f, owner); cg_get(f, image); wb_mem(f.code, 0x36, 2, offset); }
@@ -4916,6 +4956,7 @@ fn cg_enum_payload(p: Program&, m: CgModule&, f: CgBody&, enum_id: i64, owner: i
     wb_i32(f.code, p.types[enum_id].length_storage); wb_byte(f.code, 0x6a); let image = cg_save(f, 0x7f);
     if cg_enum_image(p, enum_id) && variant >= 0 && p.nodes[variant].aux > 0 {
         cg_get(f, owner); wb_i32(f.code, p.nodes[variant].aux); wb_byte(f.code, 0x6a); let payload = cg_save(f, 0x7f);
+        if cg_frame_metadata(p, p.nodes[variant].type_id) { return payload; }
         cg_get(f, owner); wb_mem(f.code, 0x28, 2, 8); let limit = cg_save(f, 0x7f);
         cg_seed_record_image(p, m, f, p.nodes[variant].type_id, payload, image, limit, node); return payload;
     }
@@ -4928,7 +4969,10 @@ recursive fn cg_enum_image_bytes(p: Program&, m: CgModule&, f: CgBody&, id: i64,
     while variant >= 0 {
         cg_get(f, tag); wb_i32(f.code, p.nodes[variant].integer); wb_byte(f.code, 0x46); cg_begin(f, 0x04, 0x40);
         let payload = p.nodes[variant].type_id;
-        if cg_byte_record(p, payload) {
+        if cg_frame_owner(p, payload) {
+            let place = cg_enum_payload(p, m, f, id, owner, variant, node); let bytes = cg_frame_array_bytes(p, m, f, payload, place, node);
+            cg_get(f, bytes); wb_i32(f.code, p.types[id].length_storage); wb_byte(f.code, 0x6a);
+        } else if cg_byte_record(p, payload) {
             let place = cg_enum_payload(p, m, f, id, owner, variant, node); let end = cg_byte_field(p, m, f, payload, place, -1, node);
             cg_get(f, end); cg_get(f, owner); wb_mem(f.code, 0x28, 2, 0); wb_byte(f.code, 0x6b);
         } else if cg_record_image(p, payload) {
@@ -4947,30 +4991,43 @@ recursive fn cg_enum_image_bytes(p: Program&, m: CgModule&, f: CgBody&, id: i64,
 }
 recursive fn cg_enum_variant_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, destination: i64, variant: i64, source: i64, node: i64) {
     let payload = p.nodes[variant].type_id; var original = source; var payload_bytes = -1;
-    if cg_byte_record(p, payload) {
+    if cg_frame_owner(p, payload) {
+        let tail = cg_region_header(p, f, payload, source); cg_owner_read_base(p, m, f, tail, node); original = cg_save(f, 0x7f);
+        payload_bytes = cg_frame_array_bytes(p, m, f, payload, source, node);
+        cg_get(f, destination); wb_i32(f.code, p.nodes[variant].aux); wb_byte(f.code, 0x6a); let place = cg_save(f, 0x7f);
+        cg_get(f, place); cg_get(f, source); wb_i32(f.code, cg_size(p, payload)); wb_copy(f.code);
+    } else if cg_byte_record(p, payload) {
         cg_get(f, source); wb_mem(f.code, 0x28, 2, 16); original = cg_save(f, 0x7f); let end = cg_byte_field(p, m, f, payload, source, -1, node);
         cg_get(f, end); cg_get(f, original); wb_byte(f.code, 0x6b); payload_bytes = cg_save(f, 0x7f);
-    } else if cg_record_image(p, payload) { original = cg_record_image_base(p, f, payload, source); payload_bytes = cg_record_image_bytes(p, m, f, payload, source, node); }
+    } else if cg_record_image(p, payload) {
+        original = cg_record_image_base(p, m, f, payload, source, node); payload_bytes = cg_record_image_bytes(p, m, f, payload, source, node);
+        if cg_frame_metadata(p, payload) {
+            cg_get(f, destination); wb_i32(f.code, p.nodes[variant].aux); wb_byte(f.code, 0x6a); let place = cg_save(f, 0x7f);
+            cg_get(f, place); cg_get(f, source); wb_i32(f.code, cg_size(p, payload)); wb_copy(f.code);
+        }
+    }
     else { var bytes = 0; if p.nodes[variant].first >= 0 { bytes = cg_size(p, payload); } wb_i32(f.code, bytes); payload_bytes = cg_save(f, 0x7f); }
     cg_get(f, payload_bytes); wb_i32(f.code, p.types[id].length_storage); wb_byte(f.code, 0x6a); let bytes = cg_save(f, 0x7f);
     cg_get(f, bytes); cg_allocate(p, m, f, node); let image = cg_save(f, 0x7f);
     cg_get(f, image); wb_i32(f.code, p.nodes[variant].integer); var store = 0x3a; if p.types[id].length_storage == 2 { store = 0x3b; } wb_mem(f.code, store, 0, 0);
     cg_get(f, image); wb_i32(f.code, p.types[id].length_storage); wb_byte(f.code, 0x6a); cg_get(f, original); cg_get(f, payload_bytes); wb_copy(f.code);
     cg_byte_header(f, destination, image, bytes);
+    if cg_frame_metadata(p, payload) { cg_rebase_enum_frame(p, f, id, destination, image, bytes); }
 }
 recursive fn cg_enum_from_value(p: Program&, m: CgModule&, f: CgBody&, id: i64, destination: i64, from: i64, source: i64, node: i64) {
     if cg_type_kind(p, from) == TY_STRUCT { cg_enum_variant_image(p, m, f, id, destination, p.types[from].declaration, source, node); return; }
-    if cg_enum_image(p, from) {
+    if cg_enum_image(p, from) && !cg_frame_metadata(p, from) {
         let bytes = cg_enum_image_bytes(p, m, f, from, source, node);
         cg_get(f, source); wb_mem(f.code, 0x28, 2, 0); let original = cg_save(f, 0x7f);
         cg_get(f, bytes); cg_allocate(p, m, f, node); let image = cg_save(f, 0x7f);
         cg_get(f, image); cg_get(f, original); cg_get(f, bytes); wb_copy(f.code); cg_byte_header(f, destination, image, bytes); return;
     }
-    cg_get(f, source); var load = 0x2d; if p.types[from].length_storage == 2 { load = 0x2f; } wb_mem(f.code, load, 0, 0); let tag = cg_save(f, 0x7f);
+    cg_get(f, source); if cg_enum_image(p, from) { wb_mem(f.code, 0x28, 2, 0); }
+    var load = 0x2d; if p.types[from].length_storage == 2 { load = 0x2f; } wb_mem(f.code, load, 0, 0); let tag = cg_save(f, 0x7f);
     let done = cg_begin(f, 0x02, 0x40); var variant = p.types[id].first;
     while variant >= 0 {
         cg_get(f, tag); wb_i32(f.code, p.nodes[variant].integer); wb_byte(f.code, 0x46); cg_begin(f, 0x04, 0x40);
-        cg_get(f, source); wb_i32(f.code, p.types[from].length_storage); wb_byte(f.code, 0x6a); let payload = cg_save(f, 0x7f);
+        let payload = cg_enum_payload(p, m, f, from, source, variant, node);
         cg_enum_variant_image(p, m, f, id, destination, variant, payload, node); cg_branch(p, f, done, false); cg_end(f); variant = p.nodes[variant].next;
     }
     cg_abort(p, m, f, node, "invalid enum tag"); cg_end(f);
@@ -5083,7 +5140,8 @@ fn cg_record_total_prefix(p: Program&, id: i64) -> i64 {
     while cg_record_image(p, current) { bytes += cg_record_prefix(p, current); current = p.nodes[p.types[current].tail].type_id; }
     return bytes;
 }
-fn cg_record_image_base(p: Program&, f: CgBody&, id: i64, owner: i64) -> i64 {
+recursive fn cg_record_image_base(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, node: i64) -> i64 {
+    if cg_frame_metadata(p, id) { cg_pack_record_image(p, m, f, id, owner, node); }
     let header = cg_image_tail_control(p, f, id, owner); cg_get(f, header); wb_mem(f.code, 0x28, 2, 16);
     wb_i32(f.code, cg_record_total_prefix(p, id)); wb_byte(f.code, 0x6b); return cg_save(f, 0x7f);
 }
@@ -5109,20 +5167,25 @@ recursive fn cg_record_image_bytes(p: Program&, m: CgModule&, f: CgBody&, id: i6
     else { bytes = cg_array_image_bytes(p, m, f, tail, header, node); }
     cg_get(f, bytes); wb_i32(f.code, cg_record_total_prefix(p, id)); wb_byte(f.code, 0x6a); return cg_save(f, 0x7f);
 }
-fn cg_rebase_record_image(p: Program&, f: CgBody&, id: i64, owner: i64, image: i64, bytes: i64) {
+recursive fn cg_rebase_record_image(p: Program&, f: CgBody&, id: i64, owner: i64, image: i64, bytes: i64) {
     let header = cg_image_tail_control(p, f, id, owner);
     cg_get(f, header); wb_mem(f.code, 0x28, 2, 16); let old_tail = cg_save(f, 0x7f);
     cg_get(f, image); wb_i32(f.code, cg_record_total_prefix(p, id)); wb_byte(f.code, 0x6a); let new_tail = cg_save(f, 0x7f);
     cg_get(f, header); cg_get(f, header); wb_mem(f.code, 0x28, 2, 0); cg_get(f, old_tail); wb_byte(f.code, 0x6b); cg_get(f, new_tail); wb_byte(f.code, 0x6a); wb_mem(f.code, 0x36, 2, 0);
     cg_get(f, header); cg_get(f, new_tail); wb_mem(f.code, 0x36, 2, 16);
     cg_get(f, header); cg_get(f, image); cg_get(f, bytes); wb_byte(f.code, 0x6a); wb_mem(f.code, 0x36, 2, 8);
+    let tail = cg_image_tail_type(p, id);
+    if cg_frame_metadata(p, tail) {
+        cg_get(f, bytes); wb_i32(f.code, cg_record_total_prefix(p, id)); wb_byte(f.code, 0x6b); let tail_bytes = cg_save(f, 0x7f);
+        cg_rebase_enum_frame(p, f, tail, header, new_tail, tail_bytes);
+    }
 }
-fn cg_pack_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, node: i64) {
+recursive fn cg_pack_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i64, node: i64) {
     let tail_field = p.types[id].tail; let tail_id = p.nodes[tail_field].type_id;
     cg_get(f, owner); wb_i32(f.code, p.nodes[tail_field].integer); wb_byte(f.code, 0x6a); let tail = cg_save(f, 0x7f);
     var tail_image = -1; var tail_bytes = -1;
     if cg_record_image(p, tail_id) {
-        tail_image = cg_record_image_base(p, f, tail_id, tail); tail_bytes = cg_record_image_bytes(p, m, f, tail_id, tail, node);
+        tail_image = cg_record_image_base(p, m, f, tail_id, tail, node); tail_bytes = cg_record_image_bytes(p, m, f, tail_id, tail, node);
     } else {
         cg_get(f, tail); wb_mem(f.code, 0x28, 2, 16); tail_image = cg_save(f, 0x7f);
         if cg_enum_image(p, tail_id) { tail_bytes = cg_enum_image_bytes(p, m, f, tail_id, tail, node); }
@@ -5144,7 +5207,7 @@ fn cg_pack_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, owner: i
     cg_rebase_record_image(p, f, id, owner, image, bytes);
 }
 fn cg_copy_record_image(p: Program&, m: CgModule&, f: CgBody&, id: i64, destination: i64, source: i64, node: i64) {
-    let original = cg_record_image_base(p, f, id, source); let bytes = cg_record_image_bytes(p, m, f, id, source, node);
+    let original = cg_record_image_base(p, m, f, id, source, node); let bytes = cg_record_image_bytes(p, m, f, id, source, node);
     cg_get(f, bytes); cg_allocate(p, m, f, node); let image = cg_save(f, 0x7f);
     cg_get(f, image); cg_get(f, original); cg_get(f, bytes); wb_copy(f.code);
     cg_get(f, destination); cg_get(f, source); wb_i32(f.code, cg_size(p, id)); wb_copy(f.code);

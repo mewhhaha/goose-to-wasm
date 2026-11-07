@@ -2,16 +2,16 @@
   "schema": "goose-bootstrap-seed-v1",
   "language": "C11",
   "producer": "Goose-written compiler through C-only bootstrap",
-  "c_sha256": "4fdbb47e3326835eb7b9fa7e939c84050d57a2e90ff047fc9d7f643c50e3b973",
-  "compressed_sha256": "834590435e23226ed4cce5284bb033db429a44700f2fcbe8722ef82abd17f916",
-  "source_bundle_sha256": "4f39efeae16b228a2a26b2a2bf402af228a25da1858b721f13e7bcbf291ad1f5",
+  "c_sha256": "52aa5342f183677c02843a514704107b3ecef2db2a8767b44f25759f33664a53",
+  "compressed_sha256": "5e10473ec959263f266920599c57a1112a40938f5f7c5906cf5bc597bc69a552",
+  "source_bundle_sha256": "8a58074c2f8872637d38396d303c7566d82b119d03eeb1f7b5b2c5b4ab48a2ce",
   "source_sha256": {
-    "checker.goose": "7677808b0ca5804c8c801b88fc96a38b1e7930b3263451dd1b53a46f84117e63",
+    "checker.goose": "7b3c92882a66819850b10dcd552557e9ac63d078905c118cb7ad285fce9b8b38",
     "checker_lifetimes.goose": "c58b3270b350ed86f20681e34797eb8a2647bf20f1388461def8018ecb0e4168",
     "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
     "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
     "checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38",
-    "codegen.goose": "d52c2430721cbb64025ce6239b3edc5c4a401d2f334744f84d4fc4adbedb35fa",
+    "codegen.goose": "279f79e85c49a4d4e32a35ce0d9b9c77caa8d1b86afc563f0169bc6dbeadbfaa",
     "codegen_c.goose": "649821970137c2243fb953e856725212c9469fba584778a366191cb469a48365",
     "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
     "codegen_c_storage.goose": "308c37aa301b95145a1566fb670ac30e5406f12f4f94ba00b456ba2e28a4e37f",
@@ -54,10 +54,10 @@
   },
   "proof": {
     "fixed_point": true,
-    "parent_seed_c_sha256": "89feb6d5fba53f3bd2c36f5e00be164a53588856d2dfad8f0f021f647e6edebb",
-    "stage1_c_sha256": "b9b074776208fc60882406e065a74b511d68186322178aa8afd6663b68bd6878",
-    "stage2_c_sha256": "4fdbb47e3326835eb7b9fa7e939c84050d57a2e90ff047fc9d7f643c50e3b973",
-    "stage3_c_sha256": "4fdbb47e3326835eb7b9fa7e939c84050d57a2e90ff047fc9d7f643c50e3b973"
+    "parent_seed_c_sha256": "4fdbb47e3326835eb7b9fa7e939c84050d57a2e90ff047fc9d7f643c50e3b973",
+    "stage1_c_sha256": "52aa5342f183677c02843a514704107b3ecef2db2a8767b44f25759f33664a53",
+    "stage2_c_sha256": "52aa5342f183677c02843a514704107b3ecef2db2a8767b44f25759f33664a53",
+    "stage3_c_sha256": null
   },
   "note": "Final two C generations match. This seed is generated without a C++ compiler."
 }

@@ -56385,6 +56385,3130 @@
         "exit": 0,
         "normalize": "trailing-newlines"
       }
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_direct/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_direct.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_direct.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_empty/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_empty.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_empty/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_empty.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_escaped/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_escaped.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_escaped/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_escaped.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_parentheses/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_parentheses.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_parentheses/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_parentheses.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_block/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_block.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_block/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_block.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_direct/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_direct.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_direct.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_empty/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_empty.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_empty/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_empty.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_escaped/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_escaped.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_escaped/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_escaped.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_parentheses/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_parentheses.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_parentheses/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_parentheses.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_block/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_block.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_block/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_block.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_direct/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_direct.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_direct.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_empty/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_empty.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_empty/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_empty.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_escaped/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_escaped.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_escaped/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_escaped.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_parentheses/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_parentheses.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_parentheses/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_parentheses.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_block/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_block.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_block/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_block.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 + CompletePending570: literal value becomes owned u8[], not fixed-size"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_owned_strings/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_owned_strings.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\nd\n2\n",
+        "exit": 0
+      },
+      "provenance": "PendingElemFrom550: ordinary pending literal elements are writable owned u8[]"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_owned_strings/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_owned_strings.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\nd\n2\n",
+        "exit": 0
+      },
+      "provenance": "PendingElemFrom550: ordinary pending literal elements are writable owned u8[]"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_owned_wrappers/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_owned_wrappers.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "side\nzbc\n",
+        "exit": 0
+      },
+      "provenance": "CheckBlockVal1349 returns tail literal; parser1555 erases parentheses; effects persist"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_owned_wrappers/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_owned_wrappers.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "side\nzbc\n",
+        "exit": 0
+      },
+      "provenance": "CheckBlockVal1349 returns tail literal; parser1555 erases parentheses; effects persist"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_empty_and_escaped/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_empty_and_escaped.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n0\n4\n",
+        "exit": 0
+      },
+      "provenance": "StrLit::Check55 same inference for all literal lengths and decoded bytes"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_empty_and_escaped/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_empty_and_escaped.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n0\n4\n",
+        "exit": 0
+      },
+      "provenance": "StrLit::Check55 same inference for all literal lengths and decoded bytes"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_views/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_views.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "named local 5 3\n",
+        "exit": 0
+      },
+      "provenance": "Ident::Check85 starts fresh Val; explicit stored slice elements remain fixed-size views"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_views/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_views.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "named local 5 3\n",
+        "exit": 0
+      },
+      "provenance": "Ident::Check85 starts fresh Val; explicit stored slice elements remain fixed-size views"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_scalar_record/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_scalar_record.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 8 9\n",
+        "exit": 0
+      },
+      "provenance": "CompletePending570 permits fixed-size scalar and record elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_scalar_record/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_scalar_record.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 8 9\n",
+        "exit": 0
+      },
+      "provenance": "CompletePending570 permits fixed-size scalar and record elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_append_bytes/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_append_bytes.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abcd 103\n",
+        "exit": 0
+      },
+      "provenance": "PendingElemFromSeq559: appended string supplies u8 elements, independently of literal ownership inference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_append_bytes/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_append_bytes.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abcd 103\n",
+        "exit": 0
+      },
+      "provenance": "PendingElemFromSeq559: appended string supplies u8 elements, independently of literal ownership inference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_variable_record/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_variable_record.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 rejects variable-size reusable elements without relying on string syntax"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_variable_record/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_variable_record.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 rejects variable-size reusable elements without relying on string syntax"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_match_value/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_match_value.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckMatch1490 payload class rejected before binder mode"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_match_value/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_match_value.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckMatch1490 payload class rejected before binder mode"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_match_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_match_reference.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckMatch1490 payload class rejected before binder mode"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_match_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_match_reference.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckMatch1490 payload class rejected before binder mode"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_enum_fixed_value/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_value.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "CheckMatch1490 tests payload class; fixed payload in resizable enum remains valid by-value"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_enum_fixed_value/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_value.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "CheckMatch1490 tests payload class; fixed payload in resizable enum remains valid by-value"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_enum_fixed_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_reference.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckMatch1513 retains existing rejection of reference payload binding from resizable owner"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_enum_fixed_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_reference.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckMatch1513 retains existing rejection of reference payload binding from resizable owner"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_tag_and_struct/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_tag_and_struct.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "tag\n2\n",
+        "exit": 0
+      },
+      "provenance": "CheckMatch1490 only gates payload binders; diagnostic explicitly permits standalone resizable structs"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_tag_and_struct/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_tag_and_struct.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "tag\n2\n",
+        "exit": 0
+      },
+      "provenance": "CheckMatch1490 only gates payload binders; diagnostic explicitly permits standalone resizable structs"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/variable_enum_value/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/variable_enum_value.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      },
+      "provenance": "CheckMatch1490 gates SC_RESIZABLE only, not variable-size nonresizable payloads"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/variable_enum_value/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/variable_enum_value.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      },
+      "provenance": "CheckMatch1490 gates SC_RESIZABLE only, not variable-size nonresizable payloads"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_implicit_render/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_implicit_render.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { [1, 2] }\n",
+        "exit": 0
+      },
+      "provenance": "Existing upstream/storage/resizable_adt_payload_links prints resizable values; synthetic raw render binder is internal"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/resizable_implicit_render/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/resizable_implicit_render.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { [1, 2] }\n",
+        "exit": 0
+      },
+      "provenance": "Existing upstream/storage/resizable_adt_payload_links prints resizable values; synthetic raw render binder is internal"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_real_join_views/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_real_join_views.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "a\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals952 creates fresh Val for two reachable branches; no literal construction form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_real_join_views/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_real_join_views.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "a\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals952 creates fresh Val for two reachable branches; no literal construction form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_loop_view/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_loop_view.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "CheckBreak2032 creates a fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_loop_view/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_loop_view.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "CheckBreak2032 creates a fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_unicode/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_unicode.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "StrLit::Check55: UTF-8 source bytes are a string literal, hence owned u8[] pending element"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_push_unicode/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_unicode.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "StrLit::Check55: UTF-8 source bytes are a string literal, hence owned u8[] pending element"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_unicode/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_unicode.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "StrLit::Check55: UTF-8 source bytes are a string literal, hence owned u8[] pending element"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_index_unicode/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_unicode.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "StrLit::Check55: UTF-8 source bytes are a string literal, hence owned u8[] pending element"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_unicode/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_unicode.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "StrLit::Check55: UTF-8 source bytes are a string literal, hence owned u8[] pending element"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_unicode/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_unicode.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "StrLit::Check55: UTF-8 source bytes are a string literal, hence owned u8[] pending element"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_if_reusable/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_reusable.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_if_reusable/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_reusable.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_if_owned/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_owned.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_if_owned/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_owned.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_match_reusable/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_reusable.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_match_reusable/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_reusable.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_match_owned/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_owned.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_sole_match_owned/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_owned.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbc\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals952 and JoinBranches1057 return sole reachable branch unchanged, preserving literal form"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_append_variable/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_append_variable.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 enforces fixed-size reusable elements for sequence-producing append as well as element-producing operations"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_append_variable/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_append_variable.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 enforces fixed-size reusable elements for sequence-producing append as well as element-producing operations"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_early_no_break/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_no_break.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckEarlyBlock1680 preserves tail literal only with no break; CheckBreak2032 creates fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_early_no_break/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_no_break.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckEarlyBlock1680 preserves tail literal only with no break; CheckBreak2032 creates fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_early_break_and_tail/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_break_and_tail.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "CheckEarlyBlock1680 preserves tail literal only with no break; CheckBreak2032 creates fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_early_break_and_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_break_and_tail.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "CheckEarlyBlock1680 preserves tail literal only with no break; CheckBreak2032 creates fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_early_sole_break/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_sole_break.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "CheckEarlyBlock1680 preserves tail literal only with no break; CheckBreak2032 creates fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_early_sole_break/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_sole_break.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "CheckEarlyBlock1680 preserves tail literal only with no break; CheckBreak2032 creates fresh exit Val without string literal provenance"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_integers/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integers.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 8 9\n",
+        "exit": 0
+      },
+      "provenance": "typecheck_flow.h2557-2560: whole assignment completes from sequence elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_integers/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integers.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 8 9\n",
+        "exit": 0
+      },
+      "provenance": "typecheck_flow.h2557-2560: whole assignment completes from sequence elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_bytes/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_bytes.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbcd\n",
+        "exit": 0
+      },
+      "provenance": "PendingElemFromSeq559: whole assigned string supplies writable owned byte elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_bytes/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_bytes.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "zbcd\n",
+        "exit": 0
+      },
+      "provenance": "PendingElemFromSeq559: whole assigned string supplies writable owned byte elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_assign_integers/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_integers.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "typecheck_builtins.h1361-1363 plus CheckAssignedValue2440: whole assignment shrinks reusable pool and must reject, even when element type is fixed"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_assign_integers/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_integers.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "typecheck_builtins.h1361-1363 plus CheckAssignedValue2440: whole assignment shrinks reusable pool and must reject, even when element type is fixed"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_assign_variable/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_variable.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 rejects variable-size reusable elements supplied by whole assignment"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_assign_variable/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_variable.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 rejects variable-size reusable elements supplied by whole assignment"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_empty/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_empty.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFromSeq559 rejects still-untyped empty source sequence"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_empty/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_empty.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFromSeq559 rejects still-untyped empty source sequence"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_format_bytes/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_format_bytes.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "a7!\n",
+        "exit": 0
+      },
+      "provenance": "typecheck_builtins.h350-351: format completes pending receiver as u8"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_format_bytes/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_format_bytes.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "a7!\n",
+        "exit": 0
+      },
+      "provenance": "typecheck_builtins.h350-351: format completes pending receiver as u8"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_format_empty/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_format_empty.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "!\n",
+        "exit": 0
+      },
+      "provenance": "format completion supplies u8 even with no formatted arguments"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_format_empty/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_format_empty.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "!\n",
+        "exit": 0
+      },
+      "provenance": "format completion supplies u8 even with no formatted arguments"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_format_bytes/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_format_bytes.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "a7!\n",
+        "exit": 0
+      },
+      "provenance": "format supplies fixed-size u8 compatible with a reusable slot pool"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_format_bytes/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_format_bytes.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "a7!\n",
+        "exit": 0
+      },
+      "provenance": "format supplies fixed-size u8 compatible with a reusable slot pool"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_slice_assign_integers/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_integers.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "typecheck_builtins.h1361-1363 plus CheckAssignedValue2440: whole assignment shrinks reusable pool and must reject, even when element type is fixed"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_slice_assign_integers/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_integers.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "typecheck_builtins.h1361-1363 plus CheckAssignedValue2440: whole assignment shrinks reusable pool and must reject, even when element type is fixed"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_slice_assign_variable/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_variable.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 rejects variable-size elements for reusable[] too"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_reusable_slice_assign_variable/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_variable.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CompletePending570 rejects variable-size elements for reusable[] too"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_nested_break_tail/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_nested_break_tail.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckEarlyBlock1680 and CheckBreak2032: nested loop break does not exit outer literal-producing block"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_nested_break_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_nested_break_tail.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckEarlyBlock1680 and CheckBreak2032: nested loop break does not exit outer literal-producing block"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_integer_only/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integer_only.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 8\n",
+        "exit": 0
+      },
+      "provenance": "typecheck_flow.h2557-2560: assignment itself completes element type; no later push masks missing completion"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_integer_only/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integer_only.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 8\n",
+        "exit": 0
+      },
+      "provenance": "typecheck_flow.h2557-2560: assignment itself completes element type; no later push masks missing completion"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_variable_only/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_variable_only.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "whole assignment supplies sequence element V; ordinary grow arrays permit variable nonresizable elements; iterate variable elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_variable_only/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_variable_only.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "whole assignment supplies sequence element V; ordinary grow arrays permit variable nonresizable elements; iterate variable elements"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_null/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_null.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFromSeq559 rejects null: no array or slice sequence"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_null/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_null.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFromSeq559 rejects null: no array or slice sequence"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_scalar/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_scalar.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFromSeq559 rejects scalar: no array or slice sequence"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_assign_scalar/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_scalar.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFromSeq559 rejects scalar: no array or slice sequence"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_push_null/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_push_null.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 rejects null before storing inferred element type"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_push_null/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_push_null.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 rejects null before storing inferred element type"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_push_empty/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_push_empty.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 rejects emptyarr before storing inferred element type"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/pending_push_empty/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/pending_push_empty.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "PendingElemFrom550 rejects emptyarr before storing inferred element type"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/format_typed_nonbyte/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/format_typed_nonbyte.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "typecheck_builtins.h399: already annotated non-u8 receiver remains invalid"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/format_typed_nonbyte/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/format_typed_nonbyte.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "typecheck_builtins.h399: already annotated non-u8 receiver remains invalid"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_direct/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_direct.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_direct/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_direct.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_if_storage/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_storage.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_if_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_storage.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_if_reversed/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_reversed.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_if_reversed/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_reversed.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_match_storage/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_match_storage.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_match_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_match_storage.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_plain_block/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_plain_block.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_plain_block/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_plain_block.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_early_block/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_early_block.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_early_block/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_early_block.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_loop/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_loop.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_loop/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_loop.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_sole_live/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_sole_live.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_ambiguous_sole_live/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_sole_live.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArgRaw928-951: exact plain borrowing of storage branches has tier0, tying concrete by-value match"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_rvalue_literal/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 requires storage; rvalues match only by-value overload"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_rvalue_literal/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 requires storage; rvalues match only by-value overload"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_rvalue_literal_if/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal_if.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 requires storage; rvalues match only by-value overload"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_rvalue_literal_if/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal_if.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 requires storage; rvalues match only by-value overload"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_rvalue_rvalue_call/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_rvalue_call.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 requires storage; rvalues match only by-value overload"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_rvalue_rvalue_call/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_rvalue_call.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 requires storage; rvalues match only by-value overload"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_generic_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_generic_reference.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 concrete value tier0 beats generic borrowing tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_generic_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_generic_reference.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 concrete value tier0 beats generic borrowing tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_concrete_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_concrete_reference.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 concrete borrowing tier0 beats generic value tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_concrete_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_concrete_reference.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 concrete borrowing tier0 beats generic value tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_numeric_fallback/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_numeric_fallback.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 integer-to-float is last-resort tier3, not exact storage borrow"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_numeric_fallback/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_numeric_fallback.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 integer-to-float is last-resort tier3, not exact storage borrow"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_typed_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_typed_reference.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "9 9\n",
+        "exit": 0
+      },
+      "provenance": "CheckArg3820: selected explicit reference destination binds each branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/borrow_typed_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/borrow_typed_reference.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "9 9\n",
+        "exit": 0
+      },
+      "provenance": "CheckArg3820: selected explicit reference destination binds each branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_if_refs/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_refs.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_if_refs/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_refs.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_if_reversed/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_reversed.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_if_reversed/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_reversed.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_match_refs/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_match_refs.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_match_refs/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_match_refs.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_plain_ref_block/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_plain_ref_block.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_plain_ref_block/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_plain_ref_block.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_early_ref_block/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_early_ref_block.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_early_ref_block/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_early_ref_block.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_ref_loop/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_ref_loop.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_ref_loop/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_ref_loop.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_explicit_refs/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_explicit_refs.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_explicit_refs/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_explicit_refs.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_sole_live/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_sole_live.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_sole_live/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_sole_live.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_local_array/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_local_array.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_copy_local_array/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_local_array.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckFunValCall3750-3810 + CheckJoin1248/CheckBranchCopy866: untyped construct argument copies nonfixed branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_direct_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_direct_reference.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3791 NaturalType preserves direct reference argument"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_direct_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_direct_reference.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3791 NaturalType preserves direct reference argument"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_typed_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_typed_reference.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3811 explicitly typed reference parameter binds branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_typed_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_typed_reference.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3811 explicitly typed reference parameter binds branch storage"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_explicit_copy/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_explicit_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy866 fresh explicit copies are values, not nonfixed storage copied implicitly"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_explicit_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_explicit_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy866 fresh explicit copies are values, not nonfixed storage copied implicitly"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_fixed_copy/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_fixed_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n7 8\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3791 fixed-size branches copy values into untyped block parameter"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_fixed_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_fixed_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n7 8\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3791 fixed-size branches copy values into untyped block parameter"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_slice_copy/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_slice_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "TempCopy1174 preserves slice value; it does not copy the underlying array"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/funval_slice_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/funval_slice_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "abc\n",
+        "exit": 0
+      },
+      "provenance": "TempCopy1174 preserves slice value; it does not copy the underlying array"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_optional_stays_coercion/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_optional_stays_coercion.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 wraps storage as plain ref; optional parameter remains coercion tier2 versus exact value0"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_optional_stays_coercion/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_optional_stays_coercion.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw928 wraps storage as plain ref; optional parameter remains coercion tier2 versus exact value0"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_null_optional/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_null_optional.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "optional\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw912 null matches only optional at tier2"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_null_optional/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_null_optional.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "optional\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw912 null matches only optional at tier2"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_concrete_ref_generic_value/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_value.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "reference\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw951 exact concrete borrowing tier0 beats generic value tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_concrete_ref_generic_value/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_value.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "reference\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw951 exact concrete borrowing tier0 beats generic value tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_concrete_value_generic_ref/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_value_generic_ref.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw951 generic pointee binding retains tier1; concrete value tier0 wins"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_concrete_value_generic_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_value_generic_ref.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "UnifyArgRaw951 generic pointee binding retains tier1; concrete value tier0 wins"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_concrete_ref_generic_ref/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_ref.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "reference\n",
+        "exit": 0
+      },
+      "provenance": "Exact concrete reference tier0 wins over generic reference tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_concrete_ref_generic_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_ref.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "reference\n",
+        "exit": 0
+      },
+      "provenance": "Exact concrete reference tier0 wins over generic reference tier1"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_incompatible_pointee/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_incompatible_pointee.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "Reference matching preserves exact pointee identity; i64 storage cannot bind i32&"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_incompatible_pointee/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_incompatible_pointee.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "Reference matching preserves exact pointee identity; i64 storage cannot bind i32&"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_rvalue_has_no_storage/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_rvalue_has_no_storage.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy866 storagebranches requires every branch actual storage/reference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_rvalue_has_no_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_rvalue_has_no_storage.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy866 storagebranches requires every branch actual storage/reference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_mixed_has_no_storage/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_mixed_has_no_storage.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals storagebranches conjunction: mixed storage/rvalue construct cannot borrow whole"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_mixed_has_no_storage/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_mixed_has_no_storage.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "value\n",
+        "exit": 0
+      },
+      "provenance": "MergeVals storagebranches conjunction: mixed storage/rvalue construct cannot borrow whole"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_integer_float_fallback/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_integer_float_fallback.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "reference\nfloat\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 integer-to-float remains tier3 fallback; exact borrow wins for storage only"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_integer_float_fallback/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_integer_float_fallback.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "reference\nfloat\n",
+        "exit": 0
+      },
+      "provenance": "MatchInfo2144 integer-to-float remains tier3 fallback; exact borrow wins for storage only"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_const_ref_value_ambiguous/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_const_ref_value_ambiguous.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArg exact const-reference and transparent pointee exact value both tier0; readonly is not value-overload preference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/overload_const_ref_value_ambiguous/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/overload_const_ref_value_ambiguous.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "UnifyArg exact const-reference and transparent pointee exact value both tier0; readonly is not value-overload preference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/readonly_branch_read/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_read.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy storage branches preserve read-only qualifier at explicit reference destination"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/readonly_branch_read/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_read.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy storage branches preserve read-only qualifier at explicit reference destination"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/readonly_branch_write/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_write.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": 0
+      },
+      "provenance": "Ident::Check109 writable excludes const/copybind, not let; let forbids rebinding but permits writes through a reference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/readonly_branch_write/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_write.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": 0
+      },
+      "provenance": "Ident::Check109 writable excludes const/copybind, not let; let forbids rebinding but permits writes through a reference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_direct_nonfixed_reference/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_direct_nonfixed_reference.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n3\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3791 NaturalType of direct reference stays reference; no construct copy"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_direct_nonfixed_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_direct_nonfixed_reference.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n3\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3791 NaturalType of direct reference stays reference; no construct copy"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_typed_nonfixed_branch/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_typed_nonfixed_branch.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 1\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3809 explicit reference formal permits branch storage borrowing"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_typed_nonfixed_branch/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_typed_nonfixed_branch.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 1\n",
+        "exit": 0
+      },
+      "provenance": "CheckFunValCall3809 explicit reference formal permits branch storage borrowing"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_untyped_fixed_copy/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_fixed_copy.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 9\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy866 fixed reference branches are copied to natural i64 before untyped FV parameter inference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_untyped_fixed_copy/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_fixed_copy.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 9\n",
+        "exit": 0
+      },
+      "provenance": "CheckBranchCopy866 fixed reference branches are copied to natural i64 before untyped FV parameter inference"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_untyped_explicit_nonfixed_ref/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_explicit_nonfixed_ref.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckBranchCopy866 explicit & branch also denotes pointee copy without destination; nonfixed needs copy(...)"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/fv_untyped_explicit_nonfixed_ref/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_explicit_nonfixed_ref.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckBranchCopy866 explicit & branch also denotes pointee copy without destination; nonfixed needs copy(...)"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/const_branch_write/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/const_branch_write.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Ident::Check109 const gives nonwritable storage; selected reference call preserves callee readonly instantiation"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/const_branch_write/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/const_branch_write.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Ident::Check109 const gives nonwritable storage; selected reference call preserves callee readonly instantiation"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/const_branch_read/native",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/const_branch_read.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Const storage can bind readonly reference formal; qualification is not lost by branch normalization"
+    },
+    {
+      "id": "corpus/contracts/pending-and-call-contracts/const_branch_read/wasm-direct",
+      "source": "tests/fixtures/contracts/pending-and-call-contracts/const_branch_read.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Const storage can bind readonly reference formal; qualification is not lost by branch normalization"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/aliases/native",
+      "source": "tests/fixtures/contracts/resizable-payloads/aliases.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "Wrap { 9, A { 4, [5, 6] } }\nWrap { 10, A { 6, [7, 8] } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "51f829e039449293095e5a75f9e7d313ac9d6ecfe1162f83bc5b9841f0afad5e"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/aliases/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/aliases.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "Wrap { 9, A { 4, [5, 6] } }\nWrap { 10, A { 6, [7, 8] } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "51f829e039449293095e5a75f9e7d313ac9d6ecfe1162f83bc5b9841f0afad5e"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/basic/native",
+      "source": "tests/fixtures/contracts/resizable-payloads/basic.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { [1, 2] }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "77c3de2deed1da1aafd13d21dce16bd98d5191d126b0d1155bf48362891eb0fb"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/basic/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/basic.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { [1, 2] }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "77c3de2deed1da1aafd13d21dce16bd98d5191d126b0d1155bf48362891eb0fb"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/captured/native",
+      "source": "tests/fixtures/contracts/resizable-payloads/captured.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { 1, [2, 3] }\nA { 4, [5, 6] }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "21b0d1235582dfdaaed41e552b30f90b484caa0eb6edafbe2331f7f8c6a2db08"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/captured/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/captured.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { 1, [2, 3] }\nA { 4, [5, 6] }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "21b0d1235582dfdaaed41e552b30f90b484caa0eb6edafbe2331f7f8c6a2db08"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/nested-enum/native",
+      "source": "tests/fixtures/contracts/resizable-payloads/nested-enum.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "W { 1, A { 2, [3, 4] } }\nWrap { 5, W { 6, A { 7, [8, 9] } } }\nWrap { 5, W { 6, A { 7, [8, 9] } } }\nWrap { 5, W { 8, A { 9, [10, 11] } } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "92988f4883fd0e2f8f1d1f05b001313681ab37d431c89c7e3659093a3dbf7b97"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/nested-enum/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/nested-enum.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "W { 1, A { 2, [3, 4] } }\nWrap { 5, W { 6, A { 7, [8, 9] } } }\nWrap { 5, W { 6, A { 7, [8, 9] } } }\nWrap { 5, W { 8, A { 9, [10, 11] } } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "92988f4883fd0e2f8f1d1f05b001313681ab37d431c89c7e3659093a3dbf7b97"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/prefix-nested/native",
+      "source": "tests/fixtures/contracts/resizable-payloads/prefix-nested.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { 7, Tail { 8, [1, 2, 3] } }\nWrap { 9, A { 7, Tail { 8, [1, 2, 3] } } }\nWrap { 9, A { 7, Tail { 8, [1, 2, 3] } } }\nValue.Empty\nWrap { 9, A { 10, Tail { 11, [] } } }\nWrap { 9, Value.Empty }\nWrap { 9, A { 12, Tail { 13, [4, 5] } } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "2669f2ef3579a510f40576a36d7395fcb1c387aea32126471017297be2d49803"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/prefix-nested/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/prefix-nested.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { 7, Tail { 8, [1, 2, 3] } }\nWrap { 9, A { 7, Tail { 8, [1, 2, 3] } } }\nWrap { 9, A { 7, Tail { 8, [1, 2, 3] } } }\nValue.Empty\nWrap { 9, A { 10, Tail { 11, [] } } }\nWrap { 9, Value.Empty }\nWrap { 9, A { 12, Tail { 13, [4, 5] } } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "2669f2ef3579a510f40576a36d7395fcb1c387aea32126471017297be2d49803"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/returns/native",
+      "source": "tests/fixtures/contracts/resizable-payloads/returns.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { 2, [2, 3] }\nValue.Empty\nA { 2, [2, 3] }\nA { 6, [] }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "a42e6d7354a35aa565ffe0998cfa93a85b2c4d6a169e73fbf03e8935880ca0fc"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/returns/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/returns.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { 2, [2, 3] }\nValue.Empty\nA { 2, [2, 3] }\nA { 6, [] }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "a42e6d7354a35aa565ffe0998cfa93a85b2c4d6a169e73fbf03e8935880ca0fc"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/prefix-reference/native",
+      "source": "tests/fixtures/contracts/resizable-payloads/prefix-reference.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "Wrap { 12, Link { 12 } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "87771a3b9840e67c54e72c3ad18185c25c50695b1497a0bf0706931ea9f876d0"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/prefix-reference/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/prefix-reference.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "Wrap { 12, Link { 12 } }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "87771a3b9840e67c54e72c3ad18185c25c50695b1497a0bf0706931ea9f876d0"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/pool/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/pool.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A { 3, 9, [4, 5] }\nA { 3, 10, [4, 5] }\nValue.Empty\nA { 3, 10, [4, 5] }\n",
+        "exit": 0
+      },
+      "provenance": "independently specified before execution",
+      "source_sha256": "7bd15432c8b740fa2cdf6603cecaee56e780a7481ae627548ed5c39a089b3010"
+    },
+    {
+      "id": "corpus/contracts/resizable-payloads/wasm-resizable-payloads/frozen-resizable-adt-links/wasm-direct",
+      "source": "tests/fixtures/contracts/resizable-payloads/frozen-resizable-adt-links.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "A 1 7 10\ncopy 1 7 10\nB\nA 2 6 21\nH { 6, A { 2, 6, 21 } }\nnodes\nNodes { [N { 1, null }, N { 2, null }] }\nTree.Empty\n",
+        "exit": 0
+      },
+      "provenance": "exact source copied from pinned main46 upstream archive; unchanged independent official stdout",
+      "source_sha256": "67a43fbd9ef30748d2d652ed0a49bf5e5a23a150a4f9920a6fb9c482096b2fc0"
     }
   ],
   "legacy_math_capture": {
