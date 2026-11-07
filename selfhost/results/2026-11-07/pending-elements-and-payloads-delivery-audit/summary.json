@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "commit": "e6719a1906d8f6cc21b0652eb2db7416f46aa2a5",
+  "qualified_input_paths_verified": 183,
+  "method": "Every committed delivery blob matches the exact frozen source, seed, test data, benchmark and qualification payload from the delivery plan. Live pre-install inputs match their backups.",
+  "known_whitespace": {
+    "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_owned_wrappers.goose",
+    "sha256": "4add0868567285ea7f8bc8a344dee09a87987abec9c0e59cf2160399e792aa5b",
+    "reason": "Whitespace-only line5 is part of the source-authored fixture frozen before compilation. Preserve exact measured/tested bytes rather than normalize after qualification.",
+    "semantic_validation": "Both backends at O0/O2 in the full6997-row run; runtime cases also passed V8."
+  },
+  "process_correction": "The initial staging check returned failure for fixture whitespace; the shell continued to a local commit. This audit verifies every blob before the first push; no published evidence was rewritten."
+}

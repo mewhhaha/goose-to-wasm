@@ -1,0 +1,1129 @@
+{
+  "status": "passed",
+  "files": [
+    {
+      "path": "README.md",
+      "source": "/home/jacobt/src/goose-to-wasm/README.md",
+      "git_blob": "d26a4e762d28c12ee878338c337c2ddc358e5d41",
+      "sha256": "fdef86d7ebc731d35cdc424fb0546a07f5dd6a09d45efccf64b430929f506e04"
+    },
+    {
+      "path": "bench/README.md",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/README.md",
+      "git_blob": "53701169892d466805920a23875d8c8614efce9b",
+      "sha256": "fca4f61c9d4401336fe2385f646a42693dd6e87f964e226de08b8b713f851e88"
+    },
+    {
+      "path": "bench/charts/goose-examples-compilation.svg",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/goose-examples-compilation.svg",
+      "git_blob": "85c57e6f524501930aea27f94ca084f0212717cd",
+      "sha256": "53ff6d7458f1b0a18f80b55ae24c1c2af68431ac561de9d7004de78153cb3242"
+    },
+    {
+      "path": "bench/charts/goose-examples-runtime.svg",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/goose-examples-runtime.svg",
+      "git_blob": "4b3d7622f5e9b8b39ca3f7eeca41707e454e0770",
+      "sha256": "82adf857c83b8353a6ba95560cc92bd6927d63d4ee48f7c85361b4eb281205a8"
+    },
+    {
+      "path": "bench/charts/goose-host-preparation.svg",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/charts/goose-host-preparation.svg",
+      "git_blob": "e33d840c03b32d4e939b41ca29a3f788d6a54dde",
+      "sha256": "7e2ff88f682139986e77c830f65d322e0fe1e2516504d0ba9160d17b58f6d925"
+    },
+    {
+      "path": "bench/results/2026-11-07/pending-elements-and-payloads/README.md",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-07/pending-elements-and-payloads/README.md",
+      "git_blob": "16ca25366023dac436465160c4ba94a20560a43f",
+      "sha256": "26106e8fa1ff9a40bf67006647510d885aaee60d8c9cb993d6b79c05cd3cff75"
+    },
+    {
+      "path": "bench/results/2026-11-07/pending-elements-and-payloads/copy-facts.json",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-07/pending-elements-and-payloads/copy-facts.json",
+      "git_blob": "9eb756ec056ed29ea8fd12202771e50b34dc7775",
+      "sha256": "1c41d2c5bf134d710abd64ed9336834b01ef949bf21354b8694996a88c3a01f3"
+    },
+    {
+      "path": "bench/results/2026-11-07/pending-elements-and-payloads/examples.json",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-07/pending-elements-and-payloads/examples.json",
+      "git_blob": "d141c2de19fc28fa63689e156252a96f47fbf737",
+      "sha256": "0f329c18a50d46685d284273e6af4d31350451d706f311e62f9ff7dd0d06d92e"
+    },
+    {
+      "path": "bench/results/2026-11-07/pending-elements-and-payloads/host.json",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-07/pending-elements-and-payloads/host.json",
+      "git_blob": "6d386766db4abed950fd6706c2cc63a92a52b1c4",
+      "sha256": "809b60abc607eacbfae5724bfaa1b866f5cc9b0eca72ea3c0f60006fefc03004"
+    },
+    {
+      "path": "bench/results/2026-11-07/pending-elements-and-payloads/measurements.tar.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-07/pending-elements-and-payloads/measurements.tar.gz",
+      "git_blob": "f1a4ab69561f61b9fa54bfb9810cd99842dae5da",
+      "sha256": "5e04106e8d5ed46bb39e48dd312dca10e742b7aaa405068159db8cca8b2e9b4c"
+    },
+    {
+      "path": "bench/results/2026-11-07/pending-elements-and-payloads/summary.json",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-07/pending-elements-and-payloads/summary.json",
+      "git_blob": "0bbd3099bf7072bbcea649f58a13c2aa6e7855ef",
+      "sha256": "a4191fdc71c173f515e6f95efec41bc845bb885a36e0e7c241dee997179bb127"
+    },
+    {
+      "path": "bench/results/2026-11-07/pending-elements-and-payloads/window.json",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/2026-11-07/pending-elements-and-payloads/window.json",
+      "git_blob": "ef4c8395e8074f97e66080259cc739785c6cac75",
+      "sha256": "0270d357956933f33004bdc5bd290498475b733b74b80b20b7e9b43292361ec1"
+    },
+    {
+      "path": "bench/results/examples-latest.json",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/examples-latest.json",
+      "git_blob": "681d88fcab46f0f48c2dcfd17f3479b7b84f7658",
+      "sha256": "5a5b4f498f0ee0009dd0c8cfc548a953460d423957beb35835715a6fa0dbcea4"
+    },
+    {
+      "path": "bench/results/wasmtime-host-latest.json",
+      "source": "/home/jacobt/src/goose-to-wasm/bench/results/wasmtime-host-latest.json",
+      "git_blob": "811b00e1ebb15d17057c655938a935aa7e94b530",
+      "sha256": "62f2376083745b03e998f4bc025e4465b05527c6c1b67d28cc3c24cb22c8cae4"
+    },
+    {
+      "path": "bootstrap/proof.json",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/verified-seed-47/proof.json",
+      "git_blob": "7a436d7760fca5112f1993e9033dab045e98a20c",
+      "sha256": "c69e17c0812f27d38f69aae73e78f06b6f2bd692aaef9c8421d4be62f6539d65"
+    },
+    {
+      "path": "bootstrap/seed.c.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/verified-seed-47/seed.c.gz",
+      "git_blob": "cd3e0c406663f303997b9cbba7b1b32a4c12e5ea",
+      "sha256": "5e10473ec959263f266920599c57a1112a40938f5f7c5906cf5bc597bc69a552"
+    },
+    {
+      "path": "bootstrap/seed.json",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/verified-seed-47/seed.json",
+      "git_blob": "dd8f74bc03533cf0c8f58d9e780ee9bb93a6ca25",
+      "sha256": "0833c616dd8375769b331896bca096ceff3109713d803558d9faefdc29b2760a"
+    },
+    {
+      "path": "bootstrap/sources.tar.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/verified-seed-47/sources.tar.gz",
+      "git_blob": "050236a43f23c41eebd23bd5ff0cca736c26455f",
+      "sha256": "8a58074c2f8872637d38396d303c7566d82b119d03eeb1f7b5b2c5b4ab48a2ce"
+    },
+    {
+      "path": "docs/IMAGE_LAYOUT.md",
+      "source": "/home/jacobt/src/goose-to-wasm/docs/IMAGE_LAYOUT.md",
+      "git_blob": "eb47e023ab7ca3e4626ae7e964f88807f58447dd",
+      "sha256": "d775b43732887eeb5113bf687eb04cb8db08c0bd352813bc8af550d79b14636d"
+    },
+    {
+      "path": "native/images.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/images.h",
+      "git_blob": "58d2b22c54d827011eb0027a3dad4f202e6f712e",
+      "sha256": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284"
+    },
+    {
+      "path": "native/pools.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/pools.h",
+      "git_blob": "49162cf15688afc681a555686fef34088b65238e",
+      "sha256": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95"
+    },
+    {
+      "path": "native/relative.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/relative.h",
+      "git_blob": "6e9fc8c7d9a268cf44949fbdae97578da84a06bc",
+      "sha256": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba"
+    },
+    {
+      "path": "native/runtime/runtime.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/runtime/runtime.h",
+      "git_blob": "97eaaa406aae65f662b17c2bcba0f6b50e594cd1",
+      "sha256": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132"
+    },
+    {
+      "path": "native/runtime/runtime_impl.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/runtime/runtime_impl.h",
+      "git_blob": "890cb70b061c73a5541009c4dcc90448beb0251b",
+      "sha256": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1"
+    },
+    {
+      "path": "native/runtime/runtime_threads.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/runtime/runtime_threads.h",
+      "git_blob": "307809e460a841c8f912d6a4b8f0e3fcb2e231f4",
+      "sha256": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285"
+    },
+    {
+      "path": "native/storage.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/storage.h",
+      "git_blob": "fa187e4ed5bdfdfda76b9ffe926ef16842e27b32",
+      "sha256": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869"
+    },
+    {
+      "path": "native/tests/bounded_cells.c",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/tests/bounded_cells.c",
+      "git_blob": "55677da5159b591adaf1d4f3f4a775d7b12d2791",
+      "sha256": "4347362e07179ad9494ba1bed809348ceedd6ff20c095b52bb6637a1b3a18261"
+    },
+    {
+      "path": "native/tests/check.py",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/tests/check.py",
+      "git_blob": "b0b22ebf1f85975cc615780a2ecfb5ab3d045fba",
+      "sha256": "38e7b47f9745932c2df73cd38475b98ead157bc9c6f540a78fb6830a327b25ac"
+    },
+    {
+      "path": "native/tests/var_relative.c",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/tests/var_relative.c",
+      "git_blob": "cd30fa116d6fab7ff140d0d6aa8c5a3d0c454227",
+      "sha256": "ed3dfd054dadd5836f2c90cc473eb21ae99f38034724327e25a132efeed2f054"
+    },
+    {
+      "path": "native/threads.h",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/native/threads.h",
+      "git_blob": "b89dfe7a1af321bb078884fe33623081b6747255",
+      "sha256": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+    },
+    {
+      "path": "selfhost/README.md",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/README.md",
+      "git_blob": "c50b74e0ac9f0ed31b97e1c3f758a51cebff8c59",
+      "sha256": "43ea9fd6dcc2574b9c2c577f54375185d27d21fa06e7041442c09c141d0c8760"
+    },
+    {
+      "path": "selfhost/checker.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/checker.goose",
+      "git_blob": "7f20e6527ee838399dc3a7dd946b3b016af3c8bc",
+      "sha256": "7b3c92882a66819850b10dcd552557e9ac63d078905c118cb7ad285fce9b8b38"
+    },
+    {
+      "path": "selfhost/checker_lifetimes.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/checker_lifetimes.goose",
+      "git_blob": "b1693d9bb3ca4b4839a17ba13a99c41c44c6d8df",
+      "sha256": "c58b3270b350ed86f20681e34797eb8a2647bf20f1388461def8018ecb0e4168"
+    },
+    {
+      "path": "selfhost/checker_operations.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/checker_operations.goose",
+      "git_blob": "5293a7ed8e3113b4c24b730f345aab1146b58cf0",
+      "sha256": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f"
+    },
+    {
+      "path": "selfhost/checker_rendering.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/checker_rendering.goose",
+      "git_blob": "468829d722b74428d40648152d083b4d9f2655f1",
+      "sha256": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c"
+    },
+    {
+      "path": "selfhost/checker_validation.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/checker_validation.goose",
+      "git_blob": "b3d759765ec3f02339a256ac2109c7724962000f",
+      "sha256": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38"
+    },
+    {
+      "path": "selfhost/codegen.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/codegen.goose",
+      "git_blob": "dd63f5c607fa30f51175a65eb24a1ca9bceedd31",
+      "sha256": "279f79e85c49a4d4e32a35ce0d9b9c77caa8d1b86afc563f0169bc6dbeadbfaa"
+    },
+    {
+      "path": "selfhost/codegen_c.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/codegen_c.goose",
+      "git_blob": "330c4cfbfffebb3c2eb815c1aa3f03712f0c371b",
+      "sha256": "649821970137c2243fb953e856725212c9469fba584778a366191cb469a48365"
+    },
+    {
+      "path": "selfhost/codegen_c_images.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/codegen_c_images.goose",
+      "git_blob": "898286ef135c5a7754be4c9aa8cfe5be0bd088d1",
+      "sha256": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14"
+    },
+    {
+      "path": "selfhost/codegen_c_storage.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/codegen_c_storage.goose",
+      "git_blob": "490300109bd777fd6eac021e7e5198cd6a4bdd38",
+      "sha256": "308c37aa301b95145a1566fb670ac30e5406f12f4f94ba00b456ba2e28a4e37f"
+    },
+    {
+      "path": "selfhost/codegen_c_threads.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/codegen_c_threads.goose",
+      "git_blob": "56393a1a53895c885e6c8dffaef1447b8b47cb60",
+      "sha256": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70"
+    },
+    {
+      "path": "selfhost/driver.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/driver.goose",
+      "git_blob": "d82f8893bf01abcc58f96c2ed0dec21896d397b0",
+      "sha256": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9"
+    },
+    {
+      "path": "selfhost/expansion_bind.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/expansion_bind.goose",
+      "git_blob": "7d0cffbe706d57b4049e8b173110e72bc838bed3",
+      "sha256": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb"
+    },
+    {
+      "path": "selfhost/lexer.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/lexer.goose",
+      "git_blob": "462f63d26ad72a84fbedddd6e51989a90a4029a4",
+      "sha256": "d776d10da3f9f49f5b40eb7050d7c9d94925d5be8bd4ada2de92c29d46b27c80"
+    },
+    {
+      "path": "selfhost/main.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/main.goose",
+      "git_blob": "6093516ff597cbeba7065a91c9e142ef8e411ee2",
+      "sha256": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e"
+    },
+    {
+      "path": "selfhost/model.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/model.goose",
+      "git_blob": "8e995230ea4d07967eb6d8268b454968a8915429",
+      "sha256": "0baf923850452e7a1d5e49a92da0ef0f73115c283412241a1600bf01709f9f29"
+    },
+    {
+      "path": "selfhost/optimizer.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/optimizer.goose",
+      "git_blob": "b180f647473a547247708607687787fc83f397fd",
+      "sha256": "2ef09708d9eca9c420a070f91428c2d83368adab8c2401a9efbd7f472e1cc699"
+    },
+    {
+      "path": "selfhost/parser.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/parser.goose",
+      "git_blob": "18cfc7cfe4920eb91704c000f19daaaeb19abf12",
+      "sha256": "0d2627d120a6ee65b7d68102c5215db4134bd2629b3be419797a44d38737849a"
+    },
+    {
+      "path": "selfhost/region_plan.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/region_plan.goose",
+      "git_blob": "2a671e39ae4320715fe57d7baf5b8affcdb26055",
+      "sha256": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/bootstrap.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/bootstrap.json.gz",
+      "git_blob": "1f872ab34c1ea8a6a5f3b856cec3004e3c42fb57",
+      "sha256": "1093d271057340aa55a256de509ebf138d133dedd4a3b80e498e8571c4dbc6b7"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-0.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-0.json.gz",
+      "git_blob": "ca184b9c919b501cfb55a637c131d1745a9e5581",
+      "sha256": "7284f91e63276fdf13d2a73510383cd9807f20284a62cb7e52f4a503fff5d690"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-1.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-1.json.gz",
+      "git_blob": "d3787ef5acb461cbaaa63f89b9158c696604314c",
+      "sha256": "732e7502576d6d4e658d6c934e0573e4371c994a0ee3a6775cc5f1b61201513e"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-2.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-2.json.gz",
+      "git_blob": "8eb120f1e0b4b4551d4de0c6036391e77d2aa5b2",
+      "sha256": "45a72a205646f2f6fccc9fe165a5ff49b57efaa2ee8a9eb74842736fb96b2318"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-3.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/conformance-shard-3.json.gz",
+      "git_blob": "59e1e54f7bd61c643dbaae4383ae1ca2fbdd96e5",
+      "sha256": "e1203cbb06e189ed2ffca13b7a81d65b979ee7afccd151377a0bb2cad5b59fe9"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/conformance.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/conformance.json.gz",
+      "git_blob": "e64d164ae0fa25889d61109a528320f042171058",
+      "sha256": "21e4a57564a18bfc21c372f4af6a54c42a61ff7d447be840e94447d1a344f09f"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/native-runtime.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/native-runtime.json.gz",
+      "git_blob": "227fff1a21ed18714e868761639c30c8972ba6e2",
+      "sha256": "8a48529c684071c54770a0fdfb696194b35be23931c24cebc0aacc3959944bcc"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/parent-bootstrap.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/parent-bootstrap.json.gz",
+      "git_blob": "ae5f193e6ac619a8f32db68bc76d6846b198396a",
+      "sha256": "81697aa016a088a4e4c9311492e0385caa6339acd21dd69e664bf242b6027aa9"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/public-bootstrap.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/public-bootstrap.json.gz",
+      "git_blob": "32522cda6523e3afb071f8e9b608e67d92b583f8",
+      "sha256": "caa63c7b4f7047fb0d4ccafe584fe8a7827d46009266b8a375cfe186ba8aa2a7"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/public-cross.json",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/public-cross.json",
+      "git_blob": "b0948a6b2d4c76f6271cb9ca8f2b44091aa027ef",
+      "sha256": "479167fbcb463e7fbf270444ecb686cad9804e08c3958c45b5cc9accb7c46890"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/public-smoke.json",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/public-smoke.json",
+      "git_blob": "1d838186e81c5903d68d4d97e8a5924df47cfffd",
+      "sha256": "d023f67688fb69f80225e8952959d6c5537ed79c8a78edd8819323be0b72c2fb"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/reproduction.tar.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/reproduction.tar.gz",
+      "git_blob": "ea7c7a2838649bcecaa367a38dc1954c0a1c2064",
+      "sha256": "d895bf45ba6ad80f8f964c85cf8d81a2d47bb3832b8c4dd1737b5bde72416027"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/summary.json",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/summary.json",
+      "git_blob": "5d65c16a2d28ff61fb4747a91190c579a6ac0b35",
+      "sha256": "5bd7db743a4f438cb98317904b70829bd67eb29ec92447fd3aa4a411bba34c73"
+    },
+    {
+      "path": "selfhost/results/2026-11-07/pending-elements-and-payloads/v8.json.gz",
+      "source": "/home/jacobt/src/goose-to-wasm/selfhost/results/2026-11-07/pending-elements-and-payloads/v8.json.gz",
+      "git_blob": "ef33d6d2935f215c8df0fda81ce15b3bb0df176f",
+      "sha256": "f991bce8dc75a7d9e93850b86670f77fc0b42a8f0f33b7b6ee1f95b7005e82ef"
+    },
+    {
+      "path": "selfhost/sources.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/sources.goose",
+      "git_blob": "81615c27e06a9d9e1ebbda2d88611b85c5fbd527",
+      "sha256": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e"
+    },
+    {
+      "path": "selfhost/thread_plan.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/thread_plan.goose",
+      "git_blob": "986094d9db764250e3344772cc00f7a8109d9939",
+      "sha256": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e"
+    },
+    {
+      "path": "selfhost/wasm.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/build/completion-runs/snapshot-47/selfhost/wasm.goose",
+      "git_blob": "8ca45bf9165f0b4cf232bafa2cc6a64b742b9fca",
+      "sha256": "9f8b77720823ba7a57172da653974d809c1d32fc0594d0e4bc8822d16c1d122a"
+    },
+    {
+      "path": "tests/conformance/cases.json",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/conformance/cases.json",
+      "git_blob": "63e807110be6785fca08023845609c19ce24f475",
+      "sha256": "534f3a02208a57fd7aa2735462483ccacc38c263535472299a6cb4eadaf3f8b0"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_direct.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_direct.goose",
+      "git_blob": "38ecb9e39c18000dbf5e39cdfb80bb565e75388d",
+      "sha256": "d8c2352f2cccc85f0917658bfb81078db31ff78a6a52438591a6839113b41910"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_early_block.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_early_block.goose",
+      "git_blob": "53eeee9105708b57a6ed2e1304afe326b62a846c",
+      "sha256": "fadc267aa754d35f5192df918acdc4792bd66d69e24b84c6de649d6ff0d5b4d6"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_reversed.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_reversed.goose",
+      "git_blob": "7441248a9dfe90ef8678eed281b9f4b554605964",
+      "sha256": "0423659c485a3dc5e47c7e5a739cbe88cebd6dc6d777e315810075161518ce7b"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_storage.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_if_storage.goose",
+      "git_blob": "b17e48be20e505372b237d9a247c35465c749ff4",
+      "sha256": "a85110b1b40c347666a0084fdb64fd5a1a8ddd8bc0de26b6c6bb06b82eefab8a"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_loop.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_loop.goose",
+      "git_blob": "30b9dd02885600aa987a9187468e29d14975ab7d",
+      "sha256": "35b19b061ac7a5d27a25374c247ac9a8a1785f52891db86c27a3c4f827e6ec00"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_match_storage.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_match_storage.goose",
+      "git_blob": "5688dfb976feee66043798aa683ef97650e12b09",
+      "sha256": "ecb6cfcdadf49b73a632911179b28452f149fd96d102ecb1429b27836e4d96dd"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_plain_block.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_plain_block.goose",
+      "git_blob": "3a93a3c49a3a3cc337627557323d51fd38f4a026",
+      "sha256": "5b8231a43e507e4a9825b7bfcd99089407fa0b6068b999441056fedf85429c42"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_sole_live.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_ambiguous_sole_live.goose",
+      "git_blob": "32473e4e858cfd38aa70b5441d488bfc6087056d",
+      "sha256": "40f429c46a54b11f72618574a4d037a34aeb4cac439da0f495eb4f82276846c2"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_concrete_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_concrete_reference.goose",
+      "git_blob": "c07d83da2f58857852e39491a8e77d16b9e75e88",
+      "sha256": "3af4cbf876723cbe7b2ca083c2bce0ed414f409972ddf72ec60a886d2e073004"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_generic_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_generic_reference.goose",
+      "git_blob": "92ca4ea6b95146c9ffe2587ea02d9b54bc74b5fc",
+      "sha256": "b430b1ca047c2680760f28d9b892f0f86382e4ec0baa38d2383234a4a9704280"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_numeric_fallback.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_numeric_fallback.goose",
+      "git_blob": "5c8a28cf17b001649092e2e75f5b66f6942e99bd",
+      "sha256": "21cd114b595d7afe90ee10e574d1bd0d24ce9a5a47b08dc704ba7c721a70b6e6"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal.goose",
+      "git_blob": "69969738932fd0d332f90b14c83fa8aebfb56c5d",
+      "sha256": "bb180aa71a48662f18ec7059ebc232bf132ac4cd795c7d7f6c089e87fb8458bb"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal_if.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_literal_if.goose",
+      "git_blob": "9874779e38cd62e356503618c6283fc4b284bf15",
+      "sha256": "22098525194638bd1c33291f15be439119691aed3b23c7c5e2d3b5bdc4b6014b"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_rvalue_call.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_rvalue_rvalue_call.goose",
+      "git_blob": "d7b57eb272c47d6f0888579a14ec0076c15312e3",
+      "sha256": "6b6bd68d2d88b1a560ed96f4c884aef60ed7994a67f8e3b7fbdd79a8eb9bd8de"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/borrow_typed_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/borrow_typed_reference.goose",
+      "git_blob": "eac90b43c133cc4baad5e2247cbae37a5f7d644c",
+      "sha256": "bf453152a410813707b3f2c17a93b578da0d33d267ff0e6e9091b380c506030d"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/const_branch_read.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/const_branch_read.goose",
+      "git_blob": "114f30fed87dd73486510a72ffc57c5d0dafbf09",
+      "sha256": "e8899d1ad8bf888e89ac8475beb3568b50a83b958648e720f1df2a0746a1abab"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/const_branch_write.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/const_branch_write.goose",
+      "git_blob": "86d6e90473dfa82e94a5eb6fbc1772413e0411d7",
+      "sha256": "f5f903f6be4801f1ce113345df42b84f58f3c81e898a26c19885b703fd147d41"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/format_typed_nonbyte.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/format_typed_nonbyte.goose",
+      "git_blob": "ae5c41b765cf4b0b4975e22f6bc20e02d17ed9c8",
+      "sha256": "edb48ce1f4bdec38d3eb0df92a17cb78fcc2a30bc4ce3565d35020dcaae6b57a"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_early_ref_block.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_early_ref_block.goose",
+      "git_blob": "d3d0e7c53c600a11549e33e627a17bb942303a4b",
+      "sha256": "82970a67cb698b38a9bcdc113fc661f357dfe2aaf84b513012ac407098728ded"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_explicit_refs.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_explicit_refs.goose",
+      "git_blob": "d1047a6e124d6e96944a0ceaebbc41caed5c049a",
+      "sha256": "9e1cccaccbfb29a7f7d70842b989d0afde93ce03100fe5a2ad317d6e38bda976"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_refs.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_refs.goose",
+      "git_blob": "9a281dc2595207f92d60a6a3eaea131c9d712b03",
+      "sha256": "651080faf5e6c4ee2eecf221fd7e1859f80768a72f27e8879f95c191b6ea3424"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_reversed.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_if_reversed.goose",
+      "git_blob": "497174377255842ea0273dd8b7114781131a5d81",
+      "sha256": "6a3830b9959faba153d5ec0219911c9cac24f6a6c8ef4d24a06ac07818bd540d"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_local_array.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_local_array.goose",
+      "git_blob": "49ae33e17cec4277a40b493dea590b46464cedaa",
+      "sha256": "377f0e39233adf3b56e5e1e137a1f3300e156d6d42e426477fa730052139b99b"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_match_refs.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_match_refs.goose",
+      "git_blob": "104f09e41ec61ef0e5a01942cd88b63f0b52131f",
+      "sha256": "42c21bde3b5aeaa72faea7fa6acc8304f95c4c0298914a1c6c57076df844e592"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_plain_ref_block.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_plain_ref_block.goose",
+      "git_blob": "bb3af5b4d203913d63be1b305a6df260c39292ba",
+      "sha256": "9e4c9f462974f2e41197408c6bf348dbdb289b16732af9fdef0a9ea5702f6e90"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_ref_loop.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_ref_loop.goose",
+      "git_blob": "e0fb2b3c04dd0159a3d5ce0881327f70e37f3972",
+      "sha256": "66b4e907693c1f999f5b719654bb8fd8fc03763ebbcc2f42f45b87a75e46b73c"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_copy_sole_live.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_copy_sole_live.goose",
+      "git_blob": "faaf0b513c77669f5ac309227a4275183fa9e710",
+      "sha256": "1eb37977003eb1919e11ff497448ec9a761ed49d8c0cd5638175a5ebd610047a"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_direct_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_direct_reference.goose",
+      "git_blob": "cd124880099af30060d8a9bbe50fa41a75e89730",
+      "sha256": "45c2e502ecb71365908bbee49410aeca6097e4e0b53666da0120827cd2c65be2"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_explicit_copy.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_explicit_copy.goose",
+      "git_blob": "37bc02c195468166794e3dc5e2852a858204bdec",
+      "sha256": "42c8a53c08647ffc1b70af043b23af0b9edb8692b1fe3d4cc034891ba2c7b7de"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_fixed_copy.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_fixed_copy.goose",
+      "git_blob": "44198fa54d572f2fdf25c54276de09250aabeac0",
+      "sha256": "d300c43df9401c9a03fdbb67f042e4b0d857539a1caa22e6bac1fd531f85369d"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_slice_copy.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_slice_copy.goose",
+      "git_blob": "c35ad998133ca29c98391d4517f2a8239330a00d",
+      "sha256": "b220f2f50f2a53204b108e523e6d2f3885d7881f4319ae8f655e35ed43d92aaf"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/funval_typed_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/funval_typed_reference.goose",
+      "git_blob": "c673591dbd6e1076edf900cec83a7aa415cb051a",
+      "sha256": "de208103be140bbaedb0ae28f1edc0a44dfe95dce79565e97046efa1ffa7d6c5"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/fv_direct_nonfixed_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/fv_direct_nonfixed_reference.goose",
+      "git_blob": "6663f79c09243d2d07e48aa2dcc9641ba3fdc893",
+      "sha256": "7bb9b43ba362de15ca9c4a62a5140edcc53c526d53f9ba15460de2a3f988373c"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/fv_typed_nonfixed_branch.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/fv_typed_nonfixed_branch.goose",
+      "git_blob": "278deaeb78cf5f6b3c070bc701248d90cedf7aba",
+      "sha256": "9d77e0276e7877a3c94bc416edaf7277fd06039c62218598d80afe48260b9f7d"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_explicit_nonfixed_ref.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_explicit_nonfixed_ref.goose",
+      "git_blob": "0c9c4992958ca9a6b83b8f53f499e6d1044509f0",
+      "sha256": "e21992050f78fa642f965d4ab859d120bb2f589ad0181d587269be04cdd9ba70"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_fixed_copy.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/fv_untyped_fixed_copy.goose",
+      "git_blob": "d0882ad63393ba4174ceb199d921b4329155a1a9",
+      "sha256": "2947257e5d475fba1d5663be25a97fec9d52349789e35feb50729dbe1ccd2152"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_ref.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_ref.goose",
+      "git_blob": "8c501f192b6dac1c3adf888fe8a6b1c1daacee5e",
+      "sha256": "2b5f67e6da929303d4ff01e69e9d06ac729ed96620652a1232b2843369ad1324"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_value.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_ref_generic_value.goose",
+      "git_blob": "12ad100a4841230683a2b97b2d55d8773ffa6022",
+      "sha256": "94bfca6c0606863db5335310382348f397a61968e7bd4960aa6aa747b055d59c"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_value_generic_ref.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_concrete_value_generic_ref.goose",
+      "git_blob": "b7f6ffed2458a747b0dfacc393a5e94016db9667",
+      "sha256": "b406215132acdd7ec783d56f3e21c49cdee37b542fb7af740b38a2d7c918d794"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_const_ref_value_ambiguous.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_const_ref_value_ambiguous.goose",
+      "git_blob": "1d90775030683db508d1fb425a14da86434243f8",
+      "sha256": "f75e401fd0c98ab00d42411c4a3240f4d9722f45a0d33d875a843e0e7adc756a"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_incompatible_pointee.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_incompatible_pointee.goose",
+      "git_blob": "f55d9ba3bd7d3e417dc5ad436cead3c6d3cb9159",
+      "sha256": "58378225da9bdaeb624831336d02dc13505df72970964368b188e43d269a927e"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_integer_float_fallback.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_integer_float_fallback.goose",
+      "git_blob": "a1519fec5e7956500a282a89e4ab779ddc6d6f28",
+      "sha256": "8f67188c9627424a4037bd94ee54c84d2fd98ca437a833028451f9f5c662cc43"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_mixed_has_no_storage.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_mixed_has_no_storage.goose",
+      "git_blob": "e93edce77cc76953605da810f449ffdba1d72ef1",
+      "sha256": "3568ed23807efd771db0f130dfcb6f63bf6524be6deeb4d3ec2486c3a4ddcc71"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_null_optional.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_null_optional.goose",
+      "git_blob": "4effb40930b814ec0e6e798a5e493d1bd4b79746",
+      "sha256": "8e771b38b6839b359df52300878177d4479c23c1be5f572276ceb07c5914e85e"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_optional_stays_coercion.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_optional_stays_coercion.goose",
+      "git_blob": "fec50c90b6a6772df1cd9264af3ac6ec7e1ce204",
+      "sha256": "bd98e36c9d5216bf5d2132998b9ca8f68bcfce2a887ed3028765ec687249bac5"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/overload_rvalue_has_no_storage.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/overload_rvalue_has_no_storage.goose",
+      "git_blob": "6b61f92b79a3105dc05929e82b012963a4cfeaa6",
+      "sha256": "0dd749c4394db1c7b983eec75962fb2c4453cb79fc3f7eb5cb876e9ee864b470"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_append_bytes.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_append_bytes.goose",
+      "git_blob": "f6fc2f9bbc0277ace9fbf672549a757ca2f78c73",
+      "sha256": "8e2e7da9f42774fbc83ecc7ae73e7b7e0333bfcb6ee7d56e04a5090a172d73ce"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_bytes.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_assign_bytes.goose",
+      "git_blob": "441bbcc1d999d91718b320b13887d19cbb0b3845",
+      "sha256": "4daf120caf8e7f5624f60914c66e0aa82f47584e9a8252d8a6023fa04d8e27d6"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_empty.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_assign_empty.goose",
+      "git_blob": "3a5de2442f8dd4d5c9a83a7a74ac9a63157e368e",
+      "sha256": "56e037b2d682194705882c11cd64eeffbf905abd8f611ccae5e93e488204c5cd"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integer_only.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integer_only.goose",
+      "git_blob": "c2feeb1405bd0160365872e40b3289507754faf8",
+      "sha256": "e3e5196cf7885c426d628422536ddfdc0cf96bc55335d04d465ad8bcf412ffeb"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integers.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_assign_integers.goose",
+      "git_blob": "76d3e066f35f6d4f1fbfdac06032ba0cce2292d3",
+      "sha256": "e8cff4bd04119daba4835ae80963a5bb674646b8a95ba04593932ffb09eeb79b"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_null.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_assign_null.goose",
+      "git_blob": "d3509159cc29d35e1f1751e096d3eb4185d73291",
+      "sha256": "3d8ed2138441ab8170a77a047f0c071e700bdc854ba7f059fb51dd2da4abb464"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_scalar.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_assign_scalar.goose",
+      "git_blob": "0c8805b4033a0acd66c251712c02ff31b13626f7",
+      "sha256": "e2c35569b38b4f8994b4ca5fe9b8302915ae28bb877d529ad520d80f1a9cf8cf"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_assign_variable_only.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_assign_variable_only.goose",
+      "git_blob": "7440789759ccfb29ce1ab8afab3452a62c4074bb",
+      "sha256": "0002bc5f78e70f4909b8a93502863ee5203c74ac77b935f4c3e5d19226e39dc5"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_break_and_tail.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_early_break_and_tail.goose",
+      "git_blob": "323080a685f6758a71373093f285cb0c99c02286",
+      "sha256": "1247973e950247f12d39c0c97965400959a173a9930e23ca0f2bb56737517c08"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_no_break.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_early_no_break.goose",
+      "git_blob": "4ed21a1d153de2c1a94f6b3b9eef07d9743b42d0",
+      "sha256": "1d554ad52318d77689ddf7432326092339d603a41cad3d25c879de8ad0533787"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_early_sole_break.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_early_sole_break.goose",
+      "git_blob": "2cc1da98599c1bc9b5317a8f735b4d91ecb99543",
+      "sha256": "52e36128b48bab3520a3deb66608c12e0641e8eb63732716554153e5e6010ea0"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_empty_and_escaped.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_empty_and_escaped.goose",
+      "git_blob": "ab385955086ceb9fb1ffbb4e1d832374c0abc88e",
+      "sha256": "6523060536fe15c846b7281a024e89023dabc47dcf4da639e6ae67237b2febd0"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_format_bytes.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_format_bytes.goose",
+      "git_blob": "6642f71323935ad9a973cb6f7874a2ffa35a801d",
+      "sha256": "ff3dfdc0b938be7d2431691ee8fa92c4f56543bbd8380e749d1e7764bd486d79"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_format_empty.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_format_empty.goose",
+      "git_blob": "7f05a678f3d662fb8ad548c490abd7d94fd6717a",
+      "sha256": "ddfdf495aa59b114fb09ea5c3bf780ac65e5718f6339e0c5fb494c598210d8e6"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_loop_view.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_loop_view.goose",
+      "git_blob": "10bbe620bbd833acb80929fcb2d1805e70efe2d9",
+      "sha256": "f8908a6e243b038bae020c2f587f0f05d8d20e91fac26c063c9c11086ce2a1d3"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_nested_break_tail.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_nested_break_tail.goose",
+      "git_blob": "2873ae361a68d206cddff16e55f6957f70526191",
+      "sha256": "c191b32e6f237e6d6242cd1970d3f7d73fba1ffd91d4658f4639232e7095528c"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_owned_strings.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_owned_strings.goose",
+      "git_blob": "1207ac69f41516cc995d8b47f17c0b665fc4de98",
+      "sha256": "83a1989d682eb15156f89895b0baa715139d42b23998c269adc3a0e1a22566b3"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_owned_wrappers.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_owned_wrappers.goose",
+      "git_blob": "6272725b196d6d68e3dc44e09c3604a4687ea451",
+      "sha256": "4add0868567285ea7f8bc8a344dee09a87987abec9c0e59cf2160399e792aa5b"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_push_empty.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_push_empty.goose",
+      "git_blob": "07bbf8b3e492073853dec806e18672b520432c5b",
+      "sha256": "de5bc9b825e1618bdd79e6461c8d098fe501391f7ef0498c72724ac78f464dbe"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_push_null.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_push_null.goose",
+      "git_blob": "dbae16f84a1e563568147faa52ad6938f35c32e6",
+      "sha256": "de44b1b01428f6a99e971deb664c3414a6541683e6ba8ed1b4b730862b5c72fe"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_real_join_views.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_real_join_views.goose",
+      "git_blob": "091fbfc6aa8c904ce29e9051fc672da30f73d839",
+      "sha256": "a697804091e94ffe6b398e90b233a459e234b0e4ef968f27d9d5c355da7921e6"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_block.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_block.goose",
+      "git_blob": "0d93216a23e9bd17f87e64959447c0bcf0d8c3d4",
+      "sha256": "05f259897ba9df1ced08533affadee7951e000d7c5f2592dd4181785be00f10e"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_direct.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_direct.goose",
+      "git_blob": "20dee142995dc389225e65eb3aac488003fe1710",
+      "sha256": "b401362d876d4bef0c8ffc995199f17e869ae9f17cd3c79b2284b68f85cca069"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_empty.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_empty.goose",
+      "git_blob": "193f9baee05962d1e82361df4c30012810cab0e1",
+      "sha256": "d2cbc4f187ff81fa4b95febef03df3bfb8260c38e3e1a881f172e4e654f429bb"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_escaped.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_escaped.goose",
+      "git_blob": "560d2737445bbee75bab00b0728bd469e4b78b72",
+      "sha256": "41dae573846f338277ed0472b2651c7b2be79dec0a121b2d4a6eff6fabe1f039"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_parentheses.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_parentheses.goose",
+      "git_blob": "735c98c59e72c9a62c6b2bdd54c067e3c3c7367b",
+      "sha256": "ca91da020b6457051fbf1801185eda5c94cb9f47900463b4a907b4898ff09f70"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_unicode.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_index_unicode.goose",
+      "git_blob": "e41f6b0cea92d31e5f65522b8fcdb16121c1dee7",
+      "sha256": "027864a1030e1a5c8f01a473e00b1fab77a1e08ff3f4743a454265b00768881b"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_block.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_block.goose",
+      "git_blob": "e25a60eb8f4901a38eca337785302c6c2fa97248",
+      "sha256": "47f6dc8f4499f4eeec44055d6658723619cd6f118908740bb089426865d4c418"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_direct.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_direct.goose",
+      "git_blob": "678d23232d21c3286d3fbc94d50269eee9ce5981",
+      "sha256": "6b54fb74a89a7a56f248479abe414cb58c2ed96bda354582edc22b8c23bf3322"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_empty.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_empty.goose",
+      "git_blob": "89b0f7479f7e74a110e43bcf1e105e824b0d2a60",
+      "sha256": "e56fc9924119bc5415624b06f13e6b437df39fc4653c6dd7e29abf7627110893"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_escaped.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_escaped.goose",
+      "git_blob": "035497f7d99c8dcbb61cb327379affe4d1ad26f2",
+      "sha256": "ca613a868f304be5fd43d0bcfe02eed55e68ce1a3ca90578c6e86f88ab7b9521"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_parentheses.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_parentheses.goose",
+      "git_blob": "f6f106932e001c4dc07f88f13b17f4953dd1da05",
+      "sha256": "b54aa71eead1159b0d1a55342da37c944e1d24f18e8007c2bbbfd760b692e429"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_unicode.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_alloc_ref_unicode.goose",
+      "git_blob": "489b8c560093ff5fc8628b06209a626c453ddb6f",
+      "sha256": "15485fcb96d0bd72e5710f8b149ec1228c44d80065664da2652fc5645864f820"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_append_variable.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_append_variable.goose",
+      "git_blob": "0e19295c33e6fcde4ef35a7999f1de5cfe80b421",
+      "sha256": "b5fbe84abff27aff592f0711a3be801579f277b903efa265f7b3027c78d30597"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_integers.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_integers.goose",
+      "git_blob": "db0d2f5c8fbd5e1e65d25d9577ab3c954ca33947",
+      "sha256": "09298d3ec6cbf1edab642704bb475443b9f78168b4cd641d7c00c752838683d4"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_variable.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_assign_variable.goose",
+      "git_blob": "5c909b29fe536d8da47644a506257e024a5cecbb",
+      "sha256": "f21a77025b9ee5630d1856360248b65487dd10ea3ce5895dc41e44f14af272ae"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_format_bytes.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_format_bytes.goose",
+      "git_blob": "e7691551434fb3618943fdd5abfa908538f16a5f",
+      "sha256": "b69858ef7dc8d67e02c06a27cb3adde19e381d783aaa91a2ef17ef703f420aea"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_block.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_block.goose",
+      "git_blob": "a29bf8e667358233ffe3920e7197f731b69be7ff",
+      "sha256": "cbda8382ba02ccfe23a14af957bd64128e454fcb3c424938ad286ca5539d9dc3"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_direct.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_direct.goose",
+      "git_blob": "0851051f93c2d6d4d91431f17e1279fac899a23b",
+      "sha256": "4098f841520a2dd7b09758275bb1bcd9aaef6f6877ae123b07f6cc2f7bcc2638"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_empty.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_empty.goose",
+      "git_blob": "ef6f310572016acda57b7e1ad249f476f8373fc7",
+      "sha256": "8ea79073ea3ebd354a84946125864e3e14517cad417c7cc984aee7ee76e12ce8"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_escaped.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_escaped.goose",
+      "git_blob": "e69a2ac7fecfb82849e945aaf5ebd2a00763ba1b",
+      "sha256": "688d0b238b7ad7ff7dea3635006d3a821f8ca9e887cbfb6771e39480434f70cf"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_parentheses.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_parentheses.goose",
+      "git_blob": "b78b7254f61681045cb3f0d5ff7a1a9b5bf97131",
+      "sha256": "434cba11b7501e81e731d4e1f6afd38e25581eac3bd08afb10da1d12271eafc3"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_unicode.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_push_unicode.goose",
+      "git_blob": "8e419c98c228a8f046f626ff7cbf4a8044fa2586",
+      "sha256": "7facf1906948c5e95b69885b333d1fec03261140997e3748cfb6bdac4797e0fd"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_scalar_record.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_scalar_record.goose",
+      "git_blob": "73b6f78134fbfb50bc4958c64a7d9c1095adae5b",
+      "sha256": "75c4eb0f7a48a8294095249aa1c911d067ec982d0c6ff79a5a0de87583624cb0"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_integers.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_integers.goose",
+      "git_blob": "60a855c37dda18b9b6b0a6d8898138ea72d48a74",
+      "sha256": "0c05f865507881e8ed8b0be50a7e77603aeaf4b87ad8f7245dafc4e63c2416bc"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_variable.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_slice_assign_variable.goose",
+      "git_blob": "790aa21f1722e1e6469f9dc3e0d256dd403cc131",
+      "sha256": "3301a2e72b50b634a38c5ae9896b90332c92f44d27c65f3deef94e55bd7843cc"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_variable_record.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_variable_record.goose",
+      "git_blob": "cae9c42656ad4e6c147756ef6df86c08b201fcd3",
+      "sha256": "941559377c37dee34e476704857dd0a7221c411c9c6ae772a3e876bd6d761e03"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_views.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_reusable_views.goose",
+      "git_blob": "5e223ce3d039f6768ff2e8c4193f760115fc00c2",
+      "sha256": "5f560b308a6652271893b75095a221130645ae660b00eb734564153019667437"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_owned.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_owned.goose",
+      "git_blob": "01189e8fbd20d1ea0b2e2b44d2cffdedce4e3673",
+      "sha256": "91c5015b499fe30327c56b7771c9ff1b4417e3cea253aeafa90845e1c932aa90"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_reusable.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_sole_if_reusable.goose",
+      "git_blob": "34d047dc0c04a3da90396702402183531306107d",
+      "sha256": "3c819316dbb33bfb2047aa7a5b03116bbbba3e4a06ef3362f2ef0eb1b37b018d"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_owned.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_owned.goose",
+      "git_blob": "c11d43f87dd27abd5c156aae29e7dd6990c4a3ac",
+      "sha256": "7b82150fa059586373f2ef61797d458d1469c66200c053e81dde1b727ca94e32"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_reusable.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/pending_sole_match_reusable.goose",
+      "git_blob": "801b5d8d0f0fbd823fa418fcb9335af616a9bbdb",
+      "sha256": "f0ea69ff43c0dbcdeb2782bde8fe141e6f362dbc40168835e41753d8efb20049"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_read.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_read.goose",
+      "git_blob": "e3721e8cc26b9407aaada528d82b6cb9e28ebba2",
+      "sha256": "adb8b533bdc492834f1bb63247e0c97437f68e159f53e1e3d288ca6aaa849a07"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_write.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/readonly_branch_write.goose",
+      "git_blob": "699ab955c23ddfe69d15e68714b9d9cbf6f819c7",
+      "sha256": "9fd56a6221415c1ca5c56dfc24a42718044043c5c325c08a32fdb826423a2a61"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_reference.goose",
+      "git_blob": "f295bfe038b73ed55ae5194d66670ca530fc6b01",
+      "sha256": "94dfbce6a0125b2e9ec7b06aea6cb27fd911120668a7cf639c0234ad950dae9d"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_value.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/resizable_enum_fixed_value.goose",
+      "git_blob": "560651d87236c992830a460196e70830e3c5acd6",
+      "sha256": "5ce0256eeea6d8d93995b24e2945a41754d167fe28bf048dc5fe135227fda79f"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/resizable_implicit_render.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/resizable_implicit_render.goose",
+      "git_blob": "08570991a66272d2fa2210431dfdcbd42e76bedd",
+      "sha256": "77c3de2deed1da1aafd13d21dce16bd98d5191d126b0d1155bf48362891eb0fb"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/resizable_match_reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/resizable_match_reference.goose",
+      "git_blob": "974963a7935734811b3d93f055e02b6086886109",
+      "sha256": "1a800b9d22ac3cb23b6d39bc008f10e2befdd2c8e03e2d08dbacc2830eda4356"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/resizable_match_value.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/resizable_match_value.goose",
+      "git_blob": "ae0ca939fc4f125d747a2da180c493cad623cef6",
+      "sha256": "60eef953cdac8afe6c96e0fb7d8c40151ba900381755eb9799357f61045ee001"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/resizable_tag_and_struct.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/resizable_tag_and_struct.goose",
+      "git_blob": "926a132bed9722c064f58f54768fdc2ea7d5d8d2",
+      "sha256": "39017780381ac3f42339d4656794eab1fba404ae4a1c03b33c0dd03bf991a4ac"
+    },
+    {
+      "path": "tests/fixtures/contracts/pending-and-call-contracts/variable_enum_value.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/pending-and-call-contracts/variable_enum_value.goose",
+      "git_blob": "431fb4e882c359a8f0519416cfdc6f15d6d62752",
+      "sha256": "652867a8b8b506b8b495b7cad5e70af23c8f06ee34cf7278587fac900e0c9e21"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/aliases.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/aliases.goose",
+      "git_blob": "8dd69b9eff7926acd9cfebd47fa3a0e7ee1f2876",
+      "sha256": "51f829e039449293095e5a75f9e7d313ac9d6ecfe1162f83bc5b9841f0afad5e"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/basic.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/basic.goose",
+      "git_blob": "08570991a66272d2fa2210431dfdcbd42e76bedd",
+      "sha256": "77c3de2deed1da1aafd13d21dce16bd98d5191d126b0d1155bf48362891eb0fb"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/captured.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/captured.goose",
+      "git_blob": "45d2eda3497946993683d987ce54bc431d3fab1c",
+      "sha256": "21b0d1235582dfdaaed41e552b30f90b484caa0eb6edafbe2331f7f8c6a2db08"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/frozen-resizable-adt-links.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/frozen-resizable-adt-links.goose",
+      "git_blob": "401b2bda2390b73791169b83650f2a36f0c1497f",
+      "sha256": "67a43fbd9ef30748d2d652ed0a49bf5e5a23a150a4f9920a6fb9c482096b2fc0"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/nested-enum.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/nested-enum.goose",
+      "git_blob": "b3392631cac60a8f61a7b21deedd51b67a94b197",
+      "sha256": "92988f4883fd0e2f8f1d1f05b001313681ab37d431c89c7e3659093a3dbf7b97"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/pool.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/pool.goose",
+      "git_blob": "978d8db1ce6380c2ba645493cb0dda38aadc9750",
+      "sha256": "7bd15432c8b740fa2cdf6603cecaee56e780a7481ae627548ed5c39a089b3010"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/prefix-nested.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/prefix-nested.goose",
+      "git_blob": "7b48befdcdbd44f2fcd8182eba58e28ff32ddbf0",
+      "sha256": "2669f2ef3579a510f40576a36d7395fcb1c387aea32126471017297be2d49803"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/prefix-reference.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/prefix-reference.goose",
+      "git_blob": "e3ce1ea8226a341517e65790727ea5e2198a926b",
+      "sha256": "87771a3b9840e67c54e72c3ad18185c25c50695b1497a0bf0706931ea9f876d0"
+    },
+    {
+      "path": "tests/fixtures/contracts/resizable-payloads/returns.goose",
+      "source": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/resizable-payloads/returns.goose",
+      "git_blob": "0e73d081a52bc27182d66503f8109b70bf29de33",
+      "sha256": "a42e6d7354a35aa565ffe0998cfa93a85b2c4d6a169e73fbf03e8935880ca0fc"
+    }
+  ],
+  "live_before": [
+    {
+      "path": "bootstrap/proof.json",
+      "sha256": "a631852cf7be59faf61aad4e648c2044433ac04304d5e0696743311e28384169"
+    },
+    {
+      "path": "bootstrap/seed.c.gz",
+      "sha256": "834590435e23226ed4cce5284bb033db429a44700f2fcbe8722ef82abd17f916"
+    },
+    {
+      "path": "bootstrap/seed.json",
+      "sha256": "d660a267479858a76fb89cef2aff5acd50d913217eba08239b77a62e24da2f71"
+    },
+    {
+      "path": "bootstrap/sources.tar.gz",
+      "sha256": "4f39efeae16b228a2a26b2a2bf402af228a25da1858b721f13e7bcbf291ad1f5"
+    },
+    {
+      "path": "selfhost/checker.goose",
+      "sha256": "7677808b0ca5804c8c801b88fc96a38b1e7930b3263451dd1b53a46f84117e63"
+    },
+    {
+      "path": "selfhost/codegen.goose",
+      "sha256": "d52c2430721cbb64025ce6239b3edc5c4a401d2f334744f84d4fc4adbedb35fa"
+    }
+  ]
+}
