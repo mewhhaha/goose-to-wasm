@@ -1,0 +1,17 @@
+{
+  "schema": "goose-langbench-validation-v1",
+  "status": "passed",
+  "compiler_source_parent_commit": "db76f450531b78b61f81af7abc8620f5762e6baf",
+  "checked_input_fingerprints": 106,
+  "successful_builds": 30,
+  "successful_runtime_observations": 144,
+  "measured_runtime_observations": 126,
+  "discarded_warmup_observations": 18,
+  "qualified_cells": 18,
+  "harness_contract_tests": 9,
+  "harness_test_command": "python3 tests/test_langbench.py",
+  "independent_review": "Astra xhigh; inspection-review.md",
+  "capsule_files": 172,
+  "capsule_bytes": 2603518,
+  "capsule_sha256": "c2a487a0f81a507dbb89c25b307afdd66617b38511bd426cf4de43c182f395c3"
+}

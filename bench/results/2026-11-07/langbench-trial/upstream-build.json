@@ -1,0 +1,144 @@
+{
+  "schema": "goose-clean-upstream-reference-v1",
+  "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569",
+  "source_url": "https://github.com/aardappel/goose",
+  "tracked_blobs_verified": 4085,
+  "mismatches": [],
+  "source_sha256": {
+    "CMakeLists.txt": "7c8a6e2752f4d22e31d631ddaeee2d4eab640a4f96c3adc0089efe6e30dbd86a",
+    "cmake/libtcc.cmake": "85a50303f16319e9817159f97ec68ec0a12475af62870cc3798f3cd0d12bf9f3",
+    "cmake/linkclosure.cmake": "1b4944d4acbb670a8dda2ee1b18aa31c44960dc2dfec76298a4f15d1d1c079db",
+    "cmake/package.cmake": "6bb91dcbf8db04236ad6bb1bbe50177bb79b30d5792dba83d49b6a6182d823df",
+    "src/ast.h": "634070939bac352a7afa374d43cdcf0f55da403ea86f12fdc4a1b4886423fe4c",
+    "src/bce.h": "30f416031c6f50098d9f59c6be6e5dba7fc6db635a34a345163aea85320cdeae",
+    "src/blessed.txt": "ffaedc05b21dddd58264e1a2d9d6e476b9ca5c94117a091e2d370429cad6415e",
+    "src/build.h": "ade52a54cad88832bd83c23a190c50ce19e98e74a3b98ec97c5218a8e6f06275",
+    "src/buildfile.h": "97c98046b224bcc739325710eca47f35b1d97de37393c26a1819b092707a16f6",
+    "src/builtin.h": "997851ca4fa1ec980cee13de78800dc36fd21f75f1af5fdcd4c51fd54a097237",
+    "src/builtins.h": "a73c69ee76956661b0a8d6ac80b6a44f48a74e27b7add904b7c1d4531a9bf5ff",
+    "src/clone.h": "7d74f7a2ba85e22191026866f27bb0018b92fc4fd0ebfe9eac828b4509cff4e3",
+    "src/codegen.h": "da41e0b8d063a494ad013f0131d47f0b70fd5bf390e4672e0e61ca51dcaa0cfb",
+    "src/codegen_builtins.h": "3eb894ad0ac2131df9d4a77e5b3cd9d3f3325025a1d23e0aa6eeb3fef3664606",
+    "src/codegen_calls.h": "f043e2da10a5b257b31fa75a55ec2990e56ccd5f9bed22e141283b06697a8d2d",
+    "src/codegen_construct.h": "4fd8f6e981df394bf746da1afe80a0df75c6dfa834f09579f226bbd0cdd64dc8",
+    "src/codegen_emit.h": "11e8b02d8540c07f8ec413b8e57c39657913b8b31751f169fc26460b18391fa4",
+    "src/codegen_frames.h": "9d8a1a75d7c113903a5cc472a224df9d1c18d36b2d3280df2e6b6eddb1c44f5e",
+    "src/codegen_nodes.h": "063abbe5ea16313bc2e8e1d6fee9964c7c79df63ca9a1411cb60c407693f2214",
+    "src/codegen_render.h": "2b989b356094e7ea49b33c51751e717863982e56291d8787a123cdf92686eafb",
+    "src/codegen_stacks.h": "e11938b3e805b0fa7de6d0c0e6393d35703d1f5a7a89b18ec361a550dce08e98",
+    "src/codegen_stmts.h": "4b2e632839495b6f9fe399c4c352e2318362e18ef554311d395abb4d24dd3924",
+    "src/codegen_types.h": "c27573c8cbb9bf9cba3eb78a429c0c068c7f664e668b16325fd3eb7ee3809124",
+    "src/codegen_values.h": "96b38aa4e68672ec8de0d0651a4e0dfa972c6e90181278823b35a202768606fd",
+    "src/dump.h": "640369b0d35ac017caab93422319876e202be21da1e78dd4eded474b06e0e7f3",
+    "src/expansion_bind.h": "8da2ba1726da2da62eb130ba2b48b7f1fe722fa7027e938cc3b99e680c01c532",
+    "src/flat_map.h": "7d2be1a9905d5fa33afcde9c2f67a4268a6636e4ed95674bf8d5b54b4672ec9b",
+    "src/gfx.h": "8f07577960faaf8e91f992734367f5bd9714af2bfeeef31b2aeb03c77e424ff7",
+    "src/gfx_blob.h": "615d9976c105496dd5ac2e92a0f1a8f065c9432a6d5b21f0d20d410134679370",
+    "src/goose.manifest": "ae18e973ee276ee777cf40fa0ccf4c73e23ec0280d3abd4bca39f205145ebf9a",
+    "src/goose.rc": "53aadf1efb1676a75f8a290f8fe8d0918e263224e1f595c948e952a66a4064c9",
+    "src/includes.h": "e6926bf8550fd3f566f7918f04731d6db5aff6a093354440b41db095d5fddc91",
+    "src/jit.h": "0b38d0da5ab2b11586b86114bb7be086695c8db450365f72813577dbebce71bb",
+    "src/json.h": "5fdd6616238b0369d2f31a4beabe0c33ce2dc141e742c6f90e9bc00f3a6e9c7b",
+    "src/lexer.h": "e0277825437c8179acfae925eb5c3cc66065cb68fe612d8a1727ce2864a20164",
+    "src/lsp.h": "e1395f70ef5d6d490bc7ec3507980ee20c115e353e9f4f76e814f027687b99ba",
+    "src/lsp_analysis.h": "55b8a3d37def84b53246881eb4232b3bb81c178957a8ce3a4a96c797467cf748",
+    "src/lsp_features.h": "f540e142126c32dd27a19c898463c569400068abe6bb5e0e92403387c1cf82f0",
+    "src/lsp_rpc.h": "c128245e44b661c004fe9d8d05c03a220ff27a66a29d6ae9d0ab46dbf8b5866a",
+    "src/lsp_workspace.h": "ac09f021a6a92ed6e2a59b5569ac8f82176e1edacb1a2f049a17e432fe041cdb",
+    "src/main.cpp": "7d3de84a7f53376321b78e5c6e9cc28e0d7985420be1c49d0485725a2eda3e8e",
+    "src/native.h": "37af0327c418a2bcbee40f7c765a113f5965271f5de4e5462614ba09a88ecbaa",
+    "src/optimize.h": "6fceccd6b828eda11ff1379a913d1aee4188cc0e7c6eee22b992fe334bfa1289",
+    "src/optimize_basecase.h": "b39119db7a939aaa253cc94b560e9437dc7e9c8c0502064083b0a1f975d31063",
+    "src/optimize_loops.h": "ed22a7580e8a58e2938555630cdff2d728c42073576b87a102c974160f89823c",
+    "src/optimize_reassoc.h": "b923b44b0452fb925b62b40b612f0a9a058e3f4daece565f2fbcea513f1963a1",
+    "src/optimize_tre.h": "b028cadaab1354c0d2a227409779a4b79bad13d4182ba88565fc896c929476bd",
+    "src/packages.h": "ac66b8e14b7bda5021d3e515fdf2d068f04f4638f362a81959a654dea84f9050",
+    "src/parser.h": "cbb2696d1993fc9ec4f17d523d33a21f563fb50af185d3400e5c06bb13b44fd7",
+    "src/process.cpp": "ee9f5aae2abcd0e35bb34d986b421553299958e092220967736d8bf0c9bc8a5e",
+    "src/process.h": "a36e982d95221607baf39cba18456a7b166de39db62db42ae2ab8f30559d9d8d",
+    "src/progress.cpp": "7a506a4face45380143ddc0bf043748a869acebd48765c0cb8495b353160edf4",
+    "src/progress.h": "daa73670f5b9efeb96f7f4befb4544cef3b4a29ef46d381eee84f7c6ad511713",
+    "src/resolve.h": "a40731a88d32dee143fcdc545535439233245ea0c05d9a3592fa14cc280f571b",
+    "src/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4",
+    "src/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "src/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3",
+    "src/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "src/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087",
+    "src/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "src/runtime_inline.h": "94d2caba0123e7aed1dafb5864b2f8f3ae4c25f28f38e3bdc551c5e5021214a8",
+    "src/shaderc.c": "3eb96a568d275fe2433b041715b6e577d2c00444e3bf3ffe4124ca03ad18b74f",
+    "src/shaderc.h": "0313f038d449310b241af5917f0bc775efe44ce80ec9857c622abac6ed3cdda5",
+    "src/small_vector.h": "a6aed4530a28f778a7f1865ba0c079416effa66b8a111f80e787416251ac7c0e",
+    "src/toolchain.h": "f16f9416bb5a3ff32de987f14234f2f2d3b34f9697544ceeb3347846b3435adf",
+    "src/type_queries.h": "3ad7b4be1f7495eb2cc223b988279726893ae2c689250f265be9f06684f3baf9",
+    "src/typecheck.h": "49120613af6bd6743b650dfa7005514958da7f479a2c3c048750669811ca38dc",
+    "src/typecheck_builtins.h": "7e338368c9bfe6e9bdc29f0755950db8554353f0a0d542bcf660d79764f44a45",
+    "src/typecheck_calls.h": "51c972316cc5ec72f4df3fa3fa01212d8cc7c986b33972008331c985856eb696",
+    "src/typecheck_expansion.h": "2d07d23be9ca09493cc54cb88ca57466086cde9295ea24bc3e527972e1fa0240",
+    "src/typecheck_exprs.h": "cf8982dddb79db17718e9c9883fb8f5ebf6649c6b109cabb870a8a5e4ff16df9",
+    "src/typecheck_flow.h": "714e3c9bc464d87756be1ec9a58b1fbed4fe61eab261e9567e4038f2117802a2",
+    "src/typecheck_nodes.h": "e3e682a6d28f58d88319a5b69bf60882f382f072cbff666f9f7268d52dc2b8f7",
+    "src/typecheck_types.h": "2b212a0b38bac524b9c5a8052ecef1e6dcc60902b71898260f88d1a732445199",
+    "src/utils.h": "adb917ff0376de7ed747d766ea687b7ddab625b8e513c06515069be50515de1d",
+    "stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61",
+    "stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e"
+  },
+  "compiler_sha256": "9e4d9ff8927c69c653031850f1b0911ce6827dc71648f1e11448ed06736b75e0",
+  "recipe": [
+    "git -C build/source archive 2e2bedef5b980bf013cac5aaa0095bfea64e5569 | tar -x -C build/langbench-goose-source",
+    "cmake -S build/langbench-goose-source -B build/langbench-native -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/c++",
+    "cmake --build build/langbench-native -j 2"
+  ],
+  "metadata": {
+    "cxx": {
+      "command": [
+        "/usr/bin/c++",
+        "--version"
+      ],
+      "stdout": "c++ (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    "c": {
+      "command": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "stdout": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+      "stderr": ""
+    },
+    "cmake": {
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "stdout": "cmake version 4.4.4\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n",
+      "stderr": ""
+    },
+    "ninja": {
+      "command": [
+        "ninja",
+        "--version"
+      ],
+      "stdout": "1.13.2.git.kitware.jobserver-pipe-1\n",
+      "stderr": ""
+    },
+    "compiler": {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/langbench-native/goose",
+        "version"
+      ],
+      "stdout": "goose runtime fba599d313fe\n",
+      "stderr": ""
+    }
+  }
+}

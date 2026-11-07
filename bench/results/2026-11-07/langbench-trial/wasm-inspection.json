@@ -1,0 +1,34 @@
+{
+  "schema": "goose-langbench-wasm-inspection-v1",
+  "compiler_snapshot": 56,
+  "compiler_sha256": "febb9bcacc2346ad0eb96daec2126cce74d23efc07a4bfe249f97aae068ef088",
+  "module_sha256": "b2338da428272b85fc4425bc24b9a0e80976530c25e8281fe85d53c49070fb76",
+  "disassembly_sha256": "ce3397d666febf35f5a74eca6695e2ffacf76b5cf48da3c368cf745d0b04209b",
+  "disassembly_command": [
+    "build/emsdk/upstream/bin/wasm-dis",
+    "build/langbench-trial-2026-11-07/builds/goose-wasm-wasmtime/0/program.wasm",
+    "-o",
+    "build/langbench-qualification/program.wat"
+  ],
+  "binaryen_version": "133 (version_133-96-ga631c1445)",
+  "hot_loop_static_opcode_counts": {
+    "call $5": 20,
+    "f64.load": 12,
+    "f64.store": 4,
+    "i32.load": 3,
+    "i32.store": 1,
+    "f64.mul": 4,
+    "f64.add": 3,
+    "f64.sub": 1
+  },
+  "caution": "Static instruction counts include paths and do not measure their runtime contribution. Pointer resolver calls and linear-memory scalar spills are an optimization candidate, not a measured attribution or promised speedup.",
+  "reachable_loop": {
+    "function": "$1",
+    "wat_lines": [
+      1676,
+      1844
+    ]
+  },
+  "raw_disassembly_sha256": "1f5de2fea187eb33c896835fb44ddcb19895b3f728602a11d955acf26b7f33d9",
+  "normalization": "One terminal newline retained; the original disassembler output is archived as program-raw.wat."
+}

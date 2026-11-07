@@ -1,0 +1,32 @@
+{
+  "schema": "goose-langbench-engine-defaults-v1",
+  "observed_parent_pid": 1631501,
+  "inherited_environment": {
+    "NODE_OPTIONS": null,
+    "LD_PRELOAD": null,
+    "LD_LIBRARY_PATH": null,
+    "GOOSE_STDLIB": null,
+    "CC": null,
+    "CFLAGS": null,
+    "RAYON_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "PATH": "/home/jacobt/src/goose-to-wasm/.venv/bin:/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin:/home/jacobt/src/goose-to-wasm/build/emsdk/upstream/emscripten:/home/jacobt/.local/share/pnpm/global/v11/b5f-18e5bbb8da61a0bf-0/node_modules/.pnpm/@openai+codex@0.167.0-linux-x64/node_modules/@openai/codex/vendor/x86_64-unknown-linux-musl/codex-path:/home/jacobt/.local/opt/goose:/home/jacobt/.local/bin:/run/user/1000/fnm_multishells/20287_1794062829534/bin:/home/jacobt/.codex/tmp/arg0-linux/codex-arg0ShzWVv:/home/jacobt/.local/share/pnpm/global/v11/b5f-18e5bbb8da61a0bf-0/node_modules/.pnpm/@openai+codex@0.167.0-linux-x64/node_modules/@openai/codex/vendor/x86_64-unknown-linux-musl/codex-path:/home/jacobt/.local/share/fnm/node-versions/v26.7.0/installation/bin:/home/jacobt/.local/share/pnpm/bin:/home/jacobt/.local/share/pnpm:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/usr/lib/rustup/bin:/home/jacobt/.cabal/bin:/home/jacobt/.ghcup/bin:/home/jacobt/.cargo/bin",
+    "TMPDIR": "/home/jacobt/src/goose-to-wasm/build/tmp"
+  },
+  "node_v8_options_command": [
+    "node",
+    "--v8-options"
+  ],
+  "node_v8_options": [
+    "  --wasm-dynamic-tiering (enable dynamic tier up to the optimizing compiler)",
+    "        type: bool  default: --wasm-dynamic-tiering",
+    "  --wasm-tiering-budget (budget for dynamic tiering (rough approximation of bytes executed)",
+    "        type: int  default: --wasm-tiering-budget=13000000",
+    "  --liftoff (enable Liftoff, the baseline compiler for WebAssembly)",
+    "        type: bool  default: --liftoff",
+    "  --liftoff-only (disallow TurboFan compilation for WebAssembly (for testing))",
+    "        type: bool  default: --no-liftoff-only"
+  ],
+  "wasm_tiering_reference": "https://v8.dev/docs/wasm-compilation-pipeline",
+  "note": "V8 Wasm does not replace an active call with optimized code; a one-shot long function can remain in Liftoff. This trial uses fresh processes and default tiering, not warmed throughput."
+}

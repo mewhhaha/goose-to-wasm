@@ -1,0 +1,65 @@
+{
+  "schema": "goose-langbench-input-v1",
+  "upstream": {
+    "repository": "https://github.com/leroyguillaume/langbench",
+    "revision": "f00181bd514606b140bf76ac461694a438c88270",
+    "source_path": "benchmarks/mandelbrot/c-gcc/mandelbrot.c",
+    "workload_path": "benchmarks/mandelbrot/workload.yaml",
+    "license": "MIT",
+    "author": "Guillaume Leroy <pro.guillaume.leroy@gmail.com>",
+    "license_evidence": "Cargo.toml package.license and README.md final line; no upstream LICENSE file at this revision"
+  },
+  "vendored_sha256": {
+    "mandelbrot.c": "a469f798cdd4e8603a28b487636bf74a35e5dc558cd3c33d8ba5cb2cec952b7d",
+    "workload.yaml": "04f9b63c9994fd9f6579811f37f694c80a2c5cf70b63d6cdaa14ca6e515264ca"
+  },
+  "profiles": {
+    "small": {
+      "n": 512,
+      "max_iter": 500,
+      "threads": 1,
+      "checksum": 33209574
+    },
+    "medium": {
+      "n": 1024,
+      "max_iter": 1000,
+      "threads": 1,
+      "checksum": 259655490
+    },
+    "official": {
+      "n": 2048,
+      "max_iter": 1000,
+      "threads": 1,
+      "checksum": 1038538536
+    }
+  },
+  "checksum_provenance": {
+    "official": "Unchanged upstream workload.yaml checksum",
+    "small_medium": "Separately evaluated unchanged upstream C with GCC -O3 -march=x86-64-v3 -ffp-contract=off -fno-fast-math -fno-strict-aliasing; neither derived from Goose",
+    "small_controls": [
+      {
+        "n": 1,
+        "max_iter": 1,
+        "checksum": 1
+      },
+      {
+        "n": 8,
+        "max_iter": 25,
+        "checksum": 636
+      },
+      {
+        "n": 17,
+        "max_iter": 65,
+        "checksum": 6174
+      }
+    ],
+    "small_control_verification": "Independent Python binary64 scalar reference in test_langbench.py and original C agree"
+  },
+  "port": {
+    "path": "mandelbrot.goose",
+    "coordinate_iteration_type": "u32",
+    "checksum_type": "u64",
+    "arithmetic": "Same binary64 operation order and escape test as C; no FMA/reassociation",
+    "adaptation": "Scalar row loop, no thread/queue/atomics; threads argument must equal 1. Runtime values arrive through bench_input on stdin. Timed region includes one kernel call, without internal warmup. C keeps its original one-thread pthread spawn/join and atomic row queue."
+  }
+}

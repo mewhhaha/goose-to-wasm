@@ -96,6 +96,11 @@ compiler executables are unavailable. See the
 
 The [dated example results](results/2026-11-07/lifetime-containment-index/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Paired minimal AOT process ratios versus snapshot 55 ranged 0.930–1.022, with a median workload ratio of 0.988; the native-control median was 0.997. Matched cold direct-build ratios ranged 0.991–1.002, with a median workload ratio of 1.001. All ten Wasm modules are byte-identical. No broad speedup is established.
 
+## Langbench Mandelbrot trial
+
+The [local trial guide](langbench/README.md) describes the pinned single-thread Mandelbrot workload, C and Goose ports, compiler and engine cells, and reproduction. [Dated results](results/2026-11-07/langbench-trial/README.md) include workload build and fresh-process kernel timings. C includes pthread setup and an atomic row queue while Goose is scalar; the trial is not the standard Docker campaign.
+
+
 ## Example programs
 
 The [example benchmark guide](examples.md) covers fresh-process builds and execution of the ten example programs.
