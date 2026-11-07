@@ -8,6 +8,13 @@ static const uint8_t *g_relative_var_skip(const uint8_t *cell,const uint8_t *end
     if(!size)g_panic("invalid relative reference encoding");
     return cell+size;
 }
+/* Physical cell walking has a logical end; it never reads a scalar control. */
+static const uint8_t *g_relative_cell_skip(const uint8_t *cell,const uint8_t *end,int64_t width) {
+    if(!width)return g_relative_var_skip(cell,end);
+    uintptr_t at=(uintptr_t)cell,limit=(uintptr_t)end;
+    if(width<0 || limit<at || (uint64_t)width>limit-at)g_panic("physical cell exceeds image extent");
+    return cell+width;
+}
 static GRef g_relative_var_load(GRef cell,const uint8_t *end,int optional,GRef pool_origin,const uint8_t **next) {
     uint64_t bits=0;int64_t size=gs_uleb_check(g_address(cell),end,&bits);
     if(!size)g_panic("invalid relative reference encoding");

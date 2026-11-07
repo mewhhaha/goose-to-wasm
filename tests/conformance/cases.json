@@ -55430,6 +55430,961 @@
         "exit": 0
       },
       "provenance": "Independent primary branch-copy/reference-parameter contract"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/numeric_u8_paths/native",
+      "source": "tests/fixtures/contracts/early-results/numeric_u8_paths.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 1 7\n1 255\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/numeric_u8_paths/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/numeric_u8_paths.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 1 7\n1 255\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/numeric_f32_paths/native",
+      "source": "tests/fixtures/contracts/early-results/numeric_f32_paths.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true\ntrue\ntrue\ntrue true\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/numeric_f32_paths/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/numeric_f32_paths.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true\ntrue\ntrue\ntrue true\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/reference_targets/native",
+      "source": "tests/fixtures/contracts/early-results/reference_targets.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 3\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/reference_targets/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/reference_targets.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 3\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/aggregate_rhs_completed/native",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_completed.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 6 1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/aggregate_rhs_completed/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_completed.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 6 1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/aggregate_rhs_nested/native",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_nested.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 6 1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/aggregate_rhs_nested/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_nested.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 6 1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/aggregate_rhs_diverging_tail/native",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_diverging_tail.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 6\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/aggregate_rhs_diverging_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_diverging_tail.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "4 6\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/mutable_slice_exits/native",
+      "source": "tests/fixtures/contracts/early-results/mutable_slice_exits.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[2, 2, 3] [5, 5]\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/mutable_slice_exits/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/mutable_slice_exits.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[2, 2, 3] [5, 5]\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/named_readonly_reference/native",
+      "source": "tests/fixtures/contracts/early-results/named_readonly_reference.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/named_readonly_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/named_readonly_reference.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/genuine_return_divergence/native",
+      "source": "tests/fixtures/contracts/early-results/genuine_return_divergence.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/bottom-values/genuine_return_divergence/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/genuine_return_divergence.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0
+      },
+      "provenance": "Independent completed-block conversion and mutation contract, not compiler-derived output"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_u8_literal_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_u8_literal_call.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_u8_literal_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_u8_literal_call.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_f32_literal_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_f32_literal_call.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_f32_literal_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_f32_literal_call.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_u8_overflow_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_u8_overflow_call.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_u8_overflow_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_u8_overflow_call.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_u8_negative_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_u8_negative_call.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_u8_negative_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_u8_negative_call.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_value_identity/native",
+      "source": "tests/fixtures/contracts/early-results/early_value_identity.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_value_identity/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_value_identity.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_named_u8_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_named_u8_call.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Frozen typing/named_constant_literals.goose:3-10: local lets retain their own types; only untyped integer globals adapt as named constants."
+    },
+    {
+      "id": "corpus/contracts/early-results/early_named_u8_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_named_u8_call.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Frozen typing/named_constant_literals.goose:3-10: local lets retain their own types; only untyped integer globals adapt as named constants."
+    },
+    {
+      "id": "corpus/contracts/early-results/early_typed_i64_u8_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_typed_i64_u8_call.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_typed_i64_u8_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_typed_i64_u8_call.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_nested_u8_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_nested_u8_call.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_nested_u8_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_nested_u8_call.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_ref_parameter/native",
+      "source": "tests/fixtures/contracts/early-results/early_ref_parameter.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_ref_parameter/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_ref_parameter.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_diverging_argument/native",
+      "source": "tests/fixtures/contracts/early-results/early_diverging_argument.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_diverging_argument/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_diverging_argument.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "astra-bottom-conversion-46-plan.md; primary early-block and literal/reference conversion semantics"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_global_named_u8_call/native",
+      "source": "tests/fixtures/contracts/early-results/early_global_named_u8_call.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Frozen typing/named_constant_literals.goose:3-10"
+    },
+    {
+      "id": "corpus/contracts/early-results/early_global_named_u8_call/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/early_global_named_u8_call.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Frozen typing/named_constant_literals.goose:3-10"
+    },
+    {
+      "id": "corpus/contracts/early-results/numeric_u8_paths/native",
+      "source": "tests/fixtures/contracts/early-results/numeric_u8_paths.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/numeric_u8_paths/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/numeric_u8_paths.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/numeric_f32_paths/native",
+      "source": "tests/fixtures/contracts/early-results/numeric_f32_paths.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/numeric_f32_paths/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/numeric_f32_paths.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/reference_targets/native",
+      "source": "tests/fixtures/contracts/early-results/reference_targets.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/reference_targets/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/reference_targets.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/aggregate_rhs_completed/native",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_completed.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/aggregate_rhs_completed/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_completed.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/aggregate_rhs_nested/native",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_nested.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/aggregate_rhs_nested/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_nested.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/aggregate_rhs_diverging_tail/native",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_diverging_tail.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/aggregate_rhs_diverging_tail/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/aggregate_rhs_diverging_tail.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/mutable_slice_exits/native",
+      "source": "tests/fixtures/contracts/early-results/mutable_slice_exits.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/mutable_slice_exits/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/mutable_slice_exits.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/named_readonly_reference/native",
+      "source": "tests/fixtures/contracts/early-results/named_readonly_reference.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/named_readonly_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/named_readonly_reference.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/genuine_return_divergence/native",
+      "source": "tests/fixtures/contracts/early-results/genuine_return_divergence.goose",
+      "target": "native",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/early-results/genuine_return_divergence/wasm-direct",
+      "source": "tests/fixtures/contracts/early-results/genuine_return_divergence.goose",
+      "target": "wasm-direct",
+      "phase": "check",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Independent completed-value/literal-width/reference-mutation semantics."
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-stage/direct-fixed",
+      "source": "tests/fixtures/contracts/bounded-images/direct-fixed.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "fixed cell in variable image ok\n",
+        "exit": 0
+      },
+      "provenance": "Independent bounded flat image receiver/byte/initializer contract"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-stage/direct-varint",
+      "source": "tests/fixtures/contracts/bounded-images/direct-varint.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "varint cell in variable image ok\n",
+        "exit": 0
+      },
+      "provenance": "Independent bounded flat image receiver/byte/initializer contract"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-stage/single-receiver",
+      "source": "tests/fixtures/contracts/bounded-images/single-receiver.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "relative image single receiver ok\n",
+        "exit": 0
+      },
+      "provenance": "Independent bounded flat image receiver/byte/initializer contract"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-stage/initializer-order-alias",
+      "source": "tests/fixtures/contracts/bounded-images/initializer-order-alias.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "relative image initializer order and alias ok\n",
+        "exit": 0
+      },
+      "provenance": "Independent bounded flat image receiver/byte/initializer contract"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-stage/initializer-pool-growth",
+      "source": "tests/fixtures/contracts/bounded-images/initializer-pool-growth.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "relative image leaf survives pool growth\n",
+        "exit": 0
+      },
+      "provenance": "Independent bounded flat image receiver/byte/initializer contract"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-stage/initializer-nonlocal",
+      "source": "tests/fixtures/contracts/bounded-images/initializer-nonlocal-address.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "relative image initializer exit ok\n",
+        "exit": 0
+      },
+      "provenance": "Independent bounded flat image receiver/byte/initializer contract"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-stage/initializer-range-order",
+      "source": "tests/fixtures/contracts/bounded-images/initializer-range-order.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "first initializer\n",
+        "exit": "nonzero"
+      },
+      "provenance": "Independent bounded flat image receiver/byte/initializer contract"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-owner/owner-forward-growth",
+      "source": "tests/fixtures/contracts/bounded-images/owner-forward-growth.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "image owner forwarding survives pool growth\n",
+        "exit": 0
+      },
+      "provenance": "Internal natural reference plus separately proved exact owner/header authority"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-owner/owner-initializer-nonlocal",
+      "source": "tests/fixtures/contracts/bounded-images/owner-initializer-nonlocal.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "image owner nested initializer exit ok\n",
+        "exit": 0
+      },
+      "provenance": "Internal natural reference plus separately proved exact owner/header authority"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-owner/borrowed-view",
+      "source": "tests/fixtures/contracts/bounded-images/borrowed-view.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "borrowed relative image view ok\n",
+        "exit": 0
+      },
+      "provenance": "Internal natural reference plus separately proved exact owner/header authority"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-owner/copy-equality",
+      "source": "tests/fixtures/contracts/bounded-images/owner-copy-equality.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "bounded image copy equality ok\n",
+        "exit": 0
+      },
+      "provenance": "Known owner provides a whole bounded image view; copy receives distinct bytes, equality skips padding and later mutation preserves original"
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-padding/zero-varint",
+      "source": "tests/fixtures/contracts/bounded-images/pad-zero-varint-copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified zero-byte padding read/print/equality/forwarding control",
+      "expect": {
+        "stdout": "Image { -65, Cell { 117 }, 91 }\ntrue\nfalse\n213\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-padding/zero-u16",
+      "source": "tests/fixtures/contracts/bounded-images/pad-zero-u16-copy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified zero-byte padding read/print/equality/forwarding control",
+      "expect": {
+        "stdout": "Image { -65, Cell { 117 }, 91 }\ntrue\nfalse\n213\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-owner/optional-null",
+      "source": "tests/fixtures/contracts/bounded-images/optional-null.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "Astra authored null-only optional-reference control; scalar comparison requires no owner authority",
+      "expect": {
+        "stdout": "true\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-render/known-owner",
+      "source": "tests/fixtures/contracts/bounded-images/render-known.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified bounded print/str/format of internal plain reference",
+      "expect": {
+        "stdout": "Image { 1, Cell { 17 }, 7 }\nImage { 1, Cell { 17 }, 7 }\nImage { 1, Cell { 17 }, 7 }\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
+    },
+    {
+      "id": "corpus/contracts/bounded-images/relative-image-render/unused-wrapper",
+      "source": "tests/fixtures/contracts/bounded-images/render-unused-wrapper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "fixed wrapper containing a natural image reference stays constructible when no rendering requires missing authority",
+      "expect": {
+        "stdout": "1\n",
+        "exit": 0,
+        "normalize": "trailing-newlines"
+      }
     }
   ],
   "legacy_math_capture": {

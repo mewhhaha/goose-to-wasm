@@ -1,7 +1,7 @@
 import model;
 
 // These describe native frames. Image sizes and field offsets remain separate.
-struct CcPlace { type_id: i64, address: i64, form: i64 = 0, stack: i64 = -1, owner_header: i64 = -1, image_base: i64 = -1 }
+struct CcPlace { type_id: i64, address: i64, form: i64 = 0, stack: i64 = -1, owner_header: i64 = -1, image_base: i64 = -1, image_end: i64 = -1 }
 struct CcDestination {
     type_id: i64, header: i64, stack: i64, lifetime: i64, form: i64 = 0,
     entry: i64 = -1, start: i64 = -1, receiver: i64 = -1,
@@ -49,7 +49,56 @@ recursive fn cc_image_fields(p: Program&, id: i64) -> bool {
     while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 && cc_image_fields(p, n.type_id) { return true; } field = n.next; }
     return false;
 }
+// This first physical stage has no nested owner or self-relative field.
+fn cc_flat_relative_image(p: Program&, id: i64) -> bool {
+    if id < 0 || p.types[id].kind != TY_STRUCT || cc_size_class(p, id) != 1 { return false; }
+    var field = p.nodes[p.types[id].declaration].first; var relative = false;
+    while field >= 0 {
+        let n = p.nodes[field]; field = n.next;
+        if (n.flags & F_PAD) != 0 { continue; }
+        let t = p.types[n.type_id];
+        if t.kind == TY_REF && t.length_storage >= 0 && t.pool >= 0 {
+            if !cc_fixed_storage(p, t.element) || cc_region_width(p, t.element) != 0 || cc_frame_size(p, t.element) != p.types[t.element].size { return false; }
+            relative = true;
+        } else if t.kind != TY_INT && t.kind != TY_BOOL { return false; }
+    }
+    return relative;
+}
+fn cc_flat_image_reference(p: Program&, id: i64) -> bool {
+    return id >= 0 && p.types[id].kind == TY_REF && p.types[id].length_storage < 0 && (p.types[id].flags & TF_OPTIONAL) == 0 && cc_flat_relative_image(p, p.types[id].element);
+}
+fn cc_flat_image_abi_pending(p: Program&, id: i64) -> bool {
+    if cc_flat_relative_image(p, id) { return true; }
+    return id >= 0 && p.types[id].kind == TY_REF && cc_flat_relative_image(p, p.types[id].element);
+}
+fn cc_render_unbounded_image(p: Program&, id: i64) -> bool {
+    let kind = cc_kind(p, id);
+    if kind == TY_VOID || kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT || kind == TY_FN { return false; }
+    var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    while work.len > 0 {
+        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true;
+        let t = p.types[current];
+        if t.kind == TY_REF {
+            if cc_flat_relative_image(p, t.element) { return true; }
+            work.push(t.element);
+        } else if t.kind == TY_ARRAY || t.kind == TY_SLICE { work.push(t.element); }
+        else {
+            var field = -1;
+            if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
+            if t.kind == TY_TUPLE { field = t.first; }
+            while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 { work.push(n.type_id); } field = n.next; }
+        }
+    }
+    return false;
+}
+fn cc_physical_cell_width(p: Program&, id: i64) -> i64 {
+    let t = p.types[id];
+    if t.kind == TY_REF { return t.length_storage; }
+    if t.kind == TY_INT && t.storage != 0 { return 0; }
+    return t.size;
+}
 fn cc_image_constructible(p: Program&, id: i64) -> bool {
+    if cc_flat_relative_image(p, id) { return true; }
     let root = p.types[id];
     if root.kind == TY_REF { return root.length_storage < 0; }
     if root.kind != TY_ARRAY && root.kind != TY_STRUCT && root.kind != TY_ENUM { return true; }

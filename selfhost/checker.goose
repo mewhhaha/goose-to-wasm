@@ -1464,7 +1464,7 @@ recursive fn check_bottom(p: Program&, node: i64) -> bool {
     if node < 0 { return false; }
     let n = p.nodes[node];
     if (n.flags & F_DIVERGES) != 0 && n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || n.kind == N_RETURN || n.kind == N_BREAK || n.kind == N_CONTINUE { return true; }
-    if n.kind == N_BLOCK && n.last >= 0 { return check_bottom(p, n.last); }
+    if n.kind == N_BLOCK && (n.flags & F_EARLY) == 0 && n.last >= 0 { return check_bottom(p, n.last); }
     if n.kind == N_IF { return n.third >= 0 && check_bottom(p, n.right) && check_bottom(p, n.third); }
     if n.kind == N_CALL && n.symbol >= 0 {
         let s = p.symbols[n.symbol]; return (s.flags & S_BUILTIN) != 0 && (s.index == 4 || s.index == 5);
@@ -1913,7 +1913,14 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
     if !c.literal_comparison && (branch.kind == N_ARRAY || branch.kind == N_FILL) && branch.first >= 0 &&
        (p.types[destination].kind == TY_SLICE || p.types[destination].kind == TY_REF) && check_size_class(p, source, 0) > 0 { return -1; }
     if branch.kind == N_LOOP { return check_exit_conversion(p, c, branch.right, expression, destination); }
-    if branch.kind == N_BLOCK && (branch.flags & F_EARLY) != 0 && check_exit_conversion(p, c, expression, expression, destination) < 0 { return -1; }
+    if branch.kind == N_BLOCK && (branch.flags & F_EARLY) != 0 {
+        let exits = check_exit_conversion(p, c, expression, expression, destination);
+        if exits < 0 { return -1; }
+        if (branch.flags & F_TAIL) == 0 || branch.last < 0 || check_bottom(p, branch.last) {
+            if source == TYPE_VOID && destination != TYPE_VOID { return -1; }
+            return exits;
+        }
+    }
     if branch.kind == N_BLOCK && (branch.flags & F_TAIL) != 0 && branch.last >= 0 {
         return check_conversion(p, c, branch.last, p.nodes[branch.last].type_id, destination);
     }

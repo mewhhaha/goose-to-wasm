@@ -2,19 +2,19 @@
   "schema": "goose-bootstrap-seed-v1",
   "language": "C11",
   "producer": "Goose-written compiler through C-only bootstrap",
-  "c_sha256": "89feb6d5fba53f3bd2c36f5e00be164a53588856d2dfad8f0f021f647e6edebb",
-  "compressed_sha256": "0c867b1442a240a6abd92ccd99890e0f57af4e8528aa7f6220d085b1264b97eb",
-  "source_bundle_sha256": "bc9df759b22972d27185d247aa101bf3b58388bcd7ad0a00577b11fe94a4a250",
+  "c_sha256": "4fdbb47e3326835eb7b9fa7e939c84050d57a2e90ff047fc9d7f643c50e3b973",
+  "compressed_sha256": "834590435e23226ed4cce5284bb033db429a44700f2fcbe8722ef82abd17f916",
+  "source_bundle_sha256": "4f39efeae16b228a2a26b2a2bf402af228a25da1858b721f13e7bcbf291ad1f5",
   "source_sha256": {
-    "checker.goose": "919da950514d50ed0a98a702719cebd90dff9d120a6c051ff683bd7fda715741",
+    "checker.goose": "7677808b0ca5804c8c801b88fc96a38b1e7930b3263451dd1b53a46f84117e63",
     "checker_lifetimes.goose": "c58b3270b350ed86f20681e34797eb8a2647bf20f1388461def8018ecb0e4168",
     "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
     "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
     "checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38",
     "codegen.goose": "d52c2430721cbb64025ce6239b3edc5c4a401d2f334744f84d4fc4adbedb35fa",
-    "codegen_c.goose": "53a3f35f510a86bffbc5f7a17a855df2853dcb09726f1282f5fb087f5e7ca7b7",
+    "codegen_c.goose": "649821970137c2243fb953e856725212c9469fba584778a366191cb469a48365",
     "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
-    "codegen_c_storage.goose": "9d567d0aa442c7532a2a4b1915b3c9373a7be135bad09f62bfc64169a6413aa6",
+    "codegen_c_storage.goose": "308c37aa301b95145a1566fb670ac30e5406f12f4f94ba00b456ba2e28a4e37f",
     "codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70",
     "driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9",
     "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
@@ -47,17 +47,17 @@
     "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
     "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
     "native/storage.h": "899b1e8520024fdd3fab0c0f34e143dbc41f9f8a68d5cfb8642f433f9a007869",
-    "native/relative.h": "41f78d373a6b9d724899e1339651f8c1c553ab5158ca63d21c93c691530a47f5",
+    "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
     "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
     "native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
     "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
   },
   "proof": {
     "fixed_point": true,
-    "parent_seed_c_sha256": "bca2cbad6f35d44b315e2052b1a5dfbe06d2f90bab0d9f2eaa97e7be72486602",
-    "stage1_c_sha256": "15d9f921f502bf1a3c851a62f0d7de5d0e4f681fd9a41c73dfa35c546370d7df",
-    "stage2_c_sha256": "89feb6d5fba53f3bd2c36f5e00be164a53588856d2dfad8f0f021f647e6edebb",
-    "stage3_c_sha256": "89feb6d5fba53f3bd2c36f5e00be164a53588856d2dfad8f0f021f647e6edebb"
+    "parent_seed_c_sha256": "89feb6d5fba53f3bd2c36f5e00be164a53588856d2dfad8f0f021f647e6edebb",
+    "stage1_c_sha256": "b9b074776208fc60882406e065a74b511d68186322178aa8afd6663b68bd6878",
+    "stage2_c_sha256": "4fdbb47e3326835eb7b9fa7e939c84050d57a2e90ff047fc9d7f643c50e3b973",
+    "stage3_c_sha256": "4fdbb47e3326835eb7b9fa7e939c84050d57a2e90ff047fc9d7f643c50e3b973"
   },
   "note": "Final two C generations match. This seed is generated without a C++ compiler."
 }
