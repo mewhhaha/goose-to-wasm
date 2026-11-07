@@ -133,9 +133,9 @@ def main():
         binary = output / ("threads-adapter-" + mode)
         run("threads-adapter-" + mode + "-compile", [*compiler, "-std=gnu11", "-pthread", *options, adapter, *LIBS, "-o", binary])
         run("threads-adapter-" + mode + "-run", [binary], "native thread adapters ok\n")
-    for header in ("storage.h", "pools.h", "relative.h", "images.h"):
+    for header in ("storage.h", "pools.h", "relative.h", "images.h", "runs.h"):
         report["inputs_sha256"][header] = sha((HERE.parent / header).read_bytes())
-    for stem, expected in (("fixed_values", "native fixed values ok\n"), ("pools", "native pools ok\n"), ("relative", "native relative cells ok\n"), ("var_relative", "bounded varint relative cells ok\n"), ("bounded_cells", "bounded physical relative cursor bytes ok\n"), ("image_storage", "native image storage ok\n")):
+    for stem, expected in (("fixed_values", "native fixed values ok\n"), ("pools", "native pools ok\n"), ("relative", "native relative cells ok\n"), ("var_relative", "bounded varint relative cells ok\n"), ("bounded_cells", "bounded physical relative cursor bytes ok\n"), ("image_storage", "native image storage ok\n"), ("runs", "native bounded run receivers ok\n")):
         fixture = HERE / (stem + ".c")
         report["inputs_sha256"][fixture.name] = sha(fixture.read_bytes())
         for mode, options in (("release", ["-O2"]), ("sanitized", ["-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer"])):
@@ -143,9 +143,12 @@ def main():
             binary = output / name
             run(name + "-compile", [*compiler, "-std=gnu11", "-pthread", *options, fixture, *LIBS, "-o", binary])
             run(name + "-run", [binary], expected)
-            if stem == "bounded_cells":
+            if stem in ("bounded_cells", "runs"):
                 errors = (output / (name + "-run.stderr")).read_text()
-                assert errors.count("goose runtime error:") == 7, errors
+                expected_errors = 7
+                if stem == "runs":
+                    expected_errors = 10
+                assert errors.count("goose runtime error:") == expected_errors, errors
                 assert "AddressSanitizer" not in errors, errors
                 assert "runtime error:" not in errors.replace("goose runtime error:", ""), errors
     for path in (standalone, runtime, program):

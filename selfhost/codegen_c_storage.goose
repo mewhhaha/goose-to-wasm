@@ -5,11 +5,11 @@ struct CcPlace { type_id: i64, address: i64, form: i64 = 0, stack: i64 = -1, own
 struct CcDestination {
     type_id: i64, header: i64, stack: i64, lifetime: i64, form: i64 = 0,
     entry: i64 = -1, start: i64 = -1, receiver: i64 = -1,
-    publication: i64 = -1, construction: i64 = -1,
+    publication: i64 = -1, construction: i64 = -1, run_capability: i64 = -1,
 }
 struct CcReceiving { ordinal: i64, destination: i64, symbol: i64 = -1, call: i64 = -1 }
-struct CcChannels { value: i64, address: i64 }
-struct CcCursor { symbol: i64, index: i64, address: i64, type_id: i64 }
+struct CcChannels { value: i64, address: i64, run_capability: i64 = -1 }
+struct CcCursor { symbol: i64, index: i64, address: i64, type_id: i64, node: i64 = -1, owner_header: i64 = -1 }
 let CC_NATIVE: i64 = 0;
 let CC_REGISTER: i64 = 1;
 let CC_IMAGE: i64 = 2;
@@ -49,6 +49,47 @@ recursive fn cc_image_fields(p: Program&, id: i64) -> bool {
     while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 && cc_image_fields(p, n.type_id) { return true; } field = n.next; }
     return false;
 }
+// Local pure-self images carry owner bounds; arrays require separate root authority.
+fn cc_self_relative_image(p: Program&, id: i64) -> bool {
+    if id < 0 || p.types[id].kind != TY_STRUCT || cc_size_class(p, id) != 1 { return false; }
+    var field = p.nodes[p.types[id].declaration].first; var self_link = false; var text = false;
+    while field >= 0 {
+        let n = p.nodes[field]; field = n.next;
+        if (n.flags & F_PAD) != 0 { continue; } let t = p.types[n.type_id];
+        if t.kind == TY_REF && t.element == id && t.length_storage > 0 && t.pool < 0 && (t.flags & TF_OPTIONAL) == 0 { self_link = true; }
+        else if t.kind == TY_ARRAY && t.array_kind == A_VAR && t.element == TYPE_U8 && field < 0 { text = true; }
+        else if t.kind != TY_INT && t.kind != TY_BOOL || t.storage != 0 { return false; }
+    }
+    return self_link && text;
+}
+fn cc_self_run(p: Program&, id: i64) -> bool {
+    if id < 0 || p.types[id].kind != TY_ARRAY || p.types[id].array_kind != A_GROW { return false; }
+    return cc_self_relative_image(p, p.types[id].element);
+}
+fn cc_self_runs_used(p: Program&) -> bool {
+    for t, id in p.types { if cc_self_run(p, id) { return true; } } return false;
+}
+fn cc_run_reference(p: Program&, id: i64) -> bool {
+    return id >= 0 && p.types[id].kind == TY_REF && p.types[id].length_storage < 0 && (p.types[id].flags & TF_OPTIONAL) == 0 && cc_self_run(p, p.types[id].element);
+}
+fn cc_self_run_inside(p: Program&, id: i64) -> bool {
+    var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
+    while work.len > 0 {
+        let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true;
+        if cc_self_run(p, current) { return true; } let t = p.types[current];
+        if t.kind == TY_REF || t.kind == TY_ARRAY || t.kind == TY_SLICE { work.push(t.element); }
+        else {
+            var field = -1;
+            if (t.kind == TY_STRUCT || t.kind == TY_ENUM) && t.declaration >= 0 { field = p.nodes[t.declaration].first; }
+            if t.kind == TY_TUPLE { field = t.first; }
+            while field >= 0 { let n = p.nodes[field]; if (n.flags & F_PAD) == 0 { work.push(n.type_id); } field = n.next; }
+        }
+    }
+    return false;
+}
+fn cc_bounded_relative_image(p: Program&, id: i64) -> bool {
+    return cc_flat_relative_image(p, id) || cc_self_relative_image(p, id);
+}
 // This first physical stage has no nested owner or self-relative field.
 fn cc_flat_relative_image(p: Program&, id: i64) -> bool {
     if id < 0 || p.types[id].kind != TY_STRUCT || cc_size_class(p, id) != 1 { return false; }
@@ -65,13 +106,14 @@ fn cc_flat_relative_image(p: Program&, id: i64) -> bool {
     return relative;
 }
 fn cc_flat_image_reference(p: Program&, id: i64) -> bool {
-    return id >= 0 && p.types[id].kind == TY_REF && p.types[id].length_storage < 0 && (p.types[id].flags & TF_OPTIONAL) == 0 && cc_flat_relative_image(p, p.types[id].element);
+    return id >= 0 && p.types[id].kind == TY_REF && p.types[id].length_storage < 0 && (p.types[id].flags & TF_OPTIONAL) == 0 && cc_bounded_relative_image(p, p.types[id].element);
 }
 fn cc_flat_image_abi_pending(p: Program&, id: i64) -> bool {
-    if cc_flat_relative_image(p, id) { return true; }
-    return id >= 0 && p.types[id].kind == TY_REF && cc_flat_relative_image(p, p.types[id].element);
+    if cc_bounded_relative_image(p, id) { return true; }
+    return id >= 0 && p.types[id].kind == TY_REF && cc_bounded_relative_image(p, p.types[id].element);
 }
 fn cc_render_unbounded_image(p: Program&, id: i64) -> bool {
+    if cc_self_relative_image(p, id) { return true; }
     let kind = cc_kind(p, id);
     if kind == TY_VOID || kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT || kind == TY_FN { return false; }
     var work: i64[>..] = [id]; var seen: bool[>..] = []; seen.resize(p.types.len, false);
@@ -79,7 +121,7 @@ fn cc_render_unbounded_image(p: Program&, id: i64) -> bool {
         let current = work.pop(); if current < 0 || seen[current] { continue; } seen[current] = true;
         let t = p.types[current];
         if t.kind == TY_REF {
-            if cc_flat_relative_image(p, t.element) { return true; }
+            if cc_bounded_relative_image(p, t.element) { return true; }
             work.push(t.element);
         } else if t.kind == TY_ARRAY || t.kind == TY_SLICE { work.push(t.element); }
         else {
@@ -93,12 +135,12 @@ fn cc_render_unbounded_image(p: Program&, id: i64) -> bool {
 }
 fn cc_physical_cell_width(p: Program&, id: i64) -> i64 {
     let t = p.types[id];
-    if t.kind == TY_REF { return t.length_storage; }
+    if t.kind == TY_REF || t.kind == TY_ARRAY && t.array_kind == A_VAR && t.element == TYPE_U8 { return t.length_storage; }
     if t.kind == TY_INT && t.storage != 0 { return 0; }
     return t.size;
 }
 fn cc_image_constructible(p: Program&, id: i64) -> bool {
-    if cc_flat_relative_image(p, id) { return true; }
+    if cc_bounded_relative_image(p, id) { return true; }
     let root = p.types[id];
     if root.kind == TY_REF { return root.length_storage < 0; }
     if root.kind != TY_ARRAY && root.kind != TY_STRUCT && root.kind != TY_ENUM { return true; }
@@ -163,6 +205,7 @@ recursive fn cc_region_width(p: Program&, type_id: i64) -> i64 {
 recursive fn cc_frame_size(p: Program&, type_id: i64) -> i64 {
     if type_id < 0 { return 0; }
     if cc_image_type(p, type_id) { return 24; }
+    if cc_self_run(p, type_id) { return 32; }
     let t = p.types[type_id];
     if t.kind == TY_STRUCT && t.declaration >= 0 {
         var size = t.size; var field = p.nodes[t.declaration].first;
@@ -327,7 +370,7 @@ recursive fn cc_fixed_storage(p: Program&, type_id: i64) -> bool {
     return true;
 }
 fn cc_result_location(p: Program&, type_id: i64) -> bool {
-    if cc_image_type(p, type_id) { return true; }
+    if cc_image_type(p, type_id) || cc_self_run(p, type_id) { return true; }
     let kind = cc_kind(p, type_id);
     if kind == TY_TUPLE {
         var field = p.types[type_id].first;
@@ -352,7 +395,7 @@ fn cc_tuple_channels(p: Program&, type_id: i64) -> bool {
 }
 fn cc_result_indirect(p: Program&, type_id: i64) -> bool { return cc_tuple_channels(p, type_id) || cc_indirect(p, type_id) || cc_result_location(p, type_id); }
 fn cc_helper_indirect(p: Program&, type_id: i64) -> bool {
-    if cc_image_type(p, type_id) { return false; }
+    if cc_image_type(p, type_id) || cc_self_run(p, type_id) { return false; }
     let kind = cc_kind(p, type_id);
     return cc_indirect(p, type_id) || (kind == TY_ARRAY || kind == TY_STRUCT || kind == TY_ENUM || kind == TY_TUPLE) && cc_relative_fields(p, type_id, true);
 }

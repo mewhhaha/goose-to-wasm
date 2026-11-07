@@ -5806,21 +5806,39 @@ recursive fn check_compound_aggregate(p: Program&, c: Checker&, node: i64, type_
     }
 }
 
-recursive fn check_assignment(p: Program&, c: Checker&, node: i64) {
+// A multi-assignment is one result binding followed by ordinary stores.
+recursive fn check_multi_assignment(p: Program&, c: Checker&, node: i64) {
     let n = p.nodes[node];
-    if n.kind == N_MULTI_ASSIGN {
-        let source = check_value(p, c, n.right, -1, true);
-        if source < 0 || p.types[source].kind != TY_TUPLE || p.types[source].count != check_list_count(p, n.first) {
-            diagnose(p, n.token, "multiple assignment requires matching call results"); return;
+    let binding = new_node(p, N_VARIABLE, n.token); p.nodes[binding].flags = F_MULTI | F_SYNTHETIC; p.nodes[binding].right = n.right;
+    var stores = CheckList {}; var target = n.first;
+    while target >= 0 {
+        let next = p.nodes[target].next; p.nodes[target].next = -1;
+        let name = operation_name(p, n.token, "__goose_result");
+        let result = new_node(p, N_BINDING, name); p.nodes[result].flags = F_RESULT_TEMP; append_child(p, binding, result);
+        let assign = new_node(p, N_ASSIGN, n.token); p.nodes[assign].integer = T_ASSIGN;
+        p.nodes[assign].left = target; p.nodes[assign].right = operation_ident(p, name); check_list_push(c, stores, assign);
+        target = next;
+    }
+    p.nodes[node] = Node { kind: N_BLOCK, token: n.token, next: n.next, scope: n.scope, flags: F_SYNTHETIC | (n.flags & (F_REACHABLE | F_TAIL)) };
+    append_child(p, node, binding);
+    for index in 0..stores.count { append_child(p, node, check_list_at(c, stores, index)); }
+    check_block(p, c, node, TYPE_VOID);
+}
+
+recursive fn check_assignment(p: Program&, c: Checker&, node: i64) {
+    var n = p.nodes[node];
+    if n.kind == N_MULTI_ASSIGN { check_multi_assignment(p, c, node); return; }
+    if n.right >= 0 && p.nodes[n.right].kind == N_NAME {
+        let symbol = check_lookup_name(p, c, n.right);
+        if symbol >= 0 && p.symbols[symbol].node >= 0 && (p.nodes[p.symbols[symbol].node].flags & F_RESULT_TEMP) != 0 {
+            let ty = p.symbols[symbol].type_id;
+            if ty >= 0 && p.types[ty].kind != TY_REF && p.types[ty].kind != TY_SLICE && check_size_class(p, ty, 0) > 0 {
+                let name = operation_name(p, n.token, "copy", false); let copy = new_node(p, N_CALL, n.token);
+                p.nodes[copy].left = operation_ident(p, name); p.nodes[copy].flags = F_SYNTHETIC;
+                p.nodes[copy].symbol = check_builtin_symbol(p, name, 15, ty); append_child(p, copy, n.right);
+                p.nodes[node].right = copy; n.right = copy;
+            }
         }
-        var target = n.first; var component = p.types[source].first;
-        while target >= 0 && component >= 0 {
-            let ty = check_expression(p, c, target, -1); let ct = p.nodes[component].type_id;
-            if !check_same_type(p, ty, ct) { diagnose(p, p.nodes[target].token, "multiple assignment result type does not match its target"); }
-            check_assignment_target(p, c, target, n.right, false);
-            target = p.nodes[target].next; component = p.nodes[component].next;
-        }
-        return;
     }
     // A bare unassigned name is a legal assignment target, without reading it.
     let target = p.nodes[n.left]; var ty = -1;

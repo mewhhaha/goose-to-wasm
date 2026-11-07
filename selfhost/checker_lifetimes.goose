@@ -1861,15 +1861,6 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
         }
         return out;
     }
-    if n.kind == N_MULTI_ASSIGN {
-        let values = life_eval(p, l, n.right); var target = n.first; var index = 0;
-        while target >= 0 {
-            let place = life_eval(p, l, target); let value = life_coerce(p, l, life_item(l, values.tuple, index), place.type_id);
-            life_store(p, l, node, place.place, value, p.nodes[target].kind == N_NAME);
-            target = p.nodes[target].next; index += 1;
-        }
-        return out;
-    }
     if n.kind == N_RETURN {
         let held = l.hold_count;
         var child = n.first; var result = LifeValue {}; var count = 0; var tuple = -1;

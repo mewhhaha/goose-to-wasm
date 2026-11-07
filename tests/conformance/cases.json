@@ -60389,6 +60389,829 @@
       ],
       "expect": {},
       "provenance": "Source-authored divergent/live-result/tuple/effect/typed-void control; preserve reachable conversion diagnostics"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_plain_references/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_plain_references.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n4\n",
+        "exit": 0
+      },
+      "provenance": "Ordinary = writes through plain references; target writes retain source order"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_plain_references/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_plain_references.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n4\n",
+        "exit": 0
+      },
+      "provenance": "Ordinary = writes through plain references; target writes retain source order"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_call_before_indices/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_call_before_indices.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 7, 8]\n",
+        "exit": 0
+      },
+      "provenance": "Call executes once before evaluating assignment target indices"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_call_before_indices/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_call_before_indices.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[0, 7, 8]\n",
+        "exit": 0
+      },
+      "provenance": "Call executes once before evaluating assignment target indices"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_readonly/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_readonly.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Target-pointee normalization must preserve read-only assignment rejection"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_readonly/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_readonly.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Target-pointee normalization must preserve read-only assignment rejection"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_wrong_component/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_wrong_component.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Tuple arity/type checking remains per target after dereference"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_wrong_component/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_wrong_component.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Tuple arity/type checking remains per target after dereference"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/original_multi_assign/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 true\nabc 30\n[0, 6, 5]\nab 20\n2 1\nh ello\n5.0\nabc 60\n",
+        "exit": 0
+      },
+      "provenance": "Whole unchanged primary original with independent expected output",
+      "dependencies": [
+        "tests/fixtures/contracts/multiassignment-results/multi_assign.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/original_multi_assign/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 true\nabc 30\n[0, 6, 5]\nab 20\n2 1\nh ello\n5.0\nabc 60\n",
+        "exit": 0
+      },
+      "provenance": "Whole unchanged primary original with independent expected output",
+      "dependencies": [
+        "tests/fixtures/contracts/multiassignment-results/multi_assign.out"
+      ]
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_count/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_count.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Original tuple arity and nonfixed reference-copy negative stays rejected"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_count/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_count.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Original tuple arity and nonfixed reference-copy negative stays rejected"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_reference/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_reference.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Original tuple arity and nonfixed reference-copy negative stays rejected"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_reference.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Original tuple arity and nonfixed reference-copy negative stays rejected"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_optional_reference/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_optional_reference.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckAssign2490: optional reference must be narrowed before pointee assignment"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_optional_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_optional_reference.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "CheckAssign2490: optional reference must be narrowed before pointee assignment"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_narrowed_reference/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_narrowed_reference.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "CheckAssign2490 uses narrowed plain-reference target pointee"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_narrowed_reference/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_narrowed_reference.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "CheckAssign2490 uses narrowed plain-reference target pointee"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_fixed_reference_result/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_fixed_reference_result.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4 9\n",
+        "exit": 0
+      },
+      "provenance": "CheckAssign2469-2477 rejects only nonfixed implicit pointee copies; fixed reference result copies its value"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_fixed_reference_result/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_fixed_reference_result.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4 9\n",
+        "exit": 0
+      },
+      "provenance": "CheckAssign2469-2477 rejects only nonfixed implicit pointee copies; fixed reference result copies its value"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_reference_index_once/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_reference_index_once.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4 2\n",
+        "exit": 0
+      },
+      "provenance": "ParseMultiAssign1931-1964 evaluates each target exactly once after RHS, in target order"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_assign_reference_index_once/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_assign_reference_index_once.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4 2\n",
+        "exit": 0
+      },
+      "provenance": "ParseMultiAssign1931-1964 evaluates each target exactly once after RHS, in target order"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_store_before_next_index/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_store_before_next_index.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 [0, 8, 0]\n",
+        "exit": 0
+      },
+      "provenance": "All results are staged, then target1 is stored before evaluating target2; parser.h1931-1964."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_store_before_next_index/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_store_before_next_index.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "1 [0, 8, 0]\n",
+        "exit": 0
+      },
+      "provenance": "All results are staged, then target1 is stored before evaluating target2; parser.h1931-1964."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_fixed_refs_before_first_store/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_refs_before_first_store.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "Fixed reference result2 is copied before target1 overwrites its pointee; typecheck_flow2266-2283 and codegen_calls75-87."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_fixed_refs_before_first_store/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_refs_before_first_store.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "Fixed reference result2 is copied before target1 overwrites its pointee; typecheck_flow2266-2283 and codegen_calls75-87."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_fixed_ref_before_target_effect/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_ref_before_target_effect.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[3] 4 9\n",
+        "exit": 0
+      },
+      "provenance": "Fixed reference result is copied before any target index evaluation can mutate its pointee."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_fixed_ref_before_target_effect/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_ref_before_target_effect.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "[3] 4 9\n",
+        "exit": 0
+      },
+      "provenance": "Fixed reference result is copied before any target index evaluation can mutate its pointee."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_fixed_aggregate_before_target_effect/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_aggregate_before_target_effect.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4 9\n",
+        "exit": 0
+      },
+      "provenance": "Fixed aggregate reference result must snapshot its pointee before target effects, rather than preserve only its address."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_fixed_aggregate_before_target_effect/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_fixed_aggregate_before_target_effect.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4 9\n",
+        "exit": 0
+      },
+      "provenance": "Fixed aggregate reference result must snapshot its pointee before target effects, rather than preserve only its address."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_target_effect_trace/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_target_effect_trace.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "123 [7, 8]\n",
+        "exit": 0
+      },
+      "provenance": "Call runs once first; each target index then runs once in left-to-right assignment order."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_target_effect_trace/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_target_effect_trace.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "123 [7, 8]\n",
+        "exit": 0
+      },
+      "provenance": "Call runs once first; each target index then runs once in left-to-right assignment order."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_uninitialized_targets/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_uninitialized_targets.goose",
+      "target": "native",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "Ordinary assignment can initialize an unassigned fixed local; multiassign target checking must not read it first."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/multi_uninitialized_targets/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/multi_uninitialized_targets.goose",
+      "target": "wasm-direct",
+      "phase": "run",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3 4\n",
+        "exit": 0
+      },
+      "provenance": "Ordinary assignment can initialize an unassigned fixed local; multiassign target checking must not read it first."
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/fixed_relative_reference_result/native",
+      "source": "tests/fixtures/contracts/multiassignment-results/fixed_relative_reference_result.goose",
+      "target": "native",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary multi-binding reference decay retains NoRelRefCopy; normalized multi-assignment must not admit copying fixed self-relative storage"
+    },
+    {
+      "id": "corpus/contracts/multiassignment-results/fixed_relative_reference_result/wasm-direct",
+      "source": "tests/fixtures/contracts/multiassignment-results/fixed_relative_reference_result.goose",
+      "target": "wasm-direct",
+      "phase": "type-error",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {},
+      "provenance": "Primary multi-binding reference decay retains NoRelRefCopy; normalized multi-assignment must not admit copying fixed self-relative storage"
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/row-local/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/row-local.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "9 alpha\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/row-forward/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/row-forward.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "12 12\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/row-map/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/row-map.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "1 1\n2 2\n3 3\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/row-push-growth/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/row-push-growth.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "1 one\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/copy-alias/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/copy-alias.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "1 one\n1 one\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/alias-evaluation/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/alias-evaluation.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "1 one\n2 next\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/run-parameter-replace/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/run-parameter-replace.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "2 two\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/run-param-alias-call/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/run-param-alias-call.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "3 x\n9 x\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/run-borrow-mutate/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/run-borrow-mutate.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "11 one\n12 two\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/run-varint-padding/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/run-varint-padding.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "1 0\n2 128\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/optional-param/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "true\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/optional-param/wasm-direct",
+      "source": "tests/fixtures/contracts/native-relative-runs/optional-param.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "true\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/foreach-append-exits/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/foreach-append-exits.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "1 one\n2 two\n3 three\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/row-branch-return/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/row-branch-return.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution; final source5 qualification",
+      "expect": {
+        "stdout": "1 one\n2 other\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/ordinary-row-return/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/ordinary-row-return.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently authored reviewer control with pre-execution expectation",
+      "expect": {
+        "stdout": "1 one\n2 two\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/local-row-ordinary-call/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/local-row-ordinary-call.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently authored reviewer control with pre-execution expectation",
+      "expect": {
+        "stdout": "3 ok\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/unused-null-nonlocal/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/unused-null-nonlocal.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/row-default/native",
+      "source": "tests/fixtures/contracts/native-relative-runs/row-default.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution",
+      "expect": {
+        "stdout": "4 default\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-relative-runs/native-direct-receiver-v4/unused-null-nonlocal/wasm-direct",
+      "source": "tests/fixtures/contracts/native-relative-runs/unused-null-nonlocal.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "source-authored independent expected stdout pinned before execution",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-multi-interaction-v2/native-multi-interaction49/multi-row-fields",
+      "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-row-fields.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7 one 8\n",
+        "exit": 0
+      }
+    },
+    {
+      "id": "corpus/contracts/native-multi-interaction-v2/native-multi-interaction49/multi-before-root-replace",
+      "source": "tests/fixtures/contracts/native-multi-interaction-v2/multi-before-root-replace.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "15 new\n",
+        "exit": 0
+      }
     }
   ],
   "legacy_math_capture": {

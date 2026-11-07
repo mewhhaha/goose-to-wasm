@@ -1551,13 +1551,13 @@ recursive fn cg_declaration_body(p: Program&, m: CgModule&, f: CgBody&, node: i6
         if symbol >= 0 && cg_region_value(p, p.symbols[symbol].type_id) { cg_region_declaration(p, m, f, node, binding); return; }
     }
     if n.first >= 0 {
-        var binding = n.first; var first_slot = -1; var count = 0;
+        var binding = n.first; var first_slot = -1;
         while binding >= 0 {
             let slot = cg_local(f, cg_wasm_type(p, p.nodes[binding].type_id));
-            if first_slot < 0 { first_slot = slot; } count++; binding = p.nodes[binding].next;
+            if first_slot < 0 { first_slot = slot; } binding = p.nodes[binding].next;
         }
         if n.right >= 0 && cg_type_kind(p, p.nodes[n.right].type_id) == TY_TUPLE {
-            cg_expr(p, m, f, n.right); var at = count; while at > 0 { at--; cg_set(f, first_slot + at); }
+            cg_set_values(p, m, f, n.right, cg_binding_result_type(p, n.first), first_slot, node);
         } else {
             var initializer = n.right; binding = n.first; var ordinal = 0;
             while binding >= 0 {
@@ -1890,7 +1890,6 @@ recursive fn cg_statement(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
 recursive fn cg_statement_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let n = p.nodes[node];
     if n.kind == N_VARIABLE { cg_declaration(p, m, f, node); return; }
-    if n.kind == N_MULTI_ASSIGN { cg_multi_assignment(p, m, f, node); return; }
     if n.kind == N_ASSIGN { cg_assign(p, m, f, node); return; }
     if n.kind == N_RETURN { cg_emit_return(p, m, f, node); return; }
     if n.kind == N_BREAK { cg_break(p, m, f, node, false); return; }
@@ -3106,9 +3105,6 @@ recursive fn cg_private_arena(p: Program&, m: CgModule&, function: i64, node: i6
     if m.pool_global >= 0 && n.kind == N_VARIABLE && (n.flags & F_REUSABLE) != 0 { return false; }
     if n.kind == N_RETURN && n.symbol >= 0 && p.symbols[n.symbol].node != function { return false; }
     if n.kind == N_ASSIGN && !cg_private_place(p, function, n.left) { return false; }
-    if n.kind == N_MULTI_ASSIGN {
-        var target = n.first; while target >= 0 { if !cg_private_place(p, function, target) { return false; } target = p.nodes[target].next; }
-    }
     if n.kind == N_CALL {
         if (n.flags & F_DISPATCH) != 0 {
             var arm = n.third;
@@ -3203,7 +3199,6 @@ recursive fn cg_region_body_supported(p: Program&, function: i64, node: i64) -> 
         if target != function && !cg_effect_result_supported(p, cg_result_type(p, target)) { return false; }
 
     }
-    if n.kind == N_MULTI_ASSIGN { var target = n.first; while target >= 0 { if cg_region_owned_result(p, p.nodes[target].type_id) { return false; } target = p.nodes[target].next; } }
     if !cg_region_body_supported(p, function, n.left) || !cg_region_body_supported(p, function, n.right) || !cg_region_body_supported(p, function, n.third) { return false; }
     var child = n.first; while child >= 0 { if !cg_region_body_supported(p, function, child) { return false; } child = p.nodes[child].next; } return true;
 }
@@ -3614,18 +3609,6 @@ recursive fn cg_array_from_view(p: Program&, m: CgModule&, f: CgBody&, to: i64, 
         else if p.types[to].array_kind != A_VAR { cg_get(f, destination); cg_get(f, pointer); cg_get(f, bytes); wb_byte(f.code, 0x6a); wb_mem(f.code, 0x36, 2, 16); }
     }
     cg_get(f, destination);
-}
-recursive fn cg_multi_assignment(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
-    let n = p.nodes[node]; let mark = f.work.len; var target = n.first;
-    while target >= 0 {
-        cg_address(p, m, f, target); let address = cg_save(f, 0x7f); let id = p.nodes[target].type_id; let value = cg_local(f, cg_wasm_type(p, id));
-        f.work.push(address); f.work.push(id); f.work.push(value); target = p.nodes[target].next;
-    }
-    let end = f.work.len; cg_expr(p, m, f, n.right); var at = end;
-    while at > mark { at -= 3; cg_set(f, f.work[at + 2]); }
-    at = mark;
-    while at < end { let id = f.work[at + 1]; let address = f.work[at]; let value = f.work[at + 2]; cg_get(f, value); cg_write_value(p, m, f, id, address, node); at += 3; }
-    f.work.resize(mark);
 }
 fn cg_uleb_width(p: Program&, f: CgBody&, value: i64) -> i64 {
     cg_get(f, value); let remaining = cg_save(f, 0x7e); wb_i32(f.code, 1); let width = cg_save(f, 0x7f);
