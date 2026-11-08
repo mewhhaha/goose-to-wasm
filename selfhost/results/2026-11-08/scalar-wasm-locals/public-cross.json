@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-57/build/bin/goose",
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-bootstrap-57/sources/main.goose",
+    "--stdlib",
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-bootstrap-57/stdlib",
+    "--target",
+    "native",
+    "-O0",
+    "-o",
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-cross-57/compiler.c"
+  ],
+  "exit_code": 0,
+  "seconds": 67.31547385999875,
+  "stdout": "",
+  "stderr": "",
+  "compiler_sha256": "8b33754483aed2a04c8be11ac9c42a062f6c6720cbd58316d3c4b4f236803eb9",
+  "expected_c_sha256": "b03232d61bed94dea5ffa30d408930993654ce8b5a4ad45acbaa160e0f89a3ae",
+  "c_sha256": "b03232d61bed94dea5ffa30d408930993654ce8b5a4ad45acbaa160e0f89a3ae",
+  "status": "passed",
+  "scope": "Public installed compiler re-emits the qualified fixed-point C byte-for-byte using the same frozen workload paths. Separate bootstrap paths embed different diagnostic filenames via cc_location."
+}

@@ -1,0 +1,136 @@
+{
+  "status": "passed",
+  "method": "Lexical counts of every loop subtree in the preserved WAT. Nested loops overlap; counts are not dynamic instruction counts. Candidate binary is byte-identical to the public57 measured module. Function prologues/epilogues and unused standard-library initialization remain outside these loop subtrees.",
+  "rows": {
+    "baseline": {
+      "wasm_sha256": "b2338da428272b85fc4425bc24b9a0e80976530c25e8281fe85d53c49070fb76",
+      "wat_sha256": "1f5de2fea187eb33c896835fb44ddcb19895b3f728602a11d955acf26b7f33d9",
+      "loops": [
+        {
+          "start_line": 392,
+          "sha256": "846bcead8a19546072d73508afcfd7aa669e12a888bcec3aa22c044caeea6463",
+          "load_mentions": 22,
+          "store_mentions": 11,
+          "call_mentions": 33
+        },
+        {
+          "start_line": 485,
+          "sha256": "4c50fed010ad7a045567fe1f7844a5cd8b511d628fd6f2ed78b48d41c9ba1330",
+          "load_mentions": 15,
+          "store_mentions": 5,
+          "call_mentions": 20
+        },
+        {
+          "start_line": 1407,
+          "sha256": "d0713bb4d38f106fa8f94415462a8e3690b7c2a6210214a334c70dda471c5ac2",
+          "load_mentions": 34,
+          "store_mentions": 21,
+          "call_mentions": 55
+        },
+        {
+          "start_line": 1583,
+          "sha256": "b4c98a3a0fc20016876f1f23c46c162647d1bf7c361ae04ec2662bfb61c59c73",
+          "load_mentions": 22,
+          "store_mentions": 11,
+          "call_mentions": 33
+        },
+        {
+          "start_line": 1676,
+          "sha256": "27940192afadf0a8875f2e5b627c220b4d9d7aacc5e40b1046a6ef32779074d2",
+          "load_mentions": 15,
+          "store_mentions": 5,
+          "call_mentions": 20
+        },
+        {
+          "start_line": 2789,
+          "sha256": "0e33459647cbfd4d900ed0aca84442a3ef45089626bab918fa62f180d9e65c17",
+          "load_mentions": 5,
+          "store_mentions": 0,
+          "call_mentions": 0
+        }
+      ]
+    },
+    "resolver": {
+      "wasm_sha256": "c2bf955675c107ed07fed2d981c4aa8e6c517bb0cbbe79bfd826b5d9a8b0198a",
+      "wat_sha256": "003378bd28c56bd82b1301afdefe9ac18a9a62fd9cd064cdb3c5ae6ad4b80909",
+      "loops": [
+        {
+          "start_line": 365,
+          "sha256": "f2612fdc0d04caf719a2f38ec76f48b0a6b5f9ad6da4b02e27b52f0d8f29a4a7",
+          "load_mentions": 22,
+          "store_mentions": 11,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 442,
+          "sha256": "16e480d23119ca774bcb235fda98cc28e4d6348f7d478502cf326c7904647dad",
+          "load_mentions": 15,
+          "store_mentions": 5,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 1269,
+          "sha256": "81aa37a3d94c9665a2640d47b115defb11d149909151f51f1b59d879791e05f1",
+          "load_mentions": 34,
+          "store_mentions": 21,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 1409,
+          "sha256": "3ac3a3062326bb19487aa482b1071be32ea1953a7ba144e24f4fd5bfb657a39f",
+          "load_mentions": 22,
+          "store_mentions": 11,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 1486,
+          "sha256": "e03703fcf92cbd4f3bcf956262c53312977a899473ab7ece55cdc4148279a1ef",
+          "load_mentions": 15,
+          "store_mentions": 5,
+          "call_mentions": 0
+        }
+      ]
+    },
+    "candidate": {
+      "wasm_sha256": "cd7e4ff2aed97d25f32b12989ff015a375eedb9b2ec9dadc46d582d4f320986c",
+      "wat_sha256": "8d6fdb97486961b52c9e6eed367ae480c1560d882fdd92ef06fa1f425d90fb25",
+      "loops": [
+        {
+          "start_line": 206,
+          "sha256": "e4f41769b4ba9063edfccba82551b376ea85926b1557bf8b39d018291192aad2",
+          "load_mentions": 0,
+          "store_mentions": 0,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 247,
+          "sha256": "9a1f79160da290e2293377de0d4435954663e5747a4c9f0bf43d75b31d472e17",
+          "load_mentions": 0,
+          "store_mentions": 0,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 688,
+          "sha256": "55749db59365fefdbcee76fea005784a7c377206f6a5af96fd377345af2036ef",
+          "load_mentions": 0,
+          "store_mentions": 0,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 749,
+          "sha256": "2482df8106dcba43d2808cbf75dcfd2e7837b021ae3ef85cc5ebb69194091c05",
+          "load_mentions": 0,
+          "store_mentions": 0,
+          "call_mentions": 0
+        },
+        {
+          "start_line": 790,
+          "sha256": "e8970f5e2dff85278b01b1671a4578649da269885f75be0034b40cb6dfa343e5",
+          "load_mentions": 0,
+          "store_mentions": 0,
+          "call_mentions": 0
+        }
+      ]
+    }
+  }
+}

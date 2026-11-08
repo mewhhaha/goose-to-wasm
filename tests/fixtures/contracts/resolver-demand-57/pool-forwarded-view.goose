@@ -1,0 +1,1 @@
+fn main() { reusable var pool: i64[>..] = []; print(pool.alloc_index(42)); var values: i64[>..] = [7, 9]; let view = values[0..2]; for i in 0..255 { values.push(i); } print(view[0]); print(view[1]); print(values.len); }

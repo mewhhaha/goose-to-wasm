@@ -1,0 +1,467 @@
+{
+  "schema": "goose-paired-scalar-runtime-v1",
+  "started_utc": "2026-11-08T00:19:17.141463+00:00",
+  "status": "passed",
+  "input": "512 500 1\n",
+  "checksum": 33209574,
+  "cpu": 7,
+  "samples": 7,
+  "warmups": 1,
+  "method": "Smaller input; resident prepared modules, fresh instances outside guest kernel timer. Alternating balanced order per round, one warmup and seven measurements. Separate Node process per module; V8 default tiering not explicitly verified. Shared host.",
+  "module_receipts": {
+    "goose56": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/langbench-trial-2026-11-07/builds/goose-wasm-wasmtime/4/program.wasm",
+      "sha256": "b2338da428272b85fc4425bc24b9a0e80976530c25e8281fe85d53c49070fb76",
+      "bytes": 4341
+    },
+    "goose57": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/completion-runs/langbench-reference-57/builds/goose-wasm-wasmtime/4/program.wasm",
+      "sha256": "cd7e4ff2aed97d25f32b12989ff015a375eedb9b2ec9dadc46d582d4f320986c",
+      "bytes": 2796
+    }
+  },
+  "fingerprints": {
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/paired57-runtime.py": {
+      "sha256": "0f67912a2582f3d6ac2a586a991ffc6ca6cff6be84c42eedabf37b0fd617f67d",
+      "bytes": 3218
+    },
+    "/home/jacobt/src/goose-to-wasm/bench/langbench_hot.py": {
+      "sha256": "a3f56bd400c6ceb70b6377f1df11dd27bdd346a8eb9d1a4934d32788967c395a",
+      "bytes": 17663
+    },
+    "/home/jacobt/src/goose-to-wasm/bench/langbench_hot_v8.mjs": {
+      "sha256": "5401b4d2d003309c4cf7a6b6ab3796f25618eb438cc8651c8967f428c66d9723",
+      "bytes": 1523
+    },
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": {
+      "sha256": "28861bacc2138406b85794be08af7d12b8b8499f04e02ece76f043d9cf0db2f1",
+      "bytes": 13847
+    },
+    "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": {
+      "sha256": "8fffa7b611d1e4b3b02e742f536a69d6dfd69af46c573f00fd0d0a6a3aac1342",
+      "bytes": 10401
+    }
+  },
+  "preparation": {},
+  "runs": [
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": -1,
+      "phase": "warmup",
+      "stdout": "33209574\n1170723807\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1170723807
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": -1,
+      "phase": "warmup",
+      "stdout": "33209574\n83911297\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83911297
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": 0,
+      "phase": "measurement",
+      "stdout": "33209574\n83608292\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83608292
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": 0,
+      "phase": "measurement",
+      "stdout": "33209574\n1172822056\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1172822056
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": 1,
+      "phase": "measurement",
+      "stdout": "33209574\n1172621034\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1172621034
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": 1,
+      "phase": "measurement",
+      "stdout": "33209574\n83587052\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83587052
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": 2,
+      "phase": "measurement",
+      "stdout": "33209574\n83714002\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83714002
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": 2,
+      "phase": "measurement",
+      "stdout": "33209574\n1171810192\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1171810192
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": 3,
+      "phase": "measurement",
+      "stdout": "33209574\n1172013478\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1172013478
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": 3,
+      "phase": "measurement",
+      "stdout": "33209574\n84168376\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 84168376
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": 4,
+      "phase": "measurement",
+      "stdout": "33209574\n84243118\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 84243118
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": 4,
+      "phase": "measurement",
+      "stdout": "33209574\n1173893783\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1173893783
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": 5,
+      "phase": "measurement",
+      "stdout": "33209574\n1174167404\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1174167404
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": 5,
+      "phase": "measurement",
+      "stdout": "33209574\n84912892\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 84912892
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose57",
+      "round": 6,
+      "phase": "measurement",
+      "stdout": "33209574\n84937308\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 84937308
+    },
+    {
+      "engine": "wasmtime",
+      "compiler": "goose56",
+      "round": 6,
+      "phase": "measurement",
+      "stdout": "33209574\n1174348927\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1174348927
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": -1,
+      "phase": "warmup",
+      "stdout": "33209574\n1693494041\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1693494041
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": -1,
+      "phase": "warmup",
+      "stdout": "33209574\n157300207\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 157300207
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": 0,
+      "phase": "measurement",
+      "stdout": "33209574\n82726656\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 82726656
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": 0,
+      "phase": "measurement",
+      "stdout": "33209574\n1439013786\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1439013786
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": 1,
+      "phase": "measurement",
+      "stdout": "33209574\n1431671846\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1431671846
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": 1,
+      "phase": "measurement",
+      "stdout": "33209574\n83628350\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83628350
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": 2,
+      "phase": "measurement",
+      "stdout": "33209574\n83495777\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83495777
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": 2,
+      "phase": "measurement",
+      "stdout": "33209574\n1418758633\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1418758633
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": 3,
+      "phase": "measurement",
+      "stdout": "33209574\n1419563141\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1419563141
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": 3,
+      "phase": "measurement",
+      "stdout": "33209574\n83987913\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83987913
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": 4,
+      "phase": "measurement",
+      "stdout": "33209574\n83818962\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83818962
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": 4,
+      "phase": "measurement",
+      "stdout": "33209574\n1451629752\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1451629752
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": 5,
+      "phase": "measurement",
+      "stdout": "33209574\n1439853171\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1439853171
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": 5,
+      "phase": "measurement",
+      "stdout": "33209574\n83449319\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 83449319
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose57",
+      "round": 6,
+      "phase": "measurement",
+      "stdout": "33209574\n82871180\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 82871180
+    },
+    {
+      "engine": "v8",
+      "compiler": "goose56",
+      "round": 6,
+      "phase": "measurement",
+      "stdout": "33209574\n1438220717\n",
+      "exit_code": 0,
+      "checksum": 33209574,
+      "timed_region_ns": 1438220717
+    }
+  ],
+  "summary": {
+    "wasmtime-goose56": {
+      "n": 7,
+      "median": 1172822056,
+      "mad": 1011864,
+      "min": 1171810192,
+      "max": 1174348927,
+      "samples": [
+        1172822056,
+        1172621034,
+        1171810192,
+        1172013478,
+        1173893783,
+        1174167404,
+        1174348927
+      ]
+    },
+    "wasmtime-goose57": {
+      "n": 7,
+      "median": 84168376,
+      "mad": 560084,
+      "min": 83587052,
+      "max": 84937308,
+      "samples": [
+        83608292,
+        83587052,
+        83714002,
+        84168376,
+        84243118,
+        84912892,
+        84937308
+      ]
+    },
+    "wasmtime-new-over-old": {
+      "n": 7,
+      "median": 0.0717638335086063,
+      "mad": 0.0004757028222236309,
+      "min": 0.07128223831604917,
+      "max": 0.0723271474492521,
+      "samples": [
+        0.07128813068638266,
+        0.07128223831604917,
+        0.07143989920169597,
+        0.07181519460307777,
+        0.0717638335086063,
+        0.07231753471500729,
+        0.0723271474492521
+      ]
+    },
+    "v8-goose56": {
+      "n": 7,
+      "median": 1438220717,
+      "mad": 6548871,
+      "min": 1418758633,
+      "max": 1451629752,
+      "samples": [
+        1439013786,
+        1431671846,
+        1418758633,
+        1419563141,
+        1451629752,
+        1439853171,
+        1438220717
+      ]
+    },
+    "v8-goose57": {
+      "n": 7,
+      "median": 83495777,
+      "mad": 323185,
+      "min": 82726656,
+      "max": 83987913,
+      "samples": [
+        82726656,
+        83628350,
+        83495777,
+        83987913,
+        83818962,
+        83449319,
+        82871180
+      ]
+    },
+    "v8-new-over-old": {
+      "n": 7,
+      "median": 0.057956825515787264,
+      "mad": 0.00045624605061413137,
+      "min": 0.0574884388216695,
+      "max": 0.059164619434141814,
+      "samples": [
+        0.0574884388216695,
+        0.058413071566401395,
+        0.05885129088056799,
+        0.059164619434141814,
+        0.0577412814007962,
+        0.057956825515787264,
+        0.057620627362997445
+      ]
+    }
+  },
+  "finished_utc": "2026-11-08T00:19:39.814471+00:00"
+}

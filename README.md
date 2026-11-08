@@ -1,32 +1,34 @@
 # Goose to Wasm
 
-A [Goose](https://github.com/aardappel/goose) compiler written entirely in Goose. It emits WebAssembly directly and uses native C as a portable bootstrap backend. **Conformance is partial: 100 of 7,787 contract rows fail.**
+A [Goose](https://github.com/aardappel/goose) compiler written entirely in Goose. It emits WebAssembly directly and uses native C for bootstrap. **Conformance is partial: 100 of 7,871 contract rows fail.**
 
 ## Benchmarks
 
-**Langbench Mandelbrot · 2026-11-07.** On the official single-thread input, median timed computation for the same Goose port was 2.42 s native, 35.21 s in resident Wasmtime and 42.54 s in resident V8. [Results and method](bench/results/2026-11-07/langbench-hot/README.md) The execution clock runs after preparation and warmup, excluding compilation, startup, instantiation and I/O.
+**Langbench Mandelbrot · 2026-11-08.** The official single-thread input computes 2,048 × 2,048 pixels with at most 1,000 iterations per pixel. Median timed computation: **2.45 s native, 2.64 s in resident Wasmtime and 2.57 s in resident V8**. Each profile has seven samples after one warmup; setup, compilation, deserialization and instantiation are outside the guest timer. The checksum is 1,038,538,536. [Results and method](bench/results/2026-11-08/scalar-wasm-locals/README.md)
 
-![Langbench Mandelbrot resident computation](bench/charts/langbench-hot-runtime.svg)
+![Mandelbrot runtime by engine](bench/charts/langbench-hot-runtime.svg)
 
-![Langbench Mandelbrot workload build times](bench/charts/langbench-compilation.svg)
+![Mandelbrot complete workload build times](bench/charts/langbench-compilation.svg)
 
-The build chart uses five samples from the separately collected [original trial](bench/results/2026-11-07/langbench-trial/README.md). C includes thread setup and a row queue; the Goose port is scalar. This shared-host trial covers one workload; small differences are inconclusive.
+The workload build chart uses five fresh builds collected before the runtime run. Native bars include C compilation and linking; direct Wasm excludes engine preparation. The C reference uses one thread and a row queue; Goose uses a scalar port.
 
-**2026-11-07 · AMD Ryzen 7 3800X pinned to CPU 7 · lower is better.** Five-sample medians for ten examples using snapshot 56. Cold direct Wasm builds took 50.9–137.2 ms; native C builds took 263.6–1853.6 ms. [Results and method](bench/results/2026-11-07/lifetime-containment-index/README.md)
+**Compiler execution · 2026-11-08.** Across eleven programs, Goose 57 took 3.00× the previous C++ compiler’s time for Wasm emission and 2.21× for C emission (geometric means).. The chart compares the prior optimized C++ compiler with Goose snapshots 56 and 57 across ten examples and Mandelbrot. It times source-to-Wasm and source-to-C with the same `-O2` input, using five samples after one warmup. Downstream C compilation and runtime validation happen after the timer. This measures running each compiler, not building the compiler itself. [Results and method](bench/results/2026-11-08/scalar-wasm-locals/README.md)
 
-![Goose compiler cold build times for ten examples](bench/charts/goose-examples-compilation.svg)
+![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
-Runtime measures process launch through exit, including startup and output. The panels compare compilation on launch, full precompiled Wasmtime, and minimal AOT. Preparation is measured separately.
+**Example programs · 2026-11-08.** Five-sample medians on a shared Ryzen 7 3800X, CPU 7. Complete cold builds took 50.8–158.5 ms for direct Wasm and 257.0–1852.7 ms for native executables. Runtime bars measure fresh launch through exit, including startup and output; AOT preparation is separate.. [Results and method](bench/results/2026-11-08/scalar-wasm-locals/README.md)
 
-![Goose example process times by runtime mode](bench/charts/goose-examples-runtime.svg)
+![Example program build times](bench/charts/goose-examples-compilation.svg)
+
+![Example program process times](bench/charts/goose-examples-runtime.svg)
 
 ![Wasmtime preparation times for ten examples](bench/charts/goose-host-preparation.svg)
 
-Sorting took 172.7 ms with minimal AOT and 119.3 ms natively. Paired comparisons with snapshot 55 remain in the [dated evidence](bench/results/2026-11-07/lifetime-containment-index/README.md).
+The scalar Mandelbrot gain does not extend to every example: sorting still took 180.0 ms with minimal AOT versus 115.5 ms native. All results use a shared host; small gaps are inconclusive.
 
 ## Construction and contracts
 
-The compiler implements loading, parsing, checking, specialization, optimization and code generation in Goose. Bootstrap builds a frozen C seed with a native C compiler, then uses it to build the compiler. Snapshot 56 passed C-only fixed-point verification; its final two generated C outputs match.
+The compiler implements loading, parsing, checking, specialization, optimization and code generation in Goose. Bootstrap builds a frozen C seed with a native C compiler, then uses it to build the compiler. Snapshot 57 passed C-only fixed-point verification; its final two generated C outputs match.
 
 With Python 3, a native C compiler and Node for Wasm execution:
 
@@ -36,6 +38,6 @@ python3 scripts/goose_wasm.py build examples/squares.goose -o build/squares.wasm
 node scripts/run_wasm.mjs build/squares.wasm
 ```
 
-Snapshot 56 passed 7,687 of 7,787 frozen source and output contracts; 100 failed. Against snapshot 55, 0 of 7,779 prior checks improved and none regressed. All 8 new source-authored checks passed. The curated Wasm corpus passed 3,286/3,286 checks each in Wasmtime and V8; all 1,410 curated native controls also passed. The remaining failures are 6 accepted invalid programs and 94 runtime contracts rejected during Goose compilation. All selected runtime checks that reached execution passed. Conformance and bootstrap used no C++ oracle. [Qualification](selfhost/results/2026-11-07/lifetime-containment-index/summary.json)
+Snapshot 57 passed 7,771 of 7,871 frozen source and output contracts, with the same 100 gaps as snapshot 56; all 84 new rows passed. The curated corpus passed 3,370 Wasm checks in each of Wasmtime and V8 and 1,410 native controls. [Qualification](selfhost/results/2026-11-08/scalar-wasm-locals/summary.json)
 
 [Compiler and bootstrap](selfhost/README.md) · [Guide](docs/GUIDE.md) · [Examples](examples/README.md) · [Conformance runner](tests/conformance.py)

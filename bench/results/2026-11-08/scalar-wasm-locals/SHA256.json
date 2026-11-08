@@ -1,0 +1,66 @@
+{
+  "README.md": {
+    "sha256": "d54833b4f26a37f9e80fdeb40dd221e4fda6cc59678979beedc5975ec595ca9a",
+    "bytes": 9696
+  },
+  "benchmark-tests.json": {
+    "sha256": "8c651115520561e10261cbc3b4fb5ff0d9ec5c8de26d1aa14a00af6f046dccd3",
+    "bytes": 2049
+  },
+  "capsule-verification.json": {
+    "sha256": "a1f61111aab6ff55e2b740187b95c7dabad6f70148b8c2a7a0c6ebe3a187a600",
+    "bytes": 877
+  },
+  "chart-verification.json": {
+    "sha256": "e39cf8c9553e694799a821328569babc9cc7f4d09b781f13ad6956a8cc3ea0cc",
+    "bytes": 19121
+  },
+  "compilation-reference.json": {
+    "sha256": "720fab0c98f7c35f70cc6ecb0c3387766ee7316c905817f97fd01036db163468",
+    "bytes": 212578
+  },
+  "compiler-comparison.json": {
+    "sha256": "9fc77a577734396903e59f2a016d1ef7fcc8d2cddc56bd90b906e70d0dce21ea",
+    "bytes": 867467
+  },
+  "examples.json": {
+    "sha256": "f0ee2e9ed35b1dbe6fc7895d34c71d6185acb947650e3511e08c25f807ba9855",
+    "bytes": 585072
+  },
+  "host.json": {
+    "sha256": "6a88fe2ddd6e68fc7815a0f2c2fe36225dd7fc9ceeb7e7f70e9dc5aa902d54c4",
+    "bytes": 499938
+  },
+  "inspection.json": {
+    "sha256": "29a2d65f36c86852e2550f16da48eab74c76223a304088ed91a16804bfd448e4",
+    "bytes": 4711
+  },
+  "mandelbrot.baseline.wat.gz": {
+    "sha256": "2395231e9fb99db47630314b70a6feb667dc3c998634bf51c439b85af06106ae",
+    "bytes": 4988
+  },
+  "mandelbrot.candidate.wat.gz": {
+    "sha256": "1782eb6c419ae7fa4c7a0158bc601c0101a8234f3a8e7f39e4229daa4f568963",
+    "bytes": 3407
+  },
+  "metrics.json": {
+    "sha256": "760900fcf84bc0e41ff5a821244873e700f3f7edd219bd444904094c36a775b6",
+    "bytes": 12580
+  },
+  "paired-runtime.json": {
+    "sha256": "24ce386b8f38425db0f4107749c50410c33c99e3861f31c574892fd847b0a1f1",
+    "bytes": 11787
+  },
+  "report.json": {
+    "sha256": "f02f2390546b1b76983aee53f528f650dbad3a323eef1350000ab9cae3743c04",
+    "bytes": 264273
+  },
+  "reproduction.tar.gz": {
+    "sha256": "2bd6a0b3522e3c4ef64526ab25549485dde934ea77bf1fcf16ad8cf08945c10b",
+    "bytes": 13332946
+  },
+  "validation.json": {
+    "sha256": "2fbab6dd2959ba20a02a79accaf7f6cbabdbfa1a1560729ec46e6f757ac7e786",
+    "bytes": 1594
+  }
+}

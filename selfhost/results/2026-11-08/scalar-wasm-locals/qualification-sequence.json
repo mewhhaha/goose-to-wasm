@@ -1,0 +1,124 @@
+{
+  "status": "passed",
+  "commands": [
+    {
+      "label": "public-bootstrap-57",
+      "command": [
+        "/usr/bin/python3",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-57/scripts/bootstrap.py",
+        "--verify"
+      ],
+      "exit_code": 0,
+      "seconds": 222.4827063269986,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-bootstrap-57.log"
+    },
+    {
+      "label": "public-smoke-57",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualify57-public-smoke.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0823410299999523,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-smoke-57.log"
+    },
+    {
+      "label": "public-cross-57",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualify57-public-cross.py"
+      ],
+      "exit_code": 0,
+      "seconds": 67.36835014900134,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-cross-57.log"
+    },
+    {
+      "label": "v8-57",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualify57-v8.py",
+        "--compiler",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-bootstrap-57/goose",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-v8-57-qualified",
+        "--jobs",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 348.52052731000003,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/v8-57.log"
+    },
+    {
+      "label": "conformance-57",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/durable-tools/conformance_shards.py",
+        "--compiler",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-bootstrap-57/goose",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-conformance-57-qualified",
+        "--jobs",
+        "4"
+      ],
+      "exit_code": 1,
+      "seconds": 392.2899370830055,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/conformance-57.log"
+    },
+    {
+      "label": "astra-canonical57",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/astra-resolver-57/check.py",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-bootstrap-57/goose",
+        "canonical57",
+        "valid-manifest.json"
+      ],
+      "exit_code": 0,
+      "seconds": 3.6271547849974013,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/astra-canonical57.log"
+    },
+    {
+      "label": "astra-canonical57-scalar",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/astra-resolver-57/check.py",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-bootstrap-57/goose",
+        "canonical57-scalar",
+        "scalar-supplement-manifest.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17291284800012363,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/astra-canonical57-scalar.log"
+    },
+    {
+      "label": "compare-57",
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/compare_delivery_v2.py",
+        "57"
+      ],
+      "exit_code": 0,
+      "seconds": 0.25277629300398985,
+      "log": "/home/jacobt/src/goose-to-wasm/build/completion-runs/compare-57.log"
+    }
+  ],
+  "expected_full_rows": 7871,
+  "expected_curated_rows": 4780,
+  "expected_new_rows": 84,
+  "compiler": "/home/jacobt/src/goose-to-wasm/build/completion-runs/c-only-bootstrap-57/goose",
+  "full_summary": {
+    "selected": 7871,
+    "passed": 7771,
+    "failed": 100
+  },
+  "curated_v8_summary": {
+    "selected": 4780,
+    "passed": 4780,
+    "failed": 0
+  },
+  "remaining_phases": {
+    "compiler_refusal": 94,
+    "c_compiler_failure": 0,
+    "executed_mismatch": 0
+  }
+}

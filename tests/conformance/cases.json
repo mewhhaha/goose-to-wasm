@@ -64997,6 +64997,1078 @@
           "a relative reference pool cannot contain its pointee type"
         ]
       }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/scalar-import/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-demand-57/scalar-import.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "e282a2b60fcab13e0fa1af00c44db61e29d6d888a391d20ebc8dd8f82263c0f7",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/scalar-import/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-demand-57/scalar-import.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "e282a2b60fcab13e0fa1af00c44db61e29d6d888a391d20ebc8dd8f82263c0f7",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/fixed-array/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-demand-57/fixed-array.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "762389922a142466c462c541c947d27fdec62db3cb7ec6b374604113ced95533",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/fixed-array/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-demand-57/fixed-array.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "762389922a142466c462c541c947d27fdec62db3cb7ec6b374604113ced95533",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/forwarded-view/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-demand-57/forwarded-view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n9\n257\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "9b527538d07a2895907609956804db23e0197cbb506bebe13c79d11e34e03e55",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/forwarded-view/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-demand-57/forwarded-view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "7\n9\n257\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "9b527538d07a2895907609956804db23e0197cbb506bebe13c79d11e34e03e55",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/capture-growth/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-demand-57/capture-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n257\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "52b9230010359785fe80c29118cf0e128231088ecbaae3f0ebc9a25a8842be0c",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/capture-growth/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-demand-57/capture-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "7\n257\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "52b9230010359785fe80c29118cf0e128231088ecbaae3f0ebc9a25a8842be0c",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/default-growth/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-demand-57/default-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "257\n7\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "bd715931e13bb4cc0203d2c5efa47db68bff76044554644da64af2ffd2c11525",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/default-growth/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-demand-57/default-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "257\n7\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "bd715931e13bb4cc0203d2c5efa47db68bff76044554644da64af2ffd2c11525",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/aggregate-temp/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-demand-57/aggregate-temp.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "82d067e5a4bc78f0e70daafe7c87c1414d3ea70000901572175d6f5679c9bd36",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/aggregate-temp/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-demand-57/aggregate-temp.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "82d067e5a4bc78f0e70daafe7c87c1414d3ea70000901572175d6f5679c9bd36",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/pool-forwarded-view/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-demand-57/pool-forwarded-view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0\n7\n9\n257\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "d585e8d5e432f76a8854d006f07c29fbb09b6dd11783c353b69fec0aea7edb1f",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-demand-57/pool-forwarded-view/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-demand-57/pool-forwarded-view.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "0\n7\n9\n257\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-demand-57/controls/contracts.json",
+        "source_sha256": "d585e8d5e432f76a8854d006f07c29fbb09b6dd11783c353b69fec0aea7edb1f",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/locals/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/locals.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "32\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "e5b91785ccf28141f491041882c484a2236dddc8848066a210d2e50f8e30b13d",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/locals/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/locals.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "32\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "e5b91785ccf28141f491041882c484a2236dddc8848066a210d2e50f8e30b13d",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/capture/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/capture.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "5\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "641a89b05eaa8c67c91d374c110fca8202ee24eef6ec48751527dac24074d01d",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/capture/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/capture.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "5\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "641a89b05eaa8c67c91d374c110fca8202ee24eef6ec48751527dac24074d01d",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/capture-param/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/capture-param.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "a6407cd5077d15b3697259223a0fc4a8e97ae03652babea3eb41568f17cefb75",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/capture-param/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/capture-param.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "a6407cd5077d15b3697259223a0fc4a8e97ae03652babea3eb41568f17cefb75",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/fixed-assignment/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/fixed-assignment.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "7\n17\n12\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "b18a1c058d12ec879f426f4301d1a504869a1544a845d3ca0a07c1405d8b1e84",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/fixed-assignment/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/fixed-assignment.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "7\n17\n12\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "b18a1c058d12ec879f426f4301d1a504869a1544a845d3ca0a07c1405d8b1e84",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/ref-fallback/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/ref-fallback.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "39e5fb53d0a1f190c651ad1e7039515a10360c0c9d6a8baf94274c45d823a5d0",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/ref-fallback/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/ref-fallback.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "39e5fb53d0a1f190c651ad1e7039515a10360c0c9d6a8baf94274c45d823a5d0",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/narrow/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/narrow.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0\n-32768\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "30eb98c35f8cf9849671597ce290293e6d4e89e541a299c4181ddcc2e19b09e2",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/narrow/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/narrow.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero",
+        "stderr_contains": [
+          "signed integer overflow"
+        ]
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "30eb98c35f8cf9849671597ce290293e6d4e89e541a299c4181ddcc2e19b09e2",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission.",
+        "debug_contract": "Predeclared signed overflow guard; fail before output in checked O0."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/wide/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/wide.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0\n-9223372036854775808\n18446744073709551615\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "99d30ac32a44f6e310e17353d9b2204ad1ccda99f8a2fcb1459b51549a2f0df1",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/wide/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/wide.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "0\n-9223372036854775808\n18446744073709551615\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "99d30ac32a44f6e310e17353d9b2204ad1ccda99f8a2fcb1459b51549a2f0df1",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/f32/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/f32.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "16777216\n2\n2.5\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "c54c3624dff6dd62f6c23455ac259265c9802ec37d5775a6fea832218e31cae5",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/f32/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/f32.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "16777216\n2\n2.5\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "c54c3624dff6dd62f6c23455ac259265c9802ec37d5775a6fea832218e31cae5",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/bool/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/bool.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "true\nfalse\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "70ca8cbc89500e8a5eacb14b914683abf156292eda028da3ea1652c50686b857",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/bool/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/bool.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "true\nfalse\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "70ca8cbc89500e8a5eacb14b914683abf156292eda028da3ea1652c50686b857",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/for-bindings/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/for-bindings.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "45\n63\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "8a29d8afe65653d7e0f7f9c0489dba7bcb1849f39063a369631e746ea83469f5",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/for-bindings/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/for-bindings.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "45\n63\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "8a29d8afe65653d7e0f7f9c0489dba7bcb1849f39063a369631e746ea83469f5",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/overflow/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/overflow.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "-2147483648\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "7eaa837dfa8c8383f8aa686e3c8948295982a03326f1eb450e92122119de7fea",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/overflow/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/overflow.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero",
+        "stderr_contains": [
+          "signed integer overflow"
+        ]
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "7eaa837dfa8c8383f8aa686e3c8948295982a03326f1eb450e92122119de7fea",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission.",
+        "debug_contract": "Predeclared signed overflow guard; fail before output in checked O0."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/nonlocal-capture/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/nonlocal-capture.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "2\n5\n42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "c47731949d06382571c0482455567f282e5f6df1a25a56209946685943ef47df",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-scalars-57/nonlocal-capture/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-scalars-57/nonlocal-capture.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "2\n5\n42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/resolver-scalars-57/controls/contracts.json",
+        "source_sha256": "c47731949d06382571c0482455567f282e5f6df1a25a56209946685943ef47df",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/fixed-scalar-table/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/fixed-scalar-table.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "52\n3\n6\n22\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "454b21369428ad2c2cb8f0b308c6b70efb4c510024fd6ddd8b080ab097033aa1",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/fixed-scalar-table/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/fixed-scalar-table.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "52\n3\n6\n22\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "454b21369428ad2c2cb8f0b308c6b70efb4c510024fd6ddd8b080ab097033aa1",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/global-initializer-growth/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/global-initializer-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "33\n11\n31\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "75f653bcdaf3a12a28b460fcd9add86d7ed2295f8f65ba0e7cd689a55caac438",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/global-initializer-growth/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/global-initializer-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "33\n11\n31\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "75f653bcdaf3a12a28b460fcd9add86d7ed2295f8f65ba0e7cd689a55caac438",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/field-parameter-default-growth/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/field-parameter-default-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n2\n10\n3\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "25bae036c95f24bb236f35e8df9eb7c358b5fbad25d6560675fb035771c076c0",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/field-parameter-default-growth/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/field-parameter-default-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "3\n2\n10\n3\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "25bae036c95f24bb236f35e8df9eb7c358b5fbad25d6560675fb035771c076c0",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/temporary-format-bytes/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/temporary-format-bytes.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "3\n4\n12\n97\n98\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "b4f8aaab846278926db9f6026a07451b3b653ff3082125b0351a512ce86b3574",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/temporary-format-bytes/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/temporary-format-bytes.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "3\n4\n12\n97\n98\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "b4f8aaab846278926db9f6026a07451b3b653ff3082125b0351a512ce86b3574",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/nested-capture-growth/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/nested-capture-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "17\n65\n63\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "afcb82a5160a87302fda014359d654ffd5cd2e587877361cad627b15b34c08fa",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/nested-capture-growth/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/nested-capture-growth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "17\n65\n63\n1\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "afcb82a5160a87302fda014359d654ffd5cd2e587877361cad627b15b34c08fa",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/scalar-reference-fallback/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/scalar-reference-fallback.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "9f8f5dce1a6fdc367e05edb11593c49a1b232a59610e1bf1a67aea932a9acf92",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/scalar-reference-fallback/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/scalar-reference-fallback.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "42\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "9f8f5dce1a6fdc367e05edb11593c49a1b232a59610e1bf1a67aea932a9acf92",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/pool-push-append-and-resize/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/pool-push-append-and-resize.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0\n17\n9\n7\n9\n36\n42\n129\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "515eaa8d2c0e13cfc22a968089c3efc8618ca0ec5aaaba21bf574b047aeaffe1",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/pool-push-append-and-resize/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/pool-push-append-and-resize.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "0\n17\n9\n7\n9\n36\n42\n129\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "515eaa8d2c0e13cfc22a968089c3efc8618ca0ec5aaaba21bf574b047aeaffe1",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/pool-varint-iterator-alias/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/pool-varint-iterator-alias.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "0\n1\n1\n-2\n2014\n68\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "e54a9725562e12870356aa0b0c6d3d3928ec6ec8ce3c628f9f9ce0b09d748df0",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/pool-varint-iterator-alias/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/pool-varint-iterator-alias.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "0\n1\n1\n-2\n2014\n68\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/valid-manifest.json",
+        "source_sha256": "e54a9725562e12870356aa0b0c6d3d3928ec6ec8ce3c628f9f9ce0b09d748df0",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/nonlocal-scalar-capture/wasm-direct",
+      "source": "tests/fixtures/contracts/resolver-review-57/nonlocal-scalar-capture.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "expect": {
+        "stdout": "25\n0\n18\n9\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/scalar-supplement-manifest.json",
+        "source_sha256": "6fa1e6000d7c85090718f8ab5303b09258593257be1c4a2d02bb6be589a93484",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      }
+    },
+    {
+      "id": "corpus/contracts/resolver-review-57/nonlocal-scalar-capture/wasm-direct/debug",
+      "source": "tests/fixtures/contracts/resolver-review-57/nonlocal-scalar-capture.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0
+      ],
+      "expect": {
+        "stdout": "25\n0\n18\n9\n",
+        "exit": 0
+      },
+      "provenance": {
+        "manifest": "build/completion-runs/astra-resolver-57/scalar-supplement-manifest.json",
+        "source_sha256": "6fa1e6000d7c85090718f8ab5303b09258593257be1c4a2d02bb6be589a93484",
+        "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
+      },
+      "debug": true
     }
   ],
   "legacy_math_capture": {

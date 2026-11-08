@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "capsule_sha256": "c79395aceebdf519744971b8a37d36742331f83810232690147a13db9c22d563",
+  "commands": [
+    {
+      "command": [
+        "python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualify57-capsule-verification/extracted/REPRODUCE.py",
+        "verify"
+      ],
+      "exit_code": 0,
+      "stdout": "All archived inputs match their recorded hashes.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualify57-capsule-verification/extracted/REPRODUCE.py",
+        "compose",
+        "--output-dir",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualify57-capsule-verification/composed"
+      ],
+      "exit_code": 0,
+      "stdout": "patching file selfhost/codegen.goose\nParent source plus sealed patch reproduces all snapshot57 compiler/native inputs.\n",
+      "stderr": ""
+    }
+  ],
+  "covered_pin_paths": 3644,
+  "excluded_prebuilt_executables": 5,
+  "checks": "Every archived file hash; safe extraction; parent56+combinedpatch composition; all qualified stdlib hashes; every non-binary qualification input pin represented. No rebuild or performance run."
+}

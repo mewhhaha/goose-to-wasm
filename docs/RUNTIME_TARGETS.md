@@ -1,6 +1,7 @@
 # Runtime targets
 
-These are qualified empirical references for this source, workload, toolchain and machine, not universal ceilings. Native C executes directly; the Wasm candidates use Wasmtime 50's default AOT path. The chart and table use fresh paired rounds for the current compiler against the same frozen reference selections. Times below are median milliseconds per configured measured iteration count, not per single iteration; ratios in the evidence are paired by confirmation round.
+The table is a **historical November 4 reference**, measured with the earlier C++ compiler, not the current Goose compiler. It is useful for the recorded source, workload, toolchain and machine, and does not establish a current native ceiling. Native C executes directly; Wasm candidates use Wasmtime 50's default AOT path. Times are median milliseconds per configured measured iteration count, not per single iteration; ratios in the evidence are paired by confirmation round.
+
 
 | Workload | Direct Wasm | Selected Wasm | Selected native |
 | --- | ---: | ---: | ---: |

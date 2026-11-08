@@ -92,13 +92,18 @@ Use `--compile-samples 0` to compare preserved artifacts when the original
 compiler executables are unavailable. See the
 [runtime work and reproduction commands](../docs/RUNTIME_PERFORMANCE.md).
 
-## Snapshot 56 results
+## Snapshot 57 results
 
-The [dated example results](results/2026-11-07/lifetime-containment-index/README.md) record the compiler, workload, toolchain and engine identities, raw measurements and limitations. Paired minimal AOT process ratios versus snapshot 55 ranged 0.930–1.022, with a median workload ratio of 0.988; the native-control median was 0.997. Matched cold direct-build ratios ranged 0.991–1.002, with a median workload ratio of 1.001. All ten Wasm modules are byte-identical. No broad speedup is established.
+The [dated results](results/2026-11-08/scalar-wasm-locals/README.md) record exact compiler, source, workload and engine identities, raw measurements and limitations. Official Mandelbrot computation took 2.64 s in resident Wasmtime, 2.57 s in resident V8 and 2.45 s natively. The separate compiler execution comparison measures three compilers across eleven programs: Goose 57 took 3.00× the previous optimized C++ compiler’s time to emit Wasm and 2.21× to emit C (geometric means). These frontend timings exclude downstream C compilation, unlike the complete-build chart.
 
-## Langbench Mandelbrot
+```sh
+python3 bench/compare_compilers.py \
+  --cpp /path/to/previous-cpp/goose --parent /path/to/goose56 \
+  --candidate build/bin/goose --parent-source /path/to/snapshot56/selfhost \
+  --candidate-source selfhost --output-dir build/compiler-comparison
+```
 
-The [trial guide](langbench/README.md) describes resident Wasmtime and V8 execution, native controls, checksums and reproduction. [Results](results/2026-11-07/langbench-hot/README.md) use the same artifacts as the separately collected [original trial](results/2026-11-07/langbench-trial/README.md), which also supplies the workload build measurements. The C reference includes thread setup and a row queue while Goose is scalar.
+The [Langbench guide](langbench/README.md) describes the resident runtime boundary. The [previous snapshot 56 results](results/2026-11-07/langbench-hot/README.md) were collected separately. A new alternating comparison on the smaller input confirmed 13.93× Wasmtime and 17.25× V8 runtime improvements. This is a scalar-module optimization; the ten full examples remain separate process benchmarks.
 
 ## Example programs
 

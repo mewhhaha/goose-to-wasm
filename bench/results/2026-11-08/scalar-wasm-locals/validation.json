@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "qualified_hot_cells": 18,
+  "hot_checks": 144,
+  "compiler_cells": 66,
+  "compiler_checks": 396,
+  "capsule_files": 4482,
+  "capsule_sha256": "2bd6a0b3522e3c4ef64526ab25549485dde934ea77bf1fcf16ad8cf08945c10b",
+  "capsule_bytes": 13332946,
+  "report_sha256": {
+    "report.json": "f02f2390546b1b76983aee53f528f650dbad3a323eef1350000ab9cae3743c04",
+    "compilation-reference.json": "720fab0c98f7c35f70cc6ecb0c3387766ee7316c905817f97fd01036db163468",
+    "compiler-comparison.json": "9fc77a577734396903e59f2a016d1ef7fcc8d2cddc56bd90b906e70d0dce21ea",
+    "examples.json": "f0ee2e9ed35b1dbe6fc7895d34c71d6185acb947650e3511e08c25f807ba9855",
+    "host.json": "6a88fe2ddd6e68fc7815a0f2c2fe36225dd7fc9ceeb7e7f70e9dc5aa902d54c4",
+    "paired-runtime.json": "24ce386b8f38425db0f4107749c50410c33c99e3861f31c574892fd847b0a1f1"
+  },
+  "capsule_storage": "Hash-addressed objects; RESTORE.py recreates every manifest path and mode into a new directory.",
+  "capsule_unique_objects": 1070,
+  "restore_script_sha256": "8eee9a380e2aed1471039a8069c32f43253e0a5c807a9bf68b5ed86a9dbd6871",
+  "focused_benchmark_tests": {
+    "passed": 28,
+    "files": [
+      "test_langbench.py",
+      "test_langbench_hot.py",
+      "test_python_wasmtime.py",
+      "test_compare_compilers.py",
+      "test_compiler_comparison_charts.py"
+    ]
+  },
+  "chart_visual_review": "Compiler comparison, resident runtime and full examples rendered to PNG and visually checked; no overlap or clipping.",
+  "capsule_restore_status": "passed; 4482 files restored, exact public compiler re-emits measured Wasm"
+}

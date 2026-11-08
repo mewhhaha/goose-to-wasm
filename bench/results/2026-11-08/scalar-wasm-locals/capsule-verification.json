@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "restored_files": 4482,
+  "verified_objects": 1070,
+  "command": [
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/benchmark57-restored/build/completion-runs/public-57/build/bin/goose",
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/benchmark57-restored/bench/langbench/mandelbrot.goose",
+    "--stdlib",
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/benchmark57-restored/stdlib",
+    "--target",
+    "wasm-direct",
+    "-O2",
+    "--wasm-initial-pages",
+    "16",
+    "--wasm-max-pages",
+    "256",
+    "-o",
+    "/home/jacobt/src/goose-to-wasm/build/completion-runs/restored57.wasm"
+  ],
+  "exit_code": 0,
+  "stderr": "",
+  "restored_compiler_sha256": "8b33754483aed2a04c8be11ac9c42a062f6c6720cbd58316d3c4b4f236803eb9",
+  "reemitted_wasm_sha256": "cd7e4ff2aed97d25f32b12989ff015a375eedb9b2ec9dadc46d582d4f320986c"
+}
