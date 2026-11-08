@@ -1,9 +1,9 @@
 // Deterministic WebAssembly binary encoding. This module has no assembler,
 // native compiler, filesystem, or process dependency.
 
-fn wb_byte(out: u8[>..]&, value: i64) { out.push((value & 255) as u8); }
+inline fn wb_byte(out: u8[>..]&, value: i64) { out.push((value & 255) as u8); }
 
-fn wb_u(out: u8[>..]&, value: i64) {
+inline fn wb_u(out: u8[>..]&, value: i64) {
     var remaining = value as! u64;
     loop {
         var byte = (remaining & 127) as u8;
@@ -14,7 +14,7 @@ fn wb_u(out: u8[>..]&, value: i64) {
     }
 }
 
-fn wb_s(out: u8[>..]&, value: i64) {
+inline fn wb_s(out: u8[>..]&, value: i64) {
     var remaining = value;
     loop {
         let byte = remaining & 127;
@@ -27,7 +27,7 @@ fn wb_s(out: u8[>..]&, value: i64) {
 }
 
 fn wb_raw(out: u8[>..]&, bytes: u8[:]) {
-    for byte in bytes { out.push(byte); }
+    out.append(bytes);
 }
 
 fn wb_name(out: u8[>..]&, name: u8[:]) {
@@ -41,18 +41,18 @@ fn wb_section(out: u8[>..]&, kind: i64, payload: u8[:]) {
     wb_raw(out, payload);
 }
 
-fn wb_op(out: u8[>..]&, opcode: i64, argument: i64) {
+inline fn wb_op(out: u8[>..]&, opcode: i64, argument: i64) {
     wb_byte(out, opcode);
     wb_u(out, argument);
 }
 
-fn wb_i32(out: u8[>..]&, value: i64) {
+inline fn wb_i32(out: u8[>..]&, value: i64) {
     wb_byte(out, 0x41);
     // Wasm's i32 immediate is signed even when its value is an address.
     wb_s(out, (value as! u32) as! i32);
 }
 
-fn wb_i64(out: u8[>..]&, value: i64) { wb_byte(out, 0x42); wb_s(out, value); }
+inline fn wb_i64(out: u8[>..]&, value: i64) { wb_byte(out, 0x42); wb_s(out, value); }
 
 fn wb_f32(out: u8[>..]&, value: f64) {
     wb_byte(out, 0x43);
@@ -68,7 +68,7 @@ fn wb_f64(out: u8[>..]&, value: f64) {
     wb_raw(out, bytes);
 }
 
-fn wb_mem(out: u8[>..]&, opcode: i64, alignment: i64, offset: i64) {
+inline fn wb_mem(out: u8[>..]&, opcode: i64, alignment: i64, offset: i64) {
     wb_byte(out, opcode);
     wb_u(out, alignment);
     wb_u(out, offset);

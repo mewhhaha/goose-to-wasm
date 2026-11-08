@@ -29,8 +29,10 @@ class CompilerComparisonCharts(unittest.TestCase):
         cases = [dict(name=name, source=str(self.source), source_sha256=CHARTS.bench.cold.sha256(self.source),
                       expected_path=str(self.golden), expected_sha256=CHARTS.bench.cold.sha256(self.golden), stdin="")
                  for name in CHARTS.LABELS]
-        self.report = dict(schema="goose-compiler-comparison-v1", status="failed", samples=1,
+        self.report = dict(schema="goose-compiler-comparison-v2", status="failed", samples=1,
             inputs_unchanged=True, artifacts_unchanged=True, workloads=cases, builds=[], validations={},
+            compiler_order=list(CHARTS.bench.COMPILERS),
+            compiler_labels={"cpp": "Previous C++", "parent": "Experiment Parent", "candidate": "Experiment Candidate"},
             compilers={name: dict(path=str(compiler), sha256=CHARTS.bench.cold.sha256(compiler)) for name in CHARTS.bench.COMPILERS},
             configuration=dict(cpu="7", node="node", cc="gcc", stdlib=str(ROOT / "stdlib")))
         for name, case, target in itertools.product(CHARTS.bench.COMPILERS, cases, CHARTS.bench.TARGETS):
@@ -73,6 +75,40 @@ class CompilerComparisonCharts(unittest.TestCase):
                 report["builds"][0]["artifact_sha256"] = "0" * 64
             with self.assertRaises(ValueError, msg=mutation):
                 CHARTS.checked_rows(report)
+
+    def test_v2_named_compilers_and_labels_are_used(self):
+        rows = CHARTS.checked_rows(self.report)
+        self.assertEqual({row["compiler"] for row in rows.values()}, set(("cpp", "parent", "candidate")))
+        self.assertEqual([label for _, label, _ in CHARTS.compiler_specs(self.report)],
+                         ["Previous C++", "Experiment Parent", "Experiment Candidate"])
+        for field in ("compiler_order", "compiler_labels"):
+            report = copy.deepcopy(self.report)
+            if field == "compiler_order":
+                report[field] = ["cpp", "candidate", "parent"]
+            else:
+                report[field].pop("candidate")
+            with self.assertRaises(ValueError, msg=field):
+                CHARTS.checked_rows(report)
+        report = copy.deepcopy(self.report)
+        report["compiler_labels"]["candidate"] = ""
+        with self.assertRaises(ValueError, msg="empty compiler label"):
+            CHARTS.checked_rows(report)
+
+    def test_v1_snapshot_named_report_remains_readable(self):
+        report = copy.deepcopy(self.report)
+        report["schema"] = "goose-compiler-comparison-v1"
+        report.pop("compiler_order")
+        report.pop("compiler_labels")
+        old_names = {"parent": "goose56", "candidate": "goose57"}
+        report["compilers"] = {old_names.get(name, name): value for name, value in report["compilers"].items()}
+        for row in report["builds"]:
+            row["compiler"] = old_names.get(row["compiler"], row["compiler"])
+        report["summary"] = CHARTS.bench.summaries(report)
+        rows = CHARTS.checked_rows(report)
+        self.assertTrue(all(name in {"cpp", "goose56", "goose57"} for _, _, name in rows))
+        self.assertEqual([label for _, label, _ in CHARTS.compiler_specs(report)],
+                         ["Previous C++", "Goose 56", "Goose 57"])
+        self.assertEqual(len(rows), 66)
 
     def test_plot_receipt_uses_null_for_unavailable_cells(self):
         rows = CHARTS.checked_rows(self.report)

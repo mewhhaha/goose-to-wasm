@@ -1,10 +1,10 @@
 import model;
 
 
-fn lex_alpha(c: u8) -> bool {
+inline fn lex_alpha(c: u8) -> bool {
     return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
 }
-fn lex_digit(c: u8) -> bool { return c >= '0' && c <= '9'; }
+inline fn lex_digit(c: u8) -> bool { return c >= '0' && c <= '9'; }
 fn lex_hex(c: u8) -> i64 {
     if lex_digit(c) { return c as i64 - 48; }
     if c >= 'a' && c <= 'f' { return c as i64 - 87; }
@@ -18,60 +18,95 @@ fn lex_equal(p: Program&, start: i64, end: i64, word: const u8[:]) -> bool {
 }
 
 fn lex_keyword(p: Program&, start: i64, end: i64) -> i64 {
-    if lex_equal(p, start, end, "import") { return T_IMPORT; }
-    if lex_equal(p, start, end, "namespace") { return T_NAMESPACE; }
-    if lex_equal(p, start, end, "struct") { return T_STRUCT; }
-    if lex_equal(p, start, end, "enum") { return T_ENUM; }
-    if lex_equal(p, start, end, "type") { return T_TYPE; }
-    if lex_equal(p, start, end, "fn") { return T_FN; }
-    if lex_equal(p, start, end, "thread_fn") { return T_THREADFN; }
-    if lex_equal(p, start, end, "export") { return T_EXPORT; }
-    if lex_equal(p, start, end, "simd") { return T_SIMD; }
-    if lex_equal(p, start, end, "recursive") { return T_RECURSIVE; }
-    if lex_equal(p, start, end, "let") { return T_LET; }
-    if lex_equal(p, start, end, "var") { return T_VAR; }
-    if lex_equal(p, start, end, "extern") { return T_EXTERN; }
-    if lex_equal(p, start, end, "const") { return T_CONST; }
-    if lex_equal(p, start, end, "pad") { return T_PAD; }
-    if lex_equal(p, start, end, "reusable") { return T_REUSABLE; }
-    if lex_equal(p, start, end, "if") { return T_IF; }
-    if lex_equal(p, start, end, "else") { return T_ELSE; }
-    if lex_equal(p, start, end, "while") { return T_WHILE; }
-    if lex_equal(p, start, end, "for") { return T_FOR; }
-    if lex_equal(p, start, end, "in") { return T_IN; }
-    if lex_equal(p, start, end, "loop") { return T_LOOP; }
-    if lex_equal(p, start, end, "block") { return T_BLOCK; }
-    if lex_equal(p, start, end, "guard") { return T_GUARD; }
-    if lex_equal(p, start, end, "match") { return T_MATCH; }
-    if lex_equal(p, start, end, "return") { return T_RETURN; }
-    if lex_equal(p, start, end, "break") { return T_BREAK; }
-    if lex_equal(p, start, end, "continue") { return T_CONTINUE; }
-    if lex_equal(p, start, end, "as") { return T_AS; }
-    if lex_equal(p, start, end, "true") { return T_TRUE; }
-    if lex_equal(p, start, end, "false") { return T_FALSE; }
-    if lex_equal(p, start, end, "null") { return T_NULLLIT; }
-    if lex_equal(p, start, end, "self") { return T_SELF; }
-    if lex_equal(p, start, end, "bool") { return T_TBOOL; }
-    if lex_equal(p, start, end, "varint") { return T_TVARINT; }
-    if lex_equal(p, start, end, "i8") { return T_TI8; }
-    if lex_equal(p, start, end, "i16") { return T_TI16; }
-    if lex_equal(p, start, end, "i32") { return T_TI32; }
-    if lex_equal(p, start, end, "i64") { return T_TI64; }
-    if lex_equal(p, start, end, "u8") { return T_TU8; }
-    if lex_equal(p, start, end, "u16") { return T_TU16; }
-    if lex_equal(p, start, end, "u32") { return T_TU32; }
-    if lex_equal(p, start, end, "u64") { return T_TU64; }
-    if lex_equal(p, start, end, "f32") { return T_TF32; }
-    if lex_equal(p, start, end, "f64") { return T_TF64; }
+    if end <= start { return T_IDENT; }
+    if p.text[start] == 'i' {
+        if lex_equal(p, start, end, "import") { return T_IMPORT; }
+        if lex_equal(p, start, end, "if") { return T_IF; }
+        if lex_equal(p, start, end, "in") { return T_IN; }
+        if lex_equal(p, start, end, "i8") { return T_TI8; }
+        if lex_equal(p, start, end, "i16") { return T_TI16; }
+        if lex_equal(p, start, end, "i32") { return T_TI32; }
+        if lex_equal(p, start, end, "i64") { return T_TI64; }
+    }
+    if p.text[start] == 'n' {
+        if lex_equal(p, start, end, "namespace") { return T_NAMESPACE; }
+        if lex_equal(p, start, end, "null") { return T_NULLLIT; }
+    }
+    if p.text[start] == 's' {
+        if lex_equal(p, start, end, "struct") { return T_STRUCT; }
+        if lex_equal(p, start, end, "simd") { return T_SIMD; }
+        if lex_equal(p, start, end, "self") { return T_SELF; }
+    }
+    if p.text[start] == 'e' {
+        if lex_equal(p, start, end, "enum") { return T_ENUM; }
+        if lex_equal(p, start, end, "export") { return T_EXPORT; }
+        if lex_equal(p, start, end, "extern") { return T_EXTERN; }
+        if lex_equal(p, start, end, "else") { return T_ELSE; }
+    }
+    if p.text[start] == 't' {
+        if lex_equal(p, start, end, "type") { return T_TYPE; }
+        if lex_equal(p, start, end, "thread_fn") { return T_THREADFN; }
+        if lex_equal(p, start, end, "true") { return T_TRUE; }
+    }
+    if p.text[start] == 'f' {
+        if lex_equal(p, start, end, "fn") { return T_FN; }
+        if lex_equal(p, start, end, "for") { return T_FOR; }
+        if lex_equal(p, start, end, "false") { return T_FALSE; }
+        if lex_equal(p, start, end, "f32") { return T_TF32; }
+        if lex_equal(p, start, end, "f64") { return T_TF64; }
+    }
+    if p.text[start] == 'r' {
+        if lex_equal(p, start, end, "recursive") { return T_RECURSIVE; }
+        if lex_equal(p, start, end, "reusable") { return T_REUSABLE; }
+        if lex_equal(p, start, end, "return") { return T_RETURN; }
+    }
+    if p.text[start] == 'l' {
+        if lex_equal(p, start, end, "let") { return T_LET; }
+        if lex_equal(p, start, end, "loop") { return T_LOOP; }
+    }
+    if p.text[start] == 'v' {
+        if lex_equal(p, start, end, "var") { return T_VAR; }
+        if lex_equal(p, start, end, "varint") { return T_TVARINT; }
+    }
+    if p.text[start] == 'c' {
+        if lex_equal(p, start, end, "const") { return T_CONST; }
+        if lex_equal(p, start, end, "continue") { return T_CONTINUE; }
+    }
+    if p.text[start] == 'p' {
+        if lex_equal(p, start, end, "pad") { return T_PAD; }
+    }
+    if p.text[start] == 'w' {
+        if lex_equal(p, start, end, "while") { return T_WHILE; }
+    }
+    if p.text[start] == 'b' {
+        if lex_equal(p, start, end, "block") { return T_BLOCK; }
+        if lex_equal(p, start, end, "break") { return T_BREAK; }
+        if lex_equal(p, start, end, "bool") { return T_TBOOL; }
+    }
+    if p.text[start] == 'g' {
+        if lex_equal(p, start, end, "guard") { return T_GUARD; }
+    }
+    if p.text[start] == 'm' {
+        if lex_equal(p, start, end, "match") { return T_MATCH; }
+    }
+    if p.text[start] == 'a' {
+        if lex_equal(p, start, end, "as") { return T_AS; }
+    }
+    if p.text[start] == 'u' {
+        if lex_equal(p, start, end, "u8") { return T_TU8; }
+        if lex_equal(p, start, end, "u16") { return T_TU16; }
+        if lex_equal(p, start, end, "u32") { return T_TU32; }
+        if lex_equal(p, start, end, "u64") { return T_TU64; }
+    }
     return T_IDENT;
 }
 
 struct LexCursor { source: i64, at: i64, end: i64, line: i64 = 1, column: i64 = 1 }
-fn lex_peek(p: Program&, l: LexCursor&, ahead: i64 = 0) -> u8 {
+inline fn lex_peek(p: Program&, l: LexCursor&, ahead: i64 = 0) -> u8 {
     if l.at + ahead >= l.end { return 0; }
     return p.text[l.at + ahead];
 }
-fn lex_take(p: Program&, l: LexCursor&) -> u8 {
+inline fn lex_take(p: Program&, l: LexCursor&) -> u8 {
     let c = lex_peek(p, l);
     if l.at < l.end {
         l.at++;
@@ -161,14 +196,12 @@ fn lex_source(p: Program&, source_id: i64) {
             }
             let digits_start = l.at;
             var bits: u64 = 0;
-            var number: f64 = 0.0;
             var overflow = false;
             loop {
                 let d = lex_hex(lex_peek(p, l));
                 if d < 0 || d >= radix { break; }
                 if bits > (0xffffffffffffffff - d as u64) / radix as u64 { overflow = true; }
                 bits = bits * radix as u64 + d as u64;
-                number = number * radix as f64 + d as f64;
                 lex_take(p, l);
             }
             if digits_start == l.at { diagnose(p, token_id, "expected digits in number"); }
@@ -178,43 +211,27 @@ fn lex_source(p: Program&, source_id: i64) {
             var floating = false;
             if lex_peek(p, l) == '.' && lex_hex(lex_peek(p, l, 1)) >= 0 && lex_hex(lex_peek(p, l, 1)) < radix {
                 floating = true; lex_take(p, l);
-                var place: f64 = 1.0;
                 loop {
                     let d = lex_hex(lex_peek(p, l));
                     if d < 0 || d >= radix { break; }
-                    place /= radix as f64;
-                    number += d as f64 * place;
                     lex_take(p, l);
                 }
             }
             let e = lex_peek(p, l);
-            var exponent_base: f64 = 10.0;
             let after = lex_peek(p, l, 1);
             let after_sign = lex_peek(p, l, 2);
             var exponent = (e == 'e' || e == 'E') &&
                 (lex_digit(after) || (after == '+' || after == '-') && lex_digit(after_sign));
-            if radix == 16 { exponent = e == 'p' || e == 'P'; exponent_base = 2.0; }
+            if radix == 16 { exponent = e == 'p' || e == 'P'; }
             if exponent {
                 floating = true; lex_take(p, l);
-                var sign: i64 = 1;
-                if lex_peek(p, l) == '-' { sign = -1; lex_take(p, l); }
+                if lex_peek(p, l) == '-' { lex_take(p, l); }
                 else if lex_peek(p, l) == '+' { lex_take(p, l); }
                 if !lex_digit(lex_peek(p, l)) { diagnose(p, token_id, "expected exponent digits"); }
-                var power: i64 = 0;
-                while lex_digit(lex_peek(p, l)) {
-                    if power < 10000 { power = power * 10 + lex_take(p, l) as i64 - 48; }
-                    else { lex_take(p, l); }
-                }
-                var scale: f64 = 1.0;
-                while power > 0 {
-                    if (power & 1) != 0 { scale *= exponent_base; }
-                    exponent_base *= exponent_base;
-                    power >>= 1;
-                }
-                if sign < 0 { number /= scale; } else { number *= scale; }
+                while lex_digit(lex_peek(p, l)) { lex_take(p, l); }
             } else if radix == 16 && floating { diagnose(p, token_id, "hexadecimal float requires a binary exponent"); }
             if floating {
-                t.kind = T_FLTLIT; t.float_value = number;
+                t.kind = T_FLTLIT;
                 t.float_value = lex_float(p.text[t.start..l.at], radix);
             }
             else if overflow { diagnose(p, token_id, "integer literal exceeds u64"); }

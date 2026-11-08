@@ -38,16 +38,29 @@ static GS_NORETURN void g_panic_at(const char *message,const char *file,int line
     gs_abort_msg((const uint8_t*)message,(int64_t)strlen(message),file,line);
 }
 static _Thread_local uintptr_t g_native_stack_low;
-static void g_stack_check(void) {
-    unsigned char here;
-    if(!g_native_stack_low) {
-        pthread_attr_t attributes;void *base;size_t bytes;
-        if(pthread_getattr_np(pthread_self(),&attributes)) gs_panic("cannot inspect native stack");
-        int status=pthread_attr_getstack(&attributes,&base,&bytes);pthread_attr_destroy(&attributes);
-        if(status) gs_panic("cannot inspect native stack");g_native_stack_low=(uintptr_t)base;
-    }
-    if((uintptr_t)&here-g_native_stack_low<131072) g_panic("native call stack overflow");
+static GS_NOINLINE __attribute__((cold)) void g_stack_check_init(void) {
+    pthread_attr_t attributes;void *base;size_t bytes;
+    if(pthread_getattr_np(pthread_self(),&attributes)) gs_panic("cannot inspect native stack");
+    int status=pthread_attr_getstack(&attributes,&base,&bytes);pthread_attr_destroy(&attributes);
+    if(status) gs_panic("cannot inspect native stack");g_native_stack_low=(uintptr_t)base;
 }
+#if defined(__linux__) && defined(__x86_64__) && !defined(__TINYC__) && defined(__has_builtin)
+#if __has_builtin(__builtin_stack_address)
+#define GS_NATIVE_STACK_ADDRESS 1
+#endif
+#endif
+static GS_INLINE void g_stack_check(void) {
+    if(!g_native_stack_low)g_stack_check_init();
+#ifdef GS_NATIVE_STACK_ADDRESS
+    // Keep the SysV AMD64 red zone outside the 128 KiB safety reserve.
+    uintptr_t here=(uintptr_t)__builtin_stack_address();
+    if(here-g_native_stack_low<131072+128) g_panic("native call stack overflow");
+#else
+    unsigned char here;
+    if((uintptr_t)&here-g_native_stack_low<131072) g_panic("native call stack overflow");
+#endif
+}
+#undef GS_NATIVE_STACK_ADDRESS
 static GS_NORETURN void g_index_fail(int64_t index,int64_t length,const char *file,int line) {
     if(!file)file="<native>";gs_idxfail(index,length,file,line);
 }
@@ -171,9 +184,15 @@ static unsigned char *g_address(GRef ref) { if(!ref)g_panic("null reference");re
 static GRegion *g_array_region(GRef header) {
     GArray value;memcpy(&value,g_address(header),sizeof value);return value.region;
 }
-static GRef g_offset(GRef ref,int64_t offset) {
+static GS_INLINE GRef g_offset(GRef ref,int64_t offset) {
     if(offset<0)g_panic("negative reference offset");
-    if(!ref && offset)g_panic("null reference");return ref+(uintptr_t)offset;
+    if(!ref && offset)g_panic("null reference");
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__TINYC__)
+    unsigned char *base=(unsigned char *)(uintptr_t)ref;
+    size_t bytes=__builtin_object_size(base,2);
+    if(ref && bytes && (uint64_t)offset<=bytes)return g_ref(base+offset);
+#endif
+    return ref+(uintptr_t)offset;
 }
 static GRef g_owner(GRef root) { return root; }
 static unsigned char g_empty_byte;
@@ -226,7 +245,7 @@ static GRef g_slot(GRef header,int kind,int64_t fixed,int prefix,int64_t width,i
 static GSlice g_view(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
     GSlice s={g_element(r,kind,fixed,prefix,width,0,1),g_len(r,kind,fixed,prefix)}; return s;
 }
-static void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t count) {
+static GS_INLINE void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t count) {
     if(count<0 || (width && count>INT64_MAX/width)) g_panic("invalid capacity");
     if(kind==2) { if(count>g_cap(r,kind,fixed)) g_panic("limited array capacity exceeded"); return; }
     if(kind!=3 && kind!=4) g_panic("array cannot grow");
@@ -252,7 +271,7 @@ static void g_begin_builder(GRef ref) {
     if(value.region)value.region->stack.top=value.data;
     memcpy(g_address(ref),&value,sizeof value);
 }
-static GRef g_push(GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {
+static GS_INLINE GRef g_push(GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {
     int64_t n=g_len(r,kind,fixed,prefix);if(n==INT64_MAX)g_panic("array length overflow");g_reserve(r,kind,fixed,prefix,width,n+1);
     g_set_len(r,kind,fixed,prefix,n+1); GRef dst=g_element(r,kind,fixed,prefix,width,n,0);
     memcpy(g_address(dst),v,(size_t)width); return dst;

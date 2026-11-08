@@ -4,6 +4,7 @@ import importlib.util
 from pathlib import Path
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +15,22 @@ SPEC.loader.exec_module(BENCH)
 
 
 class CompilerComparison(unittest.TestCase):
+    def test_resource_usage_delta_reports_child_cpu_and_counters(self):
+        before = SimpleNamespace(ru_utime=1.25, ru_stime=0.5, ru_majflt=2, ru_minflt=30,
+                                 ru_nvcsw=4, ru_nivcsw=6, ru_inblock=8, ru_oublock=10)
+        after = SimpleNamespace(ru_utime=1.75, ru_stime=0.7, ru_majflt=3, ru_minflt=41,
+                                ru_nvcsw=7, ru_nivcsw=8, ru_inblock=12, ru_oublock=15)
+
+        usage = BENCH.resource_usage_delta(before, after)
+        self.assertAlmostEqual(usage["utime_seconds"], 0.5)
+        self.assertAlmostEqual(usage["stime_seconds"], 0.2)
+        self.assertAlmostEqual(usage["total_cpu_seconds"], 0.7)
+        self.assertEqual({key: value for key, value in usage.items()
+                          if not key.endswith("_seconds")}, dict(
+            major_faults=1, minor_faults=11, voluntary_context_switches=3,
+            involuntary_context_switches=2, block_input_operations=4,
+            block_output_operations=5))
+
     def report(self):
         report = dict(samples=2, workloads=[dict(name="small")], builds=[],
                       validations={"proof": dict(status="passed")})
@@ -30,6 +47,28 @@ class CompilerComparison(unittest.TestCase):
         self.assertEqual(len(rows), 6)
         self.assertTrue(all(row["qualified"] for row in rows))
         self.assertTrue(all(row["compile_wall_seconds"]["n"] == 2 for row in rows))
+
+    def test_order_comes_from_v2_or_legacy_report(self):
+        report = self.report()
+        report["compiler_order"] = ["cpp", "parent", "candidate"]
+        self.assertEqual(BENCH.compiler_order(report), ("cpp", "parent", "candidate"))
+        legacy = self.report()
+        legacy["compilers"] = {"cpp": {}, "goose56": {}, "goose57": {}}
+        for row in legacy["builds"]:
+            if row["compiler"] == "parent":
+                row["compiler"] = "goose56"
+            elif row["compiler"] == "candidate":
+                row["compiler"] = "goose57"
+        self.assertEqual(BENCH.compiler_order(legacy), ("cpp", "goose56", "goose57"))
+        self.assertEqual([row["compiler"] for row in BENCH.summaries(legacy)[:3]],
+                         ["cpp", "cpp", "goose56"])
+
+    def test_parent_binary_and_source_are_required(self):
+        actions = {action.dest: action for action in BENCH.parser()._actions}
+        self.assertTrue(actions["parent"].required)
+        self.assertTrue(actions["parent_source"].required)
+        self.assertEqual(actions["parent_label"].default, "Previous Goose")
+        self.assertEqual(actions["candidate_label"].default, "Current Goose")
 
     def test_missing_failed_duplicate_and_unvalidated_samples_have_no_score(self):
         for mutation in ("missing", "failed", "duplicate", "unvalidated", "failed-validation", "warmup"):

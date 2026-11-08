@@ -20,6 +20,28 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
+def native_source_paths(case):
+    paths = []
+    for source in case.get('native_sources', []):
+        relative = Path(source)
+        if relative.is_absolute() or '..' in relative.parts:
+            raise ValueError('native_sources paths must be ROOT-relative: ' + str(source))
+        path = ROOT / relative
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        paths.append(path)
+    return tuple(paths)
+
+
+def native_compile_command(cc, flag, defines, artifact, native_sources):
+    command = [cc, '-std=gnu11', flag, *defines, artifact]
+    if native_sources:
+        command.extend(native_sources)
+        command.append('-rdynamic')
+    command += ['-lm', '-ldl', '-pthread', '-o', artifact.parent / 'program']
+    return command
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--compiler', type=Path, required=True)
@@ -100,8 +122,9 @@ def main():
         return index, row
 
     def compile_case(case, source, level, action):
+        native_sources = native_source_paths(case)
         key = (str(source), case['target'], level, bool(case.get('debug')), case.get('maximum_pages'),
-               tuple(case.get('native_defines', [])), action)
+               tuple(case.get('native_defines', [])), tuple(map(str, native_sources)), action)
         if key in cache:
             return cache[key]
         directory = out / 'artifacts' / str(len(cache))
@@ -126,7 +149,8 @@ def main():
             if level == 2:
                 flag = '-O2'
             defines = ['-D' + value for value in case.get('native_defines', [])]
-            index, native = execute([cc, '-std=gnu11', flag, *defines, artifact, '-lm', '-ldl', '-pthread', '-o', binary], directory)
+            command = native_compile_command(cc, flag, defines, artifact, native_sources)
+            index, native = execute(command, directory)
             value.update(native_command=index, native_result=native, binary=binary)
         cache[key] = value
         return value
@@ -149,6 +173,8 @@ def main():
             pins[str(source)] = digest(source)
             for dependency in case.get('dependencies', []):
                 path = ROOT / dependency
+                pins[str(path)] = digest(path)
+            for path in native_source_paths(case):
                 pins[str(path)] = digest(path)
             for level in args.levels:
                 if level not in case['levels']:

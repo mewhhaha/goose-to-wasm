@@ -14,13 +14,14 @@ import json
 import os
 from pathlib import Path
 import random
+import resource
 import shutil
 import sys
 
 import langbench as cold
 
 ROOT = cold.ROOT
-COMPILERS = ("cpp", "goose56", "goose57")
+COMPILERS = ("cpp", "parent", "candidate")
 TARGETS = ("wasm-direct", "native-c")
 CPP = ROOT / "build/next-runtime-hills/final/bin/goose"
 CPP_IDENTITY = ROOT / "bench/results/2026-11-04/leaf-and-loads/compiler-identity.json"
@@ -52,6 +53,18 @@ def build_command(compiler, name, case, target, artifact, stdlib):
     return [*command, "-o", artifact]
 
 
+def resource_usage_delta(before, after):
+    utime = after.ru_utime - before.ru_utime
+    stime = after.ru_stime - before.ru_stime
+    return dict(utime_seconds=utime, stime_seconds=stime, total_cpu_seconds=utime + stime,
+                major_faults=after.ru_majflt - before.ru_majflt,
+                minor_faults=after.ru_minflt - before.ru_minflt,
+                voluntary_context_switches=after.ru_nvcsw - before.ru_nvcsw,
+                involuntary_context_switches=after.ru_nivcsw - before.ru_nivcsw,
+                block_input_operations=after.ru_inblock - before.ru_inblock,
+                block_output_operations=after.ru_oublock - before.ru_oublock)
+
+
 def result_matches(result, case):
     if result["status"] != "passed" or result["stderr"]:
         return False
@@ -66,7 +79,7 @@ def result_matches(result, case):
 
 def summaries(report):
     rows = []
-    for compiler, case, target in itertools.product(COMPILERS, report["workloads"], TARGETS):
+    for compiler, case, target in itertools.product(compiler_order(report), report["workloads"], TARGETS):
         builds = [b for b in report["builds"] if (b["compiler"], b["workload"], b["target"]) ==
                   (compiler, case["name"], target)]
         samples = [b for b in builds if b["phase"] == "measurement"]
@@ -87,6 +100,17 @@ def summaries(report):
             row["compile_wall_seconds"] = cold.summarize([b["wall_seconds"] for b in samples])
         rows.append(row)
     return rows
+
+
+def compiler_order(report):
+    if "compiler_order" in report:
+        order = report["compiler_order"]
+        if isinstance(order, (list, tuple)):
+            return tuple(order)
+        return ()
+    if "compilers" in report:
+        return tuple(report["compilers"])
+    return COMPILERS
 
 
 def validate(artifact, case, target, args, directory):
@@ -120,14 +144,16 @@ def save(report, output):
 def parser():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--cpp", type=Path, default=CPP)
-    cli.add_argument("--parent", type=Path, default=ROOT / "build/completion-runs/compiler-baseline-56/bin/goose")
+    cli.add_argument("--parent", type=Path, required=True)
     cli.add_argument("--candidate", type=Path, required=True)
-    cli.add_argument("--parent-source", type=Path, default=ROOT / "build/completion-runs/snapshot-56/selfhost")
+    cli.add_argument("--parent-source", type=Path, required=True)
     cli.add_argument("--candidate-source", type=Path, required=True, help="frozen candidate .goose source root; caller supplies binary/source linkage evidence")
+    cli.add_argument("--parent-label", default="Previous Goose")
+    cli.add_argument("--candidate-label", default="Current Goose")
     cli.add_argument("--stdlib", type=Path, default=ROOT / "stdlib")
     cli.add_argument("--samples", type=int, default=5)
     cli.add_argument("--cpu", type=int, default=7)
-    cli.add_argument("--seed", type=int, default=570056)
+    cli.add_argument("--seed", type=int, default=580058)
     cli.add_argument("--timeout", type=float, default=120)
     cli.add_argument("--cc", default="gcc")
     cli.add_argument("--node", default="node")
@@ -143,7 +169,7 @@ def main():
         cli.error("samples and timeout must be positive")
     if args.cpu not in os.sched_getaffinity(0):
         cli.error("CPU is outside process affinity")
-    compilers = {"cpp": args.cpp.resolve(), "goose56": args.parent.resolve(), "goose57": args.candidate.resolve()}
+    compilers = {"cpp": args.cpp.resolve(), "parent": args.parent.resolve(), "candidate": args.candidate.resolve()}
     for source_root in (args.parent_source, args.candidate_source):
         if not (source_root / "main.goose").is_file():
             cli.error(f"compiler source root has no main.goose: {source_root}")
@@ -167,14 +193,17 @@ def main():
     paths.append(Path(ffi.dll._name))
     identities = cold.fingerprint(paths)
     cpp_identity = json.loads(CPP_IDENTITY.read_text())
-    report = dict(schema="goose-compiler-comparison-v1", status="incomplete",
+    report = dict(schema="goose-compiler-comparison-v2", status="incomplete",
                   started_utc=datetime.now(timezone.utc).isoformat(), samples=args.samples,
                   configuration={key: str(value) for key, value in vars(args).items()},
                   method="Fresh compiler process per build; retained OS caches; Goose -O2. One unmeasured warmup per cell, followed by shuffled balanced rounds. Front-end bars end after Wasm/C emission; C compiler and golden-output execution run only after the timed campaign. C++ is a benchmark competitor, never an oracle. No Zig compiler is measured.",
+                  compiler_order=list(COMPILERS),
+                  compiler_labels={"cpp": "Previous C++", "parent": args.parent_label,
+                                   "candidate": args.candidate_label},
                   compilers={name: dict(path=str(path), sha256=cold.sha256(path)) for name, path in compilers.items()},
                   cpp_source_identity=cpp_identity,
                   cpp_source_identity_matches=cpp_identity["compiler_sha256"] == cold.sha256(args.cpp),
-                  compiler_source_roots={"goose56": str(args.parent_source.resolve()), "goose57": str(args.candidate_source.resolve())},
+                  compiler_source_roots={"parent": str(args.parent_source.resolve()), "candidate": str(args.candidate_source.resolve())},
                   compiler_source_linkage="Caller-supplied frozen source roots; fingerprints identify those files. Binary/source build linkage belongs to the separate compiler qualification evidence.",
                   workloads=cases, builds=[], validations={}, summary=[], input_fingerprints=identities,
                   machine_before=cold.machine_state(),
@@ -199,7 +228,11 @@ def main():
                        phase="measurement", artifact=str(artifact))
             if sample < 0:
                 row["phase"] = "warmup"
-            row.update(cold.invoke(command, cpu=args.cpu, timeout=args.timeout))
+            usage_before = resource.getrusage(resource.RUSAGE_CHILDREN)
+            result = cold.invoke(command, cpu=args.cpu, timeout=args.timeout)
+            usage_after = resource.getrusage(resource.RUSAGE_CHILDREN)
+            row.update(result)
+            row["resource_usage"] = resource_usage_delta(usage_before, usage_after)
             if row["status"] == "passed":
                 if artifact.is_file() and artifact.stat().st_size:
                     row["artifact_sha256"] = cold.sha256(artifact)

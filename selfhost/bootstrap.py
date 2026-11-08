@@ -38,30 +38,34 @@ def main():
     parser.add_argument('--native-dir', type=Path, default=ROOT / 'native')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'build' / 'selfhost')
     parser.add_argument('--cc', default=os.environ.get('CC', 'clang'))
+    parser.add_argument('--optimization', type=int, choices=(0, 1, 2), default=2,
+                        help='Goose optimization level for compiler emission (default: 2)')
     parser.add_argument('--verify', action='store_true', help='require identical next-generation C output')
     parser.add_argument('--seed-only', action='store_true', help='build the frozen seed, without compiling current sources')
     parser.add_argument('--timeout', type=float, default=900)
     args = parser.parse_args()
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=False)
-    report = {'schema': 'goose-bootstrap-v2', 'status': 'running', 'commands': []}
+    report = {'schema': 'goose-bootstrap-v2', 'status': 'running', 'commands': [],
+              'goose_optimization': args.optimization,
+              'requested_goose_optimization': args.optimization}
 
-    def command(argv, name):
+    def command(argv, name, cwd=out, allow_failure=False):
         argv = list(map(str, argv))
         started = time.monotonic()
-        result = subprocess.run(argv, cwd=ROOT, stdin=subprocess.DEVNULL,
+        result = subprocess.run(argv, cwd=cwd, stdin=subprocess.DEVNULL,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=args.timeout)
         (out / (name + '.stdout')).write_bytes(result.stdout)
         (out / (name + '.stderr')).write_bytes(result.stderr)
-        row = {'command': argv, 'exit_code': result.returncode,
+        row = {'name': name, 'command': argv, 'cwd': str(cwd), 'exit_code': result.returncode,
                'seconds': time.monotonic() - started,
                'stdout_sha256': hashlib.sha256(result.stdout).hexdigest(),
                'stderr_sha256': hashlib.sha256(result.stderr).hexdigest()}
         report['commands'].append(row)
         save(out / 'report.json', report)
-        if result.returncode:
+        if result.returncode and not allow_failure:
             raise RuntimeError(name + ' failed: ' + result.stderr[-4000:].decode(errors='replace'))
-        return result.stdout
+        return result
 
     try:
         seed = args.seed_dir.resolve()
@@ -83,14 +87,82 @@ def main():
         report.update(seed_c_sha256=pin['c_sha256'], cc=str(cc), cc_sha256=digest(cc),
                       bootstrap_source_sha256=pin['source_sha256'],
                       input_sha256={str(p): digest(p) for p in [Path(__file__), seed / 'seed.json', compressed, bundle, cc]})
-        report['cc_version'] = command([cc, '--version'], 'cc-version').decode(errors='replace')
+        report['cc_version'] = command([cc, '--version'], 'cc-version').stdout.decode(errors='replace')
+        report['cc_target'] = command([cc, '-dumpmachine'], 'cc-target').stdout.decode().strip()
+        base_flags = ['-std=gnu11', '-O2', '-lm', '-ldl', '-pthread']
+        clang = re.search(r'\bclang version (\d+)\.', report['cc_version'])
+        identity = {'clang_major': None, 'target': report['cc_target'],
+                    'base_flags': base_flags, 'c_basename': 'seed.c'}
+        if clang:
+            identity['clang_major'] = int(clang.group(1))
+        report['profile_identity'] = identity
+        profile = None
+        profile_reason = 'optional profile metadata absent'
+        metadata_path = seed / 'profile.json'
+        data_path = seed / 'profile.profdata'
+        if metadata_path.is_file():
+            report['input_sha256'][str(metadata_path)] = digest(metadata_path)
+            try:
+                profile = json.loads(metadata_path.read_bytes())
+                if not isinstance(profile, dict):
+                    raise ValueError('metadata must be an object')
+                if data_path.is_file():
+                    report['input_sha256'][str(data_path)] = digest(data_path)
+                else:
+                    profile_reason = 'profile data absent'
+                    profile = None
+            except (ValueError, OSError) as error:
+                profile_reason = 'invalid profile metadata: ' + str(error)
+                profile = None
+        report['builds'] = {}
+
+        def build(source, executable, name, optimization):
+            # LLVM keys internal functions by the translation unit basename.
+            # Keep original inputs intact and compile each stage as seed.c.
+            stage = out / ('cc-' + name)
+            stage.mkdir()
+            staged_c = stage / 'seed.c'
+            shutil.copyfile(source, staged_c)
+            c_hash = digest(staged_c)
+            row = {'c_sha256': c_hash, 'goose_optimization': optimization,
+                   'profile_used': False, 'profile_reason': profile_reason}
+            report['builds'][name] = row
+            matched = False
+            if not clang:
+                row['profile_reason'] = 'C compiler is not Clang'
+            elif profile is not None:
+                expected = dict(identity, schema='goose-bootstrap-profile-v1', c_sha256=c_hash)
+                differing = [key for key, value in expected.items() if profile.get(key) != value]
+                if differing:
+                    row['profile_reason'] = 'profile identity differs: ' + ', '.join(differing)
+                elif digest(data_path) != profile.get('data_sha256'):
+                    row['profile_reason'] = 'profile data checksum differs'
+                else:
+                    matched = True
+            argv = [cc, *base_flags[:2], 'seed.c', *base_flags[2:], '-o', executable]
+            if matched:
+                profile_flags = ['-fprofile-instr-use=' + str(data_path),
+                                 '-Werror=profile-instr-out-of-date',
+                                 '-Werror=profile-instr-missing',
+                                 '-Werror=profile-instr-unprofiled']
+                result = command([*argv, *profile_flags], name + '-profile', cwd=stage, allow_failure=True)
+                if result.returncode == 0:
+                    row.update(profile_used=True, profile_reason='exact profile identity matched',
+                               profile_sha256=digest(data_path))
+                    return row
+                row['profile_reason'] = 'profile compilation failed; compiled without profile'
+                row['profile_failed_command'] = report['commands'][-1]
+            command(argv, name, cwd=stage)
+            return row
+
         seed_executable = out / 'seed'
-        command([cc, '-std=gnu11', '-O2', c_source, '-lm', '-ldl', '-pthread', '-o', seed_executable], 'build-seed')
+        actual_build = build(c_source, seed_executable, 'build-seed', pin.get('goose_optimization', 0))
         executable = out / 'goose'
         if args.seed_only:
             shutil.copyfile(seed_executable, executable)
             executable.chmod(0o755)
             report['source_kind'] = 'frozen-bootstrap-seed'
+            report['goose_optimization'] = pin.get('goose_optimization', 0)
         else:
             sources = out / 'sources'
             sources.mkdir()
@@ -125,15 +197,17 @@ def main():
                             data = archive.extractfile(member).read()
                             seed_library[member.name.removeprefix('stdlib/')] = hashlib.sha256(data).hexdigest()
             generated = out / 'compiler.c'
-            invocation = [sources / 'main.goose', '--stdlib', library, '--target', 'native', '-O0']
-            if source_hashes == pin['source_sha256'] and report['stdlib_sha256'] == seed_library and assets == pin.get('asset_sha256', {}):
+            invocation = ['sources/main.goose', '--stdlib', 'stdlib', '--target', 'native', f'-O{args.optimization}']
+            if (source_hashes == pin['source_sha256'] and report['stdlib_sha256'] == seed_library and
+                    assets == pin.get('asset_sha256', {}) and
+                    pin.get('goose_optimization', 0) == args.optimization):
                 shutil.copyfile(c_source, generated)
                 report['seed_matches_sources'] = True
                 shutil.copyfile(seed_executable, executable)
                 executable.chmod(0o755)
             else:
                 command([seed_executable, *invocation, '-o', generated], 'compile-goose')
-                command([cc, '-std=gnu11', '-O2', generated, '-lm', '-ldl', '-pthread', '-o', executable], 'build-goose')
+                actual_build = build(generated, executable, 'build-goose', args.optimization)
             report['generated_c_sha256'] = digest(generated)
             report['executable_c_sha256'] = digest(generated)
             if args.verify:
@@ -144,7 +218,7 @@ def main():
                     # A changed backend can legitimately emit different C from
                     # the older seed. Compare two generations of that backend.
                     second = out / 'next-generation'
-                    command([cc, '-std=gnu11', '-O2', following, '-lm', '-ldl', '-pthread', '-o', second], 'build-next-generation')
+                    actual_build = build(following, second, 'build-next-generation', args.optimization)
                     third = out / 'third-generation.c'
                     command([second, *invocation, '-o', third], 'verify-next-generation')
                     report['third_generation_c_sha256'] = digest(third)
@@ -156,6 +230,10 @@ def main():
                     pending.replace(executable)
                     report['executable_c_sha256'] = digest(following)
                 report['fixed_point'] = True
+        report['executable_build'] = actual_build
+        report['goose_optimization'] = actual_build['goose_optimization']
+        report['profile_used'] = actual_build['profile_used']
+        report['executable_c_sha256'] = actual_build['c_sha256']
         report['input_sha256_after'] = {path: digest(path) for path in report['input_sha256']}
         if report['input_sha256_after'] != report['input_sha256']:
             raise RuntimeError('bootstrap inputs changed during the build')

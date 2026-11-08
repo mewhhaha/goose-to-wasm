@@ -73,7 +73,7 @@ fn cg_fail(p: Program&, node: i64, message: u8[:]) {
     if node >= 0 && node < p.nodes.len { token = p.nodes[node].token; }
     diagnose(p, token, message);
 }
-fn cg_type_kind(p: Program&, id: i64) -> i64 {
+inline fn cg_type_kind(p: Program&, id: i64) -> i64 {
     if id < 0 || id >= p.types.len { return TY_UNKNOWN; }
     return p.types[id].kind;
 }
@@ -182,8 +182,8 @@ fn cg_local(f: CgBody&, wasm_type: i64) -> i64 {
 fn cg_save(f: CgBody&, wasm_type: i64) -> i64 {
     let slot = cg_local(f, wasm_type); wb_op(f.code, 0x21, slot); return slot;
 }
-fn cg_get(f: CgBody&, slot: i64) { wb_op(f.code, 0x20, slot); }
-fn cg_set(f: CgBody&, slot: i64) { wb_op(f.code, 0x21, slot); }
+inline fn cg_get(f: CgBody&, slot: i64) { wb_op(f.code, 0x20, slot); }
+inline fn cg_set(f: CgBody&, slot: i64) { wb_op(f.code, 0x21, slot); }
 fn cg_begin(f: CgBody&, opcode: i64, result: i64) -> i64 {
     wb_byte(f.code, opcode); wb_byte(f.code, result);
     f.serial++; f.labels.push(f.serial); return f.serial;
@@ -2817,7 +2817,8 @@ fn cg_scalar_slot_store(p: Program&, f: CgBody&, symbol: i64) {
     cg_set(f, f.slots[symbol].local);
 }
 fn cg_body_tables(p: Program&, f: CgBody&) {
-    for symbol in p.symbols { f.slots.push(CgSlot {}); f.offsets.push(-1); }
+    f.slots.resize(p.symbols.len, CgSlot {});
+    f.offsets.resize(p.symbols.len, -1);
 }
 fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
     var param = -1; if function >= 0 { param = p.nodes[function].first; }

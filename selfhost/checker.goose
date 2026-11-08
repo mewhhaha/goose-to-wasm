@@ -7,7 +7,7 @@ import checker_rendering;
 
 // Stable IDs are the only links held while tables grow. Scope, flow and
 // provenance are checker work tables; checked nodes contain backend contracts.
-struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, lifetime: i64 = 0, first_symbol: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1 }
+struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1, name_heads: i64[16] = [-1; 16] }
 struct TypeBinding { parameter: i64, value: i64, next: i64 = -1 }
 struct CheckList { first: i64 = -1, last: i64 = -1, count: i64 = 0 }
 struct CheckSpan { first: i64 = 0, count: i64 = 0 }
@@ -40,6 +40,7 @@ struct CheckDefaultCapture { node: i64, function_node: i64, floor: i64 }
 
 struct Checker {
     literal_comparison: bool = false, default_body: bool = false, render_reference: bool = false,
+    format_scan_end: i64 = 0, has_format_hooks: bool = false,
     scopes: CheckScope[>..]&, variables: CheckVariable[>..]&, variable_lookup: i64[>..]&,
     roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&,
     environments: CheckEnvironment[>..]&, environment_heads: i64[>..]&,
@@ -107,7 +108,7 @@ fn check_enter(c: Checker&, function_node: i64) -> i64 {
     let id = c.scopes.len; var frame_root = id;
     if c.scopes[saved].function_node == function_node { frame_root = c.scopes[saved].frame_root; }
     c.scopes.push(CheckScope { parent: saved, function_node: function_node,
-        depth: c.scopes[saved].depth + 1, lifetime: id, frame_root: frame_root });
+        depth: c.scopes[saved].depth + 1, frame_root: frame_root });
     c.scope = id;
     return saved;
 }
@@ -188,7 +189,8 @@ recursive fn check_same_type(p: Program&, a: i64, b: i64) -> bool {
     return true;
 }
 fn check_type(p: Program&, kind: i64, element: i64, count: i64, declaration: i64, flags: i64) -> i64 {
-    for t, id in p.types {
+    for id in 0..p.types.len {
+        let t: const Type& = p.types[id];
         if t.kind == kind && t.element == element && t.count == count &&
            t.declaration == declaration && t.flags == flags &&
            (kind != TY_REF || t.length_storage < 0 && t.pool < 0) { return id; }
@@ -203,7 +205,8 @@ fn check_array_type(p: Program&, element: i64, count: i64, array_kind: i64, flag
     if array_kind == A_LIMITED && count >= 0 {
         default_length = 1; if count > 255 { default_length = 2; } if count > 65535 { default_length = 4; } if count > 4294967295 { default_length = 8; }
     }
-    for t, id in p.types {
+    for id in 0..p.types.len {
+        let t: const Type& = p.types[id];
         if t.kind == TY_ARRAY && !t.length_explicit && t.length_storage == default_length && t.element == element && t.count == count &&
            t.array_kind == array_kind && t.flags == flags { return id; }
     }
@@ -226,7 +229,8 @@ fn check_type_const(p: Program&, ty: i64, readonly: bool) -> i64 {
     var copy = p.types[ty];
     if readonly { copy.flags |= TF_CONST; } else { copy.flags &= ~TF_CONST; }
     if copy.flags == p.types[ty].flags { return ty; }
-    for candidate, id in p.types {
+    for id in 0..p.types.len {
+        let candidate: const Type& = p.types[id];
         if candidate.kind == copy.kind && candidate.element == copy.element && candidate.count == copy.count && candidate.declaration == copy.declaration && candidate.first == copy.first && candidate.flags == copy.flags && candidate.array_kind == copy.array_kind && candidate.storage == copy.storage && candidate.length_storage == copy.length_storage && candidate.length_explicit == copy.length_explicit && candidate.pool == copy.pool && candidate.index_type == copy.index_type { return id; }
     }
     return add_type(p, copy);
@@ -236,11 +240,23 @@ fn check_plain_value_type(p: Program&, ty: i64) -> i64 {
     if ty < 0 || p.types[ty].kind == TY_REF || p.types[ty].kind == TY_SLICE { return ty; }
     return check_type_const(p, ty, false);
 }
+fn check_name_bucket(p: Program&, token: i64) -> i64 {
+    var hash: u32 = 2166136261;
+    for byte in token_text(p, token) { hash = (hash ^ (byte as u32)) * 16777619; }
+    return (hash & 15) as i64;
+}
+fn check_link_symbol(p: Program&, c: Checker&, symbol: i64, scope: i64) {
+    if scope < 0 { return; }
+    let bucket = check_name_bucket(p, p.symbols[symbol].name_token);
+    p.symbols[symbol].name_next = c.scopes[scope].name_heads[bucket];
+    c.scopes[scope].name_heads[bucket] = symbol;
+}
 fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
     if scope < 0 || scope >= c.scopes.len { return -1; }
-    var id = c.scopes[scope].first_symbol;
+    let bucket = check_name_bucket(p, token);
+    var id = c.scopes[scope].name_heads[bucket];
     while id >= 0 {
-        let symbol = p.symbols[id];
+        let symbol: const Symbol& = p.symbols[id];
         if same_name(p, symbol.name_token, token) {
             if role == 0 || (symbol.flags & role) != 0 { return id; }
             if role == S_FUNCTION && symbol.node >= 0 {
@@ -248,7 +264,7 @@ fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i6
                 if (symbol.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) == 0 && kind != N_NAMESPACE || kind == N_TYPE_PARAM { return id; }
             }
         }
-        id = symbol.scope_next;
+        id = symbol.name_next;
     }
     return -1;
 }
@@ -359,13 +375,12 @@ fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
     if (flags & (S_FUNCTION | S_TYPE)) == 0 && n.kind != N_NAMESPACE && n.kind != N_FIELD && n.kind != N_VARIANT {
         slot = c.next_slot; c.next_slot += 1;
     }
-    let id = p.symbols.len; var scope_next = -1;
+    let id = p.symbols.len;
     var owner = c.function_node;
     if c.default_body && (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) { owner = -1; }
-    if scope >= 0 { scope_next = c.scopes[scope].first_symbol; }
     p.symbols.push(Symbol { name_token: n.token, type_id: n.type_id, node: node,
-        scope: scope, slot: slot, flags: flags, next: previous, owner: owner, scope_next: scope_next });
-    if scope >= 0 { c.scopes[scope].first_symbol = id; }
+        scope: scope, slot: slot, flags: flags, next: previous, owner: owner });
+    check_link_symbol(p, c, id, scope);
     p.nodes[node].symbol = id;
     p.nodes[node].scope = scope;
     if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && c.default_fields.count > 0 { p.nodes[node].flags |= F_DEFAULT; }
@@ -1106,6 +1121,10 @@ recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i6
             p.nodes[field].integer = size;
             if variable { p.nodes[field].integer = -1; }
             let symbol = check_declare(p, c, field, c.scope);
+            // Field ownership is the only change to an indexed hook predicate.
+            if symbol >= 0 && symbol < c.format_scan_end && (p.symbols[symbol].owner < 0) != (owner < 0) {
+                c.format_scan_end = 0; c.has_format_hooks = false;
+            }
             p.symbols[symbol].type_id = ty; p.symbols[symbol].owner = owner;
             p.symbols[symbol].offset = size; p.symbols[symbol].index = index;
             if ty >= 0 {
@@ -2972,14 +2991,26 @@ recursive fn check_render_recurring(p: Program&, c: Checker&, ty: i64, path: Che
     }
     path = saved;
 }
+fn check_has_format_hooks(p: Program&, c: Checker&) -> bool {
+    while !c.has_format_hooks && c.format_scan_end < p.symbols.len {
+        let index = c.format_scan_end; c.format_scan_end += 1;
+        let symbol: const Symbol& = p.symbols[index];
+        if symbol.node >= 0 && symbol.owner < 0 && token_is(p, symbol.name_token, "format") && (symbol.flags & S_BUILTIN) == 0 {
+            c.has_format_hooks = true;
+        }
+    }
+    return c.has_format_hooks;
+}
 recursive fn check_lower_rendering(p: Program&, c: Checker&, node: i64, builtin: i64, args: CheckList&) -> i64 {
-    var hooks_exist = false;
-    for symbol in p.symbols { if symbol.node >= 0 && symbol.owner < 0 && token_is(p, symbol.name_token, "format") && (symbol.flags & S_BUILTIN) == 0 { hooks_exist = true; break; } }
+    let hooks_exist = check_has_format_hooks(p, c);
     let wasm_default = p.pointer_bytes == 4 && builtin >= 0 && builtin <= 2;
     if !hooks_exist && !wasm_default { return -2; }
     var first = 0; if builtin == 2 { first = 1; }
     for index in first..args.count { let argument = check_list_at(c, args, index); if !check_render_layout(p, c, p.nodes[argument].type_id, p.nodes[argument].token) { return -1; } }
-    while c.render_hooks.len < p.types.len { let type_id = c.render_hooks.len; c.render_hooks.push(-1); c.render_hooks[type_id] = check_render_hook(p, c, type_id); }
+    while c.render_hooks.len < p.types.len {
+        let type_id = c.render_hooks.len; c.render_hooks.push(-1);
+        if check_has_format_hooks(p, c) { c.render_hooks[type_id] = check_render_hook(p, c, type_id); }
+    }
     for index in first..args.count {
         let argument = check_list_at(c, args, index); var path = CheckList {}; var recurring = CheckList {};
         check_render_recurring(p, c, p.nodes[argument].type_id, path, recurring);
@@ -4399,6 +4430,29 @@ fn check_flow_frame(c: Checker&, count: i64&, frame: i64, active: bool) {
     if count == c.flow_cursors.len { c.flow_cursors.push(cursor); } else { c.flow_cursors[count] = cursor; }
     count += 1;
 }
+fn check_flow_advance(p: Program&, c: Checker&, cursor: i64) {
+    var index = c.flow_cursors[cursor].index;
+    while index >= 0 {
+        let symbol: const Symbol& = p.symbols[c.variables[index].symbol];
+        if c.flow_cursors[cursor].active {
+            // Declaration-initialized immutable values keep stable
+            // assignment facts. Delayed lets stay in every snapshot.
+            var stable = false;
+            if (symbol.flags & S_MUTABLE) == 0 && symbol.type_id >= 0 {
+                stable = (symbol.flags & S_PARAMETER) != 0;
+                if symbol.node >= 0 && p.nodes[symbol.node].kind == N_VARIABLE && p.nodes[symbol.node].right >= 0 { stable = true; }
+                if stable {
+                    let kind = p.types[symbol.type_id].kind;
+                    stable = kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT ||
+                        kind == TY_STRUCT || kind == TY_ENUM || kind == TY_ARRAY || kind == TY_TUPLE;
+                }
+            }
+            if !stable { break; }
+        } else if (symbol.flags & S_GLOBAL) != 0 || check_visible(c, symbol.scope, c.scope) { break; }
+        index = c.variables[index].next_frame;
+    }
+    c.flow_cursors[cursor].index = index;
+}
 fn check_flow_save(p: Program&, c: Checker&, out: CheckSpan&, active_callers: bool = true) {
     out.first = c.flow_work.len; out.count = 0;
     var cursor_count = 0; var scope = c.scope;
@@ -4412,37 +4466,19 @@ fn check_flow_save(p: Program&, c: Checker&, out: CheckSpan&, active_callers: bo
             if function_scope >= 0 { check_flow_frame(c, cursor_count, c.scopes[function_scope].frame_root, true); }
         }
     }
+    for cursor in 0..cursor_count { check_flow_advance(p, c, cursor); }
     // Each frame chain is in reverse declaration order. Merge the chains
     // and reverse once so flow joins retain their ordered symbol IDs.
     while true {
         var selected = -1; var greatest = -1;
         for cursor in 0..cursor_count {
-            var index = c.flow_cursors[cursor].index;
-            while index >= 0 {
-                let symbol = p.symbols[c.variables[index].symbol];
-                if c.flow_cursors[cursor].active {
-                    // Declaration-initialized immutable values keep stable
-                    // assignment facts. Delayed lets stay in every snapshot.
-                    var stable = false;
-                    if (symbol.flags & S_MUTABLE) == 0 && symbol.type_id >= 0 {
-                        stable = (symbol.flags & S_PARAMETER) != 0;
-                        if symbol.node >= 0 && p.nodes[symbol.node].kind == N_VARIABLE && p.nodes[symbol.node].right >= 0 { stable = true; }
-                        if stable {
-                            let kind = p.types[symbol.type_id].kind;
-                            stable = kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT ||
-                                kind == TY_STRUCT || kind == TY_ENUM || kind == TY_ARRAY || kind == TY_TUPLE;
-                        }
-                    }
-                    if !stable { break; }
-                } else if (symbol.flags & S_GLOBAL) != 0 || check_visible(c, symbol.scope, c.scope) { break; }
-                index = c.variables[index].next_frame;
-            }
-            c.flow_cursors[cursor].index = index;
+            let index = c.flow_cursors[cursor].index;
             if index >= 0 && c.variables[index].symbol > greatest { selected = cursor; greatest = c.variables[index].symbol; }
         }
         if selected < 0 { break; }
         let variable = c.variables[c.flow_cursors[selected].index];
         c.flow_cursors[selected].index = variable.next_frame;
+        check_flow_advance(p, c, selected);
         c.flow_work.push(CheckFlow { symbol: variable.symbol, assigned: variable.assigned,
             maybeassigned: variable.maybeassigned, narrowed: variable.narrowed });
         out.count += 1;
@@ -4647,7 +4683,7 @@ recursive fn check_block(p: Program&, c: Checker&, node: i64, expected: i64) -> 
         let item = p.nodes[child];
         if item.kind == N_VARIABLE {
             let previous = c.scope; check_enter(c, c.function_node);
-            c.scopes[c.scope].depth = c.scopes[previous].depth; c.scopes[c.scope].lifetime = c.scopes[previous].lifetime;
+            c.scopes[c.scope].depth = c.scopes[previous].depth;
         }
         if (item.flags & F_TAIL) != 0 {
             let returning = c.returning;
@@ -6579,8 +6615,8 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     }
     check_validate_type_uses(p); check_validate_program(p);
     var scope_parents: i64[>..] = []; var scope_depths: i64[>..] = [];
-    var scope_lifetimes: i64[>..] = []; var scope_functions: i64[>..] = [];
-    for scope in c.scopes { scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_lifetimes.push(scope.lifetime); scope_functions.push(scope.function_node); }
+    var scope_functions: i64[>..] = [];
+    for scope in c.scopes { scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_functions.push(scope.function_node); }
     var pool_references: i64[>..] = []; var pool_types: bool[>..] = [];
     for ty in p.types { pool_types.push(false); }
     for node, id in p.nodes {
@@ -6588,6 +6624,6 @@ fn check_program(p: Program&, declarations_only: bool = false) {
         if ty < 0 || pool_types[ty] || p.types[ty].kind != TY_REF || p.types[ty].length_storage < 0 || p.types[ty].pool < 0 || check_has_generic(p, p.types[ty].element, 0) { continue; }
         pool_types[ty] = true; pool_references.push(id);
     }
-    check_lifetimes(p, scope_parents, scope_depths, scope_lifetimes, scope_functions, pool_references);
+    check_lifetimes(p, scope_parents, scope_depths, scope_functions, pool_references);
     if p.diagnostics.len == 0 { check_validate_thread_globals(p); }
 }

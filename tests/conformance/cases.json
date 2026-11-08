@@ -66069,6 +66069,1642 @@
         "expectations": "Authored independently before candidate execution; baseline qualification required before admission."
       },
       "debug": true
+    },
+    {
+      "id": "language-contracts/recursive-inline/policy/native/debug-False",
+      "source": "tests/fixtures/recursive_inline_policy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "50604\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/policy/native/debug-True",
+      "source": "tests/fixtures/recursive_inline_policy.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "50604\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/policy/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_inline_policy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "50604\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/policy/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_inline_policy.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "50604\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/tail-arguments/native/debug-False",
+      "source": "tests/fixtures/recursive_tail_arguments.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "2899 12\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/tail-arguments/native/debug-True",
+      "source": "tests/fixtures/recursive_tail_arguments.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "2899 12\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/tail-arguments/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_tail_arguments.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "2899 12\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/tail-arguments/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_tail_arguments.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "2899 12\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/captured-state/native/debug-False",
+      "source": "tests/fixtures/recursive_captured_state.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11006 6501\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/captured-state/native/debug-True",
+      "source": "tests/fixtures/recursive_captured_state.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11006 6501\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/captured-state/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_captured_state.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11006 6501\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/captured-state/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_captured_state.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11006 6501\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/nonlocal-target/native/debug-False",
+      "source": "tests/fixtures/recursive_nonlocal_target.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "709 1\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/nonlocal-target/native/debug-True",
+      "source": "tests/fixtures/recursive_nonlocal_target.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "709 1\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/nonlocal-target/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_nonlocal_target.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "709 1\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/nonlocal-target/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_nonlocal_target.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "709 1\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/owned-helper/native/debug-False",
+      "source": "tests/fixtures/recursive_owned_helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "42000\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/owned-helper/native/debug-True",
+      "source": "tests/fixtures/recursive_owned_helper.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "42000\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/owned-helper/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_owned_helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "42000\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/owned-helper/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_owned_helper.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "42000\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/indirect-cycle/native/debug-False",
+      "source": "tests/fixtures/recursive_indirect_cycle.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/indirect-cycle/native/debug-True",
+      "source": "tests/fixtures/recursive_indirect_cycle.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/indirect-cycle/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_indirect_cycle.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/indirect-cycle/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_indirect_cycle.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/direct-recursion/native/debug-False",
+      "source": "tests/fixtures/recursive_direct_recursion.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/direct-recursion/native/debug-True",
+      "source": "tests/fixtures/recursive_direct_recursion.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/direct-recursion/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_direct_recursion.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/direct-recursion/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_direct_recursion.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "11\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/missing-recursive/native",
+      "source": "tests/fixtures/recursive_cycle_requires_annotation.goose",
+      "phase": "type-error",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified: recursive cycle requires recursive declarations"
+    },
+    {
+      "id": "language-contracts/recursive-inline/missing-recursive/wasm-direct",
+      "source": "tests/fixtures/recursive_cycle_requires_annotation.goose",
+      "phase": "type-error",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "provenance": "independently specified: recursive cycle requires recursive declarations"
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-reentry-owned/native/debug-False",
+      "source": "tests/fixtures/recursive_callback_reentry_owned.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "17000\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-reentry-owned/native/debug-True",
+      "source": "tests/fixtures/recursive_callback_reentry_owned.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "17000\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-reentry-owned/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_callback_reentry_owned.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "17000\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-reentry-owned/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_callback_reentry_owned.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "17000\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-capture-nonlocal/native/debug-False",
+      "source": "tests/fixtures/recursive_callback_capture_nonlocal.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "215000 15\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-capture-nonlocal/native/debug-True",
+      "source": "tests/fixtures/recursive_callback_capture_nonlocal.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "215000 15\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-capture-nonlocal/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_callback_capture_nonlocal.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "215000 15\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/callback-capture-nonlocal/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_callback_capture_nonlocal.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "215000 15\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/extern-depth/native/debug-False",
+      "source": "tests/fixtures/recursive_extern_depth.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/extern-depth/native/debug-True",
+      "source": "tests/fixtures/recursive_extern_depth.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/extern-depth/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_extern_depth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/extern-depth/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_extern_depth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "7\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/dispatch-depth/native/debug-False",
+      "source": "tests/fixtures/recursive_dispatch_depth.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14 25\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/dispatch-depth/native/debug-True",
+      "source": "tests/fixtures/recursive_dispatch_depth.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14 25\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/dispatch-depth/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_dispatch_depth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14 25\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/dispatch-depth/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_dispatch_depth.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "14 25\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/initializer-sibling/native/debug-False",
+      "source": "tests/fixtures/recursive_initializer_sibling.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/initializer-sibling/native/debug-True",
+      "source": "tests/fixtures/recursive_initializer_sibling.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/initializer-sibling/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_initializer_sibling.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/initializer-sibling/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_initializer_sibling.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/break-sibling/native/debug-False",
+      "source": "tests/fixtures/recursive_break_sibling.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/break-sibling/native/debug-True",
+      "source": "tests/fixtures/recursive_break_sibling.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/break-sibling/wasm-direct/debug-False",
+      "source": "tests/fixtures/recursive_break_sibling.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/break-sibling/wasm-direct/debug-True",
+      "source": "tests/fixtures/recursive_break_sibling.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "8\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution"
+    },
+    {
+      "id": "language-contracts/recursive-inline/pool-default/native/debug-False",
+      "source": "tests/fixtures/recursive_pool_default.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "4\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/pool-default/native/debug-True",
+      "source": "tests/fixtures/recursive_pool_default.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "4\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "independently specified before execution",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/recursive-inline/pool-default/wasm-direct/debug-False/frontend-only",
+      "source": "tests/fixtures/recursive_pool_default.goose",
+      "phase": "check",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "debug": false,
+      "provenance": "Frontend acceptance only: baseline direct Wasm emitter rejects builtin33; no runtime coverage claimed. Native rows retain runtime/output coverage."
+    },
+    {
+      "id": "language-contracts/recursive-inline/pool-default/wasm-direct/debug-True/frontend-only",
+      "source": "tests/fixtures/recursive_pool_default.goose",
+      "phase": "check",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "debug": true,
+      "provenance": "Frontend acceptance only: baseline direct Wasm emitter rejects builtin33; no runtime coverage claimed. Native rows retain runtime/output coverage."
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/positive/native/debug-False",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "3 4\n",
+      "expect": {
+        "stdout": "230000\n[3, 4, 5]\n8\n23\n4\n3\n3\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/assertion-preserved/native/debug-False",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "0\n",
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero",
+        "stderr_contains": [
+          "assert failed"
+        ]
+      },
+      "debug": false,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution. Assert diagnostic corrected from already frozen public assertion contracts/compiler literal before candidate execution. Target-specific wording pinned to preexisting backend literals before candidate execution.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/positive/native/debug-True",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "3 4\n",
+      "expect": {
+        "stdout": "230000\n[3, 4, 5]\n8\n23\n4\n3\n3\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/assertion-preserved/native/debug-True",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "0\n",
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero",
+        "stderr_contains": [
+          "assert failed"
+        ]
+      },
+      "debug": true,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution. Assert diagnostic corrected from already frozen public assertion contracts/compiler literal before candidate execution. Target-specific wording pinned to preexisting backend literals before candidate execution.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/positive/wasm-direct/debug-False",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "3 4\n",
+      "expect": {
+        "stdout": "230000\n[3, 4, 5]\n8\n23\n4\n3\n3\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution."
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/assertion-preserved/wasm-direct/debug-False",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "0\n",
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero",
+        "stderr_contains": [
+          "assertion failed"
+        ]
+      },
+      "debug": false,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution. Assert diagnostic corrected from already frozen public assertion contracts/compiler literal before candidate execution. Target-specific wording pinned to preexisting backend literals before candidate execution."
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/positive/wasm-direct/debug-True",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "3 4\n",
+      "expect": {
+        "stdout": "230000\n[3, 4, 5]\n8\n23\n4\n3\n3\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution."
+    },
+    {
+      "id": "language-contracts/native-activation/empty-effects/assertion-preserved/wasm-direct/debug-True",
+      "source": "tests/fixtures/activation_empty_effects.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "0\n",
+      "expect": {
+        "stdout": "",
+        "exit": "nonzero",
+        "stderr_contains": [
+          "assertion failed"
+        ]
+      },
+      "debug": true,
+      "provenance": "Independently derived expected output frozen before fixture compiler execution. Assert diagnostic corrected from already frozen public assertion contracts/compiler literal before candidate execution. Target-specific wording pinned to preexisting backend literals before candidate execution."
+    },
+    {
+      "id": "language-contracts/native-activation/nonlocal-relay/native/debug-False",
+      "source": "tests/fixtures/activation_nonlocal_relay.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "410000 15\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "Independently derived and frozen by Astra before execution; fixed scratch8192bytes forces fixed-arena cleanup.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/nonlocal-relay/native/debug-True",
+      "source": "tests/fixtures/activation_nonlocal_relay.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "410000 15\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "Independently derived and frozen by Astra before execution; fixed scratch8192bytes forces fixed-arena cleanup.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/nonlocal-relay/wasm-direct/debug-False",
+      "source": "tests/fixtures/activation_nonlocal_relay.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "410000 15\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "Independently derived and frozen by Astra before execution; fixed scratch8192bytes forces fixed-arena cleanup."
+    },
+    {
+      "id": "language-contracts/native-activation/nonlocal-relay/wasm-direct/debug-True",
+      "source": "tests/fixtures/activation_nonlocal_relay.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "410000 15\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "Independently derived and frozen by Astra before execution; fixed scratch8192bytes forces fixed-arena cleanup."
+    },
+    {
+      "id": "language-contracts/native-activation/plain-record/native/debug-False",
+      "source": "tests/fixtures/activation_plain_record_boundaries.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "115 46 3 8 4\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "Independently source-derived expectation frozen before candidate execution; no oracle.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/plain-record/native/debug-True",
+      "source": "tests/fixtures/activation_plain_record_boundaries.goose",
+      "phase": "run",
+      "target": "native",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "115 46 3 8 4\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "Independently source-derived expectation frozen before candidate execution; no oracle.",
+      "native_sources": [
+        "bench/host_input.c"
+      ]
+    },
+    {
+      "id": "language-contracts/native-activation/plain-record/wasm-direct/debug-False",
+      "source": "tests/fixtures/activation_plain_record_boundaries.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "115 46 3 8 4\n",
+        "exit": 0
+      },
+      "debug": false,
+      "provenance": "Independently source-derived expectation frozen before candidate execution; no oracle."
+    },
+    {
+      "id": "language-contracts/native-activation/plain-record/wasm-direct/debug-True",
+      "source": "tests/fixtures/activation_plain_record_boundaries.goose",
+      "phase": "run",
+      "target": "wasm-direct",
+      "levels": [
+        0,
+        2
+      ],
+      "stdin": "4\n",
+      "expect": {
+        "stdout": "115 46 3 8 4\n",
+        "exit": 0
+      },
+      "debug": true,
+      "provenance": "Independently source-derived expectation frozen before candidate execution; no oracle."
+    },
+    {
+        "id": "public-record-contracts-58/local-boundaries/native/debug-false",
+        "source": "tests/fixtures/native_local_boundaries.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "56 21 12 13 10 9 8 41 -3\n",
+            "exit": 0
+        },
+        "debug": false,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/boundaries.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-boundaries/native/debug-true",
+        "source": "tests/fixtures/native_local_boundaries.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "56 21 12 13 10 9 8 41 -3\n",
+            "exit": 0
+        },
+        "debug": true,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/boundaries.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-boundaries/wasm-direct/debug-false",
+        "source": "tests/fixtures/native_local_boundaries.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "56 21 12 13 10 9 8 41 -3\n",
+            "exit": 0
+        },
+        "debug": false,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/boundaries.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-boundaries/wasm-direct/debug-true",
+        "source": "tests/fixtures/native_local_boundaries.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "56 21 12 13 10 9 8 41 -3\n",
+            "exit": 0
+        },
+        "debug": true,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/boundaries.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-padding/native/debug-false",
+        "source": "tests/fixtures/native_local_padding.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "89\n",
+            "exit": 0
+        },
+        "debug": false,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/padding.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-padding/native/debug-true",
+        "source": "tests/fixtures/native_local_padding.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "89\n",
+            "exit": 0
+        },
+        "debug": true,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/padding.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-padding/wasm-direct/debug-false",
+        "source": "tests/fixtures/native_local_padding.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "89\n",
+            "exit": 0
+        },
+        "debug": false,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/padding.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-padding/wasm-direct/debug-true",
+        "source": "tests/fixtures/native_local_padding.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "89\n",
+            "exit": 0
+        },
+        "debug": true,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/padding.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-self-initializer/native/debug-false",
+        "source": "tests/fixtures/native_local_initializer.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "debug": false,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/self-initializer.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-self-initializer/native/debug-true",
+        "source": "tests/fixtures/native_local_initializer.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "debug": true,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/self-initializer.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-self-initializer/wasm-direct/debug-false",
+        "source": "tests/fixtures/native_local_initializer.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "debug": false,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/self-initializer.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/local-self-initializer/wasm-direct/debug-true",
+        "source": "tests/fixtures/native_local_initializer.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "debug": true,
+        "provenance": "Independently frozen baseline contract: native-local-init-58 guards/self-initializer.goose; exact source/output matrix reused."
+    },
+    {
+        "id": "public-record-contracts-58/result-returns/native/debug-false",
+        "source": "tests/fixtures/native_result_returns.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "11 12 13 14 15 8 8 14\ntrue 4 9\n9 8 15 16 17\n50\n",
+            "exit": 0
+        },
+        "debug": false,
+        "provenance": "Independently frozen hand-derived native-result-init-58/guards/contract.json expectation; no candidate output."
+    },
+    {
+        "id": "public-record-contracts-58/result-returns/native/debug-true",
+        "source": "tests/fixtures/native_result_returns.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "11 12 13 14 15 8 8 14\ntrue 4 9\n9 8 15 16 17\n50\n",
+            "exit": 0
+        },
+        "debug": true,
+        "provenance": "Independently frozen hand-derived native-result-init-58/guards/contract.json expectation; no candidate output."
+    },
+    {
+        "id": "public-record-contracts-58/result-returns/wasm-direct/debug-false",
+        "source": "tests/fixtures/native_result_returns.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "11 12 13 14 15 8 8 14\ntrue 4 9\n9 8 15 16 17\n50\n",
+            "exit": 0
+        },
+        "debug": false,
+        "provenance": "Independently frozen hand-derived native-result-init-58/guards/contract.json expectation; no candidate output."
+    },
+    {
+        "id": "public-record-contracts-58/result-returns/wasm-direct/debug-true",
+        "source": "tests/fixtures/native_result_returns.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "11 12 13 14 15 8 8 14\ntrue 4 9\n9 8 15 16 17\n50\n",
+            "exit": 0
+        },
+        "debug": true,
+        "provenance": "Independently frozen hand-derived native-result-init-58/guards/contract.json expectation; no candidate output."
+    },
+    {
+        "id": "public-record-contracts-58/reference-extent-cast/native/debug-false",
+        "source": "tests/fixtures/reference_extent_cast.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1\n",
+            "exit": 0
+        },
+        "debug": false,
+        "provenance": "Independently source-derived address-only counterexample from native-member-address-review-58; explicit reference cast and outside-object address are formed without loading through either reference."
+    },
+    {
+        "id": "public-record-contracts-58/reference-extent-cast/native/debug-true",
+        "source": "tests/fixtures/reference_extent_cast.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1\n",
+            "exit": 0
+        },
+        "debug": true,
+        "provenance": "Independently source-derived address-only counterexample from native-member-address-review-58; explicit reference cast and outside-object address are formed without loading through either reference."
     }
   ],
   "legacy_math_capture": {

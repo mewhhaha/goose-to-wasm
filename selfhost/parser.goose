@@ -12,16 +12,16 @@ struct ParseCursor {
     tentative: bool = false, failed: bool = false,
     has_expansion: bool = false,
 }
-fn parse_kind(p: Program&, c: ParseCursor&) -> i64 {
+inline fn parse_kind(p: Program&, c: ParseCursor&) -> i64 {
     if c.at >= c.end { return T_EOF; }
     if c.half_angle { return T_GT; }
     return p.tokens[c.at].kind;
 }
-fn parse_ahead(p: Program&, c: ParseCursor&, ahead: i64 = 1) -> i64 {
+inline fn parse_ahead(p: Program&, c: ParseCursor&, ahead: i64 = 1) -> i64 {
     if c.at + ahead >= c.end { return T_EOF; }
     return p.tokens[c.at + ahead].kind;
 }
-fn parse_next(p: Program&, c: ParseCursor&) -> i64 {
+inline fn parse_next(p: Program&, c: ParseCursor&) -> i64 {
     let token = c.at;
     c.half_angle = false;
     if c.at + 1 < c.end { c.at++; }

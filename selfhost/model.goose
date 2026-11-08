@@ -289,8 +289,8 @@ struct Symbol {
     name_token: i64 = -1, type_id: i64 = -1, node: i64 = -1,
     scope: i64 = -1, slot: i64 = -1, flags: i64 = 0, next: i64 = -1,
     owner: i64 = -1, offset: i64 = 0, index: i64 = -1,
-    scope_next: i64 = -1,
     provenance: i64 = -1,
+    name_next: i64 = -1,
 }
 struct Diagnostic {
     source: i64 = 0, start: i64 = 0, end: i64 = 0,
@@ -306,21 +306,27 @@ struct Program {
     pointer_bytes: i64 = 4,
     library: bool = false,
 }
-fn same_bytes(a: u8[:], b: u8[:]) -> bool {
+inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }
     for c, i in a { if c != b[i] { return false; } }
     return true;
 }
-fn token_text(p: Program&, token: i64) -> u8[:] {
+inline fn token_text(p: Program&, token: i64) -> u8[:] {
     if token < 0 || token >= p.tokens.len { return ""; }
-    let t = p.tokens[token];
+    let t: const Token& = p.tokens[token];
     return p.text[t.start..t.end];
 }
-fn same_name(p: Program&, a: i64, b: i64) -> bool {
-    return same_bytes(token_text(p, a), token_text(p, b));
+inline fn same_name(p: Program&, a: i64, b: i64) -> bool {
+    if a < 0 || a >= p.tokens.len || b < 0 || b >= p.tokens.len {
+        return same_bytes(token_text(p, a), token_text(p, b));
+    }
+    let left: const Token& = p.tokens[a]; let right: const Token& = p.tokens[b];
+    return same_bytes(p.text[left.start..left.end], p.text[right.start..right.end]);
 }
-fn token_is(p: Program&, token: i64, text: u8[:]) -> bool {
-    return same_bytes(token_text(p, token), text);
+inline fn token_is(p: Program&, token: i64, text: u8[:]) -> bool {
+    if token < 0 || token >= p.tokens.len { return same_bytes("", text); }
+    let value: const Token& = p.tokens[token];
+    return same_bytes(p.text[value.start..value.end], text);
 }
 fn diagnose_at(p: Program&, source: i64, start: i64, end: i64, message: u8[:]) {
     var line = 1; var column = 1;

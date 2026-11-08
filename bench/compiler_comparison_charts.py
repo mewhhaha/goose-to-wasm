@@ -16,9 +16,10 @@ import compare_compilers as bench
 import example_charts as charts
 import langbench_charts as common
 
-COMPILERS = (("cpp", "Previous C++", "#94a3b8"),
-             ("goose56", "Goose 56", "#d39b28"),
-             ("goose57", "Goose 57", "#087f8c"))
+COMPILER_COLORS = ("#94a3b8", "#d39b28", "#087f8c")
+DEFAULT_COMPILERS = tuple(zip(bench.COMPILERS,
+    ("Previous C++", "Previous Goose", "Current Goose"), COMPILER_COLORS))
+LEGACY_COMPILERS = {"cpp": "Previous C++", "goose56": "Goose 56", "goose57": "Goose 57"}
 LABELS = {**charts.LABELS, "mandelbrot": "Mandelbrot"}
 
 
@@ -35,12 +36,22 @@ def command(record, report):
 
 
 def checked_rows(report):
-    if report.get("schema") != "goose-compiler-comparison-v1" or report.get("status") not in ("passed", "failed"):
+    schema = report.get("schema")
+    if schema not in ("goose-compiler-comparison-v1", "goose-compiler-comparison-v2") or report.get("status") not in ("passed", "failed"):
         raise ValueError("a completed compiler comparison is required")
     if not report.get("inputs_unchanged") or not report.get("artifacts_unchanged"):
         raise ValueError("compiler comparison inputs or artifacts changed")
-    if set(report["compilers"]) != set(bench.COMPILERS):
-        raise ValueError("expected the three named compiler identities")
+    order = bench.compiler_order(report)
+    if schema == "goose-compiler-comparison-v1":
+        if set(order) != {"cpp", "goose56", "goose57"}:
+            raise ValueError("legacy report must contain its three compiler identities")
+    else:
+        labels = report.get("compiler_labels")
+        if (order != bench.COMPILERS or not isinstance(labels, dict) or set(labels) != set(order) or
+                any(not isinstance(label, str) or not label for label in labels.values())):
+            raise ValueError("version 2 compiler order or labels are invalid")
+    if set(report["compilers"]) != set(order):
+        raise ValueError("compiler identities differ from declared order")
     for identity in report["compilers"].values():
         if bench.cold.sha256(Path(identity["path"])) != identity["sha256"]:
             raise ValueError("compiler binary changed")
@@ -59,7 +70,7 @@ def checked_rows(report):
         raise ValueError("passing report contains unqualified cells")
     representatives = {}
     for record in report["builds"]:
-        if record["compiler"] not in bench.COMPILERS or record["target"] not in bench.TARGETS or record["phase"] not in ("warmup", "measurement"):
+        if record["compiler"] not in order or record["target"] not in bench.TARGETS or record["phase"] not in ("warmup", "measurement"):
             raise ValueError("unexpected compiler, target or sample phase")
         case = cases[record["workload"]]
         compiler = record["compiler"]
@@ -106,7 +117,18 @@ def checked_rows(report):
     return charts.index_rows(rows, ("workload", "target", "compiler"))
 
 
-def panel(ax, names, target, rows):
+def compiler_specs(report):
+    specs = []
+    for index, compiler in enumerate(bench.compiler_order(report)):
+        if report["schema"] == "goose-compiler-comparison-v2":
+            label = report["compiler_labels"][compiler]
+        else:
+            label = LEGACY_COMPILERS[compiler]
+        specs.append((compiler, label, COMPILER_COLORS[index]))
+    return tuple(specs)
+
+
+def panel(ax, names, target, rows, compilers=DEFAULT_COMPILERS):
     ax.set_axisbelow(True)
     ax.grid(axis="y", color="#e2e8f0", linewidth=0.8)
     ax.spines[["top", "right", "left"]].set_visible(False)
@@ -116,15 +138,15 @@ def panel(ax, names, target, rows):
     ax.set_ylabel("source → artifact · milliseconds")
     ax.yaxis.set_major_locator(MaxNLocator(6))
     available = [charts.milliseconds(rows[name, target, compiler]["compile_wall_seconds"])
-                 for name in names for compiler, _, _ in COMPILERS if rows[name, target, compiler]["qualified"]]
+                 for name in names for compiler, _, _ in compilers if rows[name, target, compiler]["qualified"]]
     maximum = max((value + error for value, error in available), default=1)
     ax.set_ylim(0, maximum * 1.38)
     ax.set_xlim(-0.6, len(names) - 0.4)
     receipt = []
     width = 0.23
-    for index, (compiler, label, color) in enumerate(COMPILERS):
+    for index, (compiler, label, color) in enumerate(compilers):
         for offset, name in enumerate(names):
-            position = offset + (index - 1) * width
+            position = offset + (index - (len(compilers) - 1) / 2) * width
             row = rows[name, target, compiler]
             item = dict(workload=name, compiler=compiler, qualified=row["qualified"], median_ms=None, mad_ms=None)
             if row["qualified"]:
@@ -146,19 +168,20 @@ def render(report_path, output):
     report = json.loads(raw)
     rows = checked_rows(report)
     names = [case["name"] for case in report["workloads"]]
+    compilers = compiler_specs(report)
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10,
                         "text.color": "#0f172a", "axes.labelcolor": "#475569",
                         "svg.fonttype": "none", "svg.hashsalt": "goose-compiler-comparison-v1"})
     fig, axes = plt.subplots(2, 1, figsize=(15, 10.5))
     fig.subplots_adjust(left=0.075, right=0.985, top=0.80, bottom=0.13, hspace=0.40)
-    fig.text(0.075, 0.95, "Compilation · previous C++ and Goose", fontsize=21, weight="bold")
+    fig.text(0.075, 0.95, "Compiler source-to-artifact comparison", fontsize=21, weight="bold")
     fig.text(0.075, 0.91, "Fresh compiler process · Goose -O2 · source → artifact · lower is better", color="#475569")
-    handles = [plt.Rectangle((0, 0), 1, 1, color=color) for _, _, color in COMPILERS]
-    fig.legend(handles, [label for _, label, _ in COMPILERS], loc="upper left",
-               bbox_to_anchor=(0.068, 0.88), ncols=3, frameon=False)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=color) for _, _, color in compilers]
+    fig.legend(handles, [label for _, label, _ in compilers], loc="upper left",
+               bbox_to_anchor=(0.068, 0.88), ncols=len(compilers), frameon=False)
     values = {}
     for ax, target, title in zip(axes, bench.TARGETS, ("Direct WebAssembly", "Standalone C emission")):
-        values[target] = panel(ax, names, target, rows)
+        values[target] = panel(ax, names, target, rows, compilers)
         ax.set_title(title, loc="left", fontsize=13, pad=14)
     fig.text(0.075, 0.07, f"{report['samples']} measured builds per cell · labels: median ms · whiskers: ±MAD · independent panel scales · CPU {report['configuration']['cpu']}", fontsize=10, color="#475569")
     fig.text(0.075, 0.035, "OS caches retained · compiler bootstrap, downstream C compilation and output validation excluded · unavailable cells have no score", fontsize=10, color="#475569")

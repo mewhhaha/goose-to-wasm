@@ -1,0 +1,131 @@
+{
+  "status": "passed",
+  "compiler_Cpp_time_ratios": {
+    "wasm-direct": 0.9981901872705539,
+    "native-c": 0.9344736125376203
+  },
+  "compiler_speedup_vs_57": {
+    "wasm-direct": 2.939514325206546,
+    "native-c": 2.3092921776500828
+  },
+  "compiler_overall_Cpp_time_ratio": 0.9658066008773797,
+  "examples": [
+    {
+      "name": "squares",
+      "wasm_build_ms": 50.113318,
+      "native_build_ms": 252.602043,
+      "native_process_ms": 0.726661,
+      "aot_process_ms": 0.807154
+    },
+    {
+      "name": "tour",
+      "wasm_build_ms": 53.418287,
+      "native_build_ms": 886.807794,
+      "native_process_ms": 0.8756039999999999,
+      "aot_process_ms": 0.889521
+    },
+    {
+      "name": "functions",
+      "wasm_build_ms": 68.20256099999999,
+      "native_build_ms": 1703.875225,
+      "native_process_ms": 0.799359,
+      "aot_process_ms": 1.0833780000000002
+    },
+    {
+      "name": "errors",
+      "wasm_build_ms": 58.274015,
+      "native_build_ms": 739.251391,
+      "native_process_ms": 0.8380529999999999,
+      "aot_process_ms": 0.836349
+    },
+    {
+      "name": "sieve",
+      "wasm_build_ms": 56.458104,
+      "native_build_ms": 394.203079,
+      "native_process_ms": 1.923926,
+      "aot_process_ms": 2.649866
+    },
+    {
+      "name": "sorting",
+      "wasm_build_ms": 68.854129,
+      "native_build_ms": 1924.3134799999998,
+      "native_process_ms": 112.64906900000001,
+      "aot_process_ms": 176.802246
+    },
+    {
+      "name": "sudoku",
+      "wasm_build_ms": 56.813028,
+      "native_build_ms": 466.272909,
+      "native_process_ms": 5.688449,
+      "aot_process_ms": 11.410382
+    },
+    {
+      "name": "maze",
+      "wasm_build_ms": 59.199372,
+      "native_build_ms": 760.345926,
+      "native_process_ms": 0.805671,
+      "aot_process_ms": 1.028935
+    },
+    {
+      "name": "vm",
+      "wasm_build_ms": 57.735922,
+      "native_build_ms": 821.152583,
+      "native_process_ms": 0.818645,
+      "aot_process_ms": 0.995832
+    },
+    {
+      "name": "life",
+      "wasm_build_ms": 57.037575,
+      "native_build_ms": 520.459015,
+      "native_process_ms": 20.578353,
+      "aot_process_ms": 26.451444000000002
+    }
+  ],
+  "langbench_hot_seconds": {
+    "small": {
+      "c-gcc": 0.076129013,
+      "c-clang": 0.081969731,
+      "upstream-goose-native": 0.076210909,
+      "goose-native": 0.077689939,
+      "goose-wasm-wasmtime": 0.082341348,
+      "goose-wasm-v8": 0.08076397
+    },
+    "medium": {
+      "c-gcc": 0.59756816,
+      "c-clang": 0.642847691,
+      "upstream-goose-native": 0.597759854,
+      "goose-native": 0.597950326,
+      "goose-wasm-wasmtime": 0.643342091,
+      "goose-wasm-v8": 0.6257285
+    },
+    "official": {
+      "c-gcc": 2.398395945,
+      "c-clang": 2.566639457,
+      "upstream-goose-native": 2.392412435,
+      "goose-native": 2.395910572,
+      "goose-wasm-wasmtime": 2.571548024,
+      "goose-wasm-v8": 2.500524313
+    }
+  },
+  "samples": {
+    "compiler": 31,
+    "examples_build": 5,
+    "examples_process": 5,
+    "preparation": 5,
+    "langbench_build": 5,
+    "langbench_hot": 7,
+    "langbench_cold_runtime_preflight_only": 1
+  },
+  "report_sha256": {
+    "compiler-comparison.json": "94d0e188c024842b6495841f66bc2be8ad76b44da6e11ab10bb429cfda9ae8ea",
+    "examples.json": "8c544f5a69ed07db44b283d1240c65ecd812163857f0cc0815a0adf456c2c8ad",
+    "host.json": "d3b5f1e4b8551312c827d276e0ff14beef387ca89e40bbfe0d6f6712316951e3",
+    "compilation-reference.json": "f7dea50ba6632d8f0de492ddede09725bd1d60c1d7fca8adecf46d0343653c10",
+    "langbench-hot.json": "01af9fbb9de6533635cde202dbfb43d7fd9946facb78047ffcb3f07b67404501"
+  },
+  "limitations": [
+    "Shared machine; small compiler Wasm gap is parity within noise.",
+    "Cold Langbench runtime uses one sample for artifact preflight; published runtime is the separate seven-sample resident trial.",
+    "All current comparisons are same-campaign; previous dated runtime results are separately collected references."
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "status": "passed",
+  "scope": "Installed default CLI, no compiler override; independently specified squares and float outputs on V8 Wasm and native.",
+  "compiler_sha256": "9a0450a452f6dcc0c6ad698fdeb9af6be599c7e8ffdb2437364a6f360145489d",
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "--backend",
+        "direct",
+        "--no-cache",
+        "--cc",
+        "/usr/bin/clang-23",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-direct.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-direct.wasm"
+      ],
+      "exit_code": 0,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-direct.wasm (1659 bytes)\n",
+      "stderr": "",
+      "seconds": 0.08075043300050311
+    },
+    {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-direct.wasm"
+      ],
+      "exit_code": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "seconds": 0.024541959006455727
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/examples/squares.goose",
+        "--backend",
+        "native",
+        "--no-cache",
+        "--cc",
+        "/usr/bin/clang-23",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-native.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-native"
+      ],
+      "exit_code": 0,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-native (23208 bytes)\n",
+      "stderr": "",
+      "seconds": 0.2536656800075434
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/squares-native"
+      ],
+      "exit_code": 0,
+      "stdout": "sum=140\n",
+      "stderr": "",
+      "seconds": 0.001209328998811543
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualification-kit-58/public-smoke-float.goose",
+        "--backend",
+        "direct",
+        "--no-cache",
+        "--cc",
+        "/usr/bin/clang-23",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-direct.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-direct.wasm"
+      ],
+      "exit_code": 0,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-direct.wasm (7680 bytes)\n",
+      "stderr": "",
+      "seconds": 0.07743559099617414
+    },
+    {
+      "command": [
+        "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node",
+        "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-direct.wasm"
+      ],
+      "exit_code": 0,
+      "stdout": "0.1/1.25\n",
+      "stderr": "",
+      "seconds": 0.029388153008767404
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py",
+        "build",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/qualification-kit-58/public-smoke-float.goose",
+        "--backend",
+        "native",
+        "--no-cache",
+        "--cc",
+        "/usr/bin/clang-23",
+        "-O2",
+        "--stats",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-native.json",
+        "-o",
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-native"
+      ],
+      "exit_code": 0,
+      "stdout": "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-native (35712 bytes)\n",
+      "stderr": "",
+      "seconds": 0.3488877769996179
+    },
+    {
+      "command": [
+        "/home/jacobt/src/goose-to-wasm/build/completion-runs/default-smoke-58/float-native"
+      ],
+      "exit_code": 0,
+      "stdout": "0.1/1.25\n",
+      "stderr": "",
+      "seconds": 0.0008553560037398711
+    }
+  ]
+}

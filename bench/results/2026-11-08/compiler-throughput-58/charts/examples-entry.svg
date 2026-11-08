@@ -1,0 +1,1280 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1008pt" height="864pt" viewBox="0 0 1008 864" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>Example runtime · Wasm entry only</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Example runtime · Wasm entry only</dc:title>
+    <dc:description>Separate fresh-process Wasm probes: entry excludes host startup, initial module compilation/instantiation and final output delivery. Lazy JIT work remains included. No native entry comparison; stdout buffering differs. Environment: {"bootstrap_seed_sha256": {"seed.c.gz": "dfd18bdff04a9beb44d064bba670c47e5feb926c5a9cb3ab238bc23e8d9e7325", "seed.json": "8e1e95f76d20fa7a0c4d0cff70bb683adccba5bc924804a03cd86a71bf9ca177", "sources.tar.gz": "5005369643355d695bf55cb9ab65b71351959a4817f5344abcba88f48decf9ff"}, "compiler_sha256": "9a0450a452f6dcc0c6ad698fdeb9af6be599c7e8ffdb2437364a6f360145489d", "cpu": "AMD Ryzen 7 3800X 8-Core Processor", "cpu_affinity": [7], "env_overrides": {"CC": null, "CFLAGS": null, "GOOSE_STDLIB": null, "NODE_OPTIONS": null}, "input_sha256": {"/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb", "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so": "3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178", "/home/jacobt/src/goose-to-wasm/bench/benchmark.py": "096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf", "/home/jacobt/src/goose-to-wasm/bench/examples.py": "fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae", "/home/jacobt/src/goose-to-wasm/bench/process.py": "ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72", "/home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz": "dfd18bdff04a9beb44d064bba670c47e5feb926c5a9cb3ab238bc23e8d9e7325", "/home/jacobt/src/goose-to-wasm/bootstrap/seed.json": "8e1e95f76d20fa7a0c4d0cff70bb683adccba5bc924804a03cd86a71bf9ca177", "/home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz": "5005369643355d695bf55cb9ab65b71351959a4817f5344abcba88f48decf9ff", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/examples/errors.goose": "1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca", "/home/jacobt/src/goose-to-wasm/examples/expected/errors.out": "95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f", "/home/jacobt/src/goose-to-wasm/examples/expected/functions.out": "16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43", "/home/jacobt/src/goose-to-wasm/examples/expected/life.out": "f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008", "/home/jacobt/src/goose-to-wasm/examples/expected/maze.out": "b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e", "/home/jacobt/src/goose-to-wasm/examples/expected/sieve.out": "08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446", "/home/jacobt/src/goose-to-wasm/examples/expected/sorting.out": "cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341", "/home/jacobt/src/goose-to-wasm/examples/expected/squares.out": "fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc", "/home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out": "33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf", "/home/jacobt/src/goose-to-wasm/examples/expected/tour.out": "884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf", "/home/jacobt/src/goose-to-wasm/examples/expected/vm.out": "c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561", "/home/jacobt/src/goose-to-wasm/examples/functions.goose": "b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565", "/home/jacobt/src/goose-to-wasm/examples/life.goose": "9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97", "/home/jacobt/src/goose-to-wasm/examples/manifest.json": "e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a", "/home/jacobt/src/goose-to-wasm/examples/maze.goose": "217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781", "/home/jacobt/src/goose-to-wasm/examples/sieve.goose": "9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a", "/home/jacobt/src/goose-to-wasm/examples/sorting.goose": "00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e", "/home/jacobt/src/goose-to-wasm/examples/squares.goose": "420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14", "/home/jacobt/src/goose-to-wasm/examples/sudoku.goose": "06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555", "/home/jacobt/src/goose-to-wasm/examples/tour.goose": "a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834", "/home/jacobt/src/goose-to-wasm/examples/vm.goose": "1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498", "/home/jacobt/src/goose-to-wasm/native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284", "/home/jacobt/src/goose-to-wasm/native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95", "/home/jacobt/src/goose-to-wasm/native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba", "/home/jacobt/src/goose-to-wasm/native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6", "/home/jacobt/src/goose-to-wasm/native/runtime/goose.h": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_ext.h": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_os.h": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087", "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285", "/home/jacobt/src/goose-to-wasm/native/storage.h": "ab499bcd1e7639940ecd275b0ee186fa1dee1d2a666744f3f25d3a0c11f62489", "/home/jacobt/src/goose-to-wasm/native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7", "/home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py": "4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082", "/home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs": "8fffa7b611d1e4b3b02e742f536a69d6dfd69af46c573f00fd0d0a6a3aac1342", "/home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py": "28861bacc2138406b85794be08af7d12b8b8499f04e02ece76f043d9cf0db2f1", "/home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py": "523e48cd5c8c0cf48c3fe000a900988faa960664bfff377d59c30768d2941663", "/home/jacobt/src/goose-to-wasm/selfhost/checker.goose": "61ce4ed43d7eb1f5cec5316ef01d02a16c51e1ee281a11f4e995e68b6e42ba37", "/home/jacobt/src/goose-to-wasm/selfhost/checker_lifetimes.goose": "49c076fcb10d732073d13d7e47e7ecfee0126d5af24a11cf05db79a3189f98f4", "/home/jacobt/src/goose-to-wasm/selfhost/checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f", "/home/jacobt/src/goose-to-wasm/selfhost/checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c", "/home/jacobt/src/goose-to-wasm/selfhost/checker_validation.goose": "f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38", "/home/jacobt/src/goose-to-wasm/selfhost/codegen.goose": "3825f11fe08d0ef3cd29016fcca07cba0769078326199ae5b14259a8090db2e7", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c.goose": "dc8d3a1b1737f1437950ecc262e09e7dc04d771848357a502e24e60690a02137", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6", "/home/jacobt/src/goose-to-wasm/selfhost/codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70", "/home/jacobt/src/goose-to-wasm/selfhost/driver.goose": "c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9", "/home/jacobt/src/goose-to-wasm/selfhost/expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb", "/home/jacobt/src/goose-to-wasm/selfhost/lexer.goose": "33b3b7745cd026f50659ff1f684bfa09322a0c44f48ddc567ad083c05c4fee70", "/home/jacobt/src/goose-to-wasm/selfhost/main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e", "/home/jacobt/src/goose-to-wasm/selfhost/model.goose": "567c9c5530e8c2db81f6db0b3d14eaa96c7200d908d55529cc0338776637bcf2", "/home/jacobt/src/goose-to-wasm/selfhost/optimizer.goose": "a52d2230a37615cc75b0a45e95711b5991e93e593ff881e420f985a74770ec14", "/home/jacobt/src/goose-to-wasm/selfhost/parser.goose": "59484b8c0049a8a4a578879a6c7f41aab3885721176c462a0fe490e11c3eddb5", "/home/jacobt/src/goose-to-wasm/selfhost/region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb", "/home/jacobt/src/goose-to-wasm/selfhost/sources.goose": "6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e", "/home/jacobt/src/goose-to-wasm/selfhost/thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e", "/home/jacobt/src/goose-to-wasm/selfhost/wasm.goose": "59ba762a49e429bf8bba605a120a0f5908ba9e4745fe238efaf02f0cde5cb9d0", "/home/jacobt/src/goose-to-wasm/stdlib/base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61", "/home/jacobt/src/goose-to-wasm/stdlib/binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031", "/home/jacobt/src/goose-to-wasm/stdlib/csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba", "/home/jacobt/src/goose-to-wasm/stdlib/dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322", "/home/jacobt/src/goose-to-wasm/stdlib/exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4", "/home/jacobt/src/goose-to-wasm/stdlib/ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e", "/home/jacobt/src/goose-to-wasm/stdlib/json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b", "/home/jacobt/src/goose-to-wasm/stdlib/math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da", "/home/jacobt/src/goose-to-wasm/stdlib/os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934", "/home/jacobt/src/goose-to-wasm/stdlib/regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035", "/home/jacobt/src/goose-to-wasm/stdlib/std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff", "/home/jacobt/src/goose-to-wasm/stdlib/vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e", "/home/jacobt/src/goose-to-wasm/toolchain.json": "25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800", "/usr/bin/gcc": "b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145", "/usr/bin/python3.14": "44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e"}, "logical_cpu_count": 16, "machine": "x86_64", "native_cc": {"command": ["gcc", "--version"], "exit_code": 0, "output": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}, "node": {"command": ["node", "-p", "JSON.stringify(process.versions)"], "exit_code": 0, "output": "{\"node\":\"24.22.1\",\"acorn\":\"8.18.0\",\"ada\":\"4.0.0\",\"amaro\":\"1.1.11\",\"ares\":\"1.34.9\",\"brotli\":\"1.2.0\",\"cldr\":\"48.0\",\"icu\":\"78.3\",\"llhttp\":\"9.4.3\",\"merve\":\"1.2.2\",\"modules\":\"137\",\"napi\":\"10\",\"nbytes\":\"0.1.4\",\"ncrypto\":\"0.0.1\",\"nghttp2\":\"1.70.0\",\"nghttp3\":\"\",\"ngtcp2\":\"\",\"openssl\":\"3.5.9\",\"simdjson\":\"4.6.11\",\"simdutf\":\"6.4.0\",\"sqlite\":\"3.53.4\",\"tz\":\"2026e\",\"undici\":\"7.30.1\",\"unicode\":\"17.0\",\"uv\":\"1.52.1\",\"uvwasi\":\"0.0.23\",\"v8\":\"13.6.233.17-node.58\",\"zlib\":\"1.3.2.1-motley-285e94b\",\"zstd\":\"1.5.7\"}"}, "platform": "Linux-7.3.0-4-cachyos-x86_64-with-glibc2.44", "python": "3.14.8 (main, Oct 13 2026, 10:33:10) [GCC 16.2.1 20260810]", "supplied_machine_label": "", "tool_paths": {"cc": "/usr/bin/gcc", "node": "/home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node", "python": "/usr/bin/python3.14", "wasmtime_library": "/home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so"}, "toolchain_pin": {"bootstrap": {"language": "C11", "seed": "bootstrap/seed.json", "source": "selfhost/main.goose"}, "implementation": "goose", "minimum_python": "3.11", "node": "24.22.1", "schema": "goose-to-wasm-toolchain-v2", "upstream_contract": {"repository": "https://github.com/aardappel/goose.git", "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"}, "v8": "13.6.233.17-node.58", "wasmtime_python": "50.0.1"}, "v8_runner_flags": [], "wasmtime": "50.0.1", "wasmtime_config": {"cranelift_opt_level": "speed", "wasm_bulk_memory": true, "wasm_exceptions": true, "wasm_memory64": true, "wasm_multi_value": true, "wasm_relaxed_simd": false, "wasm_simd": true, "wasm_tail_call": true, "wasm_threads": false}}</dc:description>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:source>/home/jacobt/src/goose-to-wasm/bench/results/2026-11-08/compiler-throughput-58/examples.json sha256:8c544f5a69ed07db44b283d1240c65ecd812163857f0cc0815a0adf456c2c8ad; /home/jacobt/src/goose-to-wasm/bench/example_charts.py sha256:c0c411bb2c94566020e365d6dd74a0aed3bc32c16569591887757fc4e061d8fa; /home/jacobt/src/goose-to-wasm/examples/manifest.json sha256:e239facfd3387d9d3141a22fffc39542abdc33f893a5e5b3b1144da997100e3a; /home/jacobt/src/goose-to-wasm/bench/examples.py sha256:fe4102bb7f6d26ba01bc16433d2712501208dd6ef5cc4d1646475c2468f80aae; /home/jacobt/src/goose-to-wasm/bench/benchmark.py sha256:096826ee697c73205010ab3fea5f467809c09cabcf5ddeb10f765c52a2a3c7bf; /home/jacobt/src/goose-to-wasm/bench/process.py sha256:ded4f0856702001f29d1f80bc12c0e54407354fda5adae48ffbd896321ecef72; /home/jacobt/src/goose-to-wasm/toolchain.json sha256:25a2323d4af8a9f0ac01df227c1e9de90932b03e2a21be721a32a81a99b41800; /home/jacobt/src/goose-to-wasm/scripts/goose_wasm.py sha256:4f08cc0b46c463f33cb30342a599e318f692adc08c55b2d0e9e1304556bff082; /home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py sha256:523e48cd5c8c0cf48c3fe000a900988faa960664bfff377d59c30768d2941663; /home/jacobt/src/goose-to-wasm/bootstrap/seed.json sha256:8e1e95f76d20fa7a0c4d0cff70bb683adccba5bc924804a03cd86a71bf9ca177; /home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz sha256:dfd18bdff04a9beb44d064bba670c47e5feb926c5a9cb3ab238bc23e8d9e7325; /home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz sha256:5005369643355d695bf55cb9ab65b71351959a4817f5344abcba88f48decf9ff; /home/jacobt/src/goose-to-wasm/scripts/run_wasm.mjs sha256:8fffa7b611d1e4b3b02e742f536a69d6dfd69af46c573f00fd0d0a6a3aac1342; /home/jacobt/src/goose-to-wasm/scripts/run_wasmtime.py sha256:28861bacc2138406b85794be08af7d12b8b8499f04e02ece76f043d9cf0db2f1; /home/jacobt/src/goose-to-wasm/selfhost/checker.goose sha256:61ce4ed43d7eb1f5cec5316ef01d02a16c51e1ee281a11f4e995e68b6e42ba37; /home/jacobt/src/goose-to-wasm/selfhost/checker_lifetimes.goose sha256:49c076fcb10d732073d13d7e47e7ecfee0126d5af24a11cf05db79a3189f98f4; /home/jacobt/src/goose-to-wasm/selfhost/checker_operations.goose sha256:30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f; /home/jacobt/src/goose-to-wasm/selfhost/checker_rendering.goose sha256:38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c; /home/jacobt/src/goose-to-wasm/selfhost/checker_validation.goose sha256:f2c40726e3ac9c78589ad1488c99d8284c16f69130ad5c7269c87a590557aa38; /home/jacobt/src/goose-to-wasm/selfhost/codegen.goose sha256:3825f11fe08d0ef3cd29016fcca07cba0769078326199ae5b14259a8090db2e7; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c.goose sha256:dc8d3a1b1737f1437950ecc262e09e7dc04d771848357a502e24e60690a02137; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_images.goose sha256:4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_storage.goose sha256:218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6; /home/jacobt/src/goose-to-wasm/selfhost/codegen_c_threads.goose sha256:04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70; /home/jacobt/src/goose-to-wasm/selfhost/driver.goose sha256:c2a34aa16d2c16bce6ca5092a0598bb92c928f77ca278b02ef840ef1a3070da9; /home/jacobt/src/goose-to-wasm/selfhost/expansion_bind.goose sha256:504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb; /home/jacobt/src/goose-to-wasm/selfhost/lexer.goose sha256:33b3b7745cd026f50659ff1f684bfa09322a0c44f48ddc567ad083c05c4fee70; /home/jacobt/src/goose-to-wasm/selfhost/main.goose sha256:aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e; /home/jacobt/src/goose-to-wasm/selfhost/model.goose sha256:567c9c5530e8c2db81f6db0b3d14eaa96c7200d908d55529cc0338776637bcf2; /home/jacobt/src/goose-to-wasm/selfhost/optimizer.goose sha256:a52d2230a37615cc75b0a45e95711b5991e93e593ff881e420f985a74770ec14; /home/jacobt/src/goose-to-wasm/selfhost/parser.goose sha256:59484b8c0049a8a4a578879a6c7f41aab3885721176c462a0fe490e11c3eddb5; /home/jacobt/src/goose-to-wasm/selfhost/region_plan.goose sha256:ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb; /home/jacobt/src/goose-to-wasm/selfhost/sources.goose sha256:6de2efe1864c58673c3630247afc0f59ebbecfc7d7fc20e3d0763cf8e5232c4e; /home/jacobt/src/goose-to-wasm/selfhost/thread_plan.goose sha256:522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e; /home/jacobt/src/goose-to-wasm/selfhost/wasm.goose sha256:59ba762a49e429bf8bba605a120a0f5908ba9e4745fe238efaf02f0cde5cb9d0; /home/jacobt/src/goose-to-wasm/native/images.h sha256:fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284; /home/jacobt/src/goose-to-wasm/native/pools.h sha256:76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95; /home/jacobt/src/goose-to-wasm/native/relative.h sha256:4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba; /home/jacobt/src/goose-to-wasm/native/runs.h sha256:b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6; /home/jacobt/src/goose-to-wasm/native/runtime/goose.h sha256:16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4; /home/jacobt/src/goose-to-wasm/native/runtime/runtime.h sha256:5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_ext.h sha256:bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h sha256:717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_os.h sha256:27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087; /home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h sha256:b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285; /home/jacobt/src/goose-to-wasm/native/storage.h sha256:ab499bcd1e7639940ecd275b0ee186fa1dee1d2a666744f3f25d3a0c11f62489; /home/jacobt/src/goose-to-wasm/native/threads.h sha256:9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7; /home/jacobt/src/goose-to-wasm/examples/squares.goose sha256:420d9e6b4a2496865eb9f66603c4cbb0fdbb2add30e8ccc709a15102f4748b14; /home/jacobt/src/goose-to-wasm/examples/expected/squares.out sha256:fb4b7bb75a4ba6d156b72b0438797bcf302022d5f69a07c3c82561dfe98b9bbc; /home/jacobt/src/goose-to-wasm/examples/tour.goose sha256:a46393946390a6fc888d013ae0a07383812a57667d2474071eb938f853b8b834; /home/jacobt/src/goose-to-wasm/examples/expected/tour.out sha256:884fee23ddb2ec4e79a2fae5d2fab27ada0c58add3827a969cdcb0a500234ccf; /home/jacobt/src/goose-to-wasm/examples/functions.goose sha256:b11be17ac9ebd0d471c85eb8454cd40edde0924e5094a8baf3ab69bc639b3565; /home/jacobt/src/goose-to-wasm/examples/expected/functions.out sha256:16d0729d8856f3e02da6adc75bc7576652a37ceafec7ede438737a5602459b43; /home/jacobt/src/goose-to-wasm/examples/errors.goose sha256:1b4d87ea59ca79ec0085e17d4b495972c6b468ca6f0b83401a16c677e6df39ca; /home/jacobt/src/goose-to-wasm/examples/expected/errors.out sha256:95f36d26a29d3704ef48b866ed792484224a59780628d09247871bc8aa44147f; /home/jacobt/src/goose-to-wasm/examples/sieve.goose sha256:9b8d2b0066d8219e4dfce97b45a5e8b39dc20779e49d5b15b6aa31c8d561440a; /home/jacobt/src/goose-to-wasm/examples/expected/sieve.out sha256:08895a562abaddd9d176a6466d508dfc034521cf8c32815a1d6b85cc0851c446; /home/jacobt/src/goose-to-wasm/examples/sorting.goose sha256:00d2c7ed328100d018a3adc4ef3f2c5abd83d8219e8c6c0a56d00b0b1df8a27e; /home/jacobt/src/goose-to-wasm/examples/expected/sorting.out sha256:cfed1a4061c2db639e7fad2c677cf6444b96d4a42740426746e34d1bd1be9341; /home/jacobt/src/goose-to-wasm/examples/sudoku.goose sha256:06ff5516f6a37769f4d373127e58214480a38a1e5c84c1331abfed7cdf7ec555; /home/jacobt/src/goose-to-wasm/examples/expected/sudoku.out sha256:33843957751f720192c57d9ca0ad5d0d811213faf261308cce54c54dbfb3dfcf; /home/jacobt/src/goose-to-wasm/examples/maze.goose sha256:217864f76018759196a101ad900315f5343683ccdc6a6e70eaecb3bec0343781; /home/jacobt/src/goose-to-wasm/examples/expected/maze.out sha256:b1b00eaf76b55400c358a12718c6128d683302226631943e7b00bebd6e5fe46e; /home/jacobt/src/goose-to-wasm/examples/vm.goose sha256:1ee3c3f94e0fcb15964e44ec8bde1f3fa3d64e62c144073f1803a87cca852498; /home/jacobt/src/goose-to-wasm/examples/expected/vm.out sha256:c0a05690abc2741f2065959a2b5edb63ed66b6c714b7dca7aaa542e553436561; /home/jacobt/src/goose-to-wasm/examples/life.goose sha256:9d1613869a3c086454dfdd24104d09e48499a8b1a4c653ebe5125e02d98aea97; /home/jacobt/src/goose-to-wasm/examples/expected/life.out sha256:f04a69f7117a62b3c8db5c5fc276dfca51886de77662206d502f26de3ef78008; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/build/completion-runs/public-58/build/bin/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /home/jacobt/src/goose-to-wasm/stdlib/base64.goose sha256:fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61; /home/jacobt/src/goose-to-wasm/stdlib/binary.goose sha256:6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031; /home/jacobt/src/goose-to-wasm/stdlib/csv.goose sha256:a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba; /home/jacobt/src/goose-to-wasm/stdlib/dictionary.goose sha256:fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322; /home/jacobt/src/goose-to-wasm/stdlib/exception.goose sha256:b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4; /home/jacobt/src/goose-to-wasm/stdlib/ffi.goose sha256:e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e; /home/jacobt/src/goose-to-wasm/stdlib/json.goose sha256:0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b; /home/jacobt/src/goose-to-wasm/stdlib/math.goose sha256:b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da; /home/jacobt/src/goose-to-wasm/stdlib/os.goose sha256:2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934; /home/jacobt/src/goose-to-wasm/stdlib/regex.goose sha256:be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035; /home/jacobt/src/goose-to-wasm/stdlib/std.goose sha256:2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff; /home/jacobt/src/goose-to-wasm/stdlib/vec.goose sha256:2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e; /usr/bin/python3.14 sha256:44fdcdf23cd94aece60aec10b92b15a0e1cf4561e710985eaa53b362a03db48e; /home/jacobt/src/goose-to-wasm/.venv/lib/python3.14/site-packages/wasmtime/linux-x86_64/_libwasmtime.so sha256:3127ca42fe7cdd3f0a43a358e79177dcfedd46c1746329826403b9d854de6178; /usr/bin/gcc sha256:b0b49531b313e70aee0254fb5e69b050a781506184e16ebee6ebe68eee94a145; /home/jacobt/.local/share/fnm/node-versions/v24.22.1/installation/bin/node sha256:e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb; compiler sha256:9a0450a452f6dcc0c6ad698fdeb9af6be599c7e8ffdb2437364a6f360145489d</dc:source>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 864
+L 1008 864
+L 1008 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 75.6 399.085714
+L 987.84 399.085714
+L 987.84 172.8
+L 75.6 172.8
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1"/>
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="125.276436" y="414.683371" transform="rotate(-0 125.276436 414.683371)">Squares</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2"/>
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="215.597228" y="414.683371" transform="rotate(-0 215.597228 414.683371)">Tour</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3"/>
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="305.91802" y="414.684152" transform="rotate(-0 305.91802 414.684152)">Functions</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4"/>
+     <g id="text_4">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="396.238812" y="414.683371" transform="rotate(-0 396.238812 414.683371)">Errors</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5"/>
+     <g id="text_5">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="486.559604" y="414.684152" transform="rotate(-0 486.559604 414.684152)">Sieve</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6"/>
+     <g id="text_6">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="576.880396" y="414.684152" transform="rotate(-0 576.880396 414.684152)">Sorting</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7"/>
+     <g id="text_7">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="667.201188" y="414.684152" transform="rotate(-0 667.201188 414.684152)">Sudoku</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_8"/>
+     <g id="text_8">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="757.52198" y="414.683371" transform="rotate(-0 757.52198 414.683371)">Maze</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_9"/>
+     <g id="text_9">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="847.842772" y="414.683371" transform="rotate(-0 847.842772 414.683371)">VM</text>
+     </g>
+    </g>
+    <g id="xtick_10">
+     <g id="line2d_10"/>
+     <g id="text_10">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="938.163564" y="414.684152" transform="rotate(-0 938.163564 414.684152)">Life</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_11">
+      <path d="M 75.6 390.700869
+L 987.84 390.700869
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12"/>
+     <g id="text_11">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="394.499697" transform="rotate(-0 67.6 394.499697)">0.1</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_13">
+      <path d="M 75.6 346.756067
+L 987.84 346.756067
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14"/>
+     <g id="text_12">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="350.554895" transform="rotate(-0 67.6 350.554895)">1</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_15">
+      <path d="M 75.6 302.811265
+L 987.84 302.811265
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16"/>
+     <g id="text_13">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="306.610093" transform="rotate(-0 67.6 306.610093)">10</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_17">
+      <path d="M 75.6 258.866463
+L 987.84 258.866463
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18"/>
+     <g id="text_14">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="262.665291" transform="rotate(-0 67.6 262.665291)">100</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_19">
+      <path d="M 75.6 214.921661
+L 987.84 214.921661
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_20"/>
+     <g id="text_15">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="218.72049" transform="rotate(-0 67.6 218.72049)">1e+03</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_21">
+      <defs>
+       <path id="m980d856d1b" d="M 0 0
+L -2 0
+" style="stroke: #475569; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="397.508005" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="394.95956" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_23">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="392.711673" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="377.472165" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_25">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="369.73387" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="364.243462" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_27">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="359.984771" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_13">
+     <g id="line2d_28">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="356.505166" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_14">
+     <g id="line2d_29">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="353.563203" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_15">
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="351.014758" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_16">
+     <g id="line2d_31">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="348.766871" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_17">
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="333.527363" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_18">
+     <g id="line2d_33">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="325.789068" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_19">
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="320.29866" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_20">
+     <g id="line2d_35">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="316.039969" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_21">
+     <g id="line2d_36">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="312.560364" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_22">
+     <g id="line2d_37">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="309.618401" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_23">
+     <g id="line2d_38">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="307.069956" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_24">
+     <g id="line2d_39">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="304.822069" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_25">
+     <g id="line2d_40">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="289.582562" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_26">
+     <g id="line2d_41">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="281.844266" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_27">
+     <g id="line2d_42">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="276.353858" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_28">
+     <g id="line2d_43">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="272.095167" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_29">
+     <g id="line2d_44">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="268.615563" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_30">
+     <g id="line2d_45">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="265.673599" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_31">
+     <g id="line2d_46">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="263.125155" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_32">
+     <g id="line2d_47">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="260.877267" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_33">
+     <g id="line2d_48">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="245.63776" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_34">
+     <g id="line2d_49">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="237.899464" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_35">
+     <g id="line2d_50">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="232.409056" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_36">
+     <g id="line2d_51">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="228.150365" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_37">
+     <g id="line2d_52">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="224.670761" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_38">
+     <g id="line2d_53">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="221.728797" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_39">
+     <g id="line2d_54">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="219.180353" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_40">
+     <g id="line2d_55">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="216.932465" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_41">
+     <g id="line2d_56">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="201.692958" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_42">
+     <g id="line2d_57">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="193.954662" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_43">
+     <g id="line2d_58">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="188.464254" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_44">
+     <g id="line2d_59">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="184.205563" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_45">
+     <g id="line2d_60">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="180.725959" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_46">
+     <g id="line2d_61">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="177.783996" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_47">
+     <g id="line2d_62">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="175.235551" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_48">
+     <g id="line2d_63">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="172.987663" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #475569" x="21.577344" y="285.942857" transform="rotate(-90 21.577344 285.942857)">milliseconds · logarithmic scale</text>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="M 97.313118 399.085714
+L 153.239753 399.085714
+L 153.239753 378.118715
+L 97.313118 378.118715
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 187.63391 399.085714
+L 243.560545 399.085714
+L 243.560545 284.968577
+L 187.63391 284.968577
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 277.954703 399.085714
+L 333.881337 399.085714
+L 333.881337 280.743057
+L 277.954703 280.743057
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 368.275495 399.085714
+L 424.202129 399.085714
+L 424.202129 320.028106
+L 368.275495 320.028106
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 458.596287 399.085714
+L 514.522921 399.085714
+L 514.522921 293.180364
+L 458.596287 293.180364
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 548.917079 399.085714
+L 604.843713 399.085714
+L 604.843713 234.332579
+L 548.917079 234.332579
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 639.237871 399.085714
+L 695.164505 399.085714
+L 695.164505 290.279242
+L 639.237871 290.279242
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 729.558663 399.085714
+L 785.485297 399.085714
+L 785.485297 287.3388
+L 729.558663 287.3388
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 819.879455 399.085714
+L 875.80609 399.085714
+L 875.80609 282.845716
+L 819.879455 282.845716
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 910.200247 399.085714
+L 966.126882 399.085714
+L 966.126882 277.756709
+L 910.200247 277.756709
+z
+" clip-path="url(#p4e27ba4119)" style="fill: #087f8c"/>
+   </g>
+   <g id="LineCollection_1">
+    <path d="M 125.276436 378.230886
+L 125.276436 378.0072
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 215.597228 285.697115
+L 215.597228 284.266831
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 305.91802 281.053684
+L 305.91802 280.437405
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 396.238812 320.07345
+L 396.238812 319.982868
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 486.559604 294.080322
+L 486.559604 292.320939
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 576.880396 234.433491
+L 576.880396 234.232197
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 667.201188 291.232803
+L 667.201188 289.371065
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 757.52198 287.467022
+L 757.52198 287.211434
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 847.842772 282.96465
+L 847.842772 282.727518
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 938.163564 278.082385
+L 938.163564 277.436498
+" clip-path="url(#p4e27ba4119)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+   </g>
+   <g id="line2d_64">
+    <defs>
+     <path id="m630ef24590" d="M 2 0
+L -2 -0
+" style="stroke: #334155"/>
+    </defs>
+    <g clip-path="url(#p4e27ba4119)">
+     <use xlink:href="#m630ef24590" x="125.276436" y="378.230886" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="215.597228" y="285.697115" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="305.91802" y="281.053684" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="396.238812" y="320.07345" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="486.559604" y="294.080322" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="576.880396" y="234.433491" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="667.201188" y="291.232803" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="757.52198" y="287.467022" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="847.842772" y="282.96465" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="938.163564" y="278.082385" style="fill: #1f77b4; stroke: #334155"/>
+    </g>
+   </g>
+   <g id="line2d_65">
+    <g clip-path="url(#p4e27ba4119)">
+     <use xlink:href="#m630ef24590" x="125.276436" y="378.0072" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="215.597228" y="284.266831" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="305.91802" y="280.437405" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="396.238812" y="319.982868" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="486.559604" y="292.320939" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="576.880396" y="234.232197" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="667.201188" y="289.371065" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="757.52198" y="287.211434" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="847.842772" y="282.727518" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="938.163564" y="277.436498" style="fill: #1f77b4; stroke: #334155"/>
+    </g>
+   </g>
+   <g id="patch_13">
+    <path d="M 75.6 399.085714
+L 987.84 399.085714
+" style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(127.354561 376.715936) rotate(-90)">0.193 ±0.0011</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(217.675353 282.975567) rotate(-90)">25.5 ±0.95</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(307.996145 279.146141) rotate(-90)">31.8 ±0.51</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(398.316937 318.691604) rotate(-90)">4.06 ±0.0096</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(488.637729 291.029674) rotate(-90)">16.6 ±0.76</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(578.958521 232.940932) rotate(-90)">362 ±1.9</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(669.279313 288.079801) rotate(-90)">19.3 ±0.94</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(759.600105 285.92017) rotate(-90)">22.5 ±0.15</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(849.920897 281.436254) rotate(-90)">28.5 ±0.18</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(940.241689 276.145233) rotate(-90)">37.2 ±0.63</text>
+   </g>
+   <g id="text_27">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="75.6" y="158.8" transform="rotate(-0 75.6 158.8)">V8</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_14">
+    <path d="M 75.6 743.04
+L 987.84 743.04
+L 987.84 516.754286
+L 75.6 516.754286
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_11">
+     <g id="line2d_66"/>
+     <g id="text_28">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="125.276436" y="758.637656" transform="rotate(-0 125.276436 758.637656)">Squares</text>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_67"/>
+     <g id="text_29">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="215.597228" y="758.637656" transform="rotate(-0 215.597228 758.637656)">Tour</text>
+     </g>
+    </g>
+    <g id="xtick_13">
+     <g id="line2d_68"/>
+     <g id="text_30">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="305.91802" y="758.638438" transform="rotate(-0 305.91802 758.638438)">Functions</text>
+     </g>
+    </g>
+    <g id="xtick_14">
+     <g id="line2d_69"/>
+     <g id="text_31">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="396.238812" y="758.637656" transform="rotate(-0 396.238812 758.637656)">Errors</text>
+     </g>
+    </g>
+    <g id="xtick_15">
+     <g id="line2d_70"/>
+     <g id="text_32">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="486.559604" y="758.638438" transform="rotate(-0 486.559604 758.638438)">Sieve</text>
+     </g>
+    </g>
+    <g id="xtick_16">
+     <g id="line2d_71"/>
+     <g id="text_33">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="576.880396" y="758.638438" transform="rotate(-0 576.880396 758.638438)">Sorting</text>
+     </g>
+    </g>
+    <g id="xtick_17">
+     <g id="line2d_72"/>
+     <g id="text_34">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="667.201188" y="758.638438" transform="rotate(-0 667.201188 758.638438)">Sudoku</text>
+     </g>
+    </g>
+    <g id="xtick_18">
+     <g id="line2d_73"/>
+     <g id="text_35">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="757.52198" y="758.637656" transform="rotate(-0 757.52198 758.637656)">Maze</text>
+     </g>
+    </g>
+    <g id="xtick_19">
+     <g id="line2d_74"/>
+     <g id="text_36">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="847.842772" y="758.637656" transform="rotate(-0 847.842772 758.637656)">VM</text>
+     </g>
+    </g>
+    <g id="xtick_20">
+     <g id="line2d_75"/>
+     <g id="text_37">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #334155" x="938.163564" y="758.638438" transform="rotate(-0 938.163564 758.638438)">Life</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_49">
+     <g id="line2d_76">
+      <path d="M 75.6 726.24863
+L 987.84 726.24863
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_77"/>
+     <g id="text_38">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="730.047458" transform="rotate(-0 67.6 730.047458)">0.1</text>
+     </g>
+    </g>
+    <g id="ytick_50">
+     <g id="line2d_78">
+      <path d="M 75.6 680.812339
+L 987.84 680.812339
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_79"/>
+     <g id="text_39">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="684.611168" transform="rotate(-0 67.6 684.611168)">1</text>
+     </g>
+    </g>
+    <g id="ytick_51">
+     <g id="line2d_80">
+      <path d="M 75.6 635.376049
+L 987.84 635.376049
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_81"/>
+     <g id="text_40">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="639.174877" transform="rotate(-0 67.6 639.174877)">10</text>
+     </g>
+    </g>
+    <g id="ytick_52">
+     <g id="line2d_82">
+      <path d="M 75.6 589.939759
+L 987.84 589.939759
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_83"/>
+     <g id="text_41">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="593.738587" transform="rotate(-0 67.6 593.738587)">100</text>
+     </g>
+    </g>
+    <g id="ytick_53">
+     <g id="line2d_84">
+      <path d="M 75.6 544.503468
+L 987.84 544.503468
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #e2e8f0; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_85"/>
+     <g id="text_42">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #475569" x="67.6" y="548.302296" transform="rotate(-0 67.6 548.302296)">1e+03</text>
+     </g>
+    </g>
+    <g id="ytick_54">
+     <g id="line2d_86">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="739.926316" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_55">
+     <g id="line2d_87">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="736.328614" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_56">
+     <g id="line2d_88">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="733.2868" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_57">
+     <g id="line2d_89">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="730.651861" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_58">
+     <g id="line2d_90">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="728.32768" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_59">
+     <g id="line2d_91">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="712.570943" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_60">
+     <g id="line2d_92">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="704.57001" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_61">
+     <g id="line2d_93">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="698.893257" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_62">
+     <g id="line2d_94">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="694.490026" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_63">
+     <g id="line2d_95">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="690.892324" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_64">
+     <g id="line2d_96">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="687.85051" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_65">
+     <g id="line2d_97">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="685.215571" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_66">
+     <g id="line2d_98">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="682.89139" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_67">
+     <g id="line2d_99">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="667.134653" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_68">
+     <g id="line2d_100">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="659.133719" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_69">
+     <g id="line2d_101">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="653.456967" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_70">
+     <g id="line2d_102">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="649.053735" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_71">
+     <g id="line2d_103">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="645.456033" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_72">
+     <g id="line2d_104">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="642.414219" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_73">
+     <g id="line2d_105">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="639.77928" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_74">
+     <g id="line2d_106">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="637.4551" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_75">
+     <g id="line2d_107">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="621.698363" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_76">
+     <g id="line2d_108">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="613.697429" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_77">
+     <g id="line2d_109">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="608.020676" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_78">
+     <g id="line2d_110">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="603.617445" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_79">
+     <g id="line2d_111">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="600.019743" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_80">
+     <g id="line2d_112">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="596.977929" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_81">
+     <g id="line2d_113">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="594.34299" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_82">
+     <g id="line2d_114">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="592.018809" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_83">
+     <g id="line2d_115">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="576.262072" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_84">
+     <g id="line2d_116">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="568.261139" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_85">
+     <g id="line2d_117">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="562.584386" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_86">
+     <g id="line2d_118">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="558.181155" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_87">
+     <g id="line2d_119">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="554.583452" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_88">
+     <g id="line2d_120">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="551.541639" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_89">
+     <g id="line2d_121">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="548.9067" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_90">
+     <g id="line2d_122">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="546.582519" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_91">
+     <g id="line2d_123">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="530.825782" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_92">
+     <g id="line2d_124">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="522.824848" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_93">
+     <g id="line2d_125">
+      <g>
+       <use xlink:href="#m980d856d1b" x="75.6" y="517.148096" style="fill: #475569; stroke: #475569; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_43">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #475569" x="21.577344" y="629.897143" transform="rotate(-90 21.577344 629.897143)">milliseconds · logarithmic scale</text>
+    </g>
+   </g>
+   <g id="patch_15">
+    <path d="M 97.313118 743.04
+L 153.239753 743.04
+L 153.239753 721.36138
+L 97.313118 721.36138
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 187.63391 743.04
+L 243.560545 743.04
+L 243.560545 679.880176
+L 187.63391 679.880176
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 277.954703 743.04
+L 333.881337 743.04
+L 333.881337 680.525585
+L 277.954703 680.525585
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 368.275495 743.04
+L 424.202129 743.04
+L 424.202129 684.542171
+L 368.275495 684.542171
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 458.596287 743.04
+L 514.522921 743.04
+L 514.522921 666.776033
+L 458.596287 666.776033
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 548.917079 743.04
+L 604.843713 743.04
+L 604.843713 580.451624
+L 548.917079 580.451624
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 639.237871 743.04
+L 695.164505 743.04
+L 695.164505 632.493026
+L 639.237871 632.493026
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 729.558663 743.04
+L 785.485297 743.04
+L 785.485297 686.014421
+L 729.558663 686.014421
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 819.879455 743.04
+L 875.80609 743.04
+L 875.80609 682.824937
+L 819.879455 682.824937
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="patch_24">
+    <path d="M 910.200247 743.04
+L 966.126882 743.04
+L 966.126882 615.69955
+L 910.200247 615.69955
+z
+" clip-path="url(#p4163d2e31d)" style="fill: #087f8c"/>
+   </g>
+   <g id="LineCollection_2">
+    <path d="M 125.276436 722.7023
+L 125.276436 720.105812
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 215.597228 680.101692
+L 215.597228 679.66112
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 305.91802 680.622656
+L 305.91802 680.42899
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 396.238812 684.629517
+L 396.238812 684.45521
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 486.559604 666.787004
+L 486.559604 666.765069
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 576.880396 580.633413
+L 576.880396 580.271494
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 667.201188 632.55354
+L 667.201188 632.432696
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 757.52198 686.108575
+L 757.52198 685.920714
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 847.842772 682.884594
+L 847.842772 682.765459
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+    <path d="M 938.163564 615.936566
+L 938.163564 615.465347
+" clip-path="url(#p4163d2e31d)" style="fill: none; stroke: #334155; stroke-width: 0.8"/>
+   </g>
+   <g id="line2d_126">
+    <g clip-path="url(#p4163d2e31d)">
+     <use xlink:href="#m630ef24590" x="125.276436" y="722.7023" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="215.597228" y="680.101692" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="305.91802" y="680.622656" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="396.238812" y="684.629517" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="486.559604" y="666.787004" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="576.880396" y="580.633413" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="667.201188" y="632.55354" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="757.52198" y="686.108575" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="847.842772" y="682.884594" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="938.163564" y="615.936566" style="fill: #1f77b4; stroke: #334155"/>
+    </g>
+   </g>
+   <g id="line2d_127">
+    <g clip-path="url(#p4163d2e31d)">
+     <use xlink:href="#m630ef24590" x="125.276436" y="720.105812" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="215.597228" y="679.66112" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="305.91802" y="680.42899" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="396.238812" y="684.45521" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="486.559604" y="666.765069" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="576.880396" y="580.271494" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="667.201188" y="632.432696" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="757.52198" y="685.920714" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="847.842772" y="682.765459" style="fill: #1f77b4; stroke: #334155"/>
+     <use xlink:href="#m630ef24590" x="938.163564" y="615.465347" style="fill: #1f77b4; stroke: #334155"/>
+    </g>
+   </g>
+   <g id="patch_25">
+    <path d="M 75.6 743.04
+L 987.84 743.04
+" style="fill: none; stroke: #94a3b8; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_44">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(127.354561 718.770722) rotate(-90)">0.128 ±0.0084</text>
+   </g>
+   <g id="text_45">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(217.675353 678.32603) rotate(-90)">1.05 ±0.012</text>
+   </g>
+   <g id="text_46">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(307.996145 679.0939) rotate(-90)">1.01 ±0.005</text>
+   </g>
+   <g id="text_47">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(398.316937 683.12012) rotate(-90)">0.828 ±0.0037</text>
+   </g>
+   <g id="text_48">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(488.637729 665.429979) rotate(-90)">2.04 ±0.0011</text>
+   </g>
+   <g id="text_49">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(578.958521 578.936404) rotate(-90)">162 ±1.5</text>
+   </g>
+   <g id="text_50">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(669.279313 631.097607) rotate(-90)">11.6 ±0.035</text>
+   </g>
+   <g id="text_51">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(759.600105 684.585624) rotate(-90)">0.768 ±0.0037</text>
+   </g>
+   <g id="text_52">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(849.920897 681.43037) rotate(-90)">0.903 ±0.0027</text>
+   </g>
+   <g id="text_53">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(940.241689 614.130257) rotate(-90)">27.1 ±0.32</text>
+   </g>
+   <g id="text_54">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="75.6" y="502.754286" transform="rotate(-0 75.6 502.754286)">Wasmtime</text>
+   </g>
+  </g>
+  <g id="text_55">
+   <text style="font-weight: 700; font-size: 20px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="75.6" y="43.2" transform="rotate(-0 75.6 43.2)">Example runtime · Wasm entry only</text>
+  </g>
+  <g id="text_56">
+   <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="75.6" y="73.44" transform="rotate(-0 75.6 73.44)">Supplement: entry execution, including lazy JIT work · excludes final output delivery · O2 · lower is better</text>
+  </g>
+  <g id="text_57">
+   <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #475569" x="75.6" y="799.2" transform="rotate(-0 75.6 799.2)">2026-11-08 · AMD Ryzen 7 3800X 8-Core Processor · 5 measured samples · 1 runtime warmup(s) · labels: median ±MAD</text>
+  </g>
+  <g id="text_58">
+   <text style="font-size: 9px; font-family: 'DejaVu Sans'; fill: #475569" transform="translate(75.6 822.957539)">Separate fresh-process Wasm probes: entry excludes host startup, initial module compilation/instantiation and final output delivery. Lazy JIT work remains</text>
+   <text style="font-size: 9px; font-family: 'DejaVu Sans'; fill: #475569" transform="translate(75.6 833.76)">included. No native entry comparison; stdout buffering differs.</text>
+  </g>
+  <g id="legend_1">
+   <g id="patch_26">
+    <path d="M 78.444 113.298281
+L 100.444 113.298281
+L 100.444 105.598281
+L 78.444 105.598281
+z
+" style="fill: #087f8c"/>
+   </g>
+   <g id="text_59">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0f172a" x="109.244" y="113.298281" transform="rotate(-0 109.244 113.298281)">Direct Wasm</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p4e27ba4119">
+   <rect x="75.6" y="172.8" width="912.24" height="226.285714"/>
+  </clipPath>
+  <clipPath id="p4163d2e31d">
+   <rect x="75.6" y="516.754286" width="912.24" height="226.285714"/>
+  </clipPath>
+ </defs>
+</svg>
