@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -20,6 +21,13 @@ ROOT = Path(__file__).resolve().parents[1]
 def digest(path):
     with Path(path).open('rb') as stream:
         return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+# Programs that use these share files and directories in their working
+# directory, so their executions are serialized.
+FILESYSTEM = re.compile(r'\b(read_file|write_file|write_file_atomic|append_file|file_exists|delete_file|'
+                        r'rename_file|make_dir|is_dir|delete_dir|list_dir|gs_os_(?:read|write|append|remove|'
+                        r'rename|make|list|file|is)_\w+)\b')
 
 
 def native_source_paths(case):
@@ -116,6 +124,7 @@ def main():
     # compilation slots; each slot's own lock makes identical compilations
     # share one artifact.
     lock = threading.Lock()
+    filesystem = threading.Lock()
     slots = {}
 
     def save():
@@ -182,7 +191,7 @@ def main():
     def normal_error(result):
         return result['exit_code'] == 1 and not result['error'] and ': error:' in result['stderr']
 
-    def check(case, source, cwd, level):
+    def check(case, source, cwd, level, uses_files):
         row = {'case': case['id'], 'level': level, 'status': 'fail', 'phase': case['phase']}
         phase = case['phase']
         action = 'emit'
@@ -229,14 +238,16 @@ def main():
             else:
                 command = [sys.executable, ROOT / 'scripts/run_wasmtime.py', compiled['artifact']]
             if command:
-                index, observed = execute(command, cwd, case.get('stdin', ''))
+                if uses_files:
+                    with filesystem:
+                        index, observed = execute(command, cwd, case.get('stdin', ''))
+                else:
+                    index, observed = execute(command, cwd, case.get('stdin', ''))
                 row['run_command'] = index
                 expected = case['expect']
                 stdout = expected.get('stdout', '')
                 if 'stdout_file' in expected:
-                    path = ROOT / expected['stdout_file']
-                    pins[str(path)] = digest(path)
-                    stdout = path.read_text()
+                    stdout = (ROOT / expected['stdout_file']).read_text()
                 actual = observed['stdout']
                 if expected.get('normalize') == 'trailing-newlines':
                     stdout = stdout.rstrip('\n')
@@ -271,9 +282,17 @@ def main():
                 pins[str(path)] = digest(path)
             for path in native_source_paths(case):
                 pins[str(path)] = digest(path)
+            # Pins are complete before any worker starts.
+            if 'stdout_file' in case.get('expect', {}):
+                path = ROOT / case['expect']['stdout_file']
+                pins[str(path)] = digest(path)
+            text = source.read_text(errors='replace')
+            for dependency in case.get('dependencies', []):
+                text += (ROOT / dependency).read_text(errors='replace')
+            uses_files = FILESYSTEM.search(text) is not None
             for level in args.levels:
                 if level in case['levels']:
-                    jobs.append((case, source, cwd, level))
+                    jobs.append((case, source, cwd, level, uses_files))
         selected = len(jobs)
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             for row in pool.map(lambda job: check(*job), jobs):
