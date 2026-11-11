@@ -101,7 +101,11 @@ fn lex_keyword(p: Program&, start: i64, end: i64) -> i64 {
     return T_IDENT;
 }
 
-struct LexCursor { source: i64, at: i64, end: i64, line: i64 = 1, column: i64 = 1 }
+// skeleton: a library source whose top-level function bodies are skipped; braces,
+// parens, declaration and pending track the declaration that owns the next body.
+struct LexCursor { source: i64, at: i64, end: i64, line: i64 = 1, column: i64 = 1,
+                   skeleton: bool = false, braces: i64 = 0, parens: i64 = 0,
+                   declaration: bool = true, pending: bool = false }
 inline fn lex_peek(p: Program&, l: LexCursor&, ahead: i64 = 0) -> u8 {
     if l.at + ahead >= l.end { return 0; }
     return p.text[l.at + ahead];
@@ -140,14 +144,92 @@ fn lex_escape(p: Program&, l: LexCursor&, token: i64) -> i64 {
     return e as i64;
 }
 
-fn lex_source(p: Program&, source_id: i64) {
+fn lex_source(p: Program&, source_id: i64, skeleton: bool = false) {
     if source_id < 0 || source_id >= p.sources.len { diagnose_at(p, 0, 0, 0, "invalid source ID"); return; }
     let source = p.sources[source_id];
-    var l = LexCursor { source: source_id, at: source.text_start, end: source.text_start + source.text_len };
+    var l = LexCursor { source: source_id, at: source.text_start, end: source.text_start + source.text_len, skeleton: skeleton };
     p.sources[source_id].token_start = p.tokens.len;
     if lex_peek(p, l) == 239 && lex_peek(p, l, 1) == 187 && lex_peek(p, l, 2) == 191 {
         l.at += 3;
     }
+    lex_tokens(p, l);
+    p.sources[source_id].token_end = p.tokens.len;
+}
+
+// The offset of the brace closing a body whose text starts at `at`, or -1. Strings,
+// characters and comments follow the token rules, so their braces do not count.
+fn lex_skip_body(p: Program&, start: i64, end: i64) -> i64 {
+    var depth = 1; var at = start;
+    while at < end {
+        let c = p.text[at];
+        if c == '{' { depth++; at++; }
+        else if c == '}' { depth--; if depth == 0 { return at; } at++; }
+        else if c == '/' && at + 1 < end && p.text[at + 1] == '/' {
+            while at < end && p.text[at] != '\n' { at++; }
+        } else if c == '/' && at + 1 < end && p.text[at + 1] == '*' {
+            var nested = 1; at += 2;
+            while at < end && nested > 0 {
+                if p.text[at] == '/' && at + 1 < end && p.text[at + 1] == '*' { nested++; at += 2; }
+                else if p.text[at] == '*' && at + 1 < end && p.text[at + 1] == '/' { nested--; at += 2; }
+                else { at++; }
+            }
+            if nested != 0 { return -1; }
+        } else if c == '"' && at + 2 < end && p.text[at + 1] == '"' && p.text[at + 2] == '"' {
+            at += 3;
+            while at + 2 < end && !(p.text[at] == '"' && p.text[at + 1] == '"' && p.text[at + 2] == '"') { at++; }
+            if at + 2 >= end { return -1; }
+            at += 3;
+        } else if c == '"' || c == '\'' {
+            at++;
+            while at < end && p.text[at] != c && p.text[at] != '\n' {
+                if p.text[at] == '\\' { at += 2; } else { at++; }
+            }
+            if at >= end || p.text[at] != c { return -1; }
+            at++;
+        } else { at++; }
+    }
+    return -1;
+}
+
+// Follows top-level declarations of a library source. The first brace outside
+// parentheses after a declaration's fn keyword opens its body, which is skipped.
+fn lex_skeleton(p: Program&, l: LexCursor&, token: i64) {
+    let kind = p.tokens[token].kind;
+    if kind == T_LCURLY {
+        if l.braces == 0 && l.parens == 0 && l.pending {
+            l.pending = false;
+            let close = lex_skip_body(p, l.at, l.end);
+            if close >= 0 {
+                p.tokens[token].kind = T_LAZY_BODY; p.tokens[token].integer = close;
+                while l.at < close {
+                    if p.text[l.at] == '\n' { l.line++; l.column = 1; } else { l.column++; }
+                    l.at++;
+                }
+            }
+        }
+        l.braces++; l.declaration = false; return;
+    }
+    if kind == T_RCURLY {
+        if l.braces > 0 { l.braces--; }
+        if l.braces == 0 && l.parens == 0 { l.declaration = true; l.pending = false; }
+        return;
+    }
+    if l.braces > 0 { return; }
+    if kind == T_LPAREN || kind == T_LBRACKET { l.parens++; l.declaration = false; }
+    else if kind == T_RPAREN || kind == T_RBRACKET { if l.parens > 0 { l.parens--; } }
+    else if kind == T_SEMI { if l.parens == 0 { l.declaration = true; l.pending = false; } }
+    else if kind == T_ASSIGN { if l.parens == 0 { l.pending = false; } l.declaration = false; }
+    else if kind == T_FN || kind == T_THREADFN {
+        if l.declaration && l.parens == 0 { l.pending = true; }
+        l.declaration = false;
+    } else if kind == T_EXPORT || kind == T_EXTERN || kind == T_SIMD || kind == T_RECURSIVE || kind == T_STRLIT { }
+    else if kind == T_IDENT && (token_is(p, token, "inline") || token_is(p, token, "checkfree")) { }
+    else { l.declaration = false; }
+}
+
+// Lexes l's range, then appends its end-of-file token.
+fn lex_tokens(p: Program&, l: LexCursor&) {
+    let source_id = l.source;
     loop {
         let c = lex_peek(p, l);
         if c == ' ' || c == '\t' || c == '\r' || c == '\n' { lex_take(p, l); continue; }
@@ -177,10 +259,7 @@ fn lex_source(p: Program&, source_id: i64) {
         let token_id = p.tokens.len;
         // Reserve the diagnostic's token before scanning a fallible literal.
         p.tokens.push(t);
-        if l.at >= l.end {
-            p.sources[source_id].token_end = p.tokens.len;
-            return;
-        }
+        if l.at >= l.end { return; }
         if c == 0 {
             lex_take(p, l);
             diagnose(p, token_id, "NUL byte is not valid source text");
@@ -268,6 +347,7 @@ fn lex_source(p: Program&, source_id: i64) {
         }
         t.end = l.at;
         p.tokens[token_id] = t;
+        if l.skeleton { lex_skeleton(p, l, token_id); }
     }
 }
 

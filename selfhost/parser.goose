@@ -10,7 +10,7 @@ struct ParseCursor {
     namespace_token: i64 = -1, file_namespace: i64 = -1,
     declaration_seen: bool = false, function: i64 = -1,
     tentative: bool = false, failed: bool = false,
-    has_expansion: bool = false,
+    has_expansion: bool = false, defer_bodies: bool = false,
 }
 inline fn parse_kind(p: Program&, c: ParseCursor&) -> i64 {
     if c.at >= c.end { return T_EOF; }
@@ -43,6 +43,11 @@ fn parse_expect(p: Program&, c: ParseCursor&, kind: i64, message: const u8[:]) -
 }
 fn parse_node(p: Program&, kind: i64, token: i64) -> i64 {
     return new_node(p, kind, token);
+}
+// Abandoned tentative nodes become unlinked empty nodes. The table never shrinks,
+// so checker-held node values stay valid when a deferred body is parsed.
+fn parse_rewind(p: Program&, count: i64) {
+    for i in count..p.nodes.len { p.nodes[i] = Node { kind: N_EMPTY }; }
 }
 fn parse_link(p: Program&, first: i64&, last: i64&, node: i64) {
     if node < 0 { return; }
@@ -330,7 +335,7 @@ recursive fn parse_type_arguments(p: Program&, c: ParseCursor&) -> i64 {
     if !accepted && !c.failed && !c.no_record && parse_kind(p, c) == T_DOT {
         accepted = parse_ahead(p, c) == T_IDENT && parse_ahead(p, c, 2) == T_LCURLY;
     }
-    if !accepted { c = saved; p.nodes.resize(count); return -1; }
+    if !accepted { c = saved; parse_rewind(p, count); return -1; }
     c.tentative = saved.tentative; c.failed = saved.failed; return arguments;
 }
 recursive fn parse_call(p: Program&, c: ParseCursor&, callee: i64) -> i64 {
@@ -670,7 +675,7 @@ recursive fn parse_function_value(p: Program&, c: ParseCursor&) -> i64 {
                 }
                 a = p.nodes[a].next;
             }
-        } else { c = saved; p.nodes.resize(count); params = -1; }
+        } else { c = saved; parse_rewind(p, count); params = -1; }
     }
     let body = parse_node(p, N_BLOCK, token); parse_block_body(p, c, body);
     let id = parse_node(p, N_FUNCTION_VALUE, token); p.nodes[id].first = params; p.nodes[id].right = body;
@@ -721,8 +726,13 @@ recursive fn parse_function(p: Program&, c: ParseCursor&, nested: bool, inherite
         parse_expect(p, c, T_SEMI, "expected ; after extern signature");
     } else {
         if parse_kind(p, c) == T_ASSIGN { parse_error(p, c, "only extern functions take a symbol after their signature"); }
-        let saved_function = c.function; c.function = id;
-        let body = parse_block(p, c); p.nodes[id].right = body; c.function = saved_function;
+        var body: i64 = -1;
+        if c.defer_bodies && !nested && (parse_kind(p, c) == T_LCURLY || parse_kind(p, c) == T_LAZY_BODY) { body = parse_defer_body(p, c); }
+        if body < 0 {
+            let saved_function = c.function; c.function = id;
+            body = parse_block(p, c); c.function = saved_function;
+        }
+        p.nodes[id].right = body;
     }
     if (flags & F_EXPORT) != 0 && (flags & F_EXTERN) != 0 { parse_error(p, c, "export fn cannot be extern"); }
     if nested && (flags & (F_EXTERN | F_EXPORT | F_THREAD)) != 0 { parse_error(p, c, "extern, export and thread_fn declarations require top level"); }
@@ -824,6 +834,46 @@ fn parse_assignment(kind: i64) -> bool {
 fn parse_function_start(p: Program&, c: ParseCursor&) -> bool {
     let kind = parse_kind(p, c);
     return kind == T_FN || kind == T_RECURSIVE || kind == T_THREADFN || kind == T_EXTERN || kind == T_EXPORT || kind == T_SIMD || parse_inline(p, c) || parse_checkfree(p, c);
+}
+// A library function body is skipped to its matching brace and kept as a
+// placeholder block; parse_deferred_body parses it when the checker needs it.
+// Unbalanced braces parse eagerly, so their diagnostics are unchanged.
+fn parse_defer_body(p: Program&, c: ParseCursor&) -> i64 {
+    let open = c.at; var depth = 0; var at = open;
+    while at < c.end {
+        let kind = p.tokens[at].kind;
+        if kind == T_LCURLY || kind == T_LAZY_BODY { depth++; }
+        else if kind == T_RCURLY { depth--; if depth == 0 { break; } }
+        else if kind == T_EOF { return -1; }
+        at++;
+    }
+    if at >= c.end || depth != 0 { return -1; }
+    let body = parse_node(p, N_BLOCK, open);
+    p.nodes[body].flags = F_DEFERRED; p.nodes[body].integer = open + 1; p.nodes[body].left = c.namespace_token;
+    c.at = at; parse_next(p, c);
+    return body;
+}
+fn parse_deferred_body(p: Program&, function_node: i64) {
+    if function_node < 0 { return; }
+    let body = p.nodes[function_node].right;
+    if body < 0 || (p.nodes[body].flags & F_DEFERRED) == 0 { return; }
+    let open = p.nodes[body].token; let source = p.tokens[open].source;
+    var start = p.nodes[body].integer; var end = p.sources[source].token_end;
+    let namespace_token = p.nodes[body].left;
+    p.nodes[body].flags = 0; p.nodes[body].integer = 0; p.nodes[body].left = -1;
+    if p.tokens[open].kind == T_LAZY_BODY {
+        // Lex the skipped text through its closing brace, after all existing tokens.
+        let brace = p.tokens[open];
+        p.tokens[open].kind = T_LCURLY; p.tokens[open].integer = 0;
+        var l = LexCursor { source: source, at: brace.end, end: brace.integer + 1, line: brace.line, column: brace.column + 1 };
+        start = p.tokens.len; lex_tokens(p, l); end = p.tokens.len;
+    }
+    var c = ParseCursor { source: source, at: start, end: end,
+                          namespace_token: namespace_token, function: function_node };
+    while c.at + 1 < c.end && p.tokens[c.at].kind < 0 { c.at++; }
+    parse_block_body(p, c, body);
+    if c.failed { p.nodes[function_node].flags |= F_BROKEN; }
+    if c.has_expansion { var bindings: ExpansionBinding[>..] = []; expansion_walk(p, function_node, bindings); }
 }
 recursive fn parse_block(p: Program&, c: ParseCursor&) -> i64 {
     let token = parse_expect(p, c, T_LCURLY, "expected { before block"); let id = parse_node(p, N_BLOCK, token);
@@ -936,7 +986,8 @@ recursive fn parse_top(p: Program&, c: ParseCursor&) -> i64 {
 fn parse_source(p: Program&, source_id: i64) -> i64 {
     if source_id < 0 || source_id >= p.sources.len { diagnose_at(p, 0, 0, 0, "invalid source ID"); return -1; }
     if p.sources[source_id].token_end <= p.sources[source_id].token_start { lex_source(p, source_id); }
-    var c = ParseCursor { source: source_id, at: p.sources[source_id].token_start, end: p.sources[source_id].token_end };
+    var c = ParseCursor { source: source_id, at: p.sources[source_id].token_start, end: p.sources[source_id].token_end,
+                          defer_bodies: p.sources[source_id].library };
     while c.at + 1 < c.end && p.tokens[c.at].kind < 0 { c.at++; }
     let root = parse_node(p, N_MODULE, c.at); p.sources[source_id].root = root;
     while parse_kind(p, c) != T_EOF {

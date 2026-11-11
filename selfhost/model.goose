@@ -103,6 +103,9 @@ let T_TU32: i64 = 97;
 let T_TU64: i64 = 98;
 let T_TF32: i64 = 99;
 let T_TF64: i64 = 100;
+// The opening brace of a library function body whose text the lexer skipped; integer holds
+// the offset of the matching closing brace.
+let T_LAZY_BODY: i64 = 101;
 
 let N_MODULE: i64 = 0;
 let N_IMPORT: i64 = 1;
@@ -234,6 +237,8 @@ let F_FORMAT_RAW: i64 = 274877906944;
 let F_PROPERTY: i64 = 549755813888;
 let F_RETURN_MOVE: i64 = 1099511627776;
 let F_RESULT_TEMP: i64 = 2199023255552;
+// A library function body block whose tokens are parsed when the checker first reaches it.
+let F_DEFERRED: i64 = 4398046511104;
 let TF_UNSIGNED: i64 = 1;
 let TF_OPTIONAL: i64 = 2;
 let TF_CONST: i64 = 4;
@@ -256,6 +261,7 @@ struct Source {
     path_start: i64 = 0, path_len: i64 = 0,
     text_start: i64 = 0, text_len: i64 = 0,
     token_start: i64 = 0, token_end: i64 = 0, root: i64 = -1, next_decl: i64 = -1,
+    library: bool = false,
 }
 struct Token {
     kind: i64 = 0, source: i64 = 0, start: i64 = 0, end: i64 = 0,

@@ -3421,6 +3421,8 @@ recursive fn check_obvious_void_body(p: Program&, body: i64) -> bool {
 
 recursive fn check_prepare_function(p: Program&, c: Checker&, function_node: i64) {
     if p.nodes[function_node].type_id >= 0 { return; }
+    // Result inference below reads the body of a recursive function without a declared result.
+    if (p.nodes[function_node].flags & F_RECURSIVE) != 0 && p.nodes[function_node].left < 0 { parse_deferred_body(p, function_node); }
     let n = p.nodes[function_node];
     let saved_scope = c.scope; let saved_function = c.function_node; let saved_slot = c.next_slot;
     let symbol = n.symbol;
@@ -3589,6 +3591,7 @@ fn check_reuse_needs(p: Program&, c: Checker&, function_node: i64, token: i64) -
 }
 
 recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, bindings: CheckList&, token: i64) -> i64 {
+    parse_deferred_body(p, original);
     if !check_function_reached(p, c, original, token) { return -1; }
     if bindings.count == 0 && check_environment_same(p, c, original, token) {
         if (p.nodes[original].flags & F_CHECKED) == 0 && !check_need_active(c, original) { return p.nodes[original].symbol; }
@@ -6056,6 +6059,7 @@ fn check_assignment_target(p: Program&, c: Checker&, target: i64, value: i64, re
 }
 recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     if function_node < 0 { return; }
+    parse_deferred_body(p, function_node);
     check_prepare_function(p, c, function_node);
     let n = p.nodes[function_node];
     p.nodes[function_node].flags |= F_REACHABLE;
@@ -6508,6 +6512,7 @@ fn check_unreached(p: Program&, c: Checker&, declarations: i64) {
         let symbol = p.symbols[i]; if symbol.node < 0 || symbol.owner >= 0 { continue; }
         let n = p.nodes[symbol.node];
         if n.kind != N_FUNCTION || n.right < 0 || (n.flags & (F_GENERIC | F_THREAD | F_CHECKED)) != 0 { continue; }
+        if n.token >= 0 && p.sources[p.tokens[n.token].source].library { continue; }
         var specialized = false;
         for spec in c.specializations { if spec.original == symbol.node { specialized = true; break; } }
         if specialized { continue; }
@@ -6561,6 +6566,8 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     }
     let declarations = p.symbols.len;
     if declarations_only {
+        let parsed_nodes = p.nodes.len;
+        for i in 0..parsed_nodes { if p.nodes[i].kind == N_FUNCTION { parse_deferred_body(p, i); } }
         for i in 0..declarations { let symbol = p.symbols[i]; if symbol.node >= 0 && p.nodes[symbol.node].kind == N_ALIAS { check_alias_declaration(p, c, symbol.node); } }
         for source in p.sources { if source.root >= 0 { check_qualified_body_types(p, c, source.root); } }
         return;
