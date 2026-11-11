@@ -3,23 +3,74 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
+// The shortest scientific text of a positive finite f32, chosen as native
+// gs_fmt_f32 chooses it: the fewest significant digits that read back as the
+// same f32, of those the nearest to its exact value, and of two as near the
+// even one. Exact integers decide each step. toPrecision rounds a decimal tie
+// up, and one rounded candidate per length misses shorter text below a power
+// of two, where the gap to the next f32 down is half the gap up.
+function f32Scientific(magnitude) {
+  const view = new DataView(new ArrayBuffer(4));
+  view.setFloat32(0, magnitude);
+  const bits = view.getUint32(0);
+  const biased = bits >>> 23;
+  const fraction = bits & 0x7fffff;
+  const significand = biased ? fraction | 0x800000 : fraction;
+  // The value is quarter * 2^binary; what reads back as it reaches from
+  // quarter - below to quarter + 2 in the same unit, ends included when the
+  // significand is even, since reading rounds a tie to the even significand.
+  const quarter = BigInt(significand) * 4n;
+  const binary = (biased || 1) - 152;
+  const below = fraction === 0 && biased > 1 ? 1n : 2n;
+  const inclusive = significand % 2 === 0;
+  // Integers proportional to one unit of the value and one unit of 10^scale.
+  const scaled = (scale) => [
+    (binary > 0 ? 1n << BigInt(binary) : 1n) * (scale < 0 ? 10n ** BigInt(-scale) : 1n),
+    (binary < 0 ? 1n << BigInt(-binary) : 1n) * (scale > 0 ? 10n ** BigInt(scale) : 1n),
+  ];
+  let exponent = Math.floor(Math.log10(magnitude));
+  for (;;) {
+    const [valueUnit, decimalUnit] = scaled(exponent);
+    const leading = quarter * valueUnit / decimalUnit;
+    if (leading >= 10n) exponent++;
+    else if (leading < 1n) exponent--;
+    else break;
+  }
+  for (let precision = 1; ; precision++) {
+    const [valueUnit, decimalUnit] = scaled(exponent - precision + 1);
+    const exact = quarter * valueUnit;
+    const low = (quarter - below) * valueUnit;
+    const high = (quarter + 2n) * valueUnit;
+    const truncated = exact / decimalUnit;
+    let best;
+    let bestDistance;
+    for (const digits of [truncated, truncated + 1n]) {
+      const candidate = digits * decimalUnit;
+      if (inclusive ? candidate < low || candidate > high : candidate <= low || candidate >= high) continue;
+      const distance = candidate > exact ? candidate - exact : exact - candidate;
+      if (best === undefined || distance < bestDistance || (distance === bestDistance && digits % 2n === 0n)) {
+        best = digits;
+        bestDistance = distance;
+      }
+    }
+    if (best !== undefined) {
+      // A carry to 10^precision spells one more digit at the next power.
+      const text = best.toString();
+      const digits = text.replace(/0+$/, "");
+      return digits[0] + (digits.length > 1 ? "." + digits.slice(1) : "") + "e" + (exponent + text.length - precision);
+    }
+  }
+}
+
 export function gooseFloat(value, bits = 64) {
+  if (bits === 32) value = Math.fround(value);
   if (Number.isNaN(value)) return "nan";
   if (value === Infinity) return "inf";
   if (value === -Infinity) return "-inf";
   const negative = value < 0 || Object.is(value, -0);
   if (value === 0) return negative ? "-0.0" : "0.0";
   const magnitude = Math.abs(value);
-  let shortest = magnitude.toString();
-  if (bits === 32) {
-    for (let precision = 1; precision <= 9; precision++) {
-      const candidate = magnitude.toPrecision(precision);
-      if (Math.fround(Number(candidate)) === magnitude) {
-        shortest = candidate;
-        break;
-      }
-    }
-  }
+  const shortest = bits === 32 ? f32Scientific(magnitude) : magnitude.toString();
   const [mantissa, exponentText = "0"] = shortest.toLowerCase().split("e");
   const point = mantissa.includes(".") ? mantissa.indexOf(".") : mantissa.length;
   let digits = mantissa.replace(".", "");
