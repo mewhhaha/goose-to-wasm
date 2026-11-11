@@ -1,0 +1,580 @@
+{
+  "status": "passed",
+  "fixture_sha256": "69b937f4ce37c57b7c1f26895cc60344bd87d3eb42a077da4a6c95e2b8426609",
+  "parent_storage_sha256": "ab499bcd1e7639940ecd275b0ee186fa1dee1d2a666744f3f25d3a0c11f62489",
+  "candidate_storage_sha256": "f451479db4f6cfd8960757d00baf390abe0976610d8409839e2f248903f3e97a",
+  "rows": [
+    {
+      "label": "parent",
+      "profile": "clang-O0",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O0",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-clang-O0"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "parent",
+      "profile": "clang-O2",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-clang-O2"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "parent",
+      "profile": "gcc-O0",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O0",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-gcc-O0"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "parent",
+      "profile": "gcc-O2",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-gcc-O2"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "parent",
+      "profile": "clang-SAN",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined,pointer-overflow",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-clang-SAN"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "label": "parent",
+      "profile": "gcc-SAN",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined,pointer-overflow",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-gcc-SAN"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "label": "parent",
+      "profile": "clang-Tiny",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-D__TINYC__=1",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=0",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-clang-Tiny"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "parent",
+      "profile": "gcc-Tiny",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-D__TINYC__=1",
+          "-I",
+          "/var/tmp/goose-perf/stackguard/parent/native",
+          "-DSTORAGE_HEADER=\"/var/tmp/goose-perf/stackguard/parent/native/storage.h\"",
+          "-DEXPECT_FAST=0",
+          "-DEAGER_MAIN=0",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/parent-gcc-Tiny"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "candidate",
+      "profile": "clang-O0",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O0",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-clang-O0"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "candidate",
+      "profile": "clang-O2",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-clang-O2"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "candidate",
+      "profile": "gcc-O0",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O0",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-gcc-O0"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "candidate",
+      "profile": "gcc-O2",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-gcc-O2"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "candidate",
+      "profile": "clang-SAN",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined,pointer-overflow",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-clang-SAN"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "label": "candidate",
+      "profile": "gcc-SAN",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O1",
+          "-g",
+          "-fsanitize=address,undefined,pointer-overflow",
+          "-fno-sanitize-recover=all",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=1",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-gcc-SAN"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true
+    },
+    {
+      "label": "candidate",
+      "profile": "clang-Tiny",
+      "compile": {
+        "command": [
+          "clang-23",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-D__TINYC__=1",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=0",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-clang-Tiny"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    },
+    {
+      "label": "candidate",
+      "profile": "gcc-Tiny",
+      "compile": {
+        "command": [
+          "gcc",
+          "-std=gnu11",
+          "-fstack-protector-strong",
+          "-O2",
+          "-D__TINYC__=1",
+          "-I",
+          "/home/jacobt/src/goose-to-wasm/native",
+          "-DSTORAGE_HEADER=\"/home/jacobt/src/goose-to-wasm/native/storage.h\"",
+          "-DEXPECT_FAST=0",
+          "-DEAGER_MAIN=1",
+          "/var/tmp/goose-perf/stackguard/whole-header.c",
+          "-lm",
+          "-ldl",
+          "-pthread",
+          "-o",
+          "/var/tmp/goose-perf/stackguard/candidate-gcc-Tiny"
+        ],
+        "exit": 0,
+        "stderr": ""
+      },
+      "run": {
+        "exit": 0,
+        "stdout": "native stack position ok\n",
+        "stderr": ""
+      },
+      "passed": true,
+      "structure": {
+        "scalar_canary_matches_expected": true,
+        "real_escaped_buffer_canary_retained": true,
+        "cold_pthread_initializer_canary_retained": true
+      }
+    }
+  ]
+}

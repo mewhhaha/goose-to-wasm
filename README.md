@@ -4,11 +4,11 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose, produci
 
 ## Benchmarks
 
-**Compiler speed.** With the supplied Clang 23 profile, snapshot 58 matched the previous C++ compiler for Wasm emission within noise and took 6.6% less time to emit C. Against snapshot 57, it was 2.94× faster for Wasm and 2.31× faster for C. These are geometric means across eleven programs. C emission excludes C compilation and linking. [Method and results](bench/results/2026-11-08/compiler-throughput-58/README.md)
+**Compiler speed.** With the supplied Clang 23 profile, snapshot 59 took 0.59 of the previous C++ compiler's time to emit Wasm and 0.54 to emit C: 1.70× and 1.84× faster, and 1.77× across all 22 cells. It is 1.75× faster than snapshot 58 for both targets. These are geometric means across eleven programs; Tour emitted as Wasm is the one cell still slower than C++. C emission excludes C compilation and linking. Library functions the program does not reach are no longer parsed or checked. [Method and results](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
-**Example programs.** Across ten examples, median cold builds took 50–69 ms for direct Wasm and 253–1,924 ms for native executables. Native builds include C compilation and linking; process times include launch and exit. Wasmtime preparation is measured separately. Sorting took 177 ms with minimal AOT and 113 ms native.
+**Example programs.** These and the Mandelbrot measurements are from the snapshot 58 campaign ([results](bench/results/2026-11-08/compiler-throughput-58/README.md)). Across ten examples, median cold builds took 50–69 ms for direct Wasm and 253–1,924 ms for native executables. Native builds include C compilation and linking; process times include launch and exit. Wasmtime preparation is measured separately. Sorting took 177 ms with minimal AOT and 113 ms native.
 
 ![Example program build times](bench/charts/goose-examples-compilation.svg)
 
@@ -24,7 +24,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose, produci
 
 ## Construction and contracts
 
-The compiler implements its frontend, optimizer and backends in Goose. A checked-in C seed bootstraps it; `--verify` checks consecutive generated C outputs match. A C++ reference guided the initial port. Frozen source and output contracts now check behavior: snapshot 58 passes 7,955 of 8,055 rows, including all 184 new rows. The 100 existing gaps remain. [Qualification](selfhost/results/2026-11-08/compiler-throughput-58/README.md)
+The compiler implements its frontend, optimizer and backends in Goose. A checked-in C seed bootstraps it; `--verify` checks consecutive generated C outputs match. A C++ reference guided the initial port. Frozen source and output contracts now check behavior: snapshot 59 passes 7,955 of 8,055 rows, each matching snapshot 58. The 100 existing gaps remain. [Qualification](selfhost/results/2026-11-11/compiler-throughput-59/README.md)
 
 With Python 3, a native C compiler and Node:
 

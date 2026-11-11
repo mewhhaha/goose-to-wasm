@@ -1,0 +1,223 @@
+{
+  "schema": "goose-bootstrap-v2",
+  "status": "passed",
+  "commands": [
+    {
+      "name": "cc-version",
+      "command": [
+        "/usr/bin/clang-23",
+        "--version"
+      ],
+      "cwd": "/tmp/goose-bootstrap-rh314_lx/compiler",
+      "exit_code": 0,
+      "seconds": 0.013986744044814259,
+      "stdout_sha256": "7b6f0e7fb622d3036a01251f091ec89e0240721d9538d61495472134a9084c63",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cc-target",
+      "command": [
+        "/usr/bin/clang-23",
+        "-dumpmachine"
+      ],
+      "cwd": "/tmp/goose-bootstrap-rh314_lx/compiler",
+      "exit_code": 0,
+      "seconds": 0.01388014102121815,
+      "stdout_sha256": "1c7da408e283702561a445e700b61c0f55a082230a3cfe323208841221274a6a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "build-seed-profile",
+      "command": [
+        "/usr/bin/clang-23",
+        "-std=gnu11",
+        "-O2",
+        "seed.c",
+        "-lm",
+        "-ldl",
+        "-pthread",
+        "-o",
+        "/tmp/goose-bootstrap-rh314_lx/compiler/seed",
+        "-fprofile-instr-use=/home/jacobt/src/goose-to-wasm/bootstrap/profile.profdata",
+        "-Werror=profile-instr-out-of-date",
+        "-Werror=profile-instr-missing",
+        "-Werror=profile-instr-unprofiled"
+      ],
+      "cwd": "/tmp/goose-bootstrap-rh314_lx/compiler/cc-build-seed",
+      "exit_code": 0,
+      "seconds": 73.93415356602054,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "aa25c07c975e1f6069a447c219849f03493ef4aac3d2865bbc3b1454ac2e06f4"
+    },
+    {
+      "name": "verify-selfhost",
+      "command": [
+        "/tmp/goose-bootstrap-rh314_lx/compiler/goose",
+        "sources/main.goose",
+        "--stdlib",
+        "stdlib",
+        "--target",
+        "native",
+        "-O2",
+        "-o",
+        "/tmp/goose-bootstrap-rh314_lx/compiler/next-generation.c"
+      ],
+      "cwd": "/tmp/goose-bootstrap-rh314_lx/compiler",
+      "exit_code": 0,
+      "seconds": 36.044890748977195,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "goose_optimization": 2,
+  "requested_goose_optimization": 2,
+  "seed_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+  "cc": "/usr/bin/clang-23",
+  "cc_sha256": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+  "bootstrap_source_sha256": {
+    "checker.goose": "59068ea4849f8a1aeac940f0d258281cf487099a1c31e9a193ae0baff19e9be1",
+    "checker_lifetimes.goose": "49c076fcb10d732073d13d7e47e7ecfee0126d5af24a11cf05db79a3189f98f4",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
+    "checker_validation.goose": "84ce6c27f0e9a6132e66cf3b23a6553c43086d06aad6873641099e8315e7e2c2",
+    "codegen.goose": "96bdf968f908cfaf3827d32eef9b80505af2adb28a4cb0aef4b08b9c83795090",
+    "codegen_c.goose": "dc8d3a1b1737f1437950ecc262e09e7dc04d771848357a502e24e60690a02137",
+    "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+    "codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6",
+    "codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70",
+    "driver.goose": "aa4d002dcb14b2455fadf625d19b77fe1c1780d4d454c39d1741772f3f9ac021",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "lexer.goose": "9ff66431c4e748ae78a8f87061c23cffeab749e2159dadf3518fc33642106275",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "model.goose": "297e58fc032a844e06eca5e21800641b2d26cc252153141719f379a531b2143d",
+    "optimizer.goose": "a52d2230a37615cc75b0a45e95711b5991e93e593ff881e420f985a74770ec14",
+    "parser.goose": "30cca0406cd3b6451bb45579fcb90f4f17a446bd56ebccc92e572d1dca8406e0",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "sources.goose": "ace0ec9e0e79693c442ac14e5dacdb2bb189f7db7cb6644b07688c5f818246c1",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "wasm.goose": "59ba762a49e429bf8bba605a120a0f5908ba9e4745fe238efaf02f0cde5cb9d0"
+  },
+  "input_sha256": {
+    "/home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py": "523e48cd5c8c0cf48c3fe000a900988faa960664bfff377d59c30768d2941663",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.json": "0f3ad392b6d5b0fa756e6f8567d172fef4d6b73324428738b6ea350479b25a9c",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz": "c862a80bb1adc57c95d195b4d42e0e7a30f0d32603ee02f8fddd71439eeae0f5",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz": "69df35df65cdb0e2fd7fa5fc0c4edfbee0fa928237d92e8e52c3de188fdbd307",
+    "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/profile.json": "19163ecbf68e8c568c40be013ba56d53fc99cde5c8d1185823359a01de5f61bb",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/profile.profdata": "e7e4567e420dd6283d81b01c255a523014d1d448905f41f2265ad7b0cc46546e",
+    "/home/jacobt/src/goose-to-wasm/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "/home/jacobt/src/goose-to-wasm/native/storage.h": "f451479db4f6cfd8960757d00baf390abe0976610d8409839e2f248903f3e97a",
+    "/home/jacobt/src/goose-to-wasm/native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "/home/jacobt/src/goose-to-wasm/native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "/home/jacobt/src/goose-to-wasm/native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
+    "/home/jacobt/src/goose-to-wasm/native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6",
+    "/home/jacobt/src/goose-to-wasm/native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "cc_version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+  "cc_target": "x86_64-pc-linux-gnu",
+  "profile_identity": {
+    "clang_major": 23,
+    "target": "x86_64-pc-linux-gnu",
+    "base_flags": [
+      "-std=gnu11",
+      "-O2",
+      "-lm",
+      "-ldl",
+      "-pthread"
+    ],
+    "c_basename": "seed.c"
+  },
+  "builds": {
+    "build-seed": {
+      "c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+      "goose_optimization": 2,
+      "profile_used": true,
+      "profile_reason": "exact profile identity matched",
+      "profile_sha256": "e7e4567e420dd6283d81b01c255a523014d1d448905f41f2265ad7b0cc46546e"
+    }
+  },
+  "source_kind": "current-goose-sources",
+  "source_sha256": {
+    "wasm.goose": "59ba762a49e429bf8bba605a120a0f5908ba9e4745fe238efaf02f0cde5cb9d0",
+    "thread_plan.goose": "522ec323a95c04ae6f77ee61438feb35d70041eaa8d7e40693722f11afe6388e",
+    "sources.goose": "ace0ec9e0e79693c442ac14e5dacdb2bb189f7db7cb6644b07688c5f818246c1",
+    "region_plan.goose": "ea7804e188178980bd4f89ebdc8e230092cac5db55890ccb0bedbf89b46a77fb",
+    "parser.goose": "30cca0406cd3b6451bb45579fcb90f4f17a446bd56ebccc92e572d1dca8406e0",
+    "optimizer.goose": "a52d2230a37615cc75b0a45e95711b5991e93e593ff881e420f985a74770ec14",
+    "model.goose": "297e58fc032a844e06eca5e21800641b2d26cc252153141719f379a531b2143d",
+    "main.goose": "aedbadf2bb4536fc059812d4eeec6151d57de2bf25c1005fa6f5d4470aa45d1e",
+    "lexer.goose": "9ff66431c4e748ae78a8f87061c23cffeab749e2159dadf3518fc33642106275",
+    "expansion_bind.goose": "504dff1108a74fb32edb852196e99856eb4d7c0c3be685066bcfdd8b06ddcbbb",
+    "driver.goose": "aa4d002dcb14b2455fadf625d19b77fe1c1780d4d454c39d1741772f3f9ac021",
+    "codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70",
+    "codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6",
+    "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
+    "codegen_c.goose": "dc8d3a1b1737f1437950ecc262e09e7dc04d771848357a502e24e60690a02137",
+    "codegen.goose": "96bdf968f908cfaf3827d32eef9b80505af2adb28a4cb0aef4b08b9c83795090",
+    "checker_validation.goose": "84ce6c27f0e9a6132e66cf3b23a6553c43086d06aad6873641099e8315e7e2c2",
+    "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
+    "checker_operations.goose": "30c41cdc001f0512d2c5d3017368a80dbfc824dfd1f11e1c53a5213f5114927f",
+    "checker_lifetimes.goose": "49c076fcb10d732073d13d7e47e7ecfee0126d5af24a11cf05db79a3189f98f4",
+    "checker.goose": "59068ea4849f8a1aeac940f0d258281cf487099a1c31e9a193ae0baff19e9be1"
+  },
+  "asset_sha256": {
+    "native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "native/storage.h": "f451479db4f6cfd8960757d00baf390abe0976610d8409839e2f248903f3e97a",
+    "native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
+    "native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6",
+    "native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "stdlib_sha256": {
+    "vec.goose": "2cac168c72047834433bfb419734c38455c9429ea045b1273898031c53faa82e",
+    "std.goose": "2243c2ef52ba5045b275eea35252d09f36544987c6884f4a8d35579fa6f781ff",
+    "regex.goose": "be0e50bab2a1db9f85e856250bcc592dfe25aca73c2ed900410047fbefb4b035",
+    "os.goose": "2193f394d44469daffd993ed204a91b068084fd8db13e261e11156b40c66e934",
+    "math.goose": "b4c1aee33b5b7033d36a4ddc5c6522c73b21cafe204dc20e8860cdeba22467da",
+    "json.goose": "0e58291ed9051e4ecb8da1ad420290549d723336516507aed33cf7ced89dc29b",
+    "ffi.goose": "e092b245fbe13ee2fdc71599b7b8eb44198e5261cad9600b7681e13ad75a6c2e",
+    "exception.goose": "b91033a5cb9029ac56d27ffb0ed9f5841f76ff58b39de8e881101ca2b8fc39c4",
+    "dictionary.goose": "fb39f896731faf3799e81727f7261849a62bdfbdc92d5fdbc36405a85830f322",
+    "csv.goose": "a49b0647f4a2f8ca36170e5a184ab6c6e505492434d0a10a5e05127e96da61ba",
+    "binary.goose": "6973e209428668c2db856eaa941de5d93938cfb1749ed07cac534bf9fe4cb031",
+    "base64.goose": "fa1111ce46e9534311f825880dbd2988953430aeb3f1f52d8f0eaecbbc298a61"
+  },
+  "seed_matches_sources": true,
+  "generated_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+  "executable_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+  "next_generation_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+  "fixed_point": true,
+  "executable_build": {
+    "c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+    "goose_optimization": 2,
+    "profile_used": true,
+    "profile_reason": "exact profile identity matched",
+    "profile_sha256": "e7e4567e420dd6283d81b01c255a523014d1d448905f41f2265ad7b0cc46546e"
+  },
+  "profile_used": true,
+  "input_sha256_after": {
+    "/home/jacobt/src/goose-to-wasm/selfhost/bootstrap.py": "523e48cd5c8c0cf48c3fe000a900988faa960664bfff377d59c30768d2941663",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.json": "0f3ad392b6d5b0fa756e6f8567d172fef4d6b73324428738b6ea350479b25a9c",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/seed.c.gz": "c862a80bb1adc57c95d195b4d42e0e7a30f0d32603ee02f8fddd71439eeae0f5",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/sources.tar.gz": "69df35df65cdb0e2fd7fa5fc0c4edfbee0fa928237d92e8e52c3de188fdbd307",
+    "/usr/bin/clang-23": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/profile.json": "19163ecbf68e8c568c40be013ba56d53fc99cde5c8d1185823359a01de5f61bb",
+    "/home/jacobt/src/goose-to-wasm/bootstrap/profile.profdata": "e7e4567e420dd6283d81b01c255a523014d1d448905f41f2265ad7b0cc46546e",
+    "/home/jacobt/src/goose-to-wasm/native/runtime/runtime.h": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+    "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_impl.h": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+    "/home/jacobt/src/goose-to-wasm/native/runtime/runtime_threads.h": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+    "/home/jacobt/src/goose-to-wasm/native/storage.h": "f451479db4f6cfd8960757d00baf390abe0976610d8409839e2f248903f3e97a",
+    "/home/jacobt/src/goose-to-wasm/native/relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "/home/jacobt/src/goose-to-wasm/native/pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "/home/jacobt/src/goose-to-wasm/native/images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
+    "/home/jacobt/src/goose-to-wasm/native/runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6",
+    "/home/jacobt/src/goose-to-wasm/native/threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7"
+  },
+  "executable": "/tmp/goose-bootstrap-rh314_lx/compiler/goose",
+  "executable_sha256": "9de72d781519906a3d88a7afc96a7a3d66f0c3408e650d976a2cc783156f3ebb"
+}
