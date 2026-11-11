@@ -6512,7 +6512,7 @@ fn check_unreached(p: Program&, c: Checker&, declarations: i64) {
         let symbol = p.symbols[i]; if symbol.node < 0 || symbol.owner >= 0 { continue; }
         let n = p.nodes[symbol.node];
         if n.kind != N_FUNCTION || n.right < 0 || (n.flags & (F_GENERIC | F_THREAD | F_CHECKED)) != 0 { continue; }
-        if n.token >= 0 && p.sources[p.tokens[n.token].source].library { continue; }
+        if library_node(p, symbol.node) { continue; }
         var specialized = false;
         for spec in c.specializations { if spec.original == symbol.node { specialized = true; break; } }
         if specialized { continue; }
@@ -6525,7 +6525,10 @@ fn check_unreached(p: Program&, c: Checker&, declarations: i64) {
     }
 }
 
-fn check_program(p: Program&, declarations_only: bool = false) {
+// Type checking, with its work tables. They are released before lifetime
+// analysis runs, which then reuses their storage.
+fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[>..]&, scope_depths: i64[>..]&,
+                       scope_functions: i64[>..]&, pool_references: i64[>..]&) -> bool {
     if p.types.len == 0 { initialize_types(p); }
     for i in TYPE_I8..TYPE_STRING {
         if p.types[i].size > 0 { p.types[i].align = p.types[i].size; }
@@ -6570,12 +6573,13 @@ fn check_program(p: Program&, declarations_only: bool = false) {
         for i in 0..parsed_nodes { if p.nodes[i].kind == N_FUNCTION { parse_deferred_body(p, i); } }
         for i in 0..declarations { let symbol = p.symbols[i]; if symbol.node >= 0 && p.nodes[symbol.node].kind == N_ALIAS { check_alias_declaration(p, c, symbol.node); } }
         for source in p.sources { if source.root >= 0 { check_qualified_body_types(p, c, source.root); } }
-        return;
+        return false;
     }
     for i in 0..declarations {
         let s = p.symbols[i]; if s.node < 0 { continue; }
         let n = p.nodes[s.node]; c.scope = s.scope;
-        if n.kind == N_FUNCTION { check_prepare_function(p, c, s.node); }
+        // Library signatures are prepared when a lookup or call first reaches them.
+        if n.kind == N_FUNCTION { if !library_node(p, s.node) { check_prepare_function(p, c, s.node); } }
         else if (n.kind == N_STRUCT || n.kind == N_ENUM) && n.third < 0 { check_layout_nominal(p, c, s.type_id); }
         else if n.kind == N_ALIAS { p.symbols[i].type_id = check_resolve_type(p, c, n.left); }
     }
@@ -6621,16 +6625,20 @@ fn check_program(p: Program&, declarations_only: bool = false) {
         }
     }
     check_validate_type_uses(p); check_validate_program(p);
-    var scope_parents: i64[>..] = []; var scope_depths: i64[>..] = [];
-    var scope_functions: i64[>..] = [];
     for scope in c.scopes { scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_functions.push(scope.function_node); }
-    var pool_references: i64[>..] = []; var pool_types: bool[>..] = [];
+    var pool_types: bool[>..] = [];
     for ty in p.types { pool_types.push(false); }
     for node, id in p.nodes {
         let ty = node.type_id;
         if ty < 0 || pool_types[ty] || p.types[ty].kind != TY_REF || p.types[ty].length_storage < 0 || p.types[ty].pool < 0 || check_has_generic(p, p.types[ty].element, 0) { continue; }
         pool_types[ty] = true; pool_references.push(id);
     }
+    return true;
+}
+fn check_program(p: Program&, declarations_only: bool = false) {
+    var scope_parents: i64[>..] = []; var scope_depths: i64[>..] = []; var scope_functions: i64[>..] = [];
+    var pool_references: i64[>..] = [];
+    if !check_program_types(p, declarations_only, scope_parents, scope_depths, scope_functions, pool_references) { return; }
     check_lifetimes(p, scope_parents, scope_depths, scope_functions, pool_references);
     if p.diagnostics.len == 0 { check_validate_thread_globals(p); }
 }

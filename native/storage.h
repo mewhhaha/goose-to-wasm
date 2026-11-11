@@ -109,6 +109,9 @@ static void g_cleanup(void) {
     gs_release_regions();g_region_pool_release();
 }
 static void g_runtime_start(int argc,char **argv,int64_t regions,int64_t worker_regions) {
+    // glibc reads the main stack's bounds from /proc/self/maps; read them before
+    // any region mapping lengthens it.
+    g_stack_check_init();
     g_argc=argc;g_argv=argv;g_region_count=regions;
     gs_rt_start(argc,argv,GS_STACK_RESERVE,GS_STACK_GAP,GS_STACK_BUDGET,regions+1,worker_regions+1);
     g_region_pool_begin(regions);

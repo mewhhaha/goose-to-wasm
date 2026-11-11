@@ -290,6 +290,9 @@ struct Type {
     pool: i64 = -1, index_type: i64 = -1, prefix: i64 = -1, tail: i64 = -1,
     arguments: i64 = -1,
     length_explicit: bool = false,
+    // Wasm emission's memoized layout predicates, keyed by this type's own ID so a
+    // copied type never inherits them: (id + 1) << 16 | known/value bit pairs.
+    codegen_memo: i64 = 0,
 }
 struct Symbol {
     name_token: i64 = -1, type_id: i64 = -1, node: i64 = -1,
@@ -352,6 +355,12 @@ fn diagnose(p: Program&, token: i64, message: u8[:]) {
         let t = p.tokens[token];
         diagnose_at(p, t.source, t.start, t.end, message);
     } else { diagnose_at(p, 0, 0, 0, message); }
+}
+// Whether a node comes from a library module (resolved through --stdlib).
+// Unreached library functions are neither prepared nor checked.
+fn library_node(p: Program&, node: i64) -> bool {
+    let token = p.nodes[node].token;
+    return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
 }
 fn new_node(p: Program&, kind: i64, token: i64) -> i64 {
     let id = p.nodes.len;

@@ -245,25 +245,34 @@ fn driver_help() {
     write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
 }
 fn driver_main() -> i64 {
-    var source_path: u8[>..] = []; var output_path: u8[>..] = []; var stdlib_path: u8[>..] = [];
-    var stats_path: u8[>..] = []; var dependency_path: u8[>..] = []; var c_compiler: u8[>..] = [];
+    // Every path lives in one byte table: each array holds its own storage region.
+    var paths: u8[>..] = [];
     let arguments = args();
     var o = DriverOptions {}; driver_options(o, arguments);
     if o.help { driver_help(); return 0; }
     if o.version { write_stdout("Goose to Wasm (Goose implementation)\n"); return 0; }
     if o.bad { return 2; }
     if o.source_arg < 0 { driver_help(); return 2; }
-    source_path.append(arguments[o.source_arg]);
-    if o.output_arg >= 0 { output_path.append(arguments[o.output_arg]); }
-    if o.stats_arg >= 0 { stats_path.append(arguments[o.stats_arg]); }
-    if o.dependencies_arg >= 0 { dependency_path.append(arguments[o.dependencies_arg]); }
-    if o.stdlib_arg >= 0 { stdlib_path.append(arguments[o.stdlib_arg]); }
-    else if !env("GOOSE_STDLIB", stdlib_path) {
-        resource_dir(stdlib_path); stdlib_path.append("stdlib");
+    let source_start = paths.len; paths.append(arguments[o.source_arg]); let source_end = paths.len;
+    let output_start = paths.len;
+    if o.output_arg >= 0 { paths.append(arguments[o.output_arg]); }
+    if paths.len == output_start {
+        if o.target == 0 { paths.append("out.wasm"); } else { paths.append("out.c"); }
     }
-    if o.cc_arg >= 0 { c_compiler.append(arguments[o.cc_arg]); }
-    else { env("CC", c_compiler); }
-    if c_compiler.len == 0 { c_compiler.append("cc"); }
+    let output_end = paths.len;
+    let stats_start = paths.len; if o.stats_arg >= 0 { paths.append(arguments[o.stats_arg]); } let stats_end = paths.len;
+    let dependency_start = paths.len; if o.dependencies_arg >= 0 { paths.append(arguments[o.dependencies_arg]); } let dependency_end = paths.len;
+    let stdlib_start = paths.len;
+    if o.stdlib_arg >= 0 { paths.append(arguments[o.stdlib_arg]); }
+    else if !env("GOOSE_STDLIB", paths) {
+        resource_dir(paths); paths.append("stdlib");
+    }
+    let stdlib_end = paths.len;
+    let cc_start = paths.len;
+    if o.cc_arg >= 0 { paths.append(arguments[o.cc_arg]); }
+    else { env("CC", paths); }
+    if paths.len == cc_start { paths.append("cc"); }
+    let cc_end = paths.len;
     var text: u8[>..] = []; var messages: u8[>..] = []; var sources: Source[>..] = [];
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
@@ -273,7 +282,7 @@ fn driver_main() -> i64 {
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;
     if o.target == 1 { p.pointer_bytes = 8; }
     initialize_types(p);
-    let started = clock_ns(); load_sources(p, source_path, stdlib_path, o.tokens); let parsed = clock_ns();
+    let started = clock_ns(); load_sources(p, paths[source_start..source_end], paths[stdlib_start..stdlib_end], o.tokens); let parsed = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
     if o.tokens {
         driver_tokens(p);
@@ -295,7 +304,7 @@ fn driver_main() -> i64 {
     optimize_program(p); let optimized = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
     if o.check {
-        if stats_path.len > 0 && !driver_stats(p, stats_path, 0, parsed - started, checked - parsed, optimized - checked, 0) {
+        if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, optimized - checked, 0) {
             driver_error("cannot write statistics"); return 1;
         }
         return 0;
@@ -304,26 +313,23 @@ fn driver_main() -> i64 {
     if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
     let generated = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
-    if output_path.len == 0 {
-        if o.target == 0 { output_path.append("out.wasm"); } else { output_path.append("out.c"); }
-    }
-    if !write_file(output_path, output) { driver_error("cannot write output"); return 1; }
-    if stats_path.len > 0 && !driver_stats(p, stats_path, output.len, parsed - started, checked - parsed, optimized - checked, generated - optimized) {
+    if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
+    if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], output.len, parsed - started, checked - parsed, optimized - checked, generated - optimized) {
         driver_error("cannot write statistics"); return 1;
     }
-    if dependency_path.len > 0 && !driver_dependencies(p, dependency_path) { driver_error("cannot write dependency manifest"); return 1; }
+    if dependency_end > dependency_start && !driver_dependencies(p, paths[dependency_start..dependency_end]) { driver_error("cannot write dependency manifest"); return 1; }
     if !o.run { return 0; }
     var command: u8[>..] = [];
     if o.target == 1 {
-        var binary: u8[>..] = []; binary.append(output_path); binary.append(".bin");
-        driver_quote(command, c_compiler); command.append(" -std=gnu11 -O2 "); driver_quote(command, output_path);
+        var binary: u8[>..] = []; binary.append(paths[output_start..output_end]); binary.append(".bin");
+        driver_quote(command, paths[cc_start..cc_end]); command.append(" -std=gnu11 -O2 "); driver_quote(command, paths[output_start..output_end]);
         command.append(" -lm -ldl -pthread -o "); driver_quote(command, binary);
         let code = driver_exec(command); if code != 0 { return code; }
         command.clear(); driver_quote(command, binary);
     } else {
         var host: u8[>..] = [];
         if !env("GOOSE_WASM_HOST", host) { host.append("build/bin/goose-wasmtime"); }
-        driver_quote(command, host); command.push(' '); driver_quote(command, output_path);
+        driver_quote(command, host); command.push(' '); driver_quote(command, paths[output_start..output_end]);
     }
     return driver_exec(command);
 }

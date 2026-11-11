@@ -31,6 +31,7 @@ struct CgModule {
     signatures: CgSignature[>..]&, signature_bytes: u8[>..]&,
     segments: CgSegment[>..]&, data: u8[>..]&, globals: i64[>..]&,
     global_regions: i64[>..]&, region_functions: RegionFunction[>..]&, region_calls: RegionCall[>..]&,
+    region_memo: i64[>..]&,
     next_data: i64 = 1024, stack_limit: i64 = 0,
     region_count: i64 = 0, global_region_count: i64 = 0, regions_enabled: bool = false,
     region_bytes: i64 = 0, region_cursor_address: i64 = 0,
@@ -606,7 +607,7 @@ recursive fn cg_to(p: Program&, m: CgModule&, f: CgBody&, node: i64, id: i64) {
     cg_convert(p, m, f, from, id, node);
 }
 recursive fn cg_truth_scope(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
-    if !m.regions_enabled || !cg_may_region(p, node) { cg_truth(p, m, f, node); return; }
+    if !m.regions_enabled || !cg_may_region(p, m, node) { cg_truth(p, m, f, node); return; }
     let live = f.region_live; let mark = cg_mark_regions(f); cg_truth(p, m, f, node); cg_restore_regions(f, mark); f.region_live = live;
 }
 recursive fn cg_truth(p: Program&, m: CgModule&, f: CgBody&, node: i64) { cg_to(p, m, f, node, TYPE_BOOL); }
@@ -1890,16 +1891,24 @@ recursive fn cg_match(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     }
     cg_abort(p, m, f, node, "non-exhaustive match"); cg_end(f); cg_control_get(p, f, n.type_id, result);
 }
-recursive fn cg_may_region(p: Program&, node: i64) -> bool {
-    if node < 0 { return false; } let n = p.nodes[node];
-    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { return false; }
-    var id = n.type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
-    if cg_region_owned_result(p, id) { return true; }
-    if cg_may_region(p, n.left) || cg_may_region(p, n.right) || cg_may_region(p, n.third) { return true; }
-    var child = n.first; while child >= 0 { if cg_may_region(p, child) { return true; } child = p.nodes[child].next; } return false;
+// Whether a subtree may produce region-owned values. Results are memoized per
+// node (0 unknown, 1 no, 2 yes): a subtree is scanned before any of it is emitted,
+// and emission only retypes nodes that are being emitted.
+recursive fn cg_may_region(p: Program&, m: CgModule&, node: i64) -> bool {
+    if node < 0 { return false; }
+    while m.region_memo.len < p.nodes.len { m.region_memo.push(0); }
+    let known = m.region_memo[node]; if known != 0 { return known == 2; }
+    var result = false; let n = p.nodes[node];
+    if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE && n.kind != N_STRUCT && n.kind != N_ENUM && n.kind != N_ALIAS && n.kind != N_PATTERN {
+        var id = n.type_id; while cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
+        result = cg_region_owned_result(p, id) || cg_may_region(p, m, n.left) || cg_may_region(p, m, n.right) || cg_may_region(p, m, n.third);
+        var child = n.first; while !result && child >= 0 { result = cg_may_region(p, m, child); child = p.nodes[child].next; }
+    }
+    if result { m.region_memo[node] = 2; } else { m.region_memo[node] = 1; }
+    return result;
 }
 recursive fn cg_statement(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
-    if !m.regions_enabled || p.nodes[node].kind == N_VARIABLE || !cg_may_region(p, node) { cg_statement_body(p, m, f, node); return; }
+    if !m.regions_enabled || p.nodes[node].kind == N_VARIABLE || !cg_may_region(p, m, node) { cg_statement_body(p, m, f, node); return; }
     let live = f.region_live; let mark = cg_mark_regions(f); cg_statement_body(p, m, f, node); cg_restore_regions(f, mark); f.region_live = live;
 }
 recursive fn cg_statement_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
@@ -3465,7 +3474,8 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     if p.pointer_bytes != 4 { cg_fail(p, -1, "wasm: checked layout must use memory32 pointers"); return; }
     var functions: CgFunction[>..] = []; var captures: CgCapture[>..] = []; var imports: CgImport[>..] = [];
     var signatures: CgSignature[>..] = []; var signature_bytes: u8[>..] = []; var segments: CgSegment[>..] = []; var data: u8[>..] = []; var globals: i64[>..] = []; var global_regions: i64[>..] = []; var region_functions: RegionFunction[>..] = []; var region_calls: RegionCall[>..] = [];
-    var m = CgModule { functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, data: data, globals: globals, global_regions: global_regions, region_functions: region_functions, region_calls: region_calls,
+    var region_memo: i64[>..] = [];
+    var m = CgModule { functions: functions, captures: captures, imports: imports, signatures: signatures, signature_bytes: signature_bytes, segments: segments, data: data, globals: globals, global_regions: global_regions, region_functions: region_functions, region_calls: region_calls, region_memo: region_memo,
         stack_limit: (p.maximum_pages * 65536 / 2) & -8 };
     cg_collect(p, m); if p.diagnostics.len > 0 { return; }
     if m.scalar { m.resolver = -1; }
@@ -4744,14 +4754,34 @@ fn cg_encoded_scalar(p: Program&, id: i64) -> bool {
     if id < 0 || id >= p.types.len { return false; }
     return p.types[id].storage == 1 || cg_relative_type(p, id) && p.types[id].length_storage == 0;
 }
+// Emission never changes an existing type or field, so these per-type
+// predicates are computed once.
+let CG_MEMO_BYTE_RECORD: i64 = 0;
+let CG_MEMO_HAS_OWNER: i64 = 1;
+let CG_MEMO_RECORD_IMAGE: i64 = 2;
+fn cg_memo_get(p: Program&, id: i64, predicate: i64) -> i64 {
+    let memo = p.types[id].codegen_memo;
+    if (memo >> 16) != id + 1 { return -1; }
+    let bits = (memo >> (2 * predicate)) & 3;
+    if (bits & 1) == 0 { return -1; }
+    return bits >> 1;
+}
+fn cg_memo_set(p: Program&, id: i64, predicate: i64, value: bool) -> bool {
+    var memo = p.types[id].codegen_memo;
+    if (memo >> 16) != id + 1 { memo = (id + 1) << 16; }
+    var bits = 1; if value { bits = 3; }
+    p.types[id].codegen_memo = memo | (bits << (2 * predicate));
+    return value;
+}
 fn cg_byte_record(p: Program&, id: i64) -> bool {
     if cg_type_kind(p, id) != TY_STRUCT { return false; }
+    let known = cg_memo_get(p, id, CG_MEMO_BYTE_RECORD); if known >= 0 { return known == 1; }
     var field = p.types[id].first;
     while field >= 0 {
-        if (p.nodes[field].flags & F_PAD) == 0 && cg_encoded_scalar(p, p.nodes[field].type_id) { return true; }
+        if (p.nodes[field].flags & F_PAD) == 0 && cg_encoded_scalar(p, p.nodes[field].type_id) { return cg_memo_set(p, id, CG_MEMO_BYTE_RECORD, true); }
         field = p.nodes[field].next;
     }
-    return false;
+    return cg_memo_set(p, id, CG_MEMO_BYTE_RECORD, false);
 }
 
 fn cg_result_count(p: Program&, id: i64) -> i64 {
@@ -5179,9 +5209,10 @@ recursive fn cg_dispatch(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
 }
 recursive fn cg_record_image(p: Program&, id: i64) -> bool {
     if cg_type_kind(p, id) != TY_STRUCT || cg_byte_record(p, id) || p.types[id].tail < 0 { return false; }
+    let known = cg_memo_get(p, id, CG_MEMO_RECORD_IMAGE); if known >= 0 { return known == 1; }
     let field = p.types[id].tail; let tail = p.nodes[field].type_id;
-    if cg_type_kind(p, tail) == TY_ARRAY { return p.types[tail].array_kind == A_VAR || p.types[tail].array_kind == A_LIMITED && p.types[tail].count < 0; }
-    return cg_enum_image(p, tail) || cg_record_image(p, tail);
+    if cg_type_kind(p, tail) == TY_ARRAY { return cg_memo_set(p, id, CG_MEMO_RECORD_IMAGE, p.types[tail].array_kind == A_VAR || p.types[tail].array_kind == A_LIMITED && p.types[tail].count < 0); }
+    return cg_memo_set(p, id, CG_MEMO_RECORD_IMAGE, cg_enum_image(p, tail) || cg_record_image(p, tail));
 }
 fn cg_image_tail_type(p: Program&, id: i64) -> i64 {
     var current = id;
@@ -5315,9 +5346,10 @@ recursive fn cg_has_owner(p: Program&, id: i64) -> bool {
     if cg_owner(p, id) || cg_byte_record(p, id) || cg_record_image(p, id) { return true; }
     if cg_type_kind(p, id) == TY_ENUM { return (p.types[id].flags & F_VARIABLE_MODE) != 0; }
     if cg_type_kind(p, id) != TY_STRUCT { return false; }
+    let known = cg_memo_get(p, id, CG_MEMO_HAS_OWNER); if known >= 0 { return known == 1; }
     var field = p.types[id].first;
-    while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 && cg_has_owner(p, p.nodes[field].type_id) { return true; } field = p.nodes[field].next; }
-    return false;
+    while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 && cg_has_owner(p, p.nodes[field].type_id) { return cg_memo_set(p, id, CG_MEMO_HAS_OWNER, true); } field = p.nodes[field].next; }
+    return cg_memo_set(p, id, CG_MEMO_HAS_OWNER, false);
 }
 fn cg_named_owner(p: Program&, f: CgBody&, node: i64, id: i64) -> bool {
     if p.nodes[node].kind != N_NAME || p.nodes[node].symbol < 0 || !cg_has_owner(p, id) { return false; }
