@@ -57,6 +57,8 @@ def main():
     parser.add_argument('--cc', default='gcc')
     parser.add_argument('--timeout', type=float, default=15)
     parser.add_argument('--frontend-only', action='store_true', help='check positive programs without lowering or execution')
+    parser.add_argument('--cc-timeout', type=float, default=120,
+                        help='seconds allowed to compile emitted C; --timeout bounds the compiler and programs')
     parser.add_argument('--jobs', type=int, default=os.cpu_count() or 1,
                         help='rows checked concurrently; each execution is still a fresh process (default: CPU count)')
     parser.add_argument('--known-gaps', type=Path,
@@ -101,7 +103,8 @@ def main():
     report = {'schema': 'goose-conformance-v1', 'status': 'running',
               'configuration': {'compiler': str(compiler), 'manifest': str(args.manifest), 'levels': args.levels,
                   'filter': args.filter, 'engine': args.engine, 'host': str(host), 'frontend_only': args.frontend_only,
-                  'upstream_extracted': needs_upstream, 'jobs': args.jobs},
+                  'upstream_extracted': needs_upstream, 'jobs': args.jobs,
+                  'timeout': args.timeout, 'cc_timeout': args.cc_timeout},
               'method': 'Only the compiler under test runs. Sources, stdin, expected stdout, exit status and '
                         'failure phases are frozen data. No expected-output update mode, reference fallback, '
                         'expected failures or silent skips. Compilations with identical inputs share an artifact '
@@ -118,12 +121,13 @@ def main():
     def save():
         (out / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
 
-    def execute(command, cwd, stdin=''):
+    def execute(command, cwd, stdin='', timeout=None):
         command = list(map(str, command))
         start = time.monotonic()
         row = {'command': command, 'cwd': str(cwd), 'exit_code': None, 'error': '', 'stdout': '', 'stderr': ''}
         try:
-            process = subprocess.run(command, cwd=cwd, input=stdin.encode(), capture_output=True, timeout=args.timeout)
+            process = subprocess.run(command, cwd=cwd, input=stdin.encode(), capture_output=True,
+                                     timeout=timeout or args.timeout)
             row.update(exit_code=process.returncode, stdout=process.stdout.decode(errors='replace'),
                        stderr=process.stderr.decode(errors='replace'))
         except (OSError, subprocess.TimeoutExpired) as error:
@@ -171,7 +175,7 @@ def main():
                 flag = '-O2'
             defines = ['-D' + value for value in case.get('native_defines', [])]
             command = native_compile_command(cc, flag, defines, artifact, native_sources)
-            index, native = execute(command, directory)
+            index, native = execute(command, directory, timeout=args.cc_timeout)
             value.update(native_command=index, native_result=native, binary=binary)
         return value
 
