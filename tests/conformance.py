@@ -2,6 +2,7 @@
 """Run frozen source/output contracts without a reference compiler."""
 from __future__ import annotations
 import argparse
+import errno
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
@@ -67,6 +68,10 @@ def main():
     parser.add_argument('--frontend-only', action='store_true', help='check positive programs without lowering or execution')
     parser.add_argument('--cc-timeout', type=float, default=120,
                         help='seconds allowed to compile emitted C; --timeout bounds the compiler and programs')
+    parser.add_argument('--native-cache', type=Path,
+                        help='content-addressed store of successful native builds, reused across runs')
+    parser.add_argument('--prune-native-cache', action='store_true',
+                        help='remove native cache entries this run did not use')
     parser.add_argument('--jobs', type=int, default=os.cpu_count() or 1,
                         help='rows checked concurrently; each execution is still a fresh process (default: CPU count)')
     parser.add_argument('--known-gaps', type=Path,
@@ -134,9 +139,19 @@ def main():
         command = list(map(str, command))
         start = time.monotonic()
         row = {'command': command, 'cwd': str(cwd), 'exit_code': None, 'error': '', 'stdout': '', 'stderr': ''}
+        process = None
         try:
-            process = subprocess.run(command, cwd=cwd, input=stdin.encode(), capture_output=True,
-                                     timeout=timeout or args.timeout)
+            for attempt in range(50):
+                try:
+                    process = subprocess.run(command, cwd=cwd, input=stdin.encode(), capture_output=True,
+                                             timeout=timeout or args.timeout)
+                    break
+                except OSError as error:
+                    # A child forked by another worker can briefly hold a
+                    # freshly written executable open (ETXTBSY); retry.
+                    if error.errno != errno.ETXTBSY or attempt == 49:
+                        raise
+                    time.sleep(0.01)
             row.update(exit_code=process.returncode, stdout=process.stdout.decode(errors='replace'),
                        stderr=process.stderr.decode(errors='replace'))
         except (OSError, subprocess.TimeoutExpired) as error:
@@ -159,6 +174,73 @@ def main():
             if slot['value'] is None:
                 slot['value'] = build_case(case, source, level, action, native_sources, slot['index'])
             return slot['value']
+
+    native_cache = args.native_cache.resolve() if args.native_cache else None
+    cache_identity = None
+    used_keys = set()
+    if native_cache:
+        native_cache.mkdir(parents=True, exist_ok=True)
+        driver = Path(shutil.which(cc) or cc)
+        version = subprocess.run([str(driver), '--version'], capture_output=True, text=True).stdout
+        cache_identity = {'driver': str(driver.resolve()), 'driver_sha256': digest(driver.resolve()),
+                          'version': version, 'schema': 1}
+        report['configuration']['native_cache'] = {'directory': str(native_cache), 'compiler': cache_identity}
+
+    def native_key(command, output):
+        # Direct input files contribute their bytes; the output path does not matter.
+        words = []
+        for word in map(str, command):
+            if word == str(output):
+                words.append('<output>')
+            elif Path(word).is_file():
+                words.append('sha256:' + digest(word))
+            else:
+                words.append(word)
+        material = json.dumps({'compiler': cache_identity, 'command': words[1:]}, sort_keys=True)
+        return hashlib.sha256(material.encode()).hexdigest()
+
+    def native_build(command, directory, binary, native_sources):
+        # Extra C sources can include transitive headers the key does not track.
+        if not native_cache or native_sources:
+            index, row = execute(command, directory, timeout=args.cc_timeout)
+            if native_cache:
+                row['native_cache'] = {'hit': False, 'reason': 'untracked native_sources headers'}
+            return index, row
+        key = native_key(command, binary)
+        with lock:
+            used_keys.add(key)
+        entry = native_cache / key
+        metadata = native_cache / (key + '.json')
+        if entry.is_file() and metadata.is_file():
+            start = time.monotonic()
+            # A hard link opens nothing for writing, so concurrently forked
+            # children cannot hold the executable busy.
+            if not os.access(entry, os.X_OK):
+                entry.chmod(0o755)
+            try:
+                os.link(entry, binary)
+            except OSError:
+                shutil.copyfile(entry, binary)
+                binary.chmod(0o755)
+            recorded = json.loads(metadata.read_text())
+            row = {'command': list(map(str, command)), 'cwd': str(directory), 'exit_code': 0, 'error': '',
+                   'stdout': recorded['stdout'], 'stderr': recorded['stderr'],
+                   'seconds': time.monotonic() - start, 'native_cache': {'hit': True, 'key': key}}
+            with lock:
+                index = len(report['commands'])
+                report['commands'].append(row)
+            return index, row
+        index, row = execute(command, directory, timeout=args.cc_timeout)
+        row['native_cache'] = {'hit': False, 'key': key}
+        if row['exit_code'] == 0 and not row['error'] and binary.is_file():
+            # Publish the binary before its metadata; a reader requires both.
+            pending = native_cache / (key + '.' + str(threading.get_ident()) + '.tmp')
+            shutil.copyfile(binary, pending)
+            pending.chmod(0o755)
+            os.replace(pending, entry)
+            pending.write_text(json.dumps({'stdout': row['stdout'], 'stderr': row['stderr']}))
+            os.replace(pending, metadata)
+        return index, row
 
     def build_case(case, source, level, action, native_sources, number):
         directory = out / 'artifacts' / str(number)
@@ -184,7 +266,7 @@ def main():
                 flag = '-O2'
             defines = ['-D' + value for value in case.get('native_defines', [])]
             command = native_compile_command(cc, flag, defines, artifact, native_sources)
-            index, native = execute(command, directory, timeout=args.cc_timeout)
+            index, native = native_build(command, directory, binary, native_sources)
             value.update(native_command=index, native_result=native, binary=binary)
         return value
 
@@ -294,15 +376,29 @@ def main():
                 if level in case['levels']:
                     jobs.append((case, source, cwd, level, uses_files))
         selected = len(jobs)
+        last_save = time.monotonic()
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             for row in pool.map(lambda job: check(*job), jobs):
                 report['results'].append(row)
                 if len(report['results']) % 100 == 0:
-                    with lock:
-                        save()
+                    # The report is large; a progress save every 30 s keeps
+                    # partial evidence without rewriting it every 100 rows.
+                    if time.monotonic() - last_save >= 30:
+                        with lock:
+                            save()
+                        last_save = time.monotonic()
                     print(len(report['results']), 'checked;', sum(x['status'] == 'pass' for x in report['results']), 'passed', flush=True)
         if not selected:
             raise RuntimeError('no selected contracts')
+        if native_cache:
+            hits = sum(1 for row in report['commands'] if row.get('native_cache', {}).get('hit'))
+            builds = sum(1 for row in report['commands'] if 'native_cache' in row)
+            report['native_cache_summary'] = {'builds': builds, 'hits': hits}
+            print({'native_builds': builds, 'cache_hits': hits}, flush=True)
+            if args.prune_native_cache:
+                for path in native_cache.iterdir():
+                    if path.name.split('.')[0] not in used_keys:
+                        path.unlink()
         report['input_sha256_after'] = {path: digest(path) for path in pins}
         if report['input_sha256_after'] != pins:
             raise RuntimeError('contract inputs changed during the run')
