@@ -991,10 +991,15 @@ def main():
     args = parser.parse_args()
     args.goose = args.goose.resolve()
     output = args.output_dir.resolve()
-    output.mkdir(parents=True, exist_ok=True)
     selected = [case for case in cases() if args.filter in case.name and (not args.scalar_only or case.group == "scalar")]
     if not selected:
         parser.error("no cases selected")
+    # A name match is not an execution: each case runs only at the levels it supports.
+    scheduled = [(level, case) for level in args.levels for case in selected if level in case.levels]
+    if not scheduled:
+        parser.error(f"--filter {args.filter!r} matched {len(selected)} cases, none of which supports "
+                     f"--levels {' '.join(map(str, args.levels))}")
+    output.mkdir(parents=True, exist_ok=True)
     rows = []
     logs = None
     error = ""
@@ -1018,7 +1023,8 @@ def main():
               "compiler_sha256": hashlib.sha256(args.goose.read_bytes()).hexdigest(),
               "configuration": {"backends": args.backends, "levels": args.levels,
                                 "filter": args.filter, "skip_refusals": args.skip_refusals},
-              "cases": len(selected), "observations": len(rows), "failures": failures + int(bool(error)), "results": rows}
+              "cases": len(selected), "scheduled_case_levels": len(scheduled), "observations": len(rows),
+              "failures": failures + int(bool(error)), "results": rows}
     if error:
         report["error"] = error
     if logs is not None:
@@ -1026,7 +1032,9 @@ def main():
     report_path = output / "report.json"
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"{len(rows) - failures}/{len(rows)} observations passed; {report_path}")
-    return int(report["failures"] != 0)
+    if not rows:
+        print("no observations ran; a qualification needs at least one", file=sys.stderr)
+    return int(report["failures"] != 0 or not rows)
 
 
 def run_cases(args, output, selected, rows, logs):
