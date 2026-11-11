@@ -83,8 +83,10 @@ output.write_text('#include <stdio.h>\\nextern int helper(void);\\nint main(void
         native_commands = [row["command"] for row in report["commands"]
                            if row["command"][0] == shutil.which("gcc")]
         self.assertEqual(len(native_commands), 2)
-        for command, helper in zip(native_commands, helper_paths):
-            self.assertIn(helper, command)
+        # Rows run concurrently, so commands are recorded in completion order.
+        self.assertEqual(sorted(next(part for part in command if part in helper_paths) for command in native_commands),
+                         sorted(helper_paths))
+        for command in native_commands:
             self.assertIn("-rdynamic", command)
 
     def test_native_link_command_adds_exports_only_with_case_sources(self):

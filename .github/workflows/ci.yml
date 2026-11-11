@@ -35,14 +35,24 @@ jobs:
           node-version: ${{ steps.pins.outputs.node }}
       - name: Install C compiler and runtime tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
+          # The runner image ships versioned Clang; apt is the fallback, retried
+          # because its mirrors fail transiently.
+          pick() { command -v "$1" || ls /usr/bin/"$1"-[0-9]* 2>/dev/null | sort -V | tail -n 1; }
+          if [ -z "$(pick clang)" ] || [ -z "$(pick clang++)" ]; then
+            for attempt in 1 2 3; do
+              sudo apt-get update && sudo apt-get install -y clang && break
+              sleep 20
+            done
+          fi
+          echo "CC=$(pick clang)" >> "$GITHUB_ENV"
+          echo "CXX=$(pick clang++)" >> "$GITHUB_ENV"
+          "$(pick clang)" --version
           python -m pip install -r requirements.txt
       - name: Build Goose and verify self-hosting
         id: compiler
         run: python scripts/bootstrap.py --verify
       - name: Build Wasmtime host
-        run: python scripts/build_wasmtime_host.py
+        run: python scripts/build_wasmtime_host.py --cxx "$CXX"
       - name: Source and output contracts
         run: >-
           python tests/conformance.py --compiler build/bin/goose
