@@ -24,7 +24,65 @@ def f32(value: float) -> float:
         return math.copysign(math.inf, value)
 
 
+def f32_scientific(magnitude: float) -> str:
+    """The shortest scientific text of a positive finite f32, as native gs_fmt_f32 chooses it.
+
+    That is the fewest significant digits that read back as the same f32, of those
+    the nearest to its exact value, and of two as near the even one. Exact integers
+    decide each step: one rounded candidate per length misses shorter text below a
+    power of two, where the gap to the next f32 down is half the gap up.
+    """
+    bits = struct.unpack("<I", struct.pack("<f", magnitude))[0]
+    biased, fraction = bits >> 23, bits & 0x7FFFFF
+    significand = fraction | 0x800000 if biased else fraction
+    # The value is quarter * 2**binary; what reads back as it reaches from
+    # quarter - below to quarter + 2 in the same unit, ends included when the
+    # significand is even, since reading rounds a tie to the even significand.
+    quarter = significand * 4
+    binary = (biased or 1) - 152
+    below = 1 if fraction == 0 and biased > 1 else 2
+    inclusive = significand % 2 == 0
+
+    def scaled(scale):
+        # Integers proportional to one unit of the value and one unit of 10**scale.
+        return (2 ** max(binary, 0) * 10 ** max(-scale, 0), 2 ** max(-binary, 0) * 10 ** max(scale, 0))
+
+    exponent = math.floor(math.log10(magnitude))
+    while True:
+        value_unit, decimal_unit = scaled(exponent)
+        leading = quarter * value_unit // decimal_unit
+        if leading >= 10:
+            exponent += 1
+        elif leading < 1:
+            exponent -= 1
+        else:
+            break
+    precision = 1
+    while True:
+        value_unit, decimal_unit = scaled(exponent - precision + 1)
+        exact = quarter * value_unit
+        low, high = (quarter - below) * value_unit, (quarter + 2) * value_unit
+        truncated = exact // decimal_unit
+        best = best_distance = None
+        for digits in (truncated, truncated + 1):
+            candidate = digits * decimal_unit
+            if not (low <= candidate <= high if inclusive else low < candidate < high):
+                continue
+            distance = abs(candidate - exact)
+            if best is None or distance < best_distance or (distance == best_distance and digits % 2 == 0):
+                best, best_distance = digits, distance
+        if best is not None:
+            # A carry to 10**precision spells one more digit at the next power.
+            text = str(best)
+            digits = text.rstrip("0")
+            mantissa = digits[0] + ("." + digits[1:] if len(digits) > 1 else "")
+            return mantissa + "e" + str(exponent + len(text) - precision)
+        precision += 1
+
+
 def goose_float(value: float, bits: int = 64) -> str:
+    if bits == 32:
+        value = f32(value)
     if math.isnan(value):
         return "nan"
     if math.isinf(value):
@@ -33,13 +91,7 @@ def goose_float(value: float, bits: int = 64) -> str:
     if value == 0:
         return "-0.0" if negative else "0.0"
     magnitude = abs(value)
-    shortest = repr(magnitude)
-    if bits == 32:
-        for precision in range(1, 10):
-            candidate = format(magnitude, f".{precision}g")
-            if f32(float(candidate)) == magnitude:
-                shortest = candidate
-                break
+    shortest = f32_scientific(magnitude) if bits == 32 else repr(magnitude)
     pieces = shortest.lower().split("e")
     mantissa = pieces[0]
     exponent = int(pieces[1]) if len(pieces) > 1 else 0
@@ -132,15 +184,21 @@ def prepare_module(data: bytes, artifact: Path) -> PreparedModule:
                            "module_deserialize_count": 1, "serialized_path": str(artifact)})
 
 
-def run_module(data: bytes, stdin: str, *, timing: bool = True, prepared: PreparedModule | None = None) -> dict:
+def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
+               prepared: PreparedModule | None = None) -> dict:
+    """Run a module; `stdin` is bytes as given, or a string as its UTF-8 bytes.
+
+    fd_read sees exactly those bytes. Scalar imports read tokens from a
+    byte-for-byte latin-1 view, split on ASCII whitespace as the C++ host splits them.
+    """
     import wasmtime
 
     if prepared is not None and hashlib.sha256(data).hexdigest() != prepared.source_sha256:
         raise ValueError("prepared module does not match source bytes")
-    tokens = iter(stdin.split())
+    input_bytes = stdin.encode() if isinstance(stdin, str) else bytes(stdin)
+    tokens = (token.decode("latin-1") for token in input_bytes.split())
     chunks: list[bytes] = []
     errors: list[bytes] = []
-    input_bytes = stdin.encode()
     input_position = 0
     sink = 0
 
@@ -347,7 +405,7 @@ def main() -> int:
     parser.add_argument("--timing-json", type=Path)
     args = parser.parse_args()
     try:
-        result = run_module(args.module.read_bytes(), sys.stdin.read(), timing=args.timing_json is not None)
+        result = run_module(args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None)
         sys.stdout.buffer.write(result["stdout"])
         if result["stderr"]:
             print(result["stderr"], file=sys.stderr)

@@ -34,6 +34,24 @@ def invoke(command, verbose=False):
     return (time.perf_counter() - start) * 1000
 
 
+def same_file(a, b):
+    """Whether writing resolved path a would write b: the same path, or one file under two names."""
+    if a == b:
+        return True
+    try:
+        return os.path.samefile(a, b)
+    except OSError:
+        return False
+
+
+def check_destinations(destinations, inputs):
+    """Reject an output that aliases an input or another output, before anything is written."""
+    if any(same_file(path, source) for path in destinations for source in inputs):
+        raise RuntimeError('an output would overwrite an input')
+    if any(same_file(a, b) for i, a in enumerate(destinations) for b in destinations[i + 1:]):
+        raise RuntimeError('output, C output and stats must use different paths')
+
+
 def build(args):
     started = time.perf_counter()
     source = args.source.resolve(strict=True)
@@ -41,10 +59,8 @@ def build(args):
     output = args.output.resolve()
     library = args.stdlib or compiler.parent / 'stdlib'
     protected = {source, compiler, *(p.resolve() for p in args.c_source), *(p.resolve() for p in args.include)}
-    if output in protected or args.emit_c and args.emit_c.resolve() in protected:
-        raise RuntimeError('output would overwrite an input')
-    if args.stats and args.stats.resolve() in protected | {output}:
-        raise RuntimeError('stats would overwrite an input or output')
+    destinations = [output, *(p.resolve() for p in (args.emit_c, args.stats) if p)]
+    check_destinations(destinations, protected)
     if args.backend == 'direct':
         if output.suffix != '.wasm':
             raise RuntimeError('direct output must end in .wasm')
@@ -72,19 +88,12 @@ def build(args):
         if args.debug:
             command.append('--debug')
         report['frontend_ms'] = invoke(command, args.verbose)
-        dependencies = json.loads(deps.read_text())
-        for entry in dependencies:
-            if entry.get('kind') == 'source':
+        # Every file in the dependency manifest is an input, imported sources
+        # included; only the trailing build record names no file.
+        for entry in json.loads(deps.read_text()):
+            if entry.get('path'):
                 protected.add(Path(entry['path']).resolve())
-        destinations = {output}
-        if args.emit_c:
-            destinations.add(args.emit_c.resolve())
-        if args.stats:
-            destinations.add(args.stats.resolve())
-        if destinations & protected:
-            raise RuntimeError('an output would overwrite a source dependency')
-        if len(destinations) != 1 + bool(args.emit_c) + bool(args.stats):
-            raise RuntimeError('output, C output and stats must use different paths')
+        check_destinations(destinations, protected)
         report['backend_stats'] = json.loads(stats.read_text())
         if report['backend_stats'].get('implementation') != 'goose':
             raise RuntimeError('installed compiler is outdated; run scripts/bootstrap.py')
