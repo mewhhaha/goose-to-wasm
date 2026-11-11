@@ -85,6 +85,32 @@ fn driver_number(text: const u8[:]) -> i64, bool {
     return n, true;
 }
 fn driver_error(message: const u8[:]) { write_stderr("goose: "); write_stderr(message); write_stderr("\n"); }
+// Paths compare in the normalized form sources are recorded in; an absolute
+// spelling of a relative path is not recognized without a filesystem query.
+fn driver_same_path(a: const u8[:], b: const u8[:]) -> bool {
+    var left: u8[>..] = []; var right: u8[>..] = [];
+    source_normalize(a, left); source_normalize(b, right);
+    return same_bytes(left, right);
+}
+fn driver_source_path(p: Program&, path: const u8[:]) -> bool {
+    for source in p.sources {
+        if driver_same_path(path, p.text[source.path_start..source.path_start + source.path_len]) { return true; }
+    }
+    return false;
+}
+// Refuses an output that would replace a source, an embedded file or another
+// output, before anything is written.
+fn driver_outputs_distinct(p: Program&, output: const u8[:], stats: const u8[:], dependencies: const u8[:]) -> bool {
+    if output.len > 0 && driver_source_path(p, output) { driver_error("output would overwrite a source file"); return false; }
+    if stats.len > 0 && (driver_source_path(p, stats) || output.len > 0 && driver_same_path(stats, output)) {
+        driver_error("statistics would overwrite a source file or the output"); return false;
+    }
+    if dependencies.len > 0 && (driver_source_path(p, dependencies) || output.len > 0 && driver_same_path(dependencies, output) ||
+                                stats.len > 0 && driver_same_path(dependencies, stats)) {
+        driver_error("dependency manifest would overwrite a source file or another output"); return false;
+    }
+    return true;
+}
 fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
     var at = 1;
     while at < arguments.len {
@@ -304,6 +330,7 @@ fn driver_main() -> i64 {
     optimize_program(p); let optimized = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
     if o.check {
+        if !driver_outputs_distinct(p, "", paths[stats_start..stats_end], "") { return 1; }
         if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, optimized - checked, 0) {
             driver_error("cannot write statistics"); return 1;
         }
@@ -313,6 +340,7 @@ fn driver_main() -> i64 {
     if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
     let generated = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+    if !driver_outputs_distinct(p, paths[output_start..output_end], paths[stats_start..stats_end], paths[dependency_start..dependency_end]) { return 1; }
     if !write_file(paths[output_start..output_end], output) { driver_error("cannot write output"); return 1; }
     if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], output.len, parsed - started, checked - parsed, optimized - checked, generated - optimized) {
         driver_error("cannot write statistics"); return 1;

@@ -1,0 +1,65 @@
+{
+  "schema": "goose-qualified-compiler-v60",
+  "status": "passed",
+  "date": "2026-11-11",
+  "snapshot": 60,
+  "parent": 59,
+  "change": "The compiler refuses -o, --wasm-stats or --wasm-deps paths that name a loaded source, an embedded file or another output (issue #6). Throughput was not re-measured; the check compares a few paths before writing.",
+  "compiler_sha256": "1c9e0fab8cddc9fcc8ba9be0f26a9cca22b599050acf63dfa8e802543df94191",
+  "canonical_C_sha256": "740403169d5cb0a457d27b5a3d5ffa2da0451d192b67995fbe19d83f15e148f2",
+  "profile_used": true,
+  "profile_metadata": {
+    "schema": "goose-bootstrap-profile-v1",
+    "c_sha256": "740403169d5cb0a457d27b5a3d5ffa2da0451d192b67995fbe19d83f15e148f2",
+    "clang_major": 23,
+    "target": "x86_64-pc-linux-gnu",
+    "base_flags": [
+      "-std=gnu11",
+      "-O2",
+      "-lm",
+      "-ldl",
+      "-pthread"
+    ],
+    "c_basename": "seed.c",
+    "data_sha256": "31165bc6d449307d4d824c90b417d97d718cc9deef11757d4399b6797141922a"
+  },
+  "bootstrap": {
+    "transition": {
+      "parent_seed_c_sha256": "2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3",
+      "stage2_c_sha256": "740403169d5cb0a457d27b5a3d5ffa2da0451d192b67995fbe19d83f15e148f2",
+      "stage3_c_sha256": null,
+      "fixed_point": true
+    },
+    "public_roots": [
+      {
+        "root": "default",
+        "executable_sha256": "1c9e0fab8cddc9fcc8ba9be0f26a9cca22b599050acf63dfa8e802543df94191",
+        "profile_used": true
+      },
+      {
+        "root": "explicit options",
+        "executable_sha256": "1c9e0fab8cddc9fcc8ba9be0f26a9cca22b599050acf63dfa8e802543df94191",
+        "profile_used": true
+      }
+    ]
+  },
+  "full_summary": {
+    "selected": 8055,
+    "passed": 7955,
+    "failed": 100
+  },
+  "full_rows_differing_from_snapshot_58_run": 0,
+  "known_gap_gate": "passed (100 open gaps, 0 unexpected, 0 fixed)",
+  "c_compiler": "gcc -Wl,--as-needed",
+  "curated_v8_summary": {
+    "selected": 4780,
+    "passed": 4780,
+    "failed": 0
+  },
+  "unit_tests": {
+    "tests.test_cli_outputs": 4
+  },
+  "limitations": [
+    "Paths compare in normalized form; an absolute spelling of a relative source path is not recognized because the runtime has no realpath or stat primitive. scripts/goose_wasm.py also compares by samefile."
+  ]
+}

@@ -14,7 +14,7 @@ Bootstrap builds the checked-in C seed, uses it to compile the Goose compiler to
 
 An optional Clang IR profile is used only when its C hash, target triple, Clang major version, C basename and base flags match, and its data checksum is valid. If the profile is missing, mismatched or fails to compile, bootstrap builds without it and records the reason. The supplied profile targets Clang 23 and `x86_64-pc-linux-gnu`; it was trained on the compiler itself and two feature fixtures, excluding the eleven timed programs.
 
-Two independent public output roots, one using defaults and one explicit options, passed `--verify` with `profile_used: true`. Both produced executable SHA-256 `1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e` and generated C SHA-256 `2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3`. [Qualification](results/2026-11-11/compiler-throughput-59/README.md)
+Two independent public output roots, one using defaults and one explicit options, passed `--verify` with `profile_used: true`. Both produced executable SHA-256 `1c9e0fab8cddc9fcc8ba9be0f26a9cca22b599050acf63dfa8e802543df94191` and generated C SHA-256 `740403169d5cb0a457d27b5a3d5ffa2da0451d192b67995fbe19d83f15e148f2`. [Qualification](results/2026-11-11/cli-outputs-60/README.md) · [Throughput qualification](results/2026-11-11/compiler-throughput-59/README.md)
 
 ## Contracts
 
