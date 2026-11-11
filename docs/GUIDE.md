@@ -22,6 +22,8 @@ python scripts/goose_wasm.py build examples/squares.goose \
 
 Use `--goose` and `--stdlib` to select a compiler and library, `--cc` to select the native C compiler, and `-O0`, `-O1`, or `-O2` to choose optimization. Run `python scripts/goose_wasm.py build --help` for the remaining options. The direct backend emits Wasm without a C compiler; native output compiles generated C.
 
+Every function in your own source files is checked, including functions the program never calls. Modules found through `--stdlib` are libraries: the compiler parses and checks a library function only when the program reaches it, so an error inside an unused library function is not reported.
+
 ## Optional Wasmtime host
 
 ```sh

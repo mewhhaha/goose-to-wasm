@@ -55,6 +55,8 @@ def main():
     parser.add_argument('--cc', default='gcc')
     parser.add_argument('--timeout', type=float, default=15)
     parser.add_argument('--frontend-only', action='store_true', help='check positive programs without lowering or execution')
+    parser.add_argument('--known-gaps', type=Path,
+                        help='exit 0 only if the failing selected rows are exactly the recorded open gaps')
     args = parser.parse_args()
     compiler = args.compiler.resolve()
     out = args.output_dir.resolve()
@@ -267,7 +269,28 @@ def main():
     finally:
         save()
     print(report['summary'])
+    if args.known_gaps:
+        return known_gaps(report, args.known_gaps)
     return int(report['status'] != 'passed')
+
+
+def known_gaps(report, path):
+    """Compare failures with the recorded open gaps among the selected rows.
+
+    A failure outside the record is a regression; a recorded gap that now
+    passes must be removed from the record."""
+    rows = {(row['case'], row['level']): row['status'] for row in report['results']}
+    recorded = {(case, level) for case, level in json.loads(path.read_text())['gaps']}
+    expected = {key for key in recorded if key in rows}
+    failing = {key for key, status in rows.items() if status != 'pass'}
+    unexpected = sorted(failing - expected)
+    fixed = sorted(expected - failing)
+    print({'open_gaps': len(expected), 'unexpected_failures': len(unexpected), 'fixed_gaps': len(fixed)})
+    for case, level in unexpected:
+        print('unexpected failure:', case, 'level', level)
+    for case, level in fixed:
+        print('recorded gap now passes; remove it from', path.name + ':', case, 'level', level)
+    return int(bool(unexpected or fixed))
 
 
 if __name__ == '__main__':

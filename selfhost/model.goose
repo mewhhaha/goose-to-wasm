@@ -103,6 +103,9 @@ let T_TU32: i64 = 97;
 let T_TU64: i64 = 98;
 let T_TF32: i64 = 99;
 let T_TF64: i64 = 100;
+// The opening brace of a library function body whose text the lexer skipped; integer holds
+// the offset of the matching closing brace.
+let T_LAZY_BODY: i64 = 101;
 
 let N_MODULE: i64 = 0;
 let N_IMPORT: i64 = 1;
@@ -234,6 +237,8 @@ let F_FORMAT_RAW: i64 = 274877906944;
 let F_PROPERTY: i64 = 549755813888;
 let F_RETURN_MOVE: i64 = 1099511627776;
 let F_RESULT_TEMP: i64 = 2199023255552;
+// A library function body block whose tokens are parsed when the checker first reaches it.
+let F_DEFERRED: i64 = 4398046511104;
 let TF_UNSIGNED: i64 = 1;
 let TF_OPTIONAL: i64 = 2;
 let TF_CONST: i64 = 4;
@@ -256,6 +261,7 @@ struct Source {
     path_start: i64 = 0, path_len: i64 = 0,
     text_start: i64 = 0, text_len: i64 = 0,
     token_start: i64 = 0, token_end: i64 = 0, root: i64 = -1, next_decl: i64 = -1,
+    library: bool = false,
 }
 struct Token {
     kind: i64 = 0, source: i64 = 0, start: i64 = 0, end: i64 = 0,
@@ -284,6 +290,9 @@ struct Type {
     pool: i64 = -1, index_type: i64 = -1, prefix: i64 = -1, tail: i64 = -1,
     arguments: i64 = -1,
     length_explicit: bool = false,
+    // Wasm emission's memoized layout predicates, keyed by this type's own ID so a
+    // copied type never inherits them: (id + 1) << 16 | known/value bit pairs.
+    codegen_memo: i64 = 0,
 }
 struct Symbol {
     name_token: i64 = -1, type_id: i64 = -1, node: i64 = -1,
@@ -346,6 +355,12 @@ fn diagnose(p: Program&, token: i64, message: u8[:]) {
         let t = p.tokens[token];
         diagnose_at(p, t.source, t.start, t.end, message);
     } else { diagnose_at(p, 0, 0, 0, message); }
+}
+// Whether a node comes from a library module (resolved through --stdlib).
+// Unreached library functions are neither prepared nor checked.
+fn library_node(p: Program&, node: i64) -> bool {
+    let token = p.nodes[node].token;
+    return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
 }
 fn new_node(p: Program&, kind: i64, token: i64) -> i64 {
     let id = p.nodes.len;

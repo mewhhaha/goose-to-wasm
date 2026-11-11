@@ -3,7 +3,7 @@ import lexer;
 import parser;
 import os;
 
-struct SourceRequest { start: i64, length: i64, token: i64 = -1, package: i64 = -1, source: i64 = -1, index: i64 = -1 }
+struct SourceRequest { start: i64, length: i64, token: i64 = -1, package: i64 = -1, source: i64 = -1, index: i64 = -1, library: bool = false }
 struct SourcePackage { name: i64, start: i64, length: i64 }
 
 fn source_directory(path: const u8[:], out: u8[>..]&) {
@@ -46,7 +46,7 @@ fn source_normalize(path: const u8[:], out: u8[>..]&) {
     if out.len == 0 { out.append("."); }
 }
 fn source_request(p: Program&, pending: SourceRequest[>..]&, seen: SourceRequest[>..]&,
-                  path: const u8[:], token: i64, package: i64 = -1) {
+                  path: const u8[:], token: i64, package: i64 = -1, library: bool = false) {
     var normalized: u8[>..] = [];
     source_normalize(path, normalized);
     for request in seen {
@@ -58,7 +58,7 @@ fn source_request(p: Program&, pending: SourceRequest[>..]&, seen: SourceRequest
     }
     let start = p.text.len;
     p.text.append(normalized);
-    let request = SourceRequest { start: start, length: normalized.len, token: token, package: package, index: seen.len };
+    let request = SourceRequest { start: start, length: normalized.len, token: token, package: package, index: seen.len, library: library };
     pending.push(request); seen.push(request);
 }
 fn source_package(p: Program&, packages: SourcePackage[>..]&, name: i64) -> i64 {
@@ -113,7 +113,7 @@ fn source_package_entry(p: Program&, directory: const u8[:], module: const u8[:]
 }
 fn source_import_path(p: Program&, node: i64, directory: const u8[:], stdlib: const u8[:],
                       packages: SourcePackage[>..]&, current_package: i64,
-                      resolved_package: i64&, out: u8[>..]&) -> bool {
+                      resolved_package: i64&, out: u8[>..]&, library: bool&) -> bool {
     let n = p.nodes[node];
     var name: u8[>..] = [];
     for token in n.integer..n.aux + 1 {
@@ -169,7 +169,7 @@ fn source_import_path(p: Program&, node: i64, directory: const u8[:], stdlib: co
         out.append(stdlib);
         if out[out.len - 1] != '/' { out.push('/'); }
         out.append(name); out.append(".goose");
-        if file_exists(out) { return true; }
+        if file_exists(out) { library = true; return true; }
     }
     diagnose(p, n.token, "cannot resolve import; pass --stdlib or set GOOSE_STDLIB");
     return false;
@@ -199,8 +199,8 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
         let start = p.text.len;
         p.text.append(contents);
         p.sources.push(Source { path_start: request.start, path_len: request.length,
-                               text_start: start, text_len: contents.len });
-        lex_source(p, source_id);
+                               text_start: start, text_len: contents.len, library: request.library });
+        lex_source(p, source_id, request.library && !tokens_only);
         if tokens_only { continue; }
         let module = parse_source(p, source_id);
         pending.push(SourceRequest { start: 0, length: 0, source: source_id });
@@ -220,9 +220,9 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
             }
             if p.nodes[declaration].kind == N_IMPORT {
                 var imported: u8[>..] = [];
-                var package = request.package;
-                if source_import_path(p, declaration, directory, stdlib, packages, request.package, package, imported) {
-                    source_request(p, pending, seen, imported, p.nodes[declaration].token, package);
+                var package = request.package; var library = request.library;
+                if source_import_path(p, declaration, directory, stdlib, packages, request.package, package, imported, library) {
+                    source_request(p, pending, seen, imported, p.nodes[declaration].token, package, library);
                 }
             }
             previous = declaration;

@@ -14,7 +14,7 @@ Bootstrap builds the checked-in C seed, uses it to compile the Goose compiler to
 
 An optional Clang IR profile is used only when its C hash, target triple, Clang major version, C basename and base flags match, and its data checksum is valid. If the profile is missing, mismatched or fails to compile, bootstrap builds without it and records the reason. The supplied profile targets Clang 23 and `x86_64-pc-linux-gnu`; it was trained on the compiler itself and two feature fixtures, excluding the eleven timed programs.
 
-Two independent public output roots, one using defaults and one explicit options, passed `--verify` with `profile_used: true`. Both produced executable SHA-256 `9a0450a452f6dcc0c6ad698fdeb9af6be599c7e8ffdb2437364a6f360145489d` and generated C SHA-256 `191a6b540a7c59ccdd0de5ac32199eea958bb19121cd98a1bfe269c13fc2aea6`. [Qualification](results/2026-11-08/compiler-throughput-58/README.md)
+Two independent public output roots, one using defaults and one explicit options, passed `--verify` with `profile_used: true`. Both produced executable SHA-256 `1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e` and generated C SHA-256 `2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3`. [Qualification](results/2026-11-11/compiler-throughput-59/README.md)
 
 ## Contracts
 
@@ -23,6 +23,8 @@ python3 tests/conformance.py --compiler build/bin/goose \
   --output-dir build/conformance --levels 0 2
 ```
 
-Use a fresh output directory. The suite checks frozen sources, outputs, exit statuses and failure phases. Snapshot 58 passed 7,955 of 8,055 rows; all 184 new rows passed, and the 7,871 previous results and phases were unchanged. The 100 known gaps comprise six invalid programs accepted and 94 runtime contracts refused during compilation. The curated corpus passed 3,370 Wasm checks in each of Wasmtime and V8 and 1,410 native controls. All 45 native runtime checks and 16 stack-guard profiles passed.
+Use a fresh output directory. The suite checks frozen sources, outputs, exit statuses and failure phases. Snapshot 59 passed 7,955 of 8,055 rows, and every row matches snapshot 58. The 100 known gaps comprise six invalid programs accepted and 94 runtime contracts refused during compilation. The curated corpus passed 3,370 Wasm checks in each of Wasmtime and V8 and 1,410 native controls. All 45 native runtime checks and 16 stack-guard profiles passed.
 
-A C++ reference guided the initial port; bootstrap and the frozen contracts do not execute it. The previous C++ compiler remains a benchmark competitor. These contracts cover selected behavior, not all Goose programs. [Results and limitations](results/2026-11-08/compiler-throughput-58/README.md) · [Guide](../docs/GUIDE.md)
+Modules found through `--stdlib` are libraries: their function bodies are lexed, parsed and checked only when the program reaches them. Unused functions in user sources are still checked.
+
+A C++ reference guided the initial port; bootstrap and the frozen contracts do not execute it. The previous C++ compiler remains a benchmark competitor. These contracts cover selected behavior, not all Goose programs. [Results and limitations](results/2026-11-11/compiler-throughput-59/README.md) · [Guide](../docs/GUIDE.md)

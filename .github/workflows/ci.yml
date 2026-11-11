@@ -47,11 +47,13 @@ jobs:
         run: >-
           python tests/conformance.py --compiler build/bin/goose
           --output-dir build/conformance --levels 0 2 --timeout 20
+          --known-gaps tests/conformance/known-gaps.json
       - name: Curated WebAssembly contracts on V8
         if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
         run: >-
           python tests/conformance.py --compiler build/bin/goose
           --output-dir build/conformance-v8 --filter corpus/ --levels 0 2 --engine v8 --timeout 20
+          --known-gaps tests/conformance/known-gaps.json
       - name: Publish qualification evidence
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,0 +1,45 @@
+{
+  "schema": "goose-canonical-pgo-training-v1",
+  "source_c_sha256": "2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3",
+  "goose_optimization": 2,
+  "base_flags": [
+    "-std=gnu11",
+    "-O2",
+    "-lm",
+    "-ldl",
+    "-pthread"
+  ],
+  "c_basename": "seed.c",
+  "target": "x86_64-pc-linux-gnu",
+  "clang_sha256": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+  "llvm_profdata_sha256": "f8aee149479f6bc97a2ef0c339ed3a493c8a48f052e0b88e5fa20cab52d37d56",
+  "training": [
+    {
+      "name": "native",
+      "source": "./sources/main.goose",
+      "target": "native",
+      "weight": 1
+    },
+    {
+      "name": "leaf",
+      "source": "build/completion-runs/compiler-subtractive-58/leaf-properties-fixture.goose",
+      "source_sha256": "bdf6db63237c10b92d190a8e49f122cb9c7d58628b37287644d11cbfb0e0aff1",
+      "target": "wasm-direct",
+      "weight": 64
+    },
+    {
+      "name": "flow",
+      "source": "build/completion-runs/compiler-subtractive-58/flow-prefilter-fixture.goose",
+      "source_sha256": "029107c603f4829f3da9355006dcd7ca2f8a8a03e72c3d49922fbd73f4a5200c",
+      "target": "wasm-direct",
+      "weight": 64
+    }
+  ],
+  "timed_benchmarks_used_for_training": false,
+  "generation": "snapshot 58 protocol: instrumented build with an _Exit wrapper that flushes the profile, three training compilations, weighted llvm-profdata merge",
+  "plain_sha256": "92d5d40a1bcbd92b341d8984eab72bddc100d988b9d809a513c7ecad7e72c600",
+  "profiled_sha256": "1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e",
+  "profile_sha256": "be76be78eea90a8a392722acfa78ad2e32e65e53cd513e8280dc4148163da2b5",
+  "plain_fixed_point": true,
+  "profiled_fixed_point": true
+}

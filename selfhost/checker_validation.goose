@@ -418,6 +418,8 @@ fn validation_function(p: Program&, node: i64) {
     // clones retain the origin, so an attempted generic extern call is still
     // refused even though its argument types have become concrete.
     if n.third >= 0 || (n.flags & F_GENERIC) != 0 { return; }
+    // An unreached library signature is never prepared.
+    if n.type_id < 0 && library_node(p, node) { return; }
     let external = (n.flags & F_EXTERN) != 0;
     if external {
         var original = n.origin;

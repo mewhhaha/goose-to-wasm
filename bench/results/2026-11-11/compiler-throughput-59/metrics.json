@@ -1,0 +1,288 @@
+{
+  "schema": "goose-compiler-throughput-metrics-v1",
+  "snapshot": 59,
+  "date": "2026-11-11",
+  "compilers": {
+    "cpp": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/next-runtime-hills/final/bin/goose",
+      "sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6"
+    },
+    "parent": {
+      "path": "/var/tmp/goose-perf/parent58/build/bin/goose",
+      "sha256": "9a0450a452f6dcc0c6ad698fdeb9af6be599c7e8ffdb2437364a6f360145489d"
+    },
+    "candidate": {
+      "path": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
+      "sha256": "1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e"
+    }
+  },
+  "runs": [
+    {
+      "name": "primary",
+      "cpu": 7,
+      "seed": 580058,
+      "samples": 31,
+      "status": "passed",
+      "report_sha256": "746514bda165fb8c6aacc732f467cfb2accdca784e7f65128e64533547fb0f5c",
+      "geomean_time_ratio": {
+        "wasm-direct:candidate/cpp": 0.57894,
+        "wasm-direct:parent/cpp": 1.01003,
+        "wasm-direct:candidate/parent": 0.57319,
+        "native-c:candidate/cpp": 0.53225,
+        "native-c:parent/cpp": 0.93912,
+        "native-c:candidate/parent": 0.56675,
+        "all-cells:candidate/cpp": 0.5551
+      },
+      "median_ms": {
+        "wasm-direct": {
+          "errors": {
+            "cpp": 9.269,
+            "parent": 10.188,
+            "candidate": 5.484
+          },
+          "functions": {
+            "cpp": 21.504,
+            "parent": 20.57,
+            "candidate": 14.805
+          },
+          "life": {
+            "cpp": 9.112,
+            "parent": 8.734,
+            "candidate": 4.065
+          },
+          "mandelbrot": {
+            "cpp": 7.159,
+            "parent": 7.712,
+            "candidate": 2.873
+          },
+          "maze": {
+            "cpp": 11.881,
+            "parent": 10.951,
+            "candidate": 6.035
+          },
+          "sieve": {
+            "cpp": 7.364,
+            "parent": 8.34,
+            "candidate": 3.425
+          },
+          "sorting": {
+            "cpp": 27.383,
+            "parent": 21.105,
+            "candidate": 15.625
+          },
+          "squares": {
+            "cpp": 2.604,
+            "parent": 2.443,
+            "candidate": 2.195
+          },
+          "sudoku": {
+            "cpp": 8.567,
+            "parent": 8.655,
+            "candidate": 3.796
+          },
+          "tour": {
+            "cpp": 4.712,
+            "parent": 5.573,
+            "candidate": 5.34
+          },
+          "vm": {
+            "cpp": 8.409,
+            "parent": 9.586,
+            "candidate": 4.949
+          }
+        },
+        "native-c": {
+          "errors": {
+            "cpp": 9.831,
+            "parent": 10.373,
+            "candidate": 5.644
+          },
+          "functions": {
+            "cpp": 22.517,
+            "parent": 20.23,
+            "candidate": 15.317
+          },
+          "life": {
+            "cpp": 9.144,
+            "parent": 8.891,
+            "candidate": 3.928
+          },
+          "mandelbrot": {
+            "cpp": 7.565,
+            "parent": 8.191,
+            "candidate": 3.075
+          },
+          "maze": {
+            "cpp": 12.159,
+            "parent": 10.911,
+            "candidate": 5.86
+          },
+          "sieve": {
+            "cpp": 7.646,
+            "parent": 8.02,
+            "candidate": 3.0
+          },
+          "sorting": {
+            "cpp": 28.588,
+            "parent": 21.537,
+            "candidate": 16.756
+          },
+          "squares": {
+            "cpp": 3.103,
+            "parent": 2.44,
+            "candidate": 2.159
+          },
+          "sudoku": {
+            "cpp": 8.912,
+            "parent": 8.85,
+            "candidate": 3.866
+          },
+          "tour": {
+            "cpp": 4.986,
+            "parent": 4.232,
+            "candidate": 4.018
+          },
+          "vm": {
+            "cpp": 8.951,
+            "parent": 9.562,
+            "candidate": 4.728
+          }
+        }
+      }
+    },
+    {
+      "name": "replicate",
+      "cpu": 5,
+      "seed": 590059,
+      "samples": 31,
+      "status": "passed",
+      "report_sha256": "711bf6e680b0725d42cc3d4e7f910b6dbdd1e12536a7c5c04a3b27ad94660b7a",
+      "geomean_time_ratio": {
+        "wasm-direct:candidate/cpp": 0.57675,
+        "wasm-direct:parent/cpp": 1.01097,
+        "wasm-direct:candidate/parent": 0.57049,
+        "native-c:candidate/cpp": 0.53565,
+        "native-c:parent/cpp": 0.94389,
+        "native-c:candidate/parent": 0.56749,
+        "all-cells:candidate/cpp": 0.55582
+      },
+      "median_ms": {
+        "wasm-direct": {
+          "errors": {
+            "cpp": 9.439,
+            "parent": 9.951,
+            "candidate": 5.449
+          },
+          "functions": {
+            "cpp": 21.249,
+            "parent": 19.927,
+            "candidate": 14.383
+          },
+          "life": {
+            "cpp": 9.001,
+            "parent": 8.747,
+            "candidate": 4.043
+          },
+          "mandelbrot": {
+            "cpp": 6.969,
+            "parent": 7.706,
+            "candidate": 2.886
+          },
+          "maze": {
+            "cpp": 11.521,
+            "parent": 10.851,
+            "candidate": 6.069
+          },
+          "sieve": {
+            "cpp": 7.276,
+            "parent": 8.023,
+            "candidate": 3.382
+          },
+          "sorting": {
+            "cpp": 26.821,
+            "parent": 20.904,
+            "candidate": 15.646
+          },
+          "squares": {
+            "cpp": 2.547,
+            "parent": 2.431,
+            "candidate": 2.007
+          },
+          "sudoku": {
+            "cpp": 8.739,
+            "parent": 8.558,
+            "candidate": 3.746
+          },
+          "tour": {
+            "cpp": 4.518,
+            "parent": 5.565,
+            "candidate": 5.285
+          },
+          "vm": {
+            "cpp": 8.454,
+            "parent": 9.625,
+            "candidate": 4.839
+          }
+        },
+        "native-c": {
+          "errors": {
+            "cpp": 9.826,
+            "parent": 10.208,
+            "candidate": 5.621
+          },
+          "functions": {
+            "cpp": 22.206,
+            "parent": 19.871,
+            "candidate": 14.99
+          },
+          "life": {
+            "cpp": 8.883,
+            "parent": 8.634,
+            "candidate": 3.957
+          },
+          "mandelbrot": {
+            "cpp": 7.48,
+            "parent": 7.938,
+            "candidate": 3.018
+          },
+          "maze": {
+            "cpp": 12.081,
+            "parent": 10.849,
+            "candidate": 5.905
+          },
+          "sieve": {
+            "cpp": 7.484,
+            "parent": 7.881,
+            "candidate": 3.008
+          },
+          "sorting": {
+            "cpp": 28.063,
+            "parent": 21.0,
+            "candidate": 16.339
+          },
+          "squares": {
+            "cpp": 2.856,
+            "parent": 2.525,
+            "candidate": 2.179
+          },
+          "sudoku": {
+            "cpp": 9.032,
+            "parent": 8.724,
+            "candidate": 3.873
+          },
+          "tour": {
+            "cpp": 4.89,
+            "parent": 4.236,
+            "candidate": 3.853
+          },
+          "vm": {
+            "cpp": 8.88,
+            "parent": 9.379,
+            "candidate": 4.519
+          }
+        }
+      }
+    }
+  ],
+  "note": "Primary run is compiler-comparison.json; the replicate report is summarized here. The shared host carried other workloads; all compilers were interleaved in shuffled rounds on one pinned CPU."
+}

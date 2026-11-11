@@ -101,7 +101,11 @@ fn lex_keyword(p: Program&, start: i64, end: i64) -> i64 {
     return T_IDENT;
 }
 
-struct LexCursor { source: i64, at: i64, end: i64, line: i64 = 1, column: i64 = 1 }
+// skeleton: a library source whose top-level function bodies are skipped; braces,
+// parens, declaration and pending track the declaration that owns the next body.
+struct LexCursor { source: i64, at: i64, end: i64, line: i64 = 1, column: i64 = 1,
+                   skeleton: bool = false, braces: i64 = 0, parens: i64 = 0,
+                   declaration: bool = true, pending: bool = false }
 inline fn lex_peek(p: Program&, l: LexCursor&, ahead: i64 = 0) -> u8 {
     if l.at + ahead >= l.end { return 0; }
     return p.text[l.at + ahead];
@@ -140,20 +144,104 @@ fn lex_escape(p: Program&, l: LexCursor&, token: i64) -> i64 {
     return e as i64;
 }
 
-fn lex_source(p: Program&, source_id: i64) {
+fn lex_source(p: Program&, source_id: i64, skeleton: bool = false) {
     if source_id < 0 || source_id >= p.sources.len { diagnose_at(p, 0, 0, 0, "invalid source ID"); return; }
     let source = p.sources[source_id];
-    var l = LexCursor { source: source_id, at: source.text_start, end: source.text_start + source.text_len };
+    var l = LexCursor { source: source_id, at: source.text_start, end: source.text_start + source.text_len, skeleton: skeleton };
     p.sources[source_id].token_start = p.tokens.len;
     if lex_peek(p, l) == 239 && lex_peek(p, l, 1) == 187 && lex_peek(p, l, 2) == 191 {
         l.at += 3;
     }
+    lex_tokens(p, l);
+    p.sources[source_id].token_end = p.tokens.len;
+}
+
+// The offset of the brace closing a body whose text starts at `at`, or -1. Strings,
+// characters and comments follow the token rules, so their braces do not count.
+fn lex_skip_body(p: Program&, start: i64, end: i64) -> i64 {
+    var depth = 1; var at = start;
+    while at < end {
+        let c = p.text[at];
+        if c == '{' { depth++; at++; }
+        else if c == '}' { depth--; if depth == 0 { return at; } at++; }
+        else if c == '/' && at + 1 < end && p.text[at + 1] == '/' {
+            while at < end && p.text[at] != '\n' { at++; }
+        } else if c == '/' && at + 1 < end && p.text[at + 1] == '*' {
+            var nested = 1; at += 2;
+            while at < end && nested > 0 {
+                if p.text[at] == '/' && at + 1 < end && p.text[at + 1] == '*' { nested++; at += 2; }
+                else if p.text[at] == '*' && at + 1 < end && p.text[at + 1] == '/' { nested--; at += 2; }
+                else { at++; }
+            }
+            if nested != 0 { return -1; }
+        } else if c == '"' && at + 2 < end && p.text[at + 1] == '"' && p.text[at + 2] == '"' {
+            at += 3;
+            while at + 2 < end && !(p.text[at] == '"' && p.text[at + 1] == '"' && p.text[at + 2] == '"') { at++; }
+            if at + 2 >= end { return -1; }
+            at += 3;
+        } else if c == '"' || c == '\'' {
+            at++;
+            while at < end && p.text[at] != c && p.text[at] != '\n' {
+                if p.text[at] == '\\' { at += 2; } else { at++; }
+            }
+            if at >= end || p.text[at] != c { return -1; }
+            at++;
+        } else { at++; }
+    }
+    return -1;
+}
+
+// Follows top-level declarations of a library source. The first brace outside
+// parentheses after a declaration's fn keyword opens its body, which is skipped.
+fn lex_skeleton(p: Program&, l: LexCursor&, token: i64) {
+    let kind = p.tokens[token].kind;
+    if kind == T_LCURLY {
+        if l.braces == 0 && l.parens == 0 && l.pending {
+            l.pending = false;
+            let close = lex_skip_body(p, l.at, l.end);
+            if close >= 0 {
+                p.tokens[token].kind = T_LAZY_BODY; p.tokens[token].integer = close;
+                while l.at < close {
+                    if p.text[l.at] == '\n' { l.line++; l.column = 1; } else { l.column++; }
+                    l.at++;
+                }
+            }
+        }
+        l.braces++; l.declaration = false; return;
+    }
+    if kind == T_RCURLY {
+        if l.braces > 0 { l.braces--; }
+        if l.braces == 0 && l.parens == 0 { l.declaration = true; l.pending = false; }
+        return;
+    }
+    if l.braces > 0 { return; }
+    if kind == T_LPAREN || kind == T_LBRACKET { l.parens++; l.declaration = false; }
+    else if kind == T_RPAREN || kind == T_RBRACKET { if l.parens > 0 { l.parens--; } }
+    else if kind == T_SEMI { if l.parens == 0 { l.declaration = true; l.pending = false; } }
+    else if kind == T_ASSIGN { if l.parens == 0 { l.pending = false; } l.declaration = false; }
+    else if kind == T_FN || kind == T_THREADFN {
+        if l.declaration && l.parens == 0 { l.pending = true; }
+        l.declaration = false;
+    } else if kind == T_EXPORT || kind == T_EXTERN || kind == T_SIMD || kind == T_RECURSIVE || kind == T_STRLIT { }
+    else if kind == T_IDENT && (token_is(p, token, "inline") || token_is(p, token, "checkfree")) { }
+    else { l.declaration = false; }
+}
+
+// Lexes l's range, then appends its end-of-file token.
+fn lex_tokens(p: Program&, l: LexCursor&) {
+    let source_id = l.source;
     loop {
         let c = lex_peek(p, l);
-        if c == ' ' || c == '\t' || c == '\r' || c == '\n' { lex_take(p, l); continue; }
+        if c == ' ' || c == '\t' || c == '\r' {
+            var at = l.at + 1;
+            while at < l.end { let d = p.text[at]; if d != ' ' && d != '\t' && d != '\r' { break; } at++; }
+            l.column += at - l.at; l.at = at; continue;
+        }
+        if c == '\n' { l.at++; l.line++; l.column = 1; continue; }
         if c == '/' && lex_peek(p, l, 1) == '/' {
-            while l.at < l.end && lex_peek(p, l) != '\n' { lex_take(p, l); }
-            continue;
+            var at = l.at + 2;
+            while at < l.end && p.text[at] != '\n' { at++; }
+            l.column += at - l.at; l.at = at; continue;
         }
         if c == '/' && lex_peek(p, l, 1) == '*' {
             let start = l.at;
@@ -177,17 +265,15 @@ fn lex_source(p: Program&, source_id: i64) {
         let token_id = p.tokens.len;
         // Reserve the diagnostic's token before scanning a fallible literal.
         p.tokens.push(t);
-        if l.at >= l.end {
-            p.sources[source_id].token_end = p.tokens.len;
-            return;
-        }
+        if l.at >= l.end { return; }
         if c == 0 {
             lex_take(p, l);
             diagnose(p, token_id, "NUL byte is not valid source text");
             t.kind = -1;
         } else if lex_alpha(c) {
-            lex_take(p, l);
-            while lex_alpha(lex_peek(p, l)) || lex_digit(lex_peek(p, l)) { lex_take(p, l); }
+            var at = l.at + 1;
+            while at < l.end { let d = p.text[at]; if !lex_alpha(d) && !lex_digit(d) { break; } at++; }
+            l.column += at - l.at; l.at = at;
             t.kind = lex_keyword(p, t.start, l.at);
         } else if lex_digit(c) {
             var radix: i64 = 10;
@@ -268,6 +354,7 @@ fn lex_source(p: Program&, source_id: i64) {
         }
         t.end = l.at;
         p.tokens[token_id] = t;
+        if l.skeleton { lex_skeleton(p, l, token_id); }
     }
 }
 
@@ -331,60 +418,64 @@ fn lex_raw_string(p: Program&, l: LexCursor&, token: i64, t: Token&) {
     while l.at < close + 3 { lex_take(p, l); }
 }
 
+// Dispatches on the first byte; longer operators win, as in the token grammar.
 fn lex_punctuation(p: Program&, l: LexCursor&) -> i64 {
-    if lex_peek(p, l, 0) == 46 && lex_peek(p, l, 1) == 61 && lex_peek(p, l, 2) == 61 { lex_take(p, l); lex_take(p, l); lex_take(p, l); return T_DOTEQ; }
-    if lex_peek(p, l, 0) == 46 && lex_peek(p, l, 1) == 33 && lex_peek(p, l, 2) == 61 { lex_take(p, l); lex_take(p, l); lex_take(p, l); return T_DOTNEQ; }
-    if lex_peek(p, l, 0) == 60 && lex_peek(p, l, 1) == 60 && lex_peek(p, l, 2) == 61 { lex_take(p, l); lex_take(p, l); lex_take(p, l); return T_SHLEQ; }
-    if lex_peek(p, l, 0) == 62 && lex_peek(p, l, 1) == 62 && lex_peek(p, l, 2) == 61 { lex_take(p, l); lex_take(p, l); lex_take(p, l); return T_SHREQ; }
-    if lex_peek(p, l, 0) == 58 && lex_peek(p, l, 1) == 58 { lex_take(p, l); lex_take(p, l); return T_COLONCOLON; }
-    if lex_peek(p, l, 0) == 46 && lex_peek(p, l, 1) == 46 { lex_take(p, l); lex_take(p, l); return T_DOTDOT; }
-    if lex_peek(p, l, 0) == 46 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_DOTASSIGN; }
-    if lex_peek(p, l, 0) == 43 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_PLUSEQ; }
-    if lex_peek(p, l, 0) == 45 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_MINUSEQ; }
-    if lex_peek(p, l, 0) == 42 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_MULEQ; }
-    if lex_peek(p, l, 0) == 47 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_DIVEQ; }
-    if lex_peek(p, l, 0) == 37 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_MODEQ; }
-    if lex_peek(p, l, 0) == 38 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_ANDEQ; }
-    if lex_peek(p, l, 0) == 124 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_OREQ; }
-    if lex_peek(p, l, 0) == 94 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_XOREQ; }
-    if lex_peek(p, l, 0) == 43 && lex_peek(p, l, 1) == 43 { lex_take(p, l); lex_take(p, l); return T_INC; }
-    if lex_peek(p, l, 0) == 45 && lex_peek(p, l, 1) == 45 { lex_take(p, l); lex_take(p, l); return T_DEC; }
-    if lex_peek(p, l, 0) == 61 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_EQ; }
-    if lex_peek(p, l, 0) == 33 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_NEQ; }
-    if lex_peek(p, l, 0) == 60 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_LTEQ; }
-    if lex_peek(p, l, 0) == 62 && lex_peek(p, l, 1) == 61 { lex_take(p, l); lex_take(p, l); return T_GTEQ; }
-    if lex_peek(p, l, 0) == 60 && lex_peek(p, l, 1) == 60 { lex_take(p, l); lex_take(p, l); return T_SHL; }
-    if lex_peek(p, l, 0) == 62 && lex_peek(p, l, 1) == 62 { lex_take(p, l); lex_take(p, l); return T_SHR; }
-    if lex_peek(p, l, 0) == 38 && lex_peek(p, l, 1) == 38 { lex_take(p, l); lex_take(p, l); return T_ANDAND; }
-    if lex_peek(p, l, 0) == 124 && lex_peek(p, l, 1) == 124 { lex_take(p, l); lex_take(p, l); return T_OROR; }
-    if lex_peek(p, l, 0) == 45 && lex_peek(p, l, 1) == 62 { lex_take(p, l); lex_take(p, l); return T_ARROW; }
-    if lex_peek(p, l, 0) == 61 && lex_peek(p, l, 1) == 62 { lex_take(p, l); lex_take(p, l); return T_FATARROW; }
-    if lex_peek(p, l, 0) == 40 { lex_take(p, l); return T_LPAREN; }
-    if lex_peek(p, l, 0) == 41 { lex_take(p, l); return T_RPAREN; }
-    if lex_peek(p, l, 0) == 91 { lex_take(p, l); return T_LBRACKET; }
-    if lex_peek(p, l, 0) == 93 { lex_take(p, l); return T_RBRACKET; }
-    if lex_peek(p, l, 0) == 123 { lex_take(p, l); return T_LCURLY; }
-    if lex_peek(p, l, 0) == 125 { lex_take(p, l); return T_RCURLY; }
-    if lex_peek(p, l, 0) == 44 { lex_take(p, l); return T_COMMA; }
-    if lex_peek(p, l, 0) == 59 { lex_take(p, l); return T_SEMI; }
-    if lex_peek(p, l, 0) == 58 { lex_take(p, l); return T_COLON; }
-    if lex_peek(p, l, 0) == 63 { lex_take(p, l); return T_QUESTION; }
-    if lex_peek(p, l, 0) == 46 { lex_take(p, l); return T_DOT; }
-    if lex_peek(p, l, 0) == 43 { lex_take(p, l); return T_PLUS; }
-    if lex_peek(p, l, 0) == 45 { lex_take(p, l); return T_MINUS; }
-    if lex_peek(p, l, 0) == 42 { lex_take(p, l); return T_MUL; }
-    if lex_peek(p, l, 0) == 47 { lex_take(p, l); return T_DIV; }
-    if lex_peek(p, l, 0) == 37 { lex_take(p, l); return T_MOD; }
-    if lex_peek(p, l, 0) == 61 { lex_take(p, l); return T_ASSIGN; }
-    if lex_peek(p, l, 0) == 60 { lex_take(p, l); return T_LT; }
-    if lex_peek(p, l, 0) == 62 { lex_take(p, l); return T_GT; }
-    if lex_peek(p, l, 0) == 33 { lex_take(p, l); return T_NOT; }
-    if lex_peek(p, l, 0) == 126 { lex_take(p, l); return T_BITNOT; }
-    if lex_peek(p, l, 0) == 38 { lex_take(p, l); return T_BITAND; }
-    if lex_peek(p, l, 0) == 124 { lex_take(p, l); return T_BITOR; }
-    if lex_peek(p, l, 0) == 94 { lex_take(p, l); return T_XOR; }
-    lex_take(p, l);
-    return T_EOF;
+    let c = lex_peek(p, l); let d = lex_peek(p, l, 1);
+    var kind = T_EOF; var width = 1;
+    if c == '(' { kind = T_LPAREN; }
+    else if c == ')' { kind = T_RPAREN; }
+    else if c == '[' { kind = T_LBRACKET; }
+    else if c == ']' { kind = T_RBRACKET; }
+    else if c == '{' { kind = T_LCURLY; }
+    else if c == '}' { kind = T_RCURLY; }
+    else if c == ',' { kind = T_COMMA; }
+    else if c == ';' { kind = T_SEMI; }
+    else if c == '?' { kind = T_QUESTION; }
+    else if c == '~' { kind = T_BITNOT; }
+    else if c == '.' {
+        let e = lex_peek(p, l, 2);
+        if d == '=' && e == '=' { kind = T_DOTEQ; width = 3; }
+        else if d == '!' && e == '=' { kind = T_DOTNEQ; width = 3; }
+        else if d == '.' { kind = T_DOTDOT; width = 2; }
+        else if d == '=' { kind = T_DOTASSIGN; width = 2; }
+        else { kind = T_DOT; }
+    } else if c == '<' {
+        if d == '<' && lex_peek(p, l, 2) == '=' { kind = T_SHLEQ; width = 3; }
+        else if d == '=' { kind = T_LTEQ; width = 2; }
+        else if d == '<' { kind = T_SHL; width = 2; }
+        else { kind = T_LT; }
+    } else if c == '>' {
+        if d == '>' && lex_peek(p, l, 2) == '=' { kind = T_SHREQ; width = 3; }
+        else if d == '=' { kind = T_GTEQ; width = 2; }
+        else if d == '>' { kind = T_SHR; width = 2; }
+        else { kind = T_GT; }
+    } else if c == ':' {
+        if d == ':' { kind = T_COLONCOLON; width = 2; } else { kind = T_COLON; }
+    } else if c == '+' {
+        if d == '=' { kind = T_PLUSEQ; width = 2; } else if d == '+' { kind = T_INC; width = 2; } else { kind = T_PLUS; }
+    } else if c == '-' {
+        if d == '=' { kind = T_MINUSEQ; width = 2; } else if d == '-' { kind = T_DEC; width = 2; }
+        else if d == '>' { kind = T_ARROW; width = 2; } else { kind = T_MINUS; }
+    } else if c == '*' {
+        if d == '=' { kind = T_MULEQ; width = 2; } else { kind = T_MUL; }
+    } else if c == '/' {
+        if d == '=' { kind = T_DIVEQ; width = 2; } else { kind = T_DIV; }
+    } else if c == '%' {
+        if d == '=' { kind = T_MODEQ; width = 2; } else { kind = T_MOD; }
+    } else if c == '&' {
+        if d == '=' { kind = T_ANDEQ; width = 2; } else if d == '&' { kind = T_ANDAND; width = 2; } else { kind = T_BITAND; }
+    } else if c == '|' {
+        if d == '=' { kind = T_OREQ; width = 2; } else if d == '|' { kind = T_OROR; width = 2; } else { kind = T_BITOR; }
+    } else if c == '^' {
+        if d == '=' { kind = T_XOREQ; width = 2; } else { kind = T_XOR; }
+    } else if c == '=' {
+        if d == '=' { kind = T_EQ; width = 2; } else if d == '>' { kind = T_FATARROW; width = 2; } else { kind = T_ASSIGN; }
+    } else if c == '!' {
+        if d == '=' { kind = T_NEQ; width = 2; } else { kind = T_NOT; }
+    }
+    // None of these bytes is a newline; an unknown byte is consumed alone.
+    l.at += width; l.column += width;
+    return kind;
 }
 
 // Base-2^32 integers keep conversion independent of the host libc. Division

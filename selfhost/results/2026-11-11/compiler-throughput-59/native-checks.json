@@ -1,0 +1,813 @@
+{
+  "collected_at_utc": "2026-11-11T08:57:12.306573+00:00",
+  "compiler": {
+    "command": [
+      "clang"
+    ],
+    "path": "/usr/bin/clang-23",
+    "sha256": "3e9abb628a5e7ecb195c7c85ae13c44f3059a7fff093915682ebde3b30d2036d",
+    "target": "x86_64-pc-linux-gnu",
+    "version": "clang version 23.1.4\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n"
+  },
+  "driver_sha256": "ac987c49022246f73ff9351955a1921780448e5a5d2123bb73a7b4e13aaa7ea6",
+  "fixtures": {
+    "files": {
+      "runtime_threads_lifecycle.c": {
+        "sha256": "2d4d9d70637bd73570ca511c7cbb95be96b19d6e73a7c38020e47a87a31cb386",
+        "upstream_path": "test/threads/runtime_threads_lifecycle.c",
+        "upstream_sha256": "dd282b749ed8585ab24a8b34bfba214cf9cd47a16ee8e73cc961c7eb8477fffd"
+      },
+      "runtime_trim_memory.c": {
+        "sha256": "ec39bbb051fb0d138a0f16504455349a210550dec69321c497bae6fc514e9d1f",
+        "upstream_path": "test/runtime/runtime_trim_memory.c",
+        "upstream_sha256": "2ef48dd47493450206f2fd29ae72d861ea87b128ec9e9b801af2fead36424fb6"
+      }
+    },
+    "repository": "https://github.com/aardappel/goose.git",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"
+  },
+  "host": {
+    "machine": "x86_64",
+    "node": "cachyos-x8664",
+    "processor": "",
+    "release": "7.3.0-4-cachyos",
+    "system": "Linux",
+    "version": "#1 SMP PREEMPT_DYNAMIC Fri, 23 Oct 2026 15:03:58 +0000"
+  },
+  "inputs_sha256": {
+    "bounded_cells.c": "4347362e07179ad9494ba1bed809348ceedd6ff20c095b52bb6637a1b3a18261",
+    "fixed_values.c": "fd7bafbd0d44e113c2a9cf0678ce28ed0993a1e27231057e6191f997960d3b19",
+    "glue-linked.c": "4a9af1e272abab12a8b8c5d9a1b90e7b24838dd2027b355292839954adc06f01",
+    "glue-standalone.c": "980f1f524a634ca6d7553131a633e151ea4e61ee54d5e0410c9b9cc79cc70964",
+    "image_storage.c": "ac8cc53372207b0f5f85ab0e99983eb53ea475123b703e8a50cdd3a226ddcb63",
+    "images.h": "fa676d8af9372bcc8ca51f27f544b336579560c030fc475bcdd36a8221818284",
+    "pools.c": "1e1d20e1d105b7837f2231b7339ca8cd5694fb69a1b204df5efd5e93e18e5559",
+    "pools.h": "76ae5c74474d8800fceecf037068b56872d5456b161e5961ad46c8fac61a3b95",
+    "relative.c": "df2915990cdb28ccff508c4285aeb7f0b247b1bf4bda81239ca5ca578e0b5214",
+    "relative.h": "4b3c41b7b929e3706412aaebb62b84640578f8963e473312fe66f0c597c296ba",
+    "runs.c": "bca8968e299308eca4ddf63a03002b0c0fe291470a0bd3670d1a432edfcf82bd",
+    "runs.h": "b193275eaef9697f97da6fcbdb9b2730a6e78fee1c5f4dda2a2ceef3665ebbb6",
+    "runtime-object.c": "cc3564ecc01139a6da8a978cf6c5adedbf638ce0401613f1f6420dce8e093015",
+    "runtime_threads_lifecycle-amalgamated": "497c001a228c4bf0ecc4c0cb47efbd908343b14fccb6a314563210ac4a2c4d62",
+    "runtime_threads_lifecycle-direct": "2d4d9d70637bd73570ca511c7cbb95be96b19d6e73a7c38020e47a87a31cb386",
+    "runtime_trim_memory-amalgamated": "7738c3fe60e041786e3f6b80d1abd40aca3aec9274b0eb21276426599db1f8c0",
+    "runtime_trim_memory-direct": "ec39bbb051fb0d138a0f16504455349a210550dec69321c497bae6fc514e9d1f",
+    "storage.h": "f451479db4f6cfd8960757d00baf390abe0976610d8409839e2f248903f3e97a",
+    "threads.h": "9d512f9b669ff76b28582c1a5cfa8b7f36ead1c4130d072d9668afc7e333f3b7",
+    "threads_adapter.c": "c18cfcc1bcea1f02255ea3cace712203c20160c2025c78fb391f666e6eb578f9",
+    "var_relative.c": "ed3dfd054dadd5836f2c90cc473eb21ae99f38034724327e25a132efeed2f054"
+  },
+  "measurement": "Wall time and wait4 resource usage per child; peak RSS includes process launch setup.",
+  "pack_sha256": "2e2acae72b9ec2db4f19ce58d5c54472f01a4e083886a678c2f3496fa96e6f80",
+  "runs": [
+    {
+      "command": [
+        "clang",
+        "-O2",
+        "-std=gnu11",
+        "-pthread",
+        "/home/jacobt/src/goose-to-wasm/native/tests/runtime_threads_lifecycle.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/runtime_threads_lifecycle-direct"
+      ],
+      "elapsed_seconds": 0.17774266499327496,
+      "max_rss_kib": 107720,
+      "name": "runtime_threads_lifecycle-direct-compile",
+      "returncode": 0,
+      "system_seconds": 0.027555999999999997,
+      "user_seconds": 0.14886
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/runtime_threads_lifecycle-direct"
+      ],
+      "elapsed_seconds": 0.0951054859906435,
+      "max_rss_kib": 23836,
+      "name": "runtime_threads_lifecycle-direct-run",
+      "returncode": 0,
+      "system_seconds": 0.375795,
+      "user_seconds": 0.011675999999999999
+    },
+    {
+      "command": [
+        "clang",
+        "-O2",
+        "-std=gnu11",
+        "-pthread",
+        "/var/tmp/goose-perf/native-checks/runtime_threads_lifecycle-amalgamated.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/runtime_threads_lifecycle-amalgamated"
+      ],
+      "elapsed_seconds": 0.18220074102282524,
+      "max_rss_kib": 107768,
+      "name": "runtime_threads_lifecycle-amalgamated-compile",
+      "returncode": 0,
+      "system_seconds": 0.022810999999999998,
+      "user_seconds": 0.15817799999999999
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/runtime_threads_lifecycle-amalgamated"
+      ],
+      "elapsed_seconds": 0.09621767001226544,
+      "max_rss_kib": 23836,
+      "name": "runtime_threads_lifecycle-amalgamated-run",
+      "returncode": 0,
+      "system_seconds": 0.35859399999999997,
+      "user_seconds": 0.013111
+    },
+    {
+      "command": [
+        "clang",
+        "-O2",
+        "-std=gnu11",
+        "-pthread",
+        "/home/jacobt/src/goose-to-wasm/native/tests/runtime_trim_memory.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/runtime_trim_memory-direct"
+      ],
+      "elapsed_seconds": 0.14867624104954302,
+      "max_rss_kib": 107024,
+      "name": "runtime_trim_memory-direct-compile",
+      "returncode": 0,
+      "system_seconds": 0.023599,
+      "user_seconds": 0.12404
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/runtime_trim_memory-direct"
+      ],
+      "elapsed_seconds": 0.049840732011944056,
+      "max_rss_kib": 23836,
+      "name": "runtime_trim_memory-direct-run",
+      "returncode": 0,
+      "system_seconds": 0.015771999999999998,
+      "user_seconds": 0.033463
+    },
+    {
+      "command": [
+        "clang",
+        "-O2",
+        "-std=gnu11",
+        "-pthread",
+        "/var/tmp/goose-perf/native-checks/runtime_trim_memory-amalgamated.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/runtime_trim_memory-amalgamated"
+      ],
+      "elapsed_seconds": 0.16031902696704492,
+      "max_rss_kib": 107144,
+      "name": "runtime_trim_memory-amalgamated-compile",
+      "returncode": 0,
+      "system_seconds": 0.031867,
+      "user_seconds": 0.127138
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/runtime_trim_memory-amalgamated"
+      ],
+      "elapsed_seconds": 0.05006403796141967,
+      "max_rss_kib": 23836,
+      "name": "runtime_trim_memory-amalgamated-run",
+      "returncode": 0,
+      "system_seconds": 0.013871999999999999,
+      "user_seconds": 0.035678
+    },
+    {
+      "command": [
+        "clang",
+        "-O2",
+        "-std=gnu11",
+        "-pthread",
+        "/var/tmp/goose-perf/native-checks/glue-standalone.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/glue-standalone"
+      ],
+      "elapsed_seconds": 0.12995677901199088,
+      "max_rss_kib": 107256,
+      "name": "glue-standalone-compile",
+      "returncode": 0,
+      "system_seconds": 0.029703,
+      "user_seconds": 0.098872
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/glue-standalone"
+      ],
+      "elapsed_seconds": 0.0009333449997939169,
+      "max_rss_kib": 24184,
+      "name": "glue-standalone-run",
+      "returncode": 0,
+      "system_seconds": 0.0007369999999999999,
+      "user_seconds": 0.0
+    },
+    {
+      "command": [
+        "clang",
+        "-O2",
+        "-std=gnu11",
+        "-pthread",
+        "-c",
+        "/var/tmp/goose-perf/native-checks/runtime-object.c",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/runtime.o"
+      ],
+      "elapsed_seconds": 0.5232021830161102,
+      "max_rss_kib": 114396,
+      "name": "runtime-object-compile",
+      "returncode": 0,
+      "system_seconds": 0.014922999999999999,
+      "user_seconds": 0.505894
+    },
+    {
+      "command": [
+        "clang",
+        "-O2",
+        "-std=gnu11",
+        "-pthread",
+        "/var/tmp/goose-perf/native-checks/glue-linked.c",
+        "/var/tmp/goose-perf/native-checks/runtime.o",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/glue-linked"
+      ],
+      "elapsed_seconds": 0.06291059299837798,
+      "max_rss_kib": 97176,
+      "name": "glue-linked-compile",
+      "returncode": 0,
+      "system_seconds": 0.02564,
+      "user_seconds": 0.036642
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/glue-linked"
+      ],
+      "elapsed_seconds": 0.0009169040131382644,
+      "max_rss_kib": 24184,
+      "name": "glue-linked-run",
+      "returncode": 0,
+      "system_seconds": 0.0006439999999999999,
+      "user_seconds": 0.0
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/threads_adapter.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/threads-adapter-release"
+      ],
+      "elapsed_seconds": 0.1671227539773099,
+      "max_rss_kib": 107740,
+      "name": "threads-adapter-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.029611,
+      "user_seconds": 0.135716
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/threads-adapter-release"
+      ],
+      "elapsed_seconds": 0.00111158296931535,
+      "max_rss_kib": 24184,
+      "name": "threads-adapter-release-run",
+      "returncode": 0,
+      "system_seconds": 0.0,
+      "user_seconds": 0.000851
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/threads_adapter.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/threads-adapter-sanitized"
+      ],
+      "elapsed_seconds": 0.3744809980271384,
+      "max_rss_kib": 115116,
+      "name": "threads-adapter-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.055938999999999996,
+      "user_seconds": 0.31659
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/threads-adapter-sanitized"
+      ],
+      "elapsed_seconds": 0.01022128399927169,
+      "max_rss_kib": 24184,
+      "name": "threads-adapter-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.0067989999999999995,
+      "user_seconds": 0.003319
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/fixed_values.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/fixed-values-release"
+      ],
+      "elapsed_seconds": 0.15528522699605674,
+      "max_rss_kib": 108064,
+      "name": "fixed-values-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.023686,
+      "user_seconds": 0.130124
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/fixed-values-release"
+      ],
+      "elapsed_seconds": 0.05665887700160965,
+      "max_rss_kib": 24184,
+      "name": "fixed-values-release-run",
+      "returncode": 0,
+      "system_seconds": 0.0020009999999999997,
+      "user_seconds": 0.053839
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/fixed_values.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/fixed-values-sanitized"
+      ],
+      "elapsed_seconds": 0.31158079497981817,
+      "max_rss_kib": 111164,
+      "name": "fixed-values-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.071602,
+      "user_seconds": 0.238198
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/fixed-values-sanitized"
+      ],
+      "elapsed_seconds": 0.05482010100968182,
+      "max_rss_kib": 28384,
+      "name": "fixed-values-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.005418999999999999,
+      "user_seconds": 0.048762
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/pools.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/pools-release"
+      ],
+      "elapsed_seconds": 0.26832997100427747,
+      "max_rss_kib": 109124,
+      "name": "pools-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.030893,
+      "user_seconds": 0.235904
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/pools-release"
+      ],
+      "elapsed_seconds": 0.0011106620077043772,
+      "max_rss_kib": 24184,
+      "name": "pools-release-run",
+      "returncode": 0,
+      "system_seconds": 0.0008269999999999999,
+      "user_seconds": 0.0
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/pools.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/pools-sanitized"
+      ],
+      "elapsed_seconds": 0.8186538239824586,
+      "max_rss_kib": 125252,
+      "name": "pools-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.070787,
+      "user_seconds": 0.7441869999999999
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/pools-sanitized"
+      ],
+      "elapsed_seconds": 0.010524109995458275,
+      "max_rss_kib": 24184,
+      "name": "pools-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.003462,
+      "user_seconds": 0.006709
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/relative.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/relative-release"
+      ],
+      "elapsed_seconds": 0.15324109100038186,
+      "max_rss_kib": 108008,
+      "name": "relative-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.025046,
+      "user_seconds": 0.12699
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/relative-release"
+      ],
+      "elapsed_seconds": 0.0032411719439551234,
+      "max_rss_kib": 24184,
+      "name": "relative-release-run",
+      "returncode": 0,
+      "system_seconds": 0.0017029999999999999,
+      "user_seconds": 0.0012799999999999999
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/relative.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/relative-sanitized"
+      ],
+      "elapsed_seconds": 0.2912882629898377,
+      "max_rss_kib": 110072,
+      "name": "relative-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.064848,
+      "user_seconds": 0.224463
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/relative-sanitized"
+      ],
+      "elapsed_seconds": 0.03233766503399238,
+      "max_rss_kib": 24184,
+      "name": "relative-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.023923999999999997,
+      "user_seconds": 0.00876
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/var_relative.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/var-relative-release"
+      ],
+      "elapsed_seconds": 0.15834840101888403,
+      "max_rss_kib": 108192,
+      "name": "var-relative-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.029127999999999998,
+      "user_seconds": 0.12828299999999998
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/var-relative-release"
+      ],
+      "elapsed_seconds": 0.0030335179762914777,
+      "max_rss_kib": 24184,
+      "name": "var-relative-release-run",
+      "returncode": 0,
+      "system_seconds": 0.001753,
+      "user_seconds": 0.001162
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/var_relative.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/var-relative-sanitized"
+      ],
+      "elapsed_seconds": 0.27726076199905947,
+      "max_rss_kib": 110596,
+      "name": "var-relative-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.056651999999999994,
+      "user_seconds": 0.21914299999999998
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/var-relative-sanitized"
+      ],
+      "elapsed_seconds": 0.02503944799536839,
+      "max_rss_kib": 24184,
+      "name": "var-relative-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.017719,
+      "user_seconds": 0.007632
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/bounded_cells.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/bounded-cells-release"
+      ],
+      "elapsed_seconds": 0.15004981396486983,
+      "max_rss_kib": 108024,
+      "name": "bounded-cells-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.022629999999999997,
+      "user_seconds": 0.126524
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/bounded-cells-release"
+      ],
+      "elapsed_seconds": 0.0023934400524012744,
+      "max_rss_kib": 24184,
+      "name": "bounded-cells-release-run",
+      "returncode": 0,
+      "system_seconds": 0.001611,
+      "user_seconds": 0.0006439999999999999
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/bounded_cells.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/bounded-cells-sanitized"
+      ],
+      "elapsed_seconds": 0.2869914540206082,
+      "max_rss_kib": 110576,
+      "name": "bounded-cells-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.053819,
+      "user_seconds": 0.23130699999999998
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/bounded-cells-sanitized"
+      ],
+      "elapsed_seconds": 0.017113838985096663,
+      "max_rss_kib": 24184,
+      "name": "bounded-cells-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.010399,
+      "user_seconds": 0.006783
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/image_storage.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/image-storage-release"
+      ],
+      "elapsed_seconds": 0.17684667295543477,
+      "max_rss_kib": 108736,
+      "name": "image-storage-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.030095,
+      "user_seconds": 0.145729
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/image-storage-release"
+      ],
+      "elapsed_seconds": 0.0019509689882397652,
+      "max_rss_kib": 24184,
+      "name": "image-storage-release-run",
+      "returncode": 0,
+      "system_seconds": 0.001148,
+      "user_seconds": 0.0006389999999999999
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/image_storage.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/image-storage-sanitized"
+      ],
+      "elapsed_seconds": 0.3825769440154545,
+      "max_rss_kib": 116836,
+      "name": "image-storage-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.054528999999999994,
+      "user_seconds": 0.32626
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/image-storage-sanitized"
+      ],
+      "elapsed_seconds": 0.015759313013404608,
+      "max_rss_kib": 24184,
+      "name": "image-storage-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.010369999999999999,
+      "user_seconds": 0.0054399999999999995
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O2",
+        "/home/jacobt/src/goose-to-wasm/native/tests/runs.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/runs-release"
+      ],
+      "elapsed_seconds": 0.1615091009880416,
+      "max_rss_kib": 108576,
+      "name": "runs-release-compile",
+      "returncode": 0,
+      "system_seconds": 0.026105,
+      "user_seconds": 0.133424
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/runs-release"
+      ],
+      "elapsed_seconds": 0.002810003003105521,
+      "max_rss_kib": 24184,
+      "name": "runs-release-run",
+      "returncode": 0,
+      "system_seconds": 0.0015589999999999998,
+      "user_seconds": 0.0011179999999999999
+    },
+    {
+      "command": [
+        "clang",
+        "-std=gnu11",
+        "-pthread",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "/home/jacobt/src/goose-to-wasm/native/tests/runs.c",
+        "-lm",
+        "-ldl",
+        "-o",
+        "/var/tmp/goose-perf/native-checks/runs-sanitized"
+      ],
+      "elapsed_seconds": 0.32950374396750703,
+      "max_rss_kib": 111944,
+      "name": "runs-sanitized-compile",
+      "returncode": 0,
+      "system_seconds": 0.056107,
+      "user_seconds": 0.271682
+    },
+    {
+      "command": [
+        "/var/tmp/goose-perf/native-checks/runs-sanitized"
+      ],
+      "elapsed_seconds": 0.02246573503362015,
+      "max_rss_kib": 24184,
+      "name": "runs-sanitized-run",
+      "returncode": 0,
+      "system_seconds": 0.01543,
+      "user_seconds": 0.007122
+    }
+  ],
+  "runtime": {
+    "files": {
+      "LICENSE": {
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "upstream_path": "LICENSE"
+      },
+      "NOTICE": {
+        "sha256": "803282561ca75117bd789df6d7d47af30ee958cf0a7c5cdd603e68b8fa374003",
+        "upstream_path": null
+      },
+      "goose.h": {
+        "sha256": "16e4d67ae7013050fa14a84162fe57f77ae8f0a7cd7c285d94cdfefc99a87de4",
+        "upstream_path": "src/runtime/goose.h"
+      },
+      "runtime.h": {
+        "sha256": "5ac9487568c78c7cdf6e141d90d644da50436b1b7188047e6bfca09c7b801132",
+        "upstream_path": "src/runtime/runtime.h"
+      },
+      "runtime_ext.h": {
+        "sha256": "bfce3ceee2d6d922d2ad2cdb527a293cde691c261aa4ecf9fe6e35e02637ddf3",
+        "upstream_path": "src/runtime/runtime_ext.h"
+      },
+      "runtime_impl.h": {
+        "sha256": "717f6d243575fa7e5de8229799cf86c22934dc202a4e6880c699db339b596bf1",
+        "upstream_path": "src/runtime/runtime_impl.h"
+      },
+      "runtime_os.h": {
+        "sha256": "27c4a80301075151434e8040222f72e0ed672ed0d4eb71857dd6028e978b4087",
+        "upstream_path": "src/runtime/runtime_os.h"
+      },
+      "runtime_threads.h": {
+        "sha256": "b6a2a8f5ecde191093af1c6bde1939d172ef275156bd60e2e9e725d67f0a4285",
+        "upstream_path": "src/runtime/runtime_threads.h"
+      }
+    },
+    "repository": "https://github.com/aardappel/goose.git",
+    "revision": "2e2bedef5b980bf013cac5aaa0095bfea64e5569"
+  },
+  "sections_sha256": {
+    "body": "3c6ea8633d5946451340cefa8242aa71a2f8988c2edf7b90d9c5ce8ac1098fd5",
+    "ffi_header": "efe4dcec3b39fa26d0dd74e920e60249ca572b712583f4892f70b091b61702dc",
+    "glue": "64e6b02c6d76f4f827b6985ed081fb80c0d22954e0b31566c8868f6432a6ac59",
+    "header": "b13c6435bfaa572647fec178007c87cf4a75b9501c61df96fe79786044a68246",
+    "object": "cc3564ecc01139a6da8a978cf6c5adedbf638ce0401613f1f6420dce8e093015",
+    "standalone": "59eae5a6719204662dcc736ac01ca39f4de00937f17fd3ea36fd5fee7c342892"
+  }
+}
