@@ -4,7 +4,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose, produci
 
 ## Benchmarks
 
-**Compiler speed.** With the supplied Clang 23 profile, snapshot 59 took 0.59 of the previous C++ compiler's time to emit Wasm and 0.54 to emit C: 1.70× and 1.84× faster, and 1.77× across all 22 cells. It is 1.75× faster than snapshot 58 for both targets. These are geometric means across eleven programs; Tour emitted as Wasm is the one cell still slower than C++. C emission excludes C compilation and linking. Library functions the program does not reach are no longer parsed or checked. [Method and results](bench/results/2026-11-11/compiler-throughput-59/README.md)
+**Compiler speed.** With the supplied Clang 23 profile, snapshot 59 took 0.58 of the previous C++ compiler's time to emit Wasm and 0.53 to emit C: 1.73× and 1.88× faster, and 1.80× across all 22 cells. It is 1.74× faster than snapshot 58 for Wasm and 1.76× for C. These are geometric means across eleven programs; Tour emitted as Wasm is the one cell still slower than C++. C emission excludes C compilation and linking. Library functions the program does not reach are no longer parsed or checked. [Method and results](bench/results/2026-11-11/compiler-throughput-59/README.md)
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 

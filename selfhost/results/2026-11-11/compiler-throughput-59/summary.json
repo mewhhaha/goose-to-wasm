@@ -5,12 +5,12 @@
   "snapshot": 59,
   "parent": 58,
   "base_commit": "f1089fc",
-  "compiler_sha256": "9de72d781519906a3d88a7afc96a7a3d66f0c3408e650d976a2cc783156f3ebb",
-  "canonical_C_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+  "compiler_sha256": "1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e",
+  "canonical_C_sha256": "2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3",
   "profile_used": true,
   "profile_metadata": {
     "schema": "goose-bootstrap-profile-v1",
-    "c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+    "c_sha256": "2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3",
     "clang_major": 23,
     "target": "x86_64-pc-linux-gnu",
     "base_flags": [
@@ -21,7 +21,7 @@
       "-pthread"
     ],
     "c_basename": "seed.c",
-    "data_sha256": "e7e4567e420dd6283d81b01c255a523014d1d448905f41f2265ad7b0cc46546e"
+    "data_sha256": "be76be78eea90a8a392722acfa78ad2e32e65e53cd513e8280dc4148163da2b5"
   },
   "goose_optimization": 2,
   "native_flags": [
@@ -38,7 +38,7 @@
     "checker_rendering.goose": "38148d1fde500d97cf90ae800ea007acb69d8a202913d84a4d19e31e64eba20c",
     "checker_validation.goose": "84ce6c27f0e9a6132e66cf3b23a6553c43086d06aad6873641099e8315e7e2c2",
     "codegen.goose": "96bdf968f908cfaf3827d32eef9b80505af2adb28a4cb0aef4b08b9c83795090",
-    "codegen_c.goose": "dc8d3a1b1737f1437950ecc262e09e7dc04d771848357a502e24e60690a02137",
+    "codegen_c.goose": "5bbad68652d066d36225891d8fb295fbedea476b1afc5d49118f635848f45b5d",
     "codegen_c_images.goose": "4addca16891b21ad19db5e04576ab530a339eb5dacc925e87d4b090f3cbefd14",
     "codegen_c_storage.goose": "218e21e7ec2ae05613bcf055a9c1e5b3846260bfff2c951d55440344e2838cb6",
     "codegen_c_threads.goose": "04262921976f6545daf39ff91bea8d83b59a806f3ff569558fc258b357f7bf70",
@@ -81,22 +81,22 @@
   },
   "bootstrap": {
     "transition": {
-      "parent_seed_c_sha256": "191a6b540a7c59ccdd0de5ac32199eea958bb19121cd98a1bfe269c13fc2aea6",
-      "stage1_c_sha256": "18142aec59ddb35fe8904188d72522d4a5eee00bc8f41cf085ae54bafb1a4586",
-      "stage2_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
-      "stage3_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+      "parent_seed_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+      "stage1_c_sha256": "ec4f8fa5006b29630cfe3c4be39a0ffcc6a298b56defefb5a6853c07b3cecbc4",
+      "stage2_c_sha256": "2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3",
+      "stage3_c_sha256": "2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3",
       "fixed_point": true
     },
     "public_roots": [
       {
         "root": "default (build/)",
-        "executable_sha256": "9de72d781519906a3d88a7afc96a7a3d66f0c3408e650d976a2cc783156f3ebb",
+        "executable_sha256": "1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e",
         "profile_used": true,
         "fixed_point": true
       },
       {
         "root": "explicit options",
-        "executable_sha256": "9de72d781519906a3d88a7afc96a7a3d66f0c3408e650d976a2cc783156f3ebb",
+        "executable_sha256": "1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e",
         "profile_used": true,
         "fixed_point": true
       }
@@ -127,7 +127,9 @@
     "tests.test_bootstrap_optimization": 16,
     "tests.test_compare_compilers": 8,
     "tests.test_compiler_comparison_charts": 5,
-    "total": 29
+    "tests.test_conformance_runner": 7,
+    "total": 48,
+    "tests.test_runtime_reference": 12
   },
   "token_stream_identity": {
     "files": 5193,
@@ -143,23 +145,23 @@
     "passed": 20
   },
   "compiler_benchmark_ratios_to_Cpp": {
-    "wasm-direct": 0.58666,
-    "native-c": 0.54352
+    "wasm-direct": 0.57894,
+    "native-c": 0.53225
   },
   "compiler_speedup_vs_58": {
-    "wasm-direct": 1.754,
-    "native-c": 1.7589
+    "wasm-direct": 1.7446,
+    "native-c": 1.7644
   },
-  "compiler_overall_ratio_to_Cpp": 0.56468,
+  "compiler_overall_ratio_to_Cpp": 0.5551,
   "benchmark_directory": "../../../../bench/results/2026-11-11/compiler-throughput-59",
   "report_sha256": {
-    "conformance": "dfd19635877262c4f0a9c355a1270b3bba30e9b5dea97ebe06c9b6f6541991dd",
-    "conformance_v8_corpus": "7e66162884627108028f0fa7f48a148782d4f42bbcd5f99a99f530d7cc7db3a0",
+    "conformance": "1867bc8ad4fa16a125a43a60cb1b2597dbecde5b72968413c67ec4cb481c499c",
+    "conformance_v8_corpus": "19784ab9970248525e24b42f43f2df76a7a9b81c52ca39db327ecb8d66b50a96",
     "conformance_parent_58": "101cb94f08ec69dc0b07ba118301315a43265b6efa131454d467df7f773c5705"
   },
   "limitations": [
     "Library modules (resolved through --stdlib) are parsed and checked only where the program reaches them; an error inside an unused library function is no longer reported. User sources are checked in full. No frozen contract row changed.",
-    "Tour emitted as Wasm remains slower than C++ (5.76 ms against 4.97 ms).",
+    "Tour emitted as Wasm remains slower than C++ (5.34 ms against 4.71 ms).",
     "The shared host carried other workloads during the benchmark campaigns; ratios come from interleaved rounds on one pinned CPU and were replicated on a second CPU.",
     "The stack-guard fixture is snapshot 58's with one changed expectation: the main thread's bound is now read by g_runtime_start, before the first check. Worker threads still read theirs lazily.",
     "Six invalid programs remain accepted and 94 runtime contracts remain refused during compilation, as in snapshot 58.",
@@ -168,5 +170,12 @@
   "curated_by_target": {
     "wasm-direct": 3370,
     "native": 1410
+  },
+  "known_gap_gate": {
+    "file": "tests/conformance/known-gaps.json",
+    "open_gaps": 100,
+    "unexpected_failures": 0,
+    "fixed_gaps": 0,
+    "c_compiler": "gcc -Wl,--as-needed"
   }
 }

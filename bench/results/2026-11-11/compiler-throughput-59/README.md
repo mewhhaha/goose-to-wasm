@@ -1,14 +1,14 @@
 # Compiler throughput · 2026-11-11
 
-Snapshot 59 uses the public C-only bootstrap compiler, built with Goose `-O2` and a Clang 23 `-O2` IR profile retrained for its C. Its executable SHA-256 is `9de72d781519906a3d88a7afc96a7a3d66f0c3408e650d976a2cc783156f3ebb`; generated C SHA-256 is `7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c`. [Bootstrap and qualification](../../../../selfhost/results/2026-11-11/compiler-throughput-59/README.md)
+Snapshot 59 uses the public C-only bootstrap compiler, built with Goose `-O2` and a Clang 23 `-O2` IR profile retrained for its C. Its executable SHA-256 is `1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e`; generated C SHA-256 is `2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3`. [Bootstrap and qualification](../../../../selfhost/results/2026-11-11/compiler-throughput-59/README.md)
 
 ## Compiler
 
-Across eleven programs, snapshot 59 / C++ geometric mean time ratios were 0.58666 for Wasm and 0.54352 for C: 1.70× faster for Wasm and 1.84× faster for C. Across all 22 cells the ratio was 0.56468 (1.77× faster). Against snapshot 58 in the same campaign, snapshot 59 was 1.75× faster for Wasm and 1.76× faster for C. Snapshot 58 / C++ was 1.02900 for Wasm and 0.95598 for C, consistent with its published parity.
+Across eleven programs, snapshot 59 / C++ geometric mean time ratios were 0.57894 for Wasm and 0.53225 for C: 1.73× faster for Wasm and 1.88× faster for C. Across all 22 cells the ratio was 0.55510 (1.80× faster). Against snapshot 58 in the same campaign, snapshot 59 was 1.74× faster for Wasm and 1.76× faster for C. Snapshot 58 / C++ was 1.01003 for Wasm and 0.93912 for C, consistent with its published parity.
 
-Twenty-one of the 22 cells beat C++. Tour emitted as Wasm remains slower: 5.76 ms against 4.97 ms. Its print formatting lowers to generated Goose functions, which are checked and emitted like user code.
+Twenty-one of the 22 cells beat C++. Tour emitted as Wasm remains slower: 5.34 ms against 4.71 ms. Its print formatting lowers to generated Goose functions, which are checked and emitted like user code.
 
-Each cell has 31 samples after one warmup, in shuffled balanced rounds with fresh compiler processes and retained OS caches, on CPU 7. The timer ends at Wasm or C emission; downstream C compilation and output validation followed the timed campaign, and all 66 cells qualified. A replicate campaign on CPU 5 with shuffle seed 590059 gave 0.59109 for Wasm, 0.55119 for C and 0.57079 overall. Other workloads ran on this shared machine during both campaigns, so absolute times are higher than in quiet runs; the ratios come from interleaved rounds. [Raw compiler report](compiler-comparison.json) · [Both runs](metrics.json)
+Each cell has 31 samples after one warmup, in shuffled balanced rounds with fresh compiler processes and retained OS caches, on CPU 7. The timer ends at Wasm or C emission; downstream C compilation and output validation followed the timed campaign, and all 66 cells qualified. A replicate campaign on CPU 5 with shuffle seed 590059 gave 0.57675 for Wasm, 0.53565 for C and 0.55582 overall. Other workloads ran on this shared machine during both campaigns, so absolute times are higher than in quiet runs; the ratios come from interleaved rounds. [Raw compiler report](compiler-comparison.json) · [Both runs](metrics.json)
 
 ![Compiler comparison](charts/compiler-comparison.svg)
 
@@ -18,6 +18,7 @@ Each cell has 31 samples after one warmup, in shuffled balanced rounds with fres
 - **Lexer.** Whitespace, comments and identifiers scan in tight loops, and punctuation dispatches on its first byte. `--tokens` output is byte-identical to snapshot 58 for 5,193 source files, including invalid ones.
 - **Fewer storage regions.** Every growable array owns a 2 GB data-stack region, and a region's first page costs roughly 7 µs. The checker's work tables are now released before lifetime analysis, whose tables reuse the same regions. Driver paths share one table. A compile reserves 55 regions instead of 84. The runtime reads the main thread's stack bounds before any region is mapped, which keeps glibc's `/proc/self/maps` parse short.
 - **Wasm emission memos.** Per-statement region scans are memoized per node, and the owner, byte-record and record-image predicates per type. These change no output byte.
+- **Externs under `--as-needed`.** Emitted C that looks up an `extern` without a library retries glibc's `libm` when the default namespace lacks the symbol. Linkers that default to `--as-needed`, as on Ubuntu, drop `-lm` when no call reaches it directly; `fabs` and `fmod` then failed at run time.
 
 ## Rejected experiments
 

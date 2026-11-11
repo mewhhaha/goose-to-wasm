@@ -8,12 +8,12 @@
       "sha256": "8c09c1a6bcc782de5b86dda621a91ae234acba8fbe108d146582113eb6a110b6"
     },
     "parent": {
-      "path": "/var/tmp/goose-perf/parent58/goose",
+      "path": "/var/tmp/goose-perf/parent58/build/bin/goose",
       "sha256": "9a0450a452f6dcc0c6ad698fdeb9af6be599c7e8ffdb2437364a6f360145489d"
     },
     "candidate": {
       "path": "/home/jacobt/src/goose-to-wasm/build/bin/goose",
-      "sha256": "9de72d781519906a3d88a7afc96a7a3d66f0c3408e650d976a2cc783156f3ebb"
+      "sha256": "1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e"
     }
   },
   "runs": [
@@ -23,129 +23,129 @@
       "seed": 580058,
       "samples": 31,
       "status": "passed",
-      "report_sha256": "def769b105d5dccf1374d4627d6eff2d6b5fbb8e129796f258e59de0d3970854",
+      "report_sha256": "746514bda165fb8c6aacc732f467cfb2accdca784e7f65128e64533547fb0f5c",
       "geomean_time_ratio": {
-        "wasm-direct:candidate/cpp": 0.58666,
-        "wasm-direct:parent/cpp": 1.029,
-        "wasm-direct:candidate/parent": 0.57012,
-        "native-c:candidate/cpp": 0.54352,
-        "native-c:parent/cpp": 0.95598,
-        "native-c:candidate/parent": 0.56855,
-        "all-cells:candidate/cpp": 0.56468
+        "wasm-direct:candidate/cpp": 0.57894,
+        "wasm-direct:parent/cpp": 1.01003,
+        "wasm-direct:candidate/parent": 0.57319,
+        "native-c:candidate/cpp": 0.53225,
+        "native-c:parent/cpp": 0.93912,
+        "native-c:candidate/parent": 0.56675,
+        "all-cells:candidate/cpp": 0.5551
       },
       "median_ms": {
         "wasm-direct": {
           "errors": {
-            "cpp": 9.988,
-            "parent": 10.994,
-            "candidate": 5.986
+            "cpp": 9.269,
+            "parent": 10.188,
+            "candidate": 5.484
           },
           "functions": {
-            "cpp": 23.17,
-            "parent": 22.081,
-            "candidate": 15.953
+            "cpp": 21.504,
+            "parent": 20.57,
+            "candidate": 14.805
           },
           "life": {
-            "cpp": 9.708,
-            "parent": 9.536,
-            "candidate": 4.412
+            "cpp": 9.112,
+            "parent": 8.734,
+            "candidate": 4.065
           },
           "mandelbrot": {
-            "cpp": 7.685,
-            "parent": 8.374,
-            "candidate": 3.144
+            "cpp": 7.159,
+            "parent": 7.712,
+            "candidate": 2.873
           },
           "maze": {
-            "cpp": 12.558,
-            "parent": 11.952,
-            "candidate": 6.604
+            "cpp": 11.881,
+            "parent": 10.951,
+            "candidate": 6.035
           },
           "sieve": {
-            "cpp": 7.801,
-            "parent": 8.975,
-            "candidate": 3.818
+            "cpp": 7.364,
+            "parent": 8.34,
+            "candidate": 3.425
           },
           "sorting": {
-            "cpp": 29.187,
-            "parent": 23.065,
-            "candidate": 16.824
+            "cpp": 27.383,
+            "parent": 21.105,
+            "candidate": 15.625
           },
           "squares": {
-            "cpp": 2.743,
-            "parent": 2.683,
-            "candidate": 2.24
+            "cpp": 2.604,
+            "parent": 2.443,
+            "candidate": 2.195
           },
           "sudoku": {
-            "cpp": 9.261,
-            "parent": 9.478,
-            "candidate": 4.136
+            "cpp": 8.567,
+            "parent": 8.655,
+            "candidate": 3.796
           },
           "tour": {
-            "cpp": 4.973,
-            "parent": 6.089,
-            "candidate": 5.759
+            "cpp": 4.712,
+            "parent": 5.573,
+            "candidate": 5.34
           },
           "vm": {
-            "cpp": 9.113,
-            "parent": 10.474,
-            "candidate": 5.368
+            "cpp": 8.409,
+            "parent": 9.586,
+            "candidate": 4.949
           }
         },
         "native-c": {
           "errors": {
-            "cpp": 10.748,
-            "parent": 11.278,
-            "candidate": 6.123
+            "cpp": 9.831,
+            "parent": 10.373,
+            "candidate": 5.644
           },
           "functions": {
-            "cpp": 24.288,
-            "parent": 21.57,
-            "candidate": 16.643
+            "cpp": 22.517,
+            "parent": 20.23,
+            "candidate": 15.317
           },
           "life": {
-            "cpp": 9.776,
-            "parent": 9.782,
-            "candidate": 4.342
+            "cpp": 9.144,
+            "parent": 8.891,
+            "candidate": 3.928
           },
           "mandelbrot": {
-            "cpp": 8.147,
-            "parent": 8.767,
-            "candidate": 3.45
+            "cpp": 7.565,
+            "parent": 8.191,
+            "candidate": 3.075
           },
           "maze": {
-            "cpp": 13.207,
-            "parent": 11.839,
-            "candidate": 6.411
+            "cpp": 12.159,
+            "parent": 10.911,
+            "candidate": 5.86
           },
           "sieve": {
-            "cpp": 8.317,
-            "parent": 8.695,
-            "candidate": 3.235
+            "cpp": 7.646,
+            "parent": 8.02,
+            "candidate": 3.0
           },
           "sorting": {
-            "cpp": 30.79,
-            "parent": 23.093,
-            "candidate": 17.916
+            "cpp": 28.588,
+            "parent": 21.537,
+            "candidate": 16.756
           },
           "squares": {
-            "cpp": 3.061,
-            "parent": 2.737,
-            "candidate": 2.396
+            "cpp": 3.103,
+            "parent": 2.44,
+            "candidate": 2.159
           },
           "sudoku": {
-            "cpp": 9.804,
-            "parent": 9.604,
-            "candidate": 4.33
+            "cpp": 8.912,
+            "parent": 8.85,
+            "candidate": 3.866
           },
           "tour": {
-            "cpp": 5.154,
-            "parent": 4.6,
-            "candidate": 4.282
+            "cpp": 4.986,
+            "parent": 4.232,
+            "candidate": 4.018
           },
           "vm": {
-            "cpp": 9.52,
-            "parent": 10.521,
-            "candidate": 5.025
+            "cpp": 8.951,
+            "parent": 9.562,
+            "candidate": 4.728
           }
         }
       }
@@ -156,133 +156,133 @@
       "seed": 590059,
       "samples": 31,
       "status": "passed",
-      "report_sha256": "eaf5994395adec7b5b16478753f30823186c0b7be360c3bded6b0b646326145f",
+      "report_sha256": "711bf6e680b0725d42cc3d4e7f910b6dbdd1e12536a7c5c04a3b27ad94660b7a",
       "geomean_time_ratio": {
-        "wasm-direct:candidate/cpp": 0.59109,
-        "wasm-direct:parent/cpp": 1.03386,
-        "wasm-direct:candidate/parent": 0.57173,
-        "native-c:candidate/cpp": 0.55119,
-        "native-c:parent/cpp": 0.96302,
-        "native-c:candidate/parent": 0.57236,
-        "all-cells:candidate/cpp": 0.57079
+        "wasm-direct:candidate/cpp": 0.57675,
+        "wasm-direct:parent/cpp": 1.01097,
+        "wasm-direct:candidate/parent": 0.57049,
+        "native-c:candidate/cpp": 0.53565,
+        "native-c:parent/cpp": 0.94389,
+        "native-c:candidate/parent": 0.56749,
+        "all-cells:candidate/cpp": 0.55582
       },
       "median_ms": {
         "wasm-direct": {
           "errors": {
-            "cpp": 10.436,
-            "parent": 11.293,
-            "candidate": 6.102
+            "cpp": 9.439,
+            "parent": 9.951,
+            "candidate": 5.449
           },
           "functions": {
-            "cpp": 23.675,
-            "parent": 22.403,
-            "candidate": 16.26
+            "cpp": 21.249,
+            "parent": 19.927,
+            "candidate": 14.383
           },
           "life": {
-            "cpp": 9.85,
-            "parent": 9.719,
-            "candidate": 4.535
+            "cpp": 9.001,
+            "parent": 8.747,
+            "candidate": 4.043
           },
           "mandelbrot": {
-            "cpp": 7.828,
-            "parent": 8.613,
-            "candidate": 3.289
+            "cpp": 6.969,
+            "parent": 7.706,
+            "candidate": 2.886
           },
           "maze": {
-            "cpp": 12.749,
-            "parent": 12.209,
-            "candidate": 6.746
+            "cpp": 11.521,
+            "parent": 10.851,
+            "candidate": 6.069
           },
           "sieve": {
-            "cpp": 7.965,
-            "parent": 9.142,
-            "candidate": 3.854
+            "cpp": 7.276,
+            "parent": 8.023,
+            "candidate": 3.382
           },
           "sorting": {
-            "cpp": 29.782,
-            "parent": 23.484,
-            "candidate": 17.304
+            "cpp": 26.821,
+            "parent": 20.904,
+            "candidate": 15.646
           },
           "squares": {
-            "cpp": 2.806,
-            "parent": 2.783,
-            "candidate": 2.321
+            "cpp": 2.547,
+            "parent": 2.431,
+            "candidate": 2.007
           },
           "sudoku": {
-            "cpp": 9.497,
-            "parent": 9.722,
-            "candidate": 4.336
+            "cpp": 8.739,
+            "parent": 8.558,
+            "candidate": 3.746
           },
           "tour": {
-            "cpp": 4.979,
-            "parent": 6.315,
-            "candidate": 5.958
+            "cpp": 4.518,
+            "parent": 5.565,
+            "candidate": 5.285
           },
           "vm": {
-            "cpp": 9.333,
-            "parent": 10.847,
-            "candidate": 5.498
+            "cpp": 8.454,
+            "parent": 9.625,
+            "candidate": 4.839
           }
         },
         "native-c": {
           "errors": {
-            "cpp": 10.982,
-            "parent": 11.45,
-            "candidate": 6.393
+            "cpp": 9.826,
+            "parent": 10.208,
+            "candidate": 5.621
           },
           "functions": {
-            "cpp": 24.83,
-            "parent": 22.274,
-            "candidate": 16.806
+            "cpp": 22.206,
+            "parent": 19.871,
+            "candidate": 14.99
           },
           "life": {
-            "cpp": 9.916,
-            "parent": 9.753,
-            "candidate": 4.449
+            "cpp": 8.883,
+            "parent": 8.634,
+            "candidate": 3.957
           },
           "mandelbrot": {
-            "cpp": 8.375,
-            "parent": 9.041,
-            "candidate": 3.488
+            "cpp": 7.48,
+            "parent": 7.938,
+            "candidate": 3.018
           },
           "maze": {
-            "cpp": 13.487,
-            "parent": 12.214,
-            "candidate": 6.701
+            "cpp": 12.081,
+            "parent": 10.849,
+            "candidate": 5.905
           },
           "sieve": {
-            "cpp": 8.266,
-            "parent": 8.983,
-            "candidate": 3.422
+            "cpp": 7.484,
+            "parent": 7.881,
+            "candidate": 3.008
           },
           "sorting": {
-            "cpp": 31.111,
-            "parent": 23.574,
-            "candidate": 18.256
+            "cpp": 28.063,
+            "parent": 21.0,
+            "candidate": 16.339
           },
           "squares": {
-            "cpp": 3.169,
-            "parent": 2.852,
-            "candidate": 2.546
+            "cpp": 2.856,
+            "parent": 2.525,
+            "candidate": 2.179
           },
           "sudoku": {
-            "cpp": 9.868,
-            "parent": 9.891,
-            "candidate": 4.429
+            "cpp": 9.032,
+            "parent": 8.724,
+            "candidate": 3.873
           },
           "tour": {
-            "cpp": 5.289,
-            "parent": 4.766,
-            "candidate": 4.444
+            "cpp": 4.89,
+            "parent": 4.236,
+            "candidate": 3.853
           },
           "vm": {
-            "cpp": 9.704,
-            "parent": 10.653,
-            "candidate": 5.143
+            "cpp": 8.88,
+            "parent": 9.379,
+            "candidate": 4.519
           }
         }
       }
     }
   ],
-  "note": "Primary run is compiler-comparison.json. The replicate report is summarized here only. The shared host carried other workloads during both runs; all compilers were interleaved in shuffled rounds on one pinned CPU."
+  "note": "Primary run is compiler-comparison.json; the replicate report is summarized here. The shared host carried other workloads; all compilers were interleaved in shuffled rounds on one pinned CPU."
 }

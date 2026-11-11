@@ -1,6 +1,6 @@
 {
   "schema": "goose-canonical-pgo-training-v1",
-  "source_c_sha256": "7caf9846ac66e393451d5c21764d5985f4b707a9699fdd0f74cad87cd59ef19c",
+  "source_c_sha256": "2e881d5667f95457427c1904bdac9d8586922082b810ff1b7b7b0ca37417d4c3",
   "goose_optimization": 2,
   "base_flags": [
     "-std=gnu11",
@@ -37,9 +37,9 @@
   ],
   "timed_benchmarks_used_for_training": false,
   "generation": "snapshot 58 protocol: instrumented build with an _Exit wrapper that flushes the profile, three training compilations, weighted llvm-profdata merge",
-  "plain_sha256": "a25d010f9da13fb68b172a62c89c720f2cafb31a8211e5f8eb6d26c53ec6ffaa",
-  "profiled_sha256": "9de72d781519906a3d88a7afc96a7a3d66f0c3408e650d976a2cc783156f3ebb",
-  "profile_sha256": "e7e4567e420dd6283d81b01c255a523014d1d448905f41f2265ad7b0cc46546e",
+  "plain_sha256": "92d5d40a1bcbd92b341d8984eab72bddc100d988b9d809a513c7ecad7e72c600",
+  "profiled_sha256": "1306814006e915f95776d93f0a4daf9036fc449014438c06063a73c25517d73e",
+  "profile_sha256": "be76be78eea90a8a392722acfa78ad2e32e65e53cd513e8280dc4148163da2b5",
   "plain_fixed_point": true,
   "profiled_fixed_point": true
 }
