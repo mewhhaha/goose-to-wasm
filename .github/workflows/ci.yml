@@ -53,11 +53,18 @@ jobs:
         run: python scripts/bootstrap.py --verify
       - name: Build Wasmtime host
         run: python scripts/build_wasmtime_host.py --cxx "$CXX"
+      - name: Restore native contract builds
+        uses: actions/cache@v4
+        with:
+          path: build/native-cache
+          key: native-cache-v1-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: native-cache-v1-${{ runner.os }}-
       - name: Source and output contracts
         run: >-
           python tests/conformance.py --compiler build/bin/goose
           --output-dir build/conformance --levels 0 2 --timeout 20
           --known-gaps tests/conformance/known-gaps.json
+          --native-cache build/native-cache --prune-native-cache
       - name: Curated WebAssembly contracts on V8
         if: ${{ !cancelled() && steps.compiler.outcome == 'success' }}
         run: >-

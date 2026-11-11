@@ -101,6 +101,44 @@ output.write_text('#include <stdio.h>\\nextern int helper(void);\\nint main(void
         with self.assertRaisesRegex(ValueError, "ROOT-relative"):
             CONFORMANCE.native_source_paths({"native_sources": ["../outside.c"]})
 
+    def test_native_cache_reuses_successful_builds_across_runs(self):
+        source = self.work / "same.goose"
+        source.write_text("fn main() {}\n")
+        cases = [dict(id=f"native-cache/{value}", source=f"{self.relative_work}/same.goose", phase="run",
+                      target="native", levels=[0, 2], stdin="", expect=dict(stdout=f"{value}\n", exit=0),
+                      debug=False, native_defines=[f"VALUE={value}"]) for value in (3, 5)]
+        compiler = self.work / "fake-compiler"
+        compiler.write_text("""#!/usr/bin/env python3
+from pathlib import Path
+import sys
+
+arguments = sys.argv[1:]
+output = Path(arguments[arguments.index('-o') + 1])
+output.write_text('#include <stdio.h>\\nint main(void) { printf(\"%d\\\\n\", VALUE); return 0; }\\n')
+""")
+        compiler.chmod(0o755)
+        original = json.loads((ROOT / "tests/conformance/cases.json").read_text())
+        manifest = self.work / "cases.json"
+        manifest.write_text(json.dumps(dict(upstream=original["upstream"], cases=cases)))
+        library = self.work / "stdlib"
+        library.mkdir()
+        cache = self.work / "native-cache"
+        reports = []
+        for run in ("cold", "warm"):
+            output = self.work / run
+            arguments = ["conformance.py", "--compiler", str(compiler), "--output-dir", str(output),
+                         "--manifest", str(manifest), "--stdlib", str(library), "--jobs", "4",
+                         "--native-cache", str(cache), "--prune-native-cache"]
+            with mock.patch.object(sys, "argv", arguments), contextlib.redirect_stdout(None):
+                self.assertEqual(CONFORMANCE.main(), 0)
+            reports.append(json.loads((output / "report.json").read_text()))
+        cold, warm = reports
+        self.assertEqual([row["status"] for row in warm["results"]], ["pass"] * 4)
+        self.assertEqual(cold["native_cache_summary"], {"builds": 4, "hits": 0})
+        self.assertEqual(warm["native_cache_summary"], {"builds": 4, "hits": 4})
+        # One binary and one metadata file per distinct define and level; nothing else survives pruning.
+        self.assertEqual(len(list(cache.iterdir())), 8)
+
 
 class KnownGaps(unittest.TestCase):
     def check(self, statuses, gaps):
