@@ -187,7 +187,7 @@ def main():
         report['configuration']['native_cache'] = {'directory': str(native_cache), 'compiler': cache_identity}
 
     def native_key(command, output):
-        # Every input file contributes its bytes; the output path does not matter.
+        # Direct input files contribute their bytes; the output path does not matter.
         words = []
         for word in map(str, command):
             if word == str(output):
@@ -199,9 +199,13 @@ def main():
         material = json.dumps({'compiler': cache_identity, 'command': words[1:]}, sort_keys=True)
         return hashlib.sha256(material.encode()).hexdigest()
 
-    def native_build(command, directory, binary):
-        if not native_cache:
-            return execute(command, directory, timeout=args.cc_timeout)
+    def native_build(command, directory, binary, native_sources):
+        # Extra C sources can include transitive headers the key does not track.
+        if not native_cache or native_sources:
+            index, row = execute(command, directory, timeout=args.cc_timeout)
+            if native_cache:
+                row['native_cache'] = {'hit': False, 'reason': 'untracked native_sources headers'}
+            return index, row
         key = native_key(command, binary)
         with lock:
             used_keys.add(key)
@@ -262,7 +266,7 @@ def main():
                 flag = '-O2'
             defines = ['-D' + value for value in case.get('native_defines', [])]
             command = native_compile_command(cc, flag, defines, artifact, native_sources)
-            index, native = native_build(command, directory, binary)
+            index, native = native_build(command, directory, binary, native_sources)
             value.update(native_command=index, native_result=native, binary=binary)
         return value
 

@@ -139,6 +139,55 @@ output.write_text('#include <stdio.h>\\nint main(void) { printf(\"%d\\\\n\", VAL
         # One binary and one metadata file per distinct define and level; nothing else survives pruning.
         self.assertEqual(len(list(cache.iterdir())), 8)
 
+    def test_native_cache_rebuilds_case_sources_after_transitive_header_change(self):
+        source = self.work / "same.goose"
+        source.write_text("fn main() {}\n")
+        helper = self.work / "helper.c"
+        helper.write_text('#include "value.h"\nint helper(void) { return VALUE; }\n')
+        (self.work / "value.h").write_text('#include "detail.h"\n')
+        header = self.work / "detail.h"
+        compiler = self.work / "fake-compiler"
+        compiler.write_text("""#!/usr/bin/env python3
+from pathlib import Path
+import sys
+
+arguments = sys.argv[1:]
+output = Path(arguments[arguments.index('-o') + 1])
+output.write_text('#include <stdio.h>\\nextern int helper(void);\\nint main(void) { printf("%d\\\\n", helper()); return 0; }\\n')
+""")
+        compiler.chmod(0o755)
+        original = json.loads((ROOT / "tests/conformance/cases.json").read_text())
+        case = dict(id="native-cache/headers", source=f"{self.relative_work}/same.goose", phase="run",
+                    target="native", levels=[0, 2], stdin="", expect=dict(stdout="3\n", exit=0),
+                    native_sources=[f"{self.relative_work}/helper.c"])
+        manifest = self.work / "cases.json"
+        manifest.write_text(json.dumps(dict(upstream=original["upstream"], cases=[case])))
+        library = self.work / "stdlib"
+        library.mkdir()
+        cache = self.work / "native-cache"
+        reports = []
+        for name, value, cached in (("cold", 3, True), ("warm", 3, True),
+                                    ("changed", 5, True), ("uncached", 5, False)):
+            header.write_text(f"#define VALUE {value}\n")
+            output = self.work / name
+            arguments = ["conformance.py", "--compiler", str(compiler), "--output-dir", str(output),
+                         "--manifest", str(manifest), "--stdlib", str(library), "--jobs", "2"]
+            if cached:
+                arguments += ["--native-cache", str(cache), "--prune-native-cache"]
+            with mock.patch.object(sys, "argv", arguments), contextlib.redirect_stdout(None):
+                self.assertEqual(CONFORMANCE.main(), int(value != 3), name)
+            report = json.loads((output / "report.json").read_text())
+            reports.append(report)
+            executions = [report["commands"][row["run_command"]] for row in report["results"]]
+            self.assertEqual([row["stdout"] for row in executions], [f"{value}\n"] * 2)
+        for report in reports[:3]:
+            self.assertEqual(report["native_cache_summary"], {"builds": 2, "hits": 0})
+        self.assertEqual([row["status"] for row in reports[2]["results"]], ["fail", "fail"])
+        for cached_row, uncached_row in zip(reports[2]["results"], reports[3]["results"]):
+            for key in ("status", "phase", "stdout_equal", "exit_equal", "diagnostic_equal"):
+                self.assertEqual(cached_row[key], uncached_row[key])
+        self.assertEqual(list(cache.iterdir()), [])
+
 
 class KnownGaps(unittest.TestCase):
     def check(self, statuses, gaps):
