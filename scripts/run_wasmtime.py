@@ -184,15 +184,21 @@ def prepare_module(data: bytes, artifact: Path) -> PreparedModule:
                            "module_deserialize_count": 1, "serialized_path": str(artifact)})
 
 
-def run_module(data: bytes, stdin: str, *, timing: bool = True, prepared: PreparedModule | None = None) -> dict:
+def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
+               prepared: PreparedModule | None = None) -> dict:
+    """Run a module; `stdin` is bytes as given, or a string as its UTF-8 bytes.
+
+    fd_read sees exactly those bytes. Scalar imports read tokens from a
+    byte-for-byte latin-1 view, split on ASCII whitespace as the C++ host splits them.
+    """
     import wasmtime
 
     if prepared is not None and hashlib.sha256(data).hexdigest() != prepared.source_sha256:
         raise ValueError("prepared module does not match source bytes")
-    tokens = iter(stdin.split())
+    input_bytes = stdin.encode() if isinstance(stdin, str) else bytes(stdin)
+    tokens = (token.decode("latin-1") for token in input_bytes.split())
     chunks: list[bytes] = []
     errors: list[bytes] = []
-    input_bytes = stdin.encode()
     input_position = 0
     sink = 0
 
@@ -399,7 +405,7 @@ def main() -> int:
     parser.add_argument("--timing-json", type=Path)
     args = parser.parse_args()
     try:
-        result = run_module(args.module.read_bytes(), sys.stdin.read(), timing=args.timing_json is not None)
+        result = run_module(args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None)
         sys.stdout.buffer.write(result["stdout"])
         if result["stderr"]:
             print(result["stderr"], file=sys.stderr)

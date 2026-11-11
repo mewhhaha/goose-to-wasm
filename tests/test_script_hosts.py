@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Both script hosts print f32 as native Goose does."""
+"""Both script hosts print f32 as native Goose does and pass stdin bytes through unchanged."""
 import importlib.util
 import json
 from pathlib import Path
@@ -75,6 +75,40 @@ def print_f32_module(patterns):
           (br $next)))))''')
 
 
+# Echo stdin through WASI64 fd_read/fd_write, at most 100 bytes per read.
+ECHO = wasmtime.wat2wasm('''(module
+  (import "wasi_snapshot_preview1" "fd_read" (func $read (param i32 i64 i64 i64) (result i32)))
+  (import "wasi_snapshot_preview1" "fd_write" (func $write (param i32 i64 i64 i64) (result i32)))
+  (memory (export "memory") i64 1)
+  (func (export "_start")
+    (loop $more
+      (i64.store (i64.const 0) (i64.const 64)) (i64.store (i64.const 8) (i64.const 100))
+      (drop (call $read (i32.const 0) (i64.const 0) (i64.const 1) (i64.const 16)))
+      (if (i64.ne (i64.load (i64.const 16)) (i64.const 0)) (then
+        (i64.store (i64.const 8) (i64.load (i64.const 16)))
+        (drop (call $write (i32.const 1) (i64.const 0) (i64.const 1) (i64.const 24)))
+        (br $more))))))''')
+
+# Read two scalar tokens, print them, then echo all of stdin.
+SCALARS_THEN_ECHO = wasmtime.wat2wasm('''(module
+  (import "env" "bench_input" (func $input (result i64)))
+  (import "goose" "print_i64" (func $print (param i64)))
+  (import "goose" "newline" (func $newline))
+  (import "wasi_snapshot_preview1" "fd_read" (func $read (param i32 i64 i64 i64) (result i32)))
+  (import "wasi_snapshot_preview1" "fd_write" (func $write (param i32 i64 i64 i64) (result i32)))
+  (memory (export "memory") i64 1)
+  (func (export "_start")
+    (call $print (call $input)) (call $newline)
+    (call $print (call $input)) (call $newline)
+    (i64.store (i64.const 0) (i64.const 64)) (i64.store (i64.const 8) (i64.const 1000))
+    (drop (call $read (i32.const 0) (i64.const 0) (i64.const 1) (i64.const 16)))
+    (i64.store (i64.const 8) (i64.load (i64.const 16)))
+    (drop (call $write (i32.const 1) (i64.const 0) (i64.const 1) (i64.const 24)))))''')
+
+# NUL, CR/LF, invalid UTF-8, valid multibyte UTF-8, then every byte value.
+BINARY = bytes.fromhex("fffe00410d0a") + "é€\n".encode() + bytes(range(256))
+
+
 class HostCase(unittest.TestCase):
     def setUp(self):
         directory = tempfile.TemporaryDirectory()
@@ -135,6 +169,39 @@ class F32Formatting(HostCase):
                              json.dumps(list(cases)))
         self.assertEqual(observed, list(cases.values()))
         self.assertEqual([host.goose_float(value) for value in cases], list(cases.values()))
+
+
+class BinaryStdin(HostCase):
+    def test_cli_hosts_echo_exact_bytes(self):
+        module = self.module("echo.wasm", ECHO)
+        for name, result in self.hosts(module, BINARY).items():
+            with self.subTest(host=name):
+                self.assertEqual((result.returncode, result.stderr), (0, b""))
+                self.assertEqual(result.stdout, BINARY)
+
+    def test_scalar_tokens_split_on_ascii_whitespace_beside_binary_bytes(self):
+        module = self.module("scalars.wasm", SCALARS_THEN_ECHO)
+        stdin = b"41\x0b-7 \xff\xfe\x00\n"
+        for name, result in self.hosts(module, stdin).items():
+            with self.subTest(host=name):
+                self.assertEqual((result.returncode, result.stderr), (0, b""))
+                self.assertEqual(result.stdout, b"41\n-7\n" + stdin)
+
+    def test_programmatic_hosts_take_bytes_or_text(self):
+        self.assertEqual(host.run_module(ECHO, BINARY, timing=False)["stdout"], BINARY)
+        self.assertEqual(host.run_module(ECHO, "é\n", timing=False)["stdout"], "é\n".encode())
+        module = self.module("echo.wasm", ECHO)
+        observed = self.node('''
+          import {readFileSync} from "node:fs";
+          import {runModule} from "./scripts/run_wasm.mjs";
+          const bytes = readFileSync(process.argv[1]);
+          const results = [];
+          for (const input of [Buffer.from(process.argv[2], "hex"), "é\\n"]) {
+            const result = await runModule(bytes, input);
+            results.push([result.exitCode, result.stdout.toString("hex")]);
+          }
+          console.log(JSON.stringify(results));''', module, BINARY.hex())
+        self.assertEqual(observed, [[0, BINARY.hex()], [0, "é\n".encode().hex()]])
 
 
 if __name__ == "__main__":

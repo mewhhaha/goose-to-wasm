@@ -100,14 +100,17 @@ class ProgramExit extends Error {
   }
 }
 
+// `input` is stdin: bytes as given, or a string as its UTF-8 bytes. fd_read
+// sees exactly those bytes. Scalar imports read tokens from a byte-for-byte
+// latin1 view, split on ASCII whitespace as the C++ host splits them.
 export async function runModule(bytes, input = "") {
-  const tokens = input.trim().split(/\s+/).filter(Boolean);
+  const stdin = Buffer.from(input);
+  const tokens = stdin.toString("latin1").split(/[ \t\n\r\f\v]+/).filter(Boolean);
   let cursor = 0;
   let instance;
   let sink = 0n;
   const chunks = [];
   const errors = [];
-  const stdin = Buffer.from(input);
   let stdinPosition = 0;
   const append = (text) => chunks.push(Buffer.from(text));
   const token = () => {
@@ -294,7 +297,7 @@ async function main() {
     if (args.length !== 2 || args[0] !== "--timing-json") throw new Error("unknown runner arguments");
     timingPath = args[1];
   }
-  const result = await runModule(readFileSync(module), readFileSync(0, "utf8"));
+  const result = await runModule(readFileSync(module), readFileSync(0));
   process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr + "\n");
   if (timingPath) writeFileSync(timingPath, JSON.stringify(result.timing, null, 2) + "\n");
