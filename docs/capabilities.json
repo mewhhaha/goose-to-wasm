@@ -1328,8 +1328,7 @@
         "status": "qualified_subset",
         "scope": "Opt-in bounded pristine syntax imports.",
         "fixtures": [
-          "tests/test_syntax_cache.py",
-          "tests/test_syntax_importer.py"
+          "tests/test_syntax_cache.py"
         ],
         "boundary_fixtures": []
       },
