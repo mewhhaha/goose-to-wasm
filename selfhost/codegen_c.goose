@@ -3486,7 +3486,16 @@ static int g_os_resource(GRef out) { char path[4096]; ssize_t n=readlink("/proc/
 static int g_trim_memory(void) { return gs_trim_memory(); }
 typedef struct { void *data; int64_t len; } GForeignSlice;
 static GForeignSlice g_foreign_slice(GSlice s) { GForeignSlice r={g_address(s.base),s.len}; return r; }
-static void *g_external(const char *library,const char *name) { void *handle=RTLD_DEFAULT; if(library) { handle=dlopen(library,RTLD_NOW|RTLD_LOCAL); if(!handle) g_panic(dlerror()); } void *p=dlsym(handle,name); if(!p) g_panic(dlerror()); return p; }
+#if defined(__GLIBC__)
+#include <gnu/lib-names.h>
+#endif
+static void *g_external(const char *library,const char *name) { void *handle=RTLD_DEFAULT; if(library) { handle=dlopen(library,RTLD_NOW|RTLD_LOCAL); if(!handle) g_panic(dlerror()); } void *p=dlsym(handle,name); if(p) return p;
+    char message[512]; const char *error=dlerror(); snprintf(message,sizeof message,"%s",error?error:"undefined symbol");
+#if defined(__GLIBC__) && defined(LIBM_SO)
+    /* Linkers that default to --as-needed drop -lm when no call reaches it directly. */
+    if(!library) { void *math=dlopen(LIBM_SO,RTLD_NOW|RTLD_GLOBAL); if(math) p=dlsym(math,name); }
+#endif
+    if(!p) g_panic(message); return p; }
 """;
 
 fn cc_literal_array_args(p: Program&, out: u8[>..]&, type_id: i64, width: bool = true) {

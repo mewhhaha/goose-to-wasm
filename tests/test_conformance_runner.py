@@ -100,5 +100,37 @@ output.write_text('#include <stdio.h>\\nextern int helper(void);\\nint main(void
             CONFORMANCE.native_source_paths({"native_sources": ["../outside.c"]})
 
 
+class KnownGaps(unittest.TestCase):
+    def check(self, statuses, gaps):
+        report = {"results": [{"case": case, "level": level, "status": status}
+                              for (case, level), status in statuses.items()]}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "known-gaps.json"
+            path.write_text(json.dumps({"gaps": [list(gap) for gap in gaps]}))
+            with contextlib.redirect_stdout(None):
+                return CONFORMANCE.known_gaps(report, path)
+
+    def test_recorded_failures_pass(self):
+        self.assertEqual(self.check({("a", 0): "pass", ("b", 2): "fail"}, [("b", 2)]), 0)
+
+    def test_unrecorded_failure_fails(self):
+        self.assertEqual(self.check({("a", 0): "fail", ("b", 2): "fail"}, [("b", 2)]), 1)
+
+    def test_recorded_gap_that_passes_fails(self):
+        self.assertEqual(self.check({("a", 0): "pass", ("b", 2): "pass"}, [("b", 2)]), 1)
+
+    def test_unselected_gaps_are_ignored(self):
+        self.assertEqual(self.check({("a", 0): "pass"}, [("b", 2), ("a", 2)]), 0)
+
+    def test_checked_in_record_has_the_open_gaps(self):
+        record = json.loads((ROOT / "tests/conformance/known-gaps.json").read_text())
+        gaps = {tuple(gap) for gap in record["gaps"]}
+        self.assertEqual(len(gaps), len(record["gaps"]))
+        cases = {case["id"]: case for case in json.loads((ROOT / "tests/conformance/cases.json").read_text())["cases"]}
+        for case, level in gaps:
+            self.assertIn(case, cases)
+            self.assertIn(level, cases[case]["levels"])
+
+
 if __name__ == "__main__":
     unittest.main()
