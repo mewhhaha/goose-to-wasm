@@ -4,6 +4,7 @@ import checker_validation;
 import checker_operations;
 import checker_lifetimes;
 import checker_rendering;
+import os;
 
 // Stable IDs are the only links held while tables grow. Scope, flow and
 // provenance are checker work tables; checked nodes contain backend contracts.
@@ -7070,6 +7071,8 @@ fn check_program(p: Program&, declarations_only: bool = false) {
     var scope_parents: i64[>..] = []; var scope_depths: i64[>..] = []; var scope_functions: i64[>..] = [];
     var pool_references: i64[>..] = [];
     if !check_program_types(p, declarations_only, scope_parents, scope_depths, scope_functions, pool_references) { return; }
+    let lifetimes_started = clock_ns();
     check_lifetimes(p, scope_parents, scope_depths, scope_functions, pool_references);
+    p.lifetime_ns = clock_ns() - lifetimes_started;
     if p.diagnostics.len == 0 { check_validate_thread_globals(p); }
 }

@@ -251,6 +251,7 @@ fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checki
     out.append(",\"types\":"); driver_integer(out, p.types.len);
     out.append(",\"parse_ns\":"); driver_integer(out, parsing);
     out.append(",\"typecheck_ns\":"); driver_integer(out, checking);
+    out.append(",\"lifetime_ns\":"); driver_integer(out, p.lifetime_ns);
     out.append(",\"optimize_ns\":"); driver_integer(out, optimizing);
     out.append(",\"backend_ns\":"); driver_integer(out, backend);
     out.append(",\"function_info\":[],\"cache_complete\":false}\n");

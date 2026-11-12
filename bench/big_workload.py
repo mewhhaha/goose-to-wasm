@@ -23,12 +23,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / 'bench/fixtures/compiler-goose'
 
+# The reference checker is built with GOOSE_REACHABLE_PROGRAM and a
+# 1000000-node expansion limit (manifest.json reference_compiler.build); the
+# selfhost compiler takes the same settings as options.
+REFERENCE_SETTINGS = ['--reachable-program', '--expansion-node-limit', '1000000']
 # Argument templates; {stdlib} and {output} are filled per run.
 STYLES = {
     'selfhost': {
         'parse': ['src/main.goose', '--target', 'native', '--parse', '--stdlib', '{stdlib}'],
-        'check': ['src/main.goose', '--target', 'native', '--check', '--stdlib', '{stdlib}'],
-        'emit': ['src/main.goose', '--target', 'native', '-O2', '--stdlib', '{stdlib}', '-o', '{output}'],
+        'check': ['src/main.goose', '--target', 'native', '--check', '--stdlib', '{stdlib}', *REFERENCE_SETTINGS],
+        'emit': ['src/main.goose', '--target', 'native', '-O2', '--stdlib', '{stdlib}', '-o', '{output}', *REFERENCE_SETTINGS],
     },
     'upstream': {
         'parse': ['src/main.goose', '--parse', '--stdlib', '{stdlib}'],
