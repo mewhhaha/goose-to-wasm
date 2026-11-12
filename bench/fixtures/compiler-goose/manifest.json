@@ -1,0 +1,64 @@
+{
+  "schema": "goose-big-workload-fixture-v1",
+  "name": "compiler-goose",
+  "description": "blot2's Goose compiler (compiler-goose): 450 Goose sources, 120,778 lines under compiler-goose/src, entry compiler-goose/src/main.goose, with its native C host and the upstream d5ae5bb standard library it is built with.",
+  "archive": {
+    "path": "bench/fixtures/compiler-goose/fixture.tar.gz",
+    "sha256": "09b5189cc5f61756e3c851870606149c2fd826658b74bca73c8cc34165919d27",
+    "layout": {
+      "program": "compiler-goose/src",
+      "entry": "compiler-goose/src/main.goose",
+      "native": "compiler-goose/native",
+      "stdlib": "stdlib"
+    },
+    "deterministic": "Entries carry uid/gid 0 and mtime 1970-01-01."
+  },
+  "program": {
+    "repository": "blot2",
+    "commit": "2d1f0836a708b0d6adc0a01e365219baac995b27",
+    "paths": ["compiler-goose/src", "compiler-goose/native"]
+  },
+  "stdlib": {
+    "repository": "https://github.com/aardappel/goose",
+    "commit": "d5ae5bbda990923fa4129f969c7f853c20d4d1e6",
+    "path": "stdlib"
+  },
+  "reference_compiler": {
+    "description": "Upstream C++ Goose d5ae5bb plus blot2's private checker patch series; d5ae5bb is a stdlib-only commit after 32a4f445d8a94b22874a28469f95f69ba3ac31dd, to which the series was ported.",
+    "upstream_commit": "d5ae5bbda990923fa4129f969c7f853c20d4d1e6",
+    "series": {
+      "source": "blot2 2d1f0836a708b0d6adc0a01e365219baac995b27:compiler-goose/tools/upstream-32a4f44/series",
+      "applied": [
+        "01-goose-containment.patch",
+        "02-goose-diagnostic-roots.patch",
+        "03-goose-reachable-program.patch",
+        "04-goose-stable-closures.patch",
+        "05-goose-array-reach-gate.patch",
+        "06-goose-reference-closures.patch",
+        "07-goose-checker-trace.patch",
+        "08-goose-holder-event-index.patch",
+        "09-goose-global-reach-trace.patch",
+        "10-goose-traversal-buckets.patch",
+        "11-goose-shrink-origins.patch",
+        "12-goose-used-after-frame-skip.patch",
+        "13-goose-global-empty-facts.patch",
+        "14-goose-copied-argument-contents.patch",
+        "15-goose-finite-copied-globals.patch",
+        "16-goose-options-roots-trace.patch",
+        "17-goose-contents-static-known.patch",
+        "18-goose-shared-body-snapshots.patch"
+      ],
+      "build": "Upstream CMake Release, clang 23.1.4, CMAKE_CXX_FLAGS=\"-gline-tables-only -DGOOSE_EXPANSION_NODE_LIMIT=1000000 -DGOOSE_REACHABLE_PROGRAM=1\""
+    },
+    "checker_sha256": "c0f0cb7c682ba2af20e21e31b4e0afa3c01751a6a94f8c445a0c6ce9ac23e738"
+  },
+  "reference_timings": {
+    "source": "blot2 benchmarks/evidence/qualification/2026-11-12-goose-first-executable.json",
+    "date": "2026-11-12",
+    "collected": "Separately, by blot2's compiler-goose/build.py with the reference checker, --inference-budget 1000000 and clang-23; not by bench/big_workload.py.",
+    "emit_program_seconds": 494.638,
+    "compile_and_link_seconds": 57.067,
+    "total_build_seconds": 552.529,
+    "peak_rss_mib": 9032
+  }
+}
