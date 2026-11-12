@@ -67980,6 +67980,78 @@
         "dependencies": [
             "tests/fixtures/contracts/namespace-nested/imported/helper.goose"
         ]
+    },
+    {
+        "id": "corpus/contracts/numeric-separators/literals/native",
+        "source": "tests/fixtures/contracts/numeric-separators/literals.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1000000\n65450\n3.141592\n1000000.0\n13.34375\n12.0\n1.0\n0.1875\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 numeric separators (test/syntax/numeric_separators.goose, expected/numeric_separators.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/numeric-separators/literals/wasm-direct",
+        "source": "tests/fixtures/contracts/numeric-separators/literals.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1000000\n65450\n3.141592\n1000000.0\n13.34375\n12.0\n1.0\n0.1875\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 numeric separators (test/syntax/numeric_separators.goose, expected/numeric_separators.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/numeric-separators/double",
+        "source": "tests/fixtures/contracts/numeric-separators/double.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 numeric separators (test/errors/numeric_separator_double.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/numeric-separators/after-prefix",
+        "source": "tests/fixtures/contracts/numeric-separators/after-prefix.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 lexer.h ScanDigits: a separator stands between two digits of the radix; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/numeric-separators/trailing",
+        "source": "tests/fixtures/contracts/numeric-separators/trailing.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 lexer.h ScanDigits: a separator stands between two digits of the radix; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/numeric-separators/fraction-edge",
+        "source": "tests/fixtures/contracts/numeric-separators/fraction-edge.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 lexer.h ScanDigits: a separator stands between two digits of the radix; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {

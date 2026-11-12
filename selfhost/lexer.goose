@@ -144,6 +144,13 @@ fn lex_escape(p: Program&, l: LexCursor&, token: i64) -> i64 {
     return e as i64;
 }
 
+// An underscore in a number separates two digits of its radix: 1_000, 0xFF_AA.
+fn lex_separator(p: Program&, l: LexCursor&, token: i64, radix: i64) {
+    let before = lex_hex(p.text[l.at - 1]); let after = lex_hex(lex_peek(p, l, 1));
+    if before < 0 || before >= radix || after < 0 || after >= radix { diagnose(p, token, "invalid numeric separator"); }
+    lex_take(p, l);
+}
+
 fn lex_source(p: Program&, source_id: i64, skeleton: bool = false) {
     if source_id < 0 || source_id >= p.sources.len { diagnose_at(p, 0, 0, 0, "invalid source ID"); return; }
     let source = p.sources[source_id];
@@ -284,6 +291,7 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             var bits: u64 = 0;
             var overflow = false;
             loop {
+                if lex_peek(p, l) == '_' { lex_separator(p, l, token_id, radix); continue; }
                 let d = lex_hex(lex_peek(p, l));
                 if d < 0 || d >= radix { break; }
                 if bits > (0xffffffffffffffff - d as u64) / radix as u64 { overflow = true; }
@@ -298,6 +306,7 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
             if lex_peek(p, l) == '.' && lex_hex(lex_peek(p, l, 1)) >= 0 && lex_hex(lex_peek(p, l, 1)) < radix {
                 floating = true; lex_take(p, l);
                 loop {
+                    if lex_peek(p, l) == '_' { lex_separator(p, l, token_id, radix); continue; }
                     let d = lex_hex(lex_peek(p, l));
                     if d < 0 || d >= radix { break; }
                     lex_take(p, l);
@@ -314,7 +323,9 @@ fn lex_tokens(p: Program&, l: LexCursor&) {
                 if lex_peek(p, l) == '-' { lex_take(p, l); }
                 else if lex_peek(p, l) == '+' { lex_take(p, l); }
                 if !lex_digit(lex_peek(p, l)) { diagnose(p, token_id, "expected exponent digits"); }
-                while lex_digit(lex_peek(p, l)) { lex_take(p, l); }
+                while lex_digit(lex_peek(p, l)) || lex_peek(p, l) == '_' {
+                    if lex_peek(p, l) == '_' { lex_separator(p, l, token_id, 10); } else { lex_take(p, l); }
+                }
             } else if radix == 16 && floating { diagnose(p, token_id, "hexadecimal float requires a binary exponent"); }
             if floating {
                 t.kind = T_FLTLIT;
@@ -530,6 +541,7 @@ fn lex_float(text: const u8[:], radix: i64) -> f64 {
     var fraction = false; var fractional = 0; var significant = 0;
     while at < text.len {
         let byte = text[at];
+        if byte == '_' { at++; continue; }
         if byte == '.' { fraction = true; at++; continue; }
         let digit = lex_hex(byte); if digit < 0 || digit >= radix { break; }
         lex_big_mul(numerator, radix as u64, digit as u64);
@@ -542,7 +554,7 @@ fn lex_float(text: const u8[:], radix: i64) -> f64 {
         at++; var negative = false;
         if at < text.len && (text[at] == '+' || text[at] == '-') { negative = text[at] == '-'; at++; }
         while at < text.len {
-            if exponent < 1000000 { exponent = exponent * 10 + text[at] as i64 - 48; }
+            if text[at] != '_' && exponent < 1000000 { exponent = exponent * 10 + text[at] as i64 - 48; }
             at++;
         }
         if negative { exponent = -exponent; }
