@@ -290,6 +290,8 @@ struct Node {
     coerced_type: i64 = -1,
     expansion_binding: i64 = -1,
 }
+// kind, element, count, flags and declaration identify a type for lookup
+// (type_find): whoever changes one of them on an existing type reindexes it.
 struct Type {
     kind: i64 = 0, element: i64 = -1, count: i64 = 0,
     declaration: i64 = -1, first: i64 = -1, flags: i64 = 0,
@@ -326,6 +328,10 @@ struct Program {
     // Memoized type properties (type * 8 + property, value + 1; 0 unknown)
     // and the builtin symbol of each builtin ID (-1 none yet).
     type_properties: i64[>..]&, builtin_symbols: i64[>..]&,
+    // Type identity index (type_find): bucket chains in ascending type ID,
+    // each type's bucket hash, and how many types are indexed so far.
+    type_heads: i64[>..]&, type_tails: i64[>..]&, type_next: i64[>..]&, type_hashes: i64[>..]&,
+    type_indexed: i64 = 0,
     entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     optimization: i64 = 0, debug: bool = false,
     pointer_bytes: i64 = 4,
@@ -411,6 +417,64 @@ fn append_child(p: Program&, parent: i64, child: i64) {
 }
 fn add_type(p: Program&, ty: Type) -> i64 {
     let id = p.types.len; p.types.push(ty); return id;
+}
+// Type lookups find the lowest type ID whose fields match, as a scan of the
+// whole table would, through buckets hashed over kind, element, count, flags
+// and, except for arrays, declaration. Chains keep ascending ID order.
+// Types are indexed lazily, whoever appended them; a change to one of those
+// fields of an existing type must be followed by type_reindex.
+fn type_hash(kind: i64, element: i64, count: i64, flags: i64, declaration: i64) -> i64 {
+    var h: u64 = 1469598103934665603;
+    var d = declaration; if kind == TY_ARRAY { d = -1; }
+    for part in [kind, element, count, flags, d] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+    return (h >> 1) as i64;
+}
+fn type_hash_of(p: Program&, id: i64) -> i64 {
+    let t: const Type& = p.types[id];
+    return type_hash(t.kind, t.element, t.count, t.flags, t.declaration);
+}
+fn type_link(p: Program&, id: i64) {
+    let bucket = p.type_hashes[id] & (p.type_heads.len - 1);
+    p.type_next[id] = -1;
+    let tail = p.type_tails[bucket];
+    if tail < 0 { p.type_heads[bucket] = id; p.type_tails[bucket] = id; return; }
+    if tail < id { p.type_next[tail] = id; p.type_tails[bucket] = id; return; }
+    // A reindexed type goes back to its place in ID order.
+    var previous = -1; var at = p.type_heads[bucket];
+    while at >= 0 && at < id { previous = at; at = p.type_next[at]; }
+    p.type_next[id] = at;
+    if previous < 0 { p.type_heads[bucket] = id; } else { p.type_next[previous] = id; }
+}
+fn type_index_sync(p: Program&) {
+    if p.type_indexed == p.types.len { return; }
+    // At most one type per bucket on average.
+    if p.type_heads.len < p.types.len {
+        var size: i64 = 1024; while size < 2 * p.types.len { size <<= 1; }
+        p.type_heads.clear(); p.type_tails.clear();
+        p.type_heads.resize(size, -1); p.type_tails.resize(size, -1);
+        for id in 0..p.type_indexed { type_link(p, id); }
+    }
+    while p.type_indexed < p.types.len {
+        let id = p.type_indexed;
+        p.type_next.push(-1); p.type_hashes.push(type_hash_of(p, id));
+        type_link(p, id); p.type_indexed += 1;
+    }
+}
+// The first type that may have these fields; follow type_next.
+fn type_find(p: Program&, kind: i64, element: i64, count: i64, flags: i64, declaration: i64) -> i64 {
+    type_index_sync(p);
+    return p.type_heads[type_hash(kind, element, count, flags, declaration) & (p.type_heads.len - 1)];
+}
+fn type_reindex(p: Program&, id: i64) {
+    if id < 0 || id >= p.type_indexed { return; }
+    let hash = type_hash_of(p, id);
+    if hash == p.type_hashes[id] { return; }
+    let bucket = p.type_hashes[id] & (p.type_heads.len - 1);
+    var previous = -1; var at = p.type_heads[bucket];
+    while at >= 0 && at != id { previous = at; at = p.type_next[at]; }
+    if previous < 0 { p.type_heads[bucket] = p.type_next[id]; } else { p.type_next[previous] = p.type_next[id]; }
+    if p.type_tails[bucket] == id { p.type_tails[bucket] = previous; }
+    p.type_hashes[id] = hash; type_link(p, id);
 }
 fn initialize_types(p: Program&) {
     add_type(p, Type { kind: TY_VOID });

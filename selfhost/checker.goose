@@ -231,11 +231,13 @@ recursive fn check_same_type(p: Program&, a: i64, b: i64) -> bool {
     return true;
 }
 fn check_type(p: Program&, kind: i64, element: i64, count: i64, declaration: i64, flags: i64) -> i64 {
-    for id in 0..p.types.len {
+    var id = type_find(p, kind, element, count, flags, declaration);
+    while id >= 0 {
         let t: const Type& = p.types[id];
         if t.kind == kind && t.element == element && t.count == count &&
            t.declaration == declaration && t.flags == flags &&
            (kind != TY_REF || t.length_storage < 0 && t.pool < 0) { return id; }
+        id = p.type_next[id];
     }
     var ty = Type { kind: kind, element: element, count: count, declaration: declaration, flags: flags };
     if kind == TY_REF || kind == TY_FN { ty.size = p.pointer_bytes; ty.align = p.pointer_bytes; }
@@ -247,10 +249,12 @@ fn check_array_type(p: Program&, element: i64, count: i64, array_kind: i64, flag
     if array_kind == A_LIMITED && count >= 0 {
         default_length = 1; if count > 255 { default_length = 2; } if count > 65535 { default_length = 4; } if count > 4294967295 { default_length = 8; }
     }
-    for id in 0..p.types.len {
+    var id = type_find(p, TY_ARRAY, element, count, flags, -1);
+    while id >= 0 {
         let t: const Type& = p.types[id];
         if t.kind == TY_ARRAY && !t.length_explicit && t.length_storage == default_length && t.element == element && t.count == count &&
            t.array_kind == array_kind && t.flags == flags { return id; }
+        id = p.type_next[id];
     }
     var size = 24; var align = 4;
     if array_kind == A_FIXED && element >= 0 {
@@ -271,9 +275,11 @@ fn check_type_const(p: Program&, ty: i64, readonly: bool) -> i64 {
     var copy = p.types[ty];
     if readonly { copy.flags |= TF_CONST; } else { copy.flags &= ~TF_CONST; }
     if copy.flags == p.types[ty].flags { return ty; }
-    for id in 0..p.types.len {
+    var id = type_find(p, copy.kind, copy.element, copy.count, copy.flags, copy.declaration);
+    while id >= 0 {
         let candidate: const Type& = p.types[id];
         if candidate.kind == copy.kind && candidate.element == copy.element && candidate.count == copy.count && candidate.declaration == copy.declaration && candidate.first == copy.first && candidate.flags == copy.flags && candidate.array_kind == copy.array_kind && candidate.storage == copy.storage && candidate.length_storage == copy.length_storage && candidate.length_explicit == copy.length_explicit && candidate.pool == copy.pool && candidate.index_type == copy.index_type { return id; }
+        id = p.type_next[id];
     }
     return add_type(p, copy);
 }
@@ -1304,7 +1310,7 @@ fn check_prepare_variants(p: Program&, enum_type: i64) {
         }
         p.nodes[variant].integer = tag; tag += 1; variant = p.nodes[variant].next;
     }
-    p.types[enum_type].first = p.nodes[declaration].first; p.types[enum_type].count = tag;
+    p.types[enum_type].first = p.nodes[declaration].first; p.types[enum_type].count = tag; type_reindex(p, enum_type);
 }
 recursive fn check_finish_record_layout(p: Program&, type_id: i64, first: i64, size: i64) {
     p.types[type_id].size = size; p.types[type_id].align = 1; p.types[type_id].first = first;
@@ -1358,7 +1364,7 @@ recursive fn check_variable_enum_type(p: Program&, c: Checker&, base: i64) -> i6
         }
         variant = p.nodes[variant].next;
     }
-    p.types[result].first = declaration_layout.first; p.types[result].count = declaration_layout.count;
+    p.types[result].first = declaration_layout.first; p.types[result].count = declaration_layout.count; type_reindex(p, result);
     p.types[result].length_storage = declaration_layout.length_storage; p.types[result].size = check_align(size, align); p.types[result].align = align;
     return result;
 }
@@ -3326,7 +3332,7 @@ recursive fn check_complete_pending(p: Program&, c: Checker&, receiver: i64, arr
        p.types[element].kind == TY_REF && p.types[element].element == TYPE_VOID {
         diagnose(p, token, "cannot infer the element type of this array from this value"); return;
     }
-    p.types[array].element = element;
+    p.types[array].element = element; type_reindex(p, array);
     check_array_element(p, c, element, p.types[array].array_kind, token);
     if check_pool_flags(p, c, receiver) != 0 && check_size_class(p, element, 0) != 0 {
         diagnose(p, token, "reusable pools require fixed-size elements");
@@ -5043,7 +5049,7 @@ recursive fn check_block(p: Program&, c: Checker&, node: i64, expected: i64) -> 
                 check_expression(p, c, child, -1);
                 if check_readonly(p, c, child) {
                     tail_expected = check_const_type(p, expected); c.result_type = tail_expected;
-                    p.types[p.nodes[c.function_node].type_id].element = tail_expected;
+                    p.types[p.nodes[c.function_node].type_id].element = tail_expected; type_reindex(p, p.nodes[c.function_node].type_id);
                 }
             }
             let keep_tuple = c.tuple_context || tail_expected < 0 && c.function_node >= 0 && check_tail_contains(p, p.nodes[c.function_node].right, node);
@@ -6104,7 +6110,7 @@ recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
                 if expected_part >= 0 { p.nodes[expected_part].type_id = destination; }
                 else {
                     expected = destination;
-                    p.types[p.nodes[target].type_id].element = destination;
+                    p.types[p.nodes[target].type_id].element = destination; type_reindex(p, p.nodes[target].type_id);
                     if target == c.function_node { c.result_type = destination; }
                 }
             }
@@ -6137,10 +6143,10 @@ recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
     if target_active { check_flow_exit(c, target, target_mark); }
     p.nodes[target].flags |= F_RETURNS; p.nodes[target].flags &= ~F_DIVERGES;
     if target == c.function_node {
-        if c.result_type < 0 { c.result_type = actual; p.types[p.nodes[target].type_id].element = actual; }
+        if c.result_type < 0 { c.result_type = actual; p.types[p.nodes[target].type_id].element = actual; type_reindex(p, p.nodes[target].type_id); }
         else if expected < 0 { c.result_type = check_join_type(p, c, -1, c.result_type, n.first, actual, n.token); }
         c.returns = true;
-    } else if expected < 0 { p.types[p.nodes[target].type_id].element = actual; }
+    } else if expected < 0 { p.types[p.nodes[target].type_id].element = actual; type_reindex(p, p.nodes[target].type_id); }
     c.reachable = false;
 }
 
@@ -6586,7 +6592,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     if c.result_type < 0 && p.types[n.type_id].element >= 0 { c.result_type = p.types[n.type_id].element; }
     if c.result_type < 0 { c.result_type = TYPE_VOID; }
     if c.result_type >= 0 && p.types[c.result_type].kind == TY_ARRAY && p.types[c.result_type].element < 0 { diagnose(p, n.token, "cannot infer a result element type from an empty array"); }
-    p.types[n.type_id].element = c.result_type;
+    p.types[n.type_id].element = c.result_type; type_reindex(p, n.type_id);
     p.nodes[function_node].flags |= F_CHECKED;
     c.checking_count -= 1; c.need_path = saved_need_path;
     check_flow_undo(c, mark); check_exits_consume(c, exit_start, function_node); check_flow_close(c, mark);
