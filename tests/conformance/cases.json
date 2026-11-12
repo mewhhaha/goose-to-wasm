@@ -68881,6 +68881,496 @@
             "--expansion-node-limit",
             "100"
         ]
+    },
+    {
+        "id": "corpus/contracts/root-struct/owner-check",
+        "source": "tests/fixtures/contracts/root-struct/owner.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): independently resizable fields in any order; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/components-check",
+        "source": "tests/fixtures/contracts/root-struct/components-check.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): per-component lifetime identities (storage/root_local_components); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/owner-references-check",
+        "source": "tests/fixtures/contracts/root-struct/owner-references-check.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): owner references keep component identities (storage/root_owner_borrowing, root_owner_choices); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/construction-check",
+        "source": "tests/fixtures/contracts/root-struct/construction-check.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): growth of one component during construction in another (storage/root_owner_construction, root_global_construction); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/relative-links-check",
+        "source": "tests/fixtures/contracts/root-struct/relative-links-check.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): relative links within a component, recursive borrowing (storage/root_owner_control_flow); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/nested-field",
+        "source": "tests/fixtures/contracts/root-struct/nested-field.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType VT_FIELD; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/nested-root",
+        "source": "tests/fixtures/contracts/root-struct/nested-root.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType VT_FIELD in a root; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/element-fixed",
+        "source": "tests/fixtures/contracts/root-struct/element-fixed.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType VT_ELEM; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/element-grow",
+        "source": "tests/fixtures/contracts/root-struct/element-grow.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType VT_ELEM; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/element-slice",
+        "source": "tests/fixtures/contracts/root-struct/element-slice.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidatePointee of a slice; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/enum-payload",
+        "source": "tests/fixtures/contracts/root-struct/enum-payload.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType of a payload field; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/generic-nested",
+        "source": "tests/fixtures/contracts/root-struct/generic-nested.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType after substitution; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/parameter",
+        "source": "tests/fixtures/contracts/root-struct/parameter.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType VT_PARAM; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/result",
+        "source": "tests/fixtures/contracts/root-struct/result.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidateType VT_RET; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/relative-reference",
+        "source": "tests/fixtures/contracts/root-struct/relative-reference.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): ValidatePointee: plain references only; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/copy",
+        "source": "tests/fixtures/contracts/root-struct/copy.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): B_COPY; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/copy-fixed-fields",
+        "source": "tests/fixtures/contracts/root-struct/copy-fixed-fields.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): RequireCopyable; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/assign",
+        "source": "tests/fixtures/contracts/root-struct/assign.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): AssignableClassCheck; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/equality",
+        "source": "tests/fixtures/contracts/root-struct/equality.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): CheckBinaryResult value operators; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/temporary",
+        "source": "tests/fixtures/contracts/root-struct/temporary.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): rootinit; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/uninitialized",
+        "source": "tests/fixtures/contracts/root-struct/uninitialized.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): UninitOK; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/extern",
+        "source": "tests/fixtures/contracts/root-struct/extern.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): C crossing of a non-flat owner; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/queue",
+        "source": "tests/fixtures/contracts/root-struct/queue.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): B_QPUT IsFlat; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/thread-global",
+        "source": "tests/fixtures/contracts/root-struct/thread-global.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): CheckThreadGlobals; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-shrink",
+        "source": "tests/fixtures/contracts/root-struct/component-shrink.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): shrink of a component with a live view; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-call-shrink",
+        "source": "tests/fixtures/contracts/root-struct/component-call-shrink.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): shrink summary through owner parameters; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/holder-alias-shrink",
+        "source": "tests/fixtures/contracts/root-struct/holder-alias-shrink.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): holder records through owner aliases; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/index-other-field",
+        "source": "tests/fixtures/contracts/root-struct/index-other-field.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): index_of rooted at the array itself; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/cross-component-relative",
+        "source": "tests/fixtures/contracts/root-struct/cross-component-relative.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): relative references within one component; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/construction-conflict",
+        "source": "tests/fixtures/contracts/root-struct/construction-conflict.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 root structs (docs/design/root_structs.md): growth of the component under construction; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-index-check",
+        "source": "tests/fixtures/contracts/root-struct/component-index-check.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): index and bound types naming components (test/typing/root_component_index); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-pool-check",
+        "source": "tests/fixtures/contracts/root-struct/component-pool-check.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): components as relative pools, owner parameters and standalone owners (test/storage/root_component_pool); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-names",
+        "source": "tests/fixtures/contracts/root-struct/component-names.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): namespace-qualified owners (test/syntax/root_component_names); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-const",
+        "source": "tests/fixtures/contracts/root-struct/component-const.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_const; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-cross-field",
+        "source": "tests/fixtures/contracts/root-struct/component-cross-field.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_cross_field; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-cross-owner",
+        "source": "tests/fixtures/contracts/root-struct/component-cross-owner.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_cross_owner; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-growshrink",
+        "source": "tests/fixtures/contracts/root-struct/component-growshrink.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_growshrink; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-index-other",
+        "source": "tests/fixtures/contracts/root-struct/component-index-other.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_index_other; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-index-shrink",
+        "source": "tests/fixtures/contracts/root-struct/component-index-shrink.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_index_shrink; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-index-shrink-array",
+        "source": "tests/fixtures/contracts/root-struct/component-index-shrink-array.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_index_shrink_array; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-index-worker",
+        "source": "tests/fixtures/contracts/root-struct/component-index-worker.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_index_worker; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-let-owner",
+        "source": "tests/fixtures/contracts/root-struct/component-let-owner.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_let_owner; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-local",
+        "source": "tests/fixtures/contracts/root-struct/component-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_local; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-missing",
+        "source": "tests/fixtures/contracts/root-struct/component-missing.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_missing; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-nested-path",
+        "source": "tests/fixtures/contracts/root-struct/component-nested-path.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_nested_path; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-nonarray",
+        "source": "tests/fixtures/contracts/root-struct/component-nonarray.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_nonarray; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-not-root",
+        "source": "tests/fixtures/contracts/root-struct/component-not-root.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_not_root; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-reference-path",
+        "source": "tests/fixtures/contracts/root-struct/component-reference-path.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_reference_path; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/component-readback-shrink",
+        "source": "tests/fixtures/contracts/root-struct/component-readback-shrink.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 56bbde0 named root components (global root array fields in relative-reference and index types): test/errors_tc/root_component_readback_shrink; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {

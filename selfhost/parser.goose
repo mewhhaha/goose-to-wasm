@@ -84,6 +84,17 @@ fn parse_qualified(p: Program&, c: ParseCursor&, declaration: bool = false) -> i
     p.nodes[id].scope = c.namespace_token;
     return id;
 }
+// The storage a relative reference or index type names: a global, or a
+// field path of one (`nodes.items`, upstream ParseStorageName), each field a
+// member node over the path before it.
+fn parse_storage_name(p: Program&, c: ParseCursor&) -> i64 {
+    var id = parse_qualified(p, c);
+    while parse_kind(p, c) == T_DOT && parse_ahead(p, c) == T_IDENT {
+        parse_next(p, c);
+        let member = parse_node(p, N_MEMBER, parse_next(p, c)); p.nodes[member].left = id; id = member;
+    }
+    return id;
+}
 fn parse_angle_end(p: Program&, c: ParseCursor&) {
     if parse_accept(p, c, T_GT) { return; }
     if parse_kind(p, c) == T_SHR { c.half_angle = true; return; }
@@ -149,7 +160,7 @@ recursive fn parse_type(p: Program&, c: ParseCursor&) -> i64 {
         if !c.for_binding && (parse_kind(p, c) == T_IN || parse_word(p, c, "upto")) {
             let upto = parse_word(p, c, "upto"); parse_next(p, c);
             if kind < T_TU8 || kind > T_TU64 { parse_error(p, c, "an index type requires u8, u16, u32 or u64"); }
-            let bound = parse_qualified(p, c); p.nodes[id].third = bound;
+            let bound = parse_storage_name(p, c); p.nodes[id].third = bound;
             p.nodes[id].flags |= F_INDEX_TYPE;
             if upto { p.nodes[id].flags |= F_BOUND_TYPE; }
             let postfix = parse_kind(p, c);
@@ -210,7 +221,7 @@ recursive fn parse_type(p: Program&, c: ParseCursor&) -> i64 {
                     }
                     let storage = parse_node(p, N_TYPE_NAME, parse_next(p, c)); p.nodes[reference].right = storage;
                     if parse_accept(p, c, T_IN) {
-                        let pool = parse_qualified(p, c); p.nodes[reference].third = pool;
+                        let pool = parse_storage_name(p, c); p.nodes[reference].third = pool;
                     }
                     parse_angle_end(p, c);
                 }

@@ -5,7 +5,10 @@ import model;
 // Binding bounds retain caller-storage depth without changing alias roots.
 // Stored edges retain their pointee type: an array reference in one field
 // must not become an element reference when another field is read.
-struct LifeAlt { root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0, next: i64 = -1 }
+// A root struct's fields are stored apart: component names the field node of
+// the root owner whose storage this is, -1 the owner as a whole (upstream
+// RootComponent identities). Contents stay with the owner.
+struct LifeAlt { root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0, next: i64 = -1, component: i64 = -1 }
 struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0 }
 struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1 }
 // Element owner: -1 none, -2 inside elements with unknown owner, otherwise type ID.
@@ -236,7 +239,7 @@ fn life_equal(l: Lifetimes&, a: i64, b: i64) -> bool {
         let x = l.alts[at]; let found = life_find(l, b, x.root);
         if found < 0 { return false; }
         let y = l.alts[found];
-        if x.exact != y.exact || x.from != y.from || x.slotread != y.slotread || x.byteview != y.byteview || x.target_type != y.target_type || x.bound != y.bound { return false; }
+        if x.exact != y.exact || x.from != y.from || x.slotread != y.slotread || x.byteview != y.byteview || x.target_type != y.target_type || x.bound != y.bound || x.component != y.component { return false; }
         at = x.next;
     }
     return true;
@@ -250,13 +253,14 @@ fn life_insert(l: Lifetimes&, set: i64, alt: LifeAlt) {
         if alt.bound > l.alts[old].bound { l.alts[old].bound = alt.bound; }
         if l.alts[old].from != alt.from { l.alts[old].from = -1; }
         if l.alts[old].target_type != alt.target_type { l.alts[old].target_type = -1; }
+        if l.alts[old].component != alt.component { l.alts[old].component = -1; }
         return;
     }
     let index = l.alts.len; var entry = alt; entry.next = l.sets[set].first;
     l.alts.push(entry); l.sets[set].first = index; l.sets[set].count += 1;
 }
-fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0) -> i64 {
-    let ordinary = exact && from == -1 && !slotread && !byteview && target_type == -1 && bound == 0;
+fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0, component: i64 = -1) -> i64 {
+    let ordinary = exact && from == -1 && !slotread && !byteview && target_type == -1 && bound == 0 && component == -1;
     var head = l.roots[root].atoms; var cached = -1;
     if head < -1 {
         cached = -2 - head;
@@ -266,11 +270,11 @@ fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slo
     var at = head;
     while at >= 0 {
         let entry = l.atoms[at]; let alt = l.alts[l.sets[entry.set].first];
-        if alt.exact == exact && alt.from == from && alt.slotread == slotread && alt.byteview == byteview && alt.target_type == target_type && alt.bound == bound { return entry.set; }
+        if alt.exact == exact && alt.from == from && alt.slotread == slotread && alt.byteview == byteview && alt.target_type == target_type && alt.bound == bound && alt.component == component { return entry.set; }
         at = entry.next;
     }
     let set = l.sets.len; l.sets.push(LifeSet {});
-    life_insert(l, set, LifeAlt { root: root, exact: exact, from: from, slotread: slotread, byteview: byteview, target_type: target_type, bound: bound });
+    life_insert(l, set, LifeAlt { root: root, exact: exact, from: from, slotread: slotread, byteview: byteview, target_type: target_type, bound: bound, component: component });
     let atom = l.atoms.len; l.atoms.push(LifeAtom { set: set, next: head });
     if ordinary { l.roots[root].atoms = -2 - atom; }
     else if cached >= 0 { l.atoms[cached].next = atom; }
@@ -284,7 +288,17 @@ inline fn life_root_set(l: Lifetimes&, root: i64) -> i64 {
 }
 fn life_interior(l: Lifetimes&, roots: i64) -> i64 {
     var out = 0; var at = l.sets[roots].first;
-    while at >= 0 { let alt = l.alts[at]; out = life_join(l, out, life_single(l, alt.root, alt.exact, alt.from, false, alt.byteview, -1, alt.bound)); at = alt.next; }
+    while at >= 0 { let alt = l.alts[at]; out = life_join(l, out, life_single(l, alt.root, alt.exact, alt.from, false, alt.byteview, -1, alt.bound, alt.component)); at = alt.next; }
+    return out;
+}
+// A field of a root owner is that owner's own component; any other field
+// lies inside its container's storage.
+fn life_component(l: Lifetimes&, places: i64, field: i64) -> i64 {
+    var out = 0; var at = l.sets[places].first;
+    while at >= 0 {
+        let alt = l.alts[at]; var component = alt.component; if component < 0 { component = field; }
+        out = life_join(l, out, life_single(l, alt.root, alt.exact, alt.from, false, alt.byteview, -1, alt.bound, component)); at = alt.next;
+    }
     return out;
 }
 
@@ -297,7 +311,8 @@ fn life_join(l: Lifetimes&, a: i64, b: i64) -> i64 {
         if existing < 0 { subset = false; break; }
         let old = l.alts[existing];
         if old.exact && !incoming.exact || old.slotread && !incoming.slotread ||
-           !old.byteview && incoming.byteview || old.from >= 0 && old.from != incoming.from || old.target_type >= 0 && old.target_type != incoming.target_type || old.bound < incoming.bound { subset = false; break; }
+           !old.byteview && incoming.byteview || old.from >= 0 && old.from != incoming.from || old.target_type >= 0 && old.target_type != incoming.target_type || old.bound < incoming.bound ||
+           old.component >= 0 && old.component != incoming.component { subset = false; break; }
         probe = incoming.next;
     }
     if subset { return a; }
@@ -392,7 +407,7 @@ fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
     var result = 0; var at = l.sets[sources].first;
     while at >= 0 {
         var alt = l.alts[at]; if depth > alt.bound { alt.bound = depth; }
-        result = life_join(l, result, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound)); at = alt.next;
+        result = life_join(l, result, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound, alt.component)); at = alt.next;
     }
     l.sets[sources].bound_depth = depth; l.sets[sources].bound_result = result;
     return result;
@@ -435,18 +450,24 @@ fn life_gs_contains(p: Program&, l: Lifetimes&, owner: i64, pointee: i64, bytevi
     }
     return false;
 }
+// The storage an alternative names: a root owner's component, or its root.
+inline fn life_alt_type(p: Program&, l: Lifetimes&, alt: LifeAlt) -> i64 {
+    if alt.component >= 0 { return p.nodes[alt.component].type_id; }
+    return l.roots[alt.root].type_id;
+}
 fn life_gs_value(p: Program&, l: Lifetimes&, value: LifeValue) -> bool {
     if value.type_id < 0 { return false; }
     let t: const Type& = p.types[value.type_id]; let sources = life_value_roots(p, value);
     var at = l.sets[sources].first;
     while at >= 0 {
         let alt = l.alts[at]; let root = l.roots[alt.root];
-        if !alt.slotread && life_is_ref(p, value.type_id) && life_gs_contains(p, l, root.type_id, t.element, alt.byteview) { return true; }
+        let storage = life_alt_type(p, l, alt);
+        if !alt.slotread && life_is_ref(p, value.type_id) && life_gs_contains(p, l, storage, t.element, alt.byteview) { return true; }
         if !alt.slotread && !life_is_ref(p, value.type_id) {
             // The holder's precise store record contains the roots; its
             // type says which of their elements its reference slots reach.
             var types: i64[>..] = [];
-            if root.type_id >= 0 { types.push(root.type_id); }
+            if storage >= 0 { types.push(storage); }
             var index = 0;
             while index < types.len {
                 let owner: const Type& = p.types[types[index]]; index += 1;
@@ -463,7 +484,7 @@ fn life_gs_value(p: Program&, l: Lifetimes&, value: LifeValue) -> bool {
             var inner = l.sets[root.contents].first;
             while inner >= 0 {
                 let view = l.alts[inner];
-                if !view.slotread && life_gs_contains(p, l, l.roots[view.root].type_id, p.types[t.element].element, view.byteview) { return true; }
+                if !view.slotread && life_gs_contains(p, l, life_alt_type(p, l, view), p.types[t.element].element, view.byteview) { return true; }
                 inner = view.next;
             }
         }
@@ -697,7 +718,8 @@ fn life_used_after(p: Program&, l: Lifetimes&, cell: LifeCell) -> bool {
 }
 fn life_alias(l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
     if a.root == 0 || b.root == 0 { return false; }
-    if a.root == b.root { return true; }
+    // Two known components of one root owner are separate storage.
+    if a.root == b.root { return !(a.exact && b.exact && a.component >= 0 && b.component >= 0 && a.component != b.component); }
     if !a.exact && l.roots[a.root].depth >= l.roots[b.root].depth { return true; }
     if !b.exact && l.roots[b.root].depth >= l.roots[a.root].depth { return true; }
     return false;
@@ -774,7 +796,7 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
                     let alt = l.alts[ai]; ai = alt.next; let storage = l.roots[alt.root];
                     if !alt.byteview && (!life_contains(p, l, storage.type_id, t.element) || alt.target_type >= 0 && !life_same(p, alt.target_type, t.element)) { continue; }
                     if (alt.byteview || life_contains(p, l, element, t.element)) &&
-                       life_overlaps(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, -1, alt.bound), target, slot_safe) { return true; }
+                       life_overlaps(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, -1, alt.bound, alt.component), target, slot_safe) { return true; }
                     if life_holds(p, t.element) {
                         var seen = false; for old in work { if old.root == alt.root && old.type_id == t.element { seen = true; } }
                         if !seen { work.push(LifeWalk { root: alt.root, type_id: t.element }); }
@@ -848,9 +870,9 @@ fn life_index_shrink(p: Program&, l: Lifetimes&, node: i64, receiver: LifeValue)
     if l.discovery { return; }
     for t in p.types {
         if t.kind != TY_INT || t.index_type < 0 || t.pool < 0 { continue; }
-        let owner: const Symbol& = p.symbols[t.pool]; let cell = life_cell(p, l, t.pool);
-        if cell < 0 || !life_same(p, receiver.type_id, owner.type_id) { continue; }
-        if life_overlaps(l, receiver.place, life_root_set(l, l.cells[cell].root)) {
+        let owner: const Symbol& = p.symbols[t.pool]; let named = life_pool_places(p, l, t.pool);
+        if named == 0 || !life_same(p, receiver.type_id, owner.type_id) { continue; }
+        if life_overlaps(l, receiver.place, named) {
             life_error(p, l, node, "cannot shrink or replace this array: an index or bound type names it"); return;
         }
     }
@@ -1010,20 +1032,30 @@ fn life_class_candidates(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -
         let cell = l.cells[ci]; let ty = p.symbols[cell.symbol].type_id;
         if cell.parameter && ty >= 0 && p.types[ty].kind == TY_REF && life_contains(p, l, p.types[ty].element, pointee) {
             var at = l.sets[cell.refs].first;
-            while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { result = life_join(l, result, life_single(l, alt.root, alt.exact, -1, false, false, -1, alt.bound)); } at = alt.next; }
+            while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { result = life_join(l, result, life_single(l, alt.root, alt.exact, -1, false, false, -1, alt.bound, alt.component)); } at = alt.next; }
         }
         ci = cell.next_frame;
     }
     return result;
 }
 
+// The storage a pool or index type names: a global's root, or a named
+// component of a global root owner.
+fn life_pool_places(p: Program&, l: Lifetimes&, pool: i64) -> i64 {
+    if pool < 0 || pool >= p.symbols.len { return 0; }
+    let owner = p.symbols[pool].component_owner;
+    if owner >= 0 {
+        let cell = life_cell(p, l, owner); if cell < 0 || p.symbols[pool].component < 0 { return 0; }
+        return life_component(l, life_root_set(l, l.cells[cell].root), p.symbols[pool].component);
+    }
+    let cell = life_cell(p, l, pool); if cell < 0 { return 0; }
+    return life_root_set(l, l.cells[cell].root);
+}
 fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
     if !life_is_ref(p, type_id) { return 0; }
     let t: const Type& = p.types[type_id];
     if t.kind == TY_REF && t.length_storage >= 0 {
-        if t.pool >= 0 && t.pool < p.symbols.len {
-            let cell = life_cell(p, l, t.pool); if cell >= 0 { return life_root_set(l, l.cells[cell].root); }
-        }
+        let pool = life_pool_places(p, l, t.pool); if pool != 0 { return pool; }
         return places;
     }
     var result = 0; var at = l.sets[places].first;
@@ -1046,7 +1078,7 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
                 // Caller storage bounds a read-back's lifetime, while the
                 // actual referent remains available for alias/shrink checks.
                 if alt.bound > bound { bound = alt.bound; }
-                result = life_join(l, result, life_single(l, r.root, r.exact, alt.root, slotread, r.byteview, r.target_type, bound));
+                result = life_join(l, result, life_single(l, r.root, r.exact, alt.root, slotread, r.byteview, r.target_type, bound, r.component));
             }
             item = r.next;
         }
@@ -1070,7 +1102,7 @@ fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool =
         }
         if slot {
             var contents = 0; at = l.sets[out.contents].first;
-            while at >= 0 { let alt = l.alts[at]; contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, true, alt.byteview, alt.target_type, alt.bound)); at = alt.next; }
+            while at >= 0 { let alt = l.alts[at]; contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, true, alt.byteview, alt.target_type, alt.bound, alt.component)); at = alt.next; }
             out.contents = contents;
         }
     }
@@ -1091,7 +1123,7 @@ fn life_stored_roots(p: Program&, l: Lifetimes&, value: LifeValue) -> i64 {
     var contents = 0; var at = l.sets[sources].first;
     while at >= 0 {
         let alt = l.alts[at];
-        contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, p.types[value.type_id].element, alt.bound));
+        contents = life_join(l, contents, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, p.types[value.type_id].element, alt.bound, alt.component));
         at = alt.next;
     }
     return contents;
@@ -1107,7 +1139,7 @@ fn life_self_destination(p: Program&, l: Lifetimes&, node: i64, places: i64, poo
     var at = l.sets[pools].first;
     while at >= 0 {
         let pool = l.alts[at]; var inside = l.sets[places].count == 1;
-        if inside { let place = l.alts[l.sets[places].first]; inside = pool.exact && place.exact && pool.root == place.root; }
+        if inside { let place = l.alts[l.sets[places].first]; inside = pool.exact && place.exact && pool.root == place.root && pool.component == place.component; }
         if !inside { life_error(p, l, node, "pool-relative self must be constructed directly inside its named pool"); }
         at = pool.next;
     }
@@ -1118,11 +1150,11 @@ fn life_relative_store(p: Program&, l: Lifetimes&, node: i64, places: i64, value
         if p.types[value.type_id].pool < 0 && places == 0 { return; }
         var target = places;
         let pool = p.types[value.type_id].pool;
-        if pool >= 0 && pool < p.symbols.len { let cell = life_cell(p, l, pool); if cell >= 0 { target = life_root_set(l, l.cells[cell].root); } }
+        let named = life_pool_places(p, l, pool); if named != 0 { target = named; }
         var same = l.sets[target].count == 1 && l.sets[value.refs].count == 1;
         if same {
             let a = l.alts[l.sets[target].first]; let b = l.alts[l.sets[value.refs].first];
-            same = a.exact && b.exact && a.root == b.root;
+            same = a.exact && b.exact && a.root == b.root && a.component == b.component;
         }
         if !same { life_error(p, l, node, "relative reference must point into the exact root that owns its destination"); }
     }
@@ -1324,7 +1356,7 @@ fn life_classes_equal(p: Program&, l: Lifetimes&, left: i64, right: i64) -> bool
 
 fn life_clear_reads(l: Lifetimes&, roots: i64) -> i64 {
     var result = 0; var at = l.sets[roots].first;
-    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, life_single(l, alt.root, alt.exact, -1, false, alt.byteview, alt.target_type, alt.bound)); at = alt.next; }
+    while at >= 0 { let alt = l.alts[at]; result = life_join(l, result, life_single(l, alt.root, alt.exact, -1, false, alt.byteview, alt.target_type, alt.bound, alt.component)); at = alt.next; }
     return result;
 }
 recursive fn life_cycle_value(l: Lifetimes&, value: LifeValue) -> LifeValue {
@@ -1414,7 +1446,7 @@ fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, 
     var result = 0; var at = l.sets[sources].first;
     while at >= 0 {
         let alt = l.alts[at]; let depth = l.roots[alt.root].depth;
-        result = life_join(l, result, life_bound(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound), depth));
+        result = life_join(l, result, life_bound(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound, alt.component), depth));
         at = alt.next;
     }
     return result;
@@ -1658,7 +1690,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
             var at = l.sets[receiver.place].first;
             while at >= 0 {
                 let pool = l.alts[at]; let owner = l.roots[pool.root];
-                if pool.root == slice.root || owner.symbol < 0 || owner.frame != l.frame && (p.symbols[owner.symbol].flags & S_GLOBAL) == 0 { separate = false; }
+                if pool.root == slice.root && !(pool.component >= 0 && slice.component >= 0 && pool.component != slice.component) || owner.symbol < 0 || owner.frame != l.frame && (p.symbols[owner.symbol].flags & S_GLOBAL) == 0 { separate = false; }
                 at = pool.next;
             }
             if separate { life_error(p, l, node, "slice pool operation receives a slice rooted in different owned storage"); }
@@ -1673,7 +1705,10 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
         let argument = life_item(l, arguments, 1); var same = l.sets[receiver.place].count == 1 && l.sets[argument.refs].count == 1;
         if same {
             let a = l.alts[l.sets[receiver.place].first]; let b = l.alts[l.sets[argument.refs].first];
-            same = a.exact && b.exact && a.root == b.root && life_one_array(p, l, l.roots[a.root].type_id, p.types[receiver.type_id].element);
+            // A root owner's component is its own storage (upstream: index_of
+            // must establish the particular array, not merely the owner).
+            var owner_type = l.roots[a.root].type_id; if a.component >= 0 { owner_type = p.nodes[a.component].type_id; }
+            same = a.exact && b.exact && a.root == b.root && a.component == b.component && life_one_array(p, l, owner_type, p.types[receiver.type_id].element);
         }
         if argument.refs != 0 && receiver.place != 0 && !same { life_error(p, l, node, "index_of requires an exact element root containing one array of this element type"); }
     }
@@ -1683,7 +1718,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
         out.refs = receiver.place;
         if receiver.type_id >= 0 && p.types[receiver.type_id].kind == TY_SLICE { out.refs = receiver.refs; }
         var bytes = 0; var at = l.sets[out.refs].first;
-        while at >= 0 { let alt = l.alts[at]; bytes = life_join(l, bytes, life_single(l, alt.root, alt.exact, alt.from, false, true, -1, alt.bound)); at = alt.next; }
+        while at >= 0 { let alt = l.alts[at]; bytes = life_join(l, bytes, life_single(l, alt.root, alt.exact, alt.from, false, true, -1, alt.bound, alt.component)); at = alt.next; }
         out.refs = bytes;
     } else if builtin == 24 || builtin == 30 || builtin == 31 {
         var element = -1; if receiver.type_id >= 0 { element = p.types[receiver.type_id].element; }
@@ -1778,7 +1813,9 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
             let held = l.hold_count; var region = base; region.place = places; life_hold(l, region, n.left, 3);
             life_eval(p, l, n.right); life_eval(p, l, n.third); l.hold_count = held;
         }
-        places = life_interior(l, places);
+        var owner_type = base.type_id; if owner_type >= 0 && p.types[owner_type].kind == TY_REF { owner_type = p.types[owner_type].element; }
+        if n.kind == N_MEMBER && n.symbol >= 0 && root_struct_type(p, owner_type) { places = life_component(l, places, n.symbol); }
+        else { places = life_interior(l, places); }
         if n.kind == N_SLICE { out.refs = places; out.contents = life_contents(l, places); out.place = places; }
         else {
             out = life_load(p, l, storage, places, true); out.type_id = n.type_id;
@@ -1806,31 +1843,34 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
         out.place = destination; if out.place == 0 { out.place = life_temporary(p, l, node); }
         let held = l.hold_count; var child = n.first;
         if life_cached_size_class(p, l, n.type_id) > 0 { life_hold(l, out, node, 6); }
+        let root_owner = n.kind == N_RECORD && root_struct_type(p, n.type_id);
         while child >= 0 {
             var value_node = child; var expected = -1;
             if n.kind == N_RECORD { value_node = p.nodes[child].right; expected = p.nodes[child].type_id; }
             else if n.type_id >= 0 { expected = p.types[n.type_id].element; }
+            // A root owner's field is constructed in that field's own storage.
+            var place = out.place; if root_owner && p.nodes[child].symbol >= 0 { place = life_component(l, out.place, p.nodes[child].symbol); }
             if value_node >= 0 && p.nodes[value_node].kind == N_SELF {
                 let reference: const Type& = p.types[expected];
                 if reference.pool >= 0 {
-                    let cell = life_cell(p, l, reference.pool);
-                    if cell >= 0 { out.self_pools = life_join(l, out.self_pools, life_root_set(l, l.cells[cell].root)); }
-                    life_self_destination(p, l, value_node, out.place, out.self_pools);
+                    out.self_pools = life_join(l, out.self_pools, life_pool_places(p, l, reference.pool));
+                    life_self_destination(p, l, value_node, place, out.self_pools);
                 }
                 // Relative readback derives the owner or named pool. The
                 // encoded self offset holds no external reference alive.
                 child = p.nodes[child].next; continue;
             }
-            var target = out.place; if life_is_ref(p, expected) { target = 0; }
+            var target = place; if life_is_ref(p, expected) { target = 0; }
             let future = l.future_count; life_push_future(l, p.nodes[child].next);
             let value = life_coerce(p, l, life_eval(p, l, value_node, target), expected); l.future_count = future;
             life_hold(l, value, value_node);
             life_copy(p, l, value_node, expected);
-            life_store(p, l, value_node, out.place, value);
+            life_store(p, l, value_node, place, value);
             out.contents = life_join(l, out.contents, life_stored_roots(p, l, value));
-            out.self_pools = life_join(l, out.self_pools, value.self_pools);
-            out.relative_roots = life_join(l, out.relative_roots, value.relative_roots);
-            if expected >= 0 && p.types[expected].kind == TY_REF && p.types[expected].length_storage >= 0 && p.types[expected].pool < 0 {
+            // A root owner's field was stored in its own component, where its
+            // pool-relative and self-relative values were placed.
+            if !root_owner { out.self_pools = life_join(l, out.self_pools, value.self_pools); out.relative_roots = life_join(l, out.relative_roots, value.relative_roots); }
+            if !root_owner && expected >= 0 && p.types[expected].kind == TY_REF && p.types[expected].length_storage >= 0 && p.types[expected].pool < 0 {
                 out.relative_roots = life_join(l, out.relative_roots, value.refs);
             }
             child = p.nodes[child].next;
@@ -2325,21 +2365,30 @@ fn life_standalone_arguments(p: Program&, l: Lifetimes&, function_node: i64) -> 
             if p.types[type_id].kind == TY_REF && p.types[type_id].length_storage < 0 {
                 for t in p.types {
                     if t.kind != TY_REF || t.length_storage < 0 || t.pool < 0 { continue; }
-                    let global = p.symbols[t.pool].type_id;
-                    if global < 0 || p.types[global].kind != TY_ARRAY || p.types[global].array_kind != A_GROW ||
-                       !life_same(p, p.types[global].element, p.types[type_id].element) { continue; }
-                    if pool >= 0 && pool != t.pool { pool = -2; break; } pool = t.pool;
+                    // An owner of named components stands for its components
+                    // (upstream poolowners).
+                    var named = t.pool; let owner = p.symbols[t.pool].component_owner;
+                    if owner >= 0 {
+                        if !life_same(p, p.symbols[owner].type_id, p.types[type_id].element) { continue; }
+                        named = owner;
+                    } else {
+                        let global = p.symbols[t.pool].type_id;
+                        if global < 0 || p.types[global].kind != TY_ARRAY || p.types[global].array_kind != A_GROW ||
+                           !life_same(p, p.types[global].element, p.types[type_id].element) { continue; }
+                    }
+                    if pool >= 0 && pool != named { pool = -2; break; } pool = named;
                 }
             }
-            var root = -1;
-            if pool >= 0 { root = l.cells[life_cell(p, l, pool)].root; }
+            var root = -1; var named = 0;
+            if pool >= 0 { named = life_pool_places(p, l, pool); }
+            if named != 0 { if life_is_ref(p, type_id) { value.refs = named; } else { value.contents = named; } }
             else {
                 let storage = life_standalone_type(p, type_id); root = l.roots.len;
                 l.roots.push(LifeRoot { frame: 0, node: formal, type_id: storage });
                 let contents = life_root_set(l, root); l.roots[root].contents = contents; l.roots[root].live_contents = contents;
+                if life_is_ref(p, type_id) { value.refs = life_root_set(l, root); }
+                else { value.contents = life_root_set(l, root); }
             }
-            if life_is_ref(p, type_id) { value.refs = life_root_set(l, root); }
-            else { value.contents = life_root_set(l, root); }
         }
         arguments = life_append(l, arguments, value); formal = p.nodes[formal].next;
     }

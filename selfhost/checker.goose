@@ -74,7 +74,7 @@ struct Checker {
     checking: i64[>..]&, loop_stack: CheckLoop[>..]&,
     integer_work: CheckInteger[>..]&, binding_work: TypeBinding[>..]&, flow_work: CheckFlow[>..]&, flow_trail: CheckFlowUndo[>..]&,
     flow_join: CheckFlowJoin[>..]&, narrowed_variables: i64[>..]&, outer_flows: CheckFlow[>..]&, checking_marks: CheckFlowMark[>..]&,
-    format_symbols: i64[>..]&, operation_functions: i64[>..]&, exit_work: CheckExit[>..]&, interval_work: CheckInterval[>..]&, render_cache: RenderKey[>..]&, render_hooks: i64[>..]&,
+    format_symbols: i64[>..]&, operation_functions: i64[>..]&, component_symbols: i64[>..]&, exit_work: CheckExit[>..]&, interval_work: CheckInterval[>..]&, render_cache: RenderKey[>..]&, render_hooks: i64[>..]&,
     scope: i64 = 0, function_node: i64 = -1, result_type: i64 = -1,
     next_slot: i64 = 0, reachable: bool = true, tuple_context: bool = false, returning: bool = false,
     parameter_default_contexts: CheckDefaultCapture[>..]&,
@@ -91,6 +91,9 @@ struct Checker {
     // member path being written: a local array or struct there need not be
     // assigned as a whole (upstream LValueBase, typecheck_exprs.h).
     path_base: bool = false,
+    // The record literal a declaration initializes directly: the only place
+    // a root owner is constructed (upstream rootinit).
+    root_record: i64 = -1,
     // check_list_at's position: the list it walked, the index and the item.
     list_first: i64 = -1, list_index: i64 = -1, list_item: i64 = -1,
     returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {},
@@ -385,6 +388,57 @@ fn check_lookup_global_name(p: Program&, c: Checker&, node: i64) -> i64 {
     return -1;
 }
 
+// The storage an index or relative reference type names: a global, or a
+// direct field of a global root owner written `owner.field`, which stands
+// for that field's storage as a synthetic global symbol.
+fn check_storage_name(p: Program&, c: Checker&, node: i64) -> i64 {
+    if node < 0 || p.nodes[node].kind != N_MEMBER { return check_lookup_global_name(p, c, node); }
+    var base = p.nodes[node].left;
+    while p.nodes[base].kind == N_MEMBER { base = p.nodes[base].left; }
+    let owner = check_lookup_global_name(p, c, base);
+    if owner < 0 { return -1; }
+    if p.nodes[p.nodes[node].left].kind == N_MEMBER {
+        diagnose(p, p.nodes[node].token, "a named array component must be a direct field of a global root owner"); return -1;
+    }
+    for symbol in c.component_symbols {
+        if p.symbols[symbol].component_owner == owner && same_name(p, p.symbols[symbol].name_token, p.nodes[node].token) { return symbol; }
+    }
+    let id = p.symbols.len;
+    p.symbols.push(Symbol { name_token: p.nodes[node].token, node: p.symbols[owner].node, flags: S_GLOBAL | (p.symbols[owner].flags & S_MUTABLE), component_owner: owner });
+    c.component_symbols.push(id); check_resolve_component(p, id);
+    return id;
+}
+// A named component's field and type, once its owner's type is known.
+fn check_resolve_component(p: Program&, symbol: i64) -> bool {
+    let s = p.symbols[symbol];
+    if s.component_owner < 0 || s.component >= 0 { return true; }
+    let owner_type = p.symbols[s.component_owner].type_id;
+    if !root_struct_type(p, owner_type) || p.types[owner_type].size < 0 { return false; }
+    var field = p.nodes[p.types[owner_type].declaration].first;
+    while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 && same_name(p, p.nodes[field].token, s.name_token) { break; } field = p.nodes[field].next; }
+    if field < 0 || p.nodes[field].type_id < 0 { return false; }
+    p.symbols[symbol].component = field; p.symbols[symbol].type_id = p.nodes[field].type_id;
+    if (p.nodes[field].flags & F_CONST) != 0 || (p.types[owner_type].flags & TF_CONST) != 0 { p.symbols[symbol].flags &= ~S_MUTABLE; }
+    return true;
+}
+fn check_finish_components(p: Program&, c: Checker&) {
+    for symbol in c.component_symbols {
+        if check_resolve_component(p, symbol) { continue; }
+        let s = p.symbols[symbol]; let owner_type = p.symbols[s.component_owner].type_id;
+        var message: u8[>..] = []; message.append("in "); message.append(token_text(p, p.symbols[s.component_owner].name_token)); message.push('.'); message.append(token_text(p, s.name_token));
+        if root_struct_type(p, owner_type) { message.append(": root struct "); render_type_name(p, owner_type, message); message.append(" has no field "); message.append(token_text(p, s.name_token)); }
+        else { message.append(": a named array component must be a direct field of a global root owner"); }
+        diagnose(p, s.name_token, message);
+    }
+}
+// Whether an array expression is the storage a pool or index type names.
+fn check_names_storage(p: Program&, pool: i64, node: i64) -> bool {
+    if pool < 0 || node < 0 { return false; }
+    if p.symbols[pool].component_owner < 0 { return pool == check_place_root(p, node); }
+    if !check_resolve_component(p, pool) || p.nodes[node].kind != N_MEMBER || p.nodes[node].symbol != p.symbols[pool].component { return false; }
+    let base = p.nodes[node].left;
+    return p.nodes[base].kind == N_NAME && p.nodes[base].symbol == p.symbols[pool].component_owner;
+}
 fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
     if p.nodes[node].symbol >= 0 { return p.nodes[node].symbol; }
     let n = p.nodes[node];
@@ -490,7 +544,7 @@ fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
     var complete = true; let result = check_type_property_scan(p, ty, property, complete);
     // A found reference, generic or growable array stays found; anything else
     // is final once every part's layout is.
-    if complete || result != 0 && (property != 2 || result == 2) {
+    if complete || result != 0 && (property != 2 || result >= 2) {
         while p.type_properties.len <= key { p.type_properties.push(0); }
         p.type_properties[key] = result + 1;
     }
@@ -515,8 +569,14 @@ fn check_type_property_scan(p: Program&, ty: i64, property: i64, complete: bool&
         if property == 3 && t.kind == TY_REF && t.length_storage >= 0 { return 1; }
         if property == 6 && t.kind == TY_REF && t.length_storage >= 0 && t.pool < 0 { return 1; }
         if property == 4 && t.kind == TY_ARRAY && t.array_kind == A_GROWSHRINK { return 1; }
+        // A root owner's components own their arrays separately (upstream
+        // ContainsGrowShrink); provenance decides which one a view is in.
+        if property == 4 && root_struct_type(p, current) { continue; }
         if property == 5 && (t.kind == TY_SLICE || t.kind == TY_FN || t.kind == TY_REF && (t.length_storage < 0 || t.pool >= 0)) { return 1; }
         if property == 2 {
+            // A root owner is its own class: its fields are stored apart,
+            // and it is never a fixed-size value (upstream SC_ROOT).
+            if current == ty && root_struct_type(p, current) { return 3; }
             if t.kind == TY_ENUM {
                 if (t.flags & F_VARIABLE_MODE) == 0 { continue; }
                 if result < 1 { result = 1; }
@@ -551,6 +611,7 @@ fn check_type_property_scan(p: Program&, ty: i64, property: i64, complete: bool&
     return result;
 }
 fn check_contains_refs(p: Program&, ty: i64, depth: i64) -> bool { return check_type_property(p, ty, 1) != 0; }
+// 0 fixed, 1 variable, 2 resizable, 3 a root owner (upstream SizeClass).
 fn check_size_class(p: Program&, ty: i64, depth: i64) -> i64 { return check_type_property(p, ty, 2); }
 fn check_store_roots(p: Program&, c: Checker&, destination: i64, expression: i64) {
     if destination < 0 { return; }
@@ -1020,6 +1081,8 @@ fn check_ensure_generics(p: Program&, c: Checker&, declaration: i64) {
 }
 recursive fn check_array_element(p: Program&, c: Checker&, element: i64, array_kind: i64, token: i64) {
     if element < 0 || check_has_generic(p, element, 0) { return; }
+    // Validation reports a root owner's placement.
+    if root_struct_type(p, element) { return; }
     if p.types[element].kind == TY_STRUCT || p.types[element].kind == TY_ENUM { check_layout_nominal(p, c, element); }
     if check_has_generic(p, element, 0) { return; }
     let size_class = check_size_class(p, element, 0);
@@ -1089,6 +1152,7 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
         let flags = n.flags & (TF_CONST | TF_OPTIONAL);
         if element >= 0 && p.types[element].kind == TY_REF { var copy = p.types[element]; copy.flags |= flags; result = add_type(p, copy); }
         else { result = check_type(p, TY_REF, element, 0, -1, flags); }
+        if n.right >= 0 && root_struct_type(p, element) { diagnose(p, n.token, "root struct references must be plain references, not relative references"); }
         if n.right >= 0 {
             let storage = check_resolve_type(p, c, n.right);
             var copy = p.types[result];
@@ -1096,7 +1160,7 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
             else if check_integer(storage) && check_unsigned(storage) { copy.length_storage = p.types[storage].size; }
             else { diagnose(p, n.token, "relative reference offset must use an unsigned integer storage"); }
             if n.third >= 0 {
-                let pool = check_lookup_global_name(p, c, n.third);
+                let pool = check_storage_name(p, c, n.third);
                 if pool < 0 { diagnose(p, n.token, "unknown reference pool"); }
                 copy.pool = pool;
             }
@@ -1160,7 +1224,7 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
         else { result = check_variable_enum_type(p, c, result); }
     }
     if result >= 0 && (n.flags & F_INDEX_TYPE) != 0 && n.third >= 0 {
-        let pool = check_lookup_global_name(p, c, n.third);
+        let pool = check_storage_name(p, c, n.third);
         if pool < 0 { diagnose(p, n.token, "index type names an unknown owner"); }
         var copy = p.types[result]; copy.pool = pool; copy.index_type = result;
         if (n.flags & F_BOUND_TYPE) != 0 { copy.flags |= F_BOUND_TYPE; }
@@ -1175,8 +1239,9 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
 recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i64) -> i64 {
     var field = first; var size = 0; var index = 0; var variable = false;
     let root = owner >= 0 && p.nodes[owner].kind == N_STRUCT && (p.nodes[owner].flags & F_ROOT) != 0;
-    if root {
-        diagnose(p, p.nodes[owner].token, "root structs are not yet supported: their independently stored fields have no layout");
+    // Code generation does not yet allocate a root's components.
+    if root && !p.check_only {
+        diagnose(p, p.nodes[owner].token, "root struct storage is not yet supported by code generation");
     }
     while field >= 0 {
         let n = p.nodes[field];
@@ -1208,9 +1273,14 @@ recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i6
             }
             p.symbols[symbol].type_id = ty; p.symbols[symbol].owner = owner;
             p.symbols[symbol].offset = size; p.symbols[symbol].index = index;
-            if ty >= 0 {
+            if root {
+                // A root's record holds one plain reference per field, to
+                // that field's own storage (upstream codegen_types.h).
+                if ty >= 0 && p.types[ty].kind == TY_VOID { diagnose(p, n.token, "field cannot have void type"); }
+                size += p.pointer_bytes;
+            } else if ty >= 0 {
                 if p.types[ty].kind == TY_VOID { diagnose(p, n.token, "field cannot have void type"); }
-                if check_size_class(p, ty, 0) == 2 && n.next >= 0 && !root {
+                if check_size_class(p, ty, 0) == 2 && n.next >= 0 {
                     diagnose(p, n.token, "a resizable field must be the final field; use root struct for independently stored fields");
                 }
                 if p.types[ty].storage == 1 || p.types[ty].kind == TY_REF && p.types[ty].length_storage == 0 { variable = true; }
@@ -1237,6 +1307,7 @@ fn check_prepare_variants(p: Program&, enum_type: i64) {
 }
 recursive fn check_finish_record_layout(p: Program&, type_id: i64, first: i64, size: i64) {
     p.types[type_id].size = size; p.types[type_id].align = 1; p.types[type_id].first = first;
+    if root_struct_type(p, type_id) { if size > 0 { p.types[type_id].align = p.pointer_bytes; } return; }
     var field = first; var last = -1; var byte_record = false;
     while field >= 0 {
         let ft = p.nodes[field].type_id;
@@ -1498,6 +1569,9 @@ fn check_referenceable(p: Program&, node: i64) -> bool {
         if ty < 0 { return false; }
         let reference = p.types[ty].kind == TY_REF;
         if reference { ty = p.types[ty].element; }
+        // A root's field is an independently stored component (upstream
+        // FieldsInFrame).
+        if root_struct_type(p, ty) { return true; }
         if !check_frame_object(p, ty) { return false; }
         if reference || p.nodes[owner].kind != N_MEMBER { return true; }
         member = owner;
@@ -1571,7 +1645,8 @@ fn check_slot_value(p: Program&, c: Checker&, value: i64, expected: i64, aggrega
         }
     }
     if c.reachable && check_size_class(p, expected, 0) > 0 && t.kind != TY_REF && check_addressable(p, value) && check_size_class(p, p.nodes[value].type_id, 0) > 0 && !(c.returning && check_own_local(p, c, value)) {
-        diagnose(p, p.nodes[value].token, "non-fixed storage requires explicit copy when passed or stored by value");
+        if root_struct_type(p, expected) { diagnose(p, p.nodes[value].token, "root owners cannot be copied; bind a reference instead"); }
+        else { diagnose(p, p.nodes[value].token, "non-fixed storage requires explicit copy when passed or stored by value"); }
     }
     if (t.kind == TY_REF || t.kind == TY_SLICE) && (t.flags & TF_CONST) == 0 && check_readonly(p, c, value) {
         diagnose(p, p.nodes[value].token, "storing a read-only reference or slice requires a const slot");
@@ -2778,6 +2853,7 @@ recursive fn check_record(p: Program&, c: Checker&, node: i64, expected: i64) ->
         diagnose(p, n.token, "record literal requires a struct or enum variant type"); return -1;
     }
     check_layout_nominal(p, c, ty); let result_type = ty;
+    if root_struct_type(p, ty) && node != c.root_record { diagnose(p, n.token, "a root owner must be constructed directly at its declaration"); }
     if p.types[ty].kind == TY_ENUM {
         if n.symbol >= 0 && p.nodes[n.symbol].kind == N_VARIANT { ty = p.nodes[n.symbol].type_id; }
         else { diagnose(p, n.token, "enum construction requires a named variant"); return -1; }
@@ -3343,6 +3419,7 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         let argument = check_list_at(c, args, 0); let source = check_expression(p, c, argument, -1);
         if source >= 0 && p.types[source].kind == TY_REF { result = check_value(p, c, argument, p.types[source].element); }
         else { result = check_value(p, c, argument, -1); }
+        if root_struct_type(p, result) { diagnose(p, n.token, "root owners cannot be copied; bind a reference instead"); }
         if result >= 0 && p.types[result].kind == TY_SLICE { diagnose(p, n.token, "copy takes a stored value or reference, not a slice"); }
         if !check_addressable(p, argument) && !(source >= 0 && p.types[source].kind == TY_REF) { diagnose(p, n.token, "copy of a temporary is unnecessary: its value is already fresh"); }
         if check_type_property(p, result, 6) != 0 { diagnose(p, n.token, "copying values containing self-relative references is unsupported"); }
@@ -3374,11 +3451,12 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         let argument = check_list_at(c, args, 0);
         validation_thread_transfer(p, argument, check_expression(p, c, argument, -1));
         let ty = check_value(p, c, argument, -1);
-        if ty >= 0 && (check_contains_refs(p, ty, 0) || p.types[ty].kind == TY_ARRAY && p.types[ty].element < 0 || p.types[ty].kind == TY_VOID || p.types[ty].kind == TY_FN) { diagnose(p, n.token, "queue messages must be flat values with a concrete element type"); }
+        // A root owner has no single image, even with flat fields.
+        if ty >= 0 && (check_contains_refs(p, ty, 0) || root_struct_type(p, ty) || p.types[ty].kind == TY_ARRAY && p.types[ty].element < 0 || p.types[ty].kind == TY_VOID || p.types[ty].kind == TY_FN) { diagnose(p, n.token, "queue messages must be flat values with a concrete element type"); }
         result = TYPE_BOOL;
     } else if builtin == 11 || builtin == 12 || builtin == 13 {
         if type_argument < 0 { diagnose(p, n.token, "queue builtin requires an explicit message type"); return -1; }
-        if check_contains_refs(p, type_argument, 0) || p.types[type_argument].kind == TY_VOID || p.types[type_argument].kind == TY_FN { diagnose(p, n.token, "queue message type must be flat"); }
+        if check_contains_refs(p, type_argument, 0) || root_struct_type(p, type_argument) || p.types[type_argument].kind == TY_VOID || p.types[type_argument].kind == TY_FN { diagnose(p, n.token, "queue message type must be flat"); }
         if builtin == 11 || builtin == 12 {
             result = type_argument;
             if builtin == 12 || args.count > 0 { result = check_builtin_pair(p, type_argument, n.token); }
@@ -5083,6 +5161,9 @@ recursive fn check_aggregate_operation(p: Program&, c: Checker&, node: i64, left
     let op = p.nodes[node].integer;
     if p.types[left].kind == TY_REF && (p.types[left].flags & TF_OPTIONAL) != 0 || p.types[right].kind == TY_REF && (p.types[right].flags & TF_OPTIONAL) != 0 { return -2; }
     let lt = operation_value_type(p, left); let rt = operation_value_type(p, right);
+    if root_struct_type(p, lt) || root_struct_type(p, rt) {
+        diagnose(p, p.nodes[node].token, "root owners do not support value operators; operate on their fields instead"); return -1;
+    }
     let a = p.types[lt]; let b = p.types[rt];
     if op == T_EQ || op == T_NEQ {
         var comparable = false;
@@ -5394,7 +5475,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             if n.kind == N_INDEX {
                 result = array.element;
                 let index_type = check_index_value(p, n.right, -1);
-                if index_type >= 0 && (p.types[index_type].flags & F_BOUND_TYPE) == 0 && p.types[index_type].pool == check_place_root(p, n.left) { p.nodes[node].flags |= F_BOUNDS_PROVEN; }
+                if index_type >= 0 && (p.types[index_type].flags & F_BOUND_TYPE) == 0 && check_names_storage(p, p.types[index_type].pool, n.left) { p.nodes[node].flags |= F_BOUNDS_PROVEN; }
                 if start.valid && array.count >= 0 && array.array_kind == A_FIXED {
                     if start.value >= array.count { diagnose(p, n.token, "constant index is outside the fixed array"); }
                     else if start.value >= 0 { p.nodes[node].flags |= F_BOUNDS_PROVEN; }
@@ -5420,8 +5501,10 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         if source >= 0 && destination >= 0 {
             let sk = p.types[source].kind; let dk = p.types[destination].kind;
             if p.types[destination].index_type >= 0 && p.types[destination].pool >= 0 {
-                let owner = p.symbols[p.types[destination].pool];
-                let vi = check_variable_index(c, p.types[destination].pool);
+                var named = p.types[destination].pool;
+                if p.symbols[named].component_owner >= 0 { named = p.symbols[named].component_owner; }
+                let owner = p.symbols[named];
+                let vi = check_variable_index(c, named);
                 if c.initializing_globals && (owner.node < 0 || (p.nodes[owner.node].flags & F_CHECKED) == 0 || vi >= 0 && !c.variables[vi].assigned) {
                     diagnose(p, n.token, "index conversion reads its named array before global initialization");
                 }
@@ -6083,7 +6166,9 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
     var values = CheckList {}; var value = n.right;
     while value >= 0 { check_list_push(c, values, value); value = p.nodes[value].next; }
     if values.count == 0 && function_node < 0 && annotation >= 0 {
-        let init = check_default(p, c, annotation, n.token, 0);
+        // A global's default value is its declaration's own initializer.
+        let init = check_default_syntax(p, c, annotation, n.token, 0);
+        if init >= 0 { let saved_root = c.root_record; c.root_record = init; check_expression(p, c, init, annotation); c.root_record = saved_root; }
         p.nodes[node].right = init;
         if init >= 0 { check_list_push(c, values, init); }
     }
@@ -6129,7 +6214,9 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
                 if annotation < 0 && p.nodes[init].kind == N_UNARY && p.nodes[init].integer == T_BITAND {
                     ty = check_read_value_type(p, c, init, check_expression(p, c, init, -1));
                 } else {
+                    let saved_root = c.root_record; c.root_record = init;
                     ty = check_value(p, c, init, annotation);
+                    c.root_record = saved_root;
                     if annotation < 0 { ty = check_index_value(p, init, ty); }
                 }
                 if annotation < 0 && ty >= 0 && check_size_class(p, ty, 0) > 0 && check_addressable(p, init) {
@@ -6284,6 +6371,8 @@ recursive fn check_assignment(p: Program&, c: Checker&, node: i64) {
     if ty < 0 { return; }
     var value_type = ty;
     if p.types[ty].kind == TY_REF && !rebind { value_type = p.types[ty].element; }
+    // Upstream AssignableClassCheck: its fields are assigned instead.
+    if root_struct_type(p, value_type) && n.integer == T_ASSIGN { diagnose(p, n.token, "a root owner cannot be assigned as a whole; assign its fields instead"); }
     if rebind && p.types[ty].kind != TY_REF && p.types[ty].kind != TY_SLICE && target.kind != N_INDEX && target.kind != N_MEMBER {
         diagnose(p, n.token, ".= requires a reference or slice binding");
     }
@@ -6891,13 +6980,13 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_binding_work: TypeBinding[>..] = [];
     var checker_flow_work: CheckFlow[>..] = []; var checker_flow_trail: CheckFlowUndo[>..] = [];
     var checker_flow_join: CheckFlowJoin[>..] = []; var checker_narrowed_variables: i64[>..] = []; var checker_outer_flows: CheckFlow[>..] = [];
-    var checker_checking_marks: CheckFlowMark[>..] = []; var checker_format_symbols: i64[>..] = []; var checker_operation_functions: i64[>..] = [];
+    var checker_checking_marks: CheckFlowMark[>..] = []; var checker_format_symbols: i64[>..] = []; var checker_operation_functions: i64[>..] = []; var checker_component_symbols: i64[>..] = [];
     var checker_exit_work: CheckExit[>..] = [];
     var checker_interval_work: CheckInterval[>..] = [];
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
     var parameter_default_contexts: CheckDefaultCapture[>..] = [];
     var logical_kills: CheckLogicalKill[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_first: checker_effect_first, effect_last: checker_effect_last, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, checking_marks: checker_checking_marks, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_first: checker_effect_first, effect_last: checker_effect_last, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, checking_marks: checker_checking_marks, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, component_symbols: checker_component_symbols, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     var source_id = p.first_decl_source;
     while source_id >= 0 {
@@ -6965,6 +7054,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
             diagnose(p, s.name_token, "empty array element type was never determined");
         }
     }
+    check_finish_components(p, c);
     check_validate_type_uses(p); check_validate_program(p);
     for scope in c.scopes { scope_parents.push(scope.parent); scope_depths.push(scope.depth); scope_functions.push(scope.function_node); }
     var pool_types: bool[>..] = [];

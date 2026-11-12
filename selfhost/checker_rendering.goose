@@ -59,6 +59,12 @@ fn render_nominal_name(p: Program&, declaration: i64, out: u8[>..]&) {
     }
     out.append(token_text(p, token));
 }
+// A pool or index type's storage: a global, or owner.field for a component.
+fn render_storage_name(p: Program&, symbol: i64, out: u8[>..]&) {
+    let owner = p.symbols[symbol].component_owner;
+    if owner >= 0 { out.append(token_text(p, p.symbols[owner].name_token)); out.push('.'); }
+    out.append(token_text(p, p.symbols[symbol].name_token));
+}
 recursive fn render_type_name(p: Program&, type_id: i64, out: u8[>..]&, depth: i64 = 0, top_const: bool = true) {
     if type_id < 0 || depth > 128 { return; }
     let t = p.types[type_id];
@@ -68,7 +74,7 @@ recursive fn render_type_name(p: Program&, type_id: i64, out: u8[>..]&, depth: i
         else { if (t.flags & TF_UNSIGNED) != 0 { out.push('u'); } else { out.push('i'); } out.format(t.count); }
         if t.index_type >= 0 && t.pool >= 0 && t.pool < p.symbols.len {
             if (t.flags & F_BOUND_TYPE) != 0 { out.append(" upto "); } else { out.append(" in "); }
-            out.append(token_text(p, p.symbols[t.pool].name_token));
+            render_storage_name(p, t.pool, out);
         }
     } else if t.kind == TY_FLOAT { out.push('f'); out.format(t.count); }
     else if t.kind == TY_BOOL { out.append("bool"); }
@@ -103,7 +109,7 @@ recursive fn render_type_name(p: Program&, type_id: i64, out: u8[>..]&, depth: i
         render_type_name(p, t.element, out, depth + 1);
         if t.length_storage >= 0 {
             out.append("&<"); if t.length_storage == 0 { out.append("varint"); } else { out.push('u'); out.format(t.length_storage * 8); }
-            if t.pool >= 0 && t.pool < p.symbols.len { out.append(" in "); out.append(token_text(p, p.symbols[t.pool].name_token)); }
+            if t.pool >= 0 && t.pool < p.symbols.len { out.append(" in "); render_storage_name(p, t.pool, out); }
             out.push('>'); if (t.flags & TF_OPTIONAL) != 0 { out.push('?'); }
         } else if (t.flags & TF_OPTIONAL) != 0 { out.push('?'); } else { out.push('&'); }
     }

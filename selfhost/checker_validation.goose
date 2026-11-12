@@ -1,5 +1,21 @@
 import model;
 import thread_plan;
+import checker_rendering;
+
+// A root owner is owned only by a local or global variable (upstream
+// ValidateType: VT_LOCAL, VT_GLOBAL and VT_POINTEE); position names the
+// rejected place for the suggestion.
+fn validation_root_placement(p: Program&, type_id: i64, token: i64, position: u8[:]) {
+    var owner = type_id;
+    if owner >= 0 && (p.types[owner].kind == TY_ARRAY || p.types[owner].kind == TY_SLICE) && same_bytes(position, "nested") { owner = p.types[owner].element; }
+    if !root_struct_type(p, owner) { return; }
+    var message: u8[>..] = []; message.append("root struct "); render_type_name(p, owner, message);
+    message.append(" can only be owned by a local or global variable; ");
+    if same_bytes(position, "parameter") { message.append("pass it by reference instead"); }
+    else if same_bytes(position, "result") { message.append("return a reference instead"); }
+    else { message.append("nested root owners are not supported"); }
+    diagnose(p, token, message);
+}
 
 // Checked-node invariants are independent of overload selection and flow joins.
 recursive fn validation_size_class(p: Program&, type_id: i64, depth: i64 = 0) -> i64 {
@@ -193,6 +209,7 @@ fn validation_zero_layout(p: Program&, type_id: i64) -> bool {
 fn validation_element_layout(p: Program&, type_id: i64, token: i64) {
     if type_id < 0 { return; }
     let t = p.types[type_id];
+    if t.kind == TY_ARRAY || t.kind == TY_SLICE { validation_root_placement(p, type_id, token, "nested"); }
     if (t.kind == TY_ARRAY || t.kind == TY_SLICE) && validation_zero_layout(p, t.element) {
         diagnose(p, token, "array and slice elements cannot use zero-length arrays or empty variant types");
     }
@@ -315,6 +332,8 @@ fn validation_c_properties(p: Program&, type_id: i64) -> i64 {
             }
             pending.push(ValidationTypeVisit { type_id: t.element, size_class: false });
         } else if t.kind == TY_STRUCT || t.kind == TY_ENUM {
+            // A root owner has no single image, even with flat fields.
+            if item.size_class && root_struct_type(p, item.type_id) { properties |= V_NONFIXED; }
             var classify = item.size_class;
             if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { classify = false; }
             var field = t.first;
@@ -442,6 +461,7 @@ fn validation_function(p: Program&, node: i64) {
     while parameter >= 0 {
         let param = p.nodes[parameter];
         validation_value_type(p, param.type_id, param.token);
+        validation_root_placement(p, param.type_id, param.token, "parameter");
         if external {
             let reason = validation_c_param_reason(p, param.type_id);
             if param.left < 0 { validation_extern_diagnostic(p, node, parameter, "parameter needs a type"); }
@@ -457,6 +477,7 @@ fn validation_function(p: Program&, node: i64) {
     while result >= 0 {
         let type_id = p.nodes[result].type_id;
         validation_value_type(p, type_id, p.nodes[result].token);
+        validation_root_placement(p, type_id, p.nodes[result].token, "result");
         if external {
             let reason = validation_c_value_reason(p, type_id);
             if reason.len > 0 { validation_extern_diagnostic(p, node, -1, reason); }
@@ -568,6 +589,11 @@ fn check_validate_thread_globals(p: Program&) {
         for used, symbol in globals {
             if !used { continue; }
             let global = p.symbols[symbol];
+            if root_struct_type(p, global.type_id) {
+                var message: u8[>..] = []; message.append("thread programs cannot copy root global "); message.append(token_text(p, global.name_token));
+                message.append(" (reached from thread_fn "); message.append(token_text(p, n.token)); message.append("); construct worker-local state instead");
+                diagnose(p, global.name_token, message); continue;
+            }
             let properties = validation_c_properties(p, global.type_id);
             if (properties & V_REFERENCE) == 0 { continue; }
             if (global.flags & S_MUTABLE) == 0 && global.provenance == -2 && (properties & V_RELATIVE) == 0 { continue; }
@@ -733,6 +759,7 @@ fn check_validate_program(p: Program&) {
             if validation_zero_layout(p, type_id) {
                 diagnose(p, p.nodes[field].token, "field cannot use a zero-length array or an empty variant type");
             }
+            validation_root_placement(p, type_id, p.nodes[field].token, "nested");
             field = p.nodes[field].next;
         }
     }

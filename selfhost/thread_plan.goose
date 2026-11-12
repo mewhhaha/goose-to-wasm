@@ -12,7 +12,9 @@ fn thread_type_globals(p: Program&, type_id: i64, globals: bool[>..]&, seen: boo
         if t.pool >= 0 {
             if t.kind == TY_REF || t.kind == TY_INT && t.index_type >= 0 {
                 if t.pool < p.symbols.len && (p.symbols[t.pool].flags & S_GLOBAL) != 0 {
-                    globals[t.pool] = true; work.push(p.symbols[t.pool].type_id);
+                    // A named component belongs to its owner.
+                    var named = t.pool; if p.symbols[named].component_owner >= 0 { named = p.symbols[named].component_owner; }
+                    globals[named] = true; work.push(p.symbols[named].type_id);
                 }
             }
         }

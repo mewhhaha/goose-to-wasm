@@ -309,6 +309,10 @@ struct Symbol {
     owner: i64 = -1, offset: i64 = 0, index: i64 = -1,
     provenance: i64 = -1,
     name_next: i64 = -1,
+    // A named array component (`owner.field` in an index or relative
+    // reference type): the global root owner and, once resolved, its field
+    // node (upstream NamedArrayComponent).
+    component_owner: i64 = -1, component: i64 = -1,
 }
 struct Diagnostic {
     source: i64 = 0, start: i64 = 0, end: i64 = 0,
@@ -381,6 +385,13 @@ fn diagnose(p: Program&, token: i64, message: u8[:]) {
 fn library_node(p: Program&, node: i64) -> bool {
     let token = p.nodes[node].token;
     return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
+}
+// A root struct: independently stored fields under one owner, never a
+// fixed-size value (upstream docs/design/root_structs.md, SC_ROOT).
+fn root_struct_type(p: Program&, ty: i64) -> bool {
+    if ty < 0 { return false; }
+    let t: const Type& = p.types[ty];
+    return t.kind == TY_STRUCT && t.declaration >= 0 && p.nodes[t.declaration].kind == N_STRUCT && (p.nodes[t.declaration].flags & F_ROOT) != 0;
 }
 fn new_node(p: Program&, kind: i64, token: i64) -> i64 {
     let id = p.nodes.len;
