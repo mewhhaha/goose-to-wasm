@@ -332,15 +332,17 @@ fn driver_main() -> i64 {
         return 0;
     }
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
-    optimize_program(p); let optimized = clock_ns();
-    if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
+    // Checking ends with the checker, as upstream `goose check` does; the
+    // optimizer only prepares code generation and reports nothing.
     if o.check {
         if !driver_outputs_distinct(p, "", paths[stats_start..stats_end], "") { return 1; }
-        if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, optimized - checked, 0) {
+        if stats_end > stats_start && !driver_stats(p, paths[stats_start..stats_end], 0, parsed - started, checked - parsed, 0, 0) {
             driver_error("cannot write statistics"); return 1;
         }
         return 0;
     }
+    optimize_program(p); let optimized = clock_ns();
+    if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
     var output: u8[>..] = [];
     if o.target == 0 { generate_wasm(p, output); } else { generate_c(p, output); }
     let generated = clock_ns();

@@ -2213,6 +2213,8 @@ fn life_may_reach_local(p: Program&, node: i64, candidate: i64) -> bool {
         }
         if n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT { continue; }
         if n.kind == N_FUNCTION_VALUE { if n.right >= 0 { work.push(n.right); } continue; }
+        // A pattern reads nothing: an enum pattern's symbol names its variant node.
+        if n.kind == N_ARM { if n.right >= 0 { work.push(n.right); } continue; }
         var child = n.first; while child >= 0 { work.push(child); child = p.nodes[child].next; }
         for child in [n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
     }
