@@ -961,6 +961,10 @@ recursive fn parse_top(p: Program&, c: ParseCursor&) -> i64 {
         parse_expect(p, c, T_SEMI, "expected ; after import"); return id;
     }
     c.declaration_seen = true;
+    // Contextual: a variable, field or function named root remains a name.
+    if kind == T_IDENT && token_is(p, c.at, "root") && parse_ahead(p, c) == T_STRUCT {
+        parse_next(p, c); let id = parse_aggregate(p, c); p.nodes[id].flags |= F_ROOT; return id;
+    }
     if kind == T_STRUCT || kind == T_ENUM { return parse_aggregate(p, c); }
     if kind == T_TYPE {
         parse_next(p, c); let name = parse_qualified(p, c, true); let id = parse_node(p, N_ALIAS, p.nodes[name].token);

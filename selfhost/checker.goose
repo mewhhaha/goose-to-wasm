@@ -1100,8 +1100,15 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
 }
 recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i64) -> i64 {
     var field = first; var size = 0; var index = 0; var variable = false;
+    let root = owner >= 0 && p.nodes[owner].kind == N_STRUCT && (p.nodes[owner].flags & F_ROOT) != 0;
+    if root {
+        diagnose(p, p.nodes[owner].token, "root structs are not yet supported: their independently stored fields have no layout");
+    }
     while field >= 0 {
         let n = p.nodes[field];
+        if root && (n.flags & F_PAD) != 0 {
+            diagnose(p, p.nodes[owner].token, "root structs have no packed byte layout; padding belongs inside a component");
+        }
         if (n.flags & F_PAD) != 0 {
             var bytes = n.integer;
             if n.right >= 0 {
@@ -1129,8 +1136,8 @@ recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i6
             p.symbols[symbol].offset = size; p.symbols[symbol].index = index;
             if ty >= 0 {
                 if p.types[ty].kind == TY_VOID { diagnose(p, n.token, "field cannot have void type"); }
-                if check_size_class(p, ty, 0) == 2 && n.next >= 0 {
-                    diagnose(p, n.token, "a resizable field must be the final field");
+                if check_size_class(p, ty, 0) == 2 && n.next >= 0 && !root {
+                    diagnose(p, n.token, "a resizable field must be the final field; use root struct for independently stored fields");
                 }
                 if p.types[ty].storage == 1 || p.types[ty].kind == TY_REF && p.types[ty].length_storage == 0 { variable = true; }
                 if !variable { size += p.types[ty].size; }

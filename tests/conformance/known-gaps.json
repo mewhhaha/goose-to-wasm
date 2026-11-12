@@ -1,7 +1,23 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 94 runtime contracts refused during compilation. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 98 runtime contracts refused during compilation, four of them root struct owners awaiting independently stored fields. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "gaps": [
+  [
+   "corpus/contracts/root-struct/owner/native",
+   0
+  ],
+  [
+   "corpus/contracts/root-struct/owner/native",
+   2
+  ],
+  [
+   "corpus/contracts/root-struct/owner/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/root-struct/owner/wasm-direct",
+   2
+  ],
   [
    "upstream/codegen/codegen_exec",
    0

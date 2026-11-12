@@ -239,6 +239,8 @@ let F_RETURN_MOVE: i64 = 1099511627776;
 let F_RESULT_TEMP: i64 = 2199023255552;
 // A library function body block whose tokens are parsed when the checker first reaches it.
 let F_DEFERRED: i64 = 4398046511104;
+// A `root struct` declaration: independently stored fields under one owner.
+let F_ROOT: i64 = 8796093022208;
 let TF_UNSIGNED: i64 = 1;
 let TF_OPTIONAL: i64 = 2;
 let TF_CONST: i64 = 4;

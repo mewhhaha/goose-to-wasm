@@ -67825,6 +67825,110 @@
             "tests/fixtures/contracts/imports/package-undeclared/lib/user.goose",
             "tests/fixtures/contracts/imports/package-undeclared/pkgs/tools/tools.goose"
         ]
+    },
+    {
+        "id": "corpus/contracts/root-struct/declarations",
+        "source": "tests/fixtures/contracts/root-struct/declarations.goose",
+        "phase": "parse",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream a01815f root struct frontend (test/syntax/root_struct_declarations.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/identifier/native",
+        "source": "tests/fixtures/contracts/root-struct/identifier.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "7 7\n",
+            "exit": 0
+        },
+        "provenance": "Upstream a01815f root struct frontend (test/syntax/root_identifier.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/identifier/wasm-direct",
+        "source": "tests/fixtures/contracts/root-struct/identifier.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "7 7\n",
+            "exit": 0
+        },
+        "provenance": "Upstream a01815f root struct frontend (test/syntax/root_identifier.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/missing-name",
+        "source": "tests/fixtures/contracts/root-struct/missing-name.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream a01815f root struct frontend (test/errors/root_struct_missing_name.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/duplicate",
+        "source": "tests/fixtures/contracts/root-struct/duplicate.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream a01815f root struct frontend (test/errors/root_struct_duplicate.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/ordinary-two-resizable",
+        "source": "tests/fixtures/contracts/root-struct/ordinary-two-resizable.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 typecheck_types.h: an ordinary struct keeps one resizable tail field; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/root-struct/owner/native",
+        "source": "tests/fixtures/contracts/root-struct/owner.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "4 [0, 1, 2, 3] abcd 0\n",
+            "exit": 0
+        },
+        "provenance": "Independently specified root struct v1 ownership (upstream docs/design/root_structs.md); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until root struct storage is implemented"
+    },
+    {
+        "id": "corpus/contracts/root-struct/owner/wasm-direct",
+        "source": "tests/fixtures/contracts/root-struct/owner.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "4 [0, 1, 2, 3] abcd 0\n",
+            "exit": 0
+        },
+        "provenance": "Independently specified root struct v1 ownership (upstream docs/design/root_structs.md); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until root struct storage is implemented"
     }
   ],
   "legacy_math_capture": {
