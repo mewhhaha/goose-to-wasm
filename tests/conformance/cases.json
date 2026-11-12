@@ -68052,6 +68052,70 @@
             0
         ],
         "provenance": "Upstream 32a4f44 lexer.h ScanDigits: a separator stands between two digits of the radix; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/type-arguments/ufcs/native",
+        "source": "tests/fixtures/contracts/type-arguments/ufcs.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "30 24 6\ntrue true false true\n",
+            "exit": 0
+        },
+        "provenance": "Upstream c1d8652 x.f<T>(a) (after test/typing/explicit_type_args.goose ufcs_type_args); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/type-arguments/ufcs/wasm-direct",
+        "source": "tests/fixtures/contracts/type-arguments/ufcs.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "30 24 6\ntrue true false true\n",
+            "exit": 0
+        },
+        "provenance": "Upstream c1d8652 x.f<T>(a) (after test/typing/explicit_type_args.goose ufcs_type_args); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/type-arguments/variant-constants/native",
+        "source": "tests/fixtures/contracts/type-arguments/variant-constants.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "Opt.None Plain.None\nSome { 3 } 3 0\nsome\n1 true\ntrue\n[Opt.None, Some { 1 }, Opt.None]\nOpt.None true false\nOpt.None true\ntrue\ntrue\ntrue true\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 2fdd16d Name<T>.Variant (test/typing/generic_variant_constants.goose, expected/generic_variant_constants.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/type-arguments/variant-constants/wasm-direct",
+        "source": "tests/fixtures/contracts/type-arguments/variant-constants.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "Opt.None Plain.None\nSome { 3 } 3 0\nsome\n1 true\ntrue\n[Opt.None, Some { 1 }, Opt.None]\nOpt.None true false\nOpt.None true\ntrue\ntrue\ntrue true\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 2fdd16d Name<T>.Variant (test/typing/generic_variant_constants.goose, expected/generic_variant_constants.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {

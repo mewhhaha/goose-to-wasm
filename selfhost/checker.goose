@@ -5042,7 +5042,12 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
     } else if n.kind == N_CALL { result = check_call(p, c, node, expected); }
     else if n.kind == N_MEMBER {
         var enum_type = -1;
-        if p.nodes[n.left].kind == N_NAME {
+        if p.nodes[n.left].kind == N_TYPE_NAME {
+            // Name<T>.Variant names its enum type with type arguments.
+            enum_type = check_resolve_type(p, c, n.left);
+            if enum_type >= 0 && p.types[enum_type].kind != TY_ENUM { diagnose(p, n.token, "only an enum type names a variant constant"); return -1; }
+            if enum_type < 0 { return -1; }
+        } else if p.nodes[n.left].kind == N_NAME {
             let symbol = check_lookup_name(p, c, n.left);
             if symbol >= 0 && (p.symbols[symbol].flags & S_TYPE) != 0 {
                 if p.symbols[symbol].node >= 0 && p.nodes[p.symbols[symbol].node].kind == N_TYPE_PARAM { diagnose(p, n.token, "type parameter names a type, not a runtime enum value"); return -1; }

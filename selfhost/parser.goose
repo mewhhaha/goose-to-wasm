@@ -326,14 +326,17 @@ recursive fn parse_record(p: Program&, c: ParseCursor&, type_node: i64, fragment
     if !expanded && named > 0 && positional > 0 { parse_error(p, c, "record literal mixes named and positional initializers"); }
     p.nodes[id].first = first; p.nodes[id].last = last; return id;
 }
-recursive fn parse_type_arguments(p: Program&, c: ParseCursor&) -> i64 {
+// Tentatively parses `<` types `>` followed by `(`, `{` or `.ident`; a call's
+// type arguments (call_only, x.f<T>(a)) only by `(`. Anything else rewinds:
+// it was a comparison. No operand starts with `.`, so `a < b > .c` is none.
+recursive fn parse_type_arguments(p: Program&, c: ParseCursor&, call_only: bool = false) -> i64 {
     let saved = c; let count = p.nodes.len;
     c.tentative = true; c.failed = false;
     parse_next(p, c);
     let arguments = parse_type_list(p, c, T_GT); parse_angle_end(p, c);
-    var accepted = arguments >= 0 && !c.failed && (parse_kind(p, c) == T_LPAREN || !c.no_record && parse_kind(p, c) == T_LCURLY);
-    if !accepted && !c.failed && !c.no_record && parse_kind(p, c) == T_DOT {
-        accepted = parse_ahead(p, c) == T_IDENT && parse_ahead(p, c, 2) == T_LCURLY;
+    var accepted = arguments >= 0 && !c.failed && parse_kind(p, c) == T_LPAREN;
+    if !accepted && !call_only && arguments >= 0 && !c.failed {
+        accepted = !c.no_record && parse_kind(p, c) == T_LCURLY || parse_kind(p, c) == T_DOT && parse_ahead(p, c) == T_IDENT;
     }
     if !accepted { c = saved; parse_rewind(p, count); return -1; }
     c.tentative = saved.tentative; c.failed = saved.failed; return arguments;
@@ -378,7 +381,11 @@ recursive fn parse_postfix(p: Program&, c: ParseCursor&) -> i64 {
             parse_next(p, c);
             let token = parse_expect(p, c, T_IDENT, "expected field or variant name");
             let id = parse_node(p, N_MEMBER, token); p.nodes[id].left = value; p.nodes[id].scope = c.namespace_token;
-            if parse_kind(p, c) == T_LCURLY && !c.no_record && p.nodes[value].kind == N_NAME {
+            // x.f<T>(a) calls f<T>(x, a), by the rule f<T>( follows; else a comparison.
+            var arguments: i64 = -1;
+            if parse_kind(p, c) == T_LT { arguments = parse_type_arguments(p, c, true); }
+            if arguments >= 0 { p.nodes[id].first = arguments; value = parse_call(p, c, id); }
+            else if parse_kind(p, c) == T_LCURLY && !c.no_record && p.nodes[value].kind == N_NAME {
                 p.nodes[id].kind = N_TYPE_NAME; p.nodes[value].kind = N_TYPE_NAME;
                 value = parse_record(p, c, id);
             } else { value = id; }
@@ -403,7 +410,13 @@ recursive fn parse_primary(p: Program&, c: ParseCursor&) -> i64 {
                 p.nodes[id].kind = N_TYPE_NAME;
                 var type_node = id;
                 if parse_accept(p, c, T_DOT) {
-                    let variant = parse_node(p, N_TYPE_NAME, parse_expect(p, c, T_IDENT, "expected variant literal name"));
+                    let name = parse_expect(p, c, T_IDENT, "expected variant literal name");
+                    if parse_kind(p, c) != T_LCURLY || c.no_record {
+                        // Name<T>.Variant: a payload-less variant of the written enum type.
+                        let member = parse_node(p, N_MEMBER, name);
+                        p.nodes[member].left = id; p.nodes[member].scope = c.namespace_token; return member;
+                    }
+                    let variant = parse_node(p, N_TYPE_NAME, name);
                     p.nodes[variant].left = id; type_node = variant;
                 }
                 return parse_record(p, c, type_node);
