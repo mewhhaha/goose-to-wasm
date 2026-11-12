@@ -104,74 +104,121 @@ fn source_embed_file(p: Program&, node: i64, argument: i64) -> i64 {
     let token_id = p.tokens.len; p.tokens.push(token);
     return new_node(p, N_STRING, token_id);
 }
-fn source_package_entry(p: Program&, directory: const u8[:], module: const u8[:], out: u8[>..]&) -> bool {
+fn source_join(directory: const u8[:], module: const u8[:], out: u8[>..]&) {
     out.append(directory);
-    if out.len > 0 && out[out.len - 1] != '/' { out.push('/'); }
-    if module.len > 0 { out.append(module); out.append(".goose"); }
-    else { out.append("main.goose"); }
-    return file_exists(out);
+    if out.len > 0 && out[out.len - 1] != '/' && out[out.len - 1] != '\\' { out.push('/'); }
+    out.append(module); out.append(".goose");
 }
-fn source_import_path(p: Program&, node: i64, directory: const u8[:], stdlib: const u8[:],
-                      packages: SourcePackage[>..]&, current_package: i64,
+// Import path tokens from..to, dots spelled as directory separators.
+fn source_import_name(p: Program&, from: i64, to: i64, out: u8[>..]&) {
+    for token in from..to + 1 {
+        let t = p.tokens[token];
+        if t.kind == T_DOT { out.push('/'); } else { out.append(p.text[t.start..t.end]); }
+    }
+}
+// Path sources only; a git source would need retrieval.
+fn source_path_spelling(text: const u8[:]) -> bool {
+    if source_absolute(text) { return true; }
+    if text.len == 0 || text[0] != '.' { return false; }
+    if text.len == 1 { return true; }
+    if text[1] == '/' || text[1] == '\\' { return true; }
+    return text[1] == '.' && (text.len == 2 || text[2] == '/' || text[2] == '\\');
+}
+// Upstream's blessed table: names a naked import loads from a remote package
+// when neither a file of the importing package nor a declared package has them.
+fn source_blessed(p: Program&, token: i64) -> bool {
+    return token_is(p, token, "physics") || token_is(p, token, "gfx") || token_is(p, token, "audio") || token_is(p, token, "ui");
+}
+// `import a.b;` resolves from the importing file's package root: the root
+// file's directory for the program, the library directory for its modules, a
+// declared package's directory for that package's files. A file of that
+// package wins; then a module of a package the root declared (`import pkg;`
+// its pkg.goose, `import pkg.sub;` its sub.goose); then the standard library.
+// `import .a.b;` resolves from the importing file's directory, and
+// `import name from "source";` declares a package in the root file and is a
+// requirement anywhere else.
+fn source_import_path(p: Program&, node: i64, directory: const u8[:], root: const u8[:], stdlib: const u8[:],
+                      packages: SourcePackage[>..]&, root_file: bool, current_package: i64,
                       resolved_package: i64&, out: u8[>..]&, library: bool&) -> bool {
     let n = p.nodes[node];
     var name: u8[>..] = [];
-    for token in n.integer..n.aux + 1 {
-        let t = p.tokens[token];
-        if t.kind == T_DOT { name.push('/'); }
-        else { name.append(p.text[t.start..t.end]); }
-    }
+    source_import_name(p, n.integer, n.aux, name);
     if n.left >= 0 {
         let t = p.tokens[n.left];
+        let source = p.text[t.text_start..t.text_start + t.text_len];
+        if !source_path_spelling(source) {
+            diagnose(p, n.token, "remote package sources are not yet supported; a package source must be a path"); return false;
+        }
         var raw: u8[>..] = [];
-        let package = p.text[t.text_start..t.text_start + t.text_len];
-        if !source_absolute(package) { raw.append(directory); }
-        raw.append(package);
+        if !source_absolute(source) { raw.append(directory); }
+        raw.append(source);
         var normalized: u8[>..] = []; source_normalize(raw, normalized);
         var index = source_package(p, packages, n.token);
-        if current_package < 0 {
-            if index >= 0 { diagnose(p, n.token, "package is declared twice"); return false; }
+        if root_file {
+            if index >= 0 { diagnose(p, n.token, "the package is declared twice"); return false; }
+            if !is_dir(normalized) { diagnose(p, n.token, "the package source is not a directory"); return false; }
+            source_join(normalized, name, out);
+            if !file_exists(out) { diagnose(p, n.token, "the package has no entry file named after it"); return false; }
+            for package in packages {
+                if same_bytes(normalized, p.text[package.start..package.start + package.length]) {
+                    diagnose(p, n.token, "two packages have the same root; each package needs a directory of its own"); return false;
+                }
+            }
             let start = p.text.len; p.text.append(normalized);
             index = packages.len; packages.push(SourcePackage { name: n.token, start: start, length: normalized.len });
         } else {
-            if index < 0 { diagnose(p, n.token, "package requirement is not declared by the root"); return false; }
+            if index < 0 {
+                if source_blessed(p, n.token) {
+                    diagnose(p, n.token, "blessed packages are not yet supported: remote package retrieval is not implemented"); return false;
+                }
+                diagnose(p, n.token, "a package requirement must be declared by the root file: add the same import there"); return false;
+            }
             let declared = packages[index];
             if !same_bytes(normalized, p.text[declared.start..declared.start + declared.length]) {
                 diagnose(p, n.token, "required package is declared from a different source"); return false;
             }
+            source_join(p.text[declared.start..declared.start + declared.length], name, out);
         }
-        resolved_package = index;
-        if source_package_entry(p, normalized, name, out) { return true; }
-        out.clear();
-        if source_package_entry(p, normalized, "", out) { return true; }
-        diagnose(p, n.token, "cannot resolve package entry; remote package retrieval is not implemented");
-        return false;
+        resolved_package = index; library = false;
+        return true;
     }
-    out.append(directory); out.append(name); out.append(".goose");
-    let package_index = source_package(p, packages, n.token);
-    if package_index >= 0 && (n.flags & F_REFERENCE) == 0 {
-        if file_exists(out) { diagnose(p, n.token, "import is both a local file and a declared package module"); return false; }
-        var module: u8[>..] = [];
-        for token in n.integer + 2..n.aux + 1 {
-            let t = p.tokens[token];
-            if t.kind == T_DOT { module.push('/'); } else { module.append(p.text[t.start..t.end]); }
-        }
-        let declared = packages[package_index]; out.clear(); resolved_package = package_index;
-        if source_package_entry(p, p.text[declared.start..declared.start + declared.length], module, out) { return true; }
-        diagnose(p, n.token, "cannot open declared package module"); return false;
-    }
-    if file_exists(out) { return true; }
     if (n.flags & F_REFERENCE) != 0 {
+        source_join(directory, name, out);
+        if file_exists(out) { return true; }
         diagnose(p, n.token, "cannot open relative import"); return false;
     }
-    out.clear();
-    if stdlib.len > 0 {
-        out.append(stdlib);
-        if out[out.len - 1] != '/' { out.push('/'); }
-        out.append(name); out.append(".goose");
-        if file_exists(out) { library = true; return true; }
+    source_join(root, name, out);
+    let local = file_exists(out);
+    var package_index = source_package(p, packages, n.integer);
+    // A package's own name, from inside it, is its own file.
+    if package_index == current_package { package_index = -1; }
+    if package_index >= 0 {
+        if local { diagnose(p, n.token, "import is both a file of this package and a declared package's module"); return false; }
+        var module: u8[>..] = [];
+        if n.aux > n.integer { source_import_name(p, n.integer + 2, n.aux, module); }
+        else { source_import_name(p, n.integer, n.integer, module); }
+        let declared = packages[package_index]; out.clear();
+        source_join(p.text[declared.start..declared.start + declared.length], module, out);
+        resolved_package = package_index; library = false;
+        if file_exists(out) { return true; }
+        diagnose(p, n.token, "cannot open declared package module"); return false;
     }
-    diagnose(p, n.token, "cannot resolve import; pass --stdlib or set GOOSE_STDLIB");
+    if local { return true; }
+    if source_blessed(p, n.integer) {
+        diagnose(p, n.token, "blessed packages are not yet supported: remote package retrieval is not implemented"); return false;
+    }
+    var looked: u8[>..] = []; looked.append(out); out.clear();
+    if stdlib.len > 0 {
+        source_join(stdlib, name, out);
+        if file_exists(out) { library = true; resolved_package = -1; return true; }
+    }
+    var message: u8[>..] = [];
+    message.append("cannot find the module ");
+    for byte in name { if byte == '/' { message.push('.'); } else { message.push(byte); } }
+    message.append(", looked for "); message.append(looked);
+    if stdlib.len > 0 { message.append(" and "); message.append(out); }
+    else { message.append("; pass --stdlib or set GOOSE_STDLIB"); }
+    diagnose(p, n.token, message);
     return false;
 }
 fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only: bool = false) {
@@ -207,6 +254,11 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
         let imports_start = pending.len;
         var directory: u8[>..] = [];
         source_directory(path, directory);
+        var package_root: u8[>..] = [];
+        if request.package >= 0 {
+            let package = packages[request.package]; package_root.append(p.text[package.start..package.start + package.length]);
+        } else if request.library { package_root.append(stdlib); }
+        else { source_directory(root, package_root); }
         var declaration = p.nodes[module].first;
         var previous = -1;
         while declaration >= 0 {
@@ -221,7 +273,8 @@ fn load_sources(p: Program&, root: const u8[:], stdlib: const u8[:], tokens_only
             if p.nodes[declaration].kind == N_IMPORT {
                 var imported: u8[>..] = [];
                 var package = request.package; var library = request.library;
-                if source_import_path(p, declaration, directory, stdlib, packages, request.package, package, imported, library) {
+                if source_import_path(p, declaration, directory, package_root, stdlib, packages, source_id == 0,
+                                      request.package, package, imported, library) {
                     source_request(p, pending, seen, imported, p.nodes[declaration].token, package, library);
                 }
             }

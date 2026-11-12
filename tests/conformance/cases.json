@@ -67705,6 +67705,126 @@
         },
         "debug": true,
         "provenance": "Independently source-derived address-only counterexample from native-member-address-review-58; explicit reference cast and outside-object address are formed without loading through either reference."
+    },
+    {
+        "id": "corpus/contracts/imports/package-root/native",
+        "source": "tests/fixtures/contracts/imports/package-root/main.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "427\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 src/main.cpp ParseProgram import resolution (package roots, relative imports, root-declared packages); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/imports/package-root/values.goose",
+            "tests/fixtures/contracts/imports/package-root/support/io.goose",
+            "tests/fixtures/contracts/imports/package-root/support/values.goose",
+            "tests/fixtures/contracts/imports/package-root/support/native.goose"
+        ]
+    },
+    {
+        "id": "corpus/contracts/imports/package-root/wasm-direct",
+        "source": "tests/fixtures/contracts/imports/package-root/main.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "427\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 src/main.cpp ParseProgram import resolution (package roots, relative imports, root-declared packages); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/imports/package-root/values.goose",
+            "tests/fixtures/contracts/imports/package-root/support/io.goose",
+            "tests/fixtures/contracts/imports/package-root/support/values.goose",
+            "tests/fixtures/contracts/imports/package-root/support/native.goose"
+        ]
+    },
+    {
+        "id": "corpus/contracts/imports/packages/native",
+        "source": "tests/fixtures/contracts/imports/packages/main.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "122 3 8 5\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 src/main.cpp ParseProgram import resolution (package roots, relative imports, root-declared packages); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/imports/packages/helper.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/greet.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/internal.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/helper.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/extra.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/tools/tools.goose"
+        ]
+    },
+    {
+        "id": "corpus/contracts/imports/packages/wasm-direct",
+        "source": "tests/fixtures/contracts/imports/packages/main.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "122 3 8 5\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 src/main.cpp ParseProgram import resolution (package roots, relative imports, root-declared packages); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/imports/packages/helper.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/greet.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/internal.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/helper.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/greet/extra.goose",
+            "tests/fixtures/contracts/imports/packages/pkgs/tools/tools.goose"
+        ]
+    },
+    {
+        "id": "corpus/contracts/imports/sibling-without-dot",
+        "source": "tests/fixtures/contracts/imports/sibling-without-dot/main.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 src/main.cpp ParseProgram import resolution (package roots, relative imports, root-declared packages); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/imports/sibling-without-dot/sub/user.goose",
+            "tests/fixtures/contracts/imports/sibling-without-dot/sub/helper.goose"
+        ]
+    },
+    {
+        "id": "corpus/contracts/imports/package-undeclared",
+        "source": "tests/fixtures/contracts/imports/package-undeclared/main.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 src/main.cpp ParseProgram import resolution (package roots, relative imports, root-declared packages); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/imports/package-undeclared/lib/user.goose",
+            "tests/fixtures/contracts/imports/package-undeclared/pkgs/tools/tools.goose"
+        ]
     }
   ],
   "legacy_math_capture": {
