@@ -86,6 +86,9 @@ fn lex_keyword(p: Program&, start: i64, end: i64) -> i64 {
     if p.text[start] == 'g' {
         if lex_equal(p, start, end, "guard") { return T_GUARD; }
     }
+    if p.text[start] == 'd' {
+        if lex_equal(p, start, end, "defer") { return T_DEFER; }
+    }
     if p.text[start] == 'm' {
         if lex_equal(p, start, end, "match") { return T_MATCH; }
     }

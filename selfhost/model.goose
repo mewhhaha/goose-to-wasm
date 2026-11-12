@@ -106,6 +106,7 @@ let T_TF64: i64 = 100;
 // The opening brace of a library function body whose text the lexer skipped; integer holds
 // the offset of the matching closing brace.
 let T_LAZY_BODY: i64 = 101;
+let T_DEFER: i64 = 102;
 
 let N_MODULE: i64 = 0;
 let N_IMPORT: i64 = 1;
@@ -166,6 +167,12 @@ let N_TYPEOF: i64 = 55;
 let N_TYPE_DEDUCED: i64 = 56;
 let N_SELF: i64 = 57;
 let N_RESULT: i64 = 58;
+// `defer` statement: right is its body block (upstream e1d95ed).
+let N_DEFER: i64 = 59;
+// `const if`: left condition, right branch fragments, third the else branch
+// (another N_CONST_IF for `else const if`); integer is the fragment context,
+// 0 statements, 1 initializers, 2 match arms (upstream e93d4fc).
+let N_CONST_IF: i64 = 60;
 
 let TY_UNKNOWN: i64 = 0;
 let TY_VOID: i64 = 1;

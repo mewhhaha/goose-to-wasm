@@ -5222,6 +5222,8 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         while child >= 0 { check_value(p, c, child, -1); child = p.nodes[child].next; }
         result = check_tuple(p, n.first);
     } else if n.kind == N_CONST_FOR { result = check_const_for(p, c, node, expected); }
+    else if n.kind == N_CONST_IF { diagnose(p, n.token, "const if is not yet supported"); return -1; }
+    else if n.kind == N_DEFER { diagnose(p, n.token, "defer is not yet supported"); return -1; }
     else if n.kind == N_EMPTY { result = TYPE_VOID; }
     else if n.kind == N_EXPR_STMT { check_expression(p, c, n.left, TYPE_VOID); result = TYPE_VOID; }
     else { diagnose(p, n.token, "syntax node is not a valid expression"); }
@@ -6233,6 +6235,7 @@ recursive fn check_statement(p: Program&, c: Checker&, node: i64) {
         if n.third < 0 { check_layout_nominal(p, c, n.type_id); }
     } else if n.kind == N_ALIAS { check_resolve_type(p, c, n.left); }
     else if n.kind == N_IMPORT || n.kind == N_NAMESPACE || n.kind == N_EXTERN || n.kind == N_EMPTY { }
+    else if n.kind == N_DEFER { diagnose(p, n.token, "defer is not yet supported"); }
     else { check_expression(p, c, node, TYPE_VOID); }
     c.returning = returning;
 }
@@ -6428,7 +6431,8 @@ recursive fn check_expand_children(p: Program&, c: Checker&, node: i64) {
     var first = -1; var last = -1; var child = p.nodes[node].first;
     while child >= 0 {
         let next = p.nodes[child].next;
-        if p.nodes[child].kind == N_CONST_FOR {
+        if p.nodes[child].kind == N_CONST_IF { diagnose(p, p.nodes[child].token, "const if is not yet supported"); }
+        else if p.nodes[child].kind == N_CONST_FOR {
             let expansion = check_expand_const_for(p, c, child);
             if p.nodes[expansion].kind != N_BLOCK { check_expand_children(p, c, expansion); }
             var item = p.nodes[expansion].first;

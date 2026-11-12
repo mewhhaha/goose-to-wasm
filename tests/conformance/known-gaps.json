@@ -1,6 +1,6 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 102 runtime contracts refused during compilation, eight of them awaiting root struct storage and string literal defaults for u8[:] parameters. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 110 runtime contracts refused during compilation, sixteen of them awaiting root struct storage, defer, const if selection and string literal defaults for u8[:] parameters. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "gaps": [
   [
    "corpus/contracts/call-location/src-file-line/native",
@@ -16,6 +16,38 @@
   ],
   [
    "corpus/contracts/call-location/src-file-line/wasm-direct",
+   2
+  ],
+  [
+   "corpus/contracts/const-if/constructors/native",
+   0
+  ],
+  [
+   "corpus/contracts/const-if/constructors/native",
+   2
+  ],
+  [
+   "corpus/contracts/const-if/constructors/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/const-if/constructors/wasm-direct",
+   2
+  ],
+  [
+   "corpus/contracts/defer/forms/native",
+   0
+  ],
+  [
+   "corpus/contracts/defer/forms/native",
+   2
+  ],
+  [
+   "corpus/contracts/defer/forms/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/defer/forms/wasm-direct",
    2
   ],
   [

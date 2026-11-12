@@ -68180,6 +68180,190 @@
             "exit": 0
         },
         "provenance": "Upstream a5579b1 test/codegen/call_location.goose with const u8[:] parameters: a default reports the call that left it out; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/defer/forms-parse",
+        "source": "tests/fixtures/contracts/defer/forms.goose",
+        "phase": "parse",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/syntax/defer_forms.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/defer/forms/native",
+        "source": "tests/fixtures/contracts/defer/forms.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "body\nfor 0\nfor 1\nmulti\nline\nblock\npositive\nn 112 a 1 b 2\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/syntax/defer_forms.goose, expected/defer_forms.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until defer is implemented"
+    },
+    {
+        "id": "corpus/contracts/defer/forms/wasm-direct",
+        "source": "tests/fixtures/contracts/defer/forms.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "body\nfor 0\nfor 1\nmulti\nline\nblock\npositive\nn 112 a 1 b 2\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/syntax/defer_forms.goose, expected/defer_forms.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until defer is implemented"
+    },
+    {
+        "id": "corpus/contracts/defer/declaration",
+        "source": "tests/fixtures/contracts/defer/declaration.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors/defer_declaration.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/defer/expression",
+        "source": "tests/fixtures/contracts/defer/expression.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors/defer_expression.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/defer/tail",
+        "source": "tests/fixtures/contracts/defer/tail.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors/defer_tail.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/arms-parse",
+        "source": "tests/fixtures/contracts/const-if/arms.goose",
+        "phase": "parse",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_arms.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/conditions-parse",
+        "source": "tests/fixtures/contracts/const-if/conditions.goose",
+        "phase": "parse",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_conditions.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/constructors-parse",
+        "source": "tests/fixtures/contracts/const-if/constructors.goose",
+        "phase": "parse",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_constructors.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/statements-parse",
+        "source": "tests/fixtures/contracts/const-if/statements.goose",
+        "phase": "parse",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_statements.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/constructors/native",
+        "source": "tests/fixtures/contracts/const-if/constructors.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "Item { \"pen\", 5, 20, 0 }\nQuad { 1, 2, 5, 6 }\nQuad { 1, 2, 3, 4 }\nItem { \"cap\", 1, 20, 0 }\nCircle { 1, true }\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_constructors.goose, expected/const_if_constructors.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until const if selection is implemented"
+    },
+    {
+        "id": "corpus/contracts/const-if/constructors/wasm-direct",
+        "source": "tests/fixtures/contracts/const-if/constructors.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "Item { \"pen\", 5, 20, 0 }\nQuad { 1, 2, 5, 6 }\nQuad { 1, 2, 3, 4 }\nItem { \"cap\", 1, 20, 0 }\nCircle { 1, true }\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_constructors.goose, expected/const_if_constructors.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until const if selection is implemented"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-else-if",
+        "source": "tests/fixtures/contracts/const-if/error-else-if.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors/const_if_else_if.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-same-arity",
+        "source": "tests/fixtures/contracts/const-if/error-same-arity.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors/const_if_same_arity.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-type-operand",
+        "source": "tests/fixtures/contracts/const-if/error-type-operand.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors/const_if_type_operand.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-value",
+        "source": "tests/fixtures/contracts/const-if/error-value.goose",
+        "phase": "parse-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors/const_if_value.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {
