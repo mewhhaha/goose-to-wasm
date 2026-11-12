@@ -6475,7 +6475,9 @@ recursive fn check_alias_declaration(p: Program&, c: Checker&, node: i64) {
 recursive fn check_qualified_body_types(p: Program&, c: Checker&, node: i64) {
     if node < 0 { return; }
     let n = p.nodes[node]; let saved = c.scope;
-    if (n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_NAMESPACE) && n.scope >= 0 { c.scope = n.scope; }
+    // Only a declared node's scope is a scope ID; a nested function's still
+    // holds its namespace token and keeps its enclosing function's scope.
+    if (n.kind == N_NAMESPACE || (n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM) && n.symbol >= 0) && n.scope >= 0 { c.scope = n.scope; }
     if n.kind == N_TYPE_NAME && n.left < 0 {
         let symbol = check_lookup_name(p, c, node, S_TYPE);
         if n.aux > 1 && symbol < 0 { diagnose(p, n.token, "unknown qualified type name"); }

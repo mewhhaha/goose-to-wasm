@@ -67929,6 +67929,57 @@
             "exit": 0
         },
         "provenance": "Independently specified root struct v1 ownership (upstream docs/design/root_structs.md); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until root struct storage is implemented"
+    },
+    {
+        "id": "corpus/contracts/namespace-nested/run/native",
+        "source": "tests/fixtures/contracts/namespace-nested/main.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2 2\n",
+            "exit": 0
+        },
+        "provenance": "Independently specified: --parse resolves qualified types in a namespaced imported file's nested function without treating its namespace token as a scope; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/namespace-nested/imported/helper.goose"
+        ]
+    },
+    {
+        "id": "corpus/contracts/namespace-nested/run/wasm-direct",
+        "source": "tests/fixtures/contracts/namespace-nested/main.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2 2\n",
+            "exit": 0
+        },
+        "provenance": "Independently specified: --parse resolves qualified types in a namespaced imported file's nested function without treating its namespace token as a scope; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/namespace-nested/imported/helper.goose"
+        ]
+    },
+    {
+        "id": "corpus/contracts/namespace-nested/parse",
+        "source": "tests/fixtures/contracts/namespace-nested/main.goose",
+        "phase": "parse",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Independently specified: --parse resolves qualified types in a namespaced imported file's nested function without treating its namespace token as a scope; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "dependencies": [
+            "tests/fixtures/contracts/namespace-nested/imported/helper.goose"
+        ]
     }
   ],
   "legacy_math_capture": {
