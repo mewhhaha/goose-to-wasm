@@ -4726,7 +4726,9 @@ recursive fn check_block(p: Program&, c: Checker&, node: i64, expected: i64) -> 
             let previous = c.scope; check_enter(c, c.function_node);
             c.scopes[c.scope].depth = c.scopes[previous].depth;
         }
-        if (item.flags & F_TAIL) != 0 {
+        // F_TAIL on a block also means it has a tail value; only the last
+        // child is this block's tail.
+        if (item.flags & F_TAIL) != 0 && item.next < 0 {
             let returning = c.returning;
             if c.function_node >= 0 && p.nodes[c.function_node].right == node { c.returning = true; }
             var tail_expected = expected;
