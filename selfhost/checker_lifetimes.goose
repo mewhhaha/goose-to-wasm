@@ -15,7 +15,7 @@ struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i6
 struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i64 = 0, self_pools: i64 = 0, relative_roots: i64 = 0, tuple: i64 = -1, element_array: i64 = -1 }
 struct LifeItem { value: LifeValue, next: i64 = -1 }
 struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1 }
-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1 }
+struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1 }
 struct LifeWalk { root: i64, type_id: i64 }
 struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
 struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
@@ -25,7 +25,9 @@ struct LifeTemp { frame: i64 }
 struct LifeRead { node: i64, symbol: i64, answer: bool, next: i64 = -1 }
 struct LifeKill { root: i64, field: i64, active: bool = true }
 struct LifeAtom { set: i64, next: i64 = -1 }
-struct LifeEffect { kind: i64, node: i64, value: LifeValue, places: i64 = 0, cell: i64 = -1, field: i64 = -1, next: i64 = -1, previous: i64 = -1, owner: i64 = -1, hash_next: i64 = -1 }
+// index_key, index_next and epoch: a validation-pass effect's hash, chain
+// in effect_heads and its frame's effect_epoch when it was recorded.
+struct LifeEffect { kind: i64, node: i64, value: LifeValue, places: i64 = 0, cell: i64 = -1, field: i64 = -1, next: i64 = -1, previous: i64 = -1, owner: i64 = -1, index_key: i64 = -1, index_next: i64 = -1, epoch: i64 = 0 }
 struct LifeFailure { node: i64, message: const u8[:] }
 struct Lifetimes {
     parents: const i64[:], depths: const i64[:], functions: const i64[:],
@@ -37,6 +39,11 @@ struct Lifetimes {
     atoms: LifeAtom[>..]&,
     failures: LifeFailure[>..]&, effects: LifeEffect[>..]&,
     symbol_cells: i64[:], node_roots: i64[:], function_frames: i64[:], read_heads: i64[:], visited: i64[:], summary_heads: i64[:],
+    effect_heads: i64[>..]&, indexed_effects: i64 = 0,
+    // Per effect: its discovery site's fingerprint and the next effect in
+    // its summary_heads bucket, kept apart from the effects themselves so a
+    // bucket walk stays in dense memory.
+    summary_keys: i64[>..]&, summary_next: i64[>..]&,
     visit: i64 = 0,
     frame: i64 = 0, scope: i64 = 0, revision: i64 = 0, discovery: bool = true,
     future_count: i64 = 0, hold_count: i64 = 0, temp_count: i64 = 0,
@@ -46,68 +53,156 @@ struct Lifetimes {
     pass: i64 = 0,
 }
 
+// An order-independent hash of a set, equal for sets life_equal accepts.
+fn life_set_hash(l: Lifetimes&, set: i64) -> i64 {
+    var sum = 0; var at = l.sets[set].first;
+    while at >= 0 {
+        let alt = l.alts[at]; var h = alt.root * 1000003 + alt.from * 8191 + alt.target_type * 131 + alt.bound * 31 + alt.component * 17;
+        if alt.exact { h += 1; } if alt.slotread { h += 2; } if alt.byteview { h += 4; }
+        sum += h ^ (h >> 17); at = alt.next;
+    }
+    return sum;
+}
+fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEffect&) -> bool {
+    return old.kind == effect.kind && old.value.type_id == effect.value.type_id &&
+       old.value.element_array == effect.value.element_array && old.field == effect.field && old.cell == effect.cell &&
+       life_equal(l, old.places, effect.places) && life_equal(l, old.value.refs, effect.value.refs) && life_equal(l, old.value.contents, effect.value.contents);
+}
+// A place is local to the frames from its root's frame up the current
+// chain: the chain position past which some place of the effect is not.
+fn life_effect_far(l: Lifetimes&, effect: const LifeEffect&) -> i64 {
+    var far = 0; var at = l.sets[effect.places].first;
+    while at >= 0 {
+        let root = l.alts[at].root;
+        if root != 0 {
+            let home = l.roots[root].frame; var inside = l.frame; var position = 0;
+            while inside > 0 && inside != home { inside = l.frames[inside].parent; position += 1; }
+            if inside <= 0 { return 9223372036854775807; }
+            if position > far { far = position; }
+        }
+        at = l.alts[at].next;
+    }
+    return far;
+}
+// A recursive activation's own root reached through one of its parameters
+// belongs to another activation.
+fn life_effect_recursive(l: Lifetimes&, effect: const LifeEffect&, frame: i64) -> bool {
+    var at = l.sets[effect.places].first;
+    while at >= 0 {
+        let root = l.alts[at].root;
+        if root != 0 && l.roots[root].frame == frame {
+            var ci = l.frames[frame].first_cell;
+            while ci >= 0 {
+                let cell = l.cells[ci];
+                if cell.parameter && life_find(l, cell.refs, root) >= 0 { return true; }
+                ci = cell.next_frame;
+            }
+        }
+        at = l.alts[at].next;
+    }
+    return false;
+}
+// The fields a discovery merge compares exactly: frame, kind, node, type,
+// cell and field.
+fn life_summary_key(effect: const LifeEffect&, frame: i64) -> i64 {
+    var h: u64 = 1469598103934665603;
+    for part in [frame, effect.kind, effect.node, effect.value.type_id, effect.cell, effect.field] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 31; }
+    return (h >> 1) as i64;
+}
+// Discovery merges a frame's summary effects by site: whether one took it.
+fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64, key: i64) -> bool {
+    var previous = l.summary_heads[bucket];
+    while previous >= 0 {
+        if l.summary_keys[previous] != key { previous = l.summary_next[previous]; continue; }
+        let old: const LifeEffect& = l.effects[previous];
+        if old.owner == frame && old.kind == effect.kind && old.node == effect.node && old.value.type_id == effect.value.type_id && old.cell == effect.cell && old.field == effect.field && (effect.kind != 4 || life_equal(l, old.places, effect.places)) {
+            let old_places = old.places; let old_refs = old.value.refs; let old_contents = old.value.contents; let old_place = old.value.place;
+            let places = life_join(l, old_places, effect.places);
+            let refs = life_join(l, old_refs, effect.value.refs); let contents = life_join(l, old_contents, effect.value.contents);
+            let value_places = life_join(l, old_place, effect.value.place);
+            if !life_equal(l, places, old_places) || !life_equal(l, refs, old_refs) || !life_equal(l, contents, old_contents) || !life_equal(l, value_places, old_place) { l.revision += 1; }
+            l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
+            return true;
+        }
+        previous = l.summary_next[previous];
+    }
+    return false;
+}
+// Validation-pass effects that no other kind orders against are indexed by
+// a hash of everything life_same_effect compares, and their frame.
+inline fn life_index_bucket(l: Lifetimes&, key: i64) -> i64 { return (key ^ (key >> 21)) & (l.effect_heads.len - 1); }
+// Two indexed effects per bucket at most, on average.
+fn life_index_reserve(l: Lifetimes&) {
+    if 2 * l.effect_heads.len > l.indexed_effects { return; }
+    var size: i64 = 1024; while size <= l.indexed_effects { size <<= 1; }
+    l.effect_heads.clear(); l.effect_heads.resize(size, -1);
+    for index in 0..l.effects.len {
+        let key = l.effects[index].index_key;
+        if key >= 0 { let bucket = life_index_bucket(l, key); l.effects[index].index_next = l.effect_heads[bucket]; l.effect_heads[bucket] = index; }
+    }
+}
+// Such an effect is redundant wherever an equal one is in the frame's
+// current list: whether the bucket holds one.
+fn life_effect_indexed(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64) -> bool {
+    var probe = l.effect_heads[bucket];
+    while probe >= 0 {
+        let old: const LifeEffect& = l.effects[probe];
+        if old.owner == frame && old.epoch == l.frames[frame].effect_epoch && life_same_effect(l, old, effect) { return true; }
+        probe = old.index_next;
+    }
+    return false;
+}
+// An ordered effect is redundant only after an equal one with nothing it
+// orders against in between.
+fn life_effect_repeated(l: Lifetimes&, effect: const LifeEffect&, last: i64) -> bool {
+    var previous = last;
+    while previous >= 0 {
+        let old: const LifeEffect& = l.effects[previous];
+        if effect.kind == 1 && old.kind >= 4 { return false; }
+        if effect.kind == 4 && (old.kind == 6 || old.kind == 7) && life_overlaps(l, old.places, effect.places) { return false; }
+        if (effect.kind == 6 || effect.kind == 7) && old.kind == 4 && life_overlaps(l, old.places, effect.places) { return false; }
+        if life_same_effect(l, old, effect) { return true; }
+        previous = old.previous;
+    }
+    return false;
+}
 fn life_effect(l: Lifetimes&, effect: LifeEffect) {
-    var frame = l.frame;
+    let far = life_effect_far(l, effect);
+    let ordered = effect.kind == 1 || effect.kind == 4 || effect.kind == 6 || effect.kind == 7;
+    var indexed_key = -1;
+    var frame = l.frame; var depth = 0;
     while frame > 0 {
         if !l.frames[frame].validated {
-            var external = false; var at = l.sets[effect.places].first;
-            while at >= 0 {
-                if l.alts[at].root == 0 { at = l.alts[at].next; continue; }
-                let root = l.roots[l.alts[at].root]; var local = false; var inside = l.frame;
-                while inside > 0 {
-                    if root.frame == inside { local = true; break; }
-                    if inside == frame { break; }
-                    inside = l.frames[inside].parent;
-                }
-                if local && root.frame == frame && l.frames[frame].recursive_call {
-                    var ci = l.frames[frame].first_cell;
-                    while ci >= 0 {
-                        let cell = l.cells[ci];
-                        if cell.parameter && life_find(l, cell.refs, l.alts[at].root) >= 0 { local = false; break; }
-                        ci = cell.next_frame;
-                    }
-                }
-                if !local { external = true; break; }
-                at = l.alts[at].next;
-            }
+            var external = far > depth;
+            if !external && l.frames[frame].recursive_call { external = life_effect_recursive(l, effect, frame); }
             var last = l.frames[frame].last_effect; if l.discovery { last = l.frames[frame].last_summary; }
-            var bucket = 0;
+            var bucket = 0; var summary_key = -1; var indexed = -1;
             if external && l.discovery {
                 var key = frame * 1000003 + (effect.node + 1) * 97 + effect.kind * 17 + effect.cell + 1;
                 if effect.kind == 4 && effect.places != 0 { key += l.alts[l.sets[effect.places].first].root * 31; }
-                bucket = key % l.summary_heads.len;
-                var previous = l.summary_heads[bucket];
-                while previous >= 0 {
-                    let old = l.effects[previous];
-                    if old.owner == frame && old.kind == effect.kind && old.node == effect.node && old.value.type_id == effect.value.type_id && old.cell == effect.cell && old.field == effect.field && (effect.kind != 4 || life_equal(l, old.places, effect.places)) {
-                        let places = life_join(l, old.places, effect.places);
-                        let refs = life_join(l, old.value.refs, effect.value.refs); let contents = life_join(l, old.value.contents, effect.value.contents);
-                        let value_places = life_join(l, old.value.place, effect.value.place);
-                        if !life_equal(l, places, old.places) || !life_equal(l, refs, old.value.refs) || !life_equal(l, contents, old.value.contents) || !life_equal(l, value_places, old.value.place) { l.revision += 1; }
-                        l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
-                        external = false; break;
-                    }
-                    previous = old.hash_next;
-                }
+                bucket = key % l.summary_heads.len; summary_key = life_summary_key(effect, frame);
+                if life_effect_merge(l, effect, frame, bucket, summary_key) { external = false; }
             }
-            if external && !l.discovery {
-                var previous = last;
-                while previous >= 0 {
-                    let old = l.effects[previous];
-                    if !l.discovery && effect.kind == 1 && old.kind >= 4 { break; }
-                    if !l.discovery && effect.kind == 4 && (old.kind == 6 || old.kind == 7) && life_overlaps(l, old.places, effect.places) { break; }
-                    if !l.discovery && (effect.kind == 6 || effect.kind == 7) && old.kind == 4 && life_overlaps(l, old.places, effect.places) { break; }
-                    if !l.discovery && old.kind == effect.kind && old.value.type_id == effect.value.type_id &&
-                       old.value.element_array == effect.value.element_array && old.field == effect.field && old.cell == effect.cell &&
-                       life_equal(l, old.places, effect.places) && life_equal(l, old.value.refs, effect.value.refs) && life_equal(l, old.value.contents, effect.value.contents) {
-                        external = false; break;
-                    }
-                    previous = old.previous;
+            if external && !l.discovery && !ordered {
+                if indexed_key < 0 {
+                    var key = effect.kind * 97 + effect.value.type_id * 131 + effect.value.element_array * 8191 + effect.field * 17 + effect.cell * 524287;
+                    key += life_set_hash(l, effect.places) * 31 + life_set_hash(l, effect.value.refs) * 37 + life_set_hash(l, effect.value.contents) * 41;
+                    indexed_key = key & 4611686018427387903;
                 }
+                life_index_reserve(l);
+                indexed = indexed_key + frame * 1000003;
+                if life_effect_indexed(l, effect, frame, life_index_bucket(l, indexed)) { external = false; }
             }
+            if external && !l.discovery && ordered && life_effect_repeated(l, effect, last) { external = false; }
             if external {
-                let index = l.effects.len; var entry = effect; entry.next = -1; entry.previous = last; entry.owner = frame; entry.hash_next = -1;
-                if l.discovery { entry.hash_next = l.summary_heads[bucket]; l.summary_heads[bucket] = index; }
+                let index = l.effects.len; var entry = effect; entry.next = -1; entry.previous = last; entry.owner = frame;
+                l.summary_keys.push(summary_key); l.summary_next.push(-1);
+                if l.discovery { l.summary_next[index] = l.summary_heads[bucket]; l.summary_heads[bucket] = index; }
+                if indexed >= 0 {
+                    let slot = life_index_bucket(l, indexed);
+                    entry.index_key = indexed; entry.index_next = l.effect_heads[slot]; entry.epoch = l.frames[frame].effect_epoch;
+                    l.effect_heads[slot] = index; l.indexed_effects += 1;
+                }
                 l.effects.push(entry);
                 if last >= 0 { l.effects[last].next = index; }
                 if l.discovery {
@@ -119,7 +214,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
                 }
             }
         }
-        frame = l.frames[frame].parent;
+        frame = l.frames[frame].parent; depth += 1;
     }
 }
 
@@ -1534,7 +1629,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
             life_replay(p, l, target); return l.frames[target].result;
         }
         l.frames[target].capture_inputs = capture_inputs;
-        l.frames[target].validated = false; l.frames[target].first_effect = -1; l.frames[target].last_effect = -1;
+        l.frames[target].validated = false; l.frames[target].first_effect = -1; l.frames[target].last_effect = -1; l.frames[target].effect_epoch += 1;
     }
     let previous_frame = l.frame; let previous_scope = l.scope;
     if !l.frames[target].active { l.frames[target].parent = previous_frame; l.frames[target].destination = destination; }
@@ -2414,13 +2509,15 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var futures: LifeFuture[>..] = []; var holds: LifeHold[>..] = []; var temps: LifeTemp[>..] = []; var reads: LifeRead[>..] = []; var kills: LifeKill[>..] = []; var atoms: LifeAtom[>..] = []; var failures: LifeFailure[>..] = []; var effects: LifeEffect[>..] = [];
     var symbol_cells: i64[>..] = []; symbol_cells.resize(p.symbols.len, -1);
     var node_roots: i64[>..] = []; var function_frames: i64[>..] = []; var read_heads: i64[>..] = []; var visited: i64[>..] = []; var summary_heads: i64[>..] = [];
+    var effect_heads: i64[>..] = []; effect_heads.resize(1024, -1);
     node_roots.resize(p.nodes.len, -1); function_frames.resize(p.nodes.len, -1);
     read_heads.resize(p.nodes.len, -1); visited.resize(p.nodes.len, 0);
     summary_heads.resize(2 * p.nodes.len + 1, -1);
+    var summary_keys: i64[>..] = []; var summary_next: i64[>..] = [];
     var size_classes: i64[>..] = []; size_classes.resize(p.types.len, -1);
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
-        futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads };
+        futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summary_keys: summary_keys, summary_next: summary_next };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
