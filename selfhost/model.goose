@@ -319,6 +319,9 @@ struct Program {
     text: u8[>..]&, messages: u8[>..]&, sources: Source[>..]&,
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
     symbols: Symbol[>..]&, diagnostics: Diagnostic[>..]&,
+    // Memoized type properties (type * 8 + property, value + 1; 0 unknown)
+    // and the builtin symbol of each builtin ID (-1 none yet).
+    type_properties: i64[>..]&, builtin_symbols: i64[>..]&,
     entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     optimization: i64 = 0, debug: bool = false,
     pointer_bytes: i64 = 4,

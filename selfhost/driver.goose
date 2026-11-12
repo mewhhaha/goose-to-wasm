@@ -302,8 +302,10 @@ fn driver_main() -> i64 {
     var text: u8[>..] = []; var messages: u8[>..] = []; var sources: Source[>..] = [];
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
+    var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
     var p = Program { text: text, messages: messages, sources: sources, tokens: tokens,
-                      nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics };
+                      nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
+                      type_properties: type_properties, builtin_symbols: builtin_symbols };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;
     if o.target == 1 { p.pointer_bytes = 8; }

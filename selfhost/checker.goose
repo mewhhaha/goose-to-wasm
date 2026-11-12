@@ -18,22 +18,41 @@ struct CheckVariable {
     symbol: i64, assigned: bool = false, maybeassigned: bool = false, global_initialized: bool = false,
     readonly: bool = false, narrowed: i64 = -1, next_frame: i64 = -1, literal_use: i64 = -1, writable_use: i64 = -1,
     nonnegative: i64 = -2, nonnegative_use: i64 = -1,
+    // The flow clock when declared, and scratch tags for one delta or join.
+    born: i64 = 0, seen: i64 = -1, seen_at: i64 = -1,
 }
 struct CheckEnvironment {
     symbol: i64, assigned: bool, maybeassigned: bool, narrowed: i64, readonly: bool, next: i64 = -1,
 }
 struct CheckRoot { value: i64, root: i64, kind: i64 = 0, next: i64 = -1 }
-struct CheckEffect { function_node: i64, root: i64, kind: i64 }
+// Each function's effects are a list in recording order (effect_first/last).
+struct CheckEffect { function_node: i64, root: i64, kind: i64, next: i64 = -1 }
 struct CheckReturnRoot { function_node: i64, index: i64, root: i64, kind: i64 = 0 }
 struct CheckNeed { function_node: i64, target: i64 }
 struct CheckNeedFrame { function_node: i64, parent: i64 }
 struct CheckNeedEdge { function_node: i64, token: i64, path: i64 }
 struct CheckSpecialization { original: i64, symbol: i64, binding_start: i64, binding_count: i64 }
-struct CheckFlow { symbol: i64, assigned: bool, maybeassigned: bool, narrowed: i64 = -1 }
-struct CheckFlowCursor { frame: i64, index: i64, active: bool = false }
+// A variable's flow state now and at a mark (a delta entry).
+struct CheckFlow {
+    variable: i64, assigned: bool, maybeassigned: bool, narrowed: i64 = -1,
+    old_assigned: bool = false, old_maybeassigned: bool = false, old_narrowed: i64 = -1,
+}
+// A variable's flow state before a logged write.
+struct CheckFlowUndo { variable: i64, assigned: bool, maybeassigned: bool, narrowed: i64 = -1 }
+// Where a construct's branches start: the log length, the flow clock (variables
+// declared later are local to the construct), the enclosing mark's clock and
+// the delta and exit table lengths.
+struct CheckFlowMark { trail: i64 = 0, stamp: i64 = -1, outer: i64 = -1, work: i64 = 0, exits: i64 = 0, narrowed: i64 = 0 }
+// One variable's meet over several states.
+struct CheckFlowJoin {
+    variable: i64, assigned: bool = true, maybeassigned: bool = false, narrowed: i64 = -1, count: i64 = 0, empty: bool = true,
+    base_assigned: bool = false, base_maybeassigned: bool = false, base_narrowed: i64 = -1,
+}
+// flow is a delta since the target's mark.
 struct CheckExit { target: i64, flow: CheckSpan, backedge: bool = false }
+// flow indexes outer_flows: (variable, assigned, maybeassigned) additions.
 struct CheckOuterExit { target: i64, flow: CheckSpan, next: i64 = -1 }
-struct CheckLoop { node: i64, scope: i64, function_node: i64, result: i64 = -1, values: CheckList = CheckList {}, breaks: bool = false, expected: i64 = -1, returning: bool = false }
+struct CheckLoop { node: i64, scope: i64, function_node: i64, result: i64 = -1, values: CheckList = CheckList {}, breaks: bool = false, expected: i64 = -1, returning: bool = false, mark: CheckFlowMark = CheckFlowMark {} }
 struct CheckLogicalKill { node: i64, symbol: i64 }
 
 struct CheckDefaultCapture { node: i64, function_node: i64, floor: i64 }
@@ -42,7 +61,7 @@ struct Checker {
     literal_comparison: bool = false, default_body: bool = false, render_reference: bool = false,
     format_scan_end: i64 = 0, has_format_hooks: bool = false,
     scopes: CheckScope[>..]&, variables: CheckVariable[>..]&, variable_lookup: i64[>..]&,
-    roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&,
+    roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&, effect_first: i64[>..]&, effect_last: i64[>..]&,
     environments: CheckEnvironment[>..]&, environment_heads: i64[>..]&,
     outer_exits: CheckOuterExit[>..]&,
     syntax_nodes: Node[>..]&, syntax_lookup: i64[>..]&,
@@ -53,7 +72,9 @@ struct Checker {
     needs: CheckNeed[>..]&, need_frames: CheckNeedFrame[>..]&, need_edges: CheckNeedEdge[>..]&, need_path: i64 = -1,
     contextual_floats: CheckContextFloat[>..]&, contextual_lookup: i64[>..]&,
     checking: i64[>..]&, loop_stack: CheckLoop[>..]&,
-    integer_work: CheckInteger[>..]&, binding_work: TypeBinding[>..]&, flow_work: CheckFlow[>..]&, flow_cursors: CheckFlowCursor[>..]&, exit_work: CheckExit[>..]&, interval_work: CheckInterval[>..]&, render_cache: RenderKey[>..]&, render_hooks: i64[>..]&,
+    integer_work: CheckInteger[>..]&, binding_work: TypeBinding[>..]&, flow_work: CheckFlow[>..]&, flow_trail: CheckFlowUndo[>..]&,
+    flow_join: CheckFlowJoin[>..]&, narrowed_variables: i64[>..]&, outer_flows: CheckFlow[>..]&, checking_marks: CheckFlowMark[>..]&,
+    format_symbols: i64[>..]&, operation_functions: i64[>..]&, exit_work: CheckExit[>..]&, interval_work: CheckInterval[>..]&, render_cache: RenderKey[>..]&, render_hooks: i64[>..]&,
     scope: i64 = 0, function_node: i64 = -1, result_type: i64 = -1,
     next_slot: i64 = 0, reachable: bool = true, tuple_context: bool = false, returning: bool = false,
     parameter_default_contexts: CheckDefaultCapture[>..]&,
@@ -63,6 +84,11 @@ struct Checker {
     // function that call is in: src_file() and src_line() written in the
     // default report that call (upstream a5579b1).
     call_location: i64 = -1, call_location_function: i64 = -1,
+    // flow_stamp is the innermost open mark's clock; format_symbol_scan the
+    // symbols already searched for format overloads.
+    flow_clock: i64 = 0, flow_stamp: i64 = -1, format_symbol_scan: i64 = 0, narrowed_count: i64 = 0,
+    // check_list_at's position: the list it walked, the index and the item.
+    list_first: i64 = -1, list_index: i64 = -1, list_item: i64 = -1,
     returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {},
 }
 
@@ -70,8 +96,9 @@ fn check_push_loop(c: Checker&, value: CheckLoop) {
     if c.loop_count == c.loop_stack.len { c.loop_stack.push(value); } else { c.loop_stack[c.loop_count] = value; }
     c.loop_count += 1;
 }
-fn check_push_function(c: Checker&, value: i64) {
-    if c.checking_count == c.checking.len { c.checking.push(value); } else { c.checking[c.checking_count] = value; }
+fn check_push_function(c: Checker&, value: i64, mark: CheckFlowMark) {
+    if c.checking_count == c.checking.len { c.checking.push(value); c.checking_marks.push(mark); }
+    else { c.checking[c.checking_count] = value; c.checking_marks[c.checking_count] = mark; }
     c.checking_count += 1;
 }
 
@@ -81,9 +108,12 @@ fn check_list_push(c: Checker&, list: CheckList&, value: i64) {
     list.last = id; list.count += 1;
 }
 fn check_list_at(c: Checker&, list: CheckList&, index: i64) -> i64 {
+    // Lists are read in order: resume from the last position in the same list.
     var item = list.first; var at = 0;
+    if list.first >= 0 && c.list_first == list.first && c.list_index >= 0 && c.list_index <= index { item = c.list_item; at = c.list_index; }
     while item >= 0 && at < index { item = c.integer_work[item].next; at += 1; }
     if item < 0 { return -1; }
+    c.list_first = list.first; c.list_index = index; c.list_item = item;
     return c.integer_work[item].value;
 }
 fn check_binding_push(c: Checker&, list: CheckList&, value: TypeBinding) {
@@ -398,7 +428,8 @@ fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
             let frame = c.scopes[scope].frame_root; next_frame = c.scopes[frame].first_variable;
             c.scopes[frame].first_variable = c.variables.len;
         }
-        c.variables.push(CheckVariable { symbol: id, next_frame: next_frame });
+        c.flow_clock += 1;
+        c.variables.push(CheckVariable { symbol: id, next_frame: next_frame, born: c.flow_clock });
     }
     return id;
 }
@@ -450,10 +481,31 @@ fn check_reference_kind(p: Program&, node: i64) -> i64 {
 
 fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
     if ty < 0 { return 0; }
+    let key = ty * 8 + property;
+    if key < p.type_properties.len && p.type_properties[key] != 0 { return p.type_properties[key] - 1; }
+    var complete = true; let result = check_type_property_scan(p, ty, property, complete);
+    // A found reference, generic or growable array stays found; anything else
+    // is final once every part's layout is.
+    if complete || result != 0 && (property != 2 || result == 2) {
+        while p.type_properties.len <= key { p.type_properties.push(0); }
+        p.type_properties[key] = result + 1;
+    }
+    return result;
+}
+// complete turns false where the walk meets a type whose parts are still
+// being determined: a result that walk did not find may change later.
+fn check_type_property_scan(p: Program&, ty: i64, property: i64, complete: bool&) -> i64 {
     var work: i64[>..] = [ty]; var scanned = 0; var result = 0;
     while scanned < work.len {
         let current = work[scanned]; scanned += 1;
         let t = p.types[current];
+        if t.kind == TY_FN { complete = false; }
+        if (t.kind == TY_ARRAY || t.kind == TY_REF || t.kind == TY_SLICE) && t.element < 0 { complete = false; }
+        if t.kind == TY_STRUCT || t.kind == TY_ENUM {
+            if t.declaration < 0 { complete = false; }
+            else if p.nodes[t.declaration].kind == N_VARIANT { if t.size < 0 { complete = false; } }
+            else if (p.nodes[t.declaration].flags & F_CHECKED) == 0 { complete = false; }
+        }
         if property == 0 && t.kind == TY_GENERIC { return 1; }
         if property == 1 && (t.kind == TY_REF || t.kind == TY_SLICE) { return 1; }
         if property == 3 && t.kind == TY_REF && t.length_storage >= 0 { return 1; }
@@ -483,6 +535,7 @@ fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
             var part = t.first;
             while part >= 0 {
                 let child = p.nodes[part].type_id;
+                if child < 0 && (p.nodes[part].flags & F_PAD) == 0 { complete = false; }
                 if child >= 0 {
                     var seen = false; for old in work { if old == child { seen = true; } }
                     if !seen { work.push(child); }
@@ -504,11 +557,15 @@ fn check_store_roots(p: Program&, c: Checker&, destination: i64, expression: i64
 }
 
 fn check_note_effect(c: Checker&, root: i64, kind: i64) {
-    if c.function_node < 0 || root < 0 { return; }
-    for effect in c.effects {
-        if effect.function_node == c.function_node && effect.root == root && effect.kind == kind { return; }
-    }
-    c.effects.push(CheckEffect { function_node: c.function_node, root: root, kind: kind });
+    let function_node = c.function_node;
+    if function_node < 0 || root < 0 { return; }
+    while c.effect_first.len <= function_node { c.effect_first.push(-1); c.effect_last.push(-1); }
+    var at = c.effect_first[function_node];
+    while at >= 0 { let effect = c.effects[at]; if effect.root == root && effect.kind == kind { return; } at = effect.next; }
+    let id = c.effects.len;
+    c.effects.push(CheckEffect { function_node: function_node, root: root, kind: kind });
+    if c.effect_last[function_node] < 0 { c.effect_first[function_node] = id; } else { c.effects[c.effect_last[function_node]].next = id; }
+    c.effect_last[function_node] = id;
 }
 fn check_global_use(p: Program&, c: Checker&, symbol: i64, token: i64) -> bool {
     if symbol < 0 || (p.symbols[symbol].flags & S_GLOBAL) == 0 { return true; }
@@ -2236,36 +2293,35 @@ recursive fn check_proven_nonnull(p: Program&, node: i64) -> bool {
 fn check_assign_narrowing(p: Program&, c: Checker&, symbol: i64, value: i64) {
     let vi = check_variable_index(c, symbol); if vi < 0 { return; }
     let type_id = p.symbols[symbol].type_id;
-    c.variables[vi].narrowed = -1;
+    var narrowed_type = -1;
     if type_id >= 0 && p.types[type_id].kind == TY_REF && (p.types[type_id].flags & TF_OPTIONAL) != 0 && check_proven_nonnull(p, value) {
         var narrowed = p.types[type_id]; narrowed.flags &= ~TF_OPTIONAL;
-        c.variables[vi].narrowed = add_type(p, narrowed);
+        narrowed_type = add_type(p, narrowed);
     }
+    check_set_narrowed(c, vi, narrowed_type);
 }
 fn check_logical_apply(c: Checker&, node: i64) {
     for kill in c.logical_kills {
         if kill.node != node { continue; }
-        let vi = check_variable_index(c, kill.symbol); if vi >= 0 { c.variables[vi].narrowed = -1; }
+        let vi = check_variable_index(c, kill.symbol); if vi >= 0 { check_set_narrowed(c, vi, -1); }
     }
 }
-fn check_logical_globals(p: Program&, c: Checker&, out: CheckSpan&) {
-    out.first = c.flow_work.len; out.count = 0; var vi = c.scopes[0].first_variable;
-    while vi >= 0 {
-        let variable = c.variables[vi]; let symbol = p.symbols[variable.symbol]; let ty = symbol.type_id;
-        if (symbol.flags & S_GLOBAL) != 0 && ty >= 0 && p.types[ty].kind == TY_REF && (p.types[ty].flags & TF_OPTIONAL) != 0 {
-            c.flow_work.push(CheckFlow { symbol: variable.symbol, assigned: variable.assigned, maybeassigned: variable.maybeassigned, narrowed: variable.narrowed }); out.count += 1;
-        }
-        vi = variable.next_frame;
-    }
+// narrowed_variables is a stack of narrowed_count entries; shrinking it would
+// invalidate the checker's own references, so its tail is reused instead.
+fn check_narrowed_add(c: Checker&, vi: i64) {
+    if c.narrowed_count == c.narrowed_variables.len { c.narrowed_variables.push(vi); } else { c.narrowed_variables[c.narrowed_count] = vi; }
+    c.narrowed_count += 1;
 }
-fn check_logical_capture(c: Checker&, narrowed: CheckList&, span: CheckSpan&) {
-    for index in span.first..span.first + span.count {
-        let symbol = c.flow_work[index].symbol; let vi = check_variable_index(c, symbol);
-        if vi < 0 || c.variables[vi].narrowed < 0 { continue; }
-        var found = false;
-        for j in 0..narrowed.count { if check_list_at(c, narrowed, j) == symbol { found = true; break; } }
-        if !found { check_list_push(c, narrowed, symbol); }
+// The variables narrowed now, whose narrowing the right operand may end.
+fn check_logical_capture(c: Checker&, narrowed: CheckList&) {
+    c.flow_clock += 1; let tag = c.flow_clock; var write = 0;
+    for index in 0..c.narrowed_count {
+        let vi = c.narrowed_variables[index];
+        if c.variables[vi].narrowed < 0 || c.variables[vi].seen == tag { continue; }
+        c.variables[vi].seen = tag; c.narrowed_variables[write] = vi; write += 1;
+        check_list_push(c, narrowed, c.variables[vi].symbol);
     }
+    c.narrowed_count = write;
 }
 fn check_logical_record(c: Checker&, node: i64, narrowed: CheckList&) {
     for kill, index in c.logical_kills { if kill.node == node { c.logical_kills[index].node = -1; } }
@@ -2296,7 +2352,7 @@ recursive fn check_narrow_condition(p: Program&, c: Checker&, node: i64, sense: 
     let declared = p.symbols[n.symbol].type_id; let vi = check_variable_index(c, n.symbol);
     if declared < 0 || vi < 0 || p.types[declared].kind != TY_REF { return; }
     var copy = p.types[check_loaded_type(p, declared)]; copy.flags &= ~TF_OPTIONAL;
-    c.variables[vi].narrowed = add_type(p, copy);
+    check_set_narrowed(c, vi, add_type(p, copy));
 }
 
 recursive fn check_condition(p: Program&, c: Checker&, node: i64) {
@@ -2866,11 +2922,14 @@ fn check_builtin_kind(p: Program&, token: i64) -> i64 {
     return -1;
 }
 fn check_builtin_symbol(p: Program&, token: i64, builtin: i64, result: i64) -> i64 {
-    for s, id in p.symbols { if (s.flags & S_BUILTIN) != 0 && s.index == builtin { return id; } }
+    // Builtin symbols are created only here, one per builtin ID.
+    if builtin < p.builtin_symbols.len && p.builtin_symbols[builtin] >= 0 { return p.builtin_symbols[builtin]; }
     let type_id = add_type(p, Type { kind: TY_FN, element: result, size: p.pointer_bytes, align: p.pointer_bytes });
     let id = p.symbols.len;
     p.symbols.push(Symbol { name_token: token, type_id: type_id, scope: -2,
         flags: S_FUNCTION | S_BUILTIN, index: builtin });
+    while p.builtin_symbols.len <= builtin { p.builtin_symbols.push(-1); }
+    p.builtin_symbols[builtin] = id;
     return id;
 }
 recursive fn check_array_receiver(p: Program&, c: Checker&, node: i64, write: bool) -> i64 {
@@ -2913,9 +2972,14 @@ recursive fn check_render_hook(p: Program&, c: Checker&, type_id: i64) -> i64 {
     var round = 0;
     while round < 2 {
         var scope = namespace_scope; if round == 1 { scope = 0; }
-        let count = p.symbols.len;
-        for index in 0..count {
-            let symbol = p.symbols[index];
+        // Only symbols named format can qualify; they are indexed once, in order.
+        while c.format_symbol_scan < p.symbols.len {
+            if token_is(p, p.symbols[c.format_symbol_scan].name_token, "format") { c.format_symbols.push(c.format_symbol_scan); }
+            c.format_symbol_scan += 1;
+        }
+        let count = c.format_symbols.len;
+        for candidate in 0..count {
+            let index = c.format_symbols[candidate]; let symbol = p.symbols[index];
             if symbol.scope != scope || symbol.owner >= 0 || (symbol.flags & (S_FUNCTION | S_BUILTIN)) != S_FUNCTION || symbol.node < 0 || !token_is(p, symbol.name_token, "format") { continue; }
             let n = p.nodes[symbol.node];
             if n.kind != N_FUNCTION || n.origin >= 0 || n.third >= 0 || n.first < 0 { continue; }
@@ -3481,7 +3545,7 @@ recursive fn check_prepare_function(p: Program&, c: Checker&, function_node: i64
         if check_has_generic(p, ty, 0) { generic = true; }
         p.nodes[param].type_id = ty;
         let ps = check_declare(p, c, param, c.scope); p.symbols[ps].type_id = ty;
-        let vi = check_variable_index(c, ps); c.variables[vi].assigned = true; c.variables[vi].maybeassigned = true;
+        let vi = check_variable_index(c, ps); check_set_assigned(c, vi, true, true);
         if ty >= 0 && check_contains_refs(p, ty, 0) {
             var root_kind = 0; if p.types[ty].kind == TY_SLICE { root_kind = 1; }
             check_add_root(c, -ps - 10, ps, root_kind);
@@ -4045,7 +4109,18 @@ recursive fn check_narrow_context_float(p: Program&, c: Checker&, node: i64) -> 
     return p.nodes[node].type_id == TYPE_F32;
 }
 
-fn check_record_outer_exits(p: Program&, c: Checker&, function_node: i64, entry: CheckSpan&, exit_start: i64) {
+// A nonlocal exit from function_node to an enclosing active function: the
+// variables unassigned when function_node was entered that the exit assigns,
+// met over the exits, for replay where function_node is called. entry is the
+// delta since function_node's own mark, whose state now is at that mark for
+// variables it leaves out.
+fn check_flow_base(c: Checker&, tag: i64, vi: i64, assigned: bool&, maybeassigned: bool&) {
+    if c.variables[vi].seen == tag {
+        let flow = c.flow_work[c.variables[vi].seen_at]; assigned = flow.old_assigned; maybeassigned = flow.old_maybeassigned; return;
+    }
+    assigned = c.variables[vi].assigned; maybeassigned = c.variables[vi].maybeassigned;
+}
+fn check_record_outer_exits(p: Program&, c: Checker&, function_node: i64, mark: CheckFlowMark&, entry_tag: i64, exit_start: i64) {
     if (p.nodes[function_node].flags & F_NONLOCAL) == 0 { return; }
     let scope = p.nodes[function_node].scope; let exit_end = c.exit_work.len;
     for exit_index in exit_start..exit_end {
@@ -4056,29 +4131,40 @@ fn check_record_outer_exits(p: Program&, c: Checker&, function_node: i64, entry:
         var summary = c.scopes[scope].outer_exits;
         while summary >= 0 && c.outer_exits[summary].target != exit.target { summary = c.outer_exits[summary].next; }
         let first = summary < 0;
+        // A new summary span replaces the previous one each time.
+        let start = c.outer_flows.len;
+        for at in exit.flow.first..exit.flow.first + exit.flow.count {
+            let value = c.flow_work[at]; let vi = value.variable;
+            if c.variables[vi].born >= mark.stamp { continue; }
+            var base_assigned = false; var base_maybeassigned = false; check_flow_base(c, entry_tag, vi, base_assigned, base_maybeassigned);
+            if base_assigned { continue; }
+            var assigned = value.assigned; var maybeassigned = value.maybeassigned && !base_maybeassigned;
+            if !first {
+                // A variable the previous summary leaves out was unassigned there.
+                assigned = false; var previous = c.outer_exits[summary].flow;
+                for old_index in previous.first..previous.first + previous.count {
+                    let old = c.outer_flows[old_index]; if old.variable != vi { continue; }
+                    assigned = old.assigned && value.assigned; maybeassigned = old.maybeassigned || maybeassigned; break;
+                }
+            }
+            if !assigned && !maybeassigned { continue; }
+            c.outer_flows.push(CheckFlow { variable: vi, assigned: assigned, maybeassigned: maybeassigned });
+        }
+        if !first {
+            let added_end = c.outer_flows.len; var previous = c.outer_exits[summary].flow;
+            for old_index in previous.first..previous.first + previous.count {
+                let old = c.outer_flows[old_index]; if !old.maybeassigned { continue; }
+                var present = false;
+                for added in start..added_end { if c.outer_flows[added].variable == old.variable { present = true; break; } }
+                // Absent from this exit, so unassigned on it.
+                if !present { c.outer_flows.push(CheckFlow { variable: old.variable, assigned: false, maybeassigned: true }); }
+            }
+        }
         if first {
             summary = c.outer_exits.len;
-            c.outer_exits.push(CheckOuterExit { target: exit.target, flow: CheckSpan { first: c.flow_work.len }, next: c.scopes[scope].outer_exits });
+            c.outer_exits.push(CheckOuterExit { target: exit.target, flow: CheckSpan { first: start, count: c.outer_flows.len - start }, next: c.scopes[scope].outer_exits });
             c.scopes[scope].outer_exits = summary;
-        }
-        var ordinal = 0;
-        for entry_index in entry.first..entry.first + entry.count {
-            let initial = c.flow_work[entry_index]; if initial.assigned { continue; }
-            var assigned = false; var maybeassigned = false;
-            for at in exit.flow.first..exit.flow.first + exit.flow.count {
-                let value = c.flow_work[at]; if value.symbol != initial.symbol { continue; }
-                assigned = value.assigned; maybeassigned = value.maybeassigned && !initial.maybeassigned; break;
-            }
-            if first {
-                c.flow_work.push(CheckFlow { symbol: initial.symbol, assigned: assigned, maybeassigned: maybeassigned });
-                c.outer_exits[summary].flow.count += 1;
-            } else {
-                let at = c.outer_exits[summary].flow.first + ordinal;
-                c.flow_work[at].assigned = c.flow_work[at].assigned && assigned;
-                c.flow_work[at].maybeassigned = c.flow_work[at].maybeassigned || maybeassigned;
-            }
-            ordinal += 1;
-        }
+        } else { c.outer_exits[summary].flow = CheckSpan { first: start, count: c.outer_flows.len - start }; }
     }
 }
 fn check_replay_outer_exits(p: Program&, c: Checker&, function_node: i64) {
@@ -4086,16 +4172,24 @@ fn check_replay_outer_exits(p: Program&, c: Checker&, function_node: i64) {
     var at = c.scopes[scope].outer_exits;
     while at >= 0 {
         let summary = c.outer_exits[at]; at = summary.next;
-        var active = false;
-        for index in 0..c.checking_count { if c.checking[index] == summary.target { active = true; break; } }
-        if !active { continue; }
-        var flow = CheckSpan {}; check_flow_save(p, c, flow);
-        for index in flow.first..flow.first + flow.count {
-            let value = c.flow_work[index];
-            for old_index in summary.flow.first..summary.flow.first + summary.flow.count {
-                let added = c.flow_work[old_index]; if added.symbol != value.symbol { continue; }
-                c.flow_work[index].assigned = value.assigned || added.assigned;
-                c.flow_work[index].maybeassigned = value.maybeassigned || added.maybeassigned; break;
+        var found = false; let mark = check_function_mark(c, summary.target, found);
+        if !found { continue; }
+        var flow = CheckSpan {}; check_flow_delta(c, mark, flow);
+        c.flow_clock += 1; let tag = c.flow_clock;
+        for index in flow.first..flow.first + flow.count { let vi = c.flow_work[index].variable; c.variables[vi].seen = tag; c.variables[vi].seen_at = index; }
+        for added_index in summary.flow.first..summary.flow.first + summary.flow.count {
+            let added = c.outer_flows[added_index]; let vi = added.variable;
+            if c.variables[vi].born >= mark.stamp { continue; }
+            if c.variables[vi].seen == tag {
+                let index = c.variables[vi].seen_at;
+                c.flow_work[index].assigned = c.flow_work[index].assigned || added.assigned;
+                c.flow_work[index].maybeassigned = c.flow_work[index].maybeassigned || added.maybeassigned;
+            } else {
+                let v: const CheckVariable& = c.variables[vi];
+                let value = CheckFlow { variable: vi, assigned: v.assigned || added.assigned, maybeassigned: v.maybeassigned || added.maybeassigned,
+                    narrowed: v.narrowed, old_assigned: v.assigned, old_maybeassigned: v.maybeassigned, old_narrowed: v.narrowed };
+                c.flow_work.push(value); flow.count += 1;
+                c.variables[vi].seen = tag; c.variables[vi].seen_at = c.flow_work.len - 1;
             }
         }
         c.exit_work.push(CheckExit { target: summary.target, flow: flow });
@@ -4120,10 +4214,11 @@ fn check_apply_call_effects(p: Program&, c: Checker&, node: i64, function_node: 
             }
         } else { check_add_root(c, node, rr.root, rr.kind); }
     }
-    let effects_end = c.effects.len;
-    for i in 0..effects_end {
-        let effect = c.effects[i];
-        if effect.function_node != function_node { continue; }
+    // Effects recorded from here on belong to this call's own checking.
+    let effects_end = c.effects.len; var next_effect = -1;
+    if function_node < c.effect_first.len { next_effect = c.effect_first[function_node]; }
+    while next_effect >= 0 && next_effect < effects_end {
+        let effect = c.effects[next_effect]; next_effect = effect.next;
         let root = p.symbols[effect.root];
         if effect.kind == 7 { check_global_use(p, c, effect.root, p.nodes[node].token); continue; }
         if !check_global_use(p, c, effect.root, p.nodes[node].token) { continue; }
@@ -4136,10 +4231,10 @@ fn check_apply_call_effects(p: Program&, c: Checker&, node: i64, function_node: 
             let vi = check_variable_index(c, effect.root);
             if vi >= 0 && effect.kind == 6 {
                 if (root.flags & S_MUTABLE) == 0 && c.variables[vi].maybeassigned { diagnose(p, p.nodes[node].token, "call may assign a let binding that may already be assigned"); }
-                c.variables[vi].maybeassigned = true;
+                check_set_assigned(c, vi, c.variables[vi].assigned, true);
             }
-            if vi >= 0 && effect.kind == 4 { c.variables[vi].assigned = true; c.variables[vi].maybeassigned = true; }
-            if vi >= 0 && effect.kind == 5 { c.variables[vi].narrowed = -1; }
+            if vi >= 0 && effect.kind == 4 { check_set_assigned(c, vi, true, true); }
+            if vi >= 0 && effect.kind == 5 { check_set_narrowed(c, vi, -1); }
             if effect.kind == 2 { check_live_views(p, c, effect.root, p.nodes[node].token); }
         }
     }
@@ -4460,110 +4555,188 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
     return result;
 }
 
-fn check_flow_frame(c: Checker&, count: i64&, frame: i64, active: bool) {
-    if frame < 0 { return; }
-    for index in 0..count {
-        // Lexical frames keep their scope filter. Only suspended callers
-        // outside that chain need all frame variables.
-        if c.flow_cursors[index].frame == frame { return; }
+// Flow facts (definite assignment and optional narrowing) change through
+// check_flow_set, which logs a variable's previous state when it was declared
+// before the innermost open mark. A construct opens a mark where its branches
+// start. Undoing to the mark pops the log; a delta lists each variable
+// changed since the mark with its state then and now. Variables declared
+// after a mark are local to its construct, which neither undoes nor reports
+// them, so the log and the deltas follow live nesting, not program size.
+fn check_flow_set(c: Checker&, vi: i64, assigned: bool, maybeassigned: bool, narrowed: i64) {
+    let v: const CheckVariable& = c.variables[vi];
+    if v.assigned == assigned && v.maybeassigned == maybeassigned && v.narrowed == narrowed { return; }
+    if v.born < c.flow_stamp {
+        c.flow_trail.push(CheckFlowUndo { variable: vi, assigned: v.assigned, maybeassigned: v.maybeassigned, narrowed: v.narrowed });
     }
-    let cursor = CheckFlowCursor { frame: frame, index: c.scopes[frame].first_variable, active: active };
-    if count == c.flow_cursors.len { c.flow_cursors.push(cursor); } else { c.flow_cursors[count] = cursor; }
-    count += 1;
+    if narrowed >= 0 && v.narrowed < 0 { check_narrowed_add(c, vi); }
+    c.variables[vi].assigned = assigned; c.variables[vi].maybeassigned = maybeassigned; c.variables[vi].narrowed = narrowed;
 }
-fn check_flow_advance(p: Program&, c: Checker&, cursor: i64) {
-    var index = c.flow_cursors[cursor].index;
-    while index >= 0 {
-        let symbol: const Symbol& = p.symbols[c.variables[index].symbol];
-        if c.flow_cursors[cursor].active {
-            // Declaration-initialized immutable values keep stable
-            // assignment facts. Delayed lets stay in every snapshot.
-            var stable = false;
-            if (symbol.flags & S_MUTABLE) == 0 && symbol.type_id >= 0 {
-                stable = (symbol.flags & S_PARAMETER) != 0;
-                if symbol.node >= 0 && p.nodes[symbol.node].kind == N_VARIABLE && p.nodes[symbol.node].right >= 0 { stable = true; }
-                if stable {
-                    let kind = p.types[symbol.type_id].kind;
-                    stable = kind == TY_BOOL || kind == TY_INT || kind == TY_FLOAT ||
-                        kind == TY_STRUCT || kind == TY_ENUM || kind == TY_ARRAY || kind == TY_TUPLE;
-                }
-            }
-            if !stable { break; }
-        } else if (symbol.flags & S_GLOBAL) != 0 || check_visible(c, symbol.scope, c.scope) { break; }
-        index = c.variables[index].next_frame;
+fn check_set_assigned(c: Checker&, vi: i64, assigned: bool, maybeassigned: bool) {
+    check_flow_set(c, vi, assigned, maybeassigned, c.variables[vi].narrowed);
+}
+fn check_set_narrowed(c: Checker&, vi: i64, narrowed: i64) {
+    check_flow_set(c, vi, c.variables[vi].assigned, c.variables[vi].maybeassigned, narrowed);
+}
+fn check_flow_mark(c: Checker&) -> CheckFlowMark {
+    c.flow_clock += 1;
+    let mark = CheckFlowMark { trail: c.flow_trail.len, stamp: c.flow_clock, outer: c.flow_stamp,
+                               work: c.flow_work.len, exits: c.exit_work.len, narrowed: c.narrowed_count };
+    c.flow_stamp = mark.stamp; return mark;
+}
+fn check_flow_undo(c: Checker&, mark: CheckFlowMark&) {
+    while c.flow_trail.len > mark.trail {
+        let entry = c.flow_trail.pop(); let vi = entry.variable;
+        c.variables[vi].assigned = entry.assigned; c.variables[vi].maybeassigned = entry.maybeassigned;
+        c.variables[vi].narrowed = entry.narrowed;
+        if entry.narrowed >= 0 { check_narrowed_add(c, vi); }
     }
-    c.flow_cursors[cursor].index = index;
 }
-fn check_flow_save(p: Program&, c: Checker&, out: CheckSpan&, active_callers: bool = true) {
+// Appends each variable declared before the mark and changed since, with its
+// state at the mark (its first log entry since) and now.
+fn check_flow_delta(c: Checker&, mark: CheckFlowMark&, out: CheckSpan&) {
+    c.flow_clock += 1; let tag = c.flow_clock;
     out.first = c.flow_work.len; out.count = 0;
-    var cursor_count = 0; var scope = c.scope;
-    while scope >= 0 {
-        let frame = c.scopes[scope].frame_root; check_flow_frame(c, cursor_count, frame, false);
-        scope = c.scopes[frame].parent;
-    }
-    if active_callers {
-        for index in 0..c.checking_count {
-            let function_scope = p.nodes[c.checking[index]].scope;
-            if function_scope >= 0 { check_flow_frame(c, cursor_count, c.scopes[function_scope].frame_root, true); }
-        }
-    }
-    for cursor in 0..cursor_count { check_flow_advance(p, c, cursor); }
-    // Each frame chain is in reverse declaration order. Merge the chains
-    // and reverse once so flow joins retain their ordered symbol IDs.
-    while true {
-        var selected = -1; var greatest = -1;
-        for cursor in 0..cursor_count {
-            let index = c.flow_cursors[cursor].index;
-            if index >= 0 && c.variables[index].symbol > greatest { selected = cursor; greatest = c.variables[index].symbol; }
-        }
-        if selected < 0 { break; }
-        let variable = c.variables[c.flow_cursors[selected].index];
-        c.flow_cursors[selected].index = variable.next_frame;
-        check_flow_advance(p, c, selected);
-        c.flow_work.push(CheckFlow { symbol: variable.symbol, assigned: variable.assigned,
-            maybeassigned: variable.maybeassigned, narrowed: variable.narrowed });
-        out.count += 1;
-    }
-    var left = out.first; var right = out.first + out.count - 1;
-    while left < right {
-        let saved = c.flow_work[left]; c.flow_work[left] = c.flow_work[right]; c.flow_work[right] = saved;
-        left += 1; right -= 1;
+    for index in mark.trail..c.flow_trail.len {
+        let entry = c.flow_trail[index]; let vi = entry.variable;
+        if c.variables[vi].born >= mark.stamp || c.variables[vi].seen == tag { continue; }
+        c.variables[vi].seen = tag;
+        let v: const CheckVariable& = c.variables[vi];
+        let flow = CheckFlow { variable: vi, assigned: v.assigned, maybeassigned: v.maybeassigned, narrowed: v.narrowed,
+                               old_assigned: entry.assigned, old_maybeassigned: entry.maybeassigned, old_narrowed: entry.narrowed };
+        c.flow_work.push(flow); out.count += 1;
     }
 }
-fn check_flow_restore(c: Checker&, flow: CheckSpan&) {
-    for flow_index in flow.first..flow.first + flow.count { let saved = c.flow_work[flow_index];
-        let vi = check_variable_index(c, saved.symbol);
-        if vi >= 0 { c.variables[vi].assigned = saved.assigned; c.variables[vi].maybeassigned = saved.maybeassigned; c.variables[vi].narrowed = saved.narrowed; }
+// Closes the innermost mark: drops deltas no pending exit holds, then keeps
+// only the first log entry of each variable the enclosing mark still needs.
+fn check_flow_close(c: Checker&, mark: CheckFlowMark&) {
+    var write = mark.work;
+    for index in mark.exits..c.exit_work.len {
+        let flow = c.exit_work[index].flow;
+        if flow.first < mark.work { continue; }
+        for at in 0..flow.count { c.flow_work[write + at] = c.flow_work[flow.first + at]; }
+        c.exit_work[index].flow.first = write; write += flow.count;
     }
+    if c.flow_work.len > write { let extra = c.flow_work.len - write; c.flow_work.pop_n(extra); }
+    c.flow_stamp = mark.outer;
+    c.flow_clock += 1; let tag = c.flow_clock; var kept = mark.trail;
+    for index in mark.trail..c.flow_trail.len {
+        let entry = c.flow_trail[index]; let vi = entry.variable;
+        if c.variables[vi].born >= c.flow_stamp || c.variables[vi].seen == tag { continue; }
+        c.variables[vi].seen = tag; c.flow_trail[kept] = entry; kept += 1;
+    }
+    if c.flow_trail.len > kept { let extra = c.flow_trail.len - kept; c.flow_trail.pop_n(extra); }
+    // Narrowed variables declared inside the construct are out of scope.
+    var narrowed = mark.narrowed;
+    for index in mark.narrowed..c.narrowed_count {
+        let vi = c.narrowed_variables[index];
+        if c.variables[vi].narrowed < 0 || c.variables[vi].born >= mark.stamp { continue; }
+        c.narrowed_variables[narrowed] = vi; narrowed += 1;
+    }
+    c.narrowed_count = narrowed;
 }
+// Removes the exits a finished construct consumed.
+fn check_exits_consume(c: Checker&, start: i64, target: i64) {
+    var write = start;
+    for index in start..c.exit_work.len {
+        let exit = c.exit_work[index];
+        if exit.target == target { continue; }
+        c.exit_work[write] = exit; write += 1;
+    }
+    if c.exit_work.len > write { let extra = c.exit_work.len - write; c.exit_work.pop_n(extra); }
+}
+fn check_flow_merge(p: Program&, c: Checker&, vi: i64, left: CheckFlowUndo, right: CheckFlowUndo, left_reachable: bool, right_reachable: bool) {
+    if !left_reachable { check_flow_set(c, vi, right.assigned, right.maybeassigned, right.narrowed); return; }
+    if !right_reachable { check_flow_set(c, vi, left.assigned, left.maybeassigned, left.narrowed); return; }
+    var narrowed = -1; if check_same_type(p, left.narrowed, right.narrowed) { narrowed = left.narrowed; }
+    check_flow_set(c, vi, left.assigned && right.assigned, left.maybeassigned || right.maybeassigned, narrowed);
+}
+// Joins two deltas since one mark; the current state is the right one.
 fn check_flow_join(p: Program&, c: Checker&, left: CheckSpan&, right: CheckSpan&, left_reachable: bool, right_reachable: bool) {
-    if !left_reachable { check_flow_restore(c, right); return; }
-    if !right_reachable { check_flow_restore(c, left); return; }
-    var left_index = left.first; var right_index = right.first;
-    while left_index < left.first + left.count && right_index < right.first + right.count {
-        let a = c.flow_work[left_index]; let b = c.flow_work[right_index];
-        if a.symbol < b.symbol { left_index += 1; continue; }
-        if b.symbol < a.symbol { right_index += 1; continue; }
-        let vi = check_variable_index(c, a.symbol);
-        if vi >= 0 {
-            c.variables[vi].assigned = a.assigned && b.assigned;
-            c.variables[vi].maybeassigned = a.maybeassigned || b.maybeassigned;
-            c.variables[vi].narrowed = -1;
-            if check_same_type(p, a.narrowed, b.narrowed) { c.variables[vi].narrowed = a.narrowed; }
+    c.flow_clock += 1; let in_left = c.flow_clock; c.flow_clock += 1; let paired = c.flow_clock;
+    for index in left.first..left.first + left.count {
+        let vi = c.flow_work[index].variable; c.variables[vi].seen = in_left; c.variables[vi].seen_at = index;
+    }
+    for index in right.first..right.first + right.count {
+        let r = c.flow_work[index]; let vi = r.variable;
+        var l = CheckFlowUndo { variable: vi, assigned: r.old_assigned, maybeassigned: r.old_maybeassigned, narrowed: r.old_narrowed };
+        if c.variables[vi].seen == in_left {
+            let f = c.flow_work[c.variables[vi].seen_at];
+            l = CheckFlowUndo { variable: vi, assigned: f.assigned, maybeassigned: f.maybeassigned, narrowed: f.narrowed };
+            c.variables[vi].seen = paired;
         }
-        left_index += 1; right_index += 1;
+        let now = CheckFlowUndo { variable: vi, assigned: r.assigned, maybeassigned: r.maybeassigned, narrowed: r.narrowed };
+        check_flow_merge(p, c, vi, l, now, left_reachable, right_reachable);
+    }
+    for index in left.first..left.first + left.count {
+        let f = c.flow_work[index]; let vi = f.variable;
+        if c.variables[vi].seen != in_left { continue; }
+        let l = CheckFlowUndo { variable: vi, assigned: f.assigned, maybeassigned: f.maybeassigned, narrowed: f.narrowed };
+        let base = CheckFlowUndo { variable: vi, assigned: f.old_assigned, maybeassigned: f.old_maybeassigned, narrowed: f.old_narrowed };
+        check_flow_merge(p, c, vi, l, base, left_reachable, right_reachable);
     }
 }
-fn check_join_control_exits(p: Program&, c: Checker&, target: i64, start: i64, fallthrough: bool) -> bool {
-    var merged = CheckSpan {}; var reachable = fallthrough;
-    if fallthrough { check_flow_save(p, c, merged); }
+fn check_join_value(p: Program&, c: Checker&, index: i64, assigned: bool, maybeassigned: bool, narrowed: i64) {
+    if c.flow_join[index].empty {
+        c.flow_join[index].assigned = assigned; c.flow_join[index].maybeassigned = maybeassigned;
+        c.flow_join[index].narrowed = narrowed; c.flow_join[index].empty = false; return;
+    }
+    c.flow_join[index].assigned = c.flow_join[index].assigned && assigned;
+    c.flow_join[index].maybeassigned = c.flow_join[index].maybeassigned || maybeassigned;
+    if !check_same_type(p, c.flow_join[index].narrowed, narrowed) { c.flow_join[index].narrowed = -1; }
+}
+// Adds one state, a delta since the join's mark, to the meet started at
+// tag; contribute false only registers its variables.
+fn check_join_delta(p: Program&, c: Checker&, tag: i64, span: CheckSpan, contribute: bool) {
+    for index in span.first..span.first + span.count {
+        let d = c.flow_work[index]; let vi = d.variable; var at = c.variables[vi].seen_at;
+        if c.variables[vi].seen != tag {
+            c.variables[vi].seen = tag; at = c.flow_join.len; c.variables[vi].seen_at = at;
+            c.flow_join.push(CheckFlowJoin { variable: vi, base_assigned: d.old_assigned, base_maybeassigned: d.old_maybeassigned, base_narrowed: d.old_narrowed });
+        }
+        if contribute { c.flow_join[at].count += 1; check_join_value(p, c, at, d.assigned, d.maybeassigned, d.narrowed); }
+    }
+}
+// Sets each joined variable to its meet; a state that left a variable out
+// contributes the variable's state at the mark.
+fn check_join_finish(p: Program&, c: Checker&, start: i64, contributors: i64) {
+    for index in start..c.flow_join.len {
+        if c.flow_join[index].count < contributors {
+            let join = c.flow_join[index];
+            check_join_value(p, c, index, join.base_assigned, join.base_maybeassigned, join.base_narrowed);
+        }
+        let value = c.flow_join[index];
+        check_flow_set(c, value.variable, value.assigned, value.maybeassigned, value.narrowed);
+    }
+    if c.flow_join.len > start { let extra = c.flow_join.len - start; c.flow_join.pop_n(extra); }
+}
+// Meets the fallthrough's current state with the exits to target recorded
+// since start, all deltas since mark.
+fn check_join_control_exits(p: Program&, c: Checker&, target: i64, start: i64, fallthrough: bool, mark: CheckFlowMark&) -> bool {
+    var exits = 0;
+    for index in start..c.exit_work.len { let exit = c.exit_work[index]; if exit.target == target && !exit.backedge { exits += 1; } }
+    if exits == 0 { return fallthrough; }
+    c.flow_clock += 1; let tag = c.flow_clock; let join_start = c.flow_join.len;
+    var current = CheckSpan {}; check_flow_delta(c, mark, current);
+    check_join_delta(p, c, tag, current, fallthrough);
     for index in start..c.exit_work.len {
         let exit = c.exit_work[index]; if exit.target != target || exit.backedge { continue; }
-        if !reachable { merged = exit.flow; reachable = true; }
-        else { var next = exit.flow; check_flow_join(p, c, merged, next, true, true); check_flow_save(p, c, merged); }
+        check_join_delta(p, c, tag, exit.flow, true);
     }
-    if reachable { check_flow_restore(c, merged); }
-    return reachable;
+    var contributors = exits; if fallthrough { contributors += 1; }
+    check_join_finish(p, c, join_start, contributors);
+    if current.count > 0 { let extra = current.count; c.flow_work.pop_n(extra); }
+    return true;
+}
+// The mark of an active function, the target of an exit from inside it.
+fn check_function_mark(c: Checker&, function_node: i64, found: bool&) -> CheckFlowMark {
+    var index = c.checking_count;
+    while index > 0 { index -= 1; if c.checking[index] == function_node { found = true; return c.checking_marks[index]; } }
+    found = false; return CheckFlowMark {};
+}
+// Records an exit to target, an active function or loop whose mark is given.
+fn check_flow_exit(c: Checker&, target: i64, mark: CheckFlowMark&, backedge: bool = false) {
+    var flow = CheckSpan {}; check_flow_delta(c, mark, flow);
+    c.exit_work.push(CheckExit { target: target, flow: flow, backedge: backedge });
 }
 recursive fn check_branch_readonly(p: Program&, c: Checker&, node: i64) -> bool {
     if node < 0 { return false; }
@@ -4710,9 +4883,10 @@ recursive fn check_block(p: Program&, c: Checker&, node: i64, expected: i64) -> 
     let n = p.nodes[node]; let saved = check_enter(c, c.function_node); let exit_start = c.exit_work.len;
     p.nodes[node].scope = c.scope;
     if expected >= 0 && (p.types[expected].kind == TY_REF || p.types[expected].kind == TY_SLICE) { p.nodes[node].flags |= F_REFERENCE_CONTEXT; }
-    var early = false;
+    var early = false; var mark = CheckFlowMark {};
     if (n.flags & (F_EARLY | F_NONLOCAL)) != 0 {
-        check_push_loop(c, CheckLoop { node: node, scope: c.scope, function_node: c.function_node, expected: expected, returning: c.returning }); early = true;
+        mark = check_flow_mark(c);
+        check_push_loop(c, CheckLoop { node: node, scope: c.scope, function_node: c.function_node, expected: expected, returning: c.returning, mark: mark }); early = true;
     }
     check_predeclare(p, c, n.first);
     var child = n.first; var result = TYPE_VOID; var previous_child = -1;
@@ -4761,7 +4935,8 @@ recursive fn check_block(p: Program&, c: Checker&, node: i64, expected: i64) -> 
             c.reachable = true;
         }
         c.loop_count -= 1;
-        c.reachable = check_join_control_exits(p, c, node, exit_start, body_reachable);
+        c.reachable = check_join_control_exits(p, c, node, exit_start, body_reachable, mark);
+        check_exits_consume(c, exit_start, node); check_flow_close(c, mark);
     }
     c.scope = saved;
     if !c.reachable { return -1; }
@@ -4769,19 +4944,20 @@ recursive fn check_block(p: Program&, c: Checker&, node: i64, expected: i64) -> 
 }
 recursive fn check_if(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     let n = p.nodes[node]; check_condition(p, c, n.left);
-    var entry = CheckSpan {}; check_flow_save(p, c, entry);
+    var mark = check_flow_mark(c);
     let reachable = c.reachable;
     check_narrow_condition(p, c, n.left, true);
     let left = check_expression(p, c, n.right, expected); let left_reachable = c.reachable;
-    var left_flow = CheckSpan {}; check_flow_save(p, c, left_flow);
-    check_flow_restore(c, entry); c.reachable = reachable;
+    var left_flow = CheckSpan {}; check_flow_delta(c, mark, left_flow);
+    check_flow_undo(c, mark); c.reachable = reachable;
     check_narrow_condition(p, c, n.left, false);
     var right = TYPE_VOID;
     if n.third >= 0 { right = check_expression(p, c, n.third, expected); }
     else if expected >= 0 && expected != TYPE_VOID { diagnose(p, n.token, "if used as a value requires an else branch"); }
     let right_reachable = c.reachable;
-    var right_flow = CheckSpan {}; check_flow_save(p, c, right_flow);
+    var right_flow = CheckSpan {}; check_flow_delta(c, mark, right_flow);
     check_flow_join(p, c, left_flow, right_flow, left_reachable, right_reachable);
+    check_flow_close(c, mark);
     c.reachable = left_reachable || right_reachable;
     check_copy_roots(c, node, n.right); if n.third >= 0 { check_copy_roots(c, node, n.third); }
     if expected == TYPE_VOID { return TYPE_VOID; }
@@ -4818,9 +4994,10 @@ recursive fn check_lower_operation(p: Program&, c: Checker&, node: i64, left_typ
             right_formal = check_type(p, TY_SLICE, b.element, -1, -1, right_flags);
         }
     }
-    var function_node = -1; let count = p.nodes.len;
-    for candidate in 0..count {
-        let n = p.nodes[candidate];
+    // Synthetic operation functions are created only below, in node order.
+    var function_node = -1; let count = c.operation_functions.len;
+    for operation in 0..count {
+        let candidate = c.operation_functions[operation]; let n = p.nodes[candidate];
         if n.kind != N_FUNCTION || (n.flags & F_SYNTHETIC) == 0 || n.aux != op || n.first < 0 { continue; }
         let first = n.first; let second = p.nodes[first].next;
         if !check_same_type(p, p.nodes[first].type_id, left_formal) { continue; }
@@ -4828,6 +5005,7 @@ recursive fn check_lower_operation(p: Program&, c: Checker&, node: i64, left_typ
     }
     if function_node < 0 {
         function_node = operation_function(p, left_formal, right_formal, result_type, op, original.token);
+        c.operation_functions.push(function_node);
         p.nodes[function_node].scope = 0;
         let saved_function = c.function_node; c.function_node = -1; check_declare(p, c, function_node, 0); c.function_node = saved_function;
     }
@@ -5003,13 +5181,24 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         let op = n.integer;
         if op == T_ANDAND || op == T_OROR {
             check_condition(p, c, n.left);
-            var before = CheckSpan {}; check_flow_save(p, c, before, true);
-            var globals = CheckSpan {}; check_logical_globals(p, c, globals);
+            var mark = check_flow_mark(c);
             let reachable = c.reachable; check_narrow_condition(p, c, n.left, op == T_ANDAND);
-            var narrowed = CheckList {}; check_logical_capture(c, narrowed, before); check_logical_capture(c, narrowed, globals);
+            var narrowed = CheckList {}; check_logical_capture(c, narrowed);
             check_condition(p, c, n.right); check_logical_record(c, node, narrowed);
-            var after = CheckSpan {}; check_flow_save(p, c, after, true);
-            check_flow_join(p, c, before, after, reachable, c.reachable); check_flow_restore(c, globals); check_logical_apply(c, node); c.reachable = reachable;
+            var after = CheckSpan {}; check_flow_delta(c, mark, after); let right_reachable = c.reachable;
+            // The state before the right operand meets the state after it;
+            // optional globals keep their state from before the operator.
+            for index in after.first..after.first + after.count {
+                let d = c.flow_work[index]; let vi = d.variable;
+                let before = CheckFlowUndo { variable: vi, assigned: d.old_assigned, maybeassigned: d.old_maybeassigned, narrowed: d.old_narrowed };
+                let now = CheckFlowUndo { variable: vi, assigned: d.assigned, maybeassigned: d.maybeassigned, narrowed: d.narrowed };
+                check_flow_merge(p, c, vi, before, now, reachable, right_reachable);
+                let symbol = p.symbols[c.variables[vi].symbol]; let ty = symbol.type_id;
+                if (symbol.flags & S_GLOBAL) != 0 && ty >= 0 && p.types[ty].kind == TY_REF && (p.types[ty].flags & TF_OPTIONAL) != 0 {
+                    check_flow_set(c, vi, d.old_assigned, d.old_maybeassigned, d.old_narrowed);
+                }
+            }
+            check_logical_apply(c, node); c.reachable = reachable; check_flow_close(c, mark);
             result = TYPE_BOOL;
         } else {
             var lt = -1; var rt = -1;
@@ -5237,19 +5426,16 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
     return result;
 }
 
-fn check_loop_backedge(p: Program&, c: Checker&, node: i64, entry: CheckSpan, edge: CheckSpan, weakened: CheckList&) {
-    var before_at = entry.first; var after_at = edge.first;
-    while before_at < entry.first + entry.count && after_at < edge.first + edge.count {
-        let before = c.flow_work[before_at]; let after = c.flow_work[after_at];
-        if before.symbol < after.symbol { before_at += 1; continue; }
-        if after.symbol < before.symbol { after_at += 1; continue; }
-        if !before.maybeassigned && after.maybeassigned && (p.symbols[before.symbol].flags & S_MUTABLE) == 0 {
+// edge is a delta since the loop's mark: its old state is the loop entry's.
+fn check_loop_backedge(p: Program&, c: Checker&, node: i64, edge: CheckSpan, weakened: CheckList&) {
+    for at in edge.first..edge.first + edge.count {
+        let flow = c.flow_work[at]; let symbol = c.variables[flow.variable].symbol;
+        if !flow.old_maybeassigned && flow.maybeassigned && (p.symbols[symbol].flags & S_MUTABLE) == 0 {
             diagnose(p, p.nodes[node].token, "let binding may already be assigned on a loop backedge");
         }
-        if before.narrowed >= 0 && !check_same_type(p, before.narrowed, after.narrowed) {
-            check_list_push(c, weakened, before.symbol);
+        if flow.old_narrowed >= 0 && !check_same_type(p, flow.old_narrowed, flow.narrowed) {
+            check_list_push(c, weakened, symbol);
         }
-        before_at += 1; after_at += 1;
     }
 }
 recursive fn check_collect_break_values(p: Program&, c: Checker&, node: i64, target: i64, values: CheckList&, divergence_flags: bool = false) {
@@ -5339,9 +5525,9 @@ fn check_join_break_values(p: Program&, c: Checker&, node: i64, inputs: CheckLis
 recursive fn check_loop(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
     let n = p.nodes[node]; let saved = check_enter(c, c.function_node); let exit_start = c.exit_work.len;
     p.nodes[node].scope = c.scope;
-    var entry = CheckSpan {}; check_flow_save(p, c, entry); let initial_entry = entry;
+    let mark = check_flow_mark(c);
     let li = c.loop_count;
-    if n.kind == N_WHILE { check_push_loop(c, CheckLoop { node: node, scope: c.scope, function_node: c.function_node, expected: expected, returning: c.returning }); }
+    if n.kind == N_WHILE { check_push_loop(c, CheckLoop { node: node, scope: c.scope, function_node: c.function_node, expected: expected, returning: c.returning, mark: mark }); }
     if n.kind == N_WHILE { check_condition(p, c, n.left); }
     if n.kind == N_FOR {
         let source = check_single_expression(p, c, n.left); var element = TYPE_I64; var sequence = false; var sequence_type = -1;
@@ -5401,7 +5587,7 @@ recursive fn check_loop(p: Program&, c: Checker&, node: i64, expected: i64) -> i
             ty = check_loaded_type(p, ty);
             p.nodes[binding].type_id = ty;
             let symbol = check_declare(p, c, binding, c.scope); p.symbols[symbol].type_id = ty;
-            let vi = check_variable_index(c, symbol); c.variables[vi].assigned = true; c.variables[vi].maybeassigned = true;
+            let vi = check_variable_index(c, symbol); check_set_assigned(c, vi, true, true);
             // The copied binding slot is immutable. A reference or slice
             // stored in it retains its own pointee writability.
             c.variables[vi].readonly = (p.nodes[binding].flags & F_REFERENCE) == 0;
@@ -5411,39 +5597,37 @@ recursive fn check_loop(p: Program&, c: Checker&, node: i64, expected: i64) -> i
             index += 1; binding = p.nodes[binding].next;
         }
     }
-    if n.kind != N_WHILE { check_push_loop(c, CheckLoop { node: node, scope: c.scope, function_node: c.function_node, expected: expected, returning: c.returning }); }
-    check_flow_save(p, c, entry);
+    if n.kind != N_WHILE { check_push_loop(c, CheckLoop { node: node, scope: c.scope, function_node: c.function_node, expected: expected, returning: c.returning, mark: mark }); }
+    var entry = check_flow_mark(c);
     if n.kind == N_WHILE { check_narrow_condition(p, c, n.left, true); }
     let returning = c.returning; c.returning = false;
     check_expression(p, c, n.right, TYPE_VOID); c.returning = returning;
-    if c.reachable {
-        var edge = CheckSpan {}; check_flow_save(p, c, edge);
-        c.exit_work.push(CheckExit { target: node, flow: edge, backedge: true });
-    }
+    if c.reachable { check_flow_exit(c, node, mark, true); }
     var weakened = CheckList {};
     for index in exit_start..c.exit_work.len {
         let edge = c.exit_work[index];
-        if edge.target == node && edge.backedge { check_loop_backedge(p, c, node, initial_entry, edge.flow, weakened); }
+        if edge.target == node && edge.backedge { check_loop_backedge(p, c, node, edge.flow, weakened); }
     }
     if weakened.count > 0 {
-        check_flow_restore(c, entry);
-        for index in 0..weakened.count { let symbol = check_list_at(c, weakened, index); c.variables[check_variable_index(c, symbol)].narrowed = -1; }
+        check_flow_undo(c, entry); check_flow_close(c, entry);
+        for index in 0..weakened.count { let symbol = check_list_at(c, weakened, index); check_set_narrowed(c, check_variable_index(c, symbol), -1); }
         c.reachable = true;
         var bindings = CheckList {};
         if n.kind == N_WHILE {
             let condition = check_clone(p, c, n.left, bindings); p.nodes[node].left = condition;
             check_condition(p, c, condition);
         }
-        check_flow_save(p, c, entry);
+        entry = check_flow_mark(c);
         if n.kind == N_WHILE { check_narrow_condition(p, c, p.nodes[node].left, true); }
         let body = check_clone(p, c, n.right, bindings); p.nodes[node].right = body;
         c.returning = false; check_expression(p, c, body, TYPE_VOID); c.returning = returning;
     }
     let loop_state = c.loop_stack[li]; c.loop_count -= 1;
-    check_flow_restore(c, entry);
+    check_flow_undo(c, entry); check_flow_close(c, entry);
     var fallthrough = n.kind != N_LOOP;
     if n.kind == N_WHILE { let condition = check_constant(p, c, n.left, 0); if condition.valid && condition.value != 0 { fallthrough = false; } }
-    c.reachable = check_join_control_exits(p, c, node, exit_start, fallthrough);
+    c.reachable = check_join_control_exits(p, c, node, exit_start, fallthrough, mark);
+    check_exits_consume(c, exit_start, node); check_flow_close(c, mark);
     c.scope = saved;
     if n.kind == N_LOOP && loop_state.breaks {
         var values = CheckList {}; check_collect_break_values(p, c, node, node, values);
@@ -5482,12 +5666,11 @@ recursive fn check_jump(p: Program&, c: Checker&, node: i64) {
                 c.loop_stack[li].result = check_join_break_values(p, c, target.node, values, -1, false, -1, target.expected, false);
             }
             c.loop_stack[li].breaks = true;
-            var exit_flow = CheckSpan {}; check_flow_save(p, c, exit_flow); c.exit_work.push(CheckExit { target: target.node, flow: exit_flow });
+            check_flow_exit(c, target.node, target.mark);
             if n.left >= 0 { check_copy_roots(c, target.node, n.left); }
         }
     } else if c.reachable {
-        var exit_flow = CheckSpan {}; check_flow_save(p, c, exit_flow);
-        c.exit_work.push(CheckExit { target: target.node, flow: exit_flow, backedge: true });
+        check_flow_exit(c, target.node, target.mark, true);
     }
     c.reachable = false;
 }
@@ -5576,15 +5759,15 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
         while arm >= 0 { if p.nodes[arm].kind == N_ARM && check_valueless_tail(p, p.nodes[arm].right) { statement = true; } arm = p.nodes[arm].next; }
         if statement { arm_expected = TYPE_VOID; }
     }
-    var entry = CheckSpan {}; check_flow_save(p, c, entry);
-    var merged = CheckSpan {}; var merged_reachable = false; var any_reachable = false;
+    let mark = check_flow_mark(c);
+    var branches = CheckList {}; var any_reachable = false;
     var result = -1; var result_node = -1; var wildcard = false;
     var intervals = CheckList {}; var tags = CheckList {};
     var arm = p.nodes[node].first;
     while arm >= 0 {
         let a = p.nodes[arm];
         if a.kind != N_ARM { diagnose(p, a.token, "match expansion did not produce an arm"); arm = a.next; continue; }
-        check_flow_restore(c, entry); c.reachable = true;
+        check_flow_undo(c, mark); c.reachable = true;
         let saved = check_enter(c, c.function_node);
         p.nodes[arm].scope = c.scope;
         let pattern = p.nodes[a.left];
@@ -5670,7 +5853,7 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
                 }
                 p.nodes[binder].type_id = ty;
                 let symbol = check_declare(p, c, binder, c.scope); p.symbols[symbol].type_id = ty;
-                let vi = check_variable_index(c, symbol); c.variables[vi].assigned = true; c.variables[vi].maybeassigned = true;
+                let vi = check_variable_index(c, symbol); check_set_assigned(c, vi, true, true);
                 c.variables[vi].readonly = (p.nodes[binder].flags & F_REFERENCE) == 0;
                 if (p.nodes[binder].flags & F_REFERENCE) != 0 { check_add_root(c, -symbol - 10, check_place_root(p, n.left), 1); }
             }
@@ -5680,11 +5863,8 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
         if statement && ty >= 0 { ty = TYPE_VOID; }
         if c.reachable {
             result = check_join_type(p, c, result_node, result, a.right, ty, n.token); result_node = a.right;
-            var branch = CheckSpan {}; check_flow_save(p, c, branch);
-            if !merged_reachable { merged = branch; merged_reachable = true; }
-            else {
-                check_flow_join(p, c, merged, branch, true, true); check_flow_save(p, c, merged);
-            }
+            var branch = CheckSpan {}; check_flow_delta(c, mark, branch);
+            check_list_push(c, branches, branch.first); check_list_push(c, branches, branch.count);
             any_reachable = true;
         }
         check_copy_roots(c, node, a.right);
@@ -5696,7 +5876,17 @@ recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> 
     // complete finite-width partition. Enum wildcards may be empty after
     // specialization and remain valid generic code.
     if !exhaustive { diagnose(p, n.token, "match does not cover every possible value"); }
-    check_flow_restore(c, merged); c.reachable = any_reachable;
+    if any_reachable {
+        // Meet the reachable arms' states from the state before the match.
+        check_flow_undo(c, mark);
+        c.flow_clock += 1; let tag = c.flow_clock; let join_start = c.flow_join.len;
+        for index in 0..branches.count / 2 {
+            let branch = CheckSpan { first: check_list_at(c, branches, 2 * index), count: check_list_at(c, branches, 2 * index + 1) };
+            check_join_delta(p, c, tag, branch, true);
+        }
+        check_join_finish(p, c, join_start, branches.count / 2);
+    }
+    check_flow_close(c, mark); c.reachable = any_reachable;
     if expected == TYPE_VOID { return TYPE_VOID; }
     return result;
 }
@@ -5796,7 +5986,9 @@ recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
             diagnose(p, n.token, "return values do not match the function result signature");
         }
     }
-    var exit_flow = CheckSpan {}; check_flow_save(p, c, exit_flow); c.exit_work.push(CheckExit { target: target, flow: exit_flow });
+    // An exit only reaches a target being checked: its join is that check's end.
+    var target_active = false; let target_mark = check_function_mark(c, target, target_active);
+    if target_active { check_flow_exit(c, target, target_mark); }
     p.nodes[target].flags |= F_RETURNS; p.nodes[target].flags &= ~F_DIVERGES;
     if target == c.function_node {
         if c.result_type < 0 { c.result_type = actual; p.types[p.nodes[target].type_id].element = actual; }
@@ -5910,7 +6102,7 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
         if index == 0 { p.nodes[node].symbol = symbol; p.nodes[node].type_id = ty; }
         let vi = check_variable_index(c, symbol);
         if vi >= 0 {
-            c.variables[vi].assigned = init >= 0; c.variables[vi].maybeassigned = init >= 0;
+            check_set_assigned(c, vi, init >= 0, init >= 0);
             c.variables[vi].readonly = (n.flags & F_CONST) != 0;
             if init >= 0 && tuple < 0 && ty >= 0 && p.types[ty].kind == TY_INT && (n.flags & F_VAR) == 0 {
                 c.variables[vi].nonnegative = check_nonnegative_get(c, init);
@@ -6088,7 +6280,7 @@ fn check_assignment_target(p: Program&, c: Checker&, target: i64, value: i64, re
         }
         check_note_effect(c, root, 6);
         if vi >= 0 {
-            c.variables[vi].assigned = true; c.variables[vi].maybeassigned = true;
+            check_set_assigned(c, vi, true, true);
             if rebind { check_assign_narrowing(p, c, root, value); check_note_effect(c, root, 5); }
         }
         if value >= 0 && s.type_id >= 0 && check_contains_refs(p, s.type_id, 0) { check_store_roots(p, c, root, value); }
@@ -6123,7 +6315,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     }
     if n.right < 0 { p.nodes[function_node].flags |= F_CHECKED; return; }
     check_function_syntax(p, c, function_node);
-    var entry_flow = CheckSpan {}; check_flow_save(p, c, entry_flow, true); let exit_start = c.exit_work.len; let effect_start = c.effects.len;
+    let mark = check_flow_mark(c); let exit_start = c.exit_work.len; let effect_start = c.effects.len;
     let saved_scope = c.scope; let saved_function = c.function_node; let saved_result = c.result_type;
     let saved_slot = c.next_slot; let saved_reachable = c.reachable; let saved_returns = c.returns; let saved_defaults = c.default_fields;
     let saved_returning = c.returning; c.returning = false;
@@ -6148,7 +6340,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     c.next_slot = check_list_count(p, n.first); c.reachable = true; c.returns = false;
     let saved_need_path = c.need_path; c.need_path = c.need_frames.len;
     c.need_frames.push(CheckNeedFrame { function_node: function_node, parent: saved_need_path });
-    check_push_function(c, function_node);
+    check_push_function(c, function_node, mark);
     var body_node = n.right; check_expression(p, c, body_node, c.result_type);
     var recursive_path = false; var backedges = c.backedges;
     for index in 0..backedges.count { if check_list_at(c, backedges, index) == function_node { recursive_path = true; break; } }
@@ -6163,7 +6355,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
         // The first round discovers transitive rebinds, including defaults
         // and format hooks. The second applies them at recursive backedges.
         var bindings = CheckList {}; body_node = check_clone(p, c, n.right, bindings);
-        p.nodes[function_node].right = body_node; check_flow_restore(c, entry_flow);
+        p.nodes[function_node].right = body_node; check_flow_undo(c, mark);
         c.scope = n.scope; c.reachable = true; check_expression(p, c, body_node, c.result_type);
     }
     if !c.reachable && (p.nodes[function_node].flags & F_RETURNS) == 0 { p.nodes[function_node].flags |= F_DIVERGES; }
@@ -6180,43 +6372,71 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
     } else if c.reachable && c.result_type >= 0 && c.result_type != TYPE_VOID {
         diagnose(p, n.token, "function can reach its end without returning every result");
     }
-    if c.reachable { var exit_flow = CheckSpan {}; check_flow_save(p, c, exit_flow); c.exit_work.push(CheckExit { target: function_node, flow: exit_flow }); }
-    check_record_outer_exits(p, c, function_node, entry_flow, exit_start);
-    for entry_index in entry_flow.first..entry_flow.first + entry_flow.count {
-        let entry = c.flow_work[entry_index]; if entry.assigned { continue; }
-        var assigned = true; var maybeassigned = entry.maybeassigned; var exits = 0;
-        for index in exit_start..c.exit_work.len {
-            let exit = c.exit_work[index]; if exit.target != function_node || exit.backedge { continue; }
-            exits += 1; var found = false;
-            for flow_index in exit.flow.first..exit.flow.first + exit.flow.count {
-                let flow = c.flow_work[flow_index]; if flow.symbol != entry.symbol { continue; }
-                assigned = assigned && flow.assigned; maybeassigned = maybeassigned || flow.maybeassigned; found = true; break;
+    if c.reachable { check_flow_exit(c, function_node, mark); }
+    // entry: what changed since the function's mark, for each variable's state there.
+    var entry = CheckSpan {}; check_flow_delta(c, mark, entry); let entry_tag = c.flow_clock;
+    for index in entry.first..entry.first + entry.count { let vi = c.flow_work[index].variable; c.variables[vi].seen_at = index; }
+    check_record_outer_exits(p, c, function_node, mark, entry_tag, exit_start);
+    // A variable unassigned at entry that every exit assigns is assigned by a
+    // call; one some exit assigns may be. Only a variable an exit changed, or a
+    // root this function assigns, can qualify.
+    var exits = 0;
+    for index in exit_start..c.exit_work.len { let exit = c.exit_work[index]; if exit.target == function_node && !exit.backedge { exits += 1; } }
+    c.flow_clock += 1; let tag = c.flow_clock; let join_start = c.flow_join.len;
+    for index in exit_start..c.exit_work.len {
+        let exit = c.exit_work[index]; if exit.target != function_node || exit.backedge { continue; }
+        for at in exit.flow.first..exit.flow.first + exit.flow.count {
+            let flow = c.flow_work[at]; let vi = flow.variable;
+            if flow.old_assigned { continue; }
+            var join_at = c.variables[vi].seen_at;
+            if c.variables[vi].seen != tag {
+                c.variables[vi].seen = tag; join_at = c.flow_join.len; c.variables[vi].seen_at = join_at;
+                c.flow_join.push(CheckFlowJoin { variable: vi, maybeassigned: flow.old_maybeassigned, empty: false,
+                    base_assigned: flow.old_assigned, base_maybeassigned: flow.old_maybeassigned });
             }
-            if !found { assigned = false; }
+            c.flow_join[join_at].count += 1;
+            c.flow_join[join_at].assigned = c.flow_join[join_at].assigned && flow.assigned;
+            c.flow_join[join_at].maybeassigned = c.flow_join[join_at].maybeassigned || flow.maybeassigned;
         }
+    }
+    let changed_end = c.flow_join.len;
+    for effect_index in effect_start..c.effects.len {
+        let effect = c.effects[effect_index]; if effect.function_node != function_node || effect.kind != 6 { continue; }
+        let vi = check_variable_index(c, effect.root);
+        if vi < 0 || c.variables[vi].born >= mark.stamp || c.variables[vi].seen == tag { continue; }
+        var base_assigned = false; var base_maybeassigned = false; check_flow_base(c, entry_tag, vi, base_assigned, base_maybeassigned);
+        if base_assigned { continue; }
+        c.variables[vi].seen = tag;
+        c.flow_join.push(CheckFlowJoin { variable: vi, assigned: false, maybeassigned: base_maybeassigned, empty: false,
+            base_maybeassigned: base_maybeassigned });
+    }
+    for join_index in join_start..c.flow_join.len {
+        let join = c.flow_join[join_index]; let symbol = c.variables[join.variable].symbol;
+        // An exit that leaves the variable out leaves it unassigned.
+        let assigned = join.assigned && join_index < changed_end && join.count == exits; let maybeassigned = join.maybeassigned;
         // Assignments on nonlocal exits belong to their target's join.
         if !maybeassigned {
             for effect_index in effect_start..c.effects.len {
                 let effect = c.effects[effect_index];
-                if effect.function_node == function_node && effect.root == entry.symbol && effect.kind == 6 {
+                if effect.function_node == function_node && effect.root == symbol && effect.kind == 6 {
                     c.effects[effect_index].kind = 0;
                 }
             }
         }
         if exits > 0 {
-            if maybeassigned && !entry.maybeassigned { check_note_effect(c, entry.symbol, 6); }
-            let vi = check_variable_index(c, entry.symbol);
-            if vi >= 0 { c.variables[vi].assigned = assigned; c.variables[vi].maybeassigned = maybeassigned; }
-            if assigned { check_note_effect(c, entry.symbol, 4); }
+            if maybeassigned && !join.base_maybeassigned { check_note_effect(c, symbol, 6); }
+            check_set_assigned(c, join.variable, assigned, maybeassigned);
+            if assigned { check_note_effect(c, symbol, 4); }
         }
     }
+    if c.flow_join.len > join_start { let extra = c.flow_join.len - join_start; c.flow_join.pop_n(extra); }
     if c.result_type < 0 && p.types[n.type_id].element >= 0 { c.result_type = p.types[n.type_id].element; }
     if c.result_type < 0 { c.result_type = TYPE_VOID; }
     if c.result_type >= 0 && p.types[c.result_type].kind == TY_ARRAY && p.types[c.result_type].element < 0 { diagnose(p, n.token, "cannot infer a result element type from an empty array"); }
     p.types[n.type_id].element = c.result_type;
     p.nodes[function_node].flags |= F_CHECKED;
     c.checking_count -= 1; c.need_path = saved_need_path;
-    check_flow_restore(c, entry_flow);
+    check_flow_undo(c, mark); check_exits_consume(c, exit_start, function_node); check_flow_close(c, mark);
     c.scope = saved_scope; c.function_node = saved_function; c.result_type = saved_result;
     c.next_slot = saved_slot; c.reachable = saved_reachable; c.returns = saved_returns; c.default_fields = saved_defaults; c.returning = saved_returning;
     c.parameter_default_function = saved_parameter_function; c.parameter_default_floor = saved_parameter_floor;
@@ -6559,14 +6779,14 @@ fn check_unreached(p: Program&, c: Checker&, declarations: i64) {
     // Calls discovered here must not make emitted program roots reachable.
     var reachable: bool[>..] = [];
     for n in p.nodes { reachable.push((n.flags & F_REACHABLE) != 0); }
+    var specialized: bool[>..] = []; specialized.resize(p.nodes.len, false);
+    for spec in c.specializations { if spec.original >= 0 && spec.original < specialized.len { specialized[spec.original] = true; } }
     for i in 0..declarations {
         let symbol = p.symbols[i]; if symbol.node < 0 || symbol.owner >= 0 { continue; }
         let n = p.nodes[symbol.node];
         if n.kind != N_FUNCTION || n.right < 0 || (n.flags & (F_GENERIC | F_THREAD | F_CHECKED)) != 0 { continue; }
         if library_node(p, symbol.node) { continue; }
-        var specialized = false;
-        for spec in c.specializations { if spec.original == symbol.node { specialized = true; break; } }
-        if specialized { continue; }
+        if specialized[symbol.node] { continue; }
         if !check_foreign_return(p, symbol.node) { check_function(p, c, symbol.node); }
     }
     for n, i in p.nodes {
@@ -6594,7 +6814,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_outer_exits: CheckOuterExit[>..] = [];
     var checker_node_nonnegative: i64[>..] = [];
     var checker_syntax_nodes: Node[>..] = []; var checker_syntax_lookup: i64[>..] = [];
-    var checker_effects: CheckEffect[>..] = [];
+    var checker_effects: CheckEffect[>..] = []; var checker_effect_first: i64[>..] = []; var checker_effect_last: i64[>..] = [];
     var checker_return_roots: CheckReturnRoot[>..] = [];
     var checker_specializations: CheckSpecialization[>..] = [];
     var checker_needs: CheckNeed[>..] = []; var checker_need_frames: CheckNeedFrame[>..] = []; var checker_need_edges: CheckNeedEdge[>..] = [];
@@ -6604,13 +6824,15 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_loop_stack: CheckLoop[>..] = [];
     var checker_integer_work: CheckInteger[>..] = [];
     var checker_binding_work: TypeBinding[>..] = [];
-    var checker_flow_work: CheckFlow[>..] = []; var checker_flow_cursors: CheckFlowCursor[>..] = [];
+    var checker_flow_work: CheckFlow[>..] = []; var checker_flow_trail: CheckFlowUndo[>..] = [];
+    var checker_flow_join: CheckFlowJoin[>..] = []; var checker_narrowed_variables: i64[>..] = []; var checker_outer_flows: CheckFlow[>..] = [];
+    var checker_checking_marks: CheckFlowMark[>..] = []; var checker_format_symbols: i64[>..] = []; var checker_operation_functions: i64[>..] = [];
     var checker_exit_work: CheckExit[>..] = [];
     var checker_interval_work: CheckInterval[>..] = [];
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
     var parameter_default_contexts: CheckDefaultCapture[>..] = [];
     var logical_kills: CheckLogicalKill[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_cursors: checker_flow_cursors, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_first: checker_effect_first, effect_last: checker_effect_last, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, checking_marks: checker_checking_marks, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     var source_id = p.first_decl_source;
     while source_id >= 0 {
@@ -6640,7 +6862,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
         if (s.flags & S_GLOBAL) != 0 && s.node >= 0 && p.nodes[s.node].kind == N_VARIABLE {
             check_variable(p, c, s.node);
             let vi = check_variable_index(c, i);
-            if vi >= 0 { c.variables[vi].global_initialized = true; c.variables[vi].assigned = true; c.variables[vi].maybeassigned = true; }
+            if vi >= 0 { c.variables[vi].global_initialized = true; check_set_assigned(c, vi, true, true); }
         }
     }
     c.initializing_globals = false;
