@@ -59,6 +59,10 @@ struct Checker {
     parameter_default_contexts: CheckDefaultCapture[>..]&,
     logical_kills: CheckLogicalKill[>..]&,
     parameter_default_function: i64 = -1, parameter_default_floor: i64 = -1,
+    // The call that left out the parameter default being checked, and the
+    // function that call is in: src_file() and src_line() written in the
+    // default report that call (upstream a5579b1).
+    call_location: i64 = -1, call_location_function: i64 = -1,
     returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {},
 }
 
@@ -2357,6 +2361,8 @@ recursive fn check_parameter_default(p: Program&, c: Checker&, function_node: i6
     let saved_default_body = c.default_body; c.default_body = true;
     let saved_parameter_function = c.parameter_default_function; let saved_parameter_floor = c.parameter_default_floor;
     c.parameter_default_function = function_node; c.parameter_default_floor = p.nodes.len;
+    let saved_location = c.call_location; let saved_location_function = c.call_location_function;
+    c.call_location = token; c.call_location_function = c.function_node;
     check_list_push(c, c.default_fields, p.nodes[parameter].token);
     if p.nodes[function_node].scope >= 0 { c.scope = c.scopes[p.nodes[function_node].scope].parent; }
     var bindings = CheckList {};
@@ -2366,6 +2372,7 @@ recursive fn check_parameter_default(p: Program&, c: Checker&, function_node: i6
     c.render_reference = saved_render_reference;
     c.default_fields = saved_defaults; c.scope = saved_scope; c.default_body = saved_default_body;
     c.parameter_default_function = saved_parameter_function; c.parameter_default_floor = saved_parameter_floor;
+    c.call_location = saved_location; c.call_location_function = saved_location_function;
     return value;
 }
 
@@ -2854,6 +2861,8 @@ fn check_builtin_kind(p: Program&, token: i64) -> i64 {
     if token_is(p, token, "alloc_slice") { return 33; }
     if token_is(p, token, "realloc_slice") { return 34; }
     if token_is(p, token, "free_slice") { return 35; }
+    if token_is(p, token, "src_file") { return 36; }
+    if token_is(p, token, "src_line") { return 37; }
     return -1;
 }
 fn check_builtin_symbol(p: Program&, token: i64, builtin: i64, result: i64) -> i64 {
@@ -3198,7 +3207,7 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
     var minimum = 1; var maximum = 1;
     if builtin == 0 || builtin == 1 { minimum = 0; maximum = 99; }
     if builtin == 2 { minimum = 1; maximum = 99; }
-    if builtin == 6 || builtin == 12 || builtin == 14 { minimum = 0; maximum = 0; }
+    if builtin == 6 || builtin == 12 || builtin == 14 || builtin == 36 || builtin == 37 { minimum = 0; maximum = 0; }
     if builtin == 11 { minimum = 0; maximum = 1; }
     if builtin == 7 || builtin == 8 || builtin == 19 { minimum = 1; maximum = 99; }
     if builtin == 9 || builtin == 16 { maximum = 2; }
@@ -3297,6 +3306,28 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         let destination = p.types[type_argument];
         if destination.kind != TY_ARRAY || destination.array_kind != A_GROW && destination.array_kind != A_GROWSHRINK && destination.array_kind != A_VAR { diagnose(p, n.token, "from_bytes constructs only a resizable or variable array"); }
         result = check_builtin_pair(p, type_argument, n.token); check_add_root(c, node, -2);
+    } else if builtin == 36 || builtin == 37 {
+        // The call's base file name and 1-based line; written in a parameter
+        // default, those of the call that left the argument out.
+        var at = n.token;
+        if c.call_location >= 0 && c.call_location_function == c.function_node { at = c.call_location; }
+        let location = p.tokens[at];
+        var replacement = -1;
+        if builtin == 37 { replacement = new_node(p, N_INTEGER, at); p.nodes[replacement].integer = location.line; }
+        else {
+            let source = p.sources[location.source];
+            var name: u8[>..] = [];
+            name.append(p.text[source.path_start..source.path_start + source.path_len]);
+            var base = 0;
+            for byte, i in name { if byte == '/' || byte == '\\' { base = i + 1; } }
+            var token = location; token.kind = T_STRLIT; token.flags = 0;
+            token.text_start = p.text.len; token.text_len = name.len - base; p.text.append(name[base..]);
+            let token_id = p.tokens.len; p.tokens.push(token);
+            replacement = new_node(p, N_STRING, token_id);
+        }
+        let next = n.next; let scope = n.scope;
+        p.nodes[node] = p.nodes[replacement]; p.nodes[node].next = next; p.nodes[node].scope = scope;
+        return check_expression(p, c, node, -1);
     } else if builtin == 20 {
         let argument = check_list_at(c, args, 0); check_value(p, c, argument, TYPE_STRING);
         let replacement = source_embed_file(p, node, argument);

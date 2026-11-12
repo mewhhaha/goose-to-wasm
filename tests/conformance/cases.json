@@ -68116,6 +68116,70 @@
             "exit": 0
         },
         "provenance": "Upstream 2fdd16d Name<T>.Variant (test/typing/generic_variant_constants.goose, expected/generic_variant_constants.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/call-location/src-file-line/native",
+        "source": "tests/fixtures/contracts/call-location/call_location.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "call_location.goose\n17\ncall_location.goose:18 filled\nother.goose:3 filled\ncall_location.goose:12\n",
+            "exit": 0
+        },
+        "provenance": "Upstream a5579b1 src_file()/src_line() (test/codegen/call_location.goose, expected/call_location.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation: a string literal default for a u8[:] parameter is reported as a read-only store"
+    },
+    {
+        "id": "corpus/contracts/call-location/src-file-line/wasm-direct",
+        "source": "tests/fixtures/contracts/call-location/call_location.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "call_location.goose\n17\ncall_location.goose:18 filled\nother.goose:3 filled\ncall_location.goose:12\n",
+            "exit": 0
+        },
+        "provenance": "Upstream a5579b1 src_file()/src_line() (test/codegen/call_location.goose, expected/call_location.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation: a string literal default for a u8[:] parameter is reported as a read-only store"
+    },
+    {
+        "id": "corpus/contracts/call-location/const-defaults/native",
+        "source": "tests/fixtures/contracts/call-location/const_defaults.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "const_defaults.goose\n17\nconst_defaults.goose:18 filled\nother.goose:3 filled\nconst_defaults.goose:12\n",
+            "exit": 0
+        },
+        "provenance": "Upstream a5579b1 test/codegen/call_location.goose with const u8[:] parameters: a default reports the call that left it out; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/call-location/const-defaults/wasm-direct",
+        "source": "tests/fixtures/contracts/call-location/const_defaults.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "const_defaults.goose\n17\nconst_defaults.goose:18 filled\nother.goose:3 filled\nconst_defaults.goose:12\n",
+            "exit": 0
+        },
+        "provenance": "Upstream a5579b1 test/codegen/call_location.goose with const u8[:] parameters: a default reports the call that left it out; expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {
