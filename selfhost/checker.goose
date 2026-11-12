@@ -756,8 +756,11 @@ recursive fn check_clone(p: Program&, c: Checker&, node: i64, bindings: CheckLis
     if node < 0 { return -1; }
     if c.expanding {
         c.expansion_nodes += 1;
-        if c.expansion_nodes > 100000 {
-            if c.expansion_nodes == 100001 { diagnose(p, p.nodes[node].token, "const for expansion exceeds 100000 generated nodes"); }
+        if c.expansion_nodes > p.expansion_limit {
+            if c.expansion_nodes == p.expansion_limit + 1 {
+                var message: u8[>..] = []; message.append("const for expansion exceeds "); message.format(p.expansion_limit); message.append(" generated nodes");
+                diagnose(p, p.nodes[node].token, message);
+            }
             return -1;
         }
     }
@@ -788,27 +791,30 @@ recursive fn check_clone(p: Program&, c: Checker&, node: i64, bindings: CheckLis
     if copy.kind == N_RECORD { p.nodes[id].right = old_right; }
     else { p.nodes[id].right = check_clone(p, c, old_right, bindings); }
     p.nodes[id].third = check_clone(p, c, old_third, bindings);
-    if c.expanding && c.expansion_nodes > 100000 { c.clone_syntax = saved_syntax; return id; }
+    if c.expanding && c.expansion_nodes > p.expansion_limit { c.clone_syntax = saved_syntax; return id; }
     // left and third may own lists (function results and generic parameters).
     if copy.kind == N_FUNCTION || copy.kind == N_FUNCTION_VALUE || copy.kind == N_TYPE_FN || copy.kind == N_CONST_FOR {
         var old = old_left; var tail = p.nodes[id].left;
         if old >= 0 { old = check_clone_node(p, c, old).next; }
         while old >= 0 {
-            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
+            let item = check_clone(p, c, old, bindings); if item < 0 || tail < 0 { break; }
+            p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
         }
     }
     if copy.kind == N_FUNCTION || copy.kind == N_STRUCT || copy.kind == N_ENUM {
         var old = old_third; var tail = p.nodes[id].third;
         if old >= 0 { old = check_clone_node(p, c, old).next; }
         while old >= 0 {
-            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
+            let item = check_clone(p, c, old, bindings); if item < 0 || tail < 0 { break; }
+            p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
         }
     }
     if copy.kind == N_VARIABLE {
         var old = old_right; var tail = p.nodes[id].right;
         if old >= 0 { old = check_clone_node(p, c, old).next; }
         while old >= 0 {
-            let item = check_clone(p, c, old, bindings); p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
+            let item = check_clone(p, c, old, bindings); if item < 0 || tail < 0 { break; }
+            p.nodes[tail].next = item; tail = item; old = check_clone_node(p, c, old).next;
         }
     }
     c.clone_syntax = saved_syntax; return id;
@@ -6677,7 +6683,7 @@ recursive fn check_expand_const_for(p: Program&, c: Checker&, node: i64) -> i64 
             field = p.nodes[field].next;
         }
     }
-    if c.expansion_nodes > 100000 { return result; }
+    if c.expansion_nodes > p.expansion_limit { return result; }
     for entry_index in 0..entries.count { let entry = check_list_at(c, entries, entry_index);
         var bindings = CheckList {}; var value = -1; var accessor = -1; var actual = -1; var ty = -1;
         if n.integer == 0 {
@@ -6693,7 +6699,7 @@ recursive fn check_expand_const_for(p: Program&, c: Checker&, node: i64) -> i64 
         }
         let was_expanding = c.expanding; c.expanding = true;
         let copy = check_clone(p, c, n.right, bindings); c.expanding = was_expanding;
-        if copy < 0 || c.expansion_nodes > 100000 { break; }
+        if copy < 0 || c.expansion_nodes > p.expansion_limit { break; }
         check_expand_replace(p, copy, p.nodes[first_binding].expansion_binding, value, accessor, actual, ty, owner);
         if body.kind == N_BLOCK {
             // A marker prevents a jump from crossing an expansion boundary.
@@ -6844,6 +6850,8 @@ fn check_unreached(p: Program&, c: Checker&, declarations: i64) {
         if n.kind != N_FUNCTION || n.right < 0 || (n.flags & (F_GENERIC | F_THREAD | F_CHECKED)) != 0 { continue; }
         if library_node(p, symbol.node) { continue; }
         if specialized[symbol.node] { continue; }
+        // Signatures were prepared with the declarations; only bodies remain.
+        if p.reachable_program && (n.flags & F_EXPORT) == 0 { continue; }
         if !check_foreign_return(p, symbol.node) { check_function(p, c, symbol.node); }
     }
     for n, i in p.nodes {
@@ -6935,7 +6943,10 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
         if (n.flags & F_EXPORT) != 0 || p.library && (n.flags & F_GENERIC) == 0 { check_function(p, c, s.node); }
     }
     if main_symbol < 0 {
-        if !p.library { diagnose(p, -1, "program requires fn main()"); }
+        // Checking only, a program that declares no main anywhere is checked on its own.
+        var declares_main = false;
+        for symbol in p.symbols { if (symbol.flags & S_FUNCTION) != 0 && symbol.owner < 0 && token_is(p, symbol.name_token, "main") { declares_main = true; break; } }
+        if !p.library && !(p.check_only && !declares_main) { diagnose(p, -1, "program requires fn main()"); }
     } else {
         let main = p.symbols[main_symbol].node;
         if p.nodes[main].first >= 0 || (p.nodes[main].flags & F_GENERIC) != 0 { diagnose(p, p.nodes[main].token, "main must be nongeneric and take no parameters"); }

@@ -165,7 +165,7 @@ def main():
     def compile_case(case, source, level, action):
         native_sources = native_source_paths(case)
         key = (str(source), case['target'], level, bool(case.get('debug')), case.get('maximum_pages'),
-               tuple(case.get('native_defines', [])), tuple(map(str, native_sources)), action)
+               tuple(case.get('native_defines', [])), tuple(map(str, native_sources)), action, tuple(case.get('options', [])))
         with lock:
             slot = slots.get(key)
             if slot is None:
@@ -257,6 +257,9 @@ def main():
             command.append('--debug')
         if case.get('maximum_pages') is not None:
             command += ['--wasm-initial-pages', '1', '--wasm-max-pages', str(case['maximum_pages'])]
+        # Compiler options a contract states, such as the reference checker's
+        # build settings.
+        command += case.get('options', [])
         index, result = execute(command, ROOT)
         value = {'command': index, 'result': result, 'artifact': artifact}
         if action == 'emit' and result['exit_code'] == 0 and artifact.is_file() and case['target'] == 'native':

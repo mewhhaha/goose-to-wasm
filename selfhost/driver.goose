@@ -16,7 +16,7 @@ struct DriverOptions {
     stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1,
     target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     check: bool = false, parse: bool = false, tokens: bool = false,
-    dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false,
+    dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000,
     help: bool = false, version: bool = false, bad: bool = false,
 }
 fn driver_integer(out: u8[>..]&, value: i64) {
@@ -125,13 +125,14 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "--run") { o.run = true; }
         else if same_bytes(a, "--debug") { o.debug = true; }
         else if same_bytes(a, "--library") { o.library = true; }
+        else if same_bytes(a, "--reachable-program") { o.reachable_program = true; }
         else if same_bytes(a, "--standalone") { /* C output is standalone. */ }
         else if same_bytes(a, "-O0") { o.optimization = 0; }
         else if same_bytes(a, "-O1") { o.optimization = 1; }
         else if same_bytes(a, "-O2") { o.optimization = 2; }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
                 same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") ||
-                same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") {
+                same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") {
             if at >= arguments.len { driver_error("missing option value"); o.bad = true; break; }
             let v = arguments[at]; at++;
             if same_bytes(a, "-o") { o.output_arg = at - 1; }
@@ -146,6 +147,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
             } else {
                 let number, ok = driver_number(v);
                 if !ok { driver_error("invalid page count"); o.bad = true; }
+                else if same_bytes(a, "--expansion-node-limit") { o.expansion_limit = number; }
                 else if same_bytes(a, "--wasm-initial-pages") { o.initial_pages = number; }
                 else { o.maximum_pages = number; }
             }
@@ -268,7 +270,7 @@ fn driver_exec(command: u8[>..]&) -> i64 {
     return (code >> 8) & 255;
 }
 fn driver_help() {
-    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
+    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -307,6 +309,7 @@ fn driver_main() -> i64 {
                       nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
+    p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;
     if o.target == 1 { p.pointer_bytes = 8; }
     initialize_types(p);

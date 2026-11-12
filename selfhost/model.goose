@@ -326,6 +326,14 @@ struct Program {
     optimization: i64 = 0, debug: bool = false,
     pointer_bytes: i64 = 4,
     library: bool = false,
+    // check_only: --check or --parse, where a program that declares no main
+    // is checked on its own (upstream nomain). reachable_program: unreached
+    // functions are not checked (the reference checker's
+    // GOOSE_REACHABLE_PROGRAM build, blot2 upstream-32a4f44 patch 03).
+    check_only: bool = false, reachable_program: bool = false,
+    // The program's total const for expansion size (upstream ExpansionClone,
+    // whose reference build raises it to 1000000).
+    expansion_limit: i64 = 100000,
 }
 inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }

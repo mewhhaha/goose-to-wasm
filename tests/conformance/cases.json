@@ -68814,6 +68814,73 @@
             "exit": 0
         },
         "provenance": "Independently specified: a holder storing a reference to a whole grow-shrink global views the array, not slots inside its elements (compiler-goose src/driver/compile_workspace_backing.goose); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/check-roots/exports-without-main",
+        "source": "tests/fixtures/contracts/check-roots/exports-without-main.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 TypeCheck nomain (typecheck.h:3124): checking only, a program declaring no main is checked on its own; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/check-roots/namespaced-main",
+        "source": "tests/fixtures/contracts/check-roots/namespaced-main.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 TypeCheck nomain (typecheck.h:3124): checking only, a program declaring no main is checked on its own; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/check-roots/unreached-body-checked",
+        "source": "tests/fixtures/contracts/check-roots/unreached-body.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Reference checker build setting GOOSE_REACHABLE_PROGRAM (blot2 compiler-goose/tools/upstream-32a4f44/03-goose-reachable-program.patch): unreached bodies are not checked; stock upstream CheckUnreached checks them; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/check-roots/unreached-body-reachable-program",
+        "source": "tests/fixtures/contracts/check-roots/unreached-body.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Reference checker build setting GOOSE_REACHABLE_PROGRAM (blot2 compiler-goose/tools/upstream-32a4f44/03-goose-reachable-program.patch): unreached bodies are not checked; stock upstream CheckUnreached checks them; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "options": [
+            "--reachable-program"
+        ]
+    },
+    {
+        "id": "corpus/contracts/check-roots/expansion-limit-default",
+        "source": "tests/fixtures/contracts/check-roots/expansion-limit.goose",
+        "phase": "check",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream clone.h ExpansionClone total node limit, 100000 by default and 1000000 in the reference build (GOOSE_EXPANSION_NODE_LIMIT, blot2 01-goose-containment.patch); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/check-roots/expansion-limit-exceeded",
+        "source": "tests/fixtures/contracts/check-roots/expansion-limit.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream clone.h ExpansionClone total node limit, 100000 by default and 1000000 in the reference build (GOOSE_EXPANSION_NODE_LIMIT, blot2 01-goose-containment.patch); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)",
+        "options": [
+            "--expansion-node-limit",
+            "100"
+        ]
     }
   ],
   "legacy_math_capture": {
