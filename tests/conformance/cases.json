@@ -68131,7 +68131,7 @@
             "stdout": "call_location.goose\n17\ncall_location.goose:18 filled\nother.goose:3 filled\ncall_location.goose:12\n",
             "exit": 0
         },
-        "provenance": "Upstream a5579b1 src_file()/src_line() (test/codegen/call_location.goose, expected/call_location.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation: a string literal default for a u8[:] parameter is reported as a read-only store"
+        "provenance": "Upstream a5579b1 src_file()/src_line() (test/codegen/call_location.goose, expected/call_location.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     },
     {
         "id": "corpus/contracts/call-location/src-file-line/wasm-direct",
@@ -68147,7 +68147,7 @@
             "stdout": "call_location.goose\n17\ncall_location.goose:18 filled\nother.goose:3 filled\ncall_location.goose:12\n",
             "exit": 0
         },
-        "provenance": "Upstream a5579b1 src_file()/src_line() (test/codegen/call_location.goose, expected/call_location.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation: a string literal default for a u8[:] parameter is reported as a read-only store"
+        "provenance": "Upstream a5579b1 src_file()/src_line() (test/codegen/call_location.goose, expected/call_location.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     },
     {
         "id": "corpus/contracts/call-location/const-defaults/native",
@@ -68396,6 +68396,424 @@
             "exit": 0
         },
         "provenance": "Independently specified: only a block's last child is its tail; a block statement with its own tail is a void statement (compiler-goose src/check/frozen_core_bounds.goose:420); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker) and the 2e2bedef reference"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/element-access/native",
+        "source": "tests/fixtures/contracts/definite-assignment/element-access.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "13 2 2\n7\n5\n8\n1 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/element-access/wasm-direct",
+        "source": "tests/fixtures/contracts/definite-assignment/element-access.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "13 2 2\n7\n5\n8\n1 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/whole-read",
+        "source": "tests/fixtures/contracts/definite-assignment/whole-read.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/length-read",
+        "source": "tests/fixtures/contracts/definite-assignment/length-read.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/iterate",
+        "source": "tests/fixtures/contracts/definite-assignment/iterate.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/argument",
+        "source": "tests/fixtures/contracts/definite-assignment/argument.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/member-read",
+        "source": "tests/fixtures/contracts/definite-assignment/member-read.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/slice-element",
+        "source": "tests/fixtures/contracts/definite-assignment/slice-element.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/definite-assignment/compound-scalar",
+        "source": "tests/fixtures/contracts/definite-assignment/compound-scalar.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 definite assignment: LValueBase (typecheck_exprs.h) requires no whole assignment of a local array or struct at the base of an index, slice or written member path; RequireAssigned for whole reads, member reads, slices and references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/branch-slices/default-empty/native",
+        "source": "tests/fixtures/contracts/branch-slices/default-empty.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "3 0 3 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44: default<T[:]>() has no temporary root, an array literal branch does (\u00a79.2); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/branch-slices/default-empty/wasm-direct",
+        "source": "tests/fixtures/contracts/branch-slices/default-empty.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "3 0 3 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44: default<T[:]>() has no temporary root, an array literal branch does (\u00a79.2); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/branch-slices/literal-branch",
+        "source": "tests/fixtures/contracts/branch-slices/literal-branch.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44: default<T[:]>() has no temporary root, an array literal branch does (\u00a79.2); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/branch-slices/empty-literal-branch",
+        "source": "tests/fixtures/contracts/branch-slices/empty-literal-branch.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44: default<T[:]>() has no temporary root, an array literal branch does (\u00a79.2); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/default-literals/read-only-default/native",
+        "source": "tests/fixtures/contracts/default-literals/read-only-default.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "default\nbuffer\n3 5\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 read-only instantiation (\u00a79.5): a string literal default binds its u8[:] parameter read-only, as a literal argument does; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/default-literals/read-only-default/wasm-direct",
+        "source": "tests/fixtures/contracts/default-literals/read-only-default.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "default\nbuffer\n3 5\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 read-only instantiation (\u00a79.5): a string literal default binds its u8[:] parameter read-only, as a literal argument does; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/default-literals/write-default",
+        "source": "tests/fixtures/contracts/default-literals/write-default.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 read-only instantiation (\u00a79.5): a string literal default binds its u8[:] parameter read-only, as a literal argument does; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/slice-reference-binding/native",
+        "source": "tests/fixtures/contracts/overloads/slice-reference-binding.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "mutable 0\nmutable 0\nmutable 0\nconst 2\nconst 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/slice-reference-binding/wasm-direct",
+        "source": "tests/fixtures/contracts/overloads/slice-reference-binding.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "mutable 0\nmutable 0\nmutable 0\nconst 2\nconst 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/const-slice-pointee",
+        "source": "tests/fixtures/contracts/overloads/const-slice-pointee.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/const-struct-pointee",
+        "source": "tests/fixtures/contracts/overloads/const-struct-pointee.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/const-reference-accepts/native",
+        "source": "tests/fixtures/contracts/overloads/const-reference-accepts.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1\n0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/const-reference-accepts/wasm-direct",
+        "source": "tests/fixtures/contracts/overloads/const-reference-accepts.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1\n0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/top-const-value/native",
+        "source": "tests/fixtures/contracts/overloads/top-const-value.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "bytes 0\nslice 0\nslice 0\nint\noptional\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/top-const-value/wasm-direct",
+        "source": "tests/fixtures/contracts/overloads/top-const-value.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "bytes 0\nslice 0\nslice 0\nint\noptional\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/optional-argument/native",
+        "source": "tests/fixtures/contracts/overloads/optional-argument.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "optional\noptional\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/optional-argument/wasm-direct",
+        "source": "tests/fixtures/contracts/overloads/optional-argument.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "optional\noptional\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/overloads/typed-default-slice/native",
+        "source": "tests/fixtures/contracts/overloads/typed-default-slice.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "text 1 0 2 7 3\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); default<T>() is a typed value, not an empty array literal"
+    },
+    {
+        "id": "corpus/contracts/overloads/typed-default-slice/wasm-direct",
+        "source": "tests/fixtures/contracts/overloads/typed-default-slice.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "text 1 0 2 7 3\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 32a4f44 overload tiers (typecheck_calls.h TryMatch/UnifyArgRaw: a reference binds a TypeEq pointee, TopConstEq is exact, an optional reference retries as no value); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); default<T>() is a typed value, not an empty array literal"
+    },
+    {
+        "id": "corpus/contracts/overloads/reflection-reference",
+        "source": "tests/fixtures/contracts/overloads/reflection-reference.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 32a4f44 typecheck_expansion.h: variants<T> requires a concrete ADT; a nonfixed whole variable binds T by reference; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/lifetimes/global-holder-references/native",
+        "source": "tests/fixtures/contracts/lifetimes/global-holder-references.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1\n",
+            "exit": 0
+        },
+        "provenance": "Independently specified: a holder storing a reference to a whole grow-shrink global views the array, not slots inside its elements (compiler-goose src/driver/compile_workspace_backing.goose); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/lifetimes/global-holder-references/wasm-direct",
+        "source": "tests/fixtures/contracts/lifetimes/global-holder-references.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1\n",
+            "exit": 0
+        },
+        "provenance": "Independently specified: a holder storing a reference to a whole grow-shrink global views the array, not slots inside its elements (compiler-goose src/driver/compile_workspace_backing.goose); checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {

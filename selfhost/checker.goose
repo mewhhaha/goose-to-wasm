@@ -87,6 +87,10 @@ struct Checker {
     // flow_stamp is the innermost open mark's clock; format_symbol_scan the
     // symbols already searched for format overloads.
     flow_clock: i64 = 0, flow_stamp: i64 = -1, format_symbol_scan: i64 = 0, narrowed_count: i64 = 0,
+    // The next expression checked is the base of an index or slice, or of a
+    // member path being written: a local array or struct there need not be
+    // assigned as a whole (upstream LValueBase, typecheck_exprs.h).
+    path_base: bool = false,
     // check_list_at's position: the list it walked, the index and the item.
     list_first: i64 = -1, list_index: i64 = -1, list_item: i64 = -1,
     returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {},
@@ -663,6 +667,9 @@ recursive fn check_substitute(p: Program&, c: Checker&, ty: i64, bindings: Check
             if t.array_kind == A_LIMITED && t.count >= 0 { var slots = t.count; if slots == 0 { slots = 1; } copy.size = t.length_storage + slots * p.types[element].size; }
             return add_type(p, copy);
         }
+        // A slice is interned like a written one, so a substituted const u8[:]
+        // is the string type itself.
+        if t.kind == TY_SLICE { return check_type(p, TY_SLICE, element, t.count, t.declaration, t.flags); }
         var copy = t; copy.element = element; return add_type(p, copy);
     }
     if t.kind == TY_STRUCT || t.kind == TY_ENUM {
@@ -1936,7 +1943,8 @@ fn check_width_constant(p: Program&, c: Checker&, node: i64, expected: i64) -> C
 recursive fn check_empty_tree(p: Program&, node: i64) -> bool {
     if node < 0 { return false; }
     let n = p.nodes[node];
-    if n.kind == N_ARRAY { return n.first < 0 && n.right < 0; }
+    // default<T[:]>() is a typed empty slice, not an untyped [] literal.
+    if n.kind == N_ARRAY { return n.first < 0 && n.right < 0 && !((n.flags & F_DEFAULT) != 0 && n.type_id >= 0 && p.types[n.type_id].kind == TY_SLICE); }
     if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { return check_empty_tree(p, n.last); }
     if n.kind == N_IF { return n.third >= 0 && check_empty_tree(p, n.right) && check_empty_tree(p, n.third); }
     if n.kind == N_MATCH {
@@ -1950,6 +1958,8 @@ recursive fn check_empty_tree(p: Program&, node: i64) -> bool {
 recursive fn check_branch_array_literal(p: Program&, node: i64) -> bool {
     if node < 0 { return false; }
     let n = p.nodes[node];
+    // default<T[:]>() is an empty slice of no storage, not a temporary.
+    if n.kind == N_ARRAY && n.first < 0 && (n.flags & F_DEFAULT) != 0 && n.type_id >= 0 && p.types[n.type_id].kind == TY_SLICE { return false; }
     if n.kind == N_ARRAY || n.kind == N_FILL { return true; }
     if n.kind == N_BLOCK && (n.flags & F_TAIL) != 0 { return check_branch_array_literal(p, n.last); }
     if n.kind == N_IF { return check_branch_array_literal(p, n.right) || check_branch_array_literal(p, n.third); }
@@ -2010,7 +2020,12 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
         source = source_type;
         let n = p.nodes[expression];
         if n.kind == N_UNARY && n.integer == T_MUL && (n.flags & F_SYNTHETIC) != 0 { return check_conversion(p, c, n.left, p.nodes[n.left].type_id, destination); }
-        if check_addressable(p, expression) && check_operation_same(p, check_storage_type(p, expression), p.types[destination].element) { source = p.types[destination].element; }
+        // Binding storage by reference never adds const to the referenced
+        // type: a reference to a const slice could rebind a mutable one to a
+        // read-only view (upstream UnifyArgRaw: the pointee must be TypeEq).
+        let storage = check_storage_type(p, expression); let pointee = p.types[destination].element;
+        if check_addressable(p, expression) && check_operation_same(p, storage, pointee) &&
+           !((p.types[pointee].flags & TF_CONST) != 0 && (p.types[storage].flags & TF_CONST) == 0) { source = pointee; }
     }
     if destination < 0 || check_bottom(p, expression) { return 0; }
     if source < 0 { return -1; }
@@ -3954,12 +3969,43 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
             }
             var conversion = check_conversion(p, c, check_list_at(c, args, index), at, concrete);
             if conversion > 0 && check_exact_borrow(p, c, check_list_at(c, args, index), concrete) { conversion = 0; }
+            // An optional reference converts to no value: only a reference
+            // parameter takes it (upstream UnifyArg retries only a plain
+            // reference as its pointee).
+            if at >= 0 && concrete >= 0 && p.types[at].kind == TY_REF && (p.types[at].flags & TF_OPTIONAL) != 0 && p.types[concrete].kind != TY_REF { conversion = -1; matches = false; }
+            // A value parameter takes its argument's type exactly but for the
+            // constness of the type itself (upstream TopConstEq, tier 0/1).
+            if conversion > 0 && at >= 0 && concrete >= 0 && p.types[at].kind != TY_REF && p.types[concrete].kind != TY_REF && check_top_const_same(p, at, concrete) { conversion = 0; }
+            // A const slice bound through a reference to a mutable one only by
+            // read-only instantiation ranks below a reference to a const slice.
+            if conversion == 0 && concrete >= 0 && p.types[concrete].kind == TY_REF {
+                let pointee = p.types[concrete].element; let storage = check_storage_type(p, check_list_at(c, args, index));
+                if pointee >= 0 && storage >= 0 && p.types[pointee].kind == TY_SLICE && p.types[storage].kind == TY_SLICE &&
+                   (p.types[pointee].flags & TF_CONST) == 0 && (p.types[storage].flags & TF_CONST) != 0 { conversion = 2; }
+            }
             if conversion < 0 { matches = false; } else if conversion > 0 && score < 2 { score = 2; }
             var value_type = at;
             if value_type >= 0 && p.types[value_type].kind == TY_REF { value_type = p.types[value_type].element; }
             if check_integer(check_numeric_value_type(p, value_type)) && check_float(check_numeric_value_type(p, concrete)) { converting = true; }
             if !typeless && check_has_generic(p, ft, 0) && score < 1 { score = 1; }
             formal = p.nodes[formal].next; index += 1;
+        }
+        // A default string literal is read-only, as an argument would be, so
+        // its slice parameter instantiates read-only (upstream read-only
+        // instantiation, §9.5).
+        var default_formal = formal;
+        while default_formal >= 0 && index >= args.count {
+            let value = p.nodes[default_formal].right;
+            if value >= 0 && (p.nodes[value].kind == N_STRING || p.nodes[value].kind == N_CALL && p.nodes[value].first < 0 &&
+                              p.nodes[p.nodes[value].left].kind == N_NAME && token_is(p, p.nodes[p.nodes[value].left].token, "src_file")) {
+                var concrete = check_substitute(p, c, p.nodes[default_formal].type_id, bindings);
+                if concrete >= 0 && p.types[concrete].kind == TY_SLICE && (p.types[concrete].flags & TF_CONST) == 0 {
+                    if (p.nodes[fnnode].flags & F_EXTERN) != 0 { matches = false; }
+                    concrete = check_const_type(p, concrete);
+                    if !check_bind_generic(p, c, default_formal, concrete, bindings) { matches = false; }
+                }
+            }
+            default_formal = p.nodes[default_formal].next;
         }
         var hof = false;
         while formal < 0 && index < args.count {
@@ -4972,6 +5018,14 @@ fn check_operation_same(p: Program&, a: i64, b: i64) -> bool {
     let at = p.types[a]; let bt = p.types[b];
     return at.kind == bt.kind && at.element == bt.element && at.count == bt.count && at.array_kind == bt.array_kind && at.storage == bt.storage && at.length_storage == bt.length_storage && at.pool == bt.pool && at.index_type == bt.index_type && at.declaration == bt.declaration && (at.flags & ~TF_CONST) == (bt.flags & ~TF_CONST);
 }
+// Equal but for the constness of the type itself; slices compare by element,
+// whatever array_kind their interned type happens to record.
+fn check_top_const_same(p: Program&, a: i64, b: i64) -> bool {
+    if a < 0 || b < 0 { return false; }
+    let at = p.types[a]; let bt = p.types[b];
+    if at.kind == TY_SLICE && bt.kind == TY_SLICE { return at.element == bt.element && at.count == bt.count && (at.flags & ~TF_CONST) == (bt.flags & ~TF_CONST); }
+    return check_operation_same(p, a, b);
+}
 fn check_operation_parameter(p: Program&, c: Checker&, node: i64, type_id: i64) -> i64 {
     if p.types[type_id].kind == TY_REF { return type_id; }
     if check_size_class(p, type_id, 0) > 0 && check_addressable(p, node) {
@@ -5071,6 +5125,7 @@ recursive fn check_identity_operand(p: Program&, c: Checker&, node: i64) -> i64 
 }
 
 recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
+    let path_base = c.path_base; c.path_base = false;
     if node < 0 { return TYPE_VOID; }
     let n = p.nodes[node];
     if n.kind == N_NAME && n.symbol >= 0 && !check_global_use(p, c, n.symbol, n.token) { return -1; }
@@ -5129,7 +5184,8 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                     result = p.symbols[symbol].type_id;
                     let vi = check_variable_index(c, symbol); check_environment_note(p, c, symbol);
                     if vi >= 0 && c.variables[vi].narrowed >= 0 { result = c.variables[vi].narrowed; }
-                    if vi >= 0 && !c.variables[vi].assigned { diagnose(p, n.token, "value is read before it is definitely assigned"); }
+                    let element_access = path_base && (s.flags & S_GLOBAL) == 0 && s.type_id >= 0 && p.types[s.type_id].kind != TY_REF && p.types[s.type_id].kind != TY_SLICE;
+                    if vi >= 0 && !c.variables[vi].assigned && !element_access { diagnose(p, n.token, "value is read before it is definitely assigned"); }
                     check_capture(p, c, symbol); check_copy_roots(c, node, -symbol - 10);
                 }
             }
@@ -5294,7 +5350,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             }
             if result < 0 { diagnose(p, n.token, "unknown enum variant"); }
         } else {
-            var ty = check_single_expression(p, c, n.left);
+            c.path_base = path_base; var ty = check_single_expression(p, c, n.left);
             if ty >= 0 && p.types[ty].kind == TY_REF {
                 let element = p.types[ty].element; check_wrap_unary(p, n.left, T_MUL, element); ty = element;
             }
@@ -5317,7 +5373,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
             } else { diagnose(p, n.token, "member access requires an aggregate, array or enum type"); }
         }
     } else if n.kind == N_INDEX || n.kind == N_SLICE {
-        var ty = check_single_expression(p, c, n.left);
+        c.path_base = true; var ty = check_single_expression(p, c, n.left);
         if ty >= 0 && p.types[ty].kind == TY_REF {
             let element = p.types[ty].element; check_wrap_unary(p, n.left, T_MUL, element); ty = element;
         }
@@ -6129,8 +6185,9 @@ recursive fn check_compound_aggregate(p: Program&, c: Checker&, node: i64, type_
         p.nodes[node] = Node { kind: N_EXPR_STMT, token: n.token, next: n.next, left: n.left, type_id: TYPE_VOID,
             flags: F_CHECKED | F_DIVERGES | F_REACHABLE, scope: n.scope }; return;
     }
+    // Only a whole variable is read as such; an element or field path is not.
     let root = check_place_root(p, n.left); let vi = check_variable_index(c, root);
-    if vi >= 0 && !c.variables[vi].assigned { diagnose(p, n.token, "compound assignment reads uninitialized storage"); }
+    if vi >= 0 && p.nodes[n.left].kind == N_NAME && !c.variables[vi].assigned { diagnose(p, n.token, "compound assignment reads uninitialized storage"); }
     check_assignment_target(p, c, n.left, n.right, false);
     // Preserve the evaluated location and its old value before the RHS.
     // The final assignment uses ordinary aggregate arithmetic in both backends.
@@ -6207,7 +6264,7 @@ recursive fn check_assignment(p: Program&, c: Checker&, node: i64) {
             check_environment_note(p, c, symbol); p.nodes[n.left].symbol = symbol; ty = p.symbols[symbol].type_id; p.nodes[n.left].type_id = ty;
         }
         else { diagnose(p, target.token, "assignment target is unknown"); }
-    } else { ty = check_expression(p, c, n.left, -1); }
+    } else { c.path_base = true; ty = check_expression(p, c, n.left, -1); }
     if ty < 0 { return; }
     let rebind = n.integer == T_DOTASSIGN;
     // The binding keeps the kind it carried before evaluating the RHS.
@@ -6256,7 +6313,7 @@ recursive fn check_assignment(p: Program&, c: Checker&, node: i64) {
         if p.types[value_type].kind == TY_INT && p.types[value_type].index_type >= 0 { diagnose(p, n.token, "arithmetic computes a plain integer and cannot update index or bound storage"); }
         if !check_numeric(check_numeric_value_type(p, value_type)) { diagnose(p, n.token, "compound assignment requires numeric storage"); }
         let symbol = check_place_root(p, n.left); let vi = check_variable_index(c, symbol);
-        if vi >= 0 && !c.variables[vi].assigned { diagnose(p, n.token, "compound assignment reads uninitialized storage"); }
+        if vi >= 0 && p.nodes[n.left].kind == N_NAME && !c.variables[vi].assigned { diagnose(p, n.token, "compound assignment reads uninitialized storage"); }
     }
     check_assignment_target(p, c, n.left, n.right, rebind);
     if n.right >= 0 && check_contains_refs(p, value_type, 0) {

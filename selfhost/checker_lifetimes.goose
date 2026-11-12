@@ -721,12 +721,10 @@ fn life_holder_views(p: Program&, l: Lifetimes&, holder: i64, element: i64) -> b
     while at < work.len {
         let t: const Type& = p.types[work[at]]; at += 1;
         if t.kind == TY_REF || t.kind == TY_SLICE {
+            // The holder's own slot; slots inside what it views are that
+            // storage's, which storing the holder does not copy.
             if t.kind == TY_REF && t.length_storage >= 0 { continue; }
             if life_contains(p, l, element, t.element) { return true; }
-            if t.element >= 0 {
-                var seen = false; for old in work { if old == t.element { seen = true; } }
-                if !seen { work.push(t.element); }
-            }
         } else if t.kind == TY_ARRAY && t.element >= 0 {
             var seen = false; for old in work { if old == t.element { seen = true; } }
             if !seen { work.push(t.element); }
