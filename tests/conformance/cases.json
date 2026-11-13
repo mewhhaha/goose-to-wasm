@@ -68617,7 +68617,7 @@
             "stdout": "Item { \"pen\", 5, 20, 0 }\nQuad { 1, 2, 5, 6 }\nQuad { 1, 2, 3, 4 }\nItem { \"cap\", 1, 20, 0 }\nCircle { 1, true }\n",
             "exit": 0
         },
-        "provenance": "Upstream e93d4fc const if (test/typing/const_if_constructors.goose, expected/const_if_constructors.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until const if selection is implemented"
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_constructors.goose, expected/const_if_constructors.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     },
     {
         "id": "corpus/contracts/const-if/constructors/wasm-direct",
@@ -68633,7 +68633,7 @@
             "stdout": "Item { \"pen\", 5, 20, 0 }\nQuad { 1, 2, 5, 6 }\nQuad { 1, 2, 3, 4 }\nItem { \"cap\", 1, 20, 0 }\nCircle { 1, true }\n",
             "exit": 0
         },
-        "provenance": "Upstream e93d4fc const if (test/typing/const_if_constructors.goose, expected/const_if_constructors.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until const if selection is implemented"
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_constructors.goose, expected/const_if_constructors.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     },
     {
         "id": "corpus/contracts/const-if/error-else-if",
@@ -68674,6 +68674,252 @@
             0
         ],
         "provenance": "Upstream e93d4fc const if (test/errors/const_if_value.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/const-if/arms/native",
+        "source": "tests/fixtures/contracts/const-if/arms.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "12 10 -1\nzero power other\n0 7 9\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_arms.goose, expected/const_if_arms.out); expected output is the upstream test expectation"
+    },
+    {
+        "id": "corpus/contracts/const-if/arms/wasm-direct",
+        "source": "tests/fixtures/contracts/const-if/arms.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "12 10 -1\nzero power other\n0 7 9\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_arms.goose, expected/const_if_arms.out); expected output is the upstream test expectation"
+    },
+    {
+        "id": "corpus/contracts/const-if/conditions/native",
+        "source": "tests/fixtures/contracts/const-if/conditions.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1 small\n2 even\n4 wide\n8 wide\n-3 negative\nsmall\nabove\nfar\nbig\n0.25 below\n0.5 other\n1.0 one\n2 other\na\nname\nnot a: z\non\ncombined\nelse\nfound b\nCircle vs Dot\nDot vs Circle\ni64\ntext\ntext\npair of i64\nother\nref\ndot\nfour bytes\nint pair other\ntrue true\nplain\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_conditions.goose, expected/const_if_conditions.out); expected output is the upstream test expectation"
+    },
+    {
+        "id": "corpus/contracts/const-if/conditions/wasm-direct",
+        "source": "tests/fixtures/contracts/const-if/conditions.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1 small\n2 even\n4 wide\n8 wide\n-3 negative\nsmall\nabove\nfar\nbig\n0.25 below\n0.5 other\n1.0 one\n2 other\na\nname\nnot a: z\non\ncombined\nelse\nfound b\nCircle vs Dot\nDot vs Circle\ni64\ntext\ntext\npair of i64\nother\nref\ndot\nfour bytes\nint pair other\ntrue true\nplain\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_conditions.goose, expected/const_if_conditions.out); expected output is the upstream test expectation"
+    },
+    {
+        "id": "corpus/contracts/const-if/statements/native",
+        "source": "tests/fixtures/contracts/const-if/statements.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "required name\nrequired price\n2\nrequired inner\nrequired flag\n1\nrequired first\n1\nCircle.r defaults\nRect.w required\nRect.h required\nn 11\ncount kept\nport 81\nretries kept\nlevel 3\n12\n2\n7\nint 1\nbool true\nother 2.5\nc 1\nc 3\ntrace off\nquiet\nlimit 4\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_statements.goose, expected/const_if_statements.out); expected output is the upstream test expectation"
+    },
+    {
+        "id": "corpus/contracts/const-if/statements/wasm-direct",
+        "source": "tests/fixtures/contracts/const-if/statements.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "required name\nrequired price\n2\nrequired inner\nrequired flag\n1\nrequired first\n1\nCircle.r defaults\nRect.w required\nRect.h required\nn 11\ncount kept\nport 81\nretries kept\nlevel 3\n12\n2\n7\nint 1\nbool true\nother 2.5\nc 1\nc 3\ntrace off\nquiet\nlimit 4\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e93d4fc const if (test/typing/const_if_statements.goose, expected/const_if_statements.out); expected output is the upstream test expectation"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-break",
+        "source": "tests/fixtures/contracts/const-if/error-break.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_break.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-call",
+        "source": "tests/fixtures/contracts/const-if/error-call.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_call.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-duplicate-init",
+        "source": "tests/fixtures/contracts/const-if/error-duplicate-init.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_duplicate_init.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-has-default-hidden",
+        "source": "tests/fixtures/contracts/const-if/error-has-default-hidden.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_has_default_hidden.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-has-default-type",
+        "source": "tests/fixtures/contracts/const-if/error-has-default-type.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_has_default_type.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-kind-mismatch",
+        "source": "tests/fixtures/contracts/const-if/error-kind-mismatch.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_kind_mismatch.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-literal-param",
+        "source": "tests/fixtures/contracts/const-if/error-literal-param.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_literal_param.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-missing-variant",
+        "source": "tests/fixtures/contracts/const-if/error-missing-variant.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_missing_variant.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-nonconstant",
+        "source": "tests/fixtures/contracts/const-if/error-nonconstant.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_nonconstant.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-not-bool",
+        "source": "tests/fixtures/contracts/const-if/error-not-bool.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_not_bool.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-query-compared",
+        "source": "tests/fixtures/contracts/const-if/error-query-compared.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_query_compared.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-runtime-field",
+        "source": "tests/fixtures/contracts/const-if/error-runtime-field.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_runtime_field.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-same-accessor",
+        "source": "tests/fixtures/contracts/const-if/error-same-accessor.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_same_accessor.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-same-unknown",
+        "source": "tests/fixtures/contracts/const-if/error-same-unknown.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_same_unknown.goose)"
+    },
+    {
+        "id": "corpus/contracts/const-if/error-string-order",
+        "source": "tests/fixtures/contracts/const-if/error-string-order.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e93d4fc const if (test/errors_tc/const_if_string_order.goose)"
     },
     {
         "id": "corpus/contracts/block-tail/statement-block/native",

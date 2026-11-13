@@ -19,6 +19,18 @@ fn expansion_find(p: Program&, bindings: ExpansionBinding[:], token: i64, type_n
     return ExpansionBinding {};
 }
 
+// A query of a `const if` condition: 1 for has_default<A>, 2 for same<T1, T2>,
+// 0 for anything else. The parser gives a query's name node its type list;
+// an ordinary name's parse_qualified records its token span in aux instead.
+fn expansion_query(p: Program&, node: i64) -> i64 {
+    if node < 0 { return 0; }
+    let n = p.nodes[node];
+    if n.kind != N_NAME || n.first < 0 || n.aux >= 0 { return 0; }
+    if token_is(p, n.token, "has_default") { return 1; }
+    if token_is(p, n.token, "same") { return 2; }
+    return 0;
+}
+
 fn expansion_hide(bindings: ExpansionBinding[>..]&, token: i64, type_name: bool = false) {
     bindings.push(ExpansionBinding { token: token, type_name: type_name });
 }
@@ -116,6 +128,15 @@ recursive fn expansion_walk(p: Program&, node: i64, bindings: ExpansionBinding[>
         }
         return;
     }
+    let query = expansion_query(p, node);
+    if query == 1 {
+        // has_default<A> names an accessor binding as a value name would: a
+        // local of the name hides it, and any other name stays unbound.
+        let lexical = expansion_find(p, bindings, p.nodes[n.first].token);
+        if lexical.accessor { p.nodes[n.first].expansion_binding = lexical.id; }
+        return;
+    }
+    if query == 2 { expansion_list(p, n.first, bindings); return; }
     if n.kind == N_NAME { p.nodes[node].expansion_binding = expansion_find(p, bindings, n.token).id; }
     else if n.kind == N_MEMBER {
         let lexical = expansion_find(p, bindings, n.token);

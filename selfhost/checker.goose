@@ -1173,7 +1173,13 @@ recursive fn check_array_element(p: Program&, c: Checker&, element: i64, array_k
 
 recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
     if syntax < 0 { return -1; }
-    if p.nodes[syntax].expansion_binding == -3 { diagnose(p, p.nodes[syntax].token, "const for binding is not a type or cannot take type arguments"); return -1; }
+    if p.nodes[syntax].expansion_binding == -3 {
+        if p.nodes[syntax].first < 0 && (p.nodes[syntax].flags & F_VARIABLE_MODE) == 0 {
+            var message: u8[>..] = []; message.append("const for binding "); message.append(token_text(p, p.nodes[syntax].token)); message.append(" is not a type");
+            diagnose(p, p.nodes[syntax].token, message);
+        } else { diagnose(p, p.nodes[syntax].token, "const for binding is not a type or cannot take type arguments"); }
+        return -1;
+    }
     if p.nodes[syntax].type_id >= 0 { return p.nodes[syntax].type_id; }
     let n = p.nodes[syntax]; var result = -1;
     if n.kind == N_TYPE_NAME || n.kind == N_NAME {
@@ -1219,7 +1225,9 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
                             result = check_nominal_instance(p, c, declaration, n.first, n.token);
                         } else if n.first >= 0 { diagnose(p, n.token, "type does not take generic arguments"); }
                     }
-                } else { diagnose(p, n.token, "unknown type name"); }
+                } else {
+                    var message: u8[>..] = []; message.append("unknown type: "); message.append(token_text(p, n.token)); diagnose(p, n.token, message);
+                }
             }
         }
     } else if n.kind == N_TYPE_REF {
@@ -5637,8 +5645,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         var child = n.first;
         while child >= 0 { check_value(p, c, child, -1); child = p.nodes[child].next; }
         result = check_tuple(p, n.first);
-    } else if n.kind == N_CONST_FOR { result = check_const_for(p, c, node, expected); }
-    else if n.kind == N_CONST_IF { diagnose(p, n.token, "const if is not yet supported"); return -1; }
+    } else if n.kind == N_CONST_FOR || n.kind == N_CONST_IF { result = check_const_for(p, c, node, expected); }
     else if n.kind == N_DEFER { check_defer(p, c, node); result = TYPE_VOID; }
     else if n.kind == N_EMPTY { result = TYPE_VOID; }
     else if n.kind == N_EXPR_STMT { check_expression(p, c, n.left, TYPE_VOID); result = TYPE_VOID; }
@@ -5866,7 +5873,9 @@ recursive fn check_jump(p: Program&, c: Checker&, node: i64) {
         let target = c.loop_stack[li];
         if target.function_node == c.function_node && (p.nodes[target.node].flags & F_NONLOCAL) != 0 &&
            p.nodes[target.node].kind == N_BLOCK {
-            diagnose(p, n.token, "break or continue cannot cross a const for expansion"); return;
+            if n.kind == N_CONTINUE { diagnose(p, n.token, "continue cannot cross a const for expansion boundary"); }
+            else { diagnose(p, n.token, "break cannot cross a const for expansion boundary"); }
+            return;
         }
         // A defer body runs at its block's exits; it cannot exit anything itself.
         if target.function_node == c.function_node && p.nodes[target.node].kind == N_DEFER {
@@ -5968,8 +5977,14 @@ recursive fn check_valueless_tail(p: Program&, node: i64) -> bool {
     if n.kind == N_BLOCK { return (n.flags & F_TAIL) != 0 && check_valueless_tail(p, n.last); }
     if n.kind == N_MATCH {
         var arm = n.first;
-        while arm >= 0 { if p.nodes[arm].kind == N_ARM && check_valueless_tail(p, p.nodes[arm].right) { return true; } arm = p.nodes[arm].next; }
+        while arm >= 0 {
+            if p.nodes[arm].kind == N_ARM && check_valueless_tail(p, p.nodes[arm].right) || p.nodes[arm].kind == N_CONST_IF && check_valueless_tail(p, arm) { return true; }
+            arm = p.nodes[arm].next;
+        }
     }
+    // Conditions are not evaluated here: every branch's arms count, as a
+    // runtime if's branches do.
+    if n.kind == N_CONST_IF { return check_valueless_tail(p, n.right) || check_valueless_tail(p, n.third); }
     return false;
 }
 recursive fn check_match(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
@@ -6942,6 +6957,11 @@ fn check_expansion_type(p: Program&, node: i64, type_id: i64) {
 recursive fn check_expand_replace(p: Program&, node: i64, binding: i64, value: i64, accessor: i64, actual: i64, type_id: i64, owner: i64, pattern: bool = false) {
     if node < 0 { return; }
     let n = p.nodes[node];
+    if accessor >= 0 && n.first >= 0 && p.nodes[n.first].expansion_binding == accessor && expansion_query(p, node) == 1 {
+        // has_default<A> keeps the field A stands for, as an accessor member does.
+        p.nodes[n.first] = Node { kind: N_MEMBER, token: actual, next: p.nodes[n.first].next, aux: owner };
+        return;
+    }
     if n.expansion_binding == binding && binding >= 0 {
         if n.kind == N_NAME {
             if value >= 0 { let next = n.next; p.nodes[node] = p.nodes[value]; p.nodes[node].next = next; return; }
@@ -7003,7 +7023,10 @@ fn check_expansion_fixed(p: Program&, value: i64, type_id: i64, token: i64) -> i
     p.nodes[result].right = operation_type(p, type_id, token); p.nodes[result].flags = F_SYNTHETIC;
     return result;
 }
-recursive fn check_expansion_constant(p: Program&, c: Checker&, node: i64, visiting: CheckList&) -> i64 {
+// The constant a const for source entry or, with condition, a const if
+// operand is, as a literal node: an adaptable or typed integer, a float, a
+// bool or a string.
+recursive fn check_expansion_constant(p: Program&, c: Checker&, node: i64, visiting: CheckList&, condition: bool = false) -> i64 {
     if node < 0 { return -1; }
     let n = p.nodes[node]; var bindings = CheckList {};
     if n.kind == N_NAME {
@@ -7011,9 +7034,15 @@ recursive fn check_expansion_constant(p: Program&, c: Checker&, node: i64, visit
         if symbol >= 0 && (p.symbols[symbol].flags & (S_GLOBAL | S_MUTABLE)) == S_GLOBAL {
             let declaration = p.symbols[symbol].node;
             if declaration >= 0 && p.nodes[declaration].kind == N_VARIABLE && check_list_count(p, p.nodes[declaration].right) == 1 {
-                for index in 0..visiting.count { if check_list_at(c, visiting, index) == symbol { diagnose(p, n.token, "cycle in const for constant initializer"); return -1; } }
+                for index in 0..visiting.count {
+                    if check_list_at(c, visiting, index) == symbol {
+                        if condition { diagnose(p, n.token, "cycle in const if condition constant initializer"); }
+                        else { diagnose(p, n.token, "cycle in const for constant initializer"); }
+                        return -1;
+                    }
+                }
                 check_list_push(c, visiting, symbol);
-                let value = check_expansion_constant(p, c, p.nodes[declaration].right, visiting); if value < 0 { return -1; }
+                let value = check_expansion_constant(p, c, p.nodes[declaration].right, visiting, condition); if value < 0 { return -1; }
                 let written = p.nodes[declaration].left;
                 if written < 0 { return value; }
                 let ty = check_numeric_value_type(p, check_resolve_type(p, c, written));
@@ -7037,7 +7066,7 @@ recursive fn check_expansion_constant(p: Program&, c: Checker&, node: i64, visit
         let value = new_node(p, N_FLOAT, n.token); p.nodes[value].float_value = -p.nodes[n.left].float_value; return value;
     }
     if n.kind == N_CAST && (n.flags & F_SYNTHETIC) != 0 {
-        let value = check_expansion_constant(p, c, n.left, visiting);
+        let value = check_expansion_constant(p, c, n.left, visiting, condition);
         let ty = check_resolve_type(p, c, n.right);
         if value >= 0 && ty >= 0 { return check_expansion_fixed(p, value, ty, n.token); }
     }
@@ -7054,7 +7083,266 @@ recursive fn check_expansion_constant(p: Program&, c: Checker&, node: i64, visit
         if !constant.literal { return check_expansion_fixed(p, value, constant.type_id, n.token); }
         return value;
     }
-    diagnose(p, n.token, "const for source requires a scalar or string constant or supported integer computation"); return -1;
+    if condition { diagnose(p, n.token, "const if condition requires a scalar or string constant, or supported integer constant expression"); }
+    else { diagnose(p, n.token, "const for source requires a scalar or string constant or supported integer computation"); }
+    return -1;
+}
+// The kind of a constant check_expansion_constant gives: 1 an integer, 2 a
+// float, 3 a bool, 4 a string.
+fn check_const_kind(p: Program&, value: i64) -> i64 {
+    var n = p.nodes[value];
+    if n.kind == N_CAST { n = p.nodes[n.left]; }
+    if n.kind == N_FLOAT { return 2; }
+    if n.kind == N_BOOL { return 3; }
+    if n.kind == N_STRING { return 4; }
+    return 1;
+}
+fn check_const_kind_name(kind: i64) -> u8[:] {
+    if kind == 2 { return "a float"; }
+    if kind == 3 { return "a bool"; }
+    if kind == 4 { return "a string"; }
+    return "an integer";
+}
+// A const if condition as written, for diagnostics; substituted bindings
+// show their constants (upstream ExprStr).
+recursive fn check_const_condition_text(p: Program&, node: i64, out: u8[>..]&, depth: i64 = 0) {
+    if node < 0 || depth > 32 { return; }
+    let n = p.nodes[node];
+    if n.kind == N_CAST && (n.flags & F_SYNTHETIC) != 0 { check_const_condition_text(p, n.left, out, depth + 1); }
+    else if n.kind == N_INTEGER { out.format(n.integer); }
+    else if n.kind == N_STRING {
+        let t = p.tokens[n.token];
+        out.push('"'); out.append(p.text[t.text_start..t.text_start + t.text_len]); out.push('"');
+    } else if n.kind == N_UNARY { out.append(token_text(p, n.token)); check_const_condition_text(p, n.left, out, depth + 1); }
+    else if n.kind == N_BINARY {
+        check_const_condition_text(p, n.left, out, depth + 1); out.push(' '); out.append(token_text(p, n.token)); out.push(' ');
+        check_const_condition_text(p, n.right, out, depth + 1);
+    } else if n.kind == N_MEMBER { check_const_condition_text(p, n.left, out, depth + 1); out.push('.'); out.append(token_text(p, n.token)); }
+    else if n.kind == N_CALL { check_const_condition_text(p, n.left, out, depth + 1); out.append("()"); }
+    else { out.append(token_text(p, n.token)); }
+}
+// The names a const if condition reads, checked where it is written: a
+// local, a type parameter or a nested function of the name is no constant
+// (upstream ConstName). Operands are walked as constant arithmetic takes them.
+recursive fn check_const_condition_names(p: Program&, c: Checker&, node: i64, depth: i64 = 0) -> bool {
+    if node < 0 || depth > 64 { return true; }
+    let n = p.nodes[node];
+    if n.kind == N_UNARY { return check_const_condition_names(p, c, n.left, depth + 1); }
+    if n.kind == N_BINARY { return check_const_condition_names(p, c, n.left, depth + 1) && check_const_condition_names(p, c, n.right, depth + 1); }
+    if n.kind == N_MEMBER && n.left >= 0 && p.nodes[n.left].kind == N_NAME { return check_const_condition_names(p, c, n.left, depth + 1); }
+    if n.kind != N_NAME || expansion_query(p, node) != 0 { return true; }
+    if n.expansion_binding == -2 { diagnose(p, n.token, "const for binding is not a value or callable function"); return false; }
+    let symbol = check_lookup_name(p, c, node); if symbol < 0 { return true; }
+    let s = p.symbols[symbol]; var kind: const u8[:] = "";
+    if (s.flags & S_TYPE) != 0 {
+        if s.node >= 0 && p.nodes[s.node].kind == N_TYPE_PARAM { kind = "type parameter"; }
+    } else if (s.flags & S_FUNCTION) != 0 {
+        if s.scope > 0 && c.scopes[s.scope].namespace_node < 0 { kind = "nested function"; }
+    } else if (s.flags & S_GLOBAL) == 0 && s.node >= 0 &&
+              (p.nodes[s.node].kind == N_VARIABLE || p.nodes[s.node].kind == N_PARAM || p.nodes[s.node].kind == N_BINDING) {
+        kind = "local variable";
+    }
+    if kind.len == 0 { return true; }
+    var message: u8[>..] = []; message.append("const if condition "); message.append(token_text(p, n.token));
+    message.append(" names a "); message.append(kind); message.append(", not a constant");
+    diagnose(p, n.token, message); return false;
+}
+// A same<T1, T2> operand, resolved in this specialization and required to be
+// concrete; -1 once diagnosed.
+fn check_const_query_type(p: Program&, c: Checker&, query: i64, syntax: i64) -> i64 {
+    let errors = p.diagnostics.len; let type_id = check_resolve_type(p, c, syntax);
+    if type_id < 0 {
+        if p.diagnostics.len == errors { diagnose(p, p.nodes[query].token, "same requires two valid types"); }
+        return -1;
+    }
+    if check_has_generic(p, type_id, 0) {
+        var message: u8[>..] = []; message.append("same requires concrete types, got "); render_type_name(p, type_id, message);
+        diagnose(p, p.nodes[query].token, message); return -1;
+    }
+    return type_id;
+}
+// A query's value (upstream ConstQueryValue): has_default<A> is whether A's
+// field declaration has a written default, which is not evaluated; same<T1,
+// T2> compares two types by the checker's type identity. 1 true, 0 false,
+// -1 once diagnosed.
+fn check_const_query(p: Program&, c: Checker&, node: i64, query: i64) -> i64 {
+    let argument = p.nodes[node].first; let a = p.nodes[argument];
+    if query == 1 {
+        if a.kind != N_MEMBER || a.aux < 0 {
+            var message: u8[>..] = []; message.append("has_default<"); message.append(token_text(p, a.token));
+            message.append("> requires "); message.append(token_text(p, a.token)); message.append(" to be a fields<T> accessor binding in scope");
+            diagnose(p, a.token, message); return -1;
+        }
+        var field = p.types[a.aux].first;
+        while field >= 0 {
+            if (p.nodes[field].flags & F_PAD) == 0 && same_name(p, p.nodes[field].token, a.token) {
+                if p.nodes[field].right >= 0 { return 1; }
+                return 0;
+            }
+            field = p.nodes[field].next;
+        }
+        diagnose(p, a.token, "internal: has_default of an unknown field"); return -1;
+    }
+    let left = check_const_query_type(p, c, node, argument); if left < 0 { return -1; }
+    let right = check_const_query_type(p, c, node, a.next); if right < 0 { return -1; }
+    if check_same_type(p, left, right) { return 1; }
+    return 0;
+}
+// A const if operand's constant: a query's bool, or the literal node
+// check_expansion_constant gives; -1 once diagnosed.
+fn check_const_operand(p: Program&, c: Checker&, node: i64) -> i64 {
+    let query = expansion_query(p, node);
+    if query != 0 {
+        let value = check_const_query(p, c, node, query); if value < 0 { return -1; }
+        return operation_bool(p, value == 1, p.nodes[node].token);
+    }
+    if !check_const_condition_names(p, c, node) { return -1; }
+    var visiting = CheckList {}; let value = check_expansion_constant(p, c, node, visiting, true);
+    // A named constant relies on keeping its initializer's value.
+    if value >= 0 { check_constant_names(p, c, node); }
+    return value;
+}
+fn check_const_float(p: Program&, c: Checker&, value: i64) -> f64 {
+    var n = p.nodes[value];
+    if n.kind == N_CAST { n = p.nodes[n.left]; }
+    if n.kind == N_FLOAT { return n.float_value; }
+    let constant = check_constant(p, c, value, 0);
+    if constant.type_id == TYPE_U64 { return (constant.value as! u64) as f64; }
+    return constant.value as f64;
+}
+// A comparison in a const if condition: two constants of one kind (upstream
+// ConstComparison). Integers unify as constant arithmetic unifies them:
+// equal types stay, a literal adapts to the other's type and must fit it,
+// and the comparison is signed or unsigned per that type. An integer beside
+// a float converts; bools and strings take == and != only.
+fn check_const_comparison(p: Program&, c: Checker&, node: i64) -> i64 {
+    let n = p.nodes[node]; let op = n.integer;
+    if !check_const_condition_names(p, c, n.left) || !check_const_condition_names(p, c, n.right) { return -1; }
+    let left = check_const_operand(p, c, n.left); if left < 0 { return -1; }
+    let right = check_const_operand(p, c, n.right); if right < 0 { return -1; }
+    let lk = check_const_kind(p, left); let rk = check_const_kind(p, right);
+    var order = 0;
+    if lk == 1 && rk == 1 {
+        let a = check_constant(p, c, left, 0); let b = check_constant(p, c, right, 0);
+        if !a.valid || !b.valid { diagnose(p, n.token, "const if condition requires a scalar or string constant, or supported integer constant expression"); return -1; }
+        var type_id = a.type_id;
+        if a.type_id != b.type_id {
+            if a.literal && b.literal {
+                if a.type_id == TYPE_I64 && a.value < 0 || b.type_id == TYPE_I64 && b.value < 0 {
+                    diagnose(p, n.token, "constant operands have no common type (one is above i64.max, the other negative)"); return -1;
+                }
+                type_id = TYPE_U64;
+            } else if a.literal || b.literal {
+                var constant = a; type_id = b.type_id;
+                if b.literal { constant = b; type_id = a.type_id; }
+                if !check_constant_fits(constant, type_id) {
+                    var message: u8[>..] = []; message.append("constant "); message.format(constant.value); message.append(" does not fit "); render_type_name(p, type_id, message);
+                    diagnose(p, n.token, message); return -1;
+                }
+            } else {
+                let ab = check_integer_bits(a.type_id); let bb = check_integer_bits(b.type_id);
+                if ab < bb && (check_unsigned(a.type_id) == check_unsigned(b.type_id) || !check_unsigned(b.type_id)) { type_id = b.type_id; }
+                else if bb < ab && (check_unsigned(a.type_id) == check_unsigned(b.type_id) || !check_unsigned(a.type_id)) { type_id = a.type_id; }
+                else {
+                    var message: u8[>..] = []; message.append("operands of "); message.append(token_text(p, n.token)); message.append(" have no common type: ");
+                    render_type_name(p, a.type_id, message); message.append(" and "); render_type_name(p, b.type_id, message);
+                    message.append(" (convert one with `as`)"); diagnose(p, n.token, message); return -1;
+                }
+            }
+        }
+        if check_unsigned(type_id) {
+            let x = a.value as! u64; let y = b.value as! u64;
+            if x < y { order = -1; } else if x > y { order = 1; }
+        } else if a.value < b.value { order = -1; } else if a.value > b.value { order = 1; }
+    } else if lk == 2 || rk == 2 {
+        if lk > 2 || rk > 2 {
+            var other = lk; if lk == 2 { other = rk; }
+            var message: u8[>..] = []; message.append("const if condition compares a float with "); message.append(check_const_kind_name(other));
+            diagnose(p, n.token, message); return -1;
+        }
+        let x = check_const_float(p, c, left); let y = check_const_float(p, c, right);
+        if x < y { order = -1; } else if x > y { order = 1; }
+    } else {
+        if lk != rk {
+            var message: u8[>..] = []; message.append("const if condition compares "); message.append(check_const_kind_name(lk));
+            message.append(" with "); message.append(check_const_kind_name(rk)); diagnose(p, n.token, message); return -1;
+        }
+        if op != T_EQ && op != T_NEQ {
+            if lk == 3 { diagnose(p, n.token, "bool constants compare with == and != only in a const if condition"); }
+            else { diagnose(p, n.token, "string constants compare with == and != only in a const if condition"); }
+            return -1;
+        }
+        var equal = false;
+        if lk == 3 { equal = (p.nodes[left].integer != 0) == (p.nodes[right].integer != 0); }
+        else {
+            let x = p.tokens[p.nodes[left].token]; let y = p.tokens[p.nodes[right].token];
+            equal = same_bytes(p.text[x.text_start..x.text_start + x.text_len], p.text[y.text_start..y.text_start + y.text_len]);
+        }
+        if !equal { order = 1; }
+    }
+    var truth = false;
+    if op == T_EQ { truth = order == 0; }
+    else if op == T_NEQ { truth = order != 0; }
+    else if op == T_LT { truth = order < 0; }
+    else if op == T_LTEQ { truth = order <= 0; }
+    else if op == T_GT { truth = order > 0; }
+    else { truth = order >= 0; }
+    if truth { return 1; }
+    return 0;
+}
+// A const if condition's value in this specialization (upstream
+// ConstCondition): bool constants and queries, `!`, `&&` and `||` over
+// conditions, both operands validated, and comparisons of constants.
+// Anything else is an error, never a runtime branch. 1 true, 0 false, -1
+// once diagnosed.
+recursive fn check_const_condition(p: Program&, c: Checker&, node: i64) -> i64 {
+    if node < 0 { return -1; }
+    let n = p.nodes[node];
+    if n.kind == N_BOOL {
+        if n.integer != 0 { return 1; }
+        return 0;
+    }
+    let query = expansion_query(p, node);
+    if query != 0 { return check_const_query(p, c, node, query); }
+    if n.kind == N_UNARY && n.integer == T_NOT {
+        let value = check_const_condition(p, c, n.left); if value < 0 { return -1; }
+        return 1 - value;
+    }
+    if n.kind == N_BINARY && (n.integer == T_ANDAND || n.integer == T_OROR) {
+        let left = check_const_condition(p, c, n.left); if left < 0 { return -1; }
+        let right = check_const_condition(p, c, n.right); if right < 0 { return -1; }
+        if n.integer == T_ANDAND { return left & right; }
+        return left | right;
+    }
+    if n.kind == N_BINARY && (n.integer == T_EQ || n.integer == T_NEQ || n.integer == T_LT || n.integer == T_LTEQ || n.integer == T_GT || n.integer == T_GTEQ) {
+        return check_const_comparison(p, c, node);
+    }
+    if n.kind == N_NAME || n.kind == N_INTEGER || n.kind == N_FLOAT || n.kind == N_STRING || n.kind == N_UNARY || n.kind == N_BINARY || n.kind == N_CAST && (n.flags & F_SYNTHETIC) != 0 {
+        let value = check_const_operand(p, c, node); if value < 0 { return -1; }
+        let kind = check_const_kind(p, value);
+        if kind == 3 {
+            if p.nodes[value].integer != 0 { return 1; }
+            return 0;
+        }
+        var message: u8[>..] = []; message.append("const if condition requires a bool, not "); message.append(check_const_kind_name(kind)); message.append(": ");
+        check_const_condition_text(p, node, message); diagnose(p, n.token, message); return -1;
+    }
+    var message: u8[>..] = []; message.append("const if condition requires a constant: "); check_const_condition_text(p, node, message); message.append(" is not one");
+    diagnose(p, n.token, message); return -1;
+}
+// The fragments a const if supplies in this specialization (upstream
+// SelectBranch): the first branch whose condition holds, else the final
+// else's, else -1 for none; -2 once a condition is diagnosed. A branch not
+// chosen is never checked.
+fn check_const_select(p: Program&, c: Checker&, node: i64) -> i64 {
+    var at = node;
+    while at >= 0 && p.nodes[at].kind == N_CONST_IF {
+        let value = check_const_condition(p, c, p.nodes[at].left);
+        if value < 0 { return -2; }
+        if value == 1 { return p.nodes[at].right; }
+        at = p.nodes[at].third;
+    }
+    return at;
 }
 recursive fn check_expand_const_for(p: Program&, c: Checker&, node: i64) -> i64 {
     let n = p.nodes[node]; let body = p.nodes[n.right];
@@ -7113,28 +7401,45 @@ recursive fn check_expand_const_for(p: Program&, c: Checker&, node: i64) -> i64 
 recursive fn check_expand_children(p: Program&, c: Checker&, node: i64) {
     var first = -1; var last = -1; var child = p.nodes[node].first;
     while child >= 0 {
-        let next = p.nodes[child].next;
-        if p.nodes[child].kind == N_CONST_IF { diagnose(p, p.nodes[child].token, "const if is not yet supported"); }
-        else if p.nodes[child].kind == N_CONST_FOR {
-            let expansion = check_expand_const_for(p, c, child);
+        let next = p.nodes[child].next; var expansion = -1;
+        if p.nodes[child].kind == N_CONST_IF {
+            // The chosen branch's entries or arms join the list in place.
+            expansion = check_const_select(p, c, child);
+            if expansion >= 0 { check_expand_children(p, c, expansion); }
+        } else if p.nodes[child].kind == N_CONST_FOR {
+            expansion = check_expand_const_for(p, c, child);
             if p.nodes[expansion].kind != N_BLOCK { check_expand_children(p, c, expansion); }
+        } else {
+            p.nodes[child].next = -1;
+            if first < 0 { first = child; } else { p.nodes[last].next = child; }
+            last = child;
+        }
+        if expansion >= 0 {
             var item = p.nodes[expansion].first;
             while item >= 0 {
                 let after = p.nodes[item].next; p.nodes[item].next = -1;
                 if first < 0 { first = item; } else { p.nodes[last].next = item; }
                 last = item; item = after;
             }
-        } else {
-            p.nodes[child].next = -1;
-            if first < 0 { first = child; } else { p.nodes[last].next = child; }
-            last = child;
         }
         child = next;
     }
     p.nodes[node].first = first; p.nodes[node].last = last;
 }
+// A const for or const if in a statement list: its instances, or the chosen
+// branch's block, in place. That block is a plain nested scope, not an
+// expansion boundary: break, continue and return in it mean what they mean
+// in an if's branch. With no branch chosen nothing is supplied.
 recursive fn check_const_for(p: Program&, c: Checker&, node: i64, expected: i64) -> i64 {
-    let next = p.nodes[node].next; let expanded = check_expand_const_for(p, c, node);
+    let next = p.nodes[node].next;
+    if p.nodes[node].kind == N_CONST_IF {
+        let branch = check_const_select(p, c, node);
+        if branch < 0 { p.nodes[node] = Node { kind: N_BLOCK, token: p.nodes[node].token, next: next }; }
+        else { p.nodes[node] = p.nodes[branch]; p.nodes[node].next = next; }
+        if branch == -2 { return -1; }
+        return check_expression(p, c, node, expected);
+    }
+    let expanded = check_expand_const_for(p, c, node);
     p.nodes[node] = p.nodes[expanded]; p.nodes[node].next = next;
     return check_expression(p, c, node, expected);
 }
