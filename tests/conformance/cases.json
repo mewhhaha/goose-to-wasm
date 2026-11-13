@@ -70083,6 +70083,52 @@
         "provenance": "An unknown type behind a reference parameter is diagnosed instead of failing inside overload resolution; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     },
     {
+        "id": "corpus/contracts/runtime-externs/bits/native",
+        "source": "tests/fixtures/contracts/runtime-externs/bits.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "3 2147483649 3 3221225472 3221225472 3\n24 1729382256910270464 1729382256910270464 9223372036854775809 3\n1.5 3.5 1069547520 13835058055282163712\ntrue 2143289345\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 75ad5bd3 rotations and 23a7533b/71455360 float bits, declared as upstream std and binary declare them; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/runtime-externs/bits/wasm-direct",
+        "source": "tests/fixtures/contracts/runtime-externs/bits.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "3 2147483649 3 3221225472 3221225472 3\n24 1729382256910270464 1729382256910270464 9223372036854775809 3\n1.5 3.5 1069547520 13835058055282163712\ntrue 2143289345\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 75ad5bd3 rotations and 23a7533b/71455360 float bits, declared as upstream std and binary declare them; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/runtime-externs/native/native",
+        "source": "tests/fixtures/contracts/runtime-externs/native.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "hello world",
+        "expect": {
+            "stdout": "13330 2018915346 17279655951921914625\n5.0 5.0 4.0 5.0 1024.0 8.0\n0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0\n1 1 0\n5 12345 4\n2 25 -3\n0  0\n1 1 301\ntrue hello\ntrue hello world\nfalse 11\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 75ad5bd3 byte swaps, 13712d6a math, std float_text::shortest_digits and os.read_stdin with a bound, declared as upstream declares them, with exact libm results; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
         "id": "corpus/contracts/namespace-function/run/native",
         "source": "tests/fixtures/contracts/namespace-function/main.goose",
         "phase": "run",

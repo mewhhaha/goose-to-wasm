@@ -3008,10 +3008,62 @@ fn cc_runtime_extern(name: const u8[:]) -> const u8[:] {
     if same_bytes(name, "gs_mul_addf") { return "g_mul_addf"; }
     for math_name in ["sqrt", "sqrtf", "sin", "sinf", "cos", "cosf", "tan", "tanf",
                       "asin", "asinf", "acos", "acosf", "atan", "atanf", "atan2", "atan2f",
-                      "exp", "expf", "log", "logf", "log2", "log2f", "log10", "log10f", "pow", "powf"] {
+                      "exp", "expf", "log", "logf", "log2", "log2f", "log10", "log10f", "pow", "powf",
+                      "hypot", "hypotf", "cbrt", "cbrtf", "exp2", "exp2f", "expm1", "expm1f",
+                      "log1p", "log1pf", "sinh", "sinhf", "cosh", "coshf", "tanh", "tanhf"] {
         if name.len == math_name.len + 3 && same_bytes(name[0..3], "gs_") && same_bytes(name[3..], math_name) { return math_name; }
     }
     return "";
+}
+// std's rotations and byte swaps and binary's float bits (upstream
+// runtime_ext.h), as one expression over the parameters. A rotation count
+// is taken modulo the width, so a negative one turns the other way.
+fn cc_bits_extern(p: Program&, out: u8[>..]&, function: i64, name: const u8[:]) -> bool {
+    var rotate = 0; var mask = "31";
+    if same_bytes(name, "gs_rotl32") { rotate = 1; } else if same_bytes(name, "gs_rotr32") { rotate = 2; }
+    else if same_bytes(name, "gs_rotl64") { rotate = 1; mask = "63"; } else if same_bytes(name, "gs_rotr64") { rotate = 2; mask = "63"; }
+    if rotate != 0 {
+        var first = "<<"; var second = ">>"; if rotate == 2 { first = ">>"; second = "<<"; }
+        cc_text(out, "("); cc_param(p, out, function, 0); cc_text(out, first); cc_text(out, "((uint32_t)"); cc_param(p, out, function, 1);
+        cc_text(out, "&"); cc_text(out, mask); cc_text(out, "))|("); cc_param(p, out, function, 0); cc_text(out, second);
+        cc_text(out, "(-((uint32_t)"); cc_param(p, out, function, 1); cc_text(out, "&"); cc_text(out, mask); cc_text(out, ")&"); cc_text(out, mask); cc_text(out, "));\n");
+        return true;
+    }
+    for width in ["16", "32", "64"] {
+        if name.len == 14 && same_bytes(name[0..12], "gs_byte_swap") && same_bytes(name[12..], width) {
+            cc_text(out, "__builtin_bswap"); cc_text(out, width); cc_text(out, "("); cc_param(p, out, function, 0); cc_text(out, ");\n"); return true;
+        }
+    }
+    var bits = ""; var real = ""; var from = false;
+    if same_bytes(name, "gs_f32_from_bits") { bits = "uint32_t"; real = "float"; from = true; }
+    else if same_bytes(name, "gs_f64_from_bits") { bits = "uint64_t"; real = "double"; from = true; }
+    else if same_bytes(name, "gs_f32_to_bits") { bits = "uint32_t"; real = "float"; }
+    else if same_bytes(name, "gs_f64_to_bits") { bits = "uint64_t"; real = "double"; }
+    if bits.len == 0 { return false; }
+    cc_text(out, "((union{"); cc_text(out, bits); cc_text(out, " u;"); cc_text(out, real); cc_text(out, " f;}){.");
+    if from { cc_text(out, "u="); } else { cc_text(out, "f="); }
+    cc_param(p, out, function, 0); cc_text(out, "}).");
+    if from { cc_text(out, "f;\n"); } else { cc_text(out, "u;\n"); }
+    return true;
+}
+// std's float_text::shortest_digits (upstream runtime_os.h gs_f64_digits)
+// and os.read_stdin with a bound (gs_os_read_stdin_max), as statements.
+fn cc_statement_extern(p: Program&, out: u8[>..]&, function: i64, name: const u8[:]) -> bool {
+    if same_bytes(name, "gs_f64_digits") {
+        cc_text(out, "uint64_t g_b,g_f;char g_d[20];int g_k,g_n,g_e;double g_x="); cc_param(p, out, function, 0); cc_text(out, ";\n");
+        cc_text(out, "if(g_x!=g_x||isinf(g_x)||g_x==0)return 0;\nmemcpy(&g_b,&g_x,sizeof g_b);g_e=(int)(g_b>>52)&0x7FF;g_f=g_b&(((uint64_t)1<<52)-1);\n");
+        cc_text(out, "g_n=gs_float_digits(g_e?g_f|(uint64_t)1<<52:g_f,(g_e?g_e-1:0)-1074,53,-1074,g_d,&g_k);\nif(g_n>");
+        cc_param(p, out, function, 1); cc_text(out, ".len)g_n=(int)"); cc_param(p, out, function, 1); cc_text(out, ".len;\nif(g_n>0)memcpy(g_address(");
+        cc_param(p, out, function, 1); cc_text(out, ".base),g_d,(size_t)g_n);\n{int64_t g_p=g_k;memcpy(g_address("); cc_param(p, out, function, 2);
+        cc_text(out, "),&g_p,sizeof g_p);}\nreturn g_n;\n"); return true;
+    }
+    if same_bytes(name, "gs_os_read_stdin_max") {
+        cc_text(out, "GArray g_a;memcpy(&g_a,g_address("); cc_param(p, out, function, 0); cc_text(out, "),sizeof g_a);unsigned char g_b[16384];int64_t g_got=0;\nwhile(g_got<");
+        cc_param(p, out, function, 1); cc_text(out, "){size_t g_want=sizeof g_b;if("); cc_param(p, out, function, 1); cc_text(out, "-g_got<(int64_t)sizeof g_b)g_want=(size_t)(");
+        cc_param(p, out, function, 1); cc_text(out, "-g_got);size_t g_n=fread(g_b,1,g_want,stdin);if(!g_n)break;g_bytes(&g_a,g_b,(int64_t)g_n);g_got+=(int64_t)g_n;}\nmemcpy(g_address(");
+        cc_param(p, out, function, 0); cc_text(out, "),&g_a,sizeof g_a);\nreturn g_got>0;\n"); return true;
+    }
+    return false;
 }
 fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
     let name = cc_extern_name(p, function); let result_type = cc_function_result(p, function);
@@ -3026,8 +3078,10 @@ fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
         while param >= 0 { cc_text(out, ","); if cc_indirect(p, p.nodes[param].type_id) { cc_text(out, "&"); } cc_param(p, out, function, index); index++; param = p.nodes[param].next; }
         cc_text(out, ");\n"); if cc_tuple_channels(p, result_type) { cc_text(out, "return;\n"); } return;
     }
+    if cc_statement_extern(p, out, function, name) { return; }
     if value && cc_tuple_channels(p, result_type) { cc_text(out, "g_foreign="); }
     else if value { if cc_indirect(p, result_type) { cc_text(out, "*g_into="); } else { cc_text(out, "return "); } }
+    if cc_bits_extern(p, out, function, name) { return; }
     let runtime = cc_runtime_extern(name);
     if runtime.len > 0 {
         cc_text(out, runtime); cc_text(out, "(");

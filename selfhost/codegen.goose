@@ -717,16 +717,34 @@ recursive fn cg_run_defers(p: Program&, m: CgModule&, f: CgBody&, mark: i64) {
     while index > mark { index -= 1; cg_statement(p, m, f, p.nodes[f.defers[index]].right); }
     f.running_defers -= 1;
 }
+// The opcode an extern is, where it is one instruction. CG_WRAP_COUNT marks
+// a rotation whose i64 count wraps to i32 first; i32.rotl and i64.rotl take
+// the count modulo the width, as std's rotl does (upstream runtime_ext.h).
+let CG_WRAP_COUNT: i64 = 256;
 fn cg_intrinsic(p: Program&, function: i64) -> i64 {
     if (p.nodes[function].flags & F_EXTERN) == 0 { return 0; }
     var parameter = p.nodes[function].first;
-    if parameter < 0 || p.nodes[parameter].next >= 0 { return 0; }
+    if parameter < 0 { return 0; }
     let id = p.nodes[parameter].type_id; let w = cg_wasm_type(p, id);
     var name = token_text(p, p.nodes[function].token);
     if p.nodes[function].integer >= 0 && p.nodes[function].integer < p.tokens.len && p.tokens[p.nodes[function].integer].kind == T_STRLIT {
         let token = p.tokens[p.nodes[function].integer]; name = p.text[token.text_start..token.text_start + token.text_len];
     }
+    let count = p.nodes[parameter].next;
+    if count >= 0 {
+        if p.nodes[count].next >= 0 || cg_wasm_type(p, p.nodes[count].type_id) != 0x7e { return 0; }
+        if w == 0x7f && same_bytes(name, "gs_rotl32") { return CG_WRAP_COUNT | 0x77; }
+        if w == 0x7f && same_bytes(name, "gs_rotr32") { return CG_WRAP_COUNT | 0x78; }
+        if w == 0x7e && same_bytes(name, "gs_rotl64") { return 0x89; }
+        if w == 0x7e && same_bytes(name, "gs_rotr64") { return 0x8a; }
+        return 0;
+    }
     if same_bytes(name, "gs_clz") && id == TYPE_U64 { return 0x79; }
+    // binary's float bits: the reinterpretations.
+    if w == 0x7f && same_bytes(name, "gs_f32_from_bits") { return 0xbe; }
+    if w == 0x7e && same_bytes(name, "gs_f64_from_bits") { return 0xbf; }
+    if w == 0x7d && same_bytes(name, "gs_f32_to_bits") { return 0xbc; }
+    if w == 0x7c && same_bytes(name, "gs_f64_to_bits") { return 0xbd; }
     if w == 0x7d {
         if same_bytes(name, "sqrtf") || same_bytes(name, "gs_sqrtf") { return 0x91; }
         if same_bytes(name, "ceilf") { return 0x8d; } if same_bytes(name, "floorf") { return 0x8e; }
@@ -852,7 +870,7 @@ recursive fn cg_call(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     f.work.resize(variant_plans);
     if function >= 0 {
         let opcode = cg_intrinsic(p, function);
-        if opcode != 0 { wb_byte(f.code, opcode); }
+        if opcode != 0 { if (opcode & CG_WRAP_COUNT) != 0 { wb_byte(f.code, 0xa7); } wb_byte(f.code, opcode & 255); }
         else {
             var target = -1;
             if index >= 0 { target = m.functions[index].index; cg_region_call(m, f, index, node); }
