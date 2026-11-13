@@ -4118,7 +4118,7 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
                 if !check_bind_generic(p, c, p.types[ft].declaration, at, bindings) { matches = false; }
             } else if !check_unify(p, c, ft, check_argument_inference(p, c, check_list_at(c, args, index), ft, fnnode, formal), bindings) && !check_literal_tree(p, check_list_at(c, args, index), 0) && !check_float_literal_tree(p, check_list_at(c, args, index), 0) { matches = false; }
             var concrete = check_substitute(p, c, ft, bindings);
-            if concrete >= 0 && p.types[concrete].kind == TY_REF && (p.types[concrete].flags & TF_OPTIONAL) == 0 && p.types[p.types[concrete].element].kind == TY_ARRAY {
+            if concrete >= 0 && p.types[concrete].kind == TY_REF && (p.types[concrete].flags & TF_OPTIONAL) == 0 && p.types[concrete].element >= 0 && p.types[p.types[concrete].element].kind == TY_ARRAY {
                 let flags = check_pool_flags(p, c, check_list_at(c, args, index));
                 if flags != 0 && (p.types[concrete].flags & (F_REUSABLE | F_REUSABLE_SLICES)) != flags {
                     var qualified = p.types[concrete]; qualified.flags |= flags; concrete = add_type(p, qualified);

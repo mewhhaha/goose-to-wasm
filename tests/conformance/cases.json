@@ -70071,6 +70071,16 @@
             "exit": 0
         },
         "provenance": "Native run of the root struct check fixture; expected output derived by hand from the source, whose check row was checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/unknown-types/reference-member",
+        "source": "tests/fixtures/contracts/unknown-types/reference-member.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "An unknown type behind a reference parameter is diagnosed instead of failing inside overload resolution; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {
