@@ -2307,6 +2307,67 @@ recursive fn cg_region_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node
     if grow { cg_get(f, old); cg_get(f, count); wb_byte(f.code, 0x6b); let removed = cg_save(f, 0x7f); let bytes = cg_region_array_bytes(p, m, f, id, removed, node); cg_region_rewind(p, m, f, header, bytes, node); }
     cg_end(f); cg_owner_set_length(p, m, f, header, count, node);
 }
+// The abort of a failed range_index or check_length: the runtime's message,
+// or the string literal the call gave in its place.
+fn cg_range_fail(p: Program&, m: CgModule&, f: CgBody&, node: i64, reason: i64, message: const u8[:]) {
+    if reason >= 0 && p.nodes[reason].kind == N_STRING {
+        let token = p.tokens[p.nodes[reason].token]; cg_trap_if(p, m, f, node, p.text[token.text_start..token.text_start + token.text_len]);
+    } else { cg_trap_if(p, m, f, node, message); }
+}
+// range_index, check_length and move_from (upstream §3.3) over fixed-size
+// elements. A count is checked against the native data-stack reservation
+// (GS_STACK_RESERVE, 2 GiB), so both targets accept the same counts.
+recursive fn cg_range_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builtin: i64) {
+    let n = p.nodes[node]; let receiver = n.first;
+    if receiver < 0 || p.nodes[receiver].next < 0 { cg_fail(p, node, "wasm: array builtin has no receiver"); return; }
+    let argument = p.nodes[receiver].next; let reason = p.nodes[argument].next;
+    var id = p.nodes[receiver].type_id; if cg_type_kind(p, id) == TY_REF { id = p.types[id].element; }
+    let width = cg_size(p, p.types[id].element);
+    if builtin == 40 {
+        // The destination is captured before the source runs; memory.copy
+        // copies as though the source values were saved first.
+        cg_expr(p, m, f, receiver); cg_pack_view(p, m, f, p.nodes[receiver].type_id, node); let target = cg_save(f, 0x7e);
+        cg_expr(p, m, f, argument); cg_pack_view(p, m, f, p.nodes[argument].type_id, node); let source = cg_save(f, 0x7e);
+        cg_get(f, target); wb_i64(f.code, 32); wb_byte(f.code, 0x88); wb_byte(f.code, 0xa7); let count = cg_save(f, 0x7f);
+        cg_get(f, count); cg_get(f, source); wb_i64(f.code, 32); wb_byte(f.code, 0x88); wb_byte(f.code, 0xa7); wb_byte(f.code, 0x47);
+        cg_trap_if(p, m, f, node, "move_from lengths differ");
+        if width > 0 {
+            cg_get(f, target); wb_byte(f.code, 0xa7); cg_get(f, source); wb_byte(f.code, 0xa7);
+            cg_get(f, count); wb_i32(f.code, width); wb_byte(f.code, 0x6c); wb_copy(f.code);
+        }
+        return;
+    }
+    cg_expr(p, m, f, receiver); if cg_type_kind(p, p.nodes[receiver].type_id) == TY_REF { cg_load(p, m, f, id, 0); }
+    let base = cg_save(f, 0x7f);
+    if builtin == 39 {
+        // A negative count, or one whose elements no data stack could hold.
+        cg_to(p, m, f, argument, TYPE_I64); let count = cg_save(f, 0x7e);
+        cg_get(f, count);
+        if width > 0 { wb_i64(f.code, 2147483648 / width); wb_byte(f.code, 0x56); } else { wb_i64(f.code, 0); wb_byte(f.code, 0x53); }
+        cg_range_fail(p, m, f, node, reason, "invalid array length");
+        cg_get(f, count); cg_convert(p, m, f, TYPE_I64, n.type_id, node); return;
+    }
+    // An empty slice from anywhere starts at zero; a nonempty one must be
+    // element-aligned and wholly inside the receiver's current length.
+    cg_expr(p, m, f, argument); cg_pack_view(p, m, f, p.nodes[argument].type_id, node); let view = cg_save(f, 0x7e);
+    cg_get(f, view); wb_i64(f.code, 32); wb_byte(f.code, 0x88); wb_byte(f.code, 0xa7); let count = cg_save(f, 0x7f);
+    if p.types[id].array_kind == A_FIXED { wb_i32(f.code, p.types[id].count); } else { cg_array_length(p, m, f, id, base); }
+    let length = cg_save(f, 0x7f);
+    wb_i64(f.code, 0); let result = cg_save(f, 0x7e);
+    if width == 0 {
+        cg_get(f, count); cg_get(f, length); wb_byte(f.code, 0x4b); cg_range_fail(p, m, f, node, reason, "slice not within this array");
+    } else {
+        cg_get(f, count); cg_begin(f, 0x04, 0x40);
+        cg_get(f, view); wb_byte(f.code, 0xa7); cg_array_pointer(p, m, f, id, base); wb_byte(f.code, 0x6b); let offset = cg_save(f, 0x7f);
+        cg_get(f, offset); wb_i32(f.code, width); wb_byte(f.code, 0x6e); let start = cg_save(f, 0x7f);
+        cg_get(f, offset); wb_i32(f.code, width); wb_byte(f.code, 0x70);
+        cg_get(f, start); cg_get(f, length); wb_byte(f.code, 0x4f); wb_byte(f.code, 0x72);
+        cg_get(f, count); cg_get(f, length); cg_get(f, start); wb_byte(f.code, 0x6b); wb_byte(f.code, 0x4b); wb_byte(f.code, 0x72);
+        cg_range_fail(p, m, f, node, reason, "slice not within this array");
+        cg_get(f, start); wb_byte(f.code, 0xad); cg_set(f, result); cg_end(f);
+    }
+    cg_get(f, result); cg_convert(p, m, f, TYPE_I64, n.type_id, node);
+}
 recursive fn cg_array_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builtin: i64) {
     let n = p.nodes[node]; let receiver = n.first;
     if receiver < 0 { cg_fail(p, node, "wasm: array builtin has no receiver"); return; }
@@ -2583,6 +2644,7 @@ recursive fn cg_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builti
     }
     if builtin >= 23 && builtin <= 29 { cg_array_builtin(p, m, f, node, builtin); return; }
     if builtin >= 30 && builtin <= 32 { cg_pool_builtin(p, m, f, node, builtin); return; }
+    if builtin >= 38 && builtin <= 40 { cg_range_builtin(p, m, f, node, builtin); return; }
     if builtin == 16 || builtin == 17 { cg_bytes_builtin(p, m, f, node, builtin); return; }
     if builtin == 18 { cg_fail(p, node, "wasm: from_bytes image verification is unsupported by the direct Wasm backend"); return; }
     cg_fail(p, node, "wasm: builtin is unsupported by the direct Wasm execution environment");

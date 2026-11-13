@@ -70163,6 +70163,430 @@
         "dependencies": [
             "tests/fixtures/contracts/namespace-function/imported/ascii.goose"
         ]
+    },
+    {
+        "id": "corpus/contracts/array-ranges/ranges/native",
+        "source": "tests/fixtures/contracts/array-ranges/ranges.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1 2 0 0 0\n1 2 0 2\n17 1 4 0 5 3\n11234\n12344\n97 99\n1 1\ntrue\n",
+            "exit": 0
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from): contained, empty and foreign-empty ranges on resizable, fixed and limited arrays, counts evaluated once, overlap-safe copies of scalars, references and slices; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/ranges/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/ranges.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1 2 0 0 0\n1 2 0 2\n17 1 4 0 5 3\n11234\n12344\n97 99\n1 1\ntrue\n",
+            "exit": 0
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from): contained, empty and foreign-empty ranges on resizable, fixed and limited arrays, counts evaluated once, overlap-safe copies of scalars, references and slices; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-foreign/native",
+        "source": "tests/fixtures/contracts/array-ranges/range-foreign.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "slice not within this array"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/range_index_foreign: a nonempty slice of another array; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-foreign/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/range-foreign.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "slice not within this array"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/range_index_foreign: a nonempty slice of another array; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-extent/native",
+        "source": "tests/fixtures/contracts/array-ranges/range-extent.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "slice not within this array"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/range_index_extent: a slice sharing the receiver's start that runs past it; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-extent/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/range-extent.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "slice not within this array"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/range_index_extent: a slice sharing the receiver's start that runs past it; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-message/native",
+        "source": "tests/fixtures/contracts/array-ranges/range-message.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "locate: not a run of a"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/range_index_message: the given abort message; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-message/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/range-message.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "locate: not a run of a"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/range_index_message: the given abort message; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-negative/native",
+        "source": "tests/fixtures/contracts/array-ranges/length-negative.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "2\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "invalid array length"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_negative: a negative count; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-negative/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/length-negative.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "2\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "invalid array length"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_negative: a negative count; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-unsigned/native",
+        "source": "tests/fixtures/contracts/array-ranges/length-unsigned.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "268435456\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "invalid array length"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_unsigned: the largest accepted i64 count, then an unsigned count that must not wrap; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-unsigned/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/length-unsigned.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "268435456\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "invalid array length"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_unsigned: the largest accepted i64 count, then an unsigned count that must not wrap; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-large/native",
+        "source": "tests/fixtures/contracts/array-ranges/length-large.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "invalid array length"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_large: the first count past a data stack's reservation; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-large/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/length-large.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "invalid array length"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_large: the first count past a data stack's reservation; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-message/native",
+        "source": "tests/fixtures/contracts/array-ranges/length-message.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "3\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "reserve: bad count"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_message: the given abort message; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-message/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/length-message.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "3\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "reserve: bad count"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/runtime/check_length_message: the given abort message; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/move-length/native",
+        "source": "tests/fixtures/contracts/array-ranges/move-length.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "move_from lengths differ"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/codegen/slice_move_length: unequal lengths abort before any write; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/move-length/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/move-length.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "move_from lengths differ"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/codegen/slice_move_length: unequal lengths abort before any write; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/move-rebind-bounds/native",
+        "source": "tests/fixtures/contracts/array-ranges/move-rebind-bounds.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "4\n4 1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "out of bounds"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/codegen/slice_move_rebind_bounds: the destination is captured before its source rebinds it; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/move-rebind-bounds/wasm-direct",
+        "source": "tests/fixtures/contracts/array-ranges/move-rebind-bounds.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "4\n4 1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "out of bounds"
+            ]
+        },
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/codegen/slice_move_rebind_bounds: the destination is captured before its source rebinds it; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-variable",
+        "source": "tests/fixtures/contracts/array-ranges/range-variable.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/errors_tc/range_index_variable: range_index needs fixed-size elements; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-variable",
+        "source": "tests/fixtures/contracts/array-ranges/length-variable.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/errors_tc/check_length_variable: check_length needs fixed-size elements; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/length-fixed-receiver",
+        "source": "tests/fixtures/contracts/array-ranges/length-fixed-receiver.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), check_length takes a grow-only or grow-shrink receiver; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/range-message-literal",
+        "source": "tests/fixtures/contracts/array-ranges/range-message-literal.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/errors_tc/range_index_message_literal: the abort message is a string literal; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/move-const",
+        "source": "tests/fixtures/contracts/array-ranges/move-const.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/errors_tc/slice_move_const: move_from writes through its receiver; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/move-relative",
+        "source": "tests/fixtures/contracts/array-ranges/move-relative.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), test/errors_tc/slice_move_relative: no elements holding self-relative references; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/array-ranges/move-element-type",
+        "source": "tests/fixtures/contracts/array-ranges/move-element-type.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), the source is a slice of the destination's element type; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {

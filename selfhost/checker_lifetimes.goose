@@ -1879,7 +1879,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
                     if kind != N_ARRAY && kind != N_FILL && life_fresh(p, source) { constructing = true; }
                 }
                 if (builtin == 24 || builtin == 25 || builtin == 30 || builtin == 31) && constructing { life_hold(l, receiver, node, 1); }
-                if receiver.element_array != -1 && (builtin >= 24 || builtin == 2) || builtin == 16 { life_hold(l, receiver, argument, 3); }
+                if receiver.element_array != -1 && (builtin >= 24 && builtin <= 37 || builtin == 2) || builtin == 16 || builtin == 40 { life_hold(l, receiver, argument, 3); }
             }
         }
         life_hold(l, value, argument);
@@ -1985,6 +1985,16 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
             value.contents = life_contents(l, source); value.refs = 0; value.type_id = -1;
         }
         life_store(p, l, node, receiver.place, value);
+    } else if builtin == 40 {
+        // move_from stores the source's elements into the storage its
+        // destination slice views.
+        var value = life_item(l, arguments, 1);
+        if life_is_ref(p, value.type_id) {
+            var source = value.place;
+            if p.types[value.type_id].kind == TY_SLICE || p.types[value.type_id].kind == TY_REF { source = value.refs; }
+            value.contents = life_contents(l, source); value.refs = 0; value.type_id = -1;
+        }
+        life_store(p, l, node, receiver.refs, value);
     } else if builtin == 28 {
         var element = -1; if receiver.type_id >= 0 { element = p.types[receiver.type_id].element; }
         let fill = life_coerce(p, l, life_item(l, arguments, 2), element);

@@ -3124,6 +3124,9 @@ fn check_builtin_kind(p: Program&, token: i64) -> i64 {
     if token_is(p, token, "free_slice") { return 35; }
     if token_is(p, token, "src_file") { return 36; }
     if token_is(p, token, "src_line") { return 37; }
+    if token_is(p, token, "range_index") { return 38; }
+    if token_is(p, token, "check_length") { return 39; }
+    if token_is(p, token, "move_from") { return 40; }
     return -1;
 }
 fn check_builtin_symbol(p: Program&, token: i64, builtin: i64, result: i64) -> i64 {
@@ -3482,8 +3485,9 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
     if builtin == 9 || builtin == 16 { maximum = 2; }
     if builtin == 23 || builtin == 24 || builtin == 25 || builtin == 27 || builtin == 30 || builtin == 31 ||
        builtin == 32 || builtin == 33 || builtin == 35 { minimum = 2; maximum = 2; }
-    if builtin == 28 { minimum = 2; maximum = 3; }
+    if builtin == 28 || builtin == 38 || builtin == 39 { minimum = 2; maximum = 3; }
     if builtin == 34 { minimum = 3; maximum = 3; }
+    if builtin == 40 { minimum = 2; maximum = 2; }
     if args.count < minimum || args.count > maximum {
         diagnose(p, n.token, "builtin argument count does not match its signature"); return -1;
     }
@@ -3622,10 +3626,11 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
             check_copy_roots(c, node, source); check_add_root(c, node, check_place_root(p, source), 1);
         }
     } else {
-        let write = builtin == 2 || builtin >= 24;
+        let write = builtin == 2 || builtin >= 24 && builtin <= 37;
         let receiver = check_array_receiver(p, c, check_list_at(c, args, 0), write);
         if receiver < 0 { return -1; }
         var element = p.types[receiver].element; let array_kind = p.types[receiver].array_kind;
+        if builtin >= 38 { result = check_range_builtin(p, c, node, builtin, args, receiver); }
         if builtin == 21 || builtin == 22 || builtin == 23 { result = TYPE_I64; }
         if builtin == 22 && array_kind != A_LIMITED { diagnose(p, n.token, "cap is available only on limited arrays"); }
         if builtin == 23 {
@@ -3642,7 +3647,7 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
                 diagnose(p, n.token, "index_of requires a reference to an element of its array owner");
             }
         }
-        if builtin >= 24 {
+        if builtin >= 24 && builtin <= 37 {
             if p.types[receiver].kind != TY_ARRAY || array_kind == A_FIXED || array_kind == A_VAR {
                 diagnose(p, n.token, "array operation requires a resizable or limited owner");
             }
@@ -3709,6 +3714,49 @@ recursive fn check_builtin(p: Program&, c: Checker&, node: i64, builtin: i64) ->
         p.nodes[n.left].symbol = p.nodes[node].symbol;
     }
     return result;
+}
+// range_index, check_length and move_from (upstream §3.3), on arrays and
+// slices of fixed-size elements: the checked start of a slice inside the
+// receiver, a count validated against a data stack, and an equal-length copy
+// that is safe for overlapping slices. A failed check aborts in every build,
+// with the runtime's message or the string literal given in its place.
+recursive fn check_range_builtin(p: Program&, c: Checker&, node: i64, builtin: i64, args: CheckList&, receiver: i64) -> i64 {
+    let n = p.nodes[node]; let element = p.types[receiver].element; let array_kind = p.types[receiver].array_kind;
+    let target = check_list_at(c, args, 0); let argument = check_list_at(c, args, 1);
+    var name = "range_index"; if builtin == 39 { name = "check_length"; } else if builtin == 40 { name = "move_from"; }
+    let fixed = element >= 0 && check_size_class(p, element, 0) == 0;
+    if builtin == 40 {
+        if p.types[receiver].kind != TY_SLICE { diagnose(p, n.token, ".move_from requires a slice receiver"); }
+        else if check_readonly(p, c, target) { diagnose(p, n.token, "cannot .move_from through a non-writable value"); }
+        if element >= 0 && !fixed { diagnose(p, n.token, ".move_from requires fixed-size elements"); }
+        if element >= 0 { check_value(p, c, argument, check_const_type(p, check_type(p, TY_SLICE, element, -1, -1, 0))); }
+        else { check_value(p, c, argument, -1); }
+        if element >= 0 && check_type_property(p, element, 6) != 0 { diagnose(p, n.token, ".move_from cannot copy elements containing self-relative references"); }
+        if element >= 0 && check_contains_refs(p, element, 0) { check_store_roots(p, c, check_place_root(p, target), argument); }
+        return TYPE_VOID;
+    }
+    if element >= 0 && !fixed {
+        var message: u8[>..] = []; message.push('.'); message.append(name); message.append(" needs fixed-size elements: ");
+        render_type_name(p, receiver, message); message.append(" is sequential (§3.3)");
+        diagnose(p, n.token, message);
+    }
+    if builtin == 38 {
+        if p.types[receiver].kind != TY_ARRAY || array_kind == A_VAR { diagnose(p, n.token, ".range_index requires a fixed-stride array owner"); }
+        if element >= 0 { check_value(p, c, argument, check_const_type(p, check_type(p, TY_SLICE, element, -1, -1, 0))); }
+        else { check_value(p, c, argument, -1); }
+    } else {
+        if p.types[receiver].kind != TY_ARRAY || array_kind != A_GROW && array_kind != A_GROWSHRINK { diagnose(p, n.token, ".check_length requires a resizable array owner"); }
+        let count = check_numeric_value_type(p, check_value(p, c, argument, -1));
+        if c.reachable && !check_integer(count) { diagnose(p, p.nodes[argument].token, ".check_length requires an integer count"); }
+    }
+    if args.count == 3 {
+        let reason = check_list_at(c, args, 2); check_value(p, c, reason, TYPE_STRING);
+        if p.nodes[reason].kind != N_STRING {
+            var message: u8[>..] = []; message.push('.'); message.append(name); message.append(" takes its abort message as a string literal");
+            diagnose(p, p.nodes[reason].token, message);
+        }
+    }
+    return TYPE_I64;
 }
 recursive fn check_obvious_void_body(p: Program&, body: i64) -> bool {
     if body < 0 { return true; }

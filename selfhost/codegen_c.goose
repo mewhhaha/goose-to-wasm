@@ -2609,6 +2609,64 @@ recursive fn cc_render_value(p: Program&, f: CcBody&, node: i64) -> i64 {
     }
     return cc_expr(p, f, node);
 }
+// The abort of a failed range_index or check_length: the runtime's message,
+// or the string literal the call gave in its place.
+fn cc_range_fail(p: Program&, f: CcBody&, node: i64, reason: i64, message: const u8[:]) {
+    if reason >= 0 && p.nodes[reason].kind == N_STRING {
+        let token = p.tokens[p.nodes[reason].token];
+        cc_text(f.out, "gs_abort_msg((const uint8_t*)"); cc_bytes(f.out, p.text[token.text_start..token.text_start + token.text_len]);
+        cc_text(f.out, ","); cc_number(f.out, token.text_len); cc_text(f.out, ",");
+    } else { cc_text(f.out, "g_panic_at(\""); cc_text(f.out, message); cc_text(f.out, "\","); }
+    cc_location(p, f.out, node); cc_text(f.out, ");\n");
+}
+// range_index, check_length and move_from (upstream §3.3) over fixed-size
+// elements. The receiver is evaluated first, then the argument.
+recursive fn cc_range_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, args_start: i64, args_count: i64, base: i64, type_id: i64) -> i64 {
+    let width = cc_frame_size(p, p.types[type_id].element); let argument = f.work[args_start + 1];
+    var reason = -1; if args_count > 2 { reason = f.work[args_start + 2]; }
+    if builtin == 40 {
+        // The destination is captured before the source runs; memmove copies
+        // as though the source values were saved first.
+        let count = cc_temp(p, f, TYPE_I64); cc_set(f, count); cc_text(f.out, "g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ");\n");
+        let data = cc_ref_temp(f); cc_set(f, data); cc_text(f.out, "g_element("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ",0,1);\n");
+        let source = cc_base(p, f, argument); if source < 0 { return -1; }
+        var source_type = p.nodes[argument].type_id; if cc_kind(p, source_type) == TY_REF { source_type = p.types[source_type].element; }
+        cc_text(f.out, "if("); cc_id(f.out, "g_v", count); cc_text(f.out, "!=g_len("); cc_id(f.out, "g_v", source); cc_text(f.out, ","); cc_array_args(p, f.out, source_type, false);
+        cc_text(f.out, "))g_panic_at(\"move_from lengths differ\","); cc_location(p, f.out, node); cc_text(f.out, ");\n");
+        if width > 0 {
+            cc_text(f.out, "if("); cc_id(f.out, "g_v", count); cc_text(f.out, ")memmove(g_address("); cc_id(f.out, "g_v", data); cc_text(f.out, "),g_address(g_element(");
+            cc_id(f.out, "g_v", source); cc_text(f.out, ","); cc_array_args(p, f.out, source_type); cc_text(f.out, ",0,1)),(size_t)"); cc_id(f.out, "g_v", count); cc_text(f.out, "*"); cc_number(f.out, width); cc_text(f.out, ");\n");
+        }
+        return -1;
+    }
+    let result = cc_temp(p, f, TYPE_I64);
+    if builtin == 39 {
+        // A negative count, or one whose elements no data stack could hold.
+        let count = cc_to(p, f, argument, TYPE_I64); if count < 0 { return -1; }
+        cc_set(f, result); cc_id(f.out, "g_v", count); cc_text(f.out, ";\nif(");
+        if width > 0 { cc_text(f.out, "(uint64_t)"); cc_id(f.out, "g_v", result); cc_text(f.out, ">GS_STACK_RESERVE/"); cc_number(f.out, width); }
+        else { cc_id(f.out, "g_v", result); cc_text(f.out, "<0"); }
+        cc_text(f.out, ")"); cc_range_fail(p, f, node, reason, "invalid array length"); return result;
+    }
+    // An empty slice from anywhere starts at zero; a nonempty one must be
+    // element-aligned and wholly inside the receiver's current length.
+    let source = cc_base(p, f, argument); if source < 0 { return -1; }
+    var source_type = p.nodes[argument].type_id; if cc_kind(p, source_type) == TY_REF { source_type = p.types[source_type].element; }
+    let view = cc_temp(p, f, TYPE_I64); cc_set(f, view); cc_text(f.out, "g_len("); cc_id(f.out, "g_v", source); cc_text(f.out, ","); cc_array_args(p, f.out, source_type, false); cc_text(f.out, ");\n");
+    let length = cc_temp(p, f, TYPE_I64); cc_set(f, length); cc_text(f.out, "g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); cc_text(f.out, ");\n");
+    cc_set(f, result); cc_text(f.out, "0;\n");
+    if width == 0 {
+        cc_text(f.out, "if((uint64_t)"); cc_id(f.out, "g_v", view); cc_text(f.out, ">(uint64_t)"); cc_id(f.out, "g_v", length); cc_text(f.out, ")");
+        cc_range_fail(p, f, node, reason, "slice not within this array"); return result;
+    }
+    cc_text(f.out, "if("); cc_id(f.out, "g_v", view); cc_text(f.out, "){\nuint64_t g_offset_bytes=(uint64_t)((uintptr_t)g_element("); cc_id(f.out, "g_v", source);
+    cc_text(f.out, ","); cc_array_args(p, f.out, source_type); cc_text(f.out, ",0,1)-(uintptr_t)g_element("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id); cc_text(f.out, ",0,1));\n");
+    cc_text(f.out, "if(g_offset_bytes%"); cc_number(f.out, width); cc_text(f.out, "||g_offset_bytes/"); cc_number(f.out, width); cc_text(f.out, ">=(uint64_t)"); cc_id(f.out, "g_v", length);
+    cc_text(f.out, "||(uint64_t)"); cc_id(f.out, "g_v", view); cc_text(f.out, ">(uint64_t)"); cc_id(f.out, "g_v", length); cc_text(f.out, "-g_offset_bytes/"); cc_number(f.out, width); cc_text(f.out, ")");
+    cc_range_fail(p, f, node, reason, "slice not within this array");
+    cc_set(f, result); cc_text(f.out, "(int64_t)(g_offset_bytes/"); cc_number(f.out, width); cc_text(f.out, ");\n}\n");
+    return result;
+}
 recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64 {
     if builtin < 21 || builtin > 25 { f.activation_required = true; }
     let n = p.nodes[node]; let args_start = f.work.len; var args_count = 0; var arg = n.first;
@@ -2677,6 +2735,7 @@ recursive fn cc_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64) -> i64
     }
     if builtin == 16 || builtin == 17 { return cc_byte_builtin(p, f, node, builtin, args_start, args_count, base, type_id); }
     if cc_self_run(p, type_id) && builtin != 21 && builtin != 24 { cc_fail(p, node, "c: run builtin requires explicit committed-root adaptation"); return -1; }
+    if builtin >= 38 { return cc_range_builtin(p, f, node, builtin, args_start, args_count, base, type_id); }
     if builtin == 21 || builtin == 22 {
         let result = cc_temp(p, f, n.type_id); cc_set(f, result);
         if builtin == 21 || t.array_kind == A_VAR { cc_text(f.out, "g_len("); cc_id(f.out, "g_v", base); cc_text(f.out, ","); cc_array_args(p, f.out, type_id, false); }
