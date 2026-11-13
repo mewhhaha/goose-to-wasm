@@ -13,14 +13,10 @@
      compiles those of slices s with s*n/G_SLICES == k (G_IN_UNIT). Unit 0
      defines the program's mutable state (G_SHARED), which the other units
      declare. With n > 1, a program function named from another unit has
-     hidden external linkage (G_FN); the rest stay static (G_LOCAL), as
-     everything does with n == 1. A small function named from other units is
-     instead compiled, static, in every unit from the first to the last that
-     names it (G_IN_SPAN), so callers there can inline it. Per-type helpers
-     and other stateless static code are compiled in every unit using them.
-
-   Guards and links name a function's slice and the first and last slices it
-   is named from. */
+     hidden external linkage (G_FN); the rest stay static (G_LOCAL, given a
+     function's slice and the first and last slices that name it), as
+     everything does with n == 1. Per-type helpers and other stateless
+     static code are compiled in every unit that uses them. */
 #define G_SLICES 840
 #ifdef G_RUNTIME_UNIT
 #define GS_RUNTIME_OBJECT 1
@@ -35,8 +31,7 @@
 #if defined(G_UNITS) && G_UNITS > 1
 #define G_SPLIT 1
 #define G_UNIT_OF(slice) ((slice)*G_UNITS/G_SLICES)
-#define G_IN_UNIT(slice,first,last) (G_UNIT_OF(slice)==G_UNIT)
-#define G_IN_SPAN(slice,first,last) (G_UNIT_OF(first)<=G_UNIT && G_UNIT<=G_UNIT_OF(last))
+#define G_IN_UNIT(slice) (G_UNIT_OF(slice)==G_UNIT)
 #define G_LOCAL(slice,first,last) (G_UNIT_OF(first)==G_UNIT_OF(slice) && G_UNIT_OF(last)==G_UNIT_OF(slice))
 #define G_FN __attribute__((visibility("hidden")))
 #if G_UNIT == 0
@@ -48,8 +43,7 @@
 #endif
 #else
 #define G_SPLIT 0
-#define G_IN_UNIT(slice,first,last) 1
-#define G_IN_SPAN(slice,first,last) 1
+#define G_IN_UNIT(slice) 1
 #define G_LOCAL(slice,first,last) 1
 #define G_FN static
 #define G_SHARED static

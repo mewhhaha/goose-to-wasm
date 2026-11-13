@@ -26,8 +26,6 @@ let cc_runtime_units = embed_file("../native/units.h");
 let cc_runtime_unit = embed_file("../native/runtime_unit.h");
 // units.h's G_SLICES: a function's slice is where it starts among that many equal byte shares.
 let CC_SLICES: i64 = 840;
-// A function of at most this many bytes, named from other units, is compiled in each.
-let CC_COPY_BYTES: i64 = 4096;
 
 // defers: the height of the defer stack the exit runs back down to (§6.6).
 struct CcExit { node: i64, done: i64, again: i64 = -1, result: i64 = -1, type_id: i64 = TYPE_VOID, regions: i64 = 0, again_regions: i64 = 0, publications: i64 = -1, self_build_depth: i64 = 0, defers: i64 = 0 }
@@ -3480,72 +3478,43 @@ fn cc_patch_number(out: u8[>..]&, at: i64, value: i64) {
 inline fn cc_word_byte(byte: u8) -> bool {
     return byte == '_' || byte >= '0' && byte <= '9' || byte >= 'a' && byte <= 'z' || byte >= 'A' && byte <= 'Z';
 }
-// Records each function that out[from..to] names, as named from guard
-// `referrer` (-1: from every unit), and pins those whose address it takes.
-fn cc_note_names(out: const u8[:], from: i64, to: i64, referrer: i64, referrers: i64[>..]&, named: i64[>..]&, pinned: bool[>..]&) {
+// Widens [first, last] to [low, high] for every function that out[from..to] names.
+fn cc_note_names(out: const u8[:], from: i64, to: i64, low: i64, high: i64, first: i64[>..]&, last: i64[>..]&) {
     var at = from;
     while at + 4 < to {
         if out[at] != 'g' || out[at + 1] != '_' || out[at + 2] != 'f' || out[at + 3] != 'n' || at > 0 && cc_word_byte(out[at - 1]) { at++; continue; }
         var node = 0; var next = at + 4;
-        while next < to && out[next] >= '0' && out[next] <= '9' { if node < pinned.len { node = node * 10 + (out[next] - '0') as i64; } next++; }
-        if next > at + 4 && node < pinned.len && (next == to || !cc_word_byte(out[next])) {
-            referrers.push(referrer); named.push(node);
-            if referrer < 0 || at >= from + 7 && same_bytes(out[at - 7..at], "(void*)") { pinned[node] = true; }
+        while next < to && out[next] >= '0' && out[next] <= '9' { if node < first.len { node = node * 10 + (out[next] - '0') as i64; } next++; }
+        if next > at + 4 && node < first.len && (next == to || !cc_word_byte(out[next])) {
+            if low < first[node] { first[node] = low; }
+            if high > last[node] { last[node] = high; }
         }
         at = next;
     }
 }
 // Once everything from begin on is emitted, fills in the unit placeholders
-// (units.h). Guard k, "#if G_IN_UNIT(   ,   ,   )", holds function owners[k]
+// (units.h). Guard k, "#if G_IN_UNIT(   )", holds function owners[k]
 // (g_initialize for -1), whose "#if G_LOCAL(   ,   ,   )" is at links[k].
-// A guard gets the slice its first byte falls in. A function's link gets
-// that slice and the first and last slices it is named from, so it is static
-// where every unit that names it is its own. A small function named from
-// other slices becomes G_IN_SPAN instead: every unit from the first to the
-// last of them compiles a static copy its callers there can inline, and what
-// the copy names counts as named from all of those slices. Exported functions,
-// functions whose address is taken and those named from shared to begin
-// (thread workers, compiled in every unit) keep one definition.
+// A guard gets the slice its first byte falls in, and a function's link
+// that slice and the first and last slices that name it, so it is static
+// wherever every unit that names it is its own. Code from shared to begin,
+// such as thread workers, is in every unit.
 fn cc_number_units(p: Program&, out: u8[>..]&, guards: const i64[:], owners: const i64[:], links: const i64[:], shared: i64, begin: i64) {
     let total = out.len - begin;
-    var guard_of: i64[>..] = []; var pinned: bool[>..] = []; var referrers: i64[>..] = []; var named: i64[>..] = [];
-    guard_of.resize(p.nodes.len, -1); pinned.resize(p.nodes.len, false);
-    var slices: i64[>..] = []; var low: i64[>..] = []; var high: i64[>..] = []; var copied: bool[>..] = [];
+    var slices: i64[>..] = []; var first: i64[>..] = []; var last: i64[>..] = [];
+    slices.resize(p.nodes.len, 0); first.resize(p.nodes.len, CC_SLICES); last.resize(p.nodes.len, -1);
     for start, index in guards {
-        let slice = (start - begin) * CC_SLICES / total;
-        slices.push(slice); low.push(slice); high.push(slice); copied.push(false);
-        if owners[index] >= 0 { guard_of[owners[index]] = index; }
+        let slice = (start - begin) * CC_SLICES / total; cc_patch_number(out, start + 16, slice);
+        if owners[index] >= 0 { slices[owners[index]] = slice; }
         var end = out.len; if index + 1 < guards.len { end = guards[index + 1]; }
-        cc_note_names(out, start, end, index, referrers, named, pinned);
+        cc_note_names(out, start, end, slice, slice, first, last);
     }
-    cc_note_names(out, shared, begin, -1, referrers, named, pinned);
-    // low..high: the slices a function is named from, which widen as the
-    // functions naming it are copied, until no copy widens any more.
-    var changed = true;
-    while changed {
-        changed = false;
-        for node, edge in named {
-            let target = guard_of[node]; if target < 0 { continue; }
-            let referrer = referrers[edge]; var from = 0; var to = CC_SLICES - 1;
-            if referrer >= 0 && (copied[referrer] || owners[referrer] < 0) { from = low[referrer]; to = high[referrer]; }
-            else if referrer >= 0 { from = slices[referrer]; to = slices[referrer]; }
-            if from < low[target] { low[target] = from; changed = true; }
-            if to > high[target] { high[target] = to; changed = true; }
-        }
-        for start, index in guards {
-            let node = owners[index]; if node < 0 || copied[index] || low[index] == high[index] || pinned[node] || (p.nodes[node].flags & F_EXPORT) != 0 { continue; }
-            var end = out.len; if index + 1 < guards.len { end = guards[index + 1]; }
-            if end - start <= CC_COPY_BYTES { copied[index] = true; changed = true; }
-        }
-    }
-    for start, index in guards {
-        cc_patch_number(out, start + 16, slices[index]); cc_patch_number(out, start + 20, low[index]); cc_patch_number(out, start + 24, high[index]);
-        if owners[index] < 0 { continue; }
-        let link = links[index]; cc_patch_number(out, link + 14, slices[index]);
-        if copied[index] {
-            out[start + 9] = 'S'; out[start + 10] = 'P'; out[start + 11] = 'A'; out[start + 12] = 'N';
-            cc_patch_number(out, link + 18, slices[index]); cc_patch_number(out, link + 22, slices[index]);
-        } else { cc_patch_number(out, link + 18, low[index]); cc_patch_number(out, link + 22, high[index]); }
+    cc_note_names(out, shared, begin, 0, CC_SLICES - 1, first, last);
+    for at, index in links {
+        let node = owners[index]; let slice = slices[node];
+        var low = first[node]; if slice < low { low = slice; }
+        var high = last[node]; if slice > high { high = slice; }
+        cc_patch_number(out, at + 14, slice); cc_patch_number(out, at + 18, low); cc_patch_number(out, at + 22, high);
     }
 }
 fn generate_c(p: Program&, out: u8[>..]&) {
@@ -3629,7 +3598,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     let functions = out.len; var guards: i64[>..] = []; var owners: i64[>..] = [];
     for n, node in p.nodes {
         if !cc_emittable(p, node) { continue; }
-        guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   ,   ,   )\n");
+        guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   )\n");
         cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members); cc_emit_export(p, out, node); cc_text(out, "#endif\n");
     }
     var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = [];
@@ -3659,7 +3628,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     var graph = RegionGraph { functions: plans, calls: calls, stack: stack, members: members };
     let bound = region_bound(p, graph, global_count); var snapshots = 0;
     if threads { for n, node in p.nodes { if cc_thread_function(p, node) { let count = cc_thread_regions(p, node); if count > snapshots { snapshots = count; } } } }
-    guards.push(out.len); owners.push(-1); cc_text(out, "#if G_IN_UNIT(   ,   ,   )\n");
+    guards.push(out.len); owners.push(-1); cc_text(out, "#if G_IN_UNIT(   )\n");
     cc_text(out, "G_FN void g_initialize(void){if(g_initialized)return;g_initialized=1;g_global_regions="); cc_number(out, global_count);
     if threads { cc_text(out, ";g_worker_regions="); cc_number(out, bound); }
     cc_text(out, ";g_runtime_start(g_argc,g_argv,"); cc_number(out, bound); cc_text(out, ",");

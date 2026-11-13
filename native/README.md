@@ -29,10 +29,8 @@ byte-balanced slices in emission order, and unit k compiles slices `s` with
 `s*n/840 == k`. Mutable state in `storage.h`, `threads.h` and generated globals
 is `G_SHARED`, defined by unit 0 and declared hidden elsewhere; `gs_gl`, static
 in `runtime.h`, becomes one shared variable. A function named from another unit
-gets hidden external linkage, the rest stay static. One of at most 4 KiB of C
-is instead a static copy in every unit from the first to the last naming it,
-unless it is exported, its address is taken or a thread worker names it.
-Per-type helpers are static in each unit. The program side keeps its own
+gets hidden external linkage, the rest stay static. Per-type helpers are static
+in each unit. The program side keeps its own
 `GS_NEED_THREADS`: it uses none of `runtime.h`'s thread entry points, and
 declaring its state thread-local would slow programs without threads.
 `runtime_unit.h` reads the region registry and span depth that the runtime body
