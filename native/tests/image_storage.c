@@ -36,7 +36,7 @@ int main(int argc,char **argv) {
     GImage shorter={image.base,image.base+2,NULL};g_image_copy_into(g_ref(&copy),shorter);
     assert(copy.end==copy.base+2 && copy.region->stack.top==copy.end && copy.region->high_water==9);
     const int64_t values[]={63,-64,64,-65,8191,-8192,8192,INT64_MIN,INT64_MAX};
-    GArray elements=g_array(2);
+    GArray elements=g_mapped_array(2);
     for(int64_t i=0;i<9;i++) {
         cursor=g_image_space(elements.region,10);cursor+=gs_zig_write(cursor,values[i]);
         g_image_commit(g_ref(&elements),cursor,i+1);

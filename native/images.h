@@ -1,7 +1,7 @@
 /* Canonical value images and private resizable transfer envelopes. */
 typedef struct __attribute__((packed)) { uint8_t *base,*end;GRegion *region; } GImage;
 static GImage g_image(int64_t slot) {
-    GArray owner=g_array(slot);return (GImage){owner.data,owner.data,owner.region};
+    GArray owner=g_mapped_array(slot);return (GImage){owner.data,owner.data,owner.region};
 }
 static uint8_t *g_image_space(GRegion *region,int64_t bytes) {
     if(!region || !region->base || bytes<0)g_panic("invalid image reservation");

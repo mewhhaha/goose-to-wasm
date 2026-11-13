@@ -1062,7 +1062,10 @@ fn cc_emit_init(p: Program&, out: u8[>..]&, id: i64) {
     if cc_self_run(p, id) { cc_text(out, "GRunRoot value=g_run_root(slot);memcpy(g_address(p),&value,sizeof value);\n"); }
     else if cc_image_type(p, id) { cc_text(out, "GImage value=g_image(slot);memcpy(g_address(p),&value,sizeof value);\n"); }
     else if cc_owner(p, id) {
-        cc_text(out, "GArray value=g_array(slot);memcpy(g_address(p),&value,sizeof value);\n");
+        // Runs of variable-size elements write at the region's top before
+        // reserving, so only fixed-size elements leave the region unmapped.
+        if cc_size_class(p, t.element) == 1 { cc_text(out, "GArray value=g_mapped_array(slot);memcpy(g_address(p),&value,sizeof value);\n"); }
+        else { cc_text(out, "GArray value=g_array(slot);memcpy(g_address(p),&value,sizeof value);\n"); }
     } else if t.kind == TY_STRUCT && t.declaration >= 0 {
         var field = p.nodes[t.declaration].first; var offset = 0;
         while field >= 0 {
@@ -1119,9 +1122,12 @@ fn cc_emit_store(p: Program&, out: u8[>..]&, id: i64) {
     }
     if !cc_needs_clone(p, id, 0) { cc_text(out, "memmove(g_address(p),&v,sizeof v);}\n"); cc_helper_alias(p, out, id, "v", true); return; }
     if cc_owner(p, id) {
-        cc_text(out, "GArray source,target;memcpy(&source,&v,sizeof source);memcpy(&target,g_address(p),sizeof target);\n");
+        // A result built in its destination's region is the same array even
+        // when the destination was made before the region was reserved; and
+        // the target's own first bytes reserve its region and move its data.
+        cc_text(out, "GArray source,target;memcpy(&source,&v,sizeof source);memcpy(&target,g_address(p),sizeof target);g_array_resolve(&source);g_array_resolve(&target);\n");
         cc_text(out, "if(source.region==target.region && source.data==target.data){memcpy(g_address(p),&source,sizeof source);g_header_changed(p);return;}\n");
-        cc_text(out, "g_reserve(p,"); cc_array_args(p, out, id); cc_text(out, ",source.len);\n");
+        cc_text(out, "g_reserve(p,"); cc_array_args(p, out, id); cc_text(out, ",source.len);memcpy(&target,g_address(p),sizeof target);\n");
         if cc_needs_clone(p, t.element, 0) {
             cc_text(out, "for(int64_t i=0;i<source.len;i++){"); cc_id(out, "g_store_", t.element); cc_text(out, "(g_ref(target.data+i*");
             cc_number(out, cc_frame_size(p, t.element)); cc_text(out, "),"); cc_id(out, "g_native_load_", t.element);

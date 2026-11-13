@@ -7,6 +7,8 @@ static GRegion *g_pool_region(GRef header,int mode) {
 static void g_pool_init(GRef header,int64_t slot,int mode) {
     GArray value;memcpy(&value,g_address(header),sizeof value);
     if(!value.region)g_panic("pool has no receiving region");
+    // Slice requests are sized against the owner's reservation.
+    if(value.data==&g_empty_byte)g_array_place(header);
     GRegion *free=g_region(slot);free->entry=free->stack.top;
     value.region->freelist=free;value.region->free_count=0;value.region->free_mode=mode;
 }

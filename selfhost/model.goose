@@ -321,6 +321,11 @@ struct Diagnostic {
     line: i64 = 1, column: i64 = 1,
     message_start: i64 = 0, message_len: i64 = 0, severity: i64 = 1,
 }
+// A type identity bucket (type_find): its chain in ascending type ID. Paired
+// tables share an array, as each array costs a region.
+struct TypeBucket { head: i64 = -1, tail: i64 = -1 }
+// An indexed type's successor in its bucket's chain, and its bucket hash.
+struct TypeLink { next: i64 = -1, hash: i64 = 0 }
 struct Program {
     text: u8[>..]&, messages: u8[>..]&, sources: Source[>..]&,
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
@@ -328,9 +333,9 @@ struct Program {
     // Memoized type properties (type * 8 + property, value + 1; 0 unknown)
     // and the builtin symbol of each builtin ID (-1 none yet).
     type_properties: i64[>..]&, builtin_symbols: i64[>..]&,
-    // Type identity index (type_find): bucket chains in ascending type ID,
-    // each type's bucket hash, and how many types are indexed so far.
-    type_heads: i64[>..]&, type_tails: i64[>..]&, type_next: i64[>..]&, type_hashes: i64[>..]&,
+    // Type identity index (type_find): its buckets, each indexed type's link,
+    // and how many types are indexed so far.
+    type_buckets: TypeBucket[>..]&, type_links: TypeLink[>..]&,
     type_indexed: i64 = 0,
     entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     optimization: i64 = 0, debug: bool = false,
@@ -434,47 +439,46 @@ fn type_hash_of(p: Program&, id: i64) -> i64 {
     return type_hash(t.kind, t.element, t.count, t.flags, t.declaration);
 }
 fn type_link(p: Program&, id: i64) {
-    let bucket = p.type_hashes[id] & (p.type_heads.len - 1);
-    p.type_next[id] = -1;
-    let tail = p.type_tails[bucket];
-    if tail < 0 { p.type_heads[bucket] = id; p.type_tails[bucket] = id; return; }
-    if tail < id { p.type_next[tail] = id; p.type_tails[bucket] = id; return; }
+    let bucket = p.type_links[id].hash & (p.type_buckets.len - 1);
+    p.type_links[id].next = -1;
+    let tail = p.type_buckets[bucket].tail;
+    if tail < 0 { p.type_buckets[bucket].head = id; p.type_buckets[bucket].tail = id; return; }
+    if tail < id { p.type_links[tail].next = id; p.type_buckets[bucket].tail = id; return; }
     // A reindexed type goes back to its place in ID order.
-    var previous = -1; var at = p.type_heads[bucket];
-    while at >= 0 && at < id { previous = at; at = p.type_next[at]; }
-    p.type_next[id] = at;
-    if previous < 0 { p.type_heads[bucket] = id; } else { p.type_next[previous] = id; }
+    var previous = -1; var at = p.type_buckets[bucket].head;
+    while at >= 0 && at < id { previous = at; at = p.type_links[at].next; }
+    p.type_links[id].next = at;
+    if previous < 0 { p.type_buckets[bucket].head = id; } else { p.type_links[previous].next = id; }
 }
 fn type_index_sync(p: Program&) {
     if p.type_indexed == p.types.len { return; }
     // At most one type per bucket on average.
-    if p.type_heads.len < p.types.len {
+    if p.type_buckets.len < p.types.len {
         var size: i64 = 1024; while size < 2 * p.types.len { size <<= 1; }
-        p.type_heads.clear(); p.type_tails.clear();
-        p.type_heads.resize(size, -1); p.type_tails.resize(size, -1);
+        p.type_buckets.clear(); p.type_buckets.resize(size, TypeBucket {});
         for id in 0..p.type_indexed { type_link(p, id); }
     }
     while p.type_indexed < p.types.len {
         let id = p.type_indexed;
-        p.type_next.push(-1); p.type_hashes.push(type_hash_of(p, id));
+        p.type_links.push(TypeLink { next: -1, hash: type_hash_of(p, id) });
         type_link(p, id); p.type_indexed += 1;
     }
 }
-// The first type that may have these fields; follow type_next.
+// The first type that may have these fields; follow type_links[id].next.
 fn type_find(p: Program&, kind: i64, element: i64, count: i64, flags: i64, declaration: i64) -> i64 {
     type_index_sync(p);
-    return p.type_heads[type_hash(kind, element, count, flags, declaration) & (p.type_heads.len - 1)];
+    return p.type_buckets[type_hash(kind, element, count, flags, declaration) & (p.type_buckets.len - 1)].head;
 }
 fn type_reindex(p: Program&, id: i64) {
     if id < 0 || id >= p.type_indexed { return; }
     let hash = type_hash_of(p, id);
-    if hash == p.type_hashes[id] { return; }
-    let bucket = p.type_hashes[id] & (p.type_heads.len - 1);
-    var previous = -1; var at = p.type_heads[bucket];
-    while at >= 0 && at != id { previous = at; at = p.type_next[at]; }
-    if previous < 0 { p.type_heads[bucket] = p.type_next[id]; } else { p.type_next[previous] = p.type_next[id]; }
-    if p.type_tails[bucket] == id { p.type_tails[bucket] = previous; }
-    p.type_hashes[id] = hash; type_link(p, id);
+    if hash == p.type_links[id].hash { return; }
+    let bucket = p.type_links[id].hash & (p.type_buckets.len - 1);
+    var previous = -1; var at = p.type_buckets[bucket].head;
+    while at >= 0 && at != id { previous = at; at = p.type_links[at].next; }
+    if previous < 0 { p.type_buckets[bucket].head = p.type_links[id].next; } else { p.type_links[previous].next = p.type_links[id].next; }
+    if p.type_buckets[bucket].tail == id { p.type_buckets[bucket].tail = previous; }
+    p.type_links[id].hash = hash; type_link(p, id);
 }
 fn initialize_types(p: Program&) {
     add_type(p, Type { kind: TY_VOID });

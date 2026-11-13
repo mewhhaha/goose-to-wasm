@@ -25,7 +25,13 @@ input hashes, toolchain identity, timing and peak RSS in the output directory.
 
 Native lowering embeds `runtime.h`, `runtime_impl.h`, `runtime_threads.h` and
 `storage.h`. Grow/GrowShrink arrays use stable indexed regions, caller result
-destinations and scope watermarks. Native references are addresses. The old
+destinations and scope watermarks. A slot's region is reserved when an array
+there first needs bytes: until then the array's data is `g_empty_byte`, and an
+array made before the reservation starts at the region's base. Runs of
+variable-size elements and value images write at the region's top before
+reserving, so theirs are reserved as they are made (`g_mapped_array`).
+`tests/lazy_regions.c` covers unreserved arrays, watermarks, publication,
+shared result regions, pools and trimming. Native references are addresses. The old
 variable-image adapter, closure allocations and OS adapters remain pending
 their image/ABI migration; this is not a fully bounded runtime yet.
 

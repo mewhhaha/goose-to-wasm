@@ -306,11 +306,11 @@ fn driver_main() -> i64 {
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
     var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
-    var type_heads: i64[>..] = []; var type_tails: i64[>..] = []; var type_next: i64[>..] = []; var type_hashes: i64[>..] = [];
+    var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = [];
     var p = Program { text: text, messages: messages, sources: sources, tokens: tokens,
                       nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
-                      type_heads: type_heads, type_tails: type_tails, type_next: type_next, type_hashes: type_hashes };
+                      type_buckets: type_buckets, type_links: type_links };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;

@@ -135,7 +135,7 @@ def main():
         run("threads-adapter-" + mode + "-run", [binary], "native thread adapters ok\n")
     for header in ("storage.h", "pools.h", "relative.h", "images.h", "runs.h"):
         report["inputs_sha256"][header] = sha((HERE.parent / header).read_bytes())
-    for stem, expected in (("fixed_values", "native fixed values ok\n"), ("pools", "native pools ok\n"), ("relative", "native relative cells ok\n"), ("var_relative", "bounded varint relative cells ok\n"), ("bounded_cells", "bounded physical relative cursor bytes ok\n"), ("image_storage", "native image storage ok\n"), ("runs", "native bounded run receivers ok\n")):
+    for stem, expected in (("fixed_values", "native fixed values ok\n"), ("pools", "native pools ok\n"), ("relative", "native relative cells ok\n"), ("var_relative", "bounded varint relative cells ok\n"), ("bounded_cells", "bounded physical relative cursor bytes ok\n"), ("image_storage", "native image storage ok\n"), ("runs", "native bounded run receivers ok\n"), ("lazy_regions", "native lazy regions ok\n")):
         fixture = HERE / (stem + ".c")
         report["inputs_sha256"][fixture.name] = sha(fixture.read_bytes())
         for mode, options in (("release", ["-O2"]), ("sanitized", ["-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer"])):

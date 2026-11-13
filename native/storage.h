@@ -117,11 +117,20 @@ static void g_runtime_start(int argc,char **argv,int64_t regions,int64_t worker_
     g_region_pool_begin(regions);
     atexit(g_cleanup);
 }
-static GRegion *g_region(int64_t slot) {
+static GRegion *g_region_slot(int64_t slot) {
     if(slot<0 || slot>=g_region_count)g_panic("native region plan exhausted");
-    GRegion *region=&g_regions[slot];
-    if(!region->base) { gs_stack_init(&region->stack);region->base=region->stack.top;region->usable=gs_regions[gs_nregions-1].usable; }
     if(slot+1>g_region_peak)g_region_peak=slot+1;
+    return &g_regions[slot];
+}
+/* A slot's address space is reserved when something first needs bytes there,
+   and stays reserved for every later use of the slot. Until then the region
+   has no base and no top, and the runtime does not know it. */
+static GS_NOINLINE void g_region_map(GRegion *region) {
+    gs_stack_init(&region->stack);region->base=region->stack.top;region->usable=gs_regions[gs_nregions-1].usable;
+}
+static GRegion *g_region(int64_t slot) {
+    GRegion *region=g_region_slot(slot);
+    if(!region->base)g_region_map(region);
     return region;
 }
 static unsigned char *g_fixed_alloc(size_t bytes) {
@@ -150,9 +159,20 @@ static void g_fixed_release(GFixed *value) {
     if(!previous)previous=g_fixed_region.base;
     if(g_fixed_region.stack.top>previous)g_fixed_region.stack.top=previous;
 }
+/* The data of an array whose region is not reserved yet: a valid address for
+   its zero bytes. */
+static unsigned char g_empty_byte;
+/* An empty growable array. Its region is reserved only when the array first
+   needs bytes (g_reserve), so an array that never grows maps nothing. Image
+   and run writers take the region's top as their cursor before anything
+   reserves, so theirs start from g_mapped_array. */
 static GArray g_array(int64_t slot) {
-    GRegion *region=g_region(slot);region->capacity=0;region->width=0;region->freelist=NULL;region->free_count=0;region->free_mode=0;
-    region->entry=region->stack.top;GArray value={region->stack.top,0,region};return value;
+    GRegion *region=g_region_slot(slot);region->capacity=0;region->width=0;region->freelist=NULL;region->free_count=0;region->free_mode=0;
+    region->entry=region->stack.top;unsigned char *data=region->stack.top;if(!region->base)data=&g_empty_byte;
+    GArray value={data,0,region};return value;
+}
+static GArray g_mapped_array(int64_t slot) {
+    g_region(slot);return g_array(slot);
 }
 static void g_mark_regions(int64_t base,int64_t count,GWatermark *marks) {
     if(base<0 || count<0 || base>g_region_count-count)g_panic("invalid native region watermark");
@@ -198,7 +218,6 @@ static GS_INLINE GRef g_offset(GRef ref,int64_t offset) {
     return ref+(uintptr_t)offset;
 }
 static GRef g_owner(GRef root) { return root; }
-static unsigned char g_empty_byte;
 static GRef g_moving(GRef root,int64_t offset) {
     unsigned char *base;memcpy(&base,g_address(root),sizeof base);
     if(offset<0)g_panic("negative reference offset");if(!base && !offset)return g_ref(&g_empty_byte);return g_ref(base+offset);
@@ -248,6 +267,35 @@ static GRef g_slot(GRef header,int kind,int64_t fixed,int prefix,int64_t width,i
 static GSlice g_view(GRef r,int kind,int64_t fixed,int prefix,int64_t width) {
     GSlice s={g_element(r,kind,fixed,prefix,width,0,1),g_len(r,kind,fixed,prefix)}; return s;
 }
+/* Every array made in a region before its first bytes starts at its base, as
+   the arrays made there afterwards start at its top. Several headers can
+   share a region (a call's result is built in its destination's), so one
+   made while the region was unreserved may find it reserved since. */
+static GS_INLINE void g_array_resolve(GArray *a) {
+    if(a->data==&g_empty_byte && a->region && a->region->base)a->data=a->region->base;
+}
+/* Points an array made before its region was reserved at the region's base,
+   reserving the region first if it is not, and republishes the header. */
+static GS_NOINLINE void g_array_place(GRef r) {
+    GArray a;memcpy(&a,g_address(r),sizeof a);
+    if(!a.region->base) { g_region_map(a.region);a.region->entry=a.region->base; }
+    a.data=a.region->base;memcpy(g_address(r),&a,sizeof a);g_header_changed(r);
+}
+static GS_INLINE void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t count);
+/* What g_reserve finds outside its array's reservation: an array made before
+   its region was reserved, which it places (reserving the region unless the
+   array needs no bytes, as zero-width elements do), or an overflow. Taken from
+   the bounds check's branch, so the reserves inlined everywhere stay as they
+   were. */
+static GS_NOINLINE __attribute__((cold)) void g_reserve_outside(GRef r,int64_t width,int64_t count) {
+    GArray a;memcpy(&a,g_address(r),sizeof a);
+    if(a.data!=&g_empty_byte)g_panic("data stack overflow");
+    if(!a.region->base && (!count || !width)) {
+        if(count>a.region->capacity)a.region->capacity=count;
+        a.region->width=width;return;
+    }
+    g_array_place(r);g_reserve(r,3,-1,0,width,count);
+}
 static GS_INLINE void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t width,int64_t count) {
     if(count<0 || (width && count>INT64_MAX/width)) g_panic("invalid capacity");
     if(kind==2) { if(count>g_cap(r,kind,fixed)) g_panic("limited array capacity exceeded"); return; }
@@ -255,8 +303,10 @@ static GS_INLINE void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t
     GArray a; memcpy(&a,g_address(r),sizeof a);
     if(!a.region)g_panic("array has no receiving region");
     uint64_t bytes=(uint64_t)count*(uint64_t)width;
-    size_t offset=(size_t)(a.data-a.region->base);
-    if(bytes>a.region->usable || offset>a.region->usable-bytes)g_panic("data stack overflow");
+    // g_empty_byte lies outside every region (and an unreserved one has no
+    // usable bytes), so unplaced arrays fail this check too.
+    size_t offset=(size_t)((uintptr_t)a.data-(uintptr_t)a.region->base);
+    if(bytes>a.region->usable || offset>a.region->usable-bytes) { g_reserve_outside(r,width,count);return; }
     if(count>a.region->capacity)a.region->capacity=count;
     a.region->width=width;
     a.region->stack.top=a.data+(size_t)a.region->capacity*(size_t)width;
@@ -264,14 +314,18 @@ static GS_INLINE void g_reserve(GRef r,int kind,int64_t fixed,int prefix,int64_t
     if(used>a.region->high_water)a.region->high_water=used;
 
 }
+/* An array that has not been placed holds no bytes, so its length and builder
+   resets leave its region's top alone: unreserved, the region keeps no top;
+   reserved since by another header, the top stays above whatever that one
+   holds, until g_reserve or a watermark moves it. */
 static void g_set_len(GRef r,int kind,int64_t fixed,int prefix,int64_t count) {
     if(kind==2 && fixed<0){if(count<0 || count>g_cap(r,kind,fixed))g_panic("limited array capacity exceeded");g_write_length(g_address(r)+4,4,(uint64_t)count);}
     else if(kind==2 && fixed>=0) g_write_length(g_address(r),prefix,(uint64_t)count);
-    else { GArray a; memcpy(&a,g_address(r),sizeof a); a.len=count;if(a.region && (kind==3 || kind==4))a.region->stack.top=a.data+(size_t)count*(size_t)a.region->width;memcpy(g_address(r),&a,sizeof a);g_header_changed(r); }
+    else { GArray a; memcpy(&a,g_address(r),sizeof a); a.len=count;if(a.region && (kind==3 || kind==4) && a.data!=&g_empty_byte)a.region->stack.top=a.data+(size_t)count*(size_t)a.region->width;memcpy(g_address(r),&a,sizeof a);g_header_changed(r); }
 }
 static void g_begin_builder(GRef ref) {
     GArray value;memcpy(&value,g_address(ref),sizeof value);value.len=0;
-    if(value.region)value.region->stack.top=value.data;
+    if(value.region && value.data!=&g_empty_byte)value.region->stack.top=value.data;
     memcpy(g_address(ref),&value,sizeof value);
 }
 static GS_INLINE GRef g_push(GRef r,int kind,int64_t fixed,int prefix,int64_t width,const void *v) {

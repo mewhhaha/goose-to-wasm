@@ -3,7 +3,7 @@ typedef struct { GArray header; uint8_t *end; } GRunRoot;
 typedef const uint8_t *(*GRunSkip)(const uint8_t *,const uint8_t *);
 _Static_assert(sizeof(GRunRoot)==32,"bounded run receiver frame");
 static GRunRoot g_run_root(int64_t slot) {
-    GArray header=g_array(slot);return (GRunRoot){header,header.data};
+    GArray header=g_mapped_array(slot);return (GRunRoot){header,header.data};
 }
 static void g_run_reset(GRunRoot *receiving) {
     if(!receiving || !receiving->header.region)g_panic("run has no receiving region");
