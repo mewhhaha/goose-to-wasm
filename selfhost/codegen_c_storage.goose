@@ -31,6 +31,8 @@ recursive fn cc_size_class(p: Program&, id: i64) -> i64 {
         if (n.flags & F_PAD) == 0 { let size_class = cc_size_class(p, n.type_id); if size_class > result { result = size_class; } }
         field = n.next;
     }
+    // A root owner's frame holds each component's own header: never an image.
+    if result > 0 && root_struct_type(p, id) { return 2; }
     return result;
 }
 fn cc_image_type(p: Program&, id: i64) -> bool {
@@ -160,7 +162,7 @@ fn cc_image_constructible(p: Program&, id: i64) -> bool {
     return true;
 }
 recursive fn cc_variable_prefix_frame(p: Program&, id: i64) -> bool {
-    if cc_size_class(p, id) != 2 { return false; } let t = p.types[id];
+    if cc_size_class(p, id) != 2 || root_struct_type(p, id) { return false; } let t = p.types[id];
     if t.kind != TY_STRUCT && t.kind != TY_ENUM { return false; } var field = p.nodes[t.declaration].first;
     while field >= 0 {
         let n = p.nodes[field];
@@ -207,6 +209,13 @@ recursive fn cc_frame_size(p: Program&, type_id: i64) -> i64 {
     if cc_image_type(p, type_id) { return 24; }
     if cc_self_run(p, type_id) { return 32; }
     let t = p.types[type_id];
+    // A root owner's frame places its components' frames side by side; the
+    // checked layout (one reference per field) only describes the owner.
+    if root_struct_type(p, type_id) {
+        var size = 0; var field = p.nodes[t.declaration].first;
+        while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 { size += cc_frame_size(p, p.nodes[field].type_id); } field = p.nodes[field].next; }
+        return size;
+    }
     if t.kind == TY_STRUCT && t.declaration >= 0 {
         var size = t.size; var field = p.nodes[t.declaration].first;
         while field >= 0 {
@@ -242,6 +251,13 @@ fn cc_field_offset(p: Program&, type_id: i64, field: i64) -> i64 {
     while id >= 0 && p.types[id].kind == TY_REF { id = p.types[id].element; }
     let n = p.nodes[field];
     if id < 0 || p.types[id].kind != TY_STRUCT || p.types[id].declaration < 0 { return n.integer; }
+    if root_struct_type(p, id) {
+        var offset = 0; var previous = p.nodes[p.types[id].declaration].first;
+        while previous >= 0 && previous != field {
+            if (p.nodes[previous].flags & F_PAD) == 0 { offset += cc_frame_size(p, p.nodes[previous].type_id); } previous = p.nodes[previous].next;
+        }
+        return offset;
+    }
     var offset = n.integer; var previous = p.nodes[p.types[id].declaration].first;
     while previous >= 0 && previous != field {
         let value = p.nodes[previous];

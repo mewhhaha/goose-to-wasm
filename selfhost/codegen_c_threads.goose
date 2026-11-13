@@ -139,13 +139,13 @@ fn cc_thread_static_types(p: Program&, used: bool[>..]&) {
 fn cc_thread_emit_globals(p: Program&, out: u8[>..]&) {
     out.append("typedef struct {\nunsigned char empty;\n");
     for s, symbol in p.symbols {
-        if (s.flags & S_GLOBAL) != 0 && s.type_id >= 0 {
+        if (s.flags & S_GLOBAL) != 0 && s.type_id >= 0 && s.component_owner < 0 {
             cc_storage_type(p, out, s.type_id); out.format(" v", symbol, ";\n");
         }
     }
     out.append("} GGlobals;\nstatic GGlobals g_main_globals;\n");
     for s, symbol in p.symbols {
-        if (s.flags & S_GLOBAL) != 0 && s.type_id >= 0 { out.format("#define g_s", symbol, " (((GGlobals*)gs_gl)->v", symbol, ")\n"); }
+        if (s.flags & S_GLOBAL) != 0 && s.type_id >= 0 && s.component_owner < 0 { out.format("#define g_s", symbol, " (((GGlobals*)gs_gl)->v", symbol, ")\n"); }
     }
     out.append("static int64_t g_worker_regions;\n");
     for n, node in p.nodes {

@@ -2167,6 +2167,9 @@ recursive fn cc_record(p: Program&, f: CcBody&, node: i64) -> i64 {
             if cc_kind(p, n.type_id) == TY_ENUM && p.types[p.nodes[initializer].aux].declaration == p.types[n.type_id].declaration { owner = literal_start; }
             cc_store(p, f, ref, owner, type_id, binding);
         } else if initializer >= 0 && cc_result_location(p, type_id) { cc_construct_into(p, f, initializer, type_id, ref); }
+        // A root owner's component is built in its own region, where its
+        // elements stay (pool-relative `self` names that storage).
+        else if initializer >= 0 && root_struct_type(p, record_type) && cc_region_width(p, type_id) > 0 { cc_construct_into(p, f, initializer, type_id, ref); }
         else {
             var value = -1; if initializer >= 0 { value = cc_to(p, f, initializer, type_id, true); } else { value = cc_default(p, f, type_id); }
             if value < 0 { return -1; } cc_store(p, f, ref, value, type_id, binding);
@@ -3323,7 +3326,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     }
     let initializer = plans.len; plans.push(RegionFunction { entry: true });
     var global_count = 0;
-    for symbol, s in p.symbols { if (symbol.flags & S_GLOBAL) != 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } } }
+    for symbol, s in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.component_owner < 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } } }
     let threads = cc_threads_used(p); let images = cc_images_used(p); let begin = out.len;
     cc_text(out, "#define _GNU_SOURCE 1\n"); if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
     cc_text(out, cc_runtime); cc_text(out, cc_runtime_relative); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra);
@@ -3357,11 +3360,12 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         cc_thread_emit_globals(p, out); cc_thread_emit_queues(p, out); cc_thread_emit_workers(p, out);
     } else {
     for s, symbol in p.symbols {
-        if (s.flags & S_GLOBAL) == 0 { continue; }
+        if (s.flags & S_GLOBAL) == 0 || s.component_owner >= 0 { continue; }
         if s.type_id < 0 || !cc_concrete(p, s.type_id) { cc_fail(p, s.node, "c: global lacks a concrete type"); continue; }
         cc_text(out, "static "); cc_storage_type(p, out, s.type_id); cc_text(out, " "); cc_id(out, "g_s", symbol); cc_text(out, ";\n");
     }
     }
+    cc_component_aliases(p, out);
     cc_pool_origins(p, out, true);
     if images { cc_index_lengths(p, out, true); }
     for n, node in p.nodes { if cc_emittable(p, node) { cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members); cc_emit_export(p, out, node); } }
@@ -3376,7 +3380,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     }
     var slot = 0;
     for s, symbol in p.symbols {
-        if (s.flags & S_GLOBAL) == 0 { continue; }
+        if (s.flags & S_GLOBAL) == 0 || s.component_owner >= 0 { continue; }
         let width = cc_region_width(p, s.type_id); if width == 0 { continue; }
         cc_id(initialization, "g_init_", s.type_id); cc_text(initialization, "(g_ref(&"); cc_id(initialization, "g_s", symbol);
         cc_text(initialization, "),"); cc_number(initialization, slot); cc_text(initialization, ");\n"); slot += width;
@@ -3386,7 +3390,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
             cc_number(initialization, mode); cc_text(initialization, ");\n"); slot++;
         }
     }
-    for s in p.symbols { if (s.flags & S_GLOBAL) != 0 && s.node >= 0 { cc_variable(p, f, s.node); } }
+    for s in p.symbols { if (s.flags & S_GLOBAL) != 0 && s.node >= 0 && s.component_owner < 0 { cc_variable(p, f, s.node); } }
     plans[initializer].own = f.region_peak;
     var stack: i64[>..] = []; var members: i64[>..] = [];
     var graph = RegionGraph { functions: plans, calls: calls, stack: stack, members: members };
@@ -3713,6 +3717,14 @@ fn cc_has_capture(p: Program&, function: i64, symbol: i64) -> bool {
         capture = p.nodes[capture].next;
     }
     return false;
+}
+// A named component of a global root owner (`owner.field` in an index or
+// relative reference type) is that field's place inside the owner's frame.
+fn cc_component_aliases(p: Program&, out: u8[>..]&) {
+    for s, symbol in p.symbols {
+        if (s.flags & S_GLOBAL) == 0 || s.component_owner < 0 || s.component < 0 { continue; }
+        out.format("#define g_s", symbol, " (*(g_t", s.type_id, "*)((unsigned char*)&g_s", s.component_owner, "+", cc_field_offset(p, p.symbols[s.component_owner].type_id, s.component), "))\n");
+    }
 }
 fn cc_storage_binding(p: Program&, symbol: i64) -> bool {
     let node = p.symbols[symbol].node; if node < 0 { return false; }

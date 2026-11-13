@@ -1310,10 +1310,6 @@ recursive fn check_resolve_type(p: Program&, c: Checker&, syntax: i64) -> i64 {
 recursive fn check_layout_fields(p: Program&, c: Checker&, first: i64, owner: i64) -> i64 {
     var field = first; var size = 0; var index = 0; var variable = false;
     let root = owner >= 0 && p.nodes[owner].kind == N_STRUCT && (p.nodes[owner].flags & F_ROOT) != 0;
-    // Code generation does not yet allocate a root's components.
-    if root && !p.check_only {
-        diagnose(p, p.nodes[owner].token, "root struct storage is not yet supported by code generation");
-    }
     while field >= 0 {
         let n = p.nodes[field];
         if root && (n.flags & F_PAD) != 0 {

@@ -3355,7 +3355,19 @@ recursive fn cg_raw_append_demand(p: Program&, m: CgModule&, node: i64) -> i64 {
     count += cg_raw_append_demand(p, m, n.left) + cg_raw_append_demand(p, m, n.right) + cg_raw_append_demand(p, m, n.third);
     var child = n.first; while child >= 0 { count += cg_raw_append_demand(p, m, child); child = p.nodes[child].next; } return count;
 }
+// Root owners need one independently growing region per component, which the
+// direct backend's single-tail frame owners cannot express yet; the native C
+// backend lowers them.
+fn cg_refuse_root_owners(p: Program&) {
+    for symbol in p.symbols {
+        if symbol.component_owner >= 0 || (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 || !root_struct_type(p, symbol.type_id) { continue; }
+        if symbol.owner >= 0 && (p.nodes[symbol.owner].flags & F_REACHABLE) == 0 { continue; }
+        if symbol.node >= 0 && (p.nodes[symbol.node].kind == N_FIELD || p.nodes[symbol.node].kind == N_VARIANT) { continue; }
+        cg_fail(p, symbol.node, "wasm: root struct storage is not supported by the direct Wasm backend; use --target native"); return;
+    }
+}
 fn cg_collect(p: Program&, m: CgModule&) {
+    cg_refuse_root_owners(p); if p.diagnostics.len > 0 { return; }
     cg_scan_effect_targets(p);
     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
     for symbol, i in p.symbols {

@@ -40,6 +40,14 @@ ownership, recursive forwarding, nonlocal returns and trim/regrowth. Compile
 its emitted C with `-DGS_STACK_STATS=1` for region counts, final live bytes,
 the sum of each region's high-water bytes and retained legacy bytes.
 
+A root struct owner's frame places its fields' own frames side by side. Each
+resizable component keeps its header there and has its own region slot, so
+components grow, shrink and reserve independently; fixed fields sit beside
+them. Local owners take their slots like other locals and release them at
+scope exit, globals take dedicated slots, and owners pass by address. A named
+component (`owner.field` in an index or relative type) is that field's place
+in its global owner's frame. The direct Wasm backend refuses root owners.
+
 Large aggregate values use a scoped fixed-value region and address parameters.
 `tests/large_values.goose` checks receiving, recursion, nonlocal returns and
 loop reuse. The C checks also cover fixed-value watermarks and independent

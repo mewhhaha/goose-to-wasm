@@ -639,13 +639,13 @@ fn optimize_program(p: Program&) {
     let count = p.symbols.len;
     for i in 0..count {
         let s = p.symbols[i]; if s.node < 0 { continue; }
-        if (s.flags & S_GLOBAL) != 0 { opt_collect(p, o, s.node); }
+        if (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 { opt_collect(p, o, s.node); }
         if (s.flags & S_FUNCTION) != 0 && (s.flags & S_BUILTIN) == 0 && (p.nodes[s.node].flags & F_REACHABLE) != 0 {
             opt_collect(p, o, p.nodes[s.node].right);
         }
     }
     for i in 0..count {
-        let s = p.symbols[i]; if s.node >= 0 && (s.flags & S_GLOBAL) != 0 { opt_node(p, o, s.node, 0); }
+        let s = p.symbols[i]; if s.node >= 0 && (s.flags & S_GLOBAL) != 0 && s.component_owner < 0 { opt_node(p, o, s.node, 0); }
     }
     for i in 0..count {
         let s = p.symbols[i];
