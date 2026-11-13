@@ -405,6 +405,28 @@ fn check_lookup(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0)
         current = c.scopes[current].parent;
     }
 }
+// The namespace among the declarations of one name in one scope. A
+// namespace's name is no declaration of the scope it is in, so a function,
+// type or global of that name stands beside it (upstream §11.1).
+fn check_namespace_in(p: Program&, symbol: i64) -> i64 {
+    var current = symbol;
+    while current >= 0 {
+        let declaration = p.symbols[current].node;
+        if declaration >= 0 && p.nodes[declaration].kind == N_NAMESPACE { return current; }
+        current = p.symbols[current].next;
+    }
+    return -1;
+}
+// A qualifier `ns::` names a namespace, which no variable hides.
+fn check_lookup_namespace(p: Program&, c: Checker&, token: i64, scope: i64) -> i64 {
+    var current = scope;
+    loop {
+        let found = check_namespace_in(p, check_lookup_scope(p, c, token, current));
+        if found >= 0 { return found; }
+        if current <= 0 || current >= c.scopes.len { return -1; }
+        current = c.scopes[current].parent;
+    }
+}
 fn check_lookup_name(p: Program&, c: Checker&, node: i64, role: i64 = 0) -> i64 {
     let n = p.nodes[node];
     if n.aux <= 1 || n.integer < 0 || n.integer >= p.tokens.len {
@@ -412,18 +434,21 @@ fn check_lookup_name(p: Program&, c: Checker&, node: i64, role: i64 = 0) -> i64 
     }
     var at = n.integer; var scope = c.scope;
     if p.tokens[at].kind == T_COLONCOLON { scope = 0; at += 1; }
-    var first_role = role; if at < n.token { first_role = 0; }
-    var symbol = check_lookup(p, c, at, scope, first_role);
+    var symbol = -1;
+    if at < n.token { symbol = check_lookup_namespace(p, c, at, scope); }
+    else { symbol = check_lookup(p, c, at, scope, role); }
     at += 1;
     while at < n.token {
         if p.tokens[at].kind == T_COLONCOLON { at += 1; }
         if symbol < 0 { return -1; }
         let declaration = p.symbols[symbol].node;
         if declaration < 0 || p.nodes[declaration].kind != N_NAMESPACE { return -1; }
-        var member_role = role; if at < n.token { member_role = 0; }
         let member_scope = p.nodes[declaration].scope;
-        symbol = check_lookup_scope(p, c, at, member_scope, member_role);
-        if member_role == 0 { symbol = check_global_value(p, symbol); }
+        if at < n.token { symbol = check_namespace_in(p, check_lookup_scope(p, c, at, member_scope)); }
+        else {
+            symbol = check_lookup_scope(p, c, at, member_scope, role);
+            if role == 0 { symbol = check_global_value(p, symbol); }
+        }
         at += 1;
     }
     return symbol;
@@ -506,12 +531,15 @@ fn check_declare(p: Program&, c: Checker&, node: i64, scope: i64) -> i64 {
     var collision = previous;
     while collision >= 0 {
         let old = p.symbols[collision];
-        let namespace_merge = n.kind == N_NAMESPACE && old.node >= 0 && p.nodes[old.node].kind == N_NAMESPACE;
+        let old_namespace = old.node >= 0 && p.nodes[old.node].kind == N_NAMESPACE;
+        let namespace_merge = n.kind == N_NAMESPACE && old_namespace;
+        // A namespace and a declaration of its name do not collide (§11.1).
+        let namespace_apart = (n.kind == N_NAMESPACE) != old_namespace;
         let overload = (flags & S_FUNCTION) != 0 && (old.flags & S_FUNCTION) != 0;
         let separate_global_roles = (scope == 0 || scope >= 0 && c.scopes[scope].namespace_node >= 0) &&
             (flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 && (old.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 &&
             (flags & (S_FUNCTION | S_TYPE)) != (old.flags & (S_FUNCTION | S_TYPE));
-        if !namespace_merge && !overload && !separate_global_roles {
+        if !namespace_merge && !namespace_apart && !overload && !separate_global_roles {
             diagnose(p, n.token, "duplicate declaration in this scope"); break;
         }
         collision = old.next;
@@ -5028,9 +5056,9 @@ recursive fn check_predeclare(p: Program&, c: Checker&, first: i64) {
     while node >= 0 {
         let n = p.nodes[node];
         if n.kind == N_NAMESPACE {
-            let previous = check_lookup_scope(p, c, n.token, c.scope);
+            let previous = check_namespace_in(p, check_lookup_scope(p, c, n.token, c.scope));
             var namespace_scope = -1;
-            if previous >= 0 && p.symbols[previous].node >= 0 && p.nodes[p.symbols[previous].node].kind == N_NAMESPACE {
+            if previous >= 0 {
                 namespace_scope = p.nodes[p.symbols[previous].node].scope; p.nodes[node].symbol = previous;
             } else {
                 check_declare(p, c, node, c.scope);
