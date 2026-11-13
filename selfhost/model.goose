@@ -356,6 +356,9 @@ struct Program {
     // The program's total const for expansion size (upstream ExpansionClone,
     // whose reference build raises it to 1000000).
     expansion_limit: i64 = 100000,
+    // Code generation: a `defer` body may run while a nonlocal return passes
+    // through its function (mark_unwinding_functions).
+    unwinding: bool = false,
 }
 inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }
@@ -403,6 +406,54 @@ fn diagnose(p: Program&, token: i64, message: u8[:]) {
 fn library_node(p: Program&, node: i64) -> bool {
     let token = p.nodes[node].token;
     return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
+}
+// Code generation scratch on function nodes: a call to the function may
+// leave through a nonlocal return in flight (mark_unwinding_functions).
+let F_UNWINDS: i64 = 576460752303423488;
+// Whether a function may be left by a return through it (§7.9): it holds a
+// return to another function, or calls a function that may be, directly,
+// through dispatch or through a function-typed value. Returns whether any
+// emitted function holds a `defer` (§6.6) and any may be left so: only then
+// do defer bodies run on the propagation path of such a return.
+fn mark_unwinding_functions(p: Program&) -> bool {
+    var functions: i64[>..] = []; var defers = false; var sites = false;
+    for n, id in p.nodes {
+        if n.kind == N_DEFER && (n.flags & F_CHECKED) != 0 { defers = true; }
+        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
+        p.nodes[id].flags &= ~F_UNWINDS;
+        if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED && n.right >= 0 { functions.push(id); }
+    }
+    if !defers { return false; }
+    var changed = true; var work: i64[>..] = [];
+    while changed {
+        changed = false;
+        for function in functions {
+            if (p.nodes[function].flags & F_UNWINDS) != 0 { continue; }
+            let root = p.nodes[function].right; var unwinds = false;
+            work.clear(); work.push(root);
+            while work.len > 0 && !unwinds {
+                let id = work.pop(); if id < 0 { continue; }
+                let n = p.nodes[id];
+                if id != root && n.next >= 0 { work.push(n.next); }
+                if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { continue; }
+                if n.kind == N_RETURN && n.symbol >= 0 && n.symbol < p.symbols.len && p.symbols[n.symbol].node != function { unwinds = true; sites = true; }
+                if n.kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
+                    var arm = n.third;
+                    while arm >= 0 {
+                        let symbol = p.nodes[arm].symbol;
+                        if symbol >= 0 && p.symbols[symbol].node >= 0 && (p.nodes[p.symbols[symbol].node].flags & F_UNWINDS) != 0 { unwinds = true; }
+                        arm = p.nodes[arm].next;
+                    }
+                } else if n.kind == N_CALL && n.symbol >= 0 {
+                    let callee = p.symbols[n.symbol];
+                    if (callee.flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && callee.node >= 0 && (p.nodes[callee.node].flags & F_UNWINDS) != 0 { unwinds = true; }
+                } else if n.kind == N_CALL && sites { unwinds = true; }
+                for child in [n.first, n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+            }
+            if unwinds { p.nodes[function].flags |= F_UNWINDS; changed = true; }
+        }
+    }
+    return sites;
 }
 // A root struct: independently stored fields under one owner, never a
 // fixed-size value (upstream docs/design/root_structs.md, SC_ROOT).

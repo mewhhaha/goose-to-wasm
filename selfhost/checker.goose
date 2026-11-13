@@ -109,6 +109,10 @@ struct Checker {
     list_first: i64 = -1, list_index: i64 = -1, list_item: i64 = -1,
     list_other_first: i64 = -1, list_other_index: i64 = -1, list_other_item: i64 = -1,
     returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {},
+    // `defer` (§6.6): the bodies being checked (their N_DEFER entries on
+    // loop_stack), every checked statement with its function, and the locals
+    // of that function each body names (pairs), for check_defers.
+    defer_bodies: i64 = 0, defers: CheckList = CheckList {}, defer_mentions: CheckList = CheckList {},
 }
 
 fn check_push_loop(c: Checker&, value: CheckLoop) {
@@ -2538,6 +2542,7 @@ recursive fn check_condition_value(p: Program&, c: Checker&, node: i64) {
     diagnose(p, p.nodes[node].token, "condition requires bool or an optional reference");
 }
 fn check_capture(p: Program&, c: Checker&, symbol: i64) {
+    if c.defer_bodies > 0 { check_defer_mention(p, c, symbol); }
     if c.function_node < 0 || symbol < 0 { return; }
     let s = p.symbols[symbol];
     if s.owner < 0 || s.owner == c.function_node || (s.flags & (S_FUNCTION | S_TYPE)) != 0 { return; }
@@ -5634,7 +5639,7 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
         result = check_tuple(p, n.first);
     } else if n.kind == N_CONST_FOR { result = check_const_for(p, c, node, expected); }
     else if n.kind == N_CONST_IF { diagnose(p, n.token, "const if is not yet supported"); return -1; }
-    else if n.kind == N_DEFER { diagnose(p, n.token, "defer is not yet supported"); return -1; }
+    else if n.kind == N_DEFER { check_defer(p, c, node); result = TYPE_VOID; }
     else if n.kind == N_EMPTY { result = TYPE_VOID; }
     else if n.kind == N_EXPR_STMT { check_expression(p, c, n.left, TYPE_VOID); result = TYPE_VOID; }
     else { diagnose(p, n.token, "syntax node is not a valid expression"); }
@@ -5862,6 +5867,12 @@ recursive fn check_jump(p: Program&, c: Checker&, node: i64) {
         if target.function_node == c.function_node && (p.nodes[target.node].flags & F_NONLOCAL) != 0 &&
            p.nodes[target.node].kind == N_BLOCK {
             diagnose(p, n.token, "break or continue cannot cross a const for expansion"); return;
+        }
+        // A defer body runs at its block's exits; it cannot exit anything itself.
+        if target.function_node == c.function_node && p.nodes[target.node].kind == N_DEFER {
+            if n.kind == N_BREAK { diagnose(p, n.token, "break cannot leave a defer body (§6.6)"); }
+            else { diagnose(p, n.token, "continue cannot leave a defer body (§6.6)"); }
+            return;
         }
         if target.function_node == c.function_node &&
            (n.kind != N_CONTINUE || (p.nodes[target.node].flags & F_EARLY) == 0) { break; }
@@ -6117,6 +6128,11 @@ recursive fn check_return(p: Program&, c: Checker&, node: i64) {
 recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
     let n = p.nodes[node]; var target = c.function_node;
     if c.default_body { diagnose(p, n.token, "return is only valid inside a function"); return; }
+    // A return written in a defer body, or in a function value written in
+    // one, would leave the body (a function value's own tail is no exit).
+    if c.defer_bodies > 0 && (n.flags & F_IMPLICIT_RETURN) == 0 && check_in_defer_body(p, c) {
+        diagnose(p, n.token, "return cannot leave a defer body (§6.6)"); return;
+    }
     if target >= 0 && p.nodes[target].kind == N_FUNCTION_VALUE && (n.flags & F_IMPLICIT_RETURN) == 0 && n.left < 0 {
         let function_symbol = p.nodes[target].symbol;
         target = -1;
@@ -6684,9 +6700,227 @@ recursive fn check_statement(p: Program&, c: Checker&, node: i64) {
         if n.third < 0 { check_layout_nominal(p, c, n.type_id); }
     } else if n.kind == N_ALIAS { check_resolve_type(p, c, n.left); }
     else if n.kind == N_IMPORT || n.kind == N_NAMESPACE || n.kind == N_EXTERN || n.kind == N_EMPTY { }
-    else if n.kind == N_DEFER { diagnose(p, n.token, "defer is not yet supported"); }
+    else if n.kind == N_DEFER { check_defer(p, c, node); }
     else { check_expression(p, c, node, TYPE_VOID); }
     c.returning = returning;
+}
+
+// `defer` (§6.6, upstream e1d95ed TypeCheck::CheckDefer). The body is checked
+// where it is written, as a block in a marker on loop_stack that jumps and
+// returns may not leave (check_jump, check_return_value). It names what is
+// declared before it; definite assignment and a let's narrowing hold at every
+// exit too, but a var's narrowing may have been undone before an exit, so the
+// body is checked without it. The body runs at the exits, after the last
+// read in the block: the flow after the statement is the flow before it,
+// whether or not the body can complete. What it may call and whether it names
+// the function's named result are checked once every function is
+// (check_defers).
+recursive fn check_defer(p: Program&, c: Checker&, node: i64) {
+    let n = p.nodes[node];
+    if c.function_node < 0 || c.default_body {
+        diagnose(p, n.token, "defer outside of a function: a global initializer has no scope exit (§6.6)"); return;
+    }
+    var defers = c.defers; check_list_push(c, defers, node); check_list_push(c, defers, c.function_node); c.defers = defers;
+    let mark = check_flow_mark(c);
+    for index in 0..c.narrowed_count {
+        let vi = c.narrowed_variables[index];
+        if c.variables[vi].narrowed >= 0 && (p.symbols[c.variables[vi].symbol].flags & S_MUTABLE) != 0 { check_set_narrowed(c, vi, -1); }
+    }
+    let reachable = c.reachable; let returning = c.returning; c.returning = false;
+    check_push_loop(c, CheckLoop { node: node, scope: c.scope, function_node: c.function_node, mark: mark });
+    c.defer_bodies += 1;
+    check_expression(p, c, n.right, TYPE_VOID);
+    c.defer_bodies -= 1; c.loop_count -= 1;
+    c.reachable = reachable; c.returning = returning;
+    check_flow_undo(c, mark); check_flow_close(c, mark);
+    p.nodes[node].type_id = TYPE_VOID; p.nodes[node].flags |= F_CHECKED;
+}
+// Whether the code being checked is written in a defer body: a marker of its
+// function, or of the function a function value it is in is written in
+// (upstream InDeferBody). A nested named function's returns are its own.
+fn check_in_defer_body(p: Program&, c: Checker&) -> bool {
+    var li = c.loop_count - 1;
+    while li >= 0 {
+        let entry = c.loop_stack[li]; li -= 1;
+        if p.nodes[entry.node].kind != N_DEFER { continue; }
+        var function_node = c.function_node;
+        while function_node >= 0 {
+            if entry.function_node == function_node { return true; }
+            if p.nodes[function_node].kind != N_FUNCTION_VALUE || p.nodes[function_node].symbol < 0 { break; }
+            function_node = p.symbols[p.nodes[function_node].symbol].owner;
+        }
+    }
+    return false;
+}
+// A use of a local in a defer body, in a function value or a nested
+// function written there included: one of what the body names
+// (upstream NoteDeferMention), recorded for each body of the local's
+// function the use is lexically in.
+fn check_defer_mention(p: Program&, c: Checker&, symbol: i64) {
+    if symbol < 0 || c.function_node < 0 { return; }
+    let s = p.symbols[symbol];
+    if s.owner < 0 || (s.flags & (S_GLOBAL | S_FUNCTION | S_TYPE)) != 0 { return; }
+    var lexical = false; var function_node = c.function_node;
+    while function_node >= 0 && p.nodes[function_node].symbol >= 0 {
+        if function_node == s.owner { lexical = true; break; }
+        function_node = p.symbols[p.nodes[function_node].symbol].owner;
+    }
+    if !lexical { return; }
+    var li = c.loop_count - 1;
+    while li >= 0 {
+        let entry = c.loop_stack[li]; li -= 1;
+        if p.nodes[entry.node].kind != N_DEFER || entry.function_node != s.owner { continue; }
+        var mentions = c.defer_mentions; var seen = false;
+        for index in 0..mentions.count / 2 {
+            if check_list_at(c, mentions, 2 * index) == entry.node && check_list_at(c, mentions, 2 * index + 1) == symbol { seen = true; break; }
+        }
+        if !seen { check_list_push(c, mentions, entry.node); check_list_push(c, mentions, symbol); c.defer_mentions = mentions; }
+    }
+}
+// The functions a checked body calls, nested declarations aside: direct
+// calls and dispatch targets.
+fn check_body_callees(p: Program&, root: i64, out: i64[>..]&) {
+    var work: i64[>..] = [root];
+    while work.len > 0 {
+        let id = work.pop(); if id < 0 { continue; }
+        let n = p.nodes[id];
+        if id != root && n.next >= 0 { work.push(n.next); }
+        if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { continue; }
+        if n.kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
+            var arm = n.third;
+            while arm >= 0 {
+                let symbol = p.nodes[arm].symbol;
+                if symbol >= 0 && (p.symbols[symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && p.symbols[symbol].node >= 0 { out.push(p.symbols[symbol].node); }
+                arm = p.nodes[arm].next;
+            }
+        } else if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && p.symbols[n.symbol].node >= 0 {
+            out.push(p.symbols[n.symbol].node);
+        }
+        for child in [n.first, n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+    }
+}
+// Checked once every function is (upstream TypeCheck::CheckDefers): what a
+// defer body calls, and what it names of its function's result.
+//
+// A body runs on the propagation path of a `return ... from`, in the
+// epilogue of a frame the return passes through, while the return is in
+// flight (§7.9). Long-distance return machinery running then would disturb
+// it: a site, a frame one passes through (c.needs) or a catch (which calls
+// one of those), or a function calling any of them, transitively. A site
+// written in the body itself was rejected as it was checked.
+//
+// A local the function returns by name in a nonfixed result position is
+// built at its result destination (§7.3): after `return x` its bytes are the
+// caller's value and its count is recorded. The body may not name it at all,
+// reads included: what it names itself, function values and nested
+// functions written in it included (check_defer_mention), or what a
+// function it calls names of the variables outside it (captures).
+fn check_defers(p: Program&, c: Checker&) {
+    if c.defers.count == 0 { return; }
+    let count = p.nodes.len;
+    var via: i64[>..] = []; via.resize(count, -1);
+    var functions: i64[>..] = []; var edge_start: i64[>..] = []; var edges: i64[>..] = [];
+    for n, id in p.nodes {
+        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || (n.flags & (F_CHECKED | F_GENERIC)) != F_CHECKED || n.right < 0 { continue; }
+        functions.push(id); edge_start.push(edges.len); check_body_callees(p, n.right, edges);
+    }
+    edge_start.push(edges.len);
+    for need in c.needs { if need.function_node >= 0 && need.function_node < count { via[need.function_node] = need.function_node; } }
+    var changed = true;
+    while changed {
+        changed = false;
+        for function_node, index in functions {
+            if via[function_node] >= 0 { continue; }
+            for at in edge_start[index]..edge_start[index + 1] {
+                if via[edges[at]] >= 0 { via[function_node] = edges[at]; changed = true; break; }
+            }
+        }
+    }
+    var defers = c.defers; var mentions = c.defer_mentions; var done: i64[>..] = [];
+    for pair in 0..defers.count / 2 {
+        let function_node = check_list_at(c, defers, 2 * pair + 1);
+        var repeated = false; for old in done { if old == function_node { repeated = true; break; } }
+        if repeated || p.nodes[function_node].right < 0 { continue; }
+        done.push(function_node);
+        // The locals returned by name in nonfixed result positions.
+        var named: i64[>..] = [];
+        if p.nodes[function_node].kind == N_FUNCTION && p.nodes[function_node].type_id >= 0 {
+            var symbols: i64[>..] = []; var ordinals: i64[>..] = [];
+            life_named_results_of(p, function_node, false, symbols, ordinals);
+            let result_type = p.types[p.nodes[function_node].type_id].element;
+            for symbol, index in symbols {
+                var ty = result_type;
+                if ty >= 0 && p.types[ty].kind == TY_TUPLE {
+                    ty = -1; var field = p.types[result_type].first;
+                    for skip in 0..ordinals[index] { if field >= 0 { field = p.nodes[field].next; } }
+                    if field >= 0 { ty = p.nodes[field].type_id; }
+                }
+                if ty >= 0 && check_size_class(p, ty, 0) != 0 { named.push(symbol); }
+            }
+        }
+        // Each defer statement of the body as it now stands.
+        var work: i64[>..] = [p.nodes[function_node].right]; let root = p.nodes[function_node].right;
+        while work.len > 0 {
+            let id = work.pop(); if id < 0 { continue; }
+            let n = p.nodes[id];
+            if id != root && n.next >= 0 { work.push(n.next); }
+            if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { continue; }
+            for child in [n.first, n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+            if n.kind != N_DEFER { continue; }
+            var callees: i64[>..] = []; check_body_callees(p, n.right, callees);
+            var message: u8[>..] = [];
+            for callee in callees {
+                if via[callee] < 0 { continue; }
+                message.append("defer body calls "); render_nominal_name(p, callee, message); message.append(", which");
+                var step = callee;
+                while via[step] != step { message.append(" calls "); render_nominal_name(p, via[step], message); message.append(", which"); step = via[step]; }
+                message.append(" uses a long-distance return (a `return ... from` site, a frame one passes through, or a catch, §7.9): a defer body runs while such a return may be in flight (§6.6)");
+                break;
+            }
+            if message.len == 0 && named.len > 0 {
+                for index in 0..mentions.count / 2 {
+                    if check_list_at(c, mentions, 2 * index) != id { continue; }
+                    let symbol = check_list_at(c, mentions, 2 * index + 1);
+                    for local in named {
+                        if local != symbol { continue; }
+                        message.append("defer body names "); message.append(token_text(p, p.symbols[local].name_token)); message.append(", which ");
+                        render_nominal_name(p, function_node, message);
+                        message.append(" returns by name and so builds at its destination (§7.3): a defer runs after the value is complete (§6.6)");
+                        break;
+                    }
+                    if message.len > 0 { break; }
+                }
+            }
+            if message.len == 0 && named.len > 0 {
+                for callee in callees {
+                    // The variables outside its activation the callee names,
+                    // through what it calls in turn.
+                    var reached: i64[>..] = [callee]; var at = 0; var found = -1;
+                    while at < reached.len && found < 0 {
+                        let current = reached[at]; at += 1;
+                        var capture = p.nodes[current].captures;
+                        while capture >= 0 && found < 0 {
+                            for local in named { if p.nodes[capture].symbol == local { found = local; } }
+                            capture = p.nodes[capture].next;
+                        }
+                        if p.nodes[current].right < 0 { continue; }
+                        var next: i64[>..] = []; check_body_callees(p, p.nodes[current].right, next);
+                        for item in next {
+                            var seen = false; for old in reached { if old == item { seen = true; break; } }
+                            if !seen { reached.push(item); }
+                        }
+                    }
+                    if found < 0 { continue; }
+                    message.append("defer body calls "); render_nominal_name(p, callee, message); message.append(", which names ");
+                    message.append(token_text(p, p.symbols[found].name_token)); message.append(", which ");
+                    render_nominal_name(p, function_node, message);
+                    message.append(" returns by name and so builds at its destination (§7.3): a defer runs after the value is complete (§6.6)");
+                    break;
+                }
+            }
+            if message.len > 0 { diagnose(p, n.token, message); }
+        }
+    }
 }
 
 fn check_name_literal(p: Program&, token: i64) -> i64 {
@@ -7125,6 +7359,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
         if n.kind == N_FUNCTION && (n.flags & (F_THREAD | F_GENERIC)) == F_THREAD { check_function(p, c, symbol.node); }
     }
     check_unreached(p, c, declarations);
+    check_defers(p, c);
     for variable in c.variables {
         let s = p.symbols[variable.symbol]; let ty = s.type_id;
         if ty >= 0 && p.types[ty].kind == TY_ARRAY && p.types[ty].element < 0 {

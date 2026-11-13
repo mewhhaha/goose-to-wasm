@@ -956,7 +956,8 @@ recursive fn parse_defer(p: Program&, c: ParseCursor&) -> i64 {
     }
     let kind = parse_kind(p, c);
     if kind == T_LET || kind == T_VAR || kind == T_CONST || kind == T_REUSABLE || kind == T_GUARD || kind == T_DEFER || parse_function_start(p, c) {
-        parse_error(p, c, "defer takes a statement or a block");
+        var message: u8[>..] = []; message.append("defer takes a statement or a block, not `"); message.append(token_text(p, c.at)); message.append("`");
+        parse_error(p, c, message);
     }
     let body = parse_node(p, N_BLOCK, token); p.nodes[id].right = body;
     let statement = c.statement; let ended = c.ended;
@@ -977,6 +978,8 @@ recursive fn parse_defer(p: Program&, c: ParseCursor&) -> i64 {
         let right = parse_subexpr(p, c, false); p.nodes[assign].right = right; p.nodes[assign].integer = T_ASSIGN; node = assign;
         parse_expect(p, c, T_SEMI, "expected ; after multiple assignment");
     } else if !expression_ended { parse_expect(p, c, T_SEMI, "expected ; after deferred statement"); }
+    // A block-ended statement takes an optional `;` (`defer f(x) { ... };`).
+    else { parse_accept(p, c, T_SEMI); }
     append_child(p, body, node);
     c.statement = statement; c.ended = ended; return id;
 }

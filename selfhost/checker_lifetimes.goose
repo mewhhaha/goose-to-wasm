@@ -2380,6 +2380,9 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
         return out;
     }
     if n.kind == N_EXPR_STMT || n.kind == N_GUARD { life_eval(p, l, n.left); return out; }
+    // A defer body is evaluated where it is written (upstream CheckDefer):
+    // what it reads is live there, which covers every exit of its block.
+    if n.kind == N_DEFER { life_eval(p, l, n.right); return out; }
     if n.kind == N_BINARY || n.kind == N_RANGE {
         let held = l.hold_count; var value = life_eval(p, l, n.left); var ty = value.type_id;
         if ty >= 0 && p.types[ty].kind == TY_REF { value.place = value.refs; ty = p.types[ty].element; }
@@ -2512,63 +2515,75 @@ fn life_refresh_named_results(p: Program&) {
         if !inline_body && (fn_node.kind != N_FUNCTION || fn_node.right < 0 || (fn_node.flags & F_CHECKED) == 0) { continue; }
         if fn_node.type_id < 0 { continue; }
         p.nodes[function_node].named_results = -1;
-        var body_node = fn_node.right; var result_type = p.types[fn_node.type_id].element;
-        if inline_body { body_node = function_node; result_type = fn_node.type_id; }
-        let body = p.nodes[body_node]; if body.kind != N_BLOCK { continue; }
-        if result_type < 0 || p.types[result_type].kind == TY_VOID { continue; }
-        var results = 1;
-        if p.types[result_type].kind == TY_TUPLE { results = 0; var item = p.types[result_type].first; while item >= 0 { results += 1; item = p.nodes[item].next; } }
-        var locals: i64[>..] = []; var statement = body.first;
-        while statement >= 0 {
-            let n = p.nodes[statement];
-            if n.kind == N_VARIABLE && !(n.origin >= 0 && p.nodes[n.origin].kind == N_PARAM) {
-                if n.first < 0 && n.symbol >= 0 { locals.push(n.symbol); }
-                else if n.first >= 0 && p.nodes[n.first].next < 0 && p.nodes[n.first].symbol >= 0 { locals.push(p.nodes[n.first].symbol); }
-            }
-            statement = n.next;
-        }
-        if locals.len == 0 { continue; }
-        var returns: i64[>..] = []; var work: i64[>..] = [body_node]; var at = 0;
-        while at < work.len {
-            let current = work[at]; at += 1; let n = p.nodes[current];
-            if n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT { continue; }
-            if n.kind == N_FUNCTION_VALUE { if n.right >= 0 { work.push(n.right); } continue; }
-            if !inline_body && n.kind == N_RETURN && n.symbol == fn_node.symbol || inline_body && n.kind == N_BREAK && n.symbol == function_node { returns.push(current); }
-            var child = n.first; while child >= 0 { work.push(child); child = p.nodes[child].next; }
-            for child in [n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
-        }
-        var bound: i64[>..] = [];
-        for ordinal in 0..results {
-            var candidate = -1; var blocked = false; var others: i64[>..] = [];
-            for ret in returns {
-                var count = 0; var value = -1; var child = p.nodes[ret].first;
-                if p.nodes[ret].kind == N_BREAK {
-                    child = p.nodes[ret].left;
-                    if child >= 0 && results > 1 && p.nodes[child].kind == N_TUPLE && p.nodes[child].next < 0 { child = p.nodes[child].first; }
-                }
-                while child >= 0 { if count == ordinal { value = child; } count += 1; child = p.nodes[child].next; }
-                if count != results { blocked = true; continue; }
-                var local = -1;
-                if value >= 0 && p.nodes[value].kind == N_NAME { for symbol in locals { if symbol == p.nodes[value].symbol { local = symbol; } } }
-                if local < 0 { others.push(value); }
-                else if candidate < 0 { candidate = local; }
-                else if candidate != local { blocked = true; }
-            }
-            if results == 1 && body.last >= 0 && (p.nodes[body.last].flags & F_TAIL) != 0 && p.nodes[body.last].type_id != TYPE_VOID {
-                let tail = p.nodes[body.last]; var local = -1;
-                if tail.kind == N_NAME { for symbol in locals { if symbol == tail.symbol { local = symbol; } } }
-                if local < 0 { others.push(body.last); }
-                else if candidate < 0 { candidate = local; }
-                else if candidate != local { blocked = true; }
-            }
-            if candidate < 0 || blocked { continue; }
-            for symbol in bound { if symbol == candidate { blocked = true; } }
-            for value in others { if life_may_reach_local(p, value, candidate) { blocked = true; } }
-            if blocked { continue; }
+        var symbols: i64[>..] = []; var ordinals: i64[>..] = [];
+        life_named_results_of(p, function_node, inline_body, symbols, ordinals);
+        for candidate, index in symbols {
             let binding = p.nodes.len;
-            p.nodes.push(Node { kind: N_BINDING, next: p.nodes[function_node].named_results, symbol: candidate, integer: ordinal });
-            p.nodes[function_node].named_results = binding; bound.push(candidate);
+            p.nodes.push(Node { kind: N_BINDING, next: p.nodes[function_node].named_results, symbol: candidate, integer: ordinals[index] });
+            p.nodes[function_node].named_results = binding;
         }
+    }
+}
+// The locals a function, or an inlined body, returns by name (upstream
+// NamedResultOf): each result ordinal's top-level local that every return
+// hands back, which no other returned value may reach.
+fn life_named_results_of(p: Program&, function_node: i64, inline_body: bool, symbols: i64[>..]&, ordinals: i64[>..]&) {
+    let fn_node = p.nodes[function_node];
+    if fn_node.type_id < 0 { return; }
+    var body_node = fn_node.right; var result_type = p.types[fn_node.type_id].element;
+    if inline_body { body_node = function_node; result_type = fn_node.type_id; }
+    let body = p.nodes[body_node]; if body.kind != N_BLOCK { return; }
+    if result_type < 0 || p.types[result_type].kind == TY_VOID { return; }
+    var results = 1;
+    if p.types[result_type].kind == TY_TUPLE { results = 0; var item = p.types[result_type].first; while item >= 0 { results += 1; item = p.nodes[item].next; } }
+    var locals: i64[>..] = []; var statement = body.first;
+    while statement >= 0 {
+        let n = p.nodes[statement];
+        if n.kind == N_VARIABLE && !(n.origin >= 0 && p.nodes[n.origin].kind == N_PARAM) {
+            if n.first < 0 && n.symbol >= 0 { locals.push(n.symbol); }
+            else if n.first >= 0 && p.nodes[n.first].next < 0 && p.nodes[n.first].symbol >= 0 { locals.push(p.nodes[n.first].symbol); }
+        }
+        statement = n.next;
+    }
+    if locals.len == 0 { return; }
+    var returns: i64[>..] = []; var work: i64[>..] = [body_node]; var at = 0;
+    while at < work.len {
+        let current = work[at]; at += 1; let n = p.nodes[current];
+        if n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_IMPORT { continue; }
+        if n.kind == N_FUNCTION_VALUE { if n.right >= 0 { work.push(n.right); } continue; }
+        if !inline_body && n.kind == N_RETURN && n.symbol == fn_node.symbol || inline_body && n.kind == N_BREAK && n.symbol == function_node { returns.push(current); }
+        var child = n.first; while child >= 0 { work.push(child); child = p.nodes[child].next; }
+        for child in [n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+    }
+    var bound: i64[>..] = [];
+    for ordinal in 0..results {
+        var candidate = -1; var blocked = false; var others: i64[>..] = [];
+        for ret in returns {
+            var count = 0; var value = -1; var child = p.nodes[ret].first;
+            if p.nodes[ret].kind == N_BREAK {
+                child = p.nodes[ret].left;
+                if child >= 0 && results > 1 && p.nodes[child].kind == N_TUPLE && p.nodes[child].next < 0 { child = p.nodes[child].first; }
+            }
+            while child >= 0 { if count == ordinal { value = child; } count += 1; child = p.nodes[child].next; }
+            if count != results { blocked = true; continue; }
+            var local = -1;
+            if value >= 0 && p.nodes[value].kind == N_NAME { for symbol in locals { if symbol == p.nodes[value].symbol { local = symbol; } } }
+            if local < 0 { others.push(value); }
+            else if candidate < 0 { candidate = local; }
+            else if candidate != local { blocked = true; }
+        }
+        if results == 1 && body.last >= 0 && (p.nodes[body.last].flags & F_TAIL) != 0 && p.nodes[body.last].type_id != TYPE_VOID {
+            let tail = p.nodes[body.last]; var local = -1;
+            if tail.kind == N_NAME { for symbol in locals { if symbol == tail.symbol { local = symbol; } } }
+            if local < 0 { others.push(body.last); }
+            else if candidate < 0 { candidate = local; }
+            else if candidate != local { blocked = true; }
+        }
+        if candidate < 0 || blocked { continue; }
+        for symbol in bound { if symbol == candidate { blocked = true; } }
+        for value in others { if life_may_reach_local(p, value, candidate) { blocked = true; } }
+        if blocked { continue; }
+        symbols.push(candidate); ordinals.push(ordinal); bound.push(candidate);
     }
 }
 

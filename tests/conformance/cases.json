@@ -68205,7 +68205,7 @@
             "stdout": "body\nfor 0\nfor 1\nmulti\nline\nblock\npositive\nn 112 a 1 b 2\n",
             "exit": 0
         },
-        "provenance": "Upstream e1d95ed defer (test/syntax/defer_forms.goose, expected/defer_forms.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until defer is implemented"
+        "provenance": "Upstream e1d95ed defer (test/syntax/defer_forms.goose, expected/defer_forms.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     },
     {
         "id": "corpus/contracts/defer/forms/wasm-direct",
@@ -68221,7 +68221,7 @@
             "stdout": "body\nfor 0\nfor 1\nmulti\nline\nblock\npositive\nn 112 a 1 b 2\n",
             "exit": 0
         },
-        "provenance": "Upstream e1d95ed defer (test/syntax/defer_forms.goose, expected/defer_forms.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker); refused during compilation until defer is implemented"
+        "provenance": "Upstream e1d95ed defer (test/syntax/defer_forms.goose, expected/defer_forms.out); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     },
     {
         "id": "corpus/contracts/defer/declaration",
@@ -68252,6 +68252,316 @@
             0
         ],
         "provenance": "Upstream e1d95ed defer (test/errors/defer_tail.goose); expected output checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/defer/exits/native",
+        "source": "tests/fixtures/contracts/defer/exits.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "body\ninner body\ninner\nafter inner\nfall 2\nfall 1\nearly 5\nnegative\nearly -5\n10 -1\nx = 2\nfirst\nsecond\nfirst\nbody 0\niter 0\niter 1\nbody 2\niter 2\niter 3\nloop 1\nloop 2\nv = 20\nwhile 0\nwhile 2\nn = 3\nblock done\nthen\nthen done\narm other\narm other done\n6\nblock done\nelse\nelse done\narm 0\narm 0 done\n6\n1\nitems: 4 3\n15\nblock 1 done\nblock 2 done\nthrough_hof done, total 1\n99\nfv body 1\nfv 1\nfv body 2\nfv 2\ndefer 2 sees aabb\ndefer 1 sees aa\ncomputing 3\nsquares [0, 1, 4]\ntiny 0\ntiny 4\n0 5\ndepth 5\ndepth 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/codegen/defer_exits.goose, expected/defer_exits.out at upstream HEAD 855f103); output matched by the self-hosted compiler; no upstream C++ binary of that revision was run"
+    },
+    {
+        "id": "corpus/contracts/defer/exits/wasm-direct",
+        "source": "tests/fixtures/contracts/defer/exits.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "body\ninner body\ninner\nafter inner\nfall 2\nfall 1\nearly 5\nnegative\nearly -5\n10 -1\nx = 2\nfirst\nsecond\nfirst\nbody 0\niter 0\niter 1\nbody 2\niter 2\niter 3\nloop 1\nloop 2\nv = 20\nwhile 0\nwhile 2\nn = 3\nblock done\nthen\nthen done\narm other\narm other done\n6\nblock done\nelse\nelse done\narm 0\narm 0 done\n6\n1\nitems: 4 3\n15\nblock 1 done\nblock 2 done\nthrough_hof done, total 1\n99\nfv body 1\nfv 1\nfv body 2\nfv 2\ndefer 2 sees aabb\ndefer 1 sees aa\ncomputing 3\nsquares [0, 1, 4]\ntiny 0\ntiny 4\n0 5\ndepth 5\ndepth 0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/codegen/defer_exits.goose, expected/defer_exits.out at upstream HEAD 855f103); output matched by the self-hosted compiler; no upstream C++ binary of that revision was run"
+    },
+    {
+        "id": "corpus/contracts/defer/return-from/native",
+        "source": "tests/fixtures/contracts/defer/return-from.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "inner done: inner 3\nmid done: 3 4!\nouter done\n300\ninner done: inner -4\nmid done: 2 -3!\nouter done\n4\ndeep_text done: local\ndeep_text done: local+\ndeep_text done: local+\nmid_text done: 100\ntop_text done\nfrom depth 0\ndeep_text done: local\nmid_text done: 100\ntop_text done\nfrom depth 0\ndeep_landing done\nlanding done\npartial 1\ndeep_landing done\nlanding done\nreplaced\nstep3 done 1\nstep3 done 2\nstep2 done 2\nstep3 done 2\nstep3 done 3\nstep2 done 1\nstep1 done\ncaught: too big: 3\nstep3 done 2\nstep3 done 3\nstep2 done 1\nstep1 done\ncaught: too big: 3\nran 0\nfinally 0\nfinally_demo 0 -> 0\ncaught text: inner error\nfinally 1\nfinally_demo 1 -> 0\nfinally 2\nfinally_demo 2 -> 7\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/codegen/defer_return_from.goose, expected/defer_return_from.out at upstream HEAD 855f103); output matched by the self-hosted compiler; no upstream C++ binary of that revision was run"
+    },
+    {
+        "id": "corpus/contracts/defer/return-from/wasm-direct",
+        "source": "tests/fixtures/contracts/defer/return-from.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "inner done: inner 3\nmid done: 3 4!\nouter done\n300\ninner done: inner -4\nmid done: 2 -3!\nouter done\n4\ndeep_text done: local\ndeep_text done: local+\ndeep_text done: local+\nmid_text done: 100\ntop_text done\nfrom depth 0\ndeep_text done: local\nmid_text done: 100\ntop_text done\nfrom depth 0\ndeep_landing done\nlanding done\npartial 1\ndeep_landing done\nlanding done\nreplaced\nstep3 done 1\nstep3 done 2\nstep2 done 2\nstep3 done 2\nstep3 done 3\nstep2 done 1\nstep1 done\ncaught: too big: 3\nstep3 done 2\nstep3 done 3\nstep2 done 1\nstep1 done\ncaught: too big: 3\nran 0\nfinally 0\nfinally_demo 0 -> 0\ncaught text: inner error\nfinally 1\nfinally_demo 1 -> 0\nfinally 2\nfinally_demo 2 -> 7\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/codegen/defer_return_from.goose, expected/defer_return_from.out at upstream HEAD 855f103); output matched by the self-hosted compiler; no upstream C++ binary of that revision was run"
+    },
+    {
+        "id": "corpus/contracts/defer/bce-join-values/native",
+        "source": "tests/fixtures/contracts/defer/bce-join-values.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "4.0 4.0 4.0 4.0 2.0\n0.0\n804\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/optimizer/bce_join_values.goose, expected/bce_join_values.out at upstream HEAD 855f103); output matched by the self-hosted compiler; no upstream C++ binary of that revision was run"
+    },
+    {
+        "id": "corpus/contracts/defer/bce-join-values/wasm-direct",
+        "source": "tests/fixtures/contracts/defer/bce-join-values.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "4.0 4.0 4.0 4.0 2.0\n0.0\n804\n",
+            "exit": 0
+        },
+        "provenance": "Upstream e1d95ed defer (test/optimizer/bce_join_values.goose, expected/bce_join_values.out at upstream HEAD 855f103); output matched by the self-hosted compiler; no upstream C++ binary of that revision was run"
+    },
+    {
+        "id": "corpus/contracts/defer/extra/native",
+        "source": "tests/fixtures/contracts/defer/extra.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "body\nlet narrowed 5\nnone\ninner 0 0\ninner 0 1\nblock 0\nouter 0\ninner 1 0\ninner 1 1\nblock 1\nouter 1\ninner 2 0\nouter 2\n21\nnested done\nearly block done\nnested done\nearly block done\n6 -1\ngeneric 7\ngeneric true\n7 true\ncountdown 0\ncountdown 1\ncountdown 2\ncountdown 3\n0\nPt { 1, 2 }\nt x!\nabc\nleaving\nfirst\nguarded body\nsecond\nfirst\ninternal\nk 1\nk 3\nx 5\nzero arm\nother arm\n10 4\nfv 1\nfv 1\nfv 2\neach done\ntwice done\nthrough_two done\n14\n",
+            "exit": 0
+        },
+        "provenance": "independently specified from upstream spec section 6.6 (defer): let narrowing, nested loop and block exits, valued block breaks, generics, recursion, fixed and nonfixed results, guard, a body with internal jumps, match arms, and a function value return through two higher-order frames with defers"
+    },
+    {
+        "id": "corpus/contracts/defer/extra/wasm-direct",
+        "source": "tests/fixtures/contracts/defer/extra.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "body\nlet narrowed 5\nnone\ninner 0 0\ninner 0 1\nblock 0\nouter 0\ninner 1 0\ninner 1 1\nblock 1\nouter 1\ninner 2 0\nouter 2\n21\nnested done\nearly block done\nnested done\nearly block done\n6 -1\ngeneric 7\ngeneric true\n7 true\ncountdown 0\ncountdown 1\ncountdown 2\ncountdown 3\n0\nPt { 1, 2 }\nt x!\nabc\nleaving\nfirst\nguarded body\nsecond\nfirst\ninternal\nk 1\nk 3\nx 5\nzero arm\nother arm\n10 4\nfv 1\nfv 1\nfv 2\neach done\ntwice done\nthrough_two done\n14\n",
+            "exit": 0
+        },
+        "provenance": "independently specified from upstream spec section 6.6 (defer): let narrowing, nested loop and block exits, valued block breaks, generics, recursion, fixed and nonfixed results, guard, a body with internal jumps, match arms, and a function value return through two higher-order frames with defers"
+    },
+    {
+        "id": "corpus/contracts/defer/unwind/native",
+        "source": "tests/fixtures/contracts/defer/unwind.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "inner 1\niteration 1\ninner 2\niteration 2\nsum_until done at 32\nnot reached when thrown\nrun done\n1032\ninner 1\niteration 1\ninner 2\niteration 2\ninner 3\niteration 3\nsum_until done at 32\nrun done\n300\npair a 4\n4 5\ncaptured body 1\ncaptured exit 2\nsearch seen 3\nsearch seen 1\n2 -1\n",
+            "exit": 0
+        },
+        "provenance": "independently specified from upstream spec sections 6.6 and 7.9: a return from passing through frames whose defers are registered in nested loops and blocks while a call result is pending in an expression, a catching target, multiple results, a captured local, and a function value return whose own defer follows its value"
+    },
+    {
+        "id": "corpus/contracts/defer/unwind/wasm-direct",
+        "source": "tests/fixtures/contracts/defer/unwind.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "inner 1\niteration 1\ninner 2\niteration 2\nsum_until done at 32\nnot reached when thrown\nrun done\n1032\ninner 1\niteration 1\ninner 2\niteration 2\ninner 3\niteration 3\nsum_until done at 32\nrun done\n300\npair a 4\n4 5\ncaptured body 1\ncaptured exit 2\nsearch seen 3\nsearch seen 1\n2 -1\n",
+            "exit": 0
+        },
+        "provenance": "independently specified from upstream spec sections 6.6 and 7.9: a return from passing through frames whose defers are registered in nested loops and blocks while a call result is pending in an expression, a catching target, multiple results, a captured local, and a function value return whose own defer follows its value"
+    },
+    {
+        "id": "corpus/contracts/defer/error-block-return",
+        "source": "tests/fixtures/contracts/defer/error-block-return.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_block_return.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-break",
+        "source": "tests/fixtures/contracts/defer/error-break.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_break.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-calls-catcher",
+        "source": "tests/fixtures/contracts/defer/error-calls-catcher.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_calls_catcher.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-calls-from-return",
+        "source": "tests/fixtures/contracts/defer/error-calls-from-return.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_calls_from_return.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-calls-through",
+        "source": "tests/fixtures/contracts/defer/error-calls-through.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_calls_through.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-continue",
+        "source": "tests/fixtures/contracts/defer/error-continue.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_continue.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-global",
+        "source": "tests/fixtures/contracts/defer/error-global.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_global.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-named-result",
+        "source": "tests/fixtures/contracts/defer/error-named-result.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_named_result.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-named-result-block",
+        "source": "tests/fixtures/contracts/defer/error-named-result-block.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_named_result_block.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-named-result-callee",
+        "source": "tests/fixtures/contracts/defer/error-named-result-callee.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_named_result_callee.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-named-result-passed",
+        "source": "tests/fixtures/contracts/defer/error-named-result-passed.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_named_result_passed.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-named-result-read",
+        "source": "tests/fixtures/contracts/defer/error-named-result-read.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_named_result_read.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-narrowed-var",
+        "source": "tests/fixtures/contracts/defer/error-narrowed-var.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_narrowed_var.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-return",
+        "source": "tests/fixtures/contracts/defer/error-return.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_return.goose at upstream HEAD 855f103); rejected during checking"
+    },
+    {
+        "id": "corpus/contracts/defer/error-return-from",
+        "source": "tests/fixtures/contracts/defer/error-return-from.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream e1d95ed defer (test/errors_tc/defer_return_from.goose at upstream HEAD 855f103); rejected during checking"
     },
     {
         "id": "corpus/contracts/const-if/arms-parse",

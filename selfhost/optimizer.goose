@@ -583,6 +583,17 @@ recursive fn opt_tail_rewrite(p: Program&, o: Optimizer&, node: i64, function_sy
     changed += opt_tail_rewrite(p, o, n.third, function_symbol, loop_node);
     return changed;
 }
+// Whether the tree holds a `defer` (§6.6, upstream HasDefer). Its body runs
+// once the call returns, after the self-call a tail loop would replace.
+recursive fn opt_has_defer(p: Program&, node: i64) -> bool {
+    if node < 0 { return false; }
+    let n = p.nodes[node];
+    if n.kind == N_DEFER { return true; }
+    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE { return false; }
+    var child = n.first;
+    while child >= 0 { if opt_has_defer(p, child) { return true; } child = p.nodes[child].next; }
+    return opt_has_defer(p, n.left) || opt_has_defer(p, n.right) || opt_has_defer(p, n.third);
+}
 fn opt_tail_function(p: Program&, o: Optimizer&, node: i64) {
     let n = p.nodes[node];
     if p.optimization < 1 || (n.flags & (F_CAPTURE | F_NONLOCAL)) != 0 || n.right < 0 { return; }
@@ -592,6 +603,7 @@ fn opt_tail_function(p: Program&, o: Optimizer&, node: i64) {
         if ty < 0 || !check_numeric(ty) && ty != TYPE_BOOL { return; }
         formal = p.nodes[formal].next;
     }
+    if opt_has_defer(p, n.right) { return; }
     let loop_node = new_node(p, N_LOOP, n.token); p.nodes[loop_node].type_id = TYPE_VOID;
     p.nodes[loop_node].flags = F_CHECKED; p.nodes[loop_node].right = n.right; p.nodes[loop_node].scope = n.scope;
     let changed = opt_tail_rewrite(p, o, n.right, n.symbol, loop_node);

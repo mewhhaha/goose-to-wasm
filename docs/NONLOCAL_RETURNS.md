@@ -288,3 +288,42 @@ Native/direct fixtures include canceled fixed prefixes, private named anchors,
 sparse Var/Limited tails, source starts before earlier scalar ordinals, exact
 producer tuples, nested winning replacement and forwarding through another
 actual enum target. All retained source/representation gates stay explicit.
+
+## Defer bodies on the propagation path
+
+A `defer` body (upstream §6.6) runs at every exit of its block: the end of
+the block's text after its value is built, `break` and `continue` after a
+break value is stored, `return` after the returned values are at their
+destination, and a nonlocal return leaving the frame. The checker rejects a
+body that leaves, that reaches long-distance return machinery (a `return ...
+from` site, a frame one passes through or a catch, transitively through
+calls) or that names a local returned by name in a nonfixed position, so a
+body can run while a return is in flight without disturbing it.
+
+Both backends keep the registered bodies on a stack and emit them again at
+each exit, latest first, before releasing storage. A source nonlocal return
+builds its values in the target's channels, runs its own frame's bodies and
+then publishes the return. When a program has both defers and nonlocal
+returns, `mark_unwinding_functions` marks the functions a call may leave
+through: those holding a return to another function, those calling them and
+indirect callers.
+
+Direct Wasm wraps a statement that holds such a call while bodies are
+registered. Its effect checks branch to a landing after the statement, which
+sets the pending token aside, runs every registered body so their own calls
+complete normally, restores the token and leaves the frame as before. Native
+C pushes a cleanup frame (`function=-1`) around such a call. The return
+publishes its values once (`g_throw_through`) and then lands in each cleanup
+frame on its way to the target; the frame runs its function's registered
+bodies and resumes the return (`g_throw_resume`). A target with registered
+bodies lands in its own cleanup frame first, so its bodies run after the
+value is at its destination. Programs without defers keep the previous
+emitted output; programs with defers but no nonlocal returns use neither
+mechanism.
+
+Upstream `codegen/defer_exits`, `codegen/defer_return_from`,
+`syntax/defer_forms` and `optimizer/bce_join_values` run as corpus contracts
+on native and direct Wasm at O0 and O2, with independently specified
+`extra` and `unwind` fixtures for nested loop and block exits, generics,
+recursion, multiple results and function value returns through several
+higher-order frames.

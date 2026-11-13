@@ -38,7 +38,8 @@ struct CgModule {
     start: i64 = -1, allocator: i64 = -1, float_wrap: i64 = -1, scalar: bool = false, scalar_slots: bool = false, resolver: i64 = -1, header_helper: i64 = -1, prefix_helper: i64 = -1, pool_global: i64 = -1,
     format_f32: i64 = -1, format_f64: i64 = -1, raw_append: i64 = -1, raw_append_type: i64 = -1,
 }
-struct CgExit { label: i64, again: i64 = -1, node: i64 = -1, result: i64 = -1, type_id: i64 = 0, scratch: i64 = -1, regions: i64 = -1, publication: i64 = -1 }
+// defers: the height of the defer stack the exit runs back down to (§6.6).
+struct CgExit { label: i64, again: i64 = -1, node: i64 = -1, result: i64 = -1, type_id: i64 = 0, scratch: i64 = -1, regions: i64 = -1, publication: i64 = -1, defers: i64 = 0 }
 let CG_TEMPORARY: i64 = 0;
 let CG_BLOCK_OWNER: i64 = 1;
 let CG_EXISTING: i64 = 2;
@@ -64,6 +65,12 @@ struct CgBody {
     region_live: i64 = 0, region_peak: i64 = 0, region_mark: i64 = -1, publication_mark: i64 = -1,
     frame: i64 = -1, frame_bytes: i64 = 0, effect: i64 = 0, effect_metadata: i64 = -1, done: i64 = -1, frame_free: bool = false,
     diagnostic_line: i64 = -1, heap_mark: i64 = -1, forward_mark: i64 = -1, scratch: bool = false, elements: bool = false, raw_node: i64 = -1, active_node: i64 = -1, active_destination: i64 = -1,
+    // The `defer` statements of the blocks being emitted, in registration
+    // order (§6.6): an exit emits the bodies above its height, latest first.
+    defers: i64[>..]&, running_defers: i64 = 0,
+    // Where a call's effect check sends a nonlocal return in flight while
+    // defer bodies are registered: the landing that runs them (cg_block_into).
+    effect_landing: i64 = -1,
 }
 fn cg_align(value: i64, alignment: i64) -> i64 {
     if alignment <= 1 { return value; }
@@ -670,13 +677,45 @@ fn cg_float_remainder(p: Program&, m: CgModule&, f: CgBody&, node: i64, w: i64) 
     cg_get(f, scale); cg_get(f, magnitude); wb_byte(f.code, cg_numeric_opcode(T_GTEQ, w, false)); cg_branch(p, f, reducing, true); cg_end(f);
     cg_get(f, value); cg_get(f, original); wb_byte(f.code, copy_sign); cg_end(f); cg_end(f);
 }
+// After a call: a nonlocal return in flight (global 2) leaves this frame
+// too, through the landing of the statement being emitted where defer
+// bodies are registered (cg_block_into).
 fn cg_effect_check(p: Program&, m: CgModule&, f: CgBody&, types: i64[:]) {
     var saved: i64[>..] = [];
     for id in types { saved.push(cg_local(f, cg_wasm_type(p, id))); }
     var at = saved.len;
     while at > 0 { at--; cg_set(f, saved[at]); }
-    wb_op(f.code, 0x23, 2); cg_branch(p, f, f.done, true);
+    var exit = f.done; if f.effect_landing >= 0 { exit = f.effect_landing; }
+    wb_op(f.code, 0x23, 2); cg_branch(p, f, exit, true);
     for slot in saved { cg_get(f, slot); }
+}
+// Whether a statement holds a call that a nonlocal return in flight may
+// leave through (§7.9, mark_unwinding_functions).
+recursive fn cg_unwinding_tree(p: Program&, node: i64) -> bool {
+    if node < 0 { return false; } let n = p.nodes[node];
+    if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN || n.kind == N_IMPORT { return false; }
+    if n.kind == N_CALL && (n.flags & F_DISPATCH) != 0 {
+        var arm = n.third;
+        while arm >= 0 {
+            let symbol = p.nodes[arm].symbol;
+            if symbol >= 0 && p.symbols[symbol].node >= 0 && (p.nodes[p.symbols[symbol].node].flags & F_UNWINDS) != 0 { return true; }
+            arm = p.nodes[arm].next;
+        }
+    } else if n.kind == N_CALL && n.symbol >= 0 {
+        let callee = p.symbols[n.symbol];
+        if (callee.flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && callee.node >= 0 && (p.nodes[callee.node].flags & F_UNWINDS) != 0 { return true; }
+    } else if n.kind == N_CALL { return true; }
+    if cg_unwinding_tree(p, n.left) || cg_unwinding_tree(p, n.right) || cg_unwinding_tree(p, n.third) { return true; }
+    var child = n.first; while child >= 0 { if cg_unwinding_tree(p, child) { return true; } child = p.nodes[child].next; }
+    return false;
+}
+// One run of each `defer` body registered above mark, latest first (§6.6),
+// at an exit of its block. The body cannot leave, so the exit goes on after.
+recursive fn cg_run_defers(p: Program&, m: CgModule&, f: CgBody&, mark: i64) {
+    var index = f.defers.len;
+    f.running_defers += 1;
+    while index > mark { index -= 1; cg_statement(p, m, f, p.nodes[f.defers[index]].right); }
+    f.running_defers -= 1;
 }
 fn cg_intrinsic(p: Program&, function: i64) -> i64 {
     if (p.nodes[function].flags & F_EXTERN) == 0 { return 0; }
@@ -1227,6 +1266,8 @@ recursive fn cg_emit_return(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     if target == f.function {
         var first_slot = -1; if f.results.len > 0 { first_slot = f.results[0]; }
         cg_set_values(p, m, f, n.first, cg_result_type(p, f.function), first_slot, node);
+        // The value is built at its destination, then the defers run.
+        cg_run_defers(p, m, f, 0);
         cg_branch(p, f, f.done, false); return;
     }
     let target_type = cg_result_type(p, target); let count = cg_result_count(p, target_type);
@@ -1263,7 +1304,9 @@ recursive fn cg_emit_return(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     for ordinal in 0..count {
         if f.work[attempt_mark + ordinal * 2 + 1] >= 0 { cg_get(f, frame); cg_get(f, f.work[attempt_mark + ordinal * 2 + 1]); wb_mem(f.code, 0x36, 2, cg_owned_effect_metadata(p, target_type) + ordinal * 12 + 4); }
     }
-    f.work.resize(attempt_mark); cg_get(f, frame); wb_op(f.code, 0x24, 2); cg_branch(p, f, f.done, false);
+    // The values are in the target's channels; this frame's defers run before
+    // the return is set in flight.
+    f.work.resize(attempt_mark); cg_run_defers(p, m, f, 0); cg_get(f, frame); wb_op(f.code, 0x24, 2); cg_branch(p, f, f.done, false);
 }
 fn cg_assignment_operator(op: i64) -> i64 {
     if op == T_PLUSEQ || op == T_INC { return T_PLUS; } if op == T_MINUSEQ || op == T_DEC { return T_MINUS; }
@@ -1603,11 +1646,13 @@ recursive fn cg_break(p: Program&, m: CgModule&, f: CgBody&, node: i64, continui
         if n.symbol >= 0 && exit.node != n.symbol { continue; }
         if continuing {
             if exit.again < 0 { continue; }
+            cg_run_defers(p, m, f, exit.defers);
             if exit.scratch >= 0 { cg_get(f, exit.scratch); wb_op(f.code, 0x24, 0); }
             cg_restore_regions(f, exit.regions); cg_restore_publications(f, exit.publication);
             cg_branch(p, f, exit.again, false); return;
         }
         if n.left >= 0 { cg_set_values(p, m, f, n.left, exit.type_id, exit.result, node); }
+        cg_run_defers(p, m, f, exit.defers);
         if exit.scratch >= 0 { cg_get(f, exit.scratch); wb_op(f.code, 0x24, 0); }
         cg_restore_regions(f, exit.regions); cg_restore_publications(f, exit.publication);
         cg_branch(p, f, exit.label, false); return;
@@ -1639,20 +1684,38 @@ recursive fn cg_block_into(p: Program&, m: CgModule&, f: CgBody&, node: i64, id:
     }
     let live = f.region_live; var region_mark = -1;
     if m.regions_enabled { region_mark = cg_mark_regions(f); }
+    let defer_mark = f.defers.len; var falls = true;
     while child >= 0 {
         let item = p.nodes[child];
+        if item.kind == N_DEFER { f.defers.push(child); child = item.next; continue; }
+        // A statement a nonlocal return in flight may leave while defer bodies
+        // are registered (§6.6, §7.9) is wrapped: its calls' effect checks
+        // land after it, where the bodies run with the return set aside, so
+        // their own calls complete, before it goes on out of the frame.
+        let outer_landing = f.effect_landing; var after = -1;
+        if p.unwinding && f.defers.len > 0 && f.running_defers == 0 && cg_unwinding_tree(p, child) {
+            after = cg_begin(f, 0x02, 0x40); f.effect_landing = cg_begin(f, 0x02, 0x40);
+        }
         if item.kind == N_EXPR_STMT && (item.flags & (F_TAIL | F_IMPLICIT_RETURN)) != 0 {
             if id == TYPE_VOID { cg_discard(p, m, f, item.left); }
             else { cg_set_values(p, m, f, item.left, id, result, child); }
         } else if item.next < 0 && (item.flags & F_TAIL) != 0 && item.kind != N_RETURN && item.kind != N_BREAK && item.kind != N_CONTINUE {
             if id == TYPE_VOID { cg_discard(p, m, f, child); } else { cg_set_values(p, m, f, child, id, result, child); }
         } else { cg_statement(p, m, f, child); }
-        if cg_terminal(p, child) { break; }
+        if after >= 0 {
+            f.effect_landing = outer_landing; cg_branch(p, f, after, false); cg_end(f);
+            wb_op(f.code, 0x23, 2); let effect = cg_save(f, 0x7f); wb_i32(f.code, 0); wb_op(f.code, 0x24, 2);
+            cg_run_defers(p, m, f, 0);
+            cg_get(f, effect); wb_op(f.code, 0x24, 2); cg_branch(p, f, f.done, false); cg_end(f);
+        }
+        if cg_terminal(p, child) { falls = false; break; }
         child = item.next;
     }
     if n.right >= 0 {
         if id == TYPE_VOID { cg_discard(p, m, f, n.right); } else { cg_set_values(p, m, f, n.right, id, result, node); }
     }
+    // The end of the block's text is an exit, after its value is built.
+    if f.defers.len > defer_mark { if falls { cg_run_defers(p, m, f, defer_mark); } f.defers.resize(defer_mark); }
     if m.regions_enabled { cg_restore_regions(f, region_mark); f.region_live = live; }
 }
 fn cg_control_slots(p: Program&, f: CgBody&, id: i64, node: i64) -> i64 {
@@ -1692,7 +1755,7 @@ recursive fn cg_loop(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let n = p.nodes[node]; let result = cg_control_slots(p, f, n.type_id, node);
     wb_op(f.code, 0x23, 0); let scratch = cg_save(f, 0x7f); var regions = -1; if m.regions_enabled { regions = cg_mark_regions(f); }
     let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
-    f.exits.push(CgExit { label: done, again: again, node: node, result: result, type_id: n.type_id, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f) });
+    f.exits.push(CgExit { label: done, again: again, node: node, result: result, type_id: n.type_id, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f), defers: f.defers.len });
     if n.kind == N_WHILE {
         cg_truth_scope(p, m, f, n.left);
         if cg_diverges(p, n.left) { f.exits.pop(); cg_end(f); cg_end(f); return; }
@@ -1825,7 +1888,7 @@ recursive fn cg_for(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
         cg_get(f, ordinal); cg_convert(p, m, f, TYPE_U64, p.symbols[ordinal_binding].type_id, node); cg_write_value(p, m, f, p.symbols[ordinal_binding].type_id, destination, node);
     }
     wb_op(f.code, 0x23, 0); let scratch = cg_save(f, 0x7f); var regions = -1; if m.regions_enabled { regions = cg_mark_regions(f); }
-    let step = cg_begin(f, 0x02, 0x40); f.exits.push(CgExit { label: done, again: step, node: node, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f) });
+    let step = cg_begin(f, 0x02, 0x40); f.exits.push(CgExit { label: done, again: step, node: node, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f), defers: f.defers.len });
     cg_block_into(p, m, f, n.right, TYPE_VOID, -1); f.exits.pop(); cg_end(f);
     if iterable.kind == N_RANGE && (iterable.flags & F_INCLUSIVE) != 0 {
         cg_get(f, counter); cg_get(f, limit); wb_byte(f.code, cg_numeric_opcode(T_EQ, cg_wasm_type(p, counter_type), false)); cg_branch(p, f, done, true);
@@ -1921,6 +1984,7 @@ recursive fn cg_statement_body(p: Program&, m: CgModule&, f: CgBody&, node: i64)
     if n.kind == N_FUNCTION || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_EMPTY || n.kind == N_IMPORT { return; }
     if n.kind == N_EXPR_STMT { cg_discard(p, m, f, n.left); return; }
     if n.kind == N_FOR { cg_for(p, m, f, node); return; }
+    if n.kind == N_DEFER { cg_fail(p, node, "wasm: defer statement outside an emitted block"); return; }
     cg_discard(p, m, f, node);
 }
 recursive fn cg_print(p: Program&, m: CgModule&, f: CgBody&, id: i64, value: i64, node: i64, nested: bool) {
@@ -2775,7 +2839,7 @@ recursive fn cg_expr_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
                 }
             }
             wb_op(f.code, 0x23, 0); let scratch = cg_save(f, 0x7f); var regions = -1; if m.regions_enabled { regions = cg_mark_regions(f); }
-            let done = cg_begin(f, 0x02, 0x40); f.exits.push(CgExit { label: done, node: node, result: result, type_id: n.type_id, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f) });
+            let done = cg_begin(f, 0x02, 0x40); f.exits.push(CgExit { label: done, node: node, result: result, type_id: n.type_id, scratch: scratch, regions: regions, publication: cg_mark_publications(m, f), defers: f.defers.len });
             cg_block_into(p, m, f, node, n.type_id, result); f.exits.pop(); cg_end(f);
         } else { cg_block_into(p, m, f, node, n.type_id, result); }
         f.receiving.resize(result_mark); cg_control_get(p, f, n.type_id, result);
@@ -2990,8 +3054,8 @@ fn cg_emit_epilogue(p: Program&, m: CgModule&, f: CgBody&) {
 }
 fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i64, elements: bool, out: u8[>..]&) {
     var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var offsets: i64[>..] = [];
-    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, function: function, function_index: function_index, elements: elements };
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
+    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, function: function, function_index: function_index, elements: elements, defers: defers };
     cg_prepare_function(p, m, f, function);
     if m.scalar && function >= 0 { f.frame_free = !cg_scalar_prints(p, p.nodes[function].right); }
     f.done = cg_begin(f, 0x02, 0x40);
@@ -3024,8 +3088,8 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
 }
 fn cg_emit_raw_append(p: Program&, m: CgModule&, out: u8[>..]&) {
     var code: u8[>..] = []; var locals: i64[>..] = []; var slots: CgSlot[>..] = []; var offsets: i64[>..] = [];
-    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = [];
-    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3 };
+    var labels: i64[>..] = []; var exits: CgExit[>..] = []; var results: i64[>..] = []; var destinations: i64[>..] = []; var work: i64[>..] = []; var raw_slots: i64[>..] = []; var sequences: CgSequence[>..] = []; var constructions: CgConstruction[>..] = []; var construction_destinations: CgDestination[>..] = []; var receiving: CgReceiving[>..] = []; var defers: i64[>..] = [];
+    var f = CgBody { code: code, locals: locals, slots: slots, offsets: offsets, labels: labels, exits: exits, results: results, destinations: destinations, work: work, raw_slots: raw_slots, sequences: sequences, constructions: constructions, construction_destinations: construction_destinations, receiving: receiving, params: 4, diagnostic_line: 3, defers: defers };
     cg_format_bytes_inline(p, m, f, m.raw_append_type, 0, 1, 2, -1); wb_byte(code, 0x0b); wb_body(out, locals, code);
 }
 fn cg_allocate(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
@@ -3368,7 +3432,7 @@ fn cg_refuse_root_owners(p: Program&) {
 }
 fn cg_collect(p: Program&, m: CgModule&) {
     cg_refuse_root_owners(p); if p.diagnostics.len > 0 { return; }
-    cg_scan_effect_targets(p);
+    cg_scan_effect_targets(p); p.unwinding = mark_unwinding_functions(p);
     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
     for symbol, i in p.symbols {
         m.globals.push(-1); m.global_regions.push(-1);

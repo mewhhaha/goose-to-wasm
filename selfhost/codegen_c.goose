@@ -18,14 +18,22 @@ let cc_runtime_pools = embed_file("../native/pools.h");
 let cc_runtime_images = embed_file("../native/images.h");
 let cc_runtime_runs = embed_file("../native/runs.h");
 let cc_runtime_workers = embed_file("../native/threads.h");
+// A nonlocal return that defer bodies may run on (§6.6, §7.9): it lands in
+// each cleanup frame on its way to the target, which runs its function's
+// bodies and resumes it (cc_cleanup_open).
+let cc_runtime_unwinding = "static _Thread_local int64_t g_throw_target;\nstatic void g_throw_resume(void) {\n    GReturnFrame *f=g_return_top;\n    while(f && f->function!=g_throw_target && f->function!=-1)f=f->parent;\n    if(!f)g_panic(\"nonlocal return target is not active\");\n    while(g_activation_top && g_activation_top!=f->activation)g_activation_leave(g_activation_top);\n    g_return_top=f;longjmp(f->jump,1);\n}\nstatic void g_throw_through(int64_t function,const void *value,size_t size) {\n    GReturnFrame *f=g_return_top;\n    while(f && f->function!=function)f=f->parent;\n    if(!f || f->size!=size)g_panic(\"nonlocal return target is not active\");\n    if(size)f->publish(f->result,value);\n    g_throw_target=function;g_throw_resume();\n}\n";
 
-struct CcExit { node: i64, done: i64, again: i64 = -1, result: i64 = -1, type_id: i64 = TYPE_VOID, regions: i64 = 0, again_regions: i64 = 0, publications: i64 = -1, self_build_depth: i64 = 0 }
+// defers: the height of the defer stack the exit runs back down to (§6.6).
+struct CcExit { node: i64, done: i64, again: i64 = -1, result: i64 = -1, type_id: i64 = TYPE_VOID, regions: i64 = 0, again_regions: i64 = 0, publications: i64 = -1, self_build_depth: i64 = 0, defers: i64 = 0 }
 struct CcBody {
     out: u8[>..]&, exits: CcExit[>..]&, work: i64[>..]&, function: i64 = -1,
     activation_required: bool = false, natural_members: bool = false,
     serial: i64 = 0, result_type: i64 = TYPE_VOID, has_self_runs: bool = false, self_build_depth: i64 = 0,
     region_live: i64 = 0, region_peak: i64 = 0, function_index: i64 = -1, active_node: i64 = -1, receiver: i64 = -1,
     calls: RegionCall[>..]&, indices: i64[>..]&, temp_regions: i64[>..]&, destinations: CcDestination[>..]&, receiving: CcReceiving[>..]&, fills: CcFill[>..]&, indirect: i64[>..]&, channels: CcChannels[>..]&, cursors: CcCursor[>..]&, result_ref: i64 = -1, self_images: bool&,
+    // The `defer` statements of the blocks being emitted, in registration
+    // order (§6.6): an exit emits the bodies above its height, latest first.
+    defers: i64[>..]&, running_defers: i64 = 0,
 }
 fn cc_region_slot(f: CcBody&, width: i64) -> i64 {
     let slot = f.region_live; f.region_live += width;
@@ -58,6 +66,37 @@ fn cc_restore(f: CcBody&, live: i64) {
     if f.region_live <= live { return; }
     cc_text(f.out, "g_restore_regions(g_base+"); cc_number(f.out, live); cc_text(f.out, ","); cc_number(f.out, f.region_live - live);
     cc_text(f.out, ",g_watermarks+"); cc_number(f.out, live); cc_text(f.out, ");\n");
+}
+// One run of each `defer` body registered above mark, latest first (§6.6):
+// its statements as written, in a C block of their own, at an exit of its
+// block. The body cannot leave, so the exit goes on after it.
+recursive fn cc_run_defers(p: Program&, f: CcBody&, mark: i64) {
+    var index = f.defers.len;
+    f.running_defers += 1;
+    while index > mark {
+        index -= 1;
+        let statement_mark = f.region_live;
+        cc_expr(p, f, p.nodes[f.defers[index]].right);
+        cc_restore(f, statement_mark); f.region_live = statement_mark;
+    }
+    f.running_defers -= 1;
+}
+// A call that a nonlocal return in flight may leave through while defer
+// bodies are registered (§6.6, §7.9): a cleanup frame, which the return
+// lands in first, runs them all and resumes the return. A body itself cannot
+// be left so (checker check_defers).
+recursive fn cc_cleanup_open(p: Program&, f: CcBody&, function: i64) -> i64 {
+    if !p.unwinding || f.defers.len == 0 || f.running_defers > 0 || function >= 0 && (p.nodes[function].flags & F_UNWINDS) == 0 { return -1; }
+    f.activation_required = true;
+    let id = f.serial; f.serial++;
+    f.out.format("GReturnFrame g_cleanup", id, "={0};g_cleanup", id, ".parent=g_return_top;g_cleanup", id, ".function=-1;g_cleanup", id,
+        ".activation=&g_activation;g_return_top=&g_cleanup", id, ";\nif(setjmp(g_cleanup", id, ".jump)){g_return_top=g_cleanup", id, ".parent;\n");
+    cc_run_defers(p, f, 0);
+    cc_text(f.out, "g_throw_resume();}\n");
+    return id;
+}
+fn cc_cleanup_close(f: CcBody&, id: i64) {
+    if id >= 0 { f.out.format("g_return_top=g_cleanup", id, ".parent;\n"); }
 }
 fn cc_map_value(p: Program&, f: CcBody&, type_id: i64, value: i64, target: i64) {
     let width = cc_region_width(p, type_id); if width == 0 { return; }
@@ -1415,12 +1454,14 @@ recursive fn cc_block(p: Program&, f: CcBody&, node: i64, destination: i64 = -1)
     var early = false; var label = -1;
     if (n.flags & F_EARLY) != 0 {
         early = true; label = f.serial; f.serial++;
-        f.exits.push(CcExit { node: node, done: label, result: result, type_id: n.type_id, regions: region_mark, publications: publications, self_build_depth: f.self_build_depth });
+        f.exits.push(CcExit { node: node, done: label, result: result, type_id: n.type_id, regions: region_mark, publications: publications, self_build_depth: f.self_build_depth, defers: f.defers.len });
     }
     cc_text(f.out, "{\n");
+    let defer_mark = f.defers.len; var falls = true;
     while child >= 0 {
         let kind = p.nodes[child].kind; let statement_mark = f.region_live;
-        let terminates = cc_diverges(p, child);
+        let terminates = cc_diverges(p, child); falls = !terminates;
+        if kind == N_DEFER { f.defers.push(child); child = p.nodes[child].next; continue; }
         if !terminates && p.nodes[child].next < 0 && (p.nodes[child].flags & F_TAIL) != 0 && result >= 0 {
             let destination = cc_temporary_ref(f, result); let value = cc_construct_into(p, f, child, n.type_id, destination, cc_value_form(p, n.type_id));
             if value < 0 { cc_fail(p, child, "c: block result has no value"); }
@@ -1430,6 +1471,8 @@ recursive fn cc_block(p: Program&, f: CcBody&, node: i64, destination: i64 = -1)
         }
         child = p.nodes[child].next;
     }
+    // The end of the block's text is an exit, after its value is built.
+    if f.defers.len > defer_mark { if falls { cc_run_defers(p, f, defer_mark); } f.defers.resize(defer_mark); }
     cc_restore(f, region_mark); f.region_live = region_mark; cc_text(f.out, "g_publication_top="); cc_id(f.out, "g_scope_publications", publications); cc_text(f.out, ";\n}\n");
     f.receiving.resize(receiving_mark);
     if early { f.exits.pop(); cc_id(f.out, "g_label", label); cc_text(f.out, ":;\n"); }
@@ -1483,10 +1526,13 @@ recursive fn cc_return(p: Program&, f: CcBody&, node: i64) {
     let result = cc_values(p, f, n.first, type_id, receiver);
     if target == f.function {
         if result >= 0 { cc_return_store(p, f, result, type_id); }
+        // The value is built at its destination, then the defers run.
+        cc_run_defers(p, f, 0);
         cc_text(f.out, "goto g_return;\n");
     } else {
-        f.activation_required = true;
-        cc_text(f.out, "g_throw("); cc_number(f.out, target); cc_text(f.out, ",");
+        f.activation_required = true; cc_run_defers(p, f, 0);
+        if p.unwinding { cc_text(f.out, "g_throw_through("); } else { cc_text(f.out, "g_throw("); }
+        cc_number(f.out, target); cc_text(f.out, ",");
         if result >= 0 && cc_tuple_channels(p, type_id) {
             cc_text(f.out, "g_address("); cc_id(f.out, "g_v", receiver); cc_text(f.out, "),"); cc_number(f.out, p.types[type_id].count * 8);
         } else if result >= 0 { cc_text(f.out, "&"); cc_id(f.out, "g_v", result); cc_text(f.out, ",sizeof("); cc_type(f.out, type_id); cc_text(f.out, ")"); }
@@ -1528,7 +1574,7 @@ recursive fn cc_committed_run_loop(p: Program&, f: CcBody&, node: i64, array: i6
     let counter = cc_temp(p, f, TYPE_I64); let done = f.serial; f.serial++; let again = f.serial; f.serial++;
     let regions = f.region_live; let cursors = f.cursors.len; let publications = f.serial; f.serial++;
     cc_id(f.out, "GPublication *g_scope_publications", publications); cc_text(f.out, "=g_publication_top;\n");
-    f.exits.push(CcExit { node: node, done: done, again: again, result: -1, type_id: TYPE_VOID, regions: regions, again_regions: regions, publications: publications, self_build_depth: f.self_build_depth });
+    f.exits.push(CcExit { node: node, done: done, again: again, result: -1, type_id: TYPE_VOID, regions: regions, again_regions: regions, publications: publications, self_build_depth: f.self_build_depth, defers: f.defers.len });
     cc_text(f.out, "for(;;){g_run_check("); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, ","); cc_run_skip(p, f, array); cc_text(f.out, ");\nif("); cc_id(f.out, "g_v", counter); cc_text(f.out, ">="); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, "->header.len)break;\n");
     let view = cc_temp(p, f, element, true, false); cc_set(f, view); cc_text(f.out, "g_run_view("); cc_id(f.out, "g_run_cap", capability); cc_text(f.out, ","); cc_id(f.out, "g_v", counter); cc_text(f.out, ","); cc_run_skip(p, f, array); cc_text(f.out, ");\n");
     if (p.nodes[binding].flags & F_REFERENCE) != 0 {
@@ -1558,7 +1604,7 @@ recursive fn cc_loop(p: Program&, f: CcBody&, node: i64) -> i64 {
     let again = f.serial; f.serial++;
     let region_mark = f.region_live; let publications = f.serial; f.serial++;
     cc_id(f.out, "GPublication *g_scope_publications", publications); cc_text(f.out, "=g_publication_top;\n");
-    f.exits.push(CcExit { node: node, done: done, again: again, result: result, type_id: n.type_id, regions: region_mark, again_regions: region_mark, publications: publications, self_build_depth: f.self_build_depth });
+    f.exits.push(CcExit { node: node, done: done, again: again, result: result, type_id: n.type_id, regions: region_mark, again_regions: region_mark, publications: publications, self_build_depth: f.self_build_depth, defers: f.defers.len });
     cc_text(f.out, "{\n");
     if n.kind == N_FOR {
         let binding = n.first; let index_binding = p.nodes[binding].next;
@@ -1676,6 +1722,7 @@ recursive fn cc_call(p: Program&, f: CcBody&, node: i64) -> i64 {
     let natural_type = p.types[callable].element;
     let result = cc_result_temp(p, f, node, natural_type);
     var result_channels = -1; if cc_tuple_channels(p, natural_type) { result_channels = cc_temporary_ref(f, result); }
+    let cleanup = cc_cleanup_open(p, f, function);
     if result >= 0 && !cc_result_indirect(p, natural_type) { cc_set(f, result); }
     if function >= 0 { cc_id(f.out, "g_fn", function); }
     else { cc_text(f.out, "(("); cc_function_type(p, f.out, callable); cc_text(f.out, ")"); cc_id(f.out, "g_v", closure); cc_text(f.out, "->function)"); }
@@ -1692,7 +1739,7 @@ recursive fn cc_call(p: Program&, f: CcBody&, node: i64) -> i64 {
         if cc_flat_image_reference(p, p.nodes[param].type_id) { cc_text(f.out, ","); cc_id(f.out, "g_v", f.work[args_start + args_count + i]); }
         if cc_run_reference(p, p.nodes[param].type_id) { cc_text(f.out, ","); cc_id(f.out, "g_run_cap", f.work[args_start + args_count + i]); }
         param = p.nodes[param].next;
-    } cc_text(f.out, ");\n");
+    } cc_text(f.out, ");\n"); cc_cleanup_close(f, cleanup);
     if function >= 0 { cc_region_call(f, function, node); }
     else {
         for candidate, id in p.nodes { if cc_emittable(p, id) && candidate.type_id == callable { cc_region_call(f, id, node); } }
@@ -1769,6 +1816,7 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
         }
         let natural_type = p.types[callable].element; let natural = cc_result_temp(p, f, node, natural_type);
         var result_channels = -1; if cc_tuple_channels(p, natural_type) { result_channels = cc_temporary_ref(f, natural); }
+        let cleanup = cc_cleanup_open(p, f, function);
         if natural >= 0 && !cc_result_indirect(p, natural_type) { cc_set(f, natural); }
         cc_id(f.out, "g_fn", function); cc_text(f.out, "(");
         if closure >= 0 { cc_id(f.out, "g_v", closure); } else { cc_text(f.out, "NULL"); }
@@ -1779,7 +1827,7 @@ recursive fn cc_dispatch(p: Program&, f: CcBody&, node: i64) -> i64 {
         }
         dispatch_parameter = p.types[callable].first;
         for i in 0..count { cc_text(f.out, ","); if cc_indirect(p, p.nodes[dispatch_parameter].type_id) { cc_text(f.out, "&"); } cc_id(f.out, "g_v", f.work[arm_args + i]); dispatch_parameter = p.nodes[dispatch_parameter].next; }
-        cc_text(f.out, ");\n"); f.work.resize(arm_args); cc_region_call(f, function, node);
+        cc_text(f.out, ");\n"); cc_cleanup_close(f, cleanup); f.work.resize(arm_args); cc_region_call(f, function, node);
         let adapted = cc_convert(p, f, natural, natural_type, n.type_id, node);
         if result >= 0 && adapted >= 0 { let destination = cc_temporary_ref(f, result); cc_store(p, f, destination, adapted, n.type_id); }
         cc_text(f.out, "break;}\n"); arm = selected.next;
@@ -2926,6 +2974,7 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
             else { value = cc_construct_into(p, f, n.left, exit.type_id, destination); }
             if value >= 0 { cc_store(p, f, destination, value, exit.type_id); }
         } else if n.left >= 0 { cc_values(p, f, n.left, TYPE_VOID); }
+        cc_run_defers(p, f, exit.defers);
         var label = exit.done; var mark = exit.regions; if n.kind == N_CONTINUE { label = exit.again; mark = exit.again_regions; }
         cc_restore(f, mark);
         if exit.publications >= 0 { cc_text(f.out, "g_publication_top="); cc_id(f.out, "g_scope_publications", exit.publications); cc_text(f.out, ";\n"); }
@@ -2934,6 +2983,8 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
     if n.kind == N_VARIABLE { cc_variable(p, f, node); return -1; }
     if n.kind == N_ASSIGN { cc_assignment(p, f, node); return -1; }
     if n.kind == N_FUNCTION || n.kind == N_EMPTY { return -1; }
+    // cc_block registers a defer; its body is emitted at the block's exits.
+    if n.kind == N_DEFER { cc_fail(p, node, "c: defer statement outside an emitted block"); return -1; }
     if n.kind == N_EXPR_STMT { cc_expr(p, f, n.left); return -1; }
     cc_fail(p, node, "c: checked syntax has no native lowering"); return -1;
 }
@@ -3165,10 +3216,10 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
             }
         }
         cc_text(out, "}\n"); cc_parameter_aliases(p, out, function, true); return; }
-    var body: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = [];
+    var body: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = [];
     let result_type = cc_function_result(p, function);
     var f = CcBody { out: body, exits: exits, work: work, function: function, natural_members: natural_members, result_type: result_type, has_self_runs: cc_self_runs_used(p),
-        function_index: indices[function], calls: calls, indices: indices, temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images };
+        function_index: indices[function], calls: calls, indices: indices, temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers };
     let returns = cc_kind(p, result_type) != TY_VOID;
     let nonlocal = (n.flags & F_NONLOCAL) != 0;
     let deferred_result = !nonlocal && cc_kind(p, result_type) == TY_STRUCT && !cc_result_indirect(p, result_type) &&
@@ -3305,6 +3356,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     if p.diagnostics.len > 0 { return; }
     if p.pointer_bytes != 8 { diagnose_at(p, 0, 0, 0, "c: native layouts require pointer_bytes = 8"); return; }
     cc_collect_captures(p);
+    p.unwinding = mark_unwinding_functions(p);
     var natural_members = !p.library;
     for node in 0..p.nodes.len {
         let n: const Node& = p.nodes[node];
@@ -3331,6 +3383,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     cc_text(out, "#define _GNU_SOURCE 1\n"); if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
     cc_text(out, cc_runtime); cc_text(out, cc_runtime_relative); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra);
     if images { cc_text(out, cc_runtime_images); }
+    if p.unwinding { cc_text(out, cc_runtime_unwinding); }
     var runs = false; for t, id in p.types { if used[id] && cc_self_run(p, id) { runs = true; break; } }
     if runs { cc_text(out, cc_runtime_runs); }
     if threads { cc_text(out, cc_runtime_workers); }
@@ -3369,9 +3422,9 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     cc_pool_origins(p, out, true);
     if images { cc_index_lengths(p, out, true); }
     for n, node in p.nodes { if cc_emittable(p, node) { cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members); cc_emit_export(p, out, node); } }
-    var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = [];
+    var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = [];
     var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: cc_self_runs_used(p), function_index: initializer, calls: calls, indices: indices,
-        temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images };
+        temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers };
     for s, symbol in p.symbols {
         if s.owner >= 0 || (s.flags & (S_GLOBAL | S_PARAMETER | S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 ||
            !cc_storage_binding(p, symbol) || !cc_concrete(p, s.type_id) { continue; }
