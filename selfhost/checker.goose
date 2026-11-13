@@ -1863,7 +1863,10 @@ recursive fn check_integer_constants(p: Program&, c: Checker&, node: i64, depth:
     return check_literal_tree(p, node, depth + 1) && check_constant(p, c, node, depth + 1).valid;
 }
 
-struct CheckFlex { valid: bool = false, flexible: bool = false, minimum: i64 = 0, maximum: i64 = 0 }
+// construct: an if or match whose values are all integer constants, which
+// starts an adapting operation as a shift of a constant does (upstream
+// 71e5ade1, §6.1).
+struct CheckFlex { valid: bool = false, flexible: bool = false, minimum: i64 = 0, maximum: i64 = 0, construct: bool = false }
 recursive fn check_flex_integer(p: Program&, c: Checker&, node: i64, depth: i64 = 0) -> CheckFlex {
     if node < 0 || depth > 64 { return CheckFlex {}; }
     let n = p.nodes[node];
@@ -1880,7 +1883,7 @@ recursive fn check_flex_integer(p: Program&, c: Checker&, node: i64, depth: i64 
     if n.kind == N_IF && n.third >= 0 {
         let a = check_flex_integer(p, c, n.right, depth + 1); let b = check_flex_integer(p, c, n.third, depth + 1);
         if !a.valid || !b.valid { return CheckFlex {}; }
-        var out = a; out.flexible = a.flexible || b.flexible;
+        var out = a; out.flexible = a.flexible || b.flexible; out.construct = true;
         if b.minimum < out.minimum { out.minimum = b.minimum; } if b.maximum > out.maximum { out.maximum = b.maximum; } return out;
     }
     if n.kind == N_MATCH && n.first >= 0 {
@@ -1891,7 +1894,7 @@ recursive fn check_flex_integer(p: Program&, c: Checker&, node: i64, depth: i64 
             else { if value.minimum < out.minimum { out.minimum = value.minimum; } if value.maximum > out.maximum { out.maximum = value.maximum; } out.flexible = out.flexible || value.flexible; }
             arm = p.nodes[arm].next;
         }
-        return out;
+        out.construct = true; return out;
     }
     if n.kind == N_BINARY {
         let left = check_flex_integer(p, c, n.left, depth + 1); if !left.valid { return CheckFlex {}; }
@@ -1901,8 +1904,8 @@ recursive fn check_flex_integer(p: Program&, c: Checker&, node: i64, depth: i64 
         }
         if n.integer == T_PLUS || n.integer == T_MINUS || n.integer == T_MUL || n.integer == T_DIV || n.integer == T_MOD || n.integer == T_BITAND || n.integer == T_BITOR || n.integer == T_XOR {
             let right = check_flex_integer(p, c, n.right, depth + 1);
-            if !right.valid || !left.flexible && !right.flexible { return CheckFlex {}; }
-            var out = left; out.flexible = true;
+            if !right.valid || !left.flexible && !right.flexible && !left.construct && !right.construct { return CheckFlex {}; }
+            var out = left; out.flexible = true; out.construct = false;
             if right.minimum < out.minimum { out.minimum = right.minimum; } if right.maximum > out.maximum { out.maximum = right.maximum; } return out;
         }
     }

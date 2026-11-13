@@ -70647,6 +70647,46 @@
             0
         ],
         "provenance": "Upstream §7.7 literal parameters (std format_flt's push_n(lead, '0', n)): a typed i64 argument does not narrow; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/constant-constructs/operations/native",
+        "source": "tests/fixtures/contracts/constant-constructs/operations.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "2 1 2 6 -2 14\n44 300\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 71e5ade1 operations over constructs of constants, test/typing/literal_conditionals: the operation adapts to its destination, parameter or compound target and is i64 where nothing types it; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/constant-constructs/operations/wasm-direct",
+        "source": "tests/fixtures/contracts/constant-constructs/operations.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "2 1 2 6 -2 14\n44 300\n",
+            "exit": 0
+        },
+        "provenance": "Upstream 71e5ade1 operations over constructs of constants, test/typing/literal_conditionals: the operation adapts to its destination, parameter or compound target and is i64 where nothing types it; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/constant-constructs/no-fit",
+        "source": "tests/fixtures/contracts/constant-constructs/no-fit.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream 71e5ade1 operations over constructs of constants, test/errors_tc/literal_conditional_operation_no_fit; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {
