@@ -1,0 +1,27 @@
+{
+ "date": "2026-11-13",
+ "baseline": {
+  "source": "e6248ea plus the driver function_names change",
+  "binary_sha256": "87d350c325d433f7294f4ab78517855294985ccc8e412cbd836a09f42898f206",
+  "build": "build/bin/goose -O2 C, clang 23 -std=gnu11 -O2 -g -fno-omit-frame-pointer, no PGO"
+ },
+ "candidate": {
+  "source": "eb0c15d (selfhost tree identical to the measured snapshot)",
+  "binary_sha256": "b828dfdb3e536f11d94e053dbf02690807b23e87bab2aa05b19aadba37c59c87",
+  "build": "same as baseline"
+ },
+ "workloads": {
+  "self": "selfhost/main.goose --stdlib stdlib --target native --check (from a snapshot of the candidate sources)",
+  "fixture": "bench/fixtures/compiler-goose (blot2 2d1f0836 compiler-goose/src, 450 sources): main.goose --target native --check --stdlib build/bin/stdlib --reachable-program --expansion-node-limit 1000000"
+ },
+ "method": "3 interleaved rounds per workload (baseline, candidate), fresh processes, getrusage per child; machine shared, load average 21-25",
+ "equivalence": {
+  "compared": 7365,
+  "differing": 0,
+  "seconds": {
+   "baseline": 255.9,
+   "candidate": 199.79
+  }
+ },
+ "fixture_check_output_identical": true
+}
