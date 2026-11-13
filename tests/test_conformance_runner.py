@@ -101,6 +101,15 @@ output.write_text('#include <stdio.h>\\nextern int helper(void);\\nint main(void
         with self.assertRaisesRegex(ValueError, "ROOT-relative"):
             CONFORMANCE.native_source_paths({"native_sources": ["../outside.c"]})
 
+    def test_native_units_compile_beside_the_runtime_unit(self):
+        artifact = Path("program.c")
+        units = CONFORMANCE.native_compile_command("gcc", "-O2", ["-DX=1"], artifact, (), 3)
+        self.assertEqual(units, ["sh", "-c", CONFORMANCE.UNITS_SCRIPT, "sh", "gcc", "-O2", "3", artifact,
+                                 artifact.parent / "program", "-DX=1"])
+        # Cases with their own C sources still compile as one unit.
+        whole = CONFORMANCE.native_compile_command("gcc", "-O2", [], artifact, [Path("helper.c")], 3)
+        self.assertEqual(whole[:4], ["gcc", "-std=gnu11", "-O2", artifact])
+
     def test_native_cache_reuses_successful_builds_across_runs(self):
         source = self.work / "same.goose"
         source.write_text("fn main() {}\n")

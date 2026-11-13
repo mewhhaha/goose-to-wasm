@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import gzip
 import hashlib
 import json
@@ -13,6 +14,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,12 +45,19 @@ def main():
     parser.add_argument('--verify', action='store_true', help='require identical next-generation C output')
     parser.add_argument('--seed-only', action='store_true', help='build the frozen seed, without compiling current sources')
     parser.add_argument('--timeout', type=float, default=900)
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='compile C that marks its units (native/units.h) as this many program units '
+                             'in parallel, without a profile; development builds only (default: 1)')
     args = parser.parse_args()
+    if args.jobs < 1:
+        parser.error('--jobs must be at least 1')
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=False)
     report = {'schema': 'goose-bootstrap-v2', 'status': 'running', 'commands': [],
               'goose_optimization': args.optimization,
               'requested_goose_optimization': args.optimization}
+
+    recording = threading.Lock()
 
     def command(argv, name, cwd=out, allow_failure=False):
         argv = list(map(str, argv))
@@ -61,8 +70,9 @@ def main():
                'seconds': time.monotonic() - started,
                'stdout_sha256': hashlib.sha256(result.stdout).hexdigest(),
                'stderr_sha256': hashlib.sha256(result.stderr).hexdigest()}
-        report['commands'].append(row)
-        save(out / 'report.json', report)
+        with recording:
+            report['commands'].append(row)
+            save(out / 'report.json', report)
         if result.returncode and not allow_failure:
             raise RuntimeError(name + ' failed: ' + result.stderr[-4000:].decode(errors='replace'))
         return result
@@ -127,6 +137,22 @@ def main():
             row = {'c_sha256': c_hash, 'goose_optimization': optimization,
                    'profile_used': False, 'profile_reason': profile_reason}
             report['builds'][name] = row
+            text = staged_c.read_text() if args.jobs > 1 else ''
+            runtime_end = text.find('\n#else /* program units */\n')
+            if runtime_end >= 0:
+                # Development builds: units compile at once, and the profile,
+                # keyed by one translation unit's functions, does not apply.
+                row.update(units=args.jobs, profile_reason='compiled as ' + str(args.jobs) + ' units without profile')
+                (stage / 'runtime.c').write_text(text[:runtime_end + 1] + '#endif\n')
+                compiles = [([cc, *base_flags[:2], '-DG_RUNTIME_UNIT', '-c', 'runtime.c', '-o', 'runtime.o'], name + '-runtime')]
+                for unit in range(args.jobs):
+                    compiles.append(([cc, *base_flags[:2], f'-DG_UNITS={args.jobs}', f'-DG_UNIT={unit}', '-c', 'seed.c',
+                                      '-o', f'unit{unit}.o'], f'{name}-unit{unit}'))
+                with ThreadPoolExecutor(len(compiles)) as pool:
+                    list(pool.map(lambda job: command(*job, cwd=stage), compiles))
+                command([cc, *base_flags[:2], 'runtime.o', *(f'unit{unit}.o' for unit in range(args.jobs)),
+                         *base_flags[2:], '-o', executable], name, cwd=stage)
+                return row
             matched = False
             if not clang:
                 row['profile_reason'] = 'C compiler is not Clang'

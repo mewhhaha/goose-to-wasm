@@ -276,6 +276,39 @@ fn driver_quote(out: u8[>..]&, value: const u8[:]) {
     }
     out.push(39);
 }
+// --run splits native C of this many bytes of program functions into a unit
+// each (native/units.h), at most one per hardware thread; less stays whole.
+let DRIVER_UNIT_BYTES: i64 = 2097152;
+fn driver_units(output: const u8[:]) -> i64 {
+    let mark = "\n#if G_IN_";
+    var at = 0;
+    while at + mark.len <= output.len && !same_bytes(output[at..at + mark.len], mark) { at++; }
+    var units = (output.len - at) / DRIVER_UNIT_BYTES;
+    let threads = hardware_threads();
+    if units > threads { units = threads; }
+    return units;
+}
+// One shell command: the runtime unit and every program unit compile at
+// once, and link when all of them have.
+fn driver_split_build(command: u8[>..]&, cc: const u8[:], source: const u8[:], binary: const u8[:], units: i64) {
+    var objects: u8[>..] = [];
+    for index in 0..units + 1 {
+        let unit = index - 1;
+        driver_quote(command, cc); command.append(" -std=gnu11 -O2 ");
+        if unit < 0 { command.append("-DG_RUNTIME_UNIT"); }
+        else { command.append("-DG_UNITS="); driver_integer(command, units); command.append(" -DG_UNIT="); driver_integer(command, unit); }
+        command.append(" -c "); driver_quote(command, source); command.append(" -o ");
+        var object: u8[>..] = []; object.append(binary); object.append(".unit");
+        if unit < 0 { object.append("-runtime"); } else { driver_integer(object, unit); }
+        object.append(".o"); driver_quote(command, object); objects.push(' '); driver_quote(objects, object);
+        command.append(" & p"); driver_integer(command, index); command.append("=$!; ");
+    }
+    command.append("s=0; for p in");
+    for index in 0..units + 1 { command.append(" $p"); driver_integer(command, index); }
+    command.append("; do wait $p || s=1; done; [ $s = 0 ] && "); driver_quote(command, cc);
+    command.append(" -std=gnu11 -O2"); command.append(objects); command.append(" -lm -ldl -pthread -o "); driver_quote(command, binary);
+    command.append("; s=$?; rm -f"); command.append(objects); command.append("; exit $s");
+}
 fn driver_exec(command: u8[>..]&) -> i64 {
     command.push(0); let code = driver_system(command[0]) as i64;
     if code < 0 { return 1; }
@@ -372,8 +405,12 @@ fn driver_main() -> i64 {
     var command: u8[>..] = [];
     if o.target == 1 {
         var binary: u8[>..] = []; binary.append(paths[output_start..output_end]); binary.append(".bin");
-        driver_quote(command, paths[cc_start..cc_end]); command.append(" -std=gnu11 -O2 "); driver_quote(command, paths[output_start..output_end]);
-        command.append(" -lm -ldl -pthread -o "); driver_quote(command, binary);
+        let units = driver_units(output);
+        if units > 1 { driver_split_build(command, paths[cc_start..cc_end], paths[output_start..output_end], binary, units); }
+        else {
+            driver_quote(command, paths[cc_start..cc_end]); command.append(" -std=gnu11 -O2 "); driver_quote(command, paths[output_start..output_end]);
+            command.append(" -lm -ldl -pthread -o "); driver_quote(command, binary);
+        }
         let code = driver_exec(command); if code != 0 { return code; }
         command.clear(); driver_quote(command, binary);
     } else {

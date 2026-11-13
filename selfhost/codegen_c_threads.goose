@@ -99,7 +99,7 @@ fn cc_thread_emit_queues(p: Program&, out: u8[>..]&, initialize: bool = false) {
         if key < 0 || seen[key] { continue; }
         seen[key] = true;
         if initialize { out.format("gs_qinit(&g_queue_", key, ");\n"); }
-        else { out.format("static gs_queue g_queue_", key, "=GS_QUEUE_INIT;\n"); }
+        else { out.format("G_SHARED gs_queue g_queue_", key, " G_INIT(GS_QUEUE_INIT);\n"); }
     }
 }
 
@@ -143,11 +143,11 @@ fn cc_thread_emit_globals(p: Program&, out: u8[>..]&) {
             cc_storage_type(p, out, s.type_id); out.format(" v", symbol, ";\n");
         }
     }
-    out.append("} GGlobals;\nstatic GGlobals g_main_globals;\n");
+    out.append("} GGlobals;\nG_SHARED GGlobals g_main_globals;\n");
     for s, symbol in p.symbols {
         if (s.flags & S_GLOBAL) != 0 && s.type_id >= 0 && s.component_owner < 0 { out.format("#define g_s", symbol, " (((GGlobals*)gs_gl)->v", symbol, ")\n"); }
     }
-    out.append("static int64_t g_worker_regions;\n");
+    out.append("G_SHARED int64_t g_worker_regions;\n");
     for n, node in p.nodes {
         if cc_thread_function(p, node) { out.format("static void g_worker_", node, "(uint8_t*);\n"); }
     }

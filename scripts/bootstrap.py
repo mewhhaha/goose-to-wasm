@@ -25,6 +25,9 @@ def main():
     parser.add_argument('--optimization', type=int, choices=(0, 1, 2), default=2,
                         help='Goose optimization level for compiler emission (default: 2)')
     parser.add_argument('--verify', action='store_true', help='verify identical self-hosted C output')
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='development builds: compile C that marks its units as this many units in '
+                             'parallel, without the profile (default: 1, the release build)')
     args = parser.parse_args()
     build = args.build_dir.resolve()
     build.mkdir(parents=True, exist_ok=True)
@@ -40,6 +43,8 @@ def main():
                    '--optimization', str(args.optimization)]
         if args.verify:
             command.append('--verify')
+        if args.jobs != 1:
+            command += ['--jobs', str(args.jobs)]
         result = subprocess.run(command, check=False)
         for path in stage.glob('*'):
             if path.name == 'report.json' or path.suffix in ('.stdout', '.stderr'):

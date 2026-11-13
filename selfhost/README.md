@@ -10,7 +10,7 @@ From the repository root, with Python 3 and a native C compiler (Clang by defaul
 python3 scripts/bootstrap.py --verify
 ```
 
-Bootstrap builds the checked-in C seed, uses it to compile the Goose compiler to C, and builds that compiler. Verification compares consecutive generated C outputs. The compiler and standard library are installed in `build/bin`; `build/bootstrap/report.json` records inputs and commands. Use `--cc` to select a C compiler. Node is needed to run Wasm output. Goose emission defaults to `-O2`; the C build uses `-std=gnu11 -O2 -lm -ldl -pthread`.
+Bootstrap builds the checked-in C seed, uses it to compile the Goose compiler to C, and builds that compiler. Verification compares consecutive generated C outputs. The compiler and standard library are installed in `build/bin`; `build/bootstrap/report.json` records inputs and commands. Use `--cc` to select a C compiler. Node is needed to run Wasm output. Goose emission defaults to `-O2`; the C build uses `-std=gnu11 -O2 -lm -ldl -pthread`. For development builds, `--jobs N` compiles generated C that marks its units (`native/units.h`) as N program units and a runtime unit in parallel, without the profile; C from an older seed still compiles whole. The default, one unit, keeps the release build and its profile.
 
 An optional Clang IR profile is used only when its C hash, target triple, Clang major version, C basename and base flags match, and its data checksum is valid. If the profile is missing, mismatched or fails to compile, bootstrap builds without it and records the reason. The supplied profile targets Clang 23 and `x86_64-pc-linux-gnu`; it was trained on the compiler itself and two feature fixtures, excluding the eleven timed programs.
 

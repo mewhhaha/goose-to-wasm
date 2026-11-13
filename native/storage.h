@@ -16,28 +16,54 @@
 #include <dlfcn.h>
 #include <errno.h>
 #include <pthread.h>
+/* Mutable native state is G_SHARED (units.h): this unit's own in a single
+   unit, defined by unit 0 and declared by the others in a split program. */
+#ifndef G_SHARED
+#define G_SPLIT 0
+#define G_SHARED static
+#define G_INIT(value) =value
+#endif
+#if G_SPLIT
+/* runtime.h's instance globals pointer is static: every unit uses one. */
+#define gs_gl g_instance_globals
+G_SHARED GS_TLS void *gs_gl;
+#endif
+#ifdef GS_SEPARATE_RUNTIME
+/* What the runtime body keeps to itself, from the runtime unit (runtime_unit.h). */
+GS_API size_t g_runtime_region_usable(void);
+GS_API long g_runtime_region_count(void);
+GS_API int64_t g_runtime_span_depth(void);
+GS_API uint8_t gs_trim_memory(void);
+#define G_REGION_USABLE() g_runtime_region_usable()
+#define G_REGION_COUNT() g_runtime_region_count()
+#define G_SPAN_DEPTH g_runtime_span_depth()
+#else
+#define G_REGION_USABLE() (gs_regions[gs_nregions-1].usable)
+#define G_REGION_COUNT() gs_nregions
+#define G_SPAN_DEPTH GS_SPAN_DEPTH
+#endif
 typedef uintptr_t GRef;
 typedef struct GRegion { gs_stack stack; unsigned char *base; int64_t capacity, width; size_t usable; unsigned char *entry; uint64_t high_water; struct GRegion *freelist; int64_t free_count,free_mode; } GRegion;
 typedef struct { unsigned char *top; int64_t capacity, width; unsigned char *entry; GRegion *freelist; int64_t free_count,free_mode; } GWatermark;
-static GS_TLS GRegion *g_regions;
-static GS_TLS int64_t g_region_count, g_region_peak;
-static GS_TLS GRegion g_fixed_region;
+G_SHARED GS_TLS GRegion *g_regions;
+G_SHARED GS_TLS int64_t g_region_count, g_region_peak;
+G_SHARED GS_TLS GRegion g_fixed_region;
 typedef struct { unsigned char *data,*previous; } GFixed;
 
 typedef struct { GRef base; int64_t len; } GSlice;
 typedef struct { unsigned char *data; int64_t len; GRegion *region; } GArray;
 typedef struct GClosure { void *function; int64_t count; GRef captures[]; } GClosure;
 typedef struct GAllocation { struct GAllocation *next; void *data; } GAllocation;
-static GS_TLS GAllocation *g_allocations;
-static GS_TLS uint64_t g_legacy_bytes;
-static int g_argc; static char **g_argv;
+G_SHARED GS_TLS GAllocation *g_allocations;
+G_SHARED GS_TLS uint64_t g_legacy_bytes;
+G_SHARED int g_argc; G_SHARED char **g_argv;
 static GS_NORETURN void g_panic(const char *message) {
     gs_abort_msg((const uint8_t*)message,(int64_t)strlen(message),"<native>",0);
 }
 static GS_NORETURN void g_panic_at(const char *message,const char *file,int line) {
     gs_abort_msg((const uint8_t*)message,(int64_t)strlen(message),file,line);
 }
-static _Thread_local uintptr_t g_native_stack_low;
+G_SHARED _Thread_local uintptr_t g_native_stack_low;
 static GS_NOINLINE __attribute__((cold)) void g_stack_check_init(void) {
     pthread_attr_t attributes;void *base;size_t bytes;
     if(pthread_getattr_np(pthread_self(),&attributes)) gs_panic("cannot inspect native stack");
@@ -94,7 +120,7 @@ static void g_region_stats(void) {
     }
     gs_stack_stats(stacks);
     fprintf(stderr,"native region stats: plan=%lld reserved=%ld peak_slot=%lld live_bytes=%llu sum_region_high_water_bytes=%llu legacy_bytes=%llu\n",
-        (long long)g_region_count,gs_nregions,(long long)g_region_peak,(unsigned long long)live,
+        (long long)g_region_count,G_REGION_COUNT(),(long long)g_region_peak,(unsigned long long)live,
         (unsigned long long)high_water,(unsigned long long)g_legacy_bytes);
 #endif
 }
@@ -126,7 +152,7 @@ static GRegion *g_region_slot(int64_t slot) {
    and stays reserved for every later use of the slot. Until then the region
    has no base and no top, and the runtime does not know it. */
 static GS_NOINLINE void g_region_map(GRegion *region) {
-    gs_stack_init(&region->stack);region->base=region->stack.top;region->usable=gs_regions[gs_nregions-1].usable;
+    gs_stack_init(&region->stack);region->base=region->stack.top;region->usable=G_REGION_USABLE();
 }
 static GRegion *g_region(int64_t slot) {
     GRegion *region=g_region_slot(slot);
@@ -137,7 +163,7 @@ static unsigned char *g_fixed_alloc(size_t bytes) {
     GRegion *region=&g_fixed_region;
     if(!region->base) {
         gs_stack_init(&region->stack);region->base=region->stack.top;
-        region->usable=gs_regions[gs_nregions-1].usable;
+        region->usable=G_REGION_USABLE();
     }
     size_t offset=(size_t)(region->stack.top-region->base);
     if(offset>SIZE_MAX-15)g_panic("fixed value size overflow");
@@ -161,7 +187,7 @@ static void g_fixed_release(GFixed *value) {
 }
 /* The data of an array whose region is not reserved yet: a valid address for
    its zero bytes. */
-static unsigned char g_empty_byte;
+G_SHARED unsigned char g_empty_byte;
 /* An empty growable array. Its region is reserved only when the array first
    needs bytes (g_reserve), so an array that never grows maps nothing. Image
    and run writers take the region's top as their cursor before anything
@@ -189,7 +215,7 @@ static void g_restore_regions(int64_t base,int64_t count,const GWatermark *marks
     }
 }
 typedef struct GPublication { struct GPublication *parent;uintptr_t source,target; } GPublication;
-static _Thread_local GPublication *g_publication_top;
+G_SHARED _Thread_local GPublication *g_publication_top;
 static void g_header_changed(uintptr_t address) {
     for(;;) {
         GPublication *link=g_publication_top;
@@ -349,7 +375,7 @@ static GClosure *g_closure(void *function,int64_t n) { GClosure *c=g_alloc(sizeo
 typedef struct GActivation {
     struct GActivation *parent; int64_t base,count; GWatermark *marks;GPublication *publications;unsigned char *fixed;
 } GActivation;
-static _Thread_local GActivation *g_activation_top;
+G_SHARED _Thread_local GActivation *g_activation_top;
 static void g_activation_enter(GActivation *frame,int64_t base,int64_t count,GWatermark *marks) {
     *frame=(GActivation){g_activation_top,base,count,marks,g_publication_top,g_fixed_region.stack.top};
     g_mark_regions(base,count,marks);g_activation_top=frame;
@@ -362,7 +388,7 @@ typedef struct GReturnFrame {
     struct GReturnFrame *parent;int64_t function;jmp_buf jump;void *result;size_t size;
     void (*publish)(void *,const void *);GActivation *activation;
 } GReturnFrame;
-static _Thread_local GReturnFrame *g_return_top;
+G_SHARED _Thread_local GReturnFrame *g_return_top;
 static void *g_return_destination(int64_t function) {
     GReturnFrame *frame=g_return_top;while(frame && frame->function!=function)frame=frame->parent;
     if(!frame)g_panic("nonlocal return target is not active");return frame->result;

@@ -17,7 +17,7 @@ static void g_pool_require(GRegion *region,size_t bytes) {
     if(bytes>region->usable || offset>region->usable-bytes)g_panic("pool freelist region exhausted");
 }
 static void g_pool_tree_require(GRegion *owner) {
-    g_pool_require(owner->freelist,(GS_SPAN_DEPTH+2)*GS_SPAN_NODE);
+    g_pool_require(owner->freelist,(G_SPAN_DEPTH+2)*GS_SPAN_NODE);
 }
 static int64_t g_pool_take(GRef header,int64_t width) {
     GRegion *owner=g_pool_region(header,1);GArray value;memcpy(&value,g_address(header),sizeof value);

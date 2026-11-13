@@ -1,10 +1,13 @@
 /* Generated worker thunks own their instance and native region pool. */
 #if GS_NEED_THREADS
+#ifndef G_SHARED
+#define G_SHARED static
+#endif
 
 /* One queue node or wait message may be held while its image is decoded.
    Decoding calls no user code. Keep this in TLS, not on a C stack skipped
    by a contained worker's abort. Both runtime transfers are malloc'd. */
-static GS_TLS void *g_transfer_pending;
+G_SHARED GS_TLS void *g_transfer_pending;
 
 static void g_transfer_hold(void *pointer) {
     if(g_transfer_pending) gs_panic("nested native transfer");

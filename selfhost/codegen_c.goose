@@ -21,7 +21,13 @@ let cc_runtime_workers = embed_file("../native/threads.h");
 // A nonlocal return that defer bodies may run on (§6.6, §7.9): it lands in
 // each cleanup frame on its way to the target, which runs its function's
 // bodies and resumes it (cc_cleanup_open).
-let cc_runtime_unwinding = "static _Thread_local int64_t g_throw_target;\nstatic void g_throw_resume(void) {\n    GReturnFrame *f=g_return_top;\n    while(f && f->function!=g_throw_target && f->function!=-1)f=f->parent;\n    if(!f)g_panic(\"nonlocal return target is not active\");\n    while(g_activation_top && g_activation_top!=f->activation)g_activation_leave(g_activation_top);\n    g_return_top=f;longjmp(f->jump,1);\n}\nstatic void g_throw_through(int64_t function,const void *value,size_t size) {\n    GReturnFrame *f=g_return_top;\n    while(f && f->function!=function)f=f->parent;\n    if(!f || f->size!=size)g_panic(\"nonlocal return target is not active\");\n    if(size)f->publish(f->result,value);\n    g_throw_target=function;g_throw_resume();\n}\n";
+let cc_runtime_unwinding = "G_SHARED _Thread_local int64_t g_throw_target;\nstatic void g_throw_resume(void) {\n    GReturnFrame *f=g_return_top;\n    while(f && f->function!=g_throw_target && f->function!=-1)f=f->parent;\n    if(!f)g_panic(\"nonlocal return target is not active\");\n    while(g_activation_top && g_activation_top!=f->activation)g_activation_leave(g_activation_top);\n    g_return_top=f;longjmp(f->jump,1);\n}\nstatic void g_throw_through(int64_t function,const void *value,size_t size) {\n    GReturnFrame *f=g_return_top;\n    while(f && f->function!=function)f=f->parent;\n    if(!f || f->size!=size)g_panic(\"nonlocal return target is not active\");\n    if(size)f->publish(f->result,value);\n    g_throw_target=function;g_throw_resume();\n}\n";
+let cc_runtime_units = embed_file("../native/units.h");
+let cc_runtime_unit = embed_file("../native/runtime_unit.h");
+// units.h's G_SLICES: a function's slice is where it starts among that many equal byte shares.
+let CC_SLICES: i64 = 840;
+// A function of at most this many bytes, named from other units, is compiled in each.
+let CC_COPY_BYTES: i64 = 4096;
 
 // defers: the height of the defer stack the exit runs back down to (§6.6).
 struct CcExit { node: i64, done: i64, again: i64 = -1, result: i64 = -1, type_id: i64 = TYPE_VOID, regions: i64 = 0, again_regions: i64 = 0, publications: i64 = -1, self_build_depth: i64 = 0, defers: i64 = 0 }
@@ -3240,7 +3246,7 @@ fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
     }
 }
 fn cc_emit_signature(p: Program&, out: u8[>..]&, function: i64) {
-    cc_text(out, "static "); if cc_result_indirect(p, cc_function_result(p, function)) { cc_text(out, "void"); } else { cc_type(out, cc_function_result(p, function)); } cc_id(out, " g_fn", function); cc_text(out, "(GClosure *g_env,int64_t g_base");
+    cc_id(out, "G_L", function); cc_text(out, " "); if cc_result_indirect(p, cc_function_result(p, function)) { cc_text(out, "void"); } else { cc_type(out, cc_function_result(p, function)); } cc_id(out, " g_fn", function); cc_text(out, "(GClosure *g_env,int64_t g_base");
     let result = cc_function_result(p, function);
     if cc_receives(p, result) { cc_text(out, ","); if cc_tuple_channels(p, result) { cc_text(out, "GRef *g_into"); } else { cc_type(out, result); cc_text(out, " *g_into"); } }
     var param = p.nodes[function].first;
@@ -3465,6 +3471,83 @@ fn cc_emittable(p: Program&, function: i64) -> bool {
     while param >= 0 { if !cc_concrete(p, p.nodes[param].type_id) { return false; } param = p.nodes[param].next; }
     return true;
 }
+// Writes value into the blanks of a placeholder, right-aligned to end at out[at].
+fn cc_patch_number(out: u8[>..]&, at: i64, value: i64) {
+    var rest = value; var position = at;
+    out[position] = (48 + rest % 10) as u8; rest = rest / 10;
+    while rest > 0 { position -= 1; out[position] = (48 + rest % 10) as u8; rest = rest / 10; }
+}
+inline fn cc_word_byte(byte: u8) -> bool {
+    return byte == '_' || byte >= '0' && byte <= '9' || byte >= 'a' && byte <= 'z' || byte >= 'A' && byte <= 'Z';
+}
+// Records each function that out[from..to] names, as named from guard
+// `referrer` (-1: from every unit), and pins those whose address it takes.
+fn cc_note_names(out: const u8[:], from: i64, to: i64, referrer: i64, referrers: i64[>..]&, named: i64[>..]&, pinned: bool[>..]&) {
+    var at = from;
+    while at + 4 < to {
+        if out[at] != 'g' || out[at + 1] != '_' || out[at + 2] != 'f' || out[at + 3] != 'n' || at > 0 && cc_word_byte(out[at - 1]) { at++; continue; }
+        var node = 0; var next = at + 4;
+        while next < to && out[next] >= '0' && out[next] <= '9' { if node < pinned.len { node = node * 10 + (out[next] - '0') as i64; } next++; }
+        if next > at + 4 && node < pinned.len && (next == to || !cc_word_byte(out[next])) {
+            referrers.push(referrer); named.push(node);
+            if referrer < 0 || at >= from + 7 && same_bytes(out[at - 7..at], "(void*)") { pinned[node] = true; }
+        }
+        at = next;
+    }
+}
+// Once everything from begin on is emitted, fills in the unit placeholders
+// (units.h). Guard k, "#if G_IN_UNIT(   ,   ,   )", holds function owners[k]
+// (g_initialize for -1), whose "#if G_LOCAL(   ,   ,   )" is at links[k].
+// A guard gets the slice its first byte falls in. A function's link gets
+// that slice and the first and last slices it is named from, so it is static
+// where every unit that names it is its own. A small function named from
+// other slices becomes G_IN_SPAN instead: every unit from the first to the
+// last of them compiles a static copy its callers there can inline, and what
+// the copy names counts as named from all of those slices. Exported functions,
+// functions whose address is taken and those named from shared to begin
+// (thread workers, compiled in every unit) keep one definition.
+fn cc_number_units(p: Program&, out: u8[>..]&, guards: const i64[:], owners: const i64[:], links: const i64[:], shared: i64, begin: i64) {
+    let total = out.len - begin;
+    var guard_of: i64[>..] = []; var pinned: bool[>..] = []; var referrers: i64[>..] = []; var named: i64[>..] = [];
+    guard_of.resize(p.nodes.len, -1); pinned.resize(p.nodes.len, false);
+    var slices: i64[>..] = []; var low: i64[>..] = []; var high: i64[>..] = []; var copied: bool[>..] = [];
+    for start, index in guards {
+        let slice = (start - begin) * CC_SLICES / total;
+        slices.push(slice); low.push(slice); high.push(slice); copied.push(false);
+        if owners[index] >= 0 { guard_of[owners[index]] = index; }
+        var end = out.len; if index + 1 < guards.len { end = guards[index + 1]; }
+        cc_note_names(out, start, end, index, referrers, named, pinned);
+    }
+    cc_note_names(out, shared, begin, -1, referrers, named, pinned);
+    // low..high: the slices a function is named from, which widen as the
+    // functions naming it are copied, until no copy widens any more.
+    var changed = true;
+    while changed {
+        changed = false;
+        for node, edge in named {
+            let target = guard_of[node]; if target < 0 { continue; }
+            let referrer = referrers[edge]; var from = 0; var to = CC_SLICES - 1;
+            if referrer >= 0 && (copied[referrer] || owners[referrer] < 0) { from = low[referrer]; to = high[referrer]; }
+            else if referrer >= 0 { from = slices[referrer]; to = slices[referrer]; }
+            if from < low[target] { low[target] = from; changed = true; }
+            if to > high[target] { high[target] = to; changed = true; }
+        }
+        for start, index in guards {
+            let node = owners[index]; if node < 0 || copied[index] || low[index] == high[index] || pinned[node] || (p.nodes[node].flags & F_EXPORT) != 0 { continue; }
+            var end = out.len; if index + 1 < guards.len { end = guards[index + 1]; }
+            if end - start <= CC_COPY_BYTES { copied[index] = true; changed = true; }
+        }
+    }
+    for start, index in guards {
+        cc_patch_number(out, start + 16, slices[index]); cc_patch_number(out, start + 20, low[index]); cc_patch_number(out, start + 24, high[index]);
+        if owners[index] < 0 { continue; }
+        let link = links[index]; cc_patch_number(out, link + 14, slices[index]);
+        if copied[index] {
+            out[start + 9] = 'S'; out[start + 10] = 'P'; out[start + 11] = 'A'; out[start + 12] = 'N';
+            cc_patch_number(out, link + 18, slices[index]); cc_patch_number(out, link + 22, slices[index]);
+        } else { cc_patch_number(out, link + 18, low[index]); cc_patch_number(out, link + 22, high[index]); }
+    }
+}
 fn generate_c(p: Program&, out: u8[>..]&) {
     if p.diagnostics.len > 0 { return; }
     if p.pointer_bytes != 8 { diagnose_at(p, 0, 0, 0, "c: native layouts require pointer_bytes = 8"); return; }
@@ -3493,14 +3576,17 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     var global_count = 0;
     for symbol, s in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.component_owner < 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } } }
     let threads = cc_threads_used(p); let images = cc_images_used(p); let begin = out.len;
-    cc_text(out, "#define _GNU_SOURCE 1\n"); if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
+    cc_text(out, "#define _GNU_SOURCE 1\n"); cc_text(out, cc_runtime_units);
+    if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header);
+    cc_text(out, "#if !defined(GS_SEPARATE_RUNTIME) || defined(G_RUNTIME_UNIT)\n"); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
+    cc_text(out, "#endif\n#ifdef G_RUNTIME_UNIT\n"); cc_text(out, cc_runtime_unit); cc_text(out, "#else /* program units */\n");
     cc_text(out, cc_runtime); cc_text(out, cc_runtime_relative); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra);
     if images { cc_text(out, cc_runtime_images); }
     if p.unwinding { cc_text(out, cc_runtime_unwinding); }
     var runs = false; for t, id in p.types { if used[id] && cc_self_run(p, id) { runs = true; break; } }
     if runs { cc_text(out, cc_runtime_runs); }
     if threads { cc_text(out, cc_runtime_workers); }
-    cc_text(out, "static void g_initialize(void);static int g_initialized;static int64_t g_global_regions;\n"); cc_pool_origins(p, out); cc_emit_types(p, out, used);
+    cc_text(out, "G_FN void g_initialize(void);G_SHARED int g_initialized;G_SHARED int64_t g_global_regions;\n"); cc_pool_origins(p, out); cc_emit_types(p, out, used);
     for t, id in p.types {
         if !used[id] { continue; }
         if t.kind != TY_VOID && cc_concrete(p, id) { cc_emit_init(p, out, id); cc_emit_map(p, out, id); cc_emit_store(p, out, id); }
@@ -3521,20 +3607,31 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         }
         cc_text(out, "}\n");
     }
-    for n, node in p.nodes { if cc_emittable(p, node) { cc_emit_signature(p, out, node); cc_text(out, ";\n"); } }
+    var links: i64[>..] = [];
+    for n, node in p.nodes {
+        if !cc_emittable(p, node) { continue; }
+        links.push(out.len); cc_text(out, "#if G_LOCAL(   ,   ,   )\n"); cc_id(out, "#define G_L", node); cc_text(out, " static\n#else\n");
+        cc_id(out, "#define G_L", node); cc_text(out, " G_FN\n#endif\n"); cc_emit_signature(p, out, node); cc_text(out, ";\n");
+    }
+    let shared = out.len;
     if threads {
         cc_thread_emit_globals(p, out); cc_thread_emit_queues(p, out); cc_thread_emit_workers(p, out);
     } else {
     for s, symbol in p.symbols {
         if (s.flags & S_GLOBAL) == 0 || s.component_owner >= 0 { continue; }
         if s.type_id < 0 || !cc_concrete(p, s.type_id) { cc_fail(p, s.node, "c: global lacks a concrete type"); continue; }
-        cc_text(out, "static "); cc_storage_type(p, out, s.type_id); cc_text(out, " "); cc_id(out, "g_s", symbol); cc_text(out, ";\n");
+        cc_text(out, "G_SHARED "); cc_storage_type(p, out, s.type_id); cc_text(out, " "); cc_id(out, "g_s", symbol); cc_text(out, ";\n");
     }
     }
     cc_component_aliases(p, out);
     cc_pool_origins(p, out, true);
     if images { cc_index_lengths(p, out, true); }
-    for n, node in p.nodes { if cc_emittable(p, node) { cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members); cc_emit_export(p, out, node); } }
+    let functions = out.len; var guards: i64[>..] = []; var owners: i64[>..] = [];
+    for n, node in p.nodes {
+        if !cc_emittable(p, node) { continue; }
+        guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   ,   ,   )\n");
+        cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members); cc_emit_export(p, out, node); cc_text(out, "#endif\n");
+    }
     var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = [];
     var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: cc_self_runs_used(p), function_index: initializer, calls: calls, indices: indices,
         temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers };
@@ -3562,7 +3659,8 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     var graph = RegionGraph { functions: plans, calls: calls, stack: stack, members: members };
     let bound = region_bound(p, graph, global_count); var snapshots = 0;
     if threads { for n, node in p.nodes { if cc_thread_function(p, node) { let count = cc_thread_regions(p, node); if count > snapshots { snapshots = count; } } } }
-    cc_text(out, "static void g_initialize(void){if(g_initialized)return;g_initialized=1;g_global_regions="); cc_number(out, global_count);
+    guards.push(out.len); owners.push(-1); cc_text(out, "#if G_IN_UNIT(   ,   ,   )\n");
+    cc_text(out, "G_FN void g_initialize(void){if(g_initialized)return;g_initialized=1;g_global_regions="); cc_number(out, global_count);
     if threads { cc_text(out, ";g_worker_regions="); cc_number(out, bound); }
     cc_text(out, ";g_runtime_start(g_argc,g_argv,"); cc_number(out, bound); cc_text(out, ",");
     var worker_bound = 0; if threads { worker_bound = bound + snapshots; } cc_number(out, worker_bound);
@@ -3585,6 +3683,7 @@ fn generate_c(p: Program&, out: u8[>..]&) {
             if cc_kind(p, result) != TY_INT { cc_text(out, "return 0;"); } cc_text(out, "}\n");
         }
     }
+    cc_text(out, "#endif\n"); cc_number_units(p, out, guards, owners, links, shared, functions); cc_text(out, "#endif\n");
     if self_images {
         for n, node in p.nodes {
             if cc_emittable(p, node) && (n.flags & F_NONLOCAL) != 0 { cc_fail(p, node, "c: self-image construction with nonlocal exits requires partial-destination handling"); }

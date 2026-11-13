@@ -44,7 +44,21 @@ def native_source_paths(case):
     return tuple(paths)
 
 
-def native_compile_command(cc, flag, defines, artifact, native_sources):
+# --native-units: the runtime unit and each program unit (native/units.h)
+# compile at once, then link. Arguments: cc, flag, units, C, executable, defines.
+UNITS_SCRIPT = (
+    'cc=$1 flag=$2 units=$3 c=$4 out=$5; shift 5; '
+    '"$cc" -std=gnu11 "$flag" "$@" -DG_RUNTIME_UNIT -c "$c" -o "$out.runtime.o" & pids=$!; '
+    'objects="$out.runtime.o"; u=0; while [ $u -lt "$units" ]; do '
+    '"$cc" -std=gnu11 "$flag" "$@" -DG_UNITS="$units" -DG_UNIT=$u -c "$c" -o "$out.$u.o" & pids="$pids $!"; '
+    'objects="$objects $out.$u.o"; u=$((u+1)); done; '
+    's=0; for p in $pids; do wait $p || s=1; done; [ $s = 0 ] || exit 1; '
+    '"$cc" -std=gnu11 "$flag" $objects -lm -ldl -pthread -o "$out"')
+
+
+def native_compile_command(cc, flag, defines, artifact, native_sources, units=0):
+    if units and not native_sources:
+        return ['sh', '-c', UNITS_SCRIPT, 'sh', cc, flag, str(units), artifact, artifact.parent / 'program', *defines]
     command = [cc, '-std=gnu11', flag, *defines, artifact]
     if native_sources:
         command.extend(native_sources)
@@ -66,6 +80,9 @@ def main():
     parser.add_argument('--cc', default='gcc')
     parser.add_argument('--timeout', type=float, default=15)
     parser.add_argument('--frontend-only', action='store_true', help='check positive programs without lowering or execution')
+    parser.add_argument('--native-units', type=int, default=0, metavar='N',
+                        help='compile emitted C as N program units beside the runtime unit (native/units.h), '
+                             'except cases with native_sources; default: one translation unit')
     parser.add_argument('--cc-timeout', type=float, default=120,
                         help='seconds allowed to compile emitted C; --timeout bounds the compiler and programs')
     parser.add_argument('--native-cache', type=Path,
@@ -117,7 +134,7 @@ def main():
               'configuration': {'compiler': str(compiler), 'manifest': str(args.manifest), 'levels': args.levels,
                   'filter': args.filter, 'engine': args.engine, 'host': str(host), 'frontend_only': args.frontend_only,
                   'upstream_extracted': needs_upstream, 'jobs': args.jobs,
-                  'timeout': args.timeout, 'cc_timeout': args.cc_timeout},
+                  'timeout': args.timeout, 'cc_timeout': args.cc_timeout, 'native_units': args.native_units},
               'method': 'Only the compiler under test runs. Sources, stdin, expected stdout, exit status and '
                         'failure phases are frozen data. No expected-output update mode, reference fallback, '
                         'expected failures or silent skips. Compilations with identical inputs share an artifact '
@@ -268,7 +285,7 @@ def main():
             if level == 2:
                 flag = '-O2'
             defines = ['-D' + value for value in case.get('native_defines', [])]
-            command = native_compile_command(cc, flag, defines, artifact, native_sources)
+            command = native_compile_command(cc, flag, defines, artifact, native_sources, args.native_units)
             index, native = native_build(command, directory, binary, native_sources)
             value.update(native_command=index, native_result=native, binary=binary)
         return value

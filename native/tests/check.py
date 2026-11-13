@@ -121,6 +121,10 @@ def main():
     runtime.write_text(PACK.runtime_text("object"))
     obj = output / "runtime.o"
     run("runtime-object-compile", [*compiler, *FLAGS, "-c", runtime, "-o", obj])
+    # Generated programs' runtime unit adds runtime_unit.h to the object.
+    unit = output / "runtime-unit.c"
+    unit.write_text(PACK.runtime_text("object") + (HERE.parent / "runtime_unit.h").read_text())
+    run("runtime-unit-compile", [*compiler, *FLAGS, "-Werror=implicit-function-declaration", "-c", unit, "-o", output / "runtime-unit.o"])
     program = output / "glue-linked.c"
     program.write_text("#define GS_SEPARATE_RUNTIME 1\n#define GS_NEED_THREADS 1\n" + sections["header"] + PACK.CORE_TYPES + PACK.verified_files()["runtime_ext.h"] + SMOKE)
     binary = output / "glue-linked"
@@ -151,7 +155,7 @@ def main():
                 assert errors.count("goose runtime error:") == expected_errors, errors
                 assert "AddressSanitizer" not in errors, errors
                 assert "runtime error:" not in errors.replace("goose runtime error:", ""), errors
-    for path in (standalone, runtime, program):
+    for path in (standalone, runtime, unit, program):
         report["inputs_sha256"][path.name] = sha(path.read_bytes())
     (output / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
 
