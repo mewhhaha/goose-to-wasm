@@ -9,7 +9,7 @@ import os;
 // Stable IDs are the only links held while tables grow. Scope, flow and
 // provenance are checker work tables; checked nodes contain backend contracts.
 struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1 }
-struct TypeBinding { parameter: i64, value: i64, next: i64 = -1 }
+struct TypeBinding { parameter: i64, value: i64, next: i64 = -1, literal: bool = false }
 struct CheckList { first: i64 = -1, last: i64 = -1, count: i64 = 0 }
 struct CheckSpan { first: i64 = 0, count: i64 = 0 }
 struct CheckInteger { value: i64, next: i64 = -1 }
@@ -39,6 +39,9 @@ struct CheckNeed { function_node: i64, target: i64 }
 struct CheckNeedFrame { function_node: i64, parent: i64 }
 struct CheckNeedEdge { function_node: i64, token: i64, path: i64 }
 struct CheckSpecialization { original: i64, symbol: i64, binding_start: i64, binding_count: i64 }
+// A type a literal parameter adapted to inside its function (upstream §7.7):
+// each call's literal argument must fit it.
+struct CheckLiteralUse { symbol: i64, type_id: i64 }
 // A variable's flow state now and at a mark (a delta entry).
 struct CheckFlow {
     variable: i64, assigned: bool, maybeassigned: bool, narrowed: i64 = -1,
@@ -90,6 +93,7 @@ struct Checker {
     next_slot: i64 = 0, reachable: bool = true, tuple_context: bool = false, returning: bool = false,
     parameter_default_contexts: CheckDefaultCapture[>..]&,
     logical_kills: CheckLogicalKill[>..]&,
+    literal_uses: CheckLiteralUse[>..]&,
     parameter_default_function: i64 = -1, parameter_default_floor: i64 = -1,
     // The call that left out the parameter default being checked, and the
     // function that call is in: src_file() and src_line() written in the
@@ -759,6 +763,16 @@ fn check_primitive_token(kind: i64) -> i64 {
     if kind == T_TF32 { return TYPE_F32; }
     if kind == T_TF64 { return TYPE_F64; }
     return -1;
+}
+// A literal parameter named as a value (upstream §7.7).
+fn check_literal_parameter(p: Program&, node: i64) -> bool {
+    if node < 0 { return false; }
+    let n = p.nodes[node];
+    return n.kind == N_NAME && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_LITERAL) != 0;
+}
+fn check_note_literal_use(c: Checker&, symbol: i64, type_id: i64) {
+    for entry in c.literal_uses { if entry.symbol == symbol && entry.type_id == type_id { return; } }
+    c.literal_uses.push(CheckLiteralUse { symbol: symbol, type_id: type_id });
 }
 fn check_binding_same(p: Program&, a: i64, b: i64) -> bool {
     if a >= 0 && b >= 0 && p.types[a].kind == TY_FN && p.types[b].kind == TY_FN && p.types[a].declaration != p.types[b].declaration { return false; }
@@ -2250,6 +2264,8 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
     }
     if check_same_type(p, source, destination) { return 0; }
     if check_integer(destination) && check_flex_fits(p, c, expression, destination) { return 1; }
+    if check_literal_parameter(p, expression) && (check_integer(source) || check_float(source)) &&
+       (check_float(destination) || check_integer(source) && check_integer(destination)) { return 1; }
     if check_width_constant(p, c, expression, destination).valid { return 1; }
     let s = p.types[source]; let d = p.types[destination]; let n = p.nodes[expression];
     if s.kind == TY_GENERIC || d.kind == TY_GENERIC { return 1; }
@@ -2372,6 +2388,12 @@ recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64
         diagnose(p, p.nodes[expression].token, "value cannot implicitly convert to the required type"); return source;
     }
     if source < 0 { return expected; }
+    if check_literal_parameter(p, expression) {
+        let from = check_numeric_value_type(p, source); let to = check_numeric_value_type(p, expected);
+        if from != to && (check_integer(to) || check_float(to)) {
+            check_note_literal_use(c, p.nodes[expression].symbol, to); check_wrap_numeric_cast(p, expression, expected); return expected;
+        }
+    }
     if source == TYPE_F32 && expected == TYPE_F64 { return expected; }
     let branch = p.nodes[expression];
     if branch.kind == N_LOOP || branch.kind == N_BLOCK && (branch.flags & F_EARLY) != 0 {
@@ -3947,6 +3969,43 @@ fn check_reuse_needs(p: Program&, c: Checker&, function_node: i64, token: i64) -
     return true;
 }
 
+// The parameters of an instance whose bare type variable literal arguments
+// alone bound: each reads as a constant of unknown value that adapts where
+// it is used (upstream §7.7).
+fn check_mark_literal_parameters(p: Program&, c: Checker&, original: i64, copy: i64, bindings: CheckList&) {
+    var formal = p.nodes[original].first; var param = p.nodes[copy].first;
+    while formal >= 0 && param >= 0 {
+        let ty = p.nodes[formal].type_id; let symbol = p.nodes[param].symbol;
+        if ty >= 0 && p.types[ty].kind == TY_GENERIC && symbol >= 0 && (p.nodes[formal].flags & F_VAR) == 0 {
+            for index in 0..bindings.count {
+                let b = check_binding_at(c, bindings, index);
+                if b.parameter == p.types[ty].declaration && b.literal { p.symbols[symbol].flags |= S_LITERAL; }
+            }
+        }
+        formal = p.nodes[formal].next; param = p.nodes[param].next;
+    }
+}
+// A scalar argument that makes a literal parameter: a numeric constant or a
+// literal parameter passed on. A construct of constants, a shift of one or
+// a float computed from typed integers binds its default type as a typed
+// value would (upstream 71e5ade1, §7.7).
+fn check_literal_scalar(p: Program&, node: i64) -> bool {
+    if check_literal_parameter(p, node) { return true; }
+    let ty = check_numeric_value_type(p, p.nodes[node].type_id);
+    return check_integer(ty) && check_literal_tree(p, node, 0) || check_float(ty) && check_float_constant_tree(p, node, 0);
+}
+// Marks the binding of `parameter` as made by literals alone, unless one of
+// the first `typed` bindings (explicit and typed arguments) is its.
+fn check_mark_literal_binding(c: Checker&, bindings: CheckList&, parameter: i64, typed: i64) {
+    var item = bindings.first; var at = 0;
+    while item >= 0 {
+        if c.binding_work[item].parameter == parameter {
+            if at >= typed { c.binding_work[item].literal = true; }
+            return;
+        }
+        item = c.binding_work[item].next; at += 1;
+    }
+}
 recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, bindings: CheckList&, token: i64) -> i64 {
     parse_deferred_body(p, original);
     if !check_function_reached(p, c, original, token) { return -1; }
@@ -3959,7 +4018,7 @@ recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, 
         var equal = true;
         for i in 0..bindings.count { let b = check_binding_at(c, bindings, i);
             let old = c.bindings[spec.binding_start + i];
-            if old.parameter != b.parameter || !check_binding_same(p, old.value, b.value) { equal = false; }
+            if old.parameter != b.parameter || old.literal != b.literal || !check_binding_same(p, old.value, b.value) { equal = false; }
         }
         if equal && check_environment_same(p, c, p.symbols[spec.symbol].node, token) && check_reuse_needs(p, c, p.symbols[spec.symbol].node, token) { return spec.symbol; }
     }
@@ -3993,7 +4052,7 @@ recursive fn check_specialize_function(p: Program&, c: Checker&, original: i64, 
         check_declare(p, c, binding, c.scope);
     }
     p.nodes[copy].scope = c.scope;
-    check_prepare_function(p, c, copy); check_function(p, c, copy);
+    check_prepare_function(p, c, copy); check_mark_literal_parameters(p, c, original, copy, bindings); check_function(p, c, copy);
     p.nodes[original].flags |= p.nodes[copy].flags & (F_CAPTURE | F_NONLOCAL);
     if p.nodes[original].captures < 0 { p.nodes[original].captures = p.nodes[copy].captures; }
     c.scope = saved; c.inference_depth -= 1;
@@ -4173,10 +4232,11 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
         var infer_formal = p.nodes[fnnode].first; var infer_index = 0;
         while infer_formal >= 0 && infer_index < args.count {
             let argument = check_list_at(c, args, infer_index);
-            if !check_literal_argument(p, c, argument) &&
+            if !check_literal_argument(p, c, argument) && !check_literal_parameter(p, argument) &&
                !check_unify(p, c, p.nodes[infer_formal].type_id, check_argument_inference(p, c, argument, p.nodes[infer_formal].type_id, fnnode, infer_formal), bindings) { matches = false; }
             infer_formal = p.nodes[infer_formal].next; infer_index += 1;
         }
+        let typed_bindings = bindings.count;
         // A floating literal-like argument binds before integer literals;
         // typed arguments have already anchored their generic parameters.
         infer_formal = p.nodes[fnnode].first; infer_index = 0;
@@ -4262,6 +4322,18 @@ recursive fn check_choose_call(p: Program&, c: Checker&, callee: Node, args: Che
             hof = true; index += 1;
         }
         if index != args.count { matches = false; }
+        // A literal argument to a bare type variable that no typed argument
+        // binds stays a literal inside the instance (upstream §7.7).
+        if (p.nodes[fnnode].flags & F_EXTERN) == 0 {
+            var literal_formal = p.nodes[fnnode].first; var literal_index = 0;
+            while literal_formal >= 0 && literal_index < args.count {
+                let ft = p.nodes[literal_formal].type_id;
+                if ft >= 0 && p.types[ft].kind == TY_GENERIC && (p.nodes[literal_formal].flags & F_VAR) == 0 && check_literal_scalar(p, check_list_at(c, args, literal_index)) {
+                    check_mark_literal_binding(c, bindings, p.types[ft].declaration, typed_bindings);
+                }
+                literal_formal = p.nodes[literal_formal].next; literal_index += 1;
+            }
+        }
         while formal >= 0 {
             if no_defaults || p.nodes[formal].right < 0 { matches = false; }
             formal = p.nodes[formal].next;
@@ -4650,6 +4722,32 @@ recursive fn check_try_dispatch(p: Program&, c: Checker&, node: i64, expected: i
     return result;
 }
 
+// A literal argument must fit every type its literal parameter adapts to in
+// the callee; a literal parameter passed on takes those types on for its own
+// callers to check (upstream VerifyLiterals, §7.7).
+fn check_literal_arguments(p: Program&, c: Checker&, function_node: i64, args: CheckList&) {
+    var formal = p.nodes[function_node].first; var index = 0;
+    while formal >= 0 && index < args.count {
+        let symbol = p.nodes[formal].symbol; let value = check_list_at(c, args, index);
+        if symbol >= 0 && (p.symbols[symbol].flags & S_LITERAL) != 0 {
+            let count = c.literal_uses.len;
+            for use_index in 0..count {
+                let entry = c.literal_uses[use_index];
+                if entry.symbol != symbol { continue; }
+                if check_literal_parameter(p, value) { check_note_literal_use(c, p.nodes[value].symbol, entry.type_id); continue; }
+                if check_conversion(p, c, value, p.nodes[value].type_id, entry.type_id) >= 0 { continue; }
+                let constant = check_constant(p, c, value, 0);
+                var message: u8[>..] = []; message.append("argument "); message.format(index + 1); message.append(" of ");
+                message.append(token_text(p, p.nodes[function_node].token)); message.append(": constant ");
+                if constant.valid { message.format(constant.value); message.append(" "); }
+                message.append("does not fit "); render_type_name(p, entry.type_id, message);
+                message.append(", which parameter "); message.append(token_text(p, p.nodes[formal].token)); message.append(" takes");
+                diagnose(p, p.nodes[value].token, message); break;
+            }
+        }
+        formal = p.nodes[formal].next; index += 1;
+    }
+}
 fn check_array_member_builtin(builtin: i64) -> bool {
     return builtin == 2 || builtin == 16 || builtin == 17 || builtin >= 23;
 }
@@ -4842,6 +4940,7 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
         p.nodes[node].third = -1;
     }
     p.nodes[node].last = last;
+    check_literal_arguments(p, c, function_node, args);
     let type_id = p.symbols[best].type_id;
     let result = p.types[type_id].element;
     check_apply_call_effects(p, c, node, function_node, args);
@@ -5088,7 +5187,7 @@ fn check_join_type(p: Program&, c: Checker&, left_node: i64, left: i64, right_no
     if p.types[left].kind == TY_ARRAY && p.types[right].kind == TY_ARRAY && (p.types[left].element < 0) != (p.types[right].element < 0) {
         diagnose(p, token, "an empty array branch cannot infer its element type from another branch"); return -1;
     }
-    if right_node >= 0 && check_join_literal(p, c, right_node) && !check_join_literal(p, c, left_node) && check_conversion(p, c, right_node, right, left) >= 0 {
+    if right_node >= 0 && (check_join_literal(p, c, right_node) || check_literal_parameter(p, right_node)) && !check_join_literal(p, c, left_node) && !check_literal_parameter(p, left_node) && check_conversion(p, c, right_node, right, left) >= 0 {
         if adapt { check_expect(p, c, right_node, right, left); } return left;
     }
     if left_node >= 0 && check_conversion(p, c, left_node, left, right) >= 0 {
@@ -7678,7 +7777,8 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
     var parameter_default_contexts: CheckDefaultCapture[>..] = [];
     var logical_kills: CheckLogicalKill[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_lists: checker_effect_lists, effect_keys: checker_effect_keys, effect_key_heads: checker_effect_key_heads, name_table: checker_name_table, link_scopes: checker_link_scopes, name_hashes: checker_name_hashes, linked: checker_linked, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, return_root_lists: checker_return_root_lists, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, component_symbols: checker_component_symbols, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
+    var literal_uses: CheckLiteralUse[>..] = [];
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_lists: checker_effect_lists, effect_keys: checker_effect_keys, effect_key_heads: checker_effect_key_heads, name_table: checker_name_table, link_scopes: checker_link_scopes, name_hashes: checker_name_hashes, linked: checker_linked, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, return_root_lists: checker_return_root_lists, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, component_symbols: checker_component_symbols, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills, literal_uses: literal_uses };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     var source_id = p.first_decl_source;
     while source_id >= 0 {

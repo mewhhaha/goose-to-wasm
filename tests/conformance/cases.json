@@ -70587,6 +70587,66 @@
             0
         ],
         "provenance": "Upstream d6a3ceaa (range_index, check_length) and d24161f4 (move_from), the source is a slice of the destination's element type; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/literal-parameters/adapt/native",
+        "source": "tests/fixtures/contracts/literal-parameters/adapt.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1ab000\n[1.5, 1.5] [-7, -7, 300, 300] [5, 6] -3 1 42 2.5\n",
+            "exit": 0
+        },
+        "provenance": "Upstream §7.7 literal parameters (std format_flt's push_n(lead, '0', n)): a literal bound alone adapts where its parameter is used, passed on, beside a typed branch and into float and integer arrays; a typed argument gets its own instance; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/literal-parameters/adapt/wasm-direct",
+        "source": "tests/fixtures/contracts/literal-parameters/adapt.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1ab000\n[1.5, 1.5] [-7, -7, 300, 300] [5, 6] -3 1 42 2.5\n",
+            "exit": 0
+        },
+        "provenance": "Upstream §7.7 literal parameters (std format_flt's push_n(lead, '0', n)): a literal bound alone adapts where its parameter is used, passed on, beside a typed branch and into float and integer arrays; a typed argument gets its own instance; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/literal-parameters/range",
+        "source": "tests/fixtures/contracts/literal-parameters/range.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream §7.7 literal parameters (std format_flt's push_n(lead, '0', n)), test/errors_tc/literal_param_range: the literal must fit each type its parameter adapts to; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/literal-parameters/flow",
+        "source": "tests/fixtures/contracts/literal-parameters/flow.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream §7.7 literal parameters (std format_flt's push_n(lead, '0', n)), test/errors_tc/literal_param_flow: a literal passed on is checked against the innermost use; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/literal-parameters/typed",
+        "source": "tests/fixtures/contracts/literal-parameters/typed.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "provenance": "Upstream §7.7 literal parameters (std format_flt's push_n(lead, '0', n)): a typed i64 argument does not narrow; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
     }
   ],
   "legacy_math_capture": {

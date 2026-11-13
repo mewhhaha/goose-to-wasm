@@ -1,6 +1,6 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 96 runtime contracts refused during compilation, two of them awaiting direct Wasm root struct storage. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 90 runtime contracts refused during compilation, two of them awaiting direct Wasm root struct storage. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "gaps": [
   [
    "corpus/contracts/root-struct/owner/wasm-direct",
@@ -243,14 +243,6 @@
    2
   ],
   [
-   "upstream/optimizer/minmax_chains",
-   0
-  ],
-  [
-   "upstream/optimizer/minmax_chains",
-   2
-  ],
-  [
    "upstream/stdlib/stdlib_csv",
    0
   ],
@@ -264,14 +256,6 @@
   ],
   [
    "upstream/stdlib/stdlib_dictionary_refs",
-   2
-  ],
-  [
-   "upstream/stdlib/stdlib_exception",
-   0
-  ],
-  [
-   "upstream/stdlib/stdlib_exception",
    2
   ],
   [

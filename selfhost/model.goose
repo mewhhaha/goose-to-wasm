@@ -265,6 +265,9 @@ let S_TYPE: i64 = 16;
 let S_EXTERN: i64 = 32;
 let S_BUILTIN: i64 = 64;
 let S_CAPTURE: i64 = 128;
+// A parameter a literal argument binds alone: a constant of unknown value
+// that adapts where it is used (upstream §7.7).
+let S_LITERAL: i64 = 256;
 
 struct Source {
     path_start: i64 = 0, path_len: i64 = 0,
