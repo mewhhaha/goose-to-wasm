@@ -337,6 +337,11 @@ struct Program {
     // and how many types are indexed so far.
     type_buckets: TypeBucket[>..]&, type_links: TypeLink[>..]&,
     type_indexed: i64 = 0,
+    // Per type, the type property scan that last queued it (check_type_property_scan).
+    type_scan_marks: i64[>..]&, type_scan_stamp: i64 = 0,
+    // Per type, life_holds_walk's answer (0 unknown, 1 no, 2 yes). Lifetime
+    // analysis only adds types and nodes, so an answer stays valid.
+    type_holds: i64[>..]&,
     entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     optimization: i64 = 0, debug: bool = false,
     pointer_bytes: i64 = 4,

@@ -254,7 +254,19 @@ fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checki
     out.append(",\"lifetime_ns\":"); driver_integer(out, p.lifetime_ns);
     out.append(",\"optimize_ns\":"); driver_integer(out, optimizing);
     out.append(",\"backend_ns\":"); driver_integer(out, backend);
-    out.append(",\"function_info\":[],\"cache_complete\":false}\n");
+    // Each reached function's node ID (the N of native g_fnN), name and
+    // declaration site, so a profile of emitted code can be read by name.
+    out.append(",\"function_info\":[],\"function_names\":["); var first = true;
+    for symbol in p.symbols {
+        if (symbol.flags & S_FUNCTION) == 0 || symbol.node < 0 || (p.nodes[symbol.node].flags & F_REACHABLE) == 0 || symbol.name_token < 0 { continue; }
+        let t = p.tokens[symbol.name_token]; let s = p.sources[t.source];
+        if !first { out.push(','); } first = false;
+        out.append("{\"id\":"); driver_integer(out, symbol.node);
+        out.append(",\"name\":"); driver_json(out, p.text[t.start..t.end]);
+        out.append(",\"source\":"); driver_json(out, p.text[s.path_start..s.path_start + s.path_len]);
+        out.append(",\"line\":"); driver_integer(out, t.line); out.push('}');
+    }
+    out.append("],\"cache_complete\":false}\n");
     return write_file(path, out);
 }
 fn driver_quote(out: u8[>..]&, value: const u8[:]) {
@@ -306,11 +318,11 @@ fn driver_main() -> i64 {
     var tokens: Token[>..] = []; var nodes: Node[>..] = []; var types: Type[>..] = [];
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
     var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
-    var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = [];
+    var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = [];
     var p = Program { text: text, messages: messages, sources: sources, tokens: tokens,
                       nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
-                      type_buckets: type_buckets, type_links: type_links };
+                      type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;

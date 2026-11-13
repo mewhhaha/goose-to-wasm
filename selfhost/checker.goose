@@ -8,7 +8,7 @@ import os;
 
 // Stable IDs are the only links held while tables grow. Scope, flow and
 // provenance are checker work tables; checked nodes contain backend contracts.
-struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1, name_heads: i64[16] = [-1; 16] }
+struct CheckScope { parent: i64, function_node: i64, depth: i64 = 0, namespace_node: i64 = -1, frame_root: i64 = 0, first_variable: i64 = -1, outer_exits: i64 = -1 }
 struct TypeBinding { parameter: i64, value: i64, next: i64 = -1 }
 struct CheckList { first: i64 = -1, last: i64 = -1, count: i64 = 0 }
 struct CheckSpan { first: i64 = 0, count: i64 = 0 }
@@ -29,7 +29,12 @@ struct CheckRoot { value: i64, root: i64, kind: i64 = 0, next: i64 = -1 }
 // Each function's effects are a list in recording order (effect_lists).
 struct CheckEffect { function_node: i64, root: i64, kind: i64, next: i64 = -1 }
 struct CheckEffectList { first: i64 = -1, last: i64 = -1 }
-struct CheckReturnRoot { function_node: i64, index: i64, root: i64, kind: i64 = 0 }
+// An effect indexed under (function, root, kind): its kind when recorded, and
+// kind 0 again once a join rewrites it to 0. A lookup checks the effect's
+// current fields.
+struct CheckEffectKey { effect: i64, kind: i64, next: i64 = -1 }
+// Each function's return roots are a list in recording order (return_root_lists).
+struct CheckReturnRoot { function_node: i64, index: i64, root: i64, kind: i64 = 0, next: i64 = -1 }
 struct CheckNeed { function_node: i64, target: i64 }
 struct CheckNeedFrame { function_node: i64, parent: i64 }
 struct CheckNeedEdge { function_node: i64, token: i64, path: i64 }
@@ -65,13 +70,15 @@ struct Checker {
     literal_comparison: bool = false, default_body: bool = false, render_reference: bool = false,
     format_scan_end: i64 = 0, has_format_hooks: bool = false,
     scopes: CheckScope[>..]&, variables: CheckVariable[>..]&, variable_lookup: i64[>..]&,
-    roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&, effect_lists: CheckEffectList[>..]&,
+    roots: CheckRoot[>..]&, root_nodes: i64[>..]&, root_symbols: i64[>..]&, effects: CheckEffect[>..]&, effect_lists: CheckEffectList[>..]&, effect_keys: CheckEffectKey[>..]&, effect_key_heads: i64[>..]&,
+    // Scope names (check_link_symbol): buckets, each symbol's link scope and name hash, symbols in link order.
+    name_table: i64[>..]&, link_scopes: i64[>..]&, name_hashes: i64[>..]&, linked: i64[>..]&,
     environments: CheckEnvironment[>..]&, environment_heads: i64[>..]&,
     outer_exits: CheckOuterExit[>..]&,
     syntax_nodes: Node[>..]&, syntax_lookup: i64[>..]&,
     node_nonnegative: i64[>..]&,
     clone_syntax: bool = false, syntax_body: i64 = -1, syntax_function: i64 = -1, optional_globals: bool = false,
-    return_roots: CheckReturnRoot[>..]&,
+    return_roots: CheckReturnRoot[>..]&, return_root_lists: CheckEffectList[>..]&,
     specializations: CheckSpecialization[>..]&, bindings: TypeBinding[>..]&,
     needs: CheckNeed[>..]&, need_frames: CheckNeedFrame[>..]&, need_edges: CheckNeedEdge[>..]&, need_path: i64 = -1,
     contextual_floats: CheckContextFloat[>..]&, contextual_lookup: i64[>..]&,
@@ -100,6 +107,7 @@ struct Checker {
     root_record: i64 = -1,
     // check_list_at's position: the list it walked, the index and the item.
     list_first: i64 = -1, list_index: i64 = -1, list_item: i64 = -1,
+    list_other_first: i64 = -1, list_other_index: i64 = -1, list_other_item: i64 = -1,
     returns: bool = false, initializing_globals: bool = false, expanding: bool = false, expansion_nodes: i64 = 0, inference_depth: i64 = 0, type_indirections: i64 = 0, checking_count: i64 = 0, loop_count: i64 = 0, default_fields: CheckList = CheckList {}, backedges: CheckList = CheckList {}, type_chain: CheckList = CheckList {},
 }
 
@@ -119,11 +127,21 @@ fn check_list_push(c: Checker&, list: CheckList&, value: i64) {
     list.last = id; list.count += 1;
 }
 fn check_list_at(c: Checker&, list: CheckList&, index: i64) -> i64 {
-    // Lists are read in order: resume from the last position in the same list.
+    // Lists are read in order, often two in alternation (candidates and
+    // arguments): resume from the last position read in the same list. The
+    // work array only grows and links only on append, so a position stays valid.
     var item = list.first; var at = 0;
+    if list.first >= 0 && c.list_first != list.first && c.list_other_first == list.first {
+        let first = c.list_first; let position = c.list_index; let found = c.list_item;
+        c.list_first = c.list_other_first; c.list_index = c.list_other_index; c.list_item = c.list_other_item;
+        c.list_other_first = first; c.list_other_index = position; c.list_other_item = found;
+    }
     if list.first >= 0 && c.list_first == list.first && c.list_index >= 0 && c.list_index <= index { item = c.list_item; at = c.list_index; }
     while item >= 0 && at < index { item = c.integer_work[item].next; at += 1; }
     if item < 0 { return -1; }
+    if c.list_first != list.first {
+        c.list_other_first = c.list_first; c.list_other_index = c.list_index; c.list_other_item = c.list_item;
+    }
     c.list_first = list.first; c.list_index = index; c.list_item = item;
     return c.integer_work[item].value;
 }
@@ -291,24 +309,44 @@ fn check_plain_value_type(p: Program&, ty: i64) -> i64 {
     if ty < 0 || p.types[ty].kind == TY_REF || p.types[ty].kind == TY_SLICE { return ty; }
     return check_type_const(p, ty, false);
 }
-fn check_name_bucket(p: Program&, token: i64) -> i64 {
+fn check_name_hash(p: Program&, token: i64) -> i64 {
     var hash: u32 = 2166136261;
     for byte in token_text(p, token) { hash = (hash ^ (byte as u32)) * 16777619; }
-    return (hash & 15) as i64;
+    return hash as i64;
+}
+// Every scope's names share one table, bucketed by scope and name. A chain
+// holds a scope's same-named symbols in reverse link order, as a lookup expects.
+fn check_name_bucket(c: Checker&, hash: i64, scope: i64) -> i64 {
+    var h = (hash as! u64) * 11400714819323198485 ^ (scope as! u64) * 14029467366897019727;
+    h ^= h >> 31; return (h & ((c.name_table.len - 1) as! u64)) as i64;
 }
 fn check_link_symbol(p: Program&, c: Checker&, symbol: i64, scope: i64) {
     if scope < 0 { return; }
-    let bucket = check_name_bucket(p, p.symbols[symbol].name_token);
-    p.symbols[symbol].name_next = c.scopes[scope].name_heads[bucket];
-    c.scopes[scope].name_heads[bucket] = symbol;
+    while c.link_scopes.len < p.symbols.len { c.link_scopes.push(-1); c.name_hashes.push(0); }
+    c.link_scopes[symbol] = scope; c.name_hashes[symbol] = check_name_hash(p, p.symbols[symbol].name_token);
+    // Two names per bucket at most, on average; rebuilt in link order.
+    if 2 * c.name_table.len <= c.linked.len + 1 {
+        var count: i64 = 1024; while 2 * count <= c.linked.len + 1 { count <<= 1; }
+        while c.name_table.len < count { c.name_table.push(-1); }
+        for slot in 0..count { c.name_table[slot] = -1; }
+        for index in 0..c.linked.len {
+            let old = c.linked[index]; let bucket = check_name_bucket(c, c.name_hashes[old], c.link_scopes[old]);
+            p.symbols[old].name_next = c.name_table[bucket]; c.name_table[bucket] = old;
+        }
+    }
+    c.linked.push(symbol);
+    let bucket = check_name_bucket(c, c.name_hashes[symbol], scope);
+    p.symbols[symbol].name_next = c.name_table[bucket];
+    c.name_table[bucket] = symbol;
 }
 fn check_lookup_scope(p: Program&, c: Checker&, token: i64, scope: i64, role: i64 = 0) -> i64 {
     if scope < 0 || scope >= c.scopes.len { return -1; }
-    let bucket = check_name_bucket(p, token);
-    var id = c.scopes[scope].name_heads[bucket];
+    if c.name_table.len == 0 { return -1; }
+    let bucket = check_name_bucket(c, check_name_hash(p, token), scope);
+    var id = c.name_table[bucket];
     while id >= 0 {
         let symbol: const Symbol& = p.symbols[id];
-        if same_name(p, symbol.name_token, token) {
+        if c.link_scopes[id] == scope && same_name(p, symbol.name_token, token) {
             if role == 0 || (symbol.flags & role) != 0 { return id; }
             if role == S_FUNCTION && symbol.node >= 0 {
                 let kind = p.nodes[symbol.node].kind;
@@ -563,7 +601,10 @@ fn check_type_property(p: Program&, ty: i64, property: i64) -> i64 {
 // complete turns false where the walk meets a type whose parts are still
 // being determined: a result that walk did not find may change later.
 fn check_type_property_scan(p: Program&, ty: i64, property: i64, complete: bool&) -> i64 {
-    var work: i64[>..] = [ty]; var scanned = 0; var result = 0;
+    // Each type is queued once; a stamp per scan marks the queued ones.
+    p.type_scan_stamp += 1; let stamp = p.type_scan_stamp;
+    while p.type_scan_marks.len < p.types.len { p.type_scan_marks.push(0); }
+    var work: i64[>..] = [ty]; p.type_scan_marks[ty] = stamp; var scanned = 0; var result = 0;
     while scanned < work.len {
         let current = work[scanned]; scanned += 1;
         let t = p.types[current];
@@ -601,19 +642,13 @@ fn check_type_property_scan(p: Program&, ty: i64, property: i64, complete: bool&
         var traverse_fields = t.kind == TY_STRUCT || t.kind == TY_ENUM;
         if property == 0 { traverse_element = traverse_element || t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_FN || t.kind == TY_TUPLE; traverse_fields = traverse_fields || t.kind == TY_FN || t.kind == TY_TUPLE; }
         if property == 1 || property == 3 || property == 4 || property == 5 || property == 6 { traverse_fields = traverse_fields || t.kind == TY_TUPLE; }
-        if traverse_element && t.element >= 0 {
-            var seen = false; for old in work { if old == t.element { seen = true; } }
-            if !seen { work.push(t.element); }
-        }
+        if traverse_element && t.element >= 0 && p.type_scan_marks[t.element] != stamp { p.type_scan_marks[t.element] = stamp; work.push(t.element); }
         if traverse_fields {
             var part = t.first;
             while part >= 0 {
                 let child = p.nodes[part].type_id;
                 if child < 0 && (p.nodes[part].flags & F_PAD) == 0 { complete = false; }
-                if child >= 0 {
-                    var seen = false; for old in work { if old == child { seen = true; } }
-                    if !seen { work.push(child); }
-                }
+                if child >= 0 && p.type_scan_marks[child] != stamp { p.type_scan_marks[child] = stamp; work.push(child); }
                 part = p.nodes[part].next;
             }
         }
@@ -631,14 +666,39 @@ fn check_store_roots(p: Program&, c: Checker&, destination: i64, expression: i64
     while at >= 0 { let root = c.roots[at]; at = root.next; if root.root >= 0 { check_add_root(c, -destination - 10, root.root, root.kind); } }
 }
 
+fn check_effect_bucket(c: Checker&, function_node: i64, root: i64, kind: i64) -> i64 {
+    var h = (function_node as! u64) * 11400714819323198485 ^ (root as! u64) * 14029467366897019727 ^ (kind as! u64) * 1609587929392839161;
+    h ^= h >> 29; return (h & ((c.effect_key_heads.len - 1) as! u64)) as i64;
+}
+// Two keys per bucket at most, on average.
+fn check_index_effect(c: Checker&, effect: i64, kind: i64) {
+    if 2 * c.effect_key_heads.len <= c.effect_keys.len + 1 {
+        var count: i64 = 1024; while 2 * count <= c.effect_keys.len + 1 { count <<= 1; }
+        while c.effect_key_heads.len < count { c.effect_key_heads.push(-1); }
+        for slot in 0..count { c.effect_key_heads[slot] = -1; }
+        for index in 0..c.effect_keys.len {
+            let key = c.effect_keys[index]; let owner = c.effects[key.effect];
+            let bucket = check_effect_bucket(c, owner.function_node, owner.root, key.kind);
+            c.effect_keys[index].next = c.effect_key_heads[bucket]; c.effect_key_heads[bucket] = index;
+        }
+    }
+    let owner = c.effects[effect]; let bucket = check_effect_bucket(c, owner.function_node, owner.root, kind);
+    c.effect_keys.push(CheckEffectKey { effect: effect, kind: kind, next: c.effect_key_heads[bucket] });
+    c.effect_key_heads[bucket] = c.effect_keys.len - 1;
+}
 fn check_note_effect(c: Checker&, root: i64, kind: i64) {
     let function_node = c.function_node;
     if function_node < 0 || root < 0 { return; }
     while c.effect_lists.len <= function_node { c.effect_lists.push(CheckEffectList {}); }
-    var at = c.effect_lists[function_node].first;
-    while at >= 0 { let effect = c.effects[at]; if effect.root == root && effect.kind == kind { return; } at = effect.next; }
+    var at = c.effect_key_heads[check_effect_bucket(c, function_node, root, kind)];
+    while at >= 0 {
+        let key = c.effect_keys[at]; let effect: const CheckEffect& = c.effects[key.effect];
+        if effect.function_node == function_node && effect.root == root && effect.kind == kind { return; }
+        at = key.next;
+    }
     let id = c.effects.len;
     c.effects.push(CheckEffect { function_node: function_node, root: root, kind: kind });
+    check_index_effect(c, id, kind);
     let last = c.effect_lists[function_node].last;
     if last < 0 { c.effect_lists[function_node].first = id; } else { c.effects[last].next = id; }
     c.effect_lists[function_node].last = id;
@@ -4338,13 +4398,21 @@ fn check_replay_outer_exits(p: Program&, c: Checker&, function_node: i64) {
     }
 }
 
+fn check_push_return_root(c: Checker&, value: CheckReturnRoot) {
+    let id = c.return_roots.len; c.return_roots.push(value);
+    if value.function_node < 0 { return; }
+    while c.return_root_lists.len <= value.function_node { c.return_root_lists.push(CheckEffectList {}); }
+    let last = c.return_root_lists[value.function_node].last;
+    if last < 0 { c.return_root_lists[value.function_node].first = id; } else { c.return_roots[last].next = id; }
+    c.return_root_lists[value.function_node].last = id;
+}
 fn check_apply_call_effects(p: Program&, c: Checker&, node: i64, function_node: i64, args: CheckList&) {
     check_environment_callee(p, c, function_node);
     check_replay_outer_exits(p, c, function_node);
-    let roots_end = c.return_roots.len;
-    for i in 0..roots_end {
-        let rr = c.return_roots[i];
-        if rr.function_node != function_node { continue; }
+    let roots_end = c.return_roots.len; var next_root = -1;
+    if function_node < c.return_root_lists.len { next_root = c.return_root_lists[function_node].first; }
+    while next_root >= 0 && next_root < roots_end {
+        let rr = c.return_roots[next_root]; next_root = rr.next;
         if rr.root < 0 { check_add_root(c, node, rr.root, rr.kind); continue; }
         let root_symbol = p.symbols[rr.root];
         if root_symbol.owner == function_node && (root_symbol.flags & S_PARAMETER) != 0 {
@@ -6130,7 +6198,7 @@ recursive fn check_return_value(p: Program&, c: Checker&, node: i64) {
             var root_at = check_root_head(c, value);
             while root_at >= 0 {
                 let r = c.roots[root_at]; root_at = r.next;
-                c.return_roots.push(CheckReturnRoot { function_node: target, index: index, root: r.root, kind: r.kind });
+                check_push_return_root(c, CheckReturnRoot { function_node: target, index: index, root: r.root, kind: r.kind });
             }
         }
         index += 1; value = p.nodes[value].next;
@@ -6582,7 +6650,7 @@ recursive fn check_function(p: Program&, c: Checker&, function_node: i64) {
             for effect_index in effect_start..c.effects.len {
                 let effect = c.effects[effect_index];
                 if effect.function_node == function_node && effect.root == symbol && effect.kind == 6 {
-                    c.effects[effect_index].kind = 0;
+                    c.effects[effect_index].kind = 0; check_index_effect(c, effect_index, 0);
                 }
             }
         }
@@ -6980,7 +7048,9 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_node_nonnegative: i64[>..] = [];
     var checker_syntax_nodes: Node[>..] = []; var checker_syntax_lookup: i64[>..] = [];
     var checker_effects: CheckEffect[>..] = []; var checker_effect_lists: CheckEffectList[>..] = [];
-    var checker_return_roots: CheckReturnRoot[>..] = [];
+    var checker_name_table: i64[>..] = []; var checker_link_scopes: i64[>..] = []; var checker_name_hashes: i64[>..] = []; var checker_linked: i64[>..] = [];
+    var checker_effect_keys: CheckEffectKey[>..] = []; var checker_effect_key_heads: i64[>..] = []; for slot in 0..1024 { checker_effect_key_heads.push(-1); }
+    var checker_return_roots: CheckReturnRoot[>..] = []; var checker_return_root_lists: CheckEffectList[>..] = [];
     var checker_specializations: CheckSpecialization[>..] = [];
     var checker_needs: CheckNeed[>..] = []; var checker_need_frames: CheckNeedFrame[>..] = []; var checker_need_edges: CheckNeedEdge[>..] = [];
     var checker_contextual_floats: CheckContextFloat[>..] = []; var checker_contextual_lookup: i64[>..] = [];
@@ -6997,7 +7067,7 @@ fn check_program_types(p: Program&, declarations_only: bool, scope_parents: i64[
     var checker_render_cache: RenderKey[>..] = []; var checker_render_hooks: i64[>..] = [];
     var parameter_default_contexts: CheckDefaultCapture[>..] = [];
     var logical_kills: CheckLogicalKill[>..] = [];
-    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_lists: checker_effect_lists, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, component_symbols: checker_component_symbols, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
+    var c = Checker { scopes: checker_scopes, variables: checker_variables, variable_lookup: checker_variable_lookup, roots: checker_roots, root_nodes: checker_root_nodes, root_symbols: checker_root_symbols, effects: checker_effects, effect_lists: checker_effect_lists, effect_keys: checker_effect_keys, effect_key_heads: checker_effect_key_heads, name_table: checker_name_table, link_scopes: checker_link_scopes, name_hashes: checker_name_hashes, linked: checker_linked, environments: checker_environments, environment_heads: checker_environment_heads, outer_exits: checker_outer_exits, syntax_nodes: checker_syntax_nodes, syntax_lookup: checker_syntax_lookup, node_nonnegative: checker_node_nonnegative, return_roots: checker_return_roots, return_root_lists: checker_return_root_lists, specializations: checker_specializations, bindings: checker_bindings, needs: checker_needs, need_frames: checker_need_frames, need_edges: checker_need_edges, contextual_floats: checker_contextual_floats, contextual_lookup: checker_contextual_lookup, checking: checker_checking, loop_stack: checker_loop_stack, integer_work: checker_integer_work, binding_work: checker_binding_work, flow_work: checker_flow_work, flow_trail: checker_flow_trail, flow_join: checker_flow_join, narrowed_variables: checker_narrowed_variables, outer_flows: checker_outer_flows, format_symbols: checker_format_symbols, operation_functions: checker_operation_functions, component_symbols: checker_component_symbols, exit_work: checker_exit_work, interval_work: checker_interval_work, render_cache: checker_render_cache, render_hooks: checker_render_hooks, parameter_default_contexts: parameter_default_contexts, logical_kills: logical_kills };
     c.scopes.push(CheckScope { parent: -1, function_node: -1 });
     var source_id = p.first_decl_source;
     while source_id >= 0 {
