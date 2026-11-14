@@ -8,7 +8,10 @@ import model;
 // A root struct's fields are stored apart: component names the field node of
 // the root owner whose storage this is, -1 the owner as a whole (upstream
 // RootComponent identities). Contents stay with the owner.
-struct LifeAlt { root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0, next: i64 = -1, component: i64 = -1 }
+// Every field is an ID or a depth well inside 32 bits (next indexes alts,
+// whose 2 GiB region holds fewer than 2^27 of them), so an alternative takes
+// 27 bytes instead of 51, and the region holds 79.5 M instead of 42.1 M.
+struct LifeAlt { root: i32, exact: bool = true, from: i32 = -1, slotread: bool = false, byteview: bool = false, target_type: i32 = -1, bound: i32 = 0, next: i32 = -1, component: i32 = -1 }
 // index: for a set of LIFE_BIG or more alternatives, a hashed root index in
 // set_index at index, of index_mask + 1 slots, made when the set is first
 // searched.
@@ -129,7 +132,7 @@ struct Lifetimes {
 fn life_set_hash(l: Lifetimes&, set: i64) -> i64 {
     var sum = 0; var at = l.sets[set].first;
     while at >= 0 {
-        let alt = l.alts[at]; var h = alt.root * 1000003 + alt.from * 8191 + alt.target_type * 131 + alt.bound * 31 + alt.component * 17;
+        let alt = l.alts[at]; var h = (alt.root as i64) * 1000003 + (alt.from as i64) * 8191 + (alt.target_type as i64) * 131 + (alt.bound as i64) * 31 + (alt.component as i64) * 17;
         if alt.exact { h += 1; } if alt.slotread { h += 2; } if alt.byteview { h += 4; }
         sum += h ^ (h >> 17); at = alt.next;
     }
@@ -298,7 +301,7 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
             var bucket = 0; var summary_key = -1; var indexed = -1;
             if external && l.discovery {
                 var key = frame * 1000003 + (effect.node + 1) * 97 + effect.kind * 17 + effect.cell + 1;
-                if effect.kind == 4 && effect.places != 0 { key += l.alts[l.sets[effect.places].first].root * 31; }
+                if effect.kind == 4 && effect.places != 0 { key += (l.alts[l.sets[effect.places].first].root as i64) * 31; }
                 bucket = key % l.summary_heads.len; summary_key = life_summary_key(effect, frame);
                 if life_effect_merge(l, effect, frame, bucket, summary_key) { external = false; }
             }
@@ -532,7 +535,7 @@ inline fn life_merged(old: LifeAlt, alt: LifeAlt) -> LifeAlt {
 fn life_insert(l: Lifetimes&, set: i64, alt: LifeAlt) {
     let old = life_find_linear(l, set, alt.root);
     if old >= 0 { l.alts[old] = life_merged(l.alts[old], alt); return; }
-    let index = l.alts.len; var entry = alt; entry.next = l.sets[set].first;
+    let index = l.alts.len; var entry = alt; entry.next = l.sets[set].first as i32;
     l.alts.push(entry); l.sets[set].first = index; l.sets[set].count += 1;
 }
 // Whether old, for the same root, already admits everything incoming does.
@@ -585,7 +588,7 @@ fn life_build_rehash(l: Lifetimes&, b: LifeBuild&, size: i64) {
     for index in b.base..end { l.build_slots[life_build_slot(l, b, l.build_alts[index].root)] = index; }
 }
 fn life_build_push(l: Lifetimes&, b: LifeBuild&, slot: i64, alt: LifeAlt, side: i64) {
-    var entry = alt; entry.next = side;
+    var entry = alt; entry.next = side as i32;
     l.build_slots[slot] = l.build_alts.len; l.build_alts.push(entry); b.size += 1;
     if 2 * b.size > b.mask + 1 { life_build_rehash(l, b, 2 * (b.mask + 1)); }
 }
@@ -697,7 +700,7 @@ fn life_list_set(l: Lifetimes&, start: i64) -> i64 {
     while at >= start {
         let a = l.scratch[at]; at -= 1;
         var flags = 0; if a.exact { flags += 1; } if a.slotread { flags += 2; } if a.byteview { flags += 4; }
-        for part in [a.root, a.from, a.target_type, a.bound, a.component, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+        for part in [a.root as i64, a.from as i64, a.target_type as i64, a.bound as i64, a.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
     }
     let key = (h >> 1) as! i64;
     if 2 * (l.list_sets.len + 1) > l.list_slots.len { life_list_rehash(l); }
@@ -710,7 +713,7 @@ fn life_list_set(l: Lifetimes&, start: i64) -> i64 {
         slot = (slot + 1) & mask;
     }
     var next = -1;
-    for item in start..l.scratch.len { var entry = l.scratch[item]; entry.next = next; next = l.alts.len; l.alts.push(entry); }
+    for item in start..l.scratch.len { var entry = l.scratch[item]; entry.next = next as i32; next = l.alts.len; l.alts.push(entry); }
     let index = l.sets.len; l.sets.push(LifeSet { first: next, count: count });
     l.list_slots[slot] = l.list_sets.len; l.list_sets.push(index); l.list_keys.push(key);
     return index;
@@ -754,7 +757,7 @@ fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slo
     }
     // A root's atoms hold distinct alternatives, so the one in its chain
     // that matches is the one atom_slots finds.
-    let wanted = LifeAlt { root: root, exact: exact, from: from, slotread: slotread, byteview: byteview, target_type: target_type, bound: bound, component: component };
+    let wanted = LifeAlt { root: root as i32, exact: exact, from: from as i32, slotread: slotread, byteview: byteview, target_type: target_type as i32, bound: bound as i32, component: component as i32 };
     if 2 * (l.atoms.len + 1) > l.atom_slots.len { life_atom_rehash(l); }
     let key = life_atom_hash(wanted); let mask = l.atom_slots.len - 1; var slot = key & mask;
     loop {
@@ -775,7 +778,7 @@ fn life_single(l: Lifetimes&, root: i64, exact: bool = true, from: i64 = -1, slo
 inline fn life_atom_hash(alt: LifeAlt) -> i64 {
     var flags = 0; if alt.exact { flags += 1; } if alt.slotread { flags += 2; } if alt.byteview { flags += 4; }
     var h: u64 = 1469598103934665603;
-    for part in [alt.root, alt.from, alt.target_type, alt.bound, alt.component, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+    for part in [alt.root as i64, alt.from as i64, alt.target_type as i64, alt.bound as i64, alt.component as i64, flags] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
     return (h >> 1) as! i64;
 }
 fn life_atom_rehash(l: Lifetimes&) {
@@ -802,7 +805,7 @@ fn life_interior(l: Lifetimes&, roots: i64) -> i64 {
 fn life_component(l: Lifetimes&, places: i64, field: i64) -> i64 {
     var out = LifeBuild {}; var at = l.sets[places].first;
     while at >= 0 {
-        var alt = l.alts[at]; at = alt.next; if alt.component < 0 { alt.component = field; }
+        var alt = l.alts[at]; at = alt.next; if alt.component < 0 { alt.component = field as i32; }
         alt.slotread = false; alt.target_type = -1; life_build_add_alt(l, out, alt);
     }
     return life_build_end(l, out);
@@ -957,7 +960,7 @@ fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
     if l.sets[sources].bound_depth == depth { return l.sets[sources].bound_result; }
     var build = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
-        var alt = l.alts[at]; at = alt.next; if depth > alt.bound { alt.bound = depth; }
+        var alt = l.alts[at]; at = alt.next; if depth > alt.bound { alt.bound = depth as i32; }
         life_build_add_alt(l, build, alt);
     }
     let result = life_build_end(l, build);
@@ -1796,7 +1799,7 @@ fn life_stored_roots(p: Program&, l: Lifetimes&, value: LifeValue) -> i64 {
     var contents = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
         var alt = l.alts[at]; at = alt.next;
-        alt.target_type = p.types[value.type_id].element; life_build_add_alt(l, contents, alt);
+        alt.target_type = p.types[value.type_id].element as i32; life_build_add_alt(l, contents, alt);
     }
     return life_build_end(l, contents);
 }
@@ -2118,7 +2121,7 @@ fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, 
     var result = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
         var alt = l.alts[at]; at = alt.next; let depth = l.roots[alt.root].depth;
-        if depth != 0 && depth > alt.bound { alt.bound = depth; }
+        if depth != 0 && depth > alt.bound { alt.bound = depth as i32; }
         life_build_add_alt(l, result, alt);
     }
     return life_build_end(l, result);
