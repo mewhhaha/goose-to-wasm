@@ -813,6 +813,12 @@ recursive fn cc_array_convert(p: Program&, f: CcBody&, value: i64, from: i64, to
     let source = cc_array_value_ref(p, f, value, from); let destination = cc_temporary_ref(f, result);
     let count = cc_temp(p, f, TYPE_I64); cc_set(f, count);
     cc_text(f.out, "g_len("); cc_id(f.out, "g_v", source); cc_text(f.out, ","); cc_array_args(p, f.out, from, false); cc_text(f.out, ");\n");
+    // An array whose static extent exceeds a static capacity is checked here,
+    // where the abort reports its line (§9.3).
+    if cc_kind(p, from) == TY_ARRAY && p.types[to].array_kind == A_LIMITED && p.types[to].count >= 0 && p.types[from].count > p.types[to].count {
+        cc_text(f.out, "if("); cc_id(f.out, "g_v", count); cc_text(f.out, ">"); cc_number(f.out, p.types[to].count);
+        cc_text(f.out, ")g_panic_at(\"limited array capacity exceeded\","); cc_location(p, f, node); cc_text(f.out, ");\n");
+    }
     if cc_image_type(p, to) || cc_size_class(p, p.types[to].element) == 1 {
         let source_element = p.types[from].element; let element = p.types[to].element;
         let run = cc_array_span(p, f, source, from, count); let raw = f.serial; f.serial++; var writer = destination;

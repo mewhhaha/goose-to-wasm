@@ -70345,6 +70345,326 @@
         "provenance": "Upstream goose_spec.md §6.5 at 2e2bede: a range's or count's index counts iterations as an i64; expected output from plain upstream 32a4f44 (goose run). Native C used to bind a range's index to its value."
     },
     {
+        "id": "corpus/contracts/upstream-differential/frozen-enum-assign",
+        "source": "tests/fixtures/contracts/upstream-differential/frozen-enum-assign.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "expect": {
+            "exit": 1,
+            "stderr_contains": [
+                "frozen at construction"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.4 at 2e2bede: variable-mode ADT lvalues are not assignable, frozen at construction, even with a fixed-size variant; plain upstream 32a4f44 rejects it (a value of type Event.. is frozen at construction). We used to accept it and drop the write."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/frozen-enum-reference",
+        "source": "tests/fixtures/contracts/upstream-differential/frozen-enum-reference.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "expect": {
+            "exit": 1,
+            "stderr_contains": [
+                "frozen at construction"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.4 at 2e2bede: variable-mode ADT lvalues are not assignable, frozen at construction, also through a reference parameter; plain upstream 32a4f44 rejects it (a value of type Event.. is frozen at construction). We used to accept it and crash natively."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/frozen-enum-field",
+        "source": "tests/fixtures/contracts/upstream-differential/frozen-enum-field.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "expect": {
+            "exit": 1,
+            "stderr_contains": [
+                "frozen at construction"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.4 at 2e2bede: variable-mode ADT lvalues are not assignable, frozen at construction, as is a struct field of that type; plain upstream 32a4f44 rejects it (a value of type Event.. is frozen at construction). We used to accept it."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/frozen-enum-assignable/native",
+        "source": "tests/fixtures/contracts/upstream-differential/frozen-enum-assignable.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "Event.Empty\nLog.Empty\nLines { 2, [3, 4] }\nData { 5 }\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.4 at 2e2bede: variable-mode ADT lvalues are not assignable, frozen at construction; a fixed-mode value, a variable-mode value holding a resizable tail, and a fixed-size payload field stay assignable; expected output from plain upstream 32a4f44 (goose run)."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/frozen-enum-assignable/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/frozen-enum-assignable.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "Event.Empty\nLog.Empty\nLines { 2, [3, 4] }\nData { 5 }\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.4 at 2e2bede: variable-mode ADT lvalues are not assignable, frozen at construction; a fixed-mode value, a variable-mode value holding a resizable tail, and a fixed-size payload field stay assignable; expected output from plain upstream 32a4f44 (goose run)."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/return-call-argument",
+        "source": "tests/fixtures/contracts/upstream-differential/return-call-argument.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "expect": {
+            "exit": 1,
+            "stderr_contains": [
+                "non-fixed storage requires explicit copy"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.1 and §7.3 at 2e2bede: a return, or a body's final expression, moves the function's own local only into the returned value; a named function's argument is a value-typed destination of its own; plain upstream 32a4f44 rejects `return count(a)` (a is not fixed-size and is not copied implicitly). We used to accept it."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/tail-call-argument",
+        "source": "tests/fixtures/contracts/upstream-differential/tail-call-argument.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0
+        ],
+        "expect": {
+            "exit": 1,
+            "stderr_contains": [
+                "non-fixed storage requires explicit copy"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.1 and §7.3 at 2e2bede: a return, or a body's final expression, moves the function's own local only into the returned value; plain upstream 32a4f44 rejects `1 + count(a)` as a final expression (a is not fixed-size and is not copied implicitly). We used to accept it."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/return-moves/native",
+        "source": "tests/fixtures/contracts/upstream-differential/return-moves.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2 3 1 2\n3 6\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.1 and §7.3 at 2e2bede: a return, or a body's final expression, moves the function's own local: into the returned value, its fields, elements and selected branches, and a block's argument within it, even under an operand or a named function's argument; expected output from plain upstream 32a4f44 (goose run)."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/return-moves/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/return-moves.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2 3 1 2\n3 6\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.1 and §7.3 at 2e2bede: a return, or a body's final expression, moves the function's own local: into the returned value, its fields, elements and selected branches, and a block's argument within it, even under an operand or a named function's argument; expected output from plain upstream 32a4f44 (goose run)."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/block-branch-return/native",
+        "source": "tests/fixtures/contracts/upstream-differential/block-branch-return.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "5 2\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.1 and §7.3 at 2e2bede: a return, or a body's final expression, moves the function's own local; a construct's branch naming that local may reach an untyped block parameter within the returned value; expected output from plain upstream 32a4f44 (goose run). We used to reject it."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/block-branch-return/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/block-branch-return.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "5 2\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.1 and §7.3 at 2e2bede: a return, or a body's final expression, moves the function's own local; a construct's branch naming that local may reach an untyped block parameter within the returned value; expected output from plain upstream 32a4f44 (goose run). We used to reject it."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/block-parameter-reference/native",
+        "source": "tests/fixtures/contracts/upstream-differential/block-parameter-reference.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "true\n[1, 2]\ntrue\n[7, 8]\n[3, 9]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.1 at 2e2bede: a non-fixed lvalue binds by reference when its destination is an untyped parameter (upstream 32a4f44 names a block's untyped parameter there too, §7.6); expected output from plain upstream 32a4f44 (goose run). We used to reject it as an implicit copy."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/block-parameter-reference/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/block-parameter-reference.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "true\n[1, 2]\ntrue\n[7, 8]\n[3, 9]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.1 at 2e2bede: a non-fixed lvalue binds by reference when its destination is an untyped parameter (upstream 32a4f44 names a block's untyped parameter there too, §7.6); expected output from plain upstream 32a4f44 (goose run). We used to reject it as an implicit copy."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/limited-capacity-stored/native",
+        "source": "tests/fixtures/contracts/upstream-differential/limited-capacity-stored.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2\n3\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "limited array capacity exceeded",
+                "limited-capacity-stored.goose:13)"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.2 and §9.3 at 2e2bede: only an array or string literal must fit a static limited capacity when compiled; limited-array capacity overflow is checked at run time; expected output and abort line from plain upstream 32a4f44 (goose run). We used to reject it when compiled."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/limited-capacity-stored/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/limited-capacity-stored.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2\n3\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "limited array capacity exceeded",
+                "(line 13)"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.2 and §9.3 at 2e2bede: only an array or string literal must fit a static limited capacity when compiled; limited-array capacity overflow is checked at run time; expected output and abort line from plain upstream 32a4f44 (goose run). We used to reject it when compiled."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/limited-capacity-unreached/native",
+        "source": "tests/fixtures/contracts/upstream-differential/limited-capacity-unreached.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.2 and §9.3 at 2e2bede: only an array or string literal must fit a static limited capacity when compiled; limited-array capacity overflow is checked at run time; expected output from plain upstream 32a4f44 (goose run). We used to reject it when compiled."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/limited-capacity-unreached/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/limited-capacity-unreached.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "0\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.2 and §9.3 at 2e2bede: only an array or string literal must fit a static limited capacity when compiled; limited-array capacity overflow is checked at run time; expected output from plain upstream 32a4f44 (goose run). We used to reject it when compiled."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/limited-capacity-default/native",
+        "source": "tests/fixtures/contracts/upstream-differential/limited-capacity-default.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "limited array capacity exceeded",
+                "limited-capacity-default.goose:9)"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.2 and §9.3 at 2e2bede: only an array or string literal must fit a static limited capacity when compiled; limited-array capacity overflow is checked at run time; default<T>() is a value, not a literal; expected output and abort line from plain upstream 32a4f44 (goose run). We used to reject it when compiled."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/limited-capacity-default/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/limited-capacity-default.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "2\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "limited array capacity exceeded",
+                "(line 9)"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §4.2 and §9.3 at 2e2bede: only an array or string literal must fit a static limited capacity when compiled; limited-array capacity overflow is checked at run time; default<T>() is a value, not a literal; expected output and abort line from plain upstream 32a4f44 (goose run). We used to reject it when compiled."
+    },
+    {
         "id": "corpus/contracts/unknown-types/reference-member",
         "source": "tests/fixtures/contracts/unknown-types/reference-member.goose",
         "phase": "type-error",

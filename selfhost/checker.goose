@@ -2221,6 +2221,17 @@ recursive fn check_exit_expect(p: Program&, c: Checker&, node: i64, target: i64,
     check_exit_expect(p, c, n.left, target, expected); check_exit_expect(p, c, n.right, target, expected);
     if n.kind != N_CALL { check_exit_expect(p, c, n.third, target, expected); }
 }
+// default<T>() of a fixed array is a value, not a literal: converting it to a
+// static capacity it exceeds aborts at run time like any stored array (§4.2,
+// §9.3). It keeps its own type, and the conversion checks its length.
+fn check_default_overflow(p: Program&, node: i64, source: i64, destination: i64) -> bool {
+    if node < 0 || source < 0 || destination < 0 { return false; }
+    let n = p.nodes[node];
+    if n.kind != N_ARRAY && n.kind != N_FILL || (n.flags & F_DEFAULT) == 0 { return false; }
+    let s = p.types[source]; let d = p.types[destination];
+    return s.kind == TY_ARRAY && s.array_kind == A_FIXED && d.kind == TY_ARRAY && d.array_kind == A_LIMITED &&
+        d.count >= 0 && s.count > d.count && check_same_type(p, s.element, d.element);
+}
 recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_type: i64, destination_type: i64) -> i64 {
     if destination_type < 0 || check_bottom(p, expression) { return 0; }
     if destination_type >= 0 && p.types[destination_type].kind == TY_INT && p.types[destination_type].index_type >= 0 {
@@ -2319,6 +2330,7 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
     }
     if (n.kind == N_ARRAY || n.kind == N_FILL) && s.kind == TY_ARRAY && (d.kind == TY_ARRAY || d.kind == TY_SLICE) {
         if d.kind == TY_ARRAY && d.array_kind == A_FIXED && s.count != d.count { return -1; }
+        if check_default_overflow(p, expression, source, destination) { return 3; }
         if d.kind == TY_ARRAY && d.array_kind == A_LIMITED && d.count >= 0 && s.count > d.count { return -1; }
         var element = n.first;
         while element >= 0 {
@@ -2337,7 +2349,8 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
     }
     if d.kind == TY_ARRAY && (s.kind == TY_ARRAY || s.kind == TY_SLICE) && check_same_type(p, s.element, d.element) {
         if d.array_kind == A_FIXED && s.count >= 0 && d.count != s.count { return -1; }
-        if d.array_kind == A_LIMITED && d.count >= 0 && s.count > d.count { return -1; }
+        // Only a literal must fit a static capacity when compiled (§4.2);
+        // a stored array's length is checked against it at run time (§9.3).
         return 3;
     }
     if n.kind == N_STRING && d.kind == TY_ARRAY && d.element == TYPE_U8 { return 2; }
@@ -2433,7 +2446,8 @@ recursive fn check_expect(p: Program&, c: Checker&, expression: i64, source: i64
     if p.types[expected].kind == TY_SLICE && (branch.kind == N_BLOCK || branch.kind == N_IF || branch.kind == N_MATCH) && check_branch_array_literal(p, expression) {
         diagnose(p, branch.token, "control-flow slice result refers to a branch temporary");
     }
-    if (branch.kind == N_ARRAY || branch.kind == N_FILL) && (p.types[expected].kind == TY_ARRAY || p.types[expected].kind == TY_SLICE) {
+    if (branch.kind == N_ARRAY || branch.kind == N_FILL) && (p.types[expected].kind == TY_ARRAY || p.types[expected].kind == TY_SLICE) &&
+       !check_default_overflow(p, expression, source, expected) {
         p.nodes[expression].type_id = check_array(p, c, expression, expected); return expected;
     }
     if branch.kind == N_BLOCK && (branch.flags & F_TAIL) != 0 && branch.last >= 0 {
@@ -4177,6 +4191,11 @@ fn check_argument_inference(p: Program&, c: Checker&, node: i64, formal: i64, fu
         if (n.kind == N_IF || n.kind == N_MATCH || n.kind == N_BLOCK || n.kind == N_LOOP) && p.types[actual].kind == TY_REF && (p.types[actual].flags & TF_OPTIONAL) == 0 {
             return p.types[actual].element;
         }
+        // A non-fixed lvalue binds an untyped block parameter by reference (§4.1).
+        if p.types[actual].kind != TY_REF && check_size_class(p, actual, 0) > 0 && check_addressable(p, node) {
+            var flags = 0; if check_readonly(p, c, node) { flags |= TF_CONST; }
+            return check_type(p, TY_REF, actual, 0, -1, flags);
+        }
         return actual;
     }
     if actual < 0 || formal < 0 || p.types[formal].kind != TY_GENERIC { return actual; }
@@ -4472,9 +4491,11 @@ recursive fn check_narrow_context_float(p: Program&, c: Checker&, node: i64) -> 
     let function_node = p.symbols[symbol].node;
     p.nodes[node].symbol = symbol; p.nodes[p.nodes[node].left].symbol = symbol;
     var parameter = p.nodes[function_node].first; var argument = p.nodes[node].first;
+    // Only a named function narrows here; its arguments are not returned (§4.1).
+    let returning = c.returning;
     while parameter >= 0 && argument >= 0 {
         check_value(p, c, argument, p.nodes[parameter].type_id);
-        check_slot_value(p, c, argument, p.nodes[parameter].type_id);
+        c.returning = false; check_slot_value(p, c, argument, p.nodes[parameter].type_id); c.returning = returning;
         parameter = p.nodes[parameter].next; argument = p.nodes[argument].next;
     }
     p.nodes[node].type_id = p.types[p.symbols[symbol].type_id].element;
@@ -4802,9 +4823,9 @@ recursive fn check_member_function(p: Program&, c: Checker&, token: i64, receive
     return check_lookup(p, c, token, scope, S_FUNCTION);
 }
 
-// An untyped block parameter receives the construct's copied value.
-// Direct reference arguments and explicitly typed reference parameters retain
-// their ordinary borrowing path.
+// An untyped block parameter receives the construct's copied value. A
+// non-fixed lvalue binds it by reference instead (check_argument_inference),
+// as reference arguments and explicitly typed reference parameters do.
 recursive fn check_funval_copy(p: Program&, c: Checker&, node: i64, expected: i64) {
     if node < 0 || check_bottom(p, node) || expected < 0 || p.types[expected].kind == TY_REF || check_size_class(p, expected, 0) == 0 { return; }
     let n = p.nodes[node];
@@ -4819,7 +4840,11 @@ recursive fn check_funval_copy(p: Program&, c: Checker&, node: i64, expected: i6
     if n.kind == N_MATCH { var arm = n.first; while arm >= 0 { check_funval_copy(p, c, p.nodes[arm].right, expected); arm = p.nodes[arm].next; } return; }
     var source = n.type_id;
     if source >= 0 && p.types[source].kind == TY_REF && (p.types[source].flags & TF_OPTIONAL) == 0 { source = p.types[source].element; }
-    if source >= 0 && check_size_class(p, source, 0) > 0 && (check_addressable(p, node) || n.type_id >= 0 && p.types[n.type_id].kind == TY_REF) {
+    // Within the returned value, a branch may name the function's own local,
+    // which the return moves (upstream accepts it there, as for a call's own
+    // block argument).
+    if source >= 0 && check_size_class(p, source, 0) > 0 && (check_addressable(p, node) || n.type_id >= 0 && p.types[n.type_id].kind == TY_REF) &&
+       !(c.returning && check_own_local(p, c, node)) {
         diagnose(p, n.token, "non-fixed storage requires explicit copy when passed or stored by value");
     }
 }
@@ -4939,8 +4964,15 @@ recursive fn check_call(p: Program&, c: Checker&, node: i64, expected: i64) -> i
             let saved_render_reference = c.render_reference;
             c.render_reference = (p.nodes[function_node].flags & F_FORMAT_RAW) != 0;
             if p.nodes[original].kind == N_FUNCTION_VALUE && p.nodes[formal].left < 0 { check_funval_copy(p, c, value, p.nodes[formal].type_id); }
-            check_value(p, c, value, p.nodes[formal].type_id); check_slot_value(p, c, value, p.nodes[formal].type_id);
-            c.render_reference = saved_render_reference;
+            check_value(p, c, value, p.nodes[formal].type_id);
+            // A named function's argument is never the returned value, so a
+            // return does not move a local into it (§4.1); upstream keeps that
+            // move for a block's argument within the returned expression, and
+            // for what the argument itself constructs.
+            let returning = c.returning;
+            if p.nodes[original].kind != N_FUNCTION_VALUE { c.returning = false; }
+            check_slot_value(p, c, value, p.nodes[formal].type_id);
+            c.returning = returning; c.render_reference = saved_render_reference;
             if value == n.third {
                 if last < 0 { p.nodes[node].first = value; } else { p.nodes[last].next = value; }
                 p.nodes[node].third = -1;

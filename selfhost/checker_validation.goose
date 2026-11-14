@@ -258,8 +258,10 @@ recursive fn validation_frozen(p: Program&, type_id: i64, depth: i64 = 0) -> boo
     let t = p.types[type_id];
     if t.storage == 1 || t.kind == TY_REF && t.length_storage == 0 { return true; }
     if t.kind == TY_ARRAY { return t.array_kind == A_VAR; }
-    if t.kind == TY_ENUM && (t.flags & F_VARIABLE_MODE) == 0 { return false; }
-    if t.kind == TY_STRUCT || t.kind == TY_ENUM {
+    // A variable-mode ADT is frozen whatever its payloads hold (§4.4); one
+    // holding a resizable tail is assignable, as returned above.
+    if t.kind == TY_ENUM { return (t.flags & F_VARIABLE_MODE) != 0; }
+    if t.kind == TY_STRUCT {
         var field = t.first;
         while field >= 0 {
             if validation_frozen(p, p.nodes[field].type_id, depth + 1) { return true; }

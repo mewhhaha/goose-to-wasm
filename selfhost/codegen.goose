@@ -395,6 +395,14 @@ recursive fn cg_convert(p: Program&, m: CgModule&, f: CgBody&, from: i64, to: i6
     }
     if cg_type_kind(p, to) == TY_ARRAY && (cg_type_kind(p, from) == TY_SLICE || cg_type_kind(p, from) == TY_ARRAY) && from != to {
         if cg_type_kind(p, from) == TY_ARRAY { cg_pack_view(p, m, f, from, node); }
+        // An array whose static extent exceeds a static capacity is checked
+        // here, with upstream's message (§9.3).
+        if cg_type_kind(p, from) == TY_ARRAY && p.types[to].array_kind == A_LIMITED && p.types[to].count >= 0 && !cg_owner(p, to) &&
+           p.types[from].count > p.types[to].count {
+            let view = cg_save(f, 0x7e);
+            cg_get(f, view); wb_i64(f.code, 32); wb_byte(f.code, 0x88); wb_byte(f.code, 0xa7); wb_i32(f.code, p.types[to].count); wb_byte(f.code, 0x4b);
+            cg_trap_if(p, m, f, node, "limited array capacity exceeded"); cg_get(f, view);
+        }
         cg_array_from_view(p, m, f, to, node); return;
     }
     let a = cg_wasm_type(p, from); let b = cg_wasm_type(p, to);
