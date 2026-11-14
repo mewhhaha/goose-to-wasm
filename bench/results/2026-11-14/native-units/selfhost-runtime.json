@@ -1,0 +1,204 @@
+{
+  "workload": [
+    "selfhost/main.goose",
+    "--stdlib",
+    "stdlib",
+    "--target",
+    "native",
+    "--check"
+  ],
+  "results": {
+    "../../scratch/rt/program.single": {
+      "wall": 26.129,
+      "user": 25.975,
+      "instructions": 126087990970,
+      "cycles": 96221591893,
+      "samples": [
+        {
+          "instructions": 126087989886,
+          "cycles": 96221591893,
+          "wall": 26.129,
+          "user": 25.975,
+          "status": 0,
+          "load1": 9.76220703125
+        },
+        {
+          "instructions": 126087990024,
+          "cycles": 88216665197,
+          "wall": 23.634,
+          "user": 23.47,
+          "status": 0,
+          "load1": 5.1865234375
+        },
+        {
+          "instructions": 126087992195,
+          "cycles": 89380808389,
+          "wall": 24.446,
+          "user": 24.074,
+          "status": 0,
+          "load1": 5.1630859375
+        },
+        {
+          "instructions": 126087990970,
+          "cycles": 100651033617,
+          "wall": 28.202,
+          "user": 28.013,
+          "status": 0,
+          "load1": 7.19287109375
+        },
+        {
+          "instructions": 126087992513,
+          "cycles": 99251835081,
+          "wall": 27.83,
+          "user": 27.655,
+          "status": 0,
+          "load1": 7.24072265625
+        }
+      ]
+    },
+    "../../scratch/rt/program.4": {
+      "wall": 28.091,
+      "user": 27.904,
+      "instructions": 129013500095,
+      "cycles": 100597471068,
+      "samples": [
+        {
+          "instructions": 129013496822,
+          "cycles": 97710271153,
+          "wall": 26.533,
+          "user": 26.369,
+          "status": 0,
+          "load1": 8.2734375
+        },
+        {
+          "instructions": 129013497343,
+          "cycles": 86517151521,
+          "wall": 23.225,
+          "user": 23.049,
+          "status": 0,
+          "load1": 5.60546875
+        },
+        {
+          "instructions": 129013504593,
+          "cycles": 121239288150,
+          "wall": 33.363,
+          "user": 33.033,
+          "status": 0,
+          "load1": 6.2197265625
+        },
+        {
+          "instructions": 129013500095,
+          "cycles": 100597471068,
+          "wall": 28.091,
+          "user": 27.904,
+          "status": 0,
+          "load1": 7.1455078125
+        },
+        {
+          "instructions": 129013500192,
+          "cycles": 106964864965,
+          "wall": 30.052,
+          "user": 29.835,
+          "status": 0,
+          "load1": 7.1572265625
+        }
+      ]
+    },
+    "../../scratch/rt/program.8": {
+      "wall": 28.037,
+      "user": 27.862,
+      "instructions": 129064711972,
+      "cycles": 100782744897,
+      "samples": [
+        {
+          "instructions": 129064702568,
+          "cycles": 88127078961,
+          "wall": 22.744,
+          "user": 22.601,
+          "status": 0,
+          "load1": 7.291015625
+        },
+        {
+          "instructions": 129064711902,
+          "cycles": 90602747881,
+          "wall": 24.331,
+          "user": 24.186,
+          "status": 0,
+          "load1": 6.2431640625
+        },
+        {
+          "instructions": 129064716490,
+          "cycles": 106529754016,
+          "wall": 29.261,
+          "user": 29.075,
+          "status": 0,
+          "load1": 7.62060546875
+        },
+        {
+          "instructions": 129064711972,
+          "cycles": 100782744897,
+          "wall": 28.037,
+          "user": 27.862,
+          "status": 0,
+          "load1": 7.2314453125
+        },
+        {
+          "instructions": 129064718385,
+          "cycles": 110180700206,
+          "wall": 31.189,
+          "user": 30.951,
+          "status": 0,
+          "load1": 7.595703125
+        }
+      ]
+    },
+    "../../scratch/rt/program.16": {
+      "wall": 28.66,
+      "user": 28.434,
+      "instructions": 129069724760,
+      "cycles": 103348666637,
+      "samples": [
+        {
+          "instructions": 129069715763,
+          "cycles": 78417958947,
+          "wall": 21.252,
+          "user": 21.108,
+          "status": 0,
+          "load1": 6.2470703125
+        },
+        {
+          "instructions": 129069719422,
+          "cycles": 86934023045,
+          "wall": 23.527,
+          "user": 23.385,
+          "status": 0,
+          "load1": 5.73876953125
+        },
+        {
+          "instructions": 129069727218,
+          "cycles": 105497217182,
+          "wall": 29.1,
+          "user": 28.911,
+          "status": 0,
+          "load1": 7.634765625
+        },
+        {
+          "instructions": 129069724760,
+          "cycles": 103348666637,
+          "wall": 28.66,
+          "user": 28.434,
+          "status": 0,
+          "load1": 7.38330078125
+        },
+        {
+          "instructions": 129069730965,
+          "cycles": 109158174010,
+          "wall": 30.956,
+          "user": 30.717,
+          "status": 0,
+          "load1": 7.89794921875
+        }
+      ]
+    }
+  }
+}

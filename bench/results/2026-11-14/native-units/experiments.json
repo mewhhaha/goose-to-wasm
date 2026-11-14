@@ -1,0 +1,29 @@
+{
+  "schema": "goose-native-units-experiments-v1",
+  "collected": "2026-11-13, before rebasing onto f3b4248",
+  "source": "feature/parallel-native-build on e6248ea (commits 38ba603 and 50db8c9 before the rebase)",
+  "compiler_c": "selfhost C emitted by the branch's own compiler at -O2, built with clang 23.1.4 -std=gnu11 -O2 -fno-strict-aliasing -ffp-contract=off, no profile",
+  "workload": "goose selfhost/main.goose --stdlib stdlib --target native --check on the frozen e6248ea selfhost, native and stdlib trees",
+  "metric": "user-space instructions from perf_event_open, deterministic across samples; one sample each, since repeated samples matched exactly",
+  "load": "1-minute load average 15-34 from other agents on the 16-thread machine; instruction counts do not depend on it",
+  "rows": [
+    {"variant": "one unit, functions and state static (single TU)", "instructions": 194440825625},
+    {"variant": "G_UNITS=1: one program unit beside the runtime unit", "instructions_note": "equal to single TU (199690020019 vs 199690020019 on the then-current sources workload)"},
+    {"variant": "8 units, every program function hidden extern (no G_LOCAL)", "relative_instructions": 1.0444, "note": "measured on the then-current sources workload: 208578037952 vs 199704593784"},
+    {"variant": "8 units, G_LOCAL (functions named only in their unit stay static)", "instructions": 200461105556, "relative_instructions": 1.0310},
+    {"variant": "4 units, G_LOCAL plus static copies of functions up to 4 KiB of C", "instructions": 200388238742, "relative_instructions": 1.0306},
+    {"variant": "8 units, G_LOCAL plus copies", "instructions": 200450412194, "relative_instructions": 1.0309},
+    {"variant": "16 units, G_LOCAL plus copies", "instructions": 200454927828, "relative_instructions": 1.0309},
+    {"variant": "single TU, all G_SHARED state hidden extern instead of static", "instructions": 199123691884, "relative_instructions": 1.0241},
+    {"variant": "single TU, only storage.h state hidden extern", "instructions": 194440204931, "relative_instructions": 1.0000},
+    {"variant": "single TU, only program globals hidden extern", "instructions": 196012527005, "relative_instructions": 1.0081}
+  ],
+  "build_copies_variant_clang_O2_seconds": {
+    "note": "selfhost C with copies (38.9 MB), 3 interleaved rounds, load 18-34",
+    "single": {"wall": [202.5, 172.1, 149.3], "user": [175.3, 158.5, 142.4]},
+    "4": {"wall": [67.5, 61.1, 57.0], "user": [178.8, 174.4, 162.7]},
+    "8": {"wall": [35.6, 38.4, 33.2], "user": [175.1, 174.5, 172.5]},
+    "16": {"wall": [29.7, 32.0, 30.3], "user": [184.3, 185.8, 186.6]}
+  },
+  "runtime_unit_compile_seconds": {"clang_O2_prefix": 0.76, "clang_O2_whole_file_skipped": 1.04, "gcc_O2_prefix": 1.30}
+}
