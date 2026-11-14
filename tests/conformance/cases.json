@@ -70313,6 +70313,38 @@
         "provenance": "Independently specified root struct v1 storage (upstream docs/design/root_structs.md: independent components, owner references, scope release); expected output derived by hand from the source: an encoded integer component; plain upstream 32a4f44 prints the same"
     },
     {
+        "id": "corpus/contracts/range-index/iterations/native",
+        "source": "tests/fixtures/contracts/range-index/iterations.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "567 12\n-3@0 -2@1 -1@2 0@3 \n10@0 11@1 13@3 14@4 16@6 \n1806\n2-1:00 20:01 3-1:10 30:11 \n0@0 1@1 2@2 \n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §6.5 at 2e2bede: a range's or count's index counts iterations as an i64; expected output from plain upstream 32a4f44 (goose run). Native C used to bind a range's index to its value."
+    },
+    {
+        "id": "corpus/contracts/range-index/iterations/wasm-direct",
+        "source": "tests/fixtures/contracts/range-index/iterations.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "567 12\n-3@0 -2@1 -1@2 0@3 \n10@0 11@1 13@3 14@4 16@6 \n1806\n2-1:00 20:01 3-1:10 30:11 \n0@0 1@1 2@2 \n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §6.5 at 2e2bede: a range's or count's index counts iterations as an i64; expected output from plain upstream 32a4f44 (goose run). Native C used to bind a range's index to its value."
+    },
+    {
         "id": "corpus/contracts/unknown-types/reference-member",
         "source": "tests/fixtures/contracts/unknown-types/reference-member.goose",
         "phase": "type-error",

@@ -1621,10 +1621,12 @@ recursive fn cc_loop(p: Program&, f: CcBody&, node: i64) -> i64 {
     if n.kind == N_FOR {
         let binding = n.first; let index_binding = p.nodes[binding].next;
         let iterable = p.nodes[n.left]; var counter = -1; var end = -1; var base = -1; var array = iterable.type_id; var cursor = -1; var origin = -1;
-        var count_type = iterable.type_id;
+        var count_type = iterable.type_id; var start = -1;
         while cc_kind(p, count_type) == TY_REF { count_type = p.types[count_type].element; }
         if iterable.kind == N_RANGE {
             counter = cc_to(p, f, iterable.left, TYPE_I64); end = cc_to(p, f, iterable.right, TYPE_I64);
+            // A range's index counts iterations from 0 (upstream §6.5), not the value.
+            if index_binding >= 0 { start = cc_temp(p, f, TYPE_I64); cc_set(f, start); cc_id(f.out, "g_v", counter); cc_text(f.out, ";\n"); }
         } else if cc_kind(p, count_type) == TY_INT {
             if cc_kind(p, iterable.type_id) == TY_REF {
                 var place = cc_base_place(p, f, n.left);
@@ -1673,7 +1675,9 @@ recursive fn cc_loop(p: Program&, f: CcBody&, node: i64) -> i64 {
         } else {
             cc_id(f.out, "g_s", p.nodes[binding].symbol); cc_text(f.out, "="); cc_id(f.out, "g_v", counter); cc_text(f.out, ";\n");
         }
-        if index_binding >= 0 {
+        if index_binding >= 0 && start >= 0 {
+            f.out.format("g_s", p.nodes[index_binding].symbol, "=(int64_t)((uint64_t)g_v", counter, "-(uint64_t)g_v", start, ");\n");
+        } else if index_binding >= 0 {
             cc_id(f.out, "g_s", p.nodes[index_binding].symbol); cc_text(f.out, "="); cc_id(f.out, "g_v", counter); cc_text(f.out, ";\n");
         }
         cc_expr(p, f, n.right); cc_id(f.out, "g_label", again); cc_text(f.out, ":;\n");
