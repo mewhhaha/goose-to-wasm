@@ -106,6 +106,8 @@ struct Lifetimes {
     atom_slots: LifeAtomSlot[>..]&,
     // Per cell (life_candidates).
     cell_keys: LifeCellKey[>..]&,
+    // Class tables of life_classes_cover, as a stack: alternative and hash.
+    class_slots: i64[>..]&,
     // Recent joins of large sets, direct-mapped, and how many were recorded
     // since the table last grew. Sets never change and equal lists are one
     // set, so a join of the same two sets is the same set again.
@@ -1989,7 +1991,61 @@ fn life_root_class(p: Program&, l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
     if y.symbol >= 0 && (p.symbols[y.symbol].flags & S_CAPTURE) != 0 { return x.symbol == y.symbol; }
     return true;
 }
+// A hash of what life_root_class compares, so alternatives of one class
+// hash alike: the flags, then a root that is static or in no frame by
+// itself, or else whether it is a temporary, its type as life_same compares
+// types, and its symbol where that is a captured binding.
+fn life_class_hash(p: Program&, l: Lifetimes&, a: LifeAlt) -> i64 {
+    var flags = 0; if a.exact { flags += 1; } if a.slotread { flags += 2; } if a.byteview { flags += 4; }
+    let root = l.roots[a.root]; var tag = 1; var x: i64 = a.root; var y: i64 = 0; var z: i64 = 0; var w: i64 = 0; var v: i64 = -1;
+    if a.root != 0 && root.frame != 0 {
+        tag = 2; x = 0; if root.temporary { x = 1; }
+        let ty = root.type_id; y = -1;
+        if ty >= 0 {
+            let t: const Type& = p.types[ty]; y = t.kind + 1;
+            if t.kind == TY_STRUCT || t.kind == TY_ENUM { z = t.declaration; }
+            else if t.kind == TY_INT { z = t.count * 2 + (t.flags & TF_UNSIGNED); }
+            else if t.kind == TY_FLOAT { z = t.count; }
+            else if t.kind == TY_ARRAY { z = t.array_kind; w = t.element; }
+            else if t.kind == TY_REF || t.kind == TY_SLICE { z = t.element; }
+        }
+        if root.symbol >= 0 && (p.symbols[root.symbol].flags & S_CAPTURE) != 0 { v = root.symbol; }
+    }
+    var h: u64 = 1469598103934665603;
+    for part in [flags, tag, x, y, z, w, v] { h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29; }
+    return (h >> 1) as! i64;
+}
+// Whether every alternative of a has one of its class in b, as
+// life_class_sets_equal asks it, through a table of b's class hashes.
+fn life_classes_cover(p: Program&, l: Lifetimes&, a: i64, b: i64) -> bool {
+    var size: i64 = 64; while size < 2 * l.sets[b].count { size <<= 1; }
+    let table = l.class_slots.len; l.class_slots.resize(table + 2 * size, -1); let mask = size - 1;
+    var bi = l.sets[b].first;
+    while bi >= 0 {
+        let key = life_class_hash(p, l, l.alts[bi]); var slot = key & mask;
+        while l.class_slots[table + 2 * slot] >= 0 { slot = (slot + 1) & mask; }
+        l.class_slots[table + 2 * slot] = bi; l.class_slots[table + 2 * slot + 1] = key; bi = l.alts[bi].next;
+    }
+    var covered = true; var ai = l.sets[a].first;
+    while ai >= 0 && covered {
+        let x = l.alts[ai]; let key = life_class_hash(p, l, x); var slot = key & mask; var found = false;
+        loop {
+            let entry = l.class_slots[table + 2 * slot];
+            if entry < 0 { break; }
+            if l.class_slots[table + 2 * slot + 1] == key && life_root_class(p, l, x, l.alts[entry]) { found = true; break; }
+            slot = (slot + 1) & mask;
+        }
+        if !found { covered = false; }
+        ai = x.next;
+    }
+    l.class_slots.resize(table, -1);
+    return covered;
+}
 fn life_class_sets_equal(p: Program&, l: Lifetimes&, a: i64, b: i64) -> bool {
+    // life_root_class is an equivalence: equal hashes of its fields, then
+    // the test itself, find what the scans below would.
+    if a == b { return true; }
+    if l.sets[a].count * l.sets[b].count > 256 { return life_classes_cover(p, l, a, b) && life_classes_cover(p, l, b, a); }
     var ai = l.sets[a].first;
     while ai >= 0 {
         var found = false; var bi = l.sets[b].first;
@@ -3140,13 +3196,13 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
     var live_bits: u64[>..] = []; var live_words: u64[>..] = [];
-    var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+    var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
-        live_bits: live_bits, live_words: live_words, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
+        live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
