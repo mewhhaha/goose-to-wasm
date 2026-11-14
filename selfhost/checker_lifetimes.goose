@@ -591,6 +591,40 @@ fn life_build_add(l: Lifetimes&, b: LifeBuild&, set: i64) {
     }
     life_build_step(l, b, set);
 }
+// out = life_join(l, out, life_single(l, ...alt)), without making that
+// single-alternative set: the same list and order, from the alternative.
+fn life_build_add_alt(l: Lifetimes&, b: LifeBuild&, alt: LifeAlt) {
+    if b.base < 0 {
+        let count = l.sets[b.set].count;
+        if count < LIFE_BIG {
+            if b.set == 0 { b.set = life_alt_set(l, alt); return; }
+            let existing = life_find_linear(l, b.set, alt.root);
+            if existing >= 0 && life_covers(l.alts[existing], alt) { return; }
+            if count + 1 < LIFE_BIG {
+                let start = l.scratch.len; var at = l.sets[b.set].first;
+                while at >= 0 { l.scratch.push(l.alts[at]); at = l.alts[at].next; }
+                life_scratch_insert(l, start, alt);
+                b.set = life_list_set(l, start); l.scratch.resize(start);
+                return;
+            }
+        } else {
+            let existing = life_find(l, b.set, alt.root);
+            if existing >= 0 && life_covers(l.alts[existing], alt) { return; }
+        }
+        life_build_open(l, b);
+    }
+    let slot = life_build_slot(l, b, alt.root); let existing = l.build_slots[slot];
+    if existing >= 0 && life_covers(l.build_alts[existing], alt) { return; }
+    b.fresh = true; b.flipped = !b.flipped;
+    if existing >= 0 { var merged = life_merged(l.build_alts[existing], alt); merged.next = l.build_alts[existing].next; l.build_alts[existing] = merged; }
+    else { var side = 0; if b.flipped { side = 1; } life_build_push(l, b, slot, alt, side); }
+}
+// A set of one alternative.
+fn life_alt_set(l: Lifetimes&, alt: LifeAlt) -> i64 {
+    let start = l.scratch.len; l.scratch.push(alt);
+    let set = life_list_set(l, start); l.scratch.resize(start);
+    return set;
+}
 // The same for an open build.
 fn life_build_step(l: Lifetimes&, b: LifeBuild&, set: i64) {
     var at = l.sets[set].first;
@@ -747,7 +781,7 @@ inline fn life_root_set(l: Lifetimes&, root: i64) -> i64 {
 }
 fn life_interior(l: Lifetimes&, roots: i64) -> i64 {
     var out = LifeBuild {}; var at = l.sets[roots].first;
-    while at >= 0 { let alt = l.alts[at]; life_build_add(l, out, life_single(l, alt.root, alt.exact, alt.from, false, alt.byteview, -1, alt.bound, alt.component)); at = alt.next; }
+    while at >= 0 { var alt = l.alts[at]; at = alt.next; alt.slotread = false; alt.target_type = -1; life_build_add_alt(l, out, alt); }
     return life_build_end(l, out);
 }
 // A field of a root owner is that owner's own component; any other field
@@ -755,8 +789,8 @@ fn life_interior(l: Lifetimes&, roots: i64) -> i64 {
 fn life_component(l: Lifetimes&, places: i64, field: i64) -> i64 {
     var out = LifeBuild {}; var at = l.sets[places].first;
     while at >= 0 {
-        let alt = l.alts[at]; var component = alt.component; if component < 0 { component = field; }
-        life_build_add(l, out, life_single(l, alt.root, alt.exact, alt.from, false, alt.byteview, -1, alt.bound, component)); at = alt.next;
+        var alt = l.alts[at]; at = alt.next; if alt.component < 0 { alt.component = field; }
+        alt.slotread = false; alt.target_type = -1; life_build_add_alt(l, out, alt);
     }
     return life_build_end(l, out);
 }
@@ -895,8 +929,8 @@ fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
     if l.sets[sources].bound_depth == depth { return l.sets[sources].bound_result; }
     var build = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
-        var alt = l.alts[at]; if depth > alt.bound { alt.bound = depth; }
-        life_build_add(l, build, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound, alt.component)); at = alt.next;
+        var alt = l.alts[at]; at = alt.next; if depth > alt.bound { alt.bound = depth; }
+        life_build_add_alt(l, build, alt);
     }
     let result = life_build_end(l, build);
     l.sets[sources].bound_depth = depth; l.sets[sources].bound_result = result;
@@ -1287,15 +1321,14 @@ fn life_alias(l: Lifetimes&, a: LifeAlt, b: LifeAlt) -> bool {
 }
 fn life_overlaps(l: Lifetimes&, a: i64, b: i64, slot_safe: bool = false) -> bool {
     var ai = l.sets[a].first;
-    while ai >= 0 {
-        let x = l.alts[ai]; var bi = l.sets[b].first;
-        while bi >= 0 {
-            let y = l.alts[bi];
-            if !(slot_safe && x.slotread) && life_alias(l, x, y) { return true; }
-            bi = y.next;
-        }
-        ai = x.next;
-    }
+    while ai >= 0 { let x = l.alts[ai]; if life_alt_overlaps(l, x, b, slot_safe) { return true; } ai = x.next; }
+    return false;
+}
+// life_overlaps for a set of the one alternative x.
+fn life_alt_overlaps(l: Lifetimes&, x: LifeAlt, b: i64, slot_safe: bool = false) -> bool {
+    if slot_safe && x.slotread { return false; }
+    var bi = l.sets[b].first;
+    while bi >= 0 { let y = l.alts[bi]; if life_alias(l, x, y) { return true; } bi = y.next; }
     return false;
 }
 fn life_holder_views(p: Program&, l: Lifetimes&, holder: i64, element: i64) -> bool {
@@ -1357,7 +1390,7 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
                     let alt = l.alts[ai]; ai = alt.next; let storage = l.roots[alt.root];
                     if !alt.byteview && (!life_contains(p, l, storage.type_id, t.element) || alt.target_type >= 0 && !life_same(p, alt.target_type, t.element)) { continue; }
                     if (alt.byteview || life_contains(p, l, element, t.element)) &&
-                       life_overlaps(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, -1, alt.bound, alt.component), target, slot_safe) { return true; }
+                       life_alt_overlaps(l, alt, target, slot_safe) { return true; }
                     if life_holds(p, t.element) {
                         var seen = false; for old in work { if old.root == alt.root && old.type_id == t.element { seen = true; } }
                         if !seen { work.push(LifeWalk { root: alt.root, type_id: t.element }); }
@@ -1579,7 +1612,7 @@ fn life_candidates(p: Program&, l: Lifetimes&, pointee: i64, depth: i64, globals
                 var at = l.sets[l.cells[index].refs].first;
                 while at >= 0 {
                     let alt = l.alts[at];
-                    if l.roots[alt.root].depth <= depth { life_build_add(l, out, life_single(l, alt.root, alt.exact, alt.from, false, false, -1, alt.bound)); }
+                    if l.roots[alt.root].depth <= depth { life_build_add_alt(l, out, LifeAlt { root: alt.root, exact: alt.exact, from: alt.from, bound: alt.bound }); }
                     at = alt.next;
                 }
             }
@@ -1600,7 +1633,7 @@ fn life_class_candidates(p: Program&, l: Lifetimes&, owner: i64, pointee: i64) -
         let cell = l.cells[ci]; let ty = p.symbols[cell.symbol].type_id;
         if cell.parameter && ty >= 0 && p.types[ty].kind == TY_REF && life_contains(p, l, p.types[ty].element, pointee) {
             var at = l.sets[cell.refs].first;
-            while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { life_build_add(l, result, life_single(l, alt.root, alt.exact, -1, false, false, -1, alt.bound, alt.component)); } at = alt.next; }
+            while at >= 0 { let alt = l.alts[at]; if l.roots[alt.root].depth <= l.roots[owner].depth { life_build_add_alt(l, result, LifeAlt { root: alt.root, exact: alt.exact, bound: alt.bound, component: alt.component }); } at = alt.next; }
         }
         ci = cell.next_frame;
     }
@@ -1649,7 +1682,7 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
                 // Caller storage bounds a read-back's lifetime, while the
                 // actual referent remains available for alias/shrink checks.
                 if alt.bound > bound { bound = alt.bound; }
-                life_build_add(l, result, life_single(l, r.root, r.exact, alt.root, slotread, r.byteview, r.target_type, bound, r.component));
+                life_build_add_alt(l, result, LifeAlt { root: r.root, exact: r.exact, from: alt.root, slotread: slotread, byteview: r.byteview, target_type: r.target_type, bound: bound, component: r.component });
             }
         }
         l.scratch.resize(start);
@@ -1667,14 +1700,14 @@ fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool =
         while at >= 0 {
             let alt = l.alts[at]; let root = l.roots[alt.root];
             if root.symbol >= 0 && (p.symbols[root.symbol].flags & (S_GLOBAL | S_MUTABLE)) == (S_GLOBAL | S_MUTABLE) {
-                life_build_add(l, mutable, life_single(l, alt.root, false, -1, slot, false, -1, alt.bound));
+                life_build_add_alt(l, mutable, LifeAlt { root: alt.root, exact: false, slotread: slot, bound: alt.bound });
             }
             at = alt.next;
         }
         out.contents = life_build_end(l, mutable);
         if slot {
             var contents = LifeBuild {}; at = l.sets[out.contents].first;
-            while at >= 0 { let alt = l.alts[at]; life_build_add(l, contents, life_single(l, alt.root, alt.exact, alt.from, true, alt.byteview, alt.target_type, alt.bound, alt.component)); at = alt.next; }
+            while at >= 0 { var alt = l.alts[at]; at = alt.next; alt.slotread = true; life_build_add_alt(l, contents, alt); }
             out.contents = life_build_end(l, contents);
         }
     }
@@ -1694,9 +1727,8 @@ fn life_stored_roots(p: Program&, l: Lifetimes&, value: LifeValue) -> i64 {
     if !life_is_ref(p, value.type_id) { return sources; }
     var contents = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
-        let alt = l.alts[at];
-        life_build_add(l, contents, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, p.types[value.type_id].element, alt.bound, alt.component));
-        at = alt.next;
+        var alt = l.alts[at]; at = alt.next;
+        alt.target_type = p.types[value.type_id].element; life_build_add_alt(l, contents, alt);
     }
     return life_build_end(l, contents);
 }
@@ -1928,7 +1960,7 @@ fn life_classes_equal(p: Program&, l: Lifetimes&, left: i64, right: i64) -> bool
 
 fn life_clear_reads(l: Lifetimes&, roots: i64) -> i64 {
     var result = LifeBuild {}; var at = l.sets[roots].first;
-    while at >= 0 { let alt = l.alts[at]; life_build_add(l, result, life_single(l, alt.root, alt.exact, -1, false, alt.byteview, alt.target_type, alt.bound, alt.component)); at = alt.next; }
+    while at >= 0 { var alt = l.alts[at]; at = alt.next; alt.from = -1; alt.slotread = false; life_build_add_alt(l, result, alt); }
     return life_build_end(l, result);
 }
 recursive fn life_cycle_value(l: Lifetimes&, value: LifeValue) -> LifeValue {
@@ -2017,9 +2049,9 @@ fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, 
     if view { return sources; }
     var result = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
-        let alt = l.alts[at]; let depth = l.roots[alt.root].depth;
-        life_build_add(l, result, life_bound(l, life_single(l, alt.root, alt.exact, alt.from, alt.slotread, alt.byteview, alt.target_type, alt.bound, alt.component), depth));
-        at = alt.next;
+        var alt = l.alts[at]; at = alt.next; let depth = l.roots[alt.root].depth;
+        if depth != 0 && depth > alt.bound { alt.bound = depth; }
+        life_build_add_alt(l, result, alt);
     }
     return life_build_end(l, result);
 }
@@ -2297,7 +2329,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64, 
         out.refs = receiver.place;
         if receiver.type_id >= 0 && p.types[receiver.type_id].kind == TY_SLICE { out.refs = receiver.refs; }
         var bytes = LifeBuild {}; var at = l.sets[out.refs].first;
-        while at >= 0 { let alt = l.alts[at]; life_build_add(l, bytes, life_single(l, alt.root, alt.exact, alt.from, false, true, -1, alt.bound, alt.component)); at = alt.next; }
+        while at >= 0 { var alt = l.alts[at]; at = alt.next; alt.slotread = false; alt.byteview = true; alt.target_type = -1; life_build_add_alt(l, bytes, alt); }
         out.refs = life_build_end(l, bytes);
     } else if builtin == 24 || builtin == 30 || builtin == 31 {
         var element = -1; if receiver.type_id >= 0 { element = p.types[receiver.type_id].element; }
