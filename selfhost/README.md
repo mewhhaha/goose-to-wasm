@@ -14,7 +14,7 @@ Bootstrap builds the checked-in C seed, uses it to compile the Goose compiler to
 
 An optional Clang IR profile is used only when its C hash, target triple, Clang major version, C basename and base flags match, and its data checksum is valid. If the profile is missing, mismatched or fails to compile, bootstrap builds without it and records the reason. The supplied profile targets Clang 23 and `x86_64-pc-linux-gnu`; it was trained on the compiler itself and two feature fixtures, excluding the eleven timed programs.
 
-For snapshot 62, two independent public output roots, one using defaults and one explicit options, passed `--verify` with `profile_used: true`. Both produced executable SHA-256 `2d2c4a3d677f47d1c512b39a8266c1c305c73cd3f1e219915cda3ee794fe5cbd` and generated C SHA-256 `d1f489fb3e417c1ebae5ef6f8cc5814d69e850d34143af23b64be30bc42e465d`. [Snapshot 62](results/2026-11-14/snapshot-62/README.md) · [Earlier qualification](results/2026-11-11/cli-outputs-60/README.md) · [Throughput qualification](results/2026-11-11/compiler-throughput-59/README.md)
+For snapshot 63, two independent public output roots, one using defaults and one explicit options, passed `--verify` with `profile_used: true`. Both produced executable SHA-256 `10ade9d54abd059038d05cb76d1f81f9c89b9254c2f3529794995e298518ab56` and generated C SHA-256 `28f1af08daba0f4de86b6f5e2c5ef1adfd25f5ce2921162ea67fa5df78998970`. [Snapshot 63](results/2026-11-14/snapshot-63/README.md) · [Snapshot 62](results/2026-11-14/snapshot-62/README.md) · [Earlier qualification](results/2026-11-11/cli-outputs-60/README.md) · [Throughput qualification](results/2026-11-11/compiler-throughput-59/README.md)
 
 ## Contracts
 
