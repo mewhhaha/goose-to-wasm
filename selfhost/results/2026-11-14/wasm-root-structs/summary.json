@@ -228,5 +228,127 @@
     "test/threads/slot_pool_worker.goose"
    ]
   }
+ },
+ "combined": {
+  "date": "2026-11-14",
+  "commits": [
+   "f3a70d3 (cherry-pick of c07a240)",
+   "df8c8a1 native varint component fix"
+  ],
+  "parent": "9a9d627",
+  "fixed_point": true,
+  "generated_c_sha256": "0d8a9802df0fda3c03919dfc3082bf137e563db4061cab9b580fdb6c314d0270",
+  "compiler_executable_sha256": "ca853ebf2e0725c0a19dd59302a0206cf0cecbb8949dd879462d1943f00c23c0",
+  "profile_used": false,
+  "conformance_single_unit": {
+   "selected": 8444,
+   "passed": 8352,
+   "failed": 92
+  },
+  "conformance_native_units_3": {
+   "selected": 8444,
+   "passed": 8352,
+   "failed": 92
+  },
+  "known_gaps": {
+   "open": 92,
+   "unexpected": 0,
+   "fixed": 0
+  },
+  "native_checks": "54 of 54 steps ok",
+  "backend_tests": "tests/test_root_struct_backends.py and tests/test_slice_pool_backends.py: 5 of 5 ok",
+  "equivalence_vs_9a9d627": {
+   "baseline_sha256": "e7ff8bab073c36570e8a1fe9f8a576d9927566cb85b794ce6931417333cb1c94",
+   "summary": {
+    "compared": 7685,
+    "differing": 20,
+    "seconds": {
+     "baseline": 136.068,
+     "candidate": 133.436
+    }
+   },
+   "differing": [
+    [
+     "native0",
+     "tests/fixtures/contracts/root-struct/component-encoded.goose"
+    ],
+    [
+     "native2",
+     "tests/fixtures/contracts/root-struct/component-encoded.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/abort-sites/slot_pool_free.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/component-encoded.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/component-heap.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/component-index-check.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/component-kinds.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/component-names.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/component-pool-check.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/components-check.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/construction-check.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/declarations.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/owner-references-check.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/owner.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/relative-links-check.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/storage-scopes.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/root-struct/storage.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/slice-pool/corrupt_tree.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/slice-pool/spans.goose"
+    ],
+    [
+     "wasm2",
+     "tests/fixtures/contracts/slice-pool/trim.goose"
+    ]
+   ]
+  }
  }
 }

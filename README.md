@@ -1,6 +1,6 @@
 # Goose to Wasm
 
-A [Goose](https://github.com/aardappel/goose) compiler written in Goose, producing WebAssembly directly or native executables through C. Conformance is partial: 92 of 8,442 contract rows remain open. The features of upstream Goose since those contracts were pinned are [tracked separately](docs/FEATURES.md).
+A [Goose](https://github.com/aardappel/goose) compiler written in Goose, producing WebAssembly directly or native executables through C. Conformance is partial: 92 of 8,444 contract rows remain open. The features of upstream Goose since those contracts were pinned are [tracked separately](docs/FEATURES.md).
 
 ## Benchmarks
 
@@ -28,7 +28,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose, produci
 
 ## Construction and contracts
 
-The compiler implements its frontend, optimizer and backends in Goose. A checked-in C seed bootstraps it; `--verify` checks consecutive generated C outputs match. A C++ reference guided the initial port. Frozen source and output contracts now check behavior: snapshot 59 passes 7,955 of 8,055 rows, each matching snapshot 58. The 100 existing gaps remain. [Qualification](selfhost/results/2026-11-11/compiler-throughput-59/README.md) The current sources add root structs, `defer` and `const if`, and pass 8,296 of 8,390 rows, also when native C builds as parallel units. [Qualification](selfhost/results/2026-11-14/upstream-features/README.md) · [Since](selfhost/results/2026-11-14/named-constants/summary.json) With `slice_pool`'s span tree for native C and stdlib aborts that report the program's line, they pass 8,320 of 8,414. [Qualification](selfhost/results/2026-11-14/pool-externs-abort-sites/README.md) With root structs on direct Wasm, they pass 8,350 of 8,442. [Qualification](selfhost/results/2026-11-14/wasm-root-structs/README.md)
+The compiler implements its frontend, optimizer and backends in Goose. A checked-in C seed bootstraps it; `--verify` checks consecutive generated C outputs match. A C++ reference guided the initial port. Frozen source and output contracts now check behavior: snapshot 59 passes 7,955 of 8,055 rows, each matching snapshot 58. The 100 existing gaps remain. [Qualification](selfhost/results/2026-11-11/compiler-throughput-59/README.md) The current sources add root structs, `defer` and `const if`, and pass 8,296 of 8,390 rows, also when native C builds as parallel units. [Qualification](selfhost/results/2026-11-14/upstream-features/README.md) · [Since](selfhost/results/2026-11-14/named-constants/summary.json) With `slice_pool`'s span tree for native C and stdlib aborts that report the program's line, they pass 8,320 of 8,414. [Qualification](selfhost/results/2026-11-14/pool-externs-abort-sites/README.md) With root structs on direct Wasm, they pass 8,352 of 8,444. [Qualification](selfhost/results/2026-11-14/wasm-root-structs/README.md)
 
 With Python 3, a native C compiler and Node:
 

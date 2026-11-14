@@ -20,7 +20,16 @@ Results:
   - `os::trim_memory`: 1
   - reusable slice builtins: 1
 
+## On `big-workload-parse`
+
+Cherry-picked as `f3a70d3` onto `9a9d627`, which brings lifetime set sharing. `df8c8a1` then fixes native C, which gave a `varint` root component no bytes in its owner's frame (`cc_frame_size` takes the type's size, 0), so the component overlapped the next one and a write could run past the frame. It now takes 10 bytes, the widest zigzag ULEB128, as on direct Wasm, and `component-encoded` gains its native rows. Its output matches plain upstream `32a4f44`, and it runs clean under ASan and UBSan. The combined tree was qualified again:
+
+- **Bootstrap.** A fixed point (`0d8a9802…`, executable `ca853ebf…`).
+- **Conformance.** 8,352 of 8,444 rows pass, both as one unit and as three native units. The 92 failures are exactly the recorded gaps. [One unit](conformance-combined.json.gz) · [Three units](conformance-combined-native-units-3.json.gz)
+- **Native checks.** 54 of 54 pass.
+- **Backend tests.** 5 of 5 pass.
+- **Equivalence against the `9a9d627` compiler (`e7ff8bab…`).** 20 of 7,685 outputs differ. 18 are the direct Wasm emissions listed above, and 2 are `component-encoded` at native `-O0` and `-O2`. [Rows](summary.json)
+
 ## Known limits
 
-- Native C gives a `varint` component no bytes in the owner's frame (`cc_frame_size` takes the type's size, 0), so it overlaps the next component. `component-encoded` therefore has no native row.
 - Each component that owns storage takes a region, so per-region capacity falls as owners multiply. `codegen/root_loaded_aliases` (without `os::trim_memory`) needs `--wasm-max-pages 4096` for its 3 MiB component.
