@@ -11,9 +11,8 @@ import model;
 struct LifeAlt { root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0, next: i64 = -1, component: i64 = -1 }
 // index: for a set of LIFE_BIG or more alternatives, a hashed root index in
 // set_index at index, of index_mask + 1 slots, made with the set's list or
-// when the set is first searched. vid: the set's ID were every set a join
-// makes kept (see LifeBuild).
-struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0, vid: i64 = 0 }
+// when the set is first searched.
+struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0 }
 // A span of global_read_list; count -1 until computed.
 struct LifeSpan { first: i64 = 0, count: i64 = -1 }
 struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1 }
@@ -110,8 +109,6 @@ struct Lifetimes {
     conditional: i64 = 0,
     sequence_frame: i64 = -1,
     pass: i64 = 0,
-    // The next LifeSet.vid.
-    vids: i64 = 1,
 }
 
 // An order-independent hash of a set, equal for sets life_equal accepts.
@@ -245,7 +242,7 @@ fn life_effect_repeated(l: Lifetimes&, effect: const LifeEffect&, last: i64) -> 
 fn life_offer_slot(l: Lifetimes&, effect: const LifeEffect&) -> i64 {
     var h: u64 = 1469598103934665603;
     for part in [l.frame, effect.kind, effect.node, effect.value.type_id, effect.cell, effect.field,
-                 l.sets[effect.places].vid, l.sets[effect.value.refs].vid, l.sets[effect.value.contents].vid, l.sets[effect.value.place].vid] {
+                 effect.places, effect.value.refs, effect.value.contents, effect.value.place] {
         h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29;
     }
     return (h & ((l.offers.len - 1) as! u64)) as i64;
@@ -545,19 +542,18 @@ fn life_subset(l: Lifetimes&, b: i64, a: i64) -> bool {
 // Accumulating `out = life_join(l, out, x)` over many x copies all of out
 // into a new set whenever x adds to it: an n-root result costs ~n^2/2
 // alternatives. A LifeBuild yields what exactly those joins would (the
-// alternatives, their list order and the vid) but makes only the last set.
+// alternatives and their list order) but makes only the last set.
 // Below LIFE_BIG it joins as before. Past it, the list is kept in
-// build_alts as a deque; each join that would make a new set takes the
-// next vid, and the set is made with the last one when the build ends. A
+// build_alts as a deque, and the set is made when the build ends. A
 // join that adds lists the incoming new roots, last first, before out
 // reversed: the deque's front holds pushes in reverse order and its back in
 // order (side 0 or 1, kept in next), and flipped means the list reads it
 // back to front. Builds nest as a stack: one is extended only after every
 // build opened since has ended.
-struct LifeBuild { set: i64 = 0, vid: i64 = -1, base: i64 = -1, size: i64 = 0, table: i64 = 0, mask: i64 = 0, flipped: bool = false, fresh: bool = false }
+struct LifeBuild { set: i64 = 0, base: i64 = -1, size: i64 = 0, table: i64 = 0, mask: i64 = 0, flipped: bool = false, fresh: bool = false }
 // A set as life_single makes one.
 fn life_new_set(l: Lifetimes&) -> i64 {
-    let set = l.sets.len; l.sets.push(LifeSet { vid: l.vids }); l.vids += 1;
+    let set = l.sets.len; l.sets.push(LifeSet {});
     return set;
 }
 fn life_build_slot(l: Lifetimes&, b: const LifeBuild&, root: i64) -> i64 {
@@ -604,7 +600,7 @@ fn life_build_step(l: Lifetimes&, b: LifeBuild&, set: i64) {
         at = incoming.next;
     }
     if at < 0 { return; }
-    b.vid = l.vids; l.vids += 1; b.fresh = true; b.flipped = !b.flipped;
+    b.fresh = true; b.flipped = !b.flipped;
     var side = 0; if b.flipped { side = 1; }
     at = l.sets[set].first;
     while at >= 0 {
@@ -645,9 +641,9 @@ fn life_list_rehash(l: Lifetimes&) {
     }
 }
 // A set listing scratch[start..] tail first (in life_insert's order). Sets
-// are never changed once made, so one equal to a list made before shares
-// that list's alternatives.
-fn life_list_set(l: Lifetimes&, start: i64, vid: i64) -> i64 {
+// are never changed once made, so a list made before is that set again:
+// equal lists made by joins and builds are one set.
+fn life_list_set(l: Lifetimes&, start: i64) -> i64 {
     let count = l.scratch.len - start;
     var h: u64 = 1469598103934665603; var at = l.scratch.len - 1;
     while at >= start {
@@ -662,18 +658,13 @@ fn life_list_set(l: Lifetimes&, start: i64, vid: i64) -> i64 {
         let entry = l.list_slots[slot];
         if entry < 0 { break; }
         let set = l.list_sets[entry];
-        if l.list_keys[entry] == key && l.sets[set].count == count && life_list_same(l, set, start) {
-            let shared = l.sets[set]; let index = l.sets.len;
-            l.sets.push(LifeSet { first: shared.first, count: count, index: shared.index, index_mask: shared.index_mask, vid: vid });
-            return index;
-        }
+        if l.list_keys[entry] == key && l.sets[set].count == count && life_list_same(l, set, start) { return set; }
         slot = (slot + 1) & mask;
     }
     var next = -1;
     for item in start..l.scratch.len { var entry = l.scratch[item]; entry.next = next; next = l.alts.len; l.alts.push(entry); }
-    let index = l.sets.len; l.sets.push(LifeSet { first: next, count: count, vid: vid });
+    let index = l.sets.len; l.sets.push(LifeSet { first: next, count: count });
     l.list_slots[slot] = l.list_sets.len; l.list_sets.push(index); l.list_keys.push(key);
-    // Built now, so that every set sharing the list shares its index too.
     if count >= LIFE_BIG { life_index_build(l, index); }
     return index;
 }
@@ -689,7 +680,7 @@ fn life_build_end(l: Lifetimes&, b: LifeBuild&) -> i64 {
     if b.base < 0 { return b.set; }
     if b.fresh {
         let start = l.scratch.len; life_build_order(l, b, false);
-        b.set = life_list_set(l, start, b.vid); b.fresh = false;
+        b.set = life_list_set(l, start); b.fresh = false;
         l.scratch.resize(start);
     }
     l.build_alts.resize(b.base); l.build_slots.resize(b.table); b.base = -1;
@@ -781,12 +772,12 @@ fn life_join(l: Lifetimes&, a: i64, b: i64) -> i64 {
         return life_build_end(l, build);
     }
     // The new set, as life_insert would list it, made after its list.
-    let vid = l.vids; l.vids += 1; let start = l.scratch.len;
+    let start = l.scratch.len;
     var at = l.sets[a].first;
     while at >= 0 { let alt = l.alts[at]; life_scratch_insert(l, start, alt); at = alt.next; }
     at = l.sets[b].first;
     while at >= 0 { let alt = l.alts[at]; life_scratch_insert(l, start, alt); at = alt.next; }
-    let set = life_list_set(l, start, vid); l.scratch.resize(start);
+    let set = life_list_set(l, start); l.scratch.resize(start);
     return set;
 }
 fn life_depth(l: Lifetimes&, scope: i64) -> i64 {
