@@ -33,6 +33,8 @@ G_SHARED GS_TLS void *gs_gl;
 GS_API size_t g_runtime_region_usable(void);
 GS_API long g_runtime_region_count(void);
 GS_API int64_t g_runtime_span_depth(void);
+GS_API int g_runtime_float_digits(uint64_t f,int e,int bits,int emin,char *dig,int *k);
+#define gs_float_digits g_runtime_float_digits
 GS_API uint8_t gs_trim_memory(void);
 #define G_REGION_USABLE() g_runtime_region_usable()
 #define G_REGION_COUNT() g_runtime_region_count()
