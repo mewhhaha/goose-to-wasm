@@ -10,7 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT / "scripts/goose_wasm.py"
-GOOSE = ROOT / "build/bin/goose"
+GOOSE = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goose")).resolve()
 STDLIB = None
 HELPER = b"fn value() -> i64 { return 41; }\n"
 OVERWRITE = "goose-wasm: an output would overwrite an input\n"

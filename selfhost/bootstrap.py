@@ -45,6 +45,8 @@ def main():
     parser.add_argument('--verify', action='store_true', help='require identical next-generation C output')
     parser.add_argument('--seed-only', action='store_true', help='build the frozen seed, without compiling current sources')
     parser.add_argument('--timeout', type=float, default=900)
+    parser.add_argument('--cache-dir', type=Path,
+                        help='reuse executables built from identical C with the same C compiler and command')
     parser.add_argument('--jobs', type=int, default=1,
                         help='compile C that marks its units (native/units.h) as this many program units '
                              'in parallel, without a profile; development builds only (default: 1)')
@@ -125,6 +127,33 @@ def main():
                 profile_reason = 'invalid profile metadata: ' + str(error)
                 profile = None
         report['builds'] = {}
+        cache = args.cache_dir.resolve() if args.cache_dir else None
+
+        def reuse(recipe, c_hash, executable, row, produce):
+            # An executable is a function of its C, the C compiler and the
+            # command (profile data included); with --cache-dir, identical
+            # builds copy the earlier result. produce() returns whether it built.
+            if cache is None:
+                return produce()
+            material = {'c_sha256': c_hash, 'cc_sha256': report['cc_sha256'], 'cc_version': report['cc_version'],
+                        'recipe': recipe}
+            key = hashlib.sha256(json.dumps(material, sort_keys=True).encode()).hexdigest()
+            entry = cache / key
+            if entry.is_file():
+                pending = Path(str(executable) + '.cached')
+                shutil.copyfile(entry, pending)
+                pending.chmod(0o755)
+                pending.replace(executable)
+                row['cache'] = {'hit': True, 'key': key}
+                return True
+            if not produce():
+                return False
+            cache.mkdir(parents=True, exist_ok=True)
+            pending = cache / (key + '.' + str(os.getpid()) + '.tmp')
+            shutil.copyfile(executable, pending)
+            pending.replace(entry)
+            row['cache'] = {'hit': False, 'key': key}
+            return True
 
         def build(source, executable, name, optimization):
             # LLVM keys internal functions by the translation unit basename.
@@ -143,15 +172,18 @@ def main():
                 # Development builds: units compile at once, and the profile,
                 # keyed by one translation unit's functions, does not apply.
                 row.update(units=args.jobs, profile_reason='compiled as ' + str(args.jobs) + ' units without profile')
-                (stage / 'runtime.c').write_text(text[:runtime_end + 1] + '#endif\n')
-                compiles = [([cc, *base_flags[:2], '-DG_RUNTIME_UNIT', '-c', 'runtime.c', '-o', 'runtime.o'], name + '-runtime')]
-                for unit in range(args.jobs):
-                    compiles.append(([cc, *base_flags[:2], f'-DG_UNITS={args.jobs}', f'-DG_UNIT={unit}', '-c', 'seed.c',
-                                      '-o', f'unit{unit}.o'], f'{name}-unit{unit}'))
-                with ThreadPoolExecutor(len(compiles)) as pool:
-                    list(pool.map(lambda job: command(*job, cwd=stage), compiles))
-                command([cc, *base_flags[:2], 'runtime.o', *(f'unit{unit}.o' for unit in range(args.jobs)),
-                         *base_flags[2:], '-o', executable], name, cwd=stage)
+                def units():
+                    (stage / 'runtime.c').write_text(text[:runtime_end + 1] + '#endif\n')
+                    compiles = [([cc, *base_flags[:2], '-DG_RUNTIME_UNIT', '-c', 'runtime.c', '-o', 'runtime.o'], name + '-runtime')]
+                    for unit in range(args.jobs):
+                        compiles.append(([cc, *base_flags[:2], f'-DG_UNITS={args.jobs}', f'-DG_UNIT={unit}', '-c', 'seed.c',
+                                          '-o', f'unit{unit}.o'], f'{name}-unit{unit}'))
+                    with ThreadPoolExecutor(len(compiles)) as pool:
+                        list(pool.map(lambda job: command(*job, cwd=stage), compiles))
+                    command([cc, *base_flags[:2], 'runtime.o', *(f'unit{unit}.o' for unit in range(args.jobs)),
+                             *base_flags[2:], '-o', executable], name, cwd=stage)
+                    return True
+                reuse({'units': args.jobs, 'flags': base_flags}, c_hash, executable, row, units)
                 return row
             matched = False
             if not clang:
@@ -166,19 +198,22 @@ def main():
                 else:
                     matched = True
             argv = [cc, *base_flags[:2], 'seed.c', *base_flags[2:], '-o', executable]
+            recipe = {'flags': base_flags}
             if matched:
                 profile_flags = ['-fprofile-instr-use=' + str(data_path),
                                  '-Werror=profile-instr-out-of-date',
                                  '-Werror=profile-instr-missing',
                                  '-Werror=profile-instr-unprofiled']
-                result = command([*argv, *profile_flags], name + '-profile', cwd=stage, allow_failure=True)
-                if result.returncode == 0:
+                def profiled():
+                    return command([*argv, *profile_flags], name + '-profile', cwd=stage, allow_failure=True).returncode == 0
+                if reuse(dict(recipe, profile_sha256=digest(data_path), profile_flags=profile_flags[1:]),
+                         c_hash, executable, row, profiled):
                     row.update(profile_used=True, profile_reason='exact profile identity matched',
                                profile_sha256=digest(data_path))
                     return row
                 row['profile_reason'] = 'profile compilation failed; compiled without profile'
                 row['profile_failed_command'] = report['commands'][-1]
-            command(argv, name, cwd=stage)
+            reuse(recipe, c_hash, executable, row, lambda: command(argv, name, cwd=stage) is not None)
             return row
 
         seed_executable = out / 'seed'

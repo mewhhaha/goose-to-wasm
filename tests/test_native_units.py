@@ -3,6 +3,7 @@
 the single translation unit does (native/units.h)."""
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -11,7 +12,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT / "scripts/goose_wasm.py"
-GOOSE = ROOT / "build/bin/goose"
+GOOSE = Path(os.environ.get("GOOSE_COMPILER", ROOT / "build/bin/goose")).resolve()
 STDLIB = None
 # Shared globals, a queue and workers, so units share state, queues and
 # worker entry points.

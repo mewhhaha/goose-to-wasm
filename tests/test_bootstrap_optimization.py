@@ -31,7 +31,7 @@ def sha(data):
 class BootstrapOptimizationTests(unittest.TestCase):
     def stage(self, seed_level, requested=None, verify=False, converge=False, seed_only=False,
               profile=None, version='clang version 21.1.0', fail_profile=False, changed=False, canonical_seed=False,
-              jobs=None):
+              jobs=None, cache=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / 'selfhost'; source.mkdir()
@@ -150,6 +150,9 @@ class BootstrapOptimizationTests(unittest.TestCase):
                 args += ['--seed-only']
             if jobs:
                 args += ['--jobs', str(jobs)]
+            if cache:
+                args += ['--cache-dir', str(cache)]
+            self.compiles = commands
             with patch.object(sys, 'argv', args), patch.object(module.subprocess, 'run', run), contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(module.main(), 0)
             report = json.loads((output / 'report.json').read_text())
@@ -194,6 +197,21 @@ class BootstrapOptimizationTests(unittest.TestCase):
         units = [row['command'] for row in report['commands'] if row['name'].startswith('build-next-generation-unit')]
         self.assertEqual(sorted(command[command.index('-c') - 1] for command in units), ['-DG_UNIT=0', '-DG_UNIT=1', '-DG_UNIT=2'])
         self.assertTrue(all('-DG_UNITS=3' in command for command in units))
+
+    def test_cache_dir_reuses_identical_builds(self):
+        with tempfile.TemporaryDirectory() as directory:
+            cache = Path(directory) / 'cache'
+            first, _ = self.stage(0, verify=True, converge=True, profile={}, cache=cache)
+            compiled = [command for command in self.compiles if '-o' in command]
+            second, _ = self.stage(0, verify=True, converge=True, profile={}, cache=cache)
+            builds = ('build-seed', 'build-goose', 'build-next-generation')
+            self.assertEqual([first['builds'][name]['cache']['hit'] for name in builds], [False] * 3)
+            self.assertEqual([second['builds'][name]['cache']['hit'] for name in builds], [True] * 3)
+            # The seed keeps its profile when reused; nothing is compiled again.
+            self.assertTrue(second['builds']['build-seed']['profile_used'])
+            self.assertTrue(any(command[0].endswith('/cc') for command in compiled))
+            self.assertFalse([command for command in self.compiles if command[0].endswith('/cc') and '-o' in command])
+            self.assertEqual(first['executable_sha256'], second['executable_sha256'])
 
     def test_matching_optimized_seed_reuses_c(self):
         report, commands = self.stage(2)

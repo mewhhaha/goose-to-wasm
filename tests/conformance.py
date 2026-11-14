@@ -44,21 +44,33 @@ def native_source_paths(case):
     return tuple(paths)
 
 
-# --native-units: the runtime unit and each program unit (native/units.h)
-# compile at once, then link. Arguments: cc, flag, units, C, executable, defines.
+# --native-units: each program unit (native/units.h) compiles at once, then
+# links with the runtime unit's object, which a run compiles once per runtime
+# text, C compiler, flag and defines (runtime_object). Arguments: cc, flag,
+# units, C, executable, runtime object, defines.
 UNITS_SCRIPT = (
-    'cc=$1 flag=$2 units=$3 c=$4 out=$5; shift 5; '
-    '"$cc" -std=gnu11 "$flag" "$@" -DG_RUNTIME_UNIT -c "$c" -o "$out.runtime.o" & pids=$!; '
-    'objects="$out.runtime.o"; u=0; while [ $u -lt "$units" ]; do '
+    'cc=$1 flag=$2 units=$3 c=$4 out=$5 runtime=$6; shift 6; '
+    'pids=; objects="$runtime"; u=0; while [ $u -lt "$units" ]; do '
     '"$cc" -std=gnu11 "$flag" "$@" -DG_UNITS="$units" -DG_UNIT=$u -c "$c" -o "$out.$u.o" & pids="$pids $!"; '
     'objects="$objects $out.$u.o"; u=$((u+1)); done; '
     's=0; for p in $pids; do wait $p || s=1; done; [ $s = 0 ] || exit 1; '
     '"$cc" -std=gnu11 "$flag" $objects -lm -ldl -pthread -o "$out"')
+# Generated C marks where the runtime unit's text ends (native/units.h), as
+# scripts/goose_wasm.py reads it.
+RUNTIME_END = '\n#else /* program units */\n'
 
 
-def native_compile_command(cc, flag, defines, artifact, native_sources, units=0):
+def runtime_text(artifact):
+    """The runtime unit's source in emitted C, or None in C without unit marks."""
+    text = Path(artifact).read_text(errors='replace')
+    end = text.find(RUNTIME_END)
+    return None if end < 0 else text[:end + 1] + '#endif\n'
+
+
+def native_compile_command(cc, flag, defines, artifact, native_sources, units=0, runtime=None):
     if units and not native_sources:
-        return ['sh', '-c', UNITS_SCRIPT, 'sh', cc, flag, str(units), artifact, artifact.parent / 'program', *defines]
+        return ['sh', '-c', UNITS_SCRIPT, 'sh', cc, flag, str(units), artifact, artifact.parent / 'program',
+                runtime, *defines]
     command = [cc, '-std=gnu11', flag, *defines, artifact]
     if native_sources:
         command.extend(native_sources)
@@ -74,6 +86,8 @@ def main():
     parser.add_argument('--manifest', type=Path, default=ROOT / 'tests/conformance/cases.json')
     parser.add_argument('--stdlib', type=Path, default=ROOT / 'stdlib')
     parser.add_argument('--filter', default='')
+    parser.add_argument('--targets', nargs='+', metavar='TARGET',
+                        help='only rows for these targets, such as native; default: every target')
     parser.add_argument('--levels', type=int, nargs='+', choices=(0, 2), default=[0, 2])
     parser.add_argument('--engine', choices=('wasmtime', 'v8'), default='wasmtime')
     parser.add_argument('--host', type=Path)
@@ -103,21 +117,47 @@ def main():
     if digest(archive) != manifest['upstream']['sha256']:
         parser.error('upstream source bundle changed')
     upstream = out / 'upstream'
-    upstream.mkdir()
     needs_upstream = any(
         args.filter in case['id'] and case['source'].startswith('upstream:')
         for case in manifest['cases'])
+
+    def extract(directory):
+        directory.mkdir(parents=True)
+        if needs_upstream:
+            with tarfile.open(archive) as bundle:
+                for member in bundle:
+                    relative = Path(member.name)
+                    if relative.is_absolute() or '..' in relative.parts or not member.isfile():
+                        parser.error('unexpected upstream archive member: ' + member.name)
+                    path = directory / relative
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    with bundle.extractfile(member) as source, path.open('wb') as target:
+                        shutil.copyfileobj(source, target)
+        shutil.copytree(library, directory / 'stdlib')
+
+    # Upstream programs run in this run's own copy, but compile from one
+    # shared copy per archive and library: their path is in the emitted C
+    # (abort sites), so identical C, and --native-cache hits, need a path
+    # that does not name the output directory.
+    extract(upstream)
+    shared = upstream
     if needs_upstream:
-        with tarfile.open(archive) as bundle:
-            for member in bundle:
-                relative = Path(member.name)
-                if relative.is_absolute() or '..' in relative.parts or not member.isfile():
-                    parser.error('unexpected upstream archive member: ' + member.name)
-                path = upstream / relative
-                path.parent.mkdir(parents=True, exist_ok=True)
-                with bundle.extractfile(member) as source, path.open('wb') as target:
-                    shutil.copyfileobj(source, target)
-    shutil.copytree(library, upstream / 'stdlib')
+        material = [manifest['upstream']['sha256'],
+                    sorted((str(path.relative_to(library)), digest(path)) for path in library.rglob('*') if path.is_file())]
+        key = hashlib.sha256(json.dumps(material).encode()).hexdigest()[:16]
+        shared = ROOT / 'build' / 'conformance-upstream' / key
+        if not (shared / '.complete').is_file():
+            staging = shared.parent / (key + '.' + str(os.getpid()) + '.tmp')
+            shutil.rmtree(staging, ignore_errors=True)
+            extract(staging)
+            (staging / '.complete').write_text('')
+            try:
+                staging.rename(shared)
+            except OSError:
+                # Another run published it first.
+                shutil.rmtree(staging)
+                if not (shared / '.complete').is_file():
+                    raise
     host = args.host
     if host is None and (ROOT / 'build/bin/goose-wasmtime').exists():
         host = ROOT / 'build/bin/goose-wasmtime'
@@ -133,8 +173,9 @@ def main():
     report = {'schema': 'goose-conformance-v1', 'status': 'running',
               'configuration': {'compiler': str(compiler), 'manifest': str(args.manifest), 'levels': args.levels,
                   'filter': args.filter, 'engine': args.engine, 'host': str(host), 'frontend_only': args.frontend_only,
-                  'upstream_extracted': needs_upstream, 'jobs': args.jobs,
-                  'timeout': args.timeout, 'cc_timeout': args.cc_timeout, 'native_units': args.native_units},
+                  'upstream_extracted': needs_upstream, 'upstream_sources': str(shared), 'jobs': args.jobs,
+                  'timeout': args.timeout, 'cc_timeout': args.cc_timeout, 'native_units': args.native_units,
+                  'targets': args.targets},
               'method': 'Only the compiler under test runs. Sources, stdin, expected stdout, exit status and '
                         'failure phases are frozen data. No expected-output update mode, reference fallback, '
                         'expected failures or silent skips. Compilations with identical inputs share an artifact '
@@ -259,6 +300,48 @@ def main():
             os.replace(pending, metadata)
         return index, row
 
+    runtimes = {}
+
+    def runtime_object(flag, defines, artifact):
+        """The runtime unit's object for this C, compiled once per runtime text,
+        C compiler, flag and defines; with --native-cache, also across runs."""
+        text = runtime_text(artifact)
+        if text is None:
+            return {'path': None}
+        material = json.dumps({'compiler': cache_identity or {'driver': cc, 'driver_sha256': pins[cc]},
+                               'runtime_sha256': hashlib.sha256(text.encode()).hexdigest(),
+                               'flag': flag, 'defines': defines}, sort_keys=True)
+        key = 'runtime-' + hashlib.sha256(material.encode()).hexdigest()
+        with lock:
+            slot = runtimes.setdefault(key, {'lock': threading.Lock(), 'path': None})
+            used_keys.add(key)
+        with slot['lock']:
+            if slot['path'] is not None:
+                return slot
+            directory = out / 'runtime'
+            directory.mkdir(exist_ok=True)
+            path = directory / (key + '.o')
+            cached = native_cache / key if native_cache else None
+            if cached is not None and cached.is_file():
+                shutil.copyfile(cached, path)
+                with lock:
+                    report['commands'].append({'command': ['runtime-unit', key], 'cwd': str(directory), 'exit_code': 0,
+                                               'error': '', 'stdout': '', 'stderr': '', 'seconds': 0.0,
+                                               'native_cache': {'hit': True, 'key': key}})
+            else:
+                (directory / (key + '.c')).write_text(text)
+                slot['index'], row = execute([cc, '-std=gnu11', flag, *defines, '-DG_RUNTIME_UNIT', '-c', directory / (key + '.c'),
+                                  '-o', path], directory, timeout=args.cc_timeout)
+                if row['exit_code'] != 0 or row['error'] or not path.is_file():
+                    slot['path'] = False
+                    return slot
+                if cached is not None:
+                    pending = native_cache / (key + '.' + str(threading.get_ident()) + '.tmp')
+                    shutil.copyfile(path, pending)
+                    os.replace(pending, cached)
+            slot['path'] = path
+            return slot
+
     def build_case(case, source, level, action, native_sources, number):
         directory = out / 'artifacts' / str(number)
         directory.mkdir(parents=True)
@@ -285,8 +368,17 @@ def main():
             if level == 2:
                 flag = '-O2'
             defines = ['-D' + value for value in case.get('native_defines', [])]
-            command = native_compile_command(cc, flag, defines, artifact, native_sources, args.native_units)
-            index, native = native_build(command, directory, binary, native_sources)
+            runtime = None
+            if args.native_units and not native_sources:
+                runtime = runtime_object(flag, defines, artifact)['path']
+            if runtime is False:
+                # The runtime unit failed to compile; its own command row holds the reason.
+                index = runtime_object(flag, defines, artifact).get('index')
+                native = {'exit_code': 1, 'error': 'runtime unit failed to compile'}
+            else:
+                command = native_compile_command(cc, flag, defines, artifact, native_sources,
+                                                 args.native_units if runtime else 0, runtime)
+                index, native = native_build(command, directory, binary, native_sources)
             value.update(native_command=index, native_result=native, binary=binary)
         return value
 
@@ -370,13 +462,13 @@ def main():
     save()
     try:
         for case in manifest['cases']:
-            if args.filter not in case['id']:
+            if args.filter not in case['id'] or args.targets and case['target'] not in args.targets:
                 continue
             source_name = case['source']
             source = ROOT / source_name
             cwd = ROOT
             if source_name.startswith('upstream:'):
-                source = upstream / source_name[len('upstream:'):]
+                source = shared / source_name[len('upstream:'):]
                 cwd = upstream
             pins[str(source)] = digest(source)
             for dependency in case.get('dependencies', []):
