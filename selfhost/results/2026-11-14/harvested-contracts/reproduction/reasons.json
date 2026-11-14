@@ -1,0 +1,16 @@
+{
+ "reasons": {
+  "duplicate-fixture": "Byte-identical to an existing fixture in tests/fixtures, whose own contracts already cover it.",
+  "duplicate-contract": "The same program as an existing upstream-differential fixture apart from its comments.",
+  "host-import": "Declares an extern function that only the old test's host supplied (prepared, callback, probe, forge, foreign, bench_input); plain upstream cannot link it, so it has no upstream output.",
+  "upstream-toolchain": "Plain upstream's TinyCC rejects the C it generates ('constant exceeds 32 bit') for an array of about 6.1e18 elements or a pad of i64.max bytes, so upstream has no output; goose build with the system C compiler also fails.",
+  "aliased-or-corrupt": "Upstream reads aliased or corrupt bytes. In most of these a multiple-result return builds its first value over a returned local while a later value still reads that local, directly or through a reference or call; goose_spec.md section 7.3 (Named results) copies such a local instead, so the later value sees the local unchanged. In one, upstream writes an enum payload's field at one offset and reads it at another.",
+  "region-top-leftovers": "Upstream shows region-top leftovers, layer 2 of the abandoned-destination bullet in docs/FEATURES.md: a cancelled exit's or cancelled append's bytes stay at the destination's start or region top, and a later return, push or append lands after them."
+ },
+ "causes": {
+  "limited-capacity-message": "Open in docs/FEATURES.md (Differences found by the upstream differential run, the limited-capacity row): an overflowing runtime-capacity push reports \"array capacity exceeded\" on direct Wasm, where upstream and native C say \"limited array capacity exceeded\".",
+  "fill-count-before-element": "New: a fill [v; n] whose count the backend cannot hold aborts before v is evaluated, so the exit inside v is never taken (goose_spec.md section 4.2: v is evaluated once; section 2: evaluation is left to right). Direct Wasm traps \"array repetition count out of range\"; native C, building a whole assignment's fill in place, overflows its data stack first. Upstream evaluates v, takes its exit and prints 7.",
+  "native-aggregate-memory-limit": "New: the checker applies the direct-Wasm memory size (--wasm-max-pages, default 256 pages) to struct layouts on native C too, so a 400,000,000-byte struct is rejected (\"aggregate layout exceeds configured memory\"); upstream accepts it and runs it, and goose_spec.md section 10.4 sets the limit at 2^48 bytes.",
+  "wasm-named-result-alias": "New: direct Wasm builds a multiple-result return over a returned local that a later result reads through a reference, so `return E.New { 0x0102030405060708 }, kept` gives 16909060 for kept where upstream and native C give 0 (goose_spec.md section 7.3, Named results: a returned local that another return's value may read is copied)."
+ }
+}

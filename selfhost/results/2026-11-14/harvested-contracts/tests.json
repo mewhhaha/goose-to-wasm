@@ -1,0 +1,1213 @@
+[
+ {
+  "module": "tests/test_aggregate_print.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (failures=1)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 1,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_aggregate_print_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_aot_wasmtime.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 20,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_array_image_modes.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 8,
+   "result": "FAILED (failures=13)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 8,
+   "result": "FAILED (failures=34)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_array_images.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (errors=13)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (errors=13)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_backend_extensions.py",
+  "unittest": {
+   "exit": 5,
+   "ran": 0,
+   "result": null
+  },
+  "without_offline": {
+   "exit": 5,
+   "ran": 0,
+   "result": null
+  },
+  "call": "delete: C++ internals: script, not unittest; passes --offline to scripts/goose_wasm.py and the compiler and expects the C++ refusal texts; its three fixtures have conformance rows"
+ },
+ {
+  "module": "tests/test_benchmark_process.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 13,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_bootstrap_optimization.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 18,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_bulk_integer_loops.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=3, errors=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_byte_scans.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 6,
+   "result": "FAILED (failures=104)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 6,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_byte_stencil.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_checked_leaf_cache.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 10,
+   "result": "FAILED (failures=10, errors=1127)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 10,
+   "result": "FAILED (failures=10, errors=1127)"
+  },
+  "call": "delete: tests the C++ compiler's session/serve mode (--wasm-session, --native-worker, goose_wasm.py serve), which the Goose compiler does not have"
+ },
+ {
+  "module": "tests/test_checked_scalar_cache.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 13,
+   "result": "FAILED (failures=13, errors=1124)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 13,
+   "result": "FAILED (failures=13, errors=1124)"
+  },
+  "call": "delete: tests the C++ compiler's session/serve mode (--wasm-session, --native-worker, goose_wasm.py serve), which the Goose compiler does not have"
+ },
+ {
+  "module": "tests/test_cli_outputs.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 4,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_combined_varint_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_combined_varints.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=9)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (errors=9)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_command_logs.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 9,
+   "result": "FAILED (errors=1)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 9,
+   "result": "FAILED (errors=1)"
+  },
+  "call": "keep: tooling test failing for another reason: bench/qualify_compiler.py has no BACKENDS (one of 9 tests errors)"
+ },
+ {
+  "module": "tests/test_compare_compilers.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 8,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_compiler_comparison_charts.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 7,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_compiler_session.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 12,
+   "result": "FAILED (failures=12, errors=1122)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 12,
+   "result": "FAILED (failures=12, errors=1122)"
+  },
+  "call": "delete: tests the C++ compiler's session/serve mode (--wasm-session, --native-worker, goose_wasm.py serve), which the Goose compiler does not have"
+ },
+ {
+  "module": "tests/test_conformance_runner.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 12,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_constant_divisors.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=5)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=21)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_descending_simd.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=3, errors=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_descending_while.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 2,
+   "result": "FAILED (failures=2)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 2,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_differential_selection.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 3,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_driver_outputs.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 4,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_dynamic_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=38)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=34)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_dynamic_remainder.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 3,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_encoded_record_tail_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_encoded_record_tails.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=5)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (errors=5)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_enum_image_returns.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 2,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 2,
+   "result": "FAILED (failures=1, errors=2)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_enum_images.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=8)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (errors=8)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_enum_tags.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (errors=8)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (errors=8)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_fill_loops.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=10, errors=2)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_fresh_initialization.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 7,
+   "result": "FAILED (failures=52)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 7,
+   "result": "FAILED (failures=44)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_function_value_forwarding.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 3,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_incremental.py",
+  "unittest": {
+   "exit": 5,
+   "ran": 0,
+   "result": null
+  },
+  "without_offline": {
+   "exit": 5,
+   "ran": 0,
+   "result": null
+  },
+  "call": "delete: tests the C++ compiler's session/serve mode (--wasm-session, --native-worker, goose_wasm.py serve), which the Goose compiler does not have"
+ },
+ {
+  "module": "tests/test_input_dependencies.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 23,
+   "result": "FAILED (failures=10, errors=13)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 23,
+   "result": "FAILED (failures=10, errors=13)"
+  },
+  "call": "delete: tests the C++ compiler's session/serve mode (--wasm-session, --native-worker, goose_wasm.py serve), which the Goose compiler does not have"
+ },
+ {
+  "module": "tests/test_lane_writeback.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=2)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_langarena.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 16,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_langbench.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 9,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_langbench_hot.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 8,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_leaf_frames.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 10,
+   "result": "FAILED (failures=10)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 10,
+   "result": "FAILED (failures=9, errors=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_literal_ranges.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 6,
+   "result": "FAILED (failures=21)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 6,
+   "result": "FAILED (failures=24)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_literal_select.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=17)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_local_tee.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (failures=1)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (failures=1)"
+  },
+  "call": "delete: C++ internals: compiles C++ against the removed compiler/wasm_binary.h"
+ },
+ {
+  "module": "tests/test_loop_ordinals.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 2,
+   "result": "FAILED (failures=2)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 2,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_memory_growth_helper.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=15)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (errors=7)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_merge_bounds.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=56)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 5,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_named_callback_forwarding.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=45)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=45)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_native_units.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 2,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_native_wasmtime.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 16,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_owned_struct_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=13)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=12)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_packed_layout_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_padding_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=5)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=5)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_popcount.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=18)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_popcount_wrapper.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=16)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_prefix_resolution.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (errors=4)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_print_reentry.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (failures=1)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (errors=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_private_snapshot_parameters.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 7,
+   "result": "FAILED (failures=56)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 7,
+   "result": "FAILED (failures=48)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_python_wasmtime.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 3,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_record_images.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=10)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (errors=10)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_record_padding.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=8)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (errors=8)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_reference_examples.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 4,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_regions.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 111,
+   "result": "FAILED (failures=111)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 111,
+   "result": "FAILED (failures=111)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_resource_free_blocks.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 2,
+   "result": "FAILED (failures=2)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 2,
+   "result": "FAILED (failures=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_root_struct_backends.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 3,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_runtime_reference.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 12,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_runtime_session.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 9,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_script_hosts.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 7,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_simd_only_writeback.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=5)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_slice_pool_backends.py",
+  "unittest": {
+   "exit": 0,
+   "ran": 2,
+   "result": "OK"
+  },
+  "call": "keep: passes"
+ },
+ {
+  "module": "tests/test_sparse_array_images.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_static_capture_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 8,
+   "result": "FAILED (failures=30)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 8,
+   "result": "FAILED (failures=30)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_static_data.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=7)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=4)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_static_limited_images.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=13)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (errors=12)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_strided_stores.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 8,
+   "result": "FAILED (failures=39)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 8,
+   "result": "FAILED (failures=2640, errors=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_strip_loops.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=5)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_syntax_cache.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 10,
+   "result": "FAILED (failures=11, errors=1116)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 10,
+   "result": "FAILED (failures=11, errors=1116)"
+  },
+  "call": "delete: tests the C++ compiler's session/serve mode (--wasm-session, --native-worker, goose_wasm.py serve), which the Goose compiler does not have"
+ },
+ {
+  "module": "tests/test_tiny_leaf_calls.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 6,
+   "result": "FAILED (failures=52)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 6,
+   "result": "FAILED (errors=52)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_uleb_accessor_helpers.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_uleb_length_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=5)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 5,
+   "result": "FAILED (failures=5)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_uleb_lengths.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=12)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (errors=12)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_variable_enum_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 6,
+   "result": "FAILED (failures=6)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 6,
+   "result": "FAILED (failures=5)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_variable_variant_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_varint_array_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_varint_arrays.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (failures=8)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 4,
+   "result": "FAILED (errors=8)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_varint_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 7,
+   "result": "FAILED (failures=7)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 7,
+   "result": "FAILED (failures=7)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_varint_capture_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (failures=1)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (failures=1)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_varint_grow.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=4)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (errors=4)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_varint_grow_boundaries.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=3)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_varint_records.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (failures=16)"
+  },
+  "without_offline": {
+   "exit": 1,
+   "ran": 3,
+   "result": "FAILED (errors=16)"
+  },
+  "call": "delete: programs harvested; fails on --offline and then on C++ internals (stats fields, goose.regions sections, memory images, diagnostics)"
+ },
+ {
+  "module": "tests/test_while_unroll.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 1,
+   "result": "FAILED (failures=1)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 1,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ },
+ {
+  "module": "tests/test_zero_stores.py",
+  "unittest": {
+   "exit": 1,
+   "ran": 2,
+   "result": "FAILED (failures=2)"
+  },
+  "without_offline": {
+   "exit": 0,
+   "ran": 2,
+   "result": "OK"
+  },
+  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+ }
+]

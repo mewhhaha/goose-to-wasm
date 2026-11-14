@@ -1,0 +1,121 @@
+{
+ "schema": "goose-qualification-v1",
+ "started": "2026-11-14T19:34:49+0100",
+ "head": "385ba33491882a5dcd1cd705ccdaa35ee6baa4ae",
+ "dirty": false,
+ "since": "origin/main",
+ "units_pass": false,
+ "stages": [
+  {
+   "stage": "bootstrap",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "scripts/bootstrap.py",
+    "--verify",
+    "--build-dir",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/bootstrap",
+    "--cache-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+   ],
+   "exit": 0,
+   "seconds": 42.7,
+   "log": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/bootstrap.log"
+  },
+  {
+   "stage": "conformance",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/conformance",
+    "--jobs",
+    "5"
+   ],
+   "exit": 0,
+   "seconds": 283.8,
+   "log": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/conformance.log",
+   "summary": "{'selected': 10789, 'passed': 10685, 'failed': 104}",
+   "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 3216, 'cache_hits': 1802}"
+  },
+  {
+   "stage": "native-checks",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "native/tests/check.py",
+    "--output",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/native"
+   ],
+   "exit": 0,
+   "seconds": 21.5,
+   "log": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/native-checks.log",
+   "summary": "54 steps ok"
+  },
+  {
+   "stage": "equivalence",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/output_equivalence.py",
+    "--baseline",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a636162323a6482dc/build/q-abandon/bootstrap/bin/goose",
+    "--candidate",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/bootstrap/bin/goose",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/equivalence",
+    "--selfhost",
+    "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/frozen/selfhost",
+    "--jobs",
+    "2"
+   ],
+   "exit": 0,
+   "seconds": 193.0,
+   "log": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/equivalence.log",
+   "summary": "{\"compared\": 10045, \"differing\": 0, \"seconds\": {\"baseline\": 161.193, \"candidate\": 156.886}}",
+   "differing": []
+  },
+  {
+   "stage": "unit-tests",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_conformance_runner",
+    "tests.test_bootstrap_optimization",
+    "tests.test_native_units",
+    "tests.test_driver_outputs",
+    "tests.test_cli_outputs",
+    "tests.test_root_struct_backends",
+    "tests.test_slice_pool_backends"
+   ],
+   "exit": 0,
+   "seconds": 32.4,
+   "log": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a773447fedfa19d39/build/q-harvest/unit-tests.log"
+  }
+ ],
+ "bootstrap": {
+  "fixed_point": true,
+  "generated_c_sha256": "b78b8c8c333d84795af09c6efc73bc4c4d7400158e891103636797dd661e97bf",
+  "next_generation_c_sha256": "b78b8c8c333d84795af09c6efc73bc4c4d7400158e891103636797dd661e97bf",
+  "third_generation_c_sha256": null,
+  "executable_sha256": "da0aecd2d9ac4256e5432b3b645664240dd5830d3896b7883ab5e3a4403877f9",
+  "profile_used": false,
+  "cached": {
+   "build-seed": true,
+   "build-goose": true
+  }
+ },
+ "seconds": 326.5,
+ "status": "passed",
+ "failed": []
+}
