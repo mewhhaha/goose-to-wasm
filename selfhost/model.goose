@@ -438,19 +438,29 @@ fn location_token(p: Program&, node: i64) -> i64 {
 // (upstream SpecInfo::located, 52282722). A failed check on one of its own
 // library lines reports there, and its calls from those lines pass it on.
 let F_LOCATED: i64 = 288230376151711744;
+// The runtime entry points that report a failure where the program called
+// the library (upstream SFunction::takesloc): the slice pool's span tree.
+fn location_extern(p: Program&, function: i64) -> bool {
+    let n = p.nodes[function]; var name = token_text(p, n.token);
+    if n.integer >= 0 && n.integer < p.tokens.len && p.tokens[n.integer].kind == T_STRLIT {
+        let t = p.tokens[n.integer]; name = p.text[t.text_start..t.text_start + t.text_len];
+    }
+    return same_bytes(name, "gs_slice_pool_place") || same_bytes(name, "gs_slice_pool_free") ||
+        same_bytes(name, "gs_slice_pool_regrow") || same_bytes(name, "gs_slice_pool_trim");
+}
 // Marks the located functions: every checked function of a --stdlib module
-// but externs, exports, main, thread functions and functions a function
-// value names, which their callers reach without a location. A function
-// value is a function's name or a function literal that code generation
-// evaluates, so neither a direct call's callee nor the trailing block a
-// call binds to a function parameter. Returns whether any function is
-// located.
+// but its externs, and the location_extern externs wherever declared; not
+// exports, main, thread functions or functions a function value names,
+// which their callers reach without a location. A function value is a
+// function's name or a function literal that code generation evaluates,
+// so neither a direct call's callee nor the trailing block a call binds to
+// a function parameter. Returns whether any function is located.
 fn mark_located_functions(p: Program&) -> bool {
     var candidates = false;
     for n, id in p.nodes {
         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
         p.nodes[id].flags &= ~F_LOCATED;
-        if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED && library_node(p, id) { candidates = true; }
+        if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED && (library_node(p, id) || (n.flags & F_EXTERN) != 0 && location_extern(p, id)) { candidates = true; }
     }
     if !candidates { return false; }
     var values: bool[>..] = []; values.resize(p.nodes.len, false); var roots: i64[>..] = []; var work: i64[>..] = [];
@@ -478,8 +488,10 @@ fn mark_located_functions(p: Program&) -> bool {
     var located = false;
     for n, id in p.nodes {
         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
-        if (n.flags & (F_CHECKED | F_GENERIC)) != F_CHECKED || !library_node(p, id) || values[id] { continue; }
-        if (n.flags & (F_EXPORT | F_THREAD | F_EXTERN)) != 0 || id == p.entry { continue; }
+        if (n.flags & (F_CHECKED | F_GENERIC)) != F_CHECKED || values[id] { continue; }
+        if (n.flags & (F_EXPORT | F_THREAD)) != 0 || id == p.entry { continue; }
+        if (n.flags & F_EXTERN) != 0 { if !location_extern(p, id) { continue; } }
+        else if !library_node(p, id) { continue; }
         p.nodes[id].flags |= F_LOCATED; located = true;
     }
     return located;

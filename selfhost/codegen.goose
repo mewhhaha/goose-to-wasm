@@ -3537,6 +3537,7 @@ fn cg_collect(p: Program&, m: CgModule&) {
         if (n.flags & F_THREAD) != 0 { cg_fail(p, node, "wasm: threads are unsupported by the direct host ABI"); }
         if (n.flags & F_EXTERN) != 0 {
             if n.aux >= 0 { cg_fail(p, node, "wasm: dynamic-library externs are unsupported"); }
+            if location_extern(p, node) { cg_fail(p, node, "wasm: the slice pool span tree externs are not supported by the direct Wasm backend; use --target native"); continue; }
             cg_exportable(p, node);
             if cg_intrinsic(p, node) == 0 { m.imports.push(CgImport { symbol: n.symbol, signature: cg_make_signature(p, m, node, false) }); }
         } else { m.functions.push(CgFunction { node: node, symbol: n.symbol }); }

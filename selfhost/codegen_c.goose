@@ -15,6 +15,7 @@ let cc_runtime_threads = embed_file("../native/runtime/runtime_threads.h");
 let cc_runtime = embed_file("../native/storage.h");
 let cc_runtime_relative = embed_file("../native/relative.h");
 let cc_runtime_pools = embed_file("../native/pools.h");
+let cc_runtime_slice_pool = embed_file("../native/slice_pool.h");
 let cc_runtime_images = embed_file("../native/images.h");
 let cc_runtime_runs = embed_file("../native/runs.h");
 let cc_runtime_workers = embed_file("../native/threads.h");
@@ -3155,6 +3156,14 @@ fn cc_emit_extern(p: Program&, out: u8[>..]&, function: i64) {
     if value && cc_tuple_channels(p, result_type) { cc_text(out, "g_foreign="); }
     else if value { if cc_indirect(p, result_type) { cc_text(out, "*g_into="); } else { cc_text(out, "return "); } }
     if cc_bits_extern(p, out, function, name) { return; }
+    if (p.nodes[function].flags & F_LOCATED) != 0 {
+        // slice_pool's span tree (native/slice_pool.h), which reports a
+        // corrupt tree where the program called slice_pool.
+        cc_text(out, "g_"); cc_text(out, name[3..]); cc_text(out, "(");
+        var param = p.nodes[function].first; var index = 0;
+        while param >= 0 { cc_param(p, out, function, index); cc_text(out, ","); index++; param = p.nodes[param].next; }
+        cc_text(out, "g_at);\n"); return;
+    }
     let runtime = cc_runtime_extern(name);
     if runtime.len > 0 {
         cc_text(out, runtime); cc_text(out, "(");
@@ -3561,7 +3570,10 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     cc_text(out, "#if !defined(GS_SEPARATE_RUNTIME) || defined(G_RUNTIME_UNIT)\n"); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
     cc_text(out, "#endif\n#ifdef G_RUNTIME_UNIT\n"); cc_text(out, cc_runtime_unit); cc_text(out, "#else /* program units */\n");
     cc_text(out, cc_runtime); cc_text(out, cc_runtime_relative); cc_text(out, cc_runtime_pools); cc_text(out, cc_runtime_extra);
-    if located { cc_text(out, "typedef struct { const char *file; int line; } GLoc;\n"); }
+    if located {
+        cc_text(out, "typedef struct { const char *file; int line; } GLoc;\n");
+        for n, id in p.nodes { if (n.flags & (F_EXTERN | F_LOCATED)) == (F_EXTERN | F_LOCATED) && cc_emittable(p, id) { cc_text(out, cc_runtime_slice_pool); break; } }
+    }
     if images { cc_text(out, cc_runtime_images); }
     if p.unwinding { cc_text(out, cc_runtime_unwinding); }
     var runs = false; for t, id in p.types { if used[id] && cc_self_run(p, id) { runs = true; break; } }

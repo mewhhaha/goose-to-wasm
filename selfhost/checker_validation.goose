@@ -367,13 +367,11 @@ fn validation_c_param_reason(p: Program&, type_id: i64) -> u8[:] {
     let t = p.types[type_id];
     if t.kind == TY_REF {
         if (t.flags & TF_OPTIONAL) != 0 || t.length_storage >= 0 { return "only plain references cross"; }
+        // A resizable crosses as its header, and C sees its elements as
+        // blocks of their packed size (upstream ExternParamOk).
         if t.element >= 0 {
             let sub = p.types[t.element];
-            if sub.kind == TY_ARRAY && sub.array_kind == A_GROW && sub.element >= 0 {
-                let element = p.types[sub.element];
-                if element.kind == TY_INT && element.storage == 0 && element.count == 8 &&
-                   (element.flags & TF_UNSIGNED) != 0 && element.index_type < 0 { return ""; }
-            }
+            if sub.kind == TY_ARRAY && sub.array_kind == A_GROW && sub.element >= 0 { return validation_c_value_reason(p, sub.element); }
         }
         return validation_c_value_reason(p, t.element);
     }

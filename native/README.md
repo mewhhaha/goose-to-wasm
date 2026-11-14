@@ -66,6 +66,15 @@ scope exit, globals take dedicated slots, and owners pass by address. A named
 component (`owner.field` in an index or relative type) is that field's place
 in its global owner's frame. The direct Wasm backend refuses root owners.
 
+`slice_pool.h` implements the externs of upstream `stdlib/slice_pool_internal.goose`
+(`gs_slice_pool_place`, `_free`, `_regrow`, `_trim`): the runtime's span tree,
+ported from upstream `runtime_os.h` at `855f1037`, over the pool's own `node[>..]`
+array, which grows as a push would, and its `tree` header. Every node number and
+count read from them is checked; a wrong one aborts at the `GLoc` the extern
+wrapper is passed, the program's call into `slice_pool`. Emitted C includes it
+only when a program calls them, in every program unit. `tests/slice_pool.c`
+checks it against a model of the free spans, and trim's zeroed pages.
+
 Large aggregate values use a scoped fixed-value region and address parameters.
 `tests/large_values.goose` checks receiving, recursion, nonlocal returns and
 loop reuse. The C checks also cover fixed-value watermarks and independent
