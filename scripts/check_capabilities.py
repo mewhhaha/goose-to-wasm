@@ -7,16 +7,20 @@ Execution qualification remains the responsibility of the differential suites.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+# The pinned frontend vocabulary, frozen from upstream's src/ast.h and
+# src/builtins.h at the contract revision (--upstream re-derives it).
+VOCABULARY = ROOT / "tests" / "conformance" / "upstream-vocabulary.json"
+HEADERS = ("src/ast.h", "src/builtins.h")
 
 
-def inventory_names(source: Path) -> dict[str, set[str]]:
-    ast = (source / "src" / "ast.h").read_text()
-    builtins = (source / "src" / "builtins.h").read_text()
+def inventory_names(ast: str, builtins: str) -> dict[str, set[str]]:
     nodes = re.search(r"enum NodeKind[^\{]*\{(.*?)\};", ast, re.S)
     arrays = re.search(r"enum ArrayKind[^\{]*\{(.*?)\};", ast, re.S)
     if nodes is None or arrays is None:
@@ -28,12 +32,28 @@ def inventory_names(source: Path) -> dict[str, set[str]]:
     }
 
 
-def check(manifest: dict, source: Path) -> list[str]:
+def pinned_headers(upstream: Path, revision: str) -> dict[str, str]:
+    """The vocabulary headers at the pin, read from an upstream git checkout."""
+    return {path: subprocess.run(["git", "-C", str(upstream), "show", f"{revision}:{path}"], check=True,
+                                 capture_output=True, text=True).stdout for path in HEADERS}
+
+
+def frozen(revision: str, headers: dict[str, str]) -> dict:
+    names = inventory_names(headers["src/ast.h"], headers["src/builtins.h"])
+    return {"schema": "goose-upstream-vocabulary-v1", "upstream_revision": revision,
+            "header_sha256": {path: hashlib.sha256(text.encode()).hexdigest() for path, text in headers.items()},
+            **{group: sorted(values) for group, values in names.items()}}
+
+
+def check(manifest: dict, vocabulary: dict) -> list[str]:
     errors = []
     pins = json.loads((ROOT / "toolchain.json").read_text())
     if manifest.get("upstream_revision") != pins["upstream_contract"]["revision"]:
         errors.append("capability inventory revision differs from toolchain pin")
-    for group, expected in inventory_names(source).items():
+    if vocabulary.get("upstream_revision") != pins["upstream_contract"]["revision"]:
+        errors.append("frozen vocabulary revision differs from toolchain pin")
+    for group in ("builtins", "nodes", "arrays"):
+        expected = set(vocabulary.get(group, []))
         observed = set(manifest["capabilities"].get(group, {}))
         if expected != observed:
             errors.append(f"{group}: missing={sorted(expected-observed)}, extra={sorted(observed-expected)}")
@@ -55,11 +75,22 @@ def check(manifest: dict, source: Path) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source-dir", type=Path, default=ROOT / "build" / "source")
     parser.add_argument("--manifest", type=Path, default=ROOT / "docs" / "capabilities.json")
+    parser.add_argument("--vocabulary", type=Path, default=VOCABULARY)
+    parser.add_argument("--upstream", type=Path,
+                        help="upstream Goose git checkout: re-derive the vocabulary at the pin and require the frozen copy to match")
+    parser.add_argument("--write", action="store_true", help="with --upstream, rewrite the frozen vocabulary")
     args = parser.parse_args()
     manifest = json.loads(args.manifest.read_text())
-    errors = check(manifest, args.source_dir)
+    errors = []
+    if args.upstream:
+        revision = json.loads((ROOT / "toolchain.json").read_text())["upstream_contract"]["revision"]
+        derived = frozen(revision, pinned_headers(args.upstream, revision))
+        if args.write:
+            args.vocabulary.write_text(json.dumps(derived, indent=2) + "\n")
+        elif json.loads(args.vocabulary.read_text()) != derived:
+            errors.append(f"{args.vocabulary.name} differs from upstream {revision}")
+    errors += check(manifest, json.loads(args.vocabulary.read_text()))
     for error in errors:
         print(error)
     entries = [entry for group in manifest["capabilities"].values() for entry in group.values()]
