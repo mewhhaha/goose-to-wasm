@@ -200,6 +200,35 @@ output.write_text('#ifndef G_UNITS\\nint runtime_value(void) { return 40; }\\n#e
         self.assertEqual(warm["native_cache_summary"], {"builds": 6, "hits": 6})
         self.assertFalse([row for row in warm["commands"] if "-DG_RUNTIME_UNIT" in row["command"]])
 
+    def test_type_error_rows_require_their_diagnostic(self):
+        source = self.work / "bad.goose"
+        source.write_text("fn main() { nope }\n")
+        compiler = self.work / "fake-compiler"
+        compiler.write_text("""#!/usr/bin/env python3
+import sys
+if '--parse' in sys.argv:
+    sys.exit(0)
+print(sys.argv[1] + ':1:13: error: unknown name nope', file=sys.stderr)
+sys.exit(1)
+""")
+        compiler.chmod(0o755)
+        original = json.loads((ROOT / "tests/conformance/cases.json").read_text())
+        cases = [dict(id=f"diagnostic/{name}", source=f"{self.relative_work}/bad.goose", phase="type-error",
+                      target="wasm-direct", levels=[0], expect=dict(stderr_contains=[text]))
+                 for name, text in (("named", "unknown name"), ("other", "type mismatch"))]
+        manifest = self.work / "cases.json"
+        manifest.write_text(json.dumps(dict(upstream=original["upstream"], cases=cases)))
+        library = self.work / "stdlib"
+        library.mkdir()
+        output = self.work / "run"
+        arguments = ["conformance.py", "--compiler", str(compiler), "--output-dir", str(output),
+                     "--manifest", str(manifest), "--stdlib", str(library), "--jobs", "1"]
+        with mock.patch.object(sys, "argv", arguments), contextlib.redirect_stdout(None):
+            CONFORMANCE.main()
+        report = json.loads((output / "report.json").read_text())
+        self.assertEqual([(row["case"], row["status"]) for row in report["results"]],
+                         [("diagnostic/named", "pass"), ("diagnostic/other", "fail")])
+
     def test_native_cache_rebuilds_case_sources_after_transitive_header_change(self):
         source = self.work / "same.goose"
         source.write_text("fn main() {}\n")

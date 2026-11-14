@@ -404,7 +404,10 @@ def main():
         row['compile_command'] = compiled['command']
         result = compiled['result']
         if phase in ('parse-error', 'type-error'):
-            if normal_error(result) and 'reason' not in row:
+            # A rejection must be a normal error, and name what the contract says.
+            row['diagnostic_equal'] = all(text.lower() in result['stderr'].lower()
+                                          for text in case.get('expect', {}).get('stderr_contains', []))
+            if normal_error(result) and row['diagnostic_equal'] and 'reason' not in row:
                 row['status'] = 'pass'
         elif action in ('parse', 'check'):
             if result['exit_code'] == 0 and not result['error']:
