@@ -31,7 +31,7 @@ def inventory_names(source: Path) -> dict[str, set[str]]:
 def check(manifest: dict, source: Path) -> list[str]:
     errors = []
     pins = json.loads((ROOT / "toolchain.json").read_text())
-    if manifest.get("upstream_revision") != pins["revision"]:
+    if manifest.get("upstream_revision") != pins["upstream_contract"]["revision"]:
         errors.append("capability inventory revision differs from toolchain pin")
     for group, expected in inventory_names(source).items():
         observed = set(manifest["capabilities"].get(group, {}))
