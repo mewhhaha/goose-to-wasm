@@ -70329,6 +70329,38 @@
         "provenance": "Upstream goose_spec.md §6.5 at 2e2bede: a range's or count's index counts iterations as an i64; expected output from plain upstream 32a4f44 (goose run). Native C used to bind a range's index to its value."
     },
     {
+        "id": "corpus/contracts/upstream-differential/backends/varint-push/native",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/varint-push.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[5, 9223372036854775807, -300] 3\n[-9223372036854775808, 127, 128]\n[1, 2, -9223372036854775808, 127, 128, 0] 6\n450\n[5, 9223372036854775807, -300]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §3.6 and §5.1 at 2e2bede: a grow-only array of varint elements, global and local, pushed, appended and assigned; expected output from plain upstream 32a4f44 (goose run), which prints the same. Native C used to write the element images with g_image_space and g_image_commit without bringing in its image runtime, so its C did not compile."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/backends/varint-push/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/varint-push.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[5, 9223372036854775807, -300] 3\n[-9223372036854775808, 127, 128]\n[1, 2, -9223372036854775808, 127, 128, 0] 6\n450\n[5, 9223372036854775807, -300]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §3.6 and §5.1 at 2e2bede: a grow-only array of varint elements, global and local, pushed, appended and assigned; expected output from plain upstream 32a4f44 (goose run), which prints the same. Native C used to write the element images with g_image_space and g_image_commit without bringing in its image runtime, so its C did not compile."
+    },
+    {
         "id": "corpus/contracts/range-index/iterations/wasm-direct",
         "source": "tests/fixtures/contracts/range-index/iterations.goose",
         "phase": "run",

@@ -110,3 +110,7 @@ About 700 generated programs were checked and run with this compiler and with pl
 - Fixed: a call to a function whose reference parameter type is unknown aborted the compiler during overload choice (index -1) instead of reporting "unknown type name". Contract: `corpus/contracts/unknown-types/reference-member`.
 - `--run` without `-o` writes `out.c` and then fails to execute `out.c.bin`.
 - Fixed: a named constant above `i64.max` (`let HUGE = 18446744073709551615`) converted silently to `i64` (as -1) when it met an `i64` named constant whose storage was referenced, so `HUGE > B` printed `false`. It now converts only to `u64`. Two such constants operate as `u64`, and a negative partner is an error, as in upstream `UnifyNumeric`. `typing/named_constant_literals` passes. Contracts: `corpus/contracts/named-constants/*`.
+
+## Differences found by the upstream differential run
+
+- Fixed: native C for a grow array of `varint` elements (`var a: varint[>..] = []; a.push(5);`) did not compile when no other image type appeared, since it wrote the element images without bringing in the image runtime. Upstream prints `[5]`; direct Wasm already did. Contracts: `corpus/contracts/upstream-differential/backends/varint-push/*`.

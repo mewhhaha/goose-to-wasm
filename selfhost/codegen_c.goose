@@ -2491,7 +2491,9 @@ recursive fn cc_pool_builtin(p: Program&, f: CcBody&, node: i64, builtin: i64, a
 }
 fn cc_images_used(p: Program&) -> bool {
     if cc_threads_used(p) { return true; }
-    for t, id in p.types { if cc_image_type(p, id) { return true; } }
+    // An array of image elements (varint, a relative reference) is not an
+    // image itself, but its literals, stores and pushes write element images.
+    for t, id in p.types { if cc_image_type(p, id) || t.kind == TY_ARRAY && cc_size_class(p, t.element) == 1 { return true; } }
     for n in p.nodes {
         if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) != 0 {
             let builtin = p.symbols[n.symbol].index; if builtin == 16 || builtin == 18 { return true; }
