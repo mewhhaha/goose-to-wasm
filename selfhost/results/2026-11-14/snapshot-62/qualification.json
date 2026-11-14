@@ -1,0 +1,171 @@
+{
+ "schema": "goose-qualification-v1",
+ "started": "2026-11-14T15:55:25+0100",
+ "head": "ebeb25a892c5a9fd3951504a24c8afb24fb037c0",
+ "dirty": false,
+ "since": "origin/main",
+ "units_pass": true,
+ "stages": [
+  {
+   "stage": "bootstrap",
+   "command": [
+    "/usr/bin/python3",
+    "scripts/bootstrap.py",
+    "--verify",
+    "--build-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/bootstrap",
+    "--cache-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+   ],
+   "exit": 0,
+   "seconds": 266.5,
+   "log": "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/bootstrap.log"
+  },
+  {
+   "stage": "conformance",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/conformance",
+    "--jobs",
+    "8"
+   ],
+   "exit": 0,
+   "seconds": 498.4,
+   "log": "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/conformance.log",
+   "summary": "{'selected': 8448, 'passed': 8356, 'failed': 92}",
+   "gaps": "{'open_gaps': 92, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 2120, 'cache_hits': 9}"
+  },
+  {
+   "stage": "native-checks",
+   "command": [
+    "/usr/bin/python3",
+    "native/tests/check.py",
+    "--output",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/native"
+   ],
+   "exit": 0,
+   "seconds": 36.3,
+   "log": "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/native-checks.log",
+   "summary": "54 steps ok"
+  },
+  {
+   "stage": "conformance-native-units-3",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/conformance-units",
+    "--jobs",
+    "4",
+    "--native-units",
+    "3",
+    "--targets",
+    "native"
+   ],
+   "exit": 0,
+   "seconds": 584.8,
+   "log": "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/conformance-native-units-3.log",
+   "summary": "{'selected': 4845, 'passed': 4753, 'failed': 92}",
+   "gaps": "{'open_gaps': 92, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 2120, 'cache_hits': 12}"
+  },
+  {
+   "stage": "equivalence",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/output_equivalence.py",
+    "--baseline",
+    "/home/jacobt/src/goose-to-wasm/build/baselines/goose-snapshot62",
+    "--candidate",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/bootstrap/bin/goose",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/equivalence",
+    "--selfhost",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/frozen/selfhost",
+    "--jobs",
+    "4"
+   ],
+   "exit": 1,
+   "seconds": 226.2,
+   "log": "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/equivalence.log",
+   "summary": "{\"compared\": 7689, \"differing\": 4, \"seconds\": {\"baseline\": 318.399, \"candidate\": 338.807}}"
+  },
+  {
+   "stage": "unit-tests",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_conformance_runner",
+    "tests.test_bootstrap_optimization",
+    "tests.test_native_units",
+    "tests.test_driver_outputs",
+    "tests.test_cli_outputs",
+    "tests.test_root_struct_backends",
+    "tests.test_slice_pool_backends"
+   ],
+   "exit": 0,
+   "seconds": 61.1,
+   "log": "/home/jacobt/src/goose-to-wasm/build/qualify-ebeb25a/unit-tests.log"
+  }
+ ],
+ "bootstrap": {
+  "fixed_point": true,
+  "generated_c_sha256": "d1f489fb3e417c1ebae5ef6f8cc5814d69e850d34143af23b64be30bc42e465d",
+  "next_generation_c_sha256": "d1f489fb3e417c1ebae5ef6f8cc5814d69e850d34143af23b64be30bc42e465d",
+  "third_generation_c_sha256": null,
+  "executable_sha256": "5605af6a87c86b9249f46acf7ef5ba2351a1b8a7513cdbdfe29e6e9a4dbaa57f",
+  "profile_used": false,
+  "cached": {
+   "build-seed": false,
+   "build-goose": false
+  }
+ },
+ "seconds": 851.3,
+ "status": "passed",
+ "failed": [],
+ "equivalence_differing": [
+  [
+   "native0",
+   "tests/fixtures/codegen_loop_indices.goose"
+  ],
+  [
+   "native0",
+   "tests/fixtures/contracts/range-index/iterations.goose"
+  ],
+  [
+   "native2",
+   "tests/fixtures/codegen_loop_indices.goose"
+  ],
+  [
+   "native2",
+   "tests/fixtures/contracts/range-index/iterations.goose"
+  ]
+ ],
+ "note": "Run on the tree ebeb25a, whose selfhost sources equal 8cec9bc; its compiler 5605af6a is the snapshot 62 seed built without the profile."
+}
