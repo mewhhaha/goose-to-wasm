@@ -10,8 +10,8 @@ import model;
 // RootComponent identities). Contents stay with the owner.
 struct LifeAlt { root: i64, exact: bool = true, from: i64 = -1, slotread: bool = false, byteview: bool = false, target_type: i64 = -1, bound: i64 = 0, next: i64 = -1, component: i64 = -1 }
 // index: for a set of LIFE_BIG or more alternatives, a hashed root index in
-// set_index at index, of index_mask + 1 slots, made with the set's list or
-// when the set is first searched.
+// set_index at index, of index_mask + 1 slots, made when the set is first
+// searched.
 struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0 }
 // A span of global_read_list; count -1 until computed.
 struct LifeSpan { first: i64 = 0, count: i64 = -1 }
@@ -713,7 +713,6 @@ fn life_list_set(l: Lifetimes&, start: i64) -> i64 {
     for item in start..l.scratch.len { var entry = l.scratch[item]; entry.next = next; next = l.alts.len; l.alts.push(entry); }
     let index = l.sets.len; l.sets.push(LifeSet { first: next, count: count });
     l.list_slots[slot] = l.list_sets.len; l.list_sets.push(index); l.list_keys.push(key);
-    if count >= LIFE_BIG { life_index_build(l, index); }
     return index;
 }
 // life_insert into the list scratch[start..], kept tail first.
