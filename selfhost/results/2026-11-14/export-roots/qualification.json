@@ -1,0 +1,149 @@
+{
+ "schema": "goose-qualification-v1",
+ "started": "2026-11-14T21:40:07+0100",
+ "head": "9806f0ee2d3909ed3c6870abe38759d6787ce2c4",
+ "dirty": false,
+ "since": "origin/main",
+ "units_pass": false,
+ "stages": [
+  {
+   "stage": "bootstrap",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "scripts/bootstrap.py",
+    "--verify",
+    "--build-dir",
+    "/home/jacobt/src/goose-to-wasm/build/q-export/bootstrap",
+    "--cache-dir",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/bootstrap"
+   ],
+   "exit": 0,
+   "seconds": 144.6,
+   "log": "/home/jacobt/src/goose-to-wasm/build/q-export/bootstrap.log"
+  },
+  {
+   "stage": "conformance",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/jacobt/src/goose-to-wasm/build/q-export/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/jacobt/src/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/q-export/conformance",
+    "--jobs",
+    "5"
+   ],
+   "exit": 0,
+   "seconds": 70.0,
+   "log": "/home/jacobt/src/goose-to-wasm/build/q-export/conformance.log",
+   "summary": "{'selected': 10793, 'passed': 10689, 'failed': 104}",
+   "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 3216, 'cache_hits': 3152}"
+  },
+  {
+   "stage": "native-checks",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "native/tests/check.py",
+    "--output",
+    "/home/jacobt/src/goose-to-wasm/build/q-export/native"
+   ],
+   "exit": 0,
+   "seconds": 26.6,
+   "log": "/home/jacobt/src/goose-to-wasm/build/q-export/native-checks.log",
+   "summary": "54 steps ok"
+  },
+  {
+   "stage": "equivalence",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "tests/output_equivalence.py",
+    "--baseline",
+    "/home/jacobt/src/goose-to-wasm/build/q-s63b/bootstrap/bin/goose",
+    "--candidate",
+    "/home/jacobt/src/goose-to-wasm/build/q-export/bootstrap/bin/goose",
+    "--output-dir",
+    "/home/jacobt/src/goose-to-wasm/build/q-export/equivalence",
+    "--selfhost",
+    "/home/jacobt/src/goose-to-wasm/build/q-export/frozen/selfhost",
+    "--jobs",
+    "2"
+   ],
+   "exit": 1,
+   "seconds": 176.6,
+   "log": "/home/jacobt/src/goose-to-wasm/build/q-export/equivalence.log",
+   "summary": "{\"compared\": 10049, \"differing\": 1, \"seconds\": {\"baseline\": 131.2, \"candidate\": 140.677}}",
+   "differing": [
+    {
+     "source": "tests/fixtures/contracts/upstream-differential/lifetimes/export-root.goose",
+     "mode": "check",
+     "same": false,
+     "baseline": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": null,
+      "seconds": 0.002
+     },
+     "candidate": {
+      "exit": 1,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "ad8082fe700134d4245dcb64b36ef22cee5691db4a8cbde0701060fa6a0ecb63",
+      "stderr_head": "/home/jacobt/src/goose-to-wasm/tests/fixtures/contracts/upstream-differential/lifetimes/export-root.goose:6:7: error: array shrink invalidates a reference or holder that is used afterward\n",
+      "output": null,
+      "seconds": 0.002
+     }
+    }
+   ]
+  },
+  {
+   "stage": "unit-tests",
+   "command": [
+    "/home/jacobt/src/goose-to-wasm/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_conformance_runner",
+    "tests.test_bootstrap_optimization",
+    "tests.test_native_units",
+    "tests.test_driver_outputs",
+    "tests.test_cli_outputs",
+    "tests.test_root_struct_backends",
+    "tests.test_slice_pool_backends",
+    "tests.test_loop_ordinals",
+    "tests.test_dynamic_remainder",
+    "tests.test_descending_while",
+    "tests.test_zero_stores",
+    "tests.test_aggregate_print",
+    "tests.test_while_unroll"
+   ],
+   "exit": 0,
+   "seconds": 70.4,
+   "log": "/home/jacobt/src/goose-to-wasm/build/q-export/unit-tests.log"
+  }
+ ],
+ "bootstrap": {
+  "fixed_point": true,
+  "generated_c_sha256": "158561fe810735e9ad14e33eecc3175bd6aa4dd7e92c15bba6cb50b5465ac0c3",
+  "next_generation_c_sha256": "158561fe810735e9ad14e33eecc3175bd6aa4dd7e92c15bba6cb50b5465ac0c3",
+  "third_generation_c_sha256": null,
+  "executable_sha256": "b5553b16833bef96943d56326950c5fef14404a61c66c4b5276e992b7b561939",
+  "profile_used": false,
+  "cached": {
+   "build-seed": true,
+   "build-goose": false
+  }
+ },
+ "seconds": 321.3,
+ "status": "passed",
+ "failed": []
+}
