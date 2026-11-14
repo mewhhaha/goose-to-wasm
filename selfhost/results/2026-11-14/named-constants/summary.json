@@ -25,5 +25,27 @@
    "tests/fixtures/contracts/named-constants/above-i64-negative.goose",
    "tests/fixtures/contracts/named-constants/above-i64.goose"
   ]
+ },
+ "combined_with_native_units": {
+  "commit_parent": "89c5bce",
+  "compiler_executable_sha256": "599ac861019ed965f422f791fe752d3d1e66384631cdeb020ccaf8645840afb2",
+  "generated_c_sha256": "4a9d4dda4a56fb90f45070487fecb382f110383dfce2e40e2b4c90657bfa9175",
+  "fixed_point": true,
+  "conformance_single_unit": {
+   "selected": 8390,
+   "passed": 8296,
+   "failed": 94
+  },
+  "conformance_native_units_3": {
+   "selected": 8390,
+   "passed": 8296,
+   "failed": 94
+  },
+  "known_gaps": {
+   "open": 94,
+   "unexpected": 0,
+   "fixed": 0
+  },
+  "native_checks": "all ok"
  }
 }
