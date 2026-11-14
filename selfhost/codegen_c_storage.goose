@@ -213,7 +213,7 @@ recursive fn cc_frame_size(p: Program&, type_id: i64) -> i64 {
     // checked layout (one reference per field) only describes the owner.
     if root_struct_type(p, type_id) {
         var size = 0; var field = p.nodes[t.declaration].first;
-        while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 { size += cc_frame_size(p, p.nodes[field].type_id); } field = p.nodes[field].next; }
+        while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 { size += cc_root_component_size(p, p.nodes[field].type_id); } field = p.nodes[field].next; }
         return size;
     }
     if t.kind == TY_STRUCT && t.declaration >= 0 {
@@ -246,6 +246,13 @@ recursive fn cc_frame_size(p: Program&, type_id: i64) -> i64 {
     }
     return t.size;
 }
+// A root owner's frame bytes for one component: its own frame, or for an
+// encoded integer (sized 0) room for its widest encoding, a zigzag ULEB128
+// of 10 bytes, as direct Wasm lays it out (cg_root_layouts).
+recursive fn cc_root_component_size(p: Program&, type_id: i64) -> i64 {
+    if type_id >= 0 && p.types[type_id].kind == TY_INT && p.types[type_id].storage == 1 { return 10; }
+    return cc_frame_size(p, type_id);
+}
 fn cc_field_offset(p: Program&, type_id: i64, field: i64) -> i64 {
     var id = type_id;
     while id >= 0 && p.types[id].kind == TY_REF { id = p.types[id].element; }
@@ -254,7 +261,7 @@ fn cc_field_offset(p: Program&, type_id: i64, field: i64) -> i64 {
     if root_struct_type(p, id) {
         var offset = 0; var previous = p.nodes[p.types[id].declaration].first;
         while previous >= 0 && previous != field {
-            if (p.nodes[previous].flags & F_PAD) == 0 { offset += cc_frame_size(p, p.nodes[previous].type_id); } previous = p.nodes[previous].next;
+            if (p.nodes[previous].flags & F_PAD) == 0 { offset += cc_root_component_size(p, p.nodes[previous].type_id); } previous = p.nodes[previous].next;
         }
         return offset;
     }

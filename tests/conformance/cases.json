@@ -70281,6 +70281,22 @@
         "provenance": "Independently specified root struct v1 storage (upstream docs/design/root_structs.md: independent components, owner references, scope release); expected output derived by hand from the source: a component whose elements own storage, which keeps direct Wasm on its heap backend"
     },
     {
+        "id": "corpus/contracts/root-struct/component-encoded/native",
+        "source": "tests/fixtures/contracts/root-struct/component-encoded.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "-3 10 10\n-9223372036854775808 2 11\n9223372036854775807 11 2\n9223372036854775803\n-3 Codes { [1, 2], -9223372036854775808, \"xbbbbbbbbbb\" }\n",
+            "exit": 0
+        },
+        "provenance": "Independently specified root struct v1 storage (upstream docs/design/root_structs.md: independent components, owner references, scope release); expected output derived by hand from the source: an encoded integer component; plain upstream 32a4f44 prints the same"
+    },
+    {
         "id": "corpus/contracts/root-struct/component-encoded/wasm-direct",
         "source": "tests/fixtures/contracts/root-struct/component-encoded.goose",
         "phase": "run",
@@ -70294,7 +70310,7 @@
             "stdout": "-3 10 10\n-9223372036854775808 2 11\n9223372036854775807 11 2\n9223372036854775803\n-3 Codes { [1, 2], -9223372036854775808, \"xbbbbbbbbbb\" }\n",
             "exit": 0
         },
-        "provenance": "Independently specified root struct v1 storage (upstream docs/design/root_structs.md: independent components, owner references, scope release); expected output derived by hand from the source: an encoded integer component; there is no native row because native C gives a varint component no bytes in the owner's frame"
+        "provenance": "Independently specified root struct v1 storage (upstream docs/design/root_structs.md: independent components, owner references, scope release); expected output derived by hand from the source: an encoded integer component; plain upstream 32a4f44 prints the same"
     },
     {
         "id": "corpus/contracts/unknown-types/reference-member",
