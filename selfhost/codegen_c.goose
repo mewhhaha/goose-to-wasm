@@ -3723,11 +3723,15 @@ fn cc_patch_number(out: u8[>..]&, at: i64, value: i64) {
 inline fn cc_word_byte(byte: u8) -> bool {
     return byte == '_' || byte >= '0' && byte <= '9' || byte >= 'a' && byte <= 'z' || byte >= 'A' && byte <= 'Z';
 }
-// Widens [first, last] to [low, high] for every function that out[from..to] names.
-fn cc_note_names(out: const u8[:], from: i64, to: i64, low: i64, high: i64, first: i64[>..]&, last: i64[>..]&) {
+// Widens [first, last] to [low, high] for every function that out[from..to]
+// names. find_pair skips to each "g..n", so the bytes between are not read
+// one at a time.
+fn cc_note_names(out: u8[:], from: i64, to: i64, low: i64, high: i64, first: i64[>..]&, last: i64[>..]&, g: const ByteSet&, n: const ByteSet&) {
     var at = from;
     while at + 4 < to {
-        if out[at] != 'g' || out[at + 1] != '_' || out[at + 2] != 'f' || out[at + 3] != 'n' || at > 0 && cc_word_byte(out[at - 1]) { at++; continue; }
+        let found = find_pair(out[at..to], g, 3, n); if found < 0 { return; }
+        at += found; if at + 4 >= to { return; }
+        if out[at + 1] != '_' || out[at + 2] != 'f' || at > 0 && cc_word_byte(out[at - 1]) { at++; continue; }
         var node = 0; var next = at + 4;
         while next < to && out[next] >= '0' && out[next] <= '9' { if node < first.len { node = node * 10 + (out[next] - '0') as i64; } next++; }
         if next > at + 4 && node < first.len && (next == to || !cc_word_byte(out[next])) {
@@ -3748,13 +3752,14 @@ fn cc_number_units(p: Program&, out: u8[>..]&, guards: const i64[:], owners: con
     let total = out.len - begin;
     var slices: i64[>..] = []; var first: i64[>..] = []; var last: i64[>..] = [];
     slices.resize(p.nodes.len, 0); first.resize(p.nodes.len, CC_SLICES); last.resize(p.nodes.len, -1);
+    let g = byte_set("g"); let n = byte_set("n");
     for start, index in guards {
         let slice = (start - begin) * CC_SLICES / total; cc_patch_number(out, start + 16, slice);
         if owners[index] >= 0 { slices[owners[index]] = slice; }
         var end = out.len; if index + 1 < guards.len { end = guards[index + 1]; }
-        cc_note_names(out, start, end, slice, slice, first, last);
+        cc_note_names(out, start, end, slice, slice, first, last, g, n);
     }
-    cc_note_names(out, shared, begin, 0, CC_SLICES - 1, first, last);
+    cc_note_names(out, shared, begin, 0, CC_SLICES - 1, first, last, g, n);
     for at, index in links {
         let node = owners[index]; let slice = slices[node];
         var low = first[node]; if slice < low { low = slice; }
