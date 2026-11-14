@@ -1711,14 +1711,28 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         let pool = life_pool_places(p, l, t.pool); if pool != 0 { return pool; }
         return places;
     }
+    // Every global container at one depth has the same candidates, which it
+    // adds read from itself (from), bounded by its own bound and slot-read
+    // unless it holds a reference. A merge only ever admits more, so once two
+    // such containers' candidates are in, each reads from no one container
+    // and is bounded by both: a later one that is no more slot-read and no
+    // deeper bound adds nothing a join would keep, and is skipped.
+    var global_reads = 0; var global_depth = 0; var global_holder = false; var global_bound: i64 = 0;
     var result = LifeBuild {}; var at = l.sets[places].first;
     while at >= 0 {
         let alt = l.alts[at]; let root = l.roots[alt.root];
         let global = root.symbol >= 0 && (p.symbols[root.symbol].flags & S_GLOBAL) != 0;
         var known = alt.exact && !global;
+        let holder = root.type_id >= 0 && life_is_ref(p, root.type_id);
+        let shared = !known && global && t.element >= 0;
+        if shared && global_reads >= 2 && root.depth == global_depth && (!holder || global_holder) && alt.bound <= global_bound { at = alt.next; continue; }
+        if shared && (global_reads == 0 || root.depth == global_depth) {
+            global_reads += 1; global_depth = root.depth;
+            if holder { global_holder = true; } if alt.bound > global_bound { global_bound = alt.bound; }
+        }
         // The candidates are read once, here, and their set is not made.
         let start = l.scratch.len;
-        if !known && global && t.element >= 0 { life_global_candidates(p, l, t.element, root.depth); }
+        if shared { life_global_candidates(p, l, t.element, root.depth); }
         else if !known { var candidates = LifeBuild {}; life_candidates(p, l, t.element, root.depth, global, candidates); life_build_drop(l, candidates); }
         else {
             var source = root.contents;
