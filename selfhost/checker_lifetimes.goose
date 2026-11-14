@@ -3058,7 +3058,10 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     for id in 0..node_count {
         let n = p.nodes[id];
         if n.kind != N_FUNCTION || n.right < 0 || (n.flags & (F_CHECKED | F_GENERIC)) != F_CHECKED || id == p.entry { continue; }
-        if (n.flags & F_REACHABLE) != 0 && (n.flags & F_THREAD) == 0 { continue; }
+        // A reachable function is analyzed from its callers, except a thread
+        // or an export, which the runtime or a host calls with arguments of
+        // its own (upstream's export bodies are roots too).
+        if (n.flags & F_REACHABLE) != 0 && (n.flags & (F_THREAD | F_EXPORT)) == 0 { continue; }
         if n.symbol < 0 || p.symbols[n.symbol].owner >= 0 { continue; }
         standalone.push(LifeStandalone { function_node: id, arguments: life_standalone_arguments(p, l, id) });
     }

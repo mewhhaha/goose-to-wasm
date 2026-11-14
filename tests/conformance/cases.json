@@ -70569,6 +70569,38 @@
         "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a view of an inner local is not stored into an outer array (§9.2 Store); plain upstream 32a4f44 rejects it too: \"storing a reference rooted at xs, which does not outlive the destination (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
     },
     {
+        "id": "corpus/contracts/upstream-differential/lifetimes/export-root/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/export-root.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "array shrink invalidates a reference or holder that is used afterward"
+            ]
+        },
+        "provenance": "Must be rejected (upstream goose_spec.md §5.1 at 2e2bede): clearing an array while a reference into it is still used; the function is exported and nothing in the program calls it, so only rooting exports reaches it; plain upstream 32a4f44 rejects it: \"cannot clear a while r is still used: it may hold a reference or slice into it (§5.1)\". The lifetime pass rooted only main, threads and unreachable functions, so an export that was reachable as a root was never analyzed and this was accepted."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/export-root/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/export-root.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "array shrink invalidates a reference or holder that is used afterward"
+            ]
+        },
+        "provenance": "Must be rejected (upstream goose_spec.md §5.1 at 2e2bede): clearing an array while a reference into it is still used; the function is exported and nothing in the program calls it, so only rooting exports reaches it; plain upstream 32a4f44 rejects it: \"cannot clear a while r is still used: it may hold a reference or slice into it (§5.1)\". The lifetime pass rooted only main, threads and unreachable functions, so an export that was reachable as a root was never analyzed and this was accepted."
+    },
+    {
         "id": "corpus/contracts/upstream-differential/lifetimes/block-result-views-parameter/native",
         "source": "tests/fixtures/contracts/upstream-differential/lifetimes/block-result-views-parameter.goose",
         "phase": "type-error",
