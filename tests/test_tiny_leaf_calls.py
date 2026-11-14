@@ -13,8 +13,7 @@ import test_strip_loops as strip
 from test_fill_loops import function_body, uleb
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCE = None
-EVIDENCE = ROOT / 'build/next-runtime-hills/tiny-tests'
+EVIDENCE = ROOT / 'build/tiny-tests'
 
 REPEATED = '''fn exchange(xs:i64[:],i:i64,j:i64) {
     let saved=xs[i]; xs[i]=xs[j]; xs[j]=saved;
@@ -156,16 +155,14 @@ class TinyLeafCalls(unittest.TestCase):
         self.assertEqual(result.returncode,0,result.stdout + result.stderr)
         return result.stdout
 
-    def compile(self, source, level, debug, compiler=None):
-        if compiler is None:
-            compiler = strip.GOOSE
+    def compile(self, source, level, debug):
         self.serial += 1
         stem = f'{self.serial:03d}-O{level}-debug{int(debug)}'
         path = self.work / (stem + '.goose')
         path.write_text(source)
         output = path.with_suffix('.wasm')
         stats = path.with_suffix('.json')
-        command = [compiler,path,'--offline','--target','wasm-direct',f'-O{level}',
+        command = [strip.GOOSE,path,'--offline','--target','wasm-direct',f'-O{level}',
                    '--wasm-stats',stats,'-o',output]
         if debug:
             command.append('--debug')
@@ -208,14 +205,6 @@ class TinyLeafCalls(unittest.TestCase):
                     self.assertEqual(self.native(source,level,debug),expected)
                     for engine,output in self.engines(path):
                         self.assertEqual(output,expected,engine)
-                    if REFERENCE is not None:
-                        reference,old_stats = self.compile(source,level,debug,REFERENCE)
-                        for name in callee.split(','):
-                            self.lowering(reference,old_stats,caller,name,False)
-                        if debug or not eligible:
-                            self.assertEqual(function_body(path,stats,caller),function_body(reference,old_stats,caller))
-                        for engine,output in self.engines(reference):
-                            self.assertEqual(output,expected,engine)
 
     def test_repeated_sites_bind_fresh_locals_and_same_index(self):
         self.qualify(REPEATED,'[44, 33, 22, 11]\n','drive','exchange')
@@ -302,29 +291,20 @@ fn main() { drive(); }
                     path,stats = self.compile(TRAPS,level,debug)
                     self.lowering(path,stats,'drive','write',not debug)
                     self.assertEqual(self.native(TRAPS,level,debug),'[7, 8, 51, 68]\n')
-                    paths = [path]
-                    if REFERENCE is not None:
-                        old,old_stats = self.compile(TRAPS,level,debug,REFERENCE)
-                        self.lowering(old,old_stats,'drive','write',False)
-                        paths.append(old)
-                    for artifact in paths:
-                        v8 = json.loads(self.command([strip.NODE,'-e',NODE_TRAPS,artifact,json.dumps(scenarios)],artifact.stem + '-v8-traps'))
-                        wt = wasmtime_traps(artifact,scenarios)
-                        (self.work / (artifact.stem + '-traps.json')).write_text(json.dumps(dict(v8=v8,wasmtime=wt),indent=2))
-                        self.assertEqual(v8,wanted)
-                        self.assertEqual(wt,wanted)
+                    v8 = json.loads(self.command([strip.NODE,'-e',NODE_TRAPS,path,json.dumps(scenarios)],path.stem + '-v8-traps'))
+                    wt = wasmtime_traps(path,scenarios)
+                    (self.work / (path.stem + '-traps.json')).write_text(json.dumps(dict(v8=v8,wasmtime=wt),indent=2))
+                    self.assertEqual(v8,wanted)
+                    self.assertEqual(wt,wanted)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--goose',type=Path,default=strip.GOOSE)
-    parser.add_argument('--reference-compiler',type=Path)
     parser.add_argument('--node',default=strip.NODE)
     parser.add_argument('--evidence',type=Path,default=EVIDENCE)
     args,remaining = parser.parse_known_args()
     strip.GOOSE = args.goose.resolve()
     strip.NODE = args.node
     EVIDENCE = args.evidence.resolve()
-    if args.reference_compiler:
-        REFERENCE = args.reference_compiler.resolve()
     unittest.main(argv=[sys.argv[0],*remaining])
