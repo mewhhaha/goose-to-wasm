@@ -1,0 +1,429 @@
+{
+ "date": "2026-11-14",
+ "commits": [
+  "bdff21f",
+  "7a69a0e"
+ ],
+ "parent": "3f54a4d",
+ "compiler_executable_sha256": "cffd13ea44ac7ab0328618d5f46f62f2ac7c62d7ab7e805fc83e29d3d146329d",
+ "generated_c_sha256": "8138757813e0a8f57d0fb9b041fb3a9fb80b44562cdc81f5eacd82cf43cc322b",
+ "fixed_point": true,
+ "profile_used": false,
+ "conformance_single_unit": {
+  "selected": 8414,
+  "passed": 8320,
+  "failed": 94
+ },
+ "conformance_native_units_3": {
+  "selected": 8414,
+  "passed": 8320,
+  "failed": 94
+ },
+ "known_gaps": {
+  "open": 94,
+  "unexpected": 0,
+  "fixed": 0
+ },
+ "native_checks": "54 of 54 steps ok, among them 4 slice-pool steps (release, ASan/UBSan)",
+ "equivalence_vs_3f54a4d": {
+  "baseline_sha256": "599ac861019ed965f422f791fe752d3d1e66384631cdeb020ccaf8645840afb2",
+  "corpus": {
+   "compared": 7673,
+   "differing": 60,
+   "seconds": {
+    "baseline": 39.246,
+    "candidate": 38.108
+   }
+  },
+  "selfhost": {
+   "compared": 3,
+   "differing": 2,
+   "seconds": {
+    "baseline": 101.327,
+    "candidate": 98.59
+   }
+  },
+  "explanation": "Every differing native0, native2 and wasm2 row, and both selfhost rows, is byte-identical to the baseline when the candidate is rebuilt with mark_located_functions returning false and opt_note_site recording nothing; the 5 differing check rows are the new slice-pool fixtures, which the baseline refuses at the extern.",
+  "rows": [
+   {
+    "source": "examples/functions.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/functions.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/functions.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/errors.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/errors.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/errors.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/sorting.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/sorting.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/sorting.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/maze.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/maze.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/maze.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/life.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/life.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "examples/life.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/math_intrinsics.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/math_intrinsics.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/math_intrinsics.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/compound_exit.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/compound_exit.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/compound_exit.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/native-relative-runs/row-map.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/native-relative-runs/row-map.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/temporary-values-and-copies/temporary_bindings.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/temporary-values-and-copies/temporary_bindings.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/temporary-values-and-copies/temporary_bindings.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/defer/return-from.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/defer/return-from.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/defer/return-from.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_assert.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_assert.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_assert.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_chain.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_chain.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_chain.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_block.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_block.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/library_block.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/slot_pool_free.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/abort-sites/slot_pool_free.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/spans.goose",
+    "mode": "check",
+    "noloc_equals_baseline": false,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/spans.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/spans.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/spans.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/corrupt_tree.goose",
+    "mode": "check",
+    "noloc_equals_baseline": false,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/corrupt_tree.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/corrupt_tree.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/corrupt_tree.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/trim.goose",
+    "mode": "check",
+    "noloc_equals_baseline": false,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/trim.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/trim.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/trim.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/direct_externs.goose",
+    "mode": "check",
+    "noloc_equals_baseline": false,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/direct_externs.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/direct_externs.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/direct_externs.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/extern_array_reference.goose",
+    "mode": "check",
+    "noloc_equals_baseline": false,
+    "located": null
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/extern_array_reference.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": null
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/extern_array_reference.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": null
+   },
+   {
+    "source": "tests/fixtures/contracts/slice-pool/extern_array_reference.goose",
+    "mode": "wasm2",
+    "noloc_equals_baseline": true,
+    "located": null
+   },
+   {
+    "source": "selfhost/main.goose",
+    "mode": "native0",
+    "noloc_equals_baseline": true,
+    "located": true
+   },
+   {
+    "source": "selfhost/main.goose",
+    "mode": "native2",
+    "noloc_equals_baseline": true,
+    "located": true
+   }
+  ]
+ },
+ "upstream_inventory_targeted": {
+  "head": "855f103",
+  "tests": 117,
+  "fail_to_pass": 37,
+  "pass_to_fail": 0,
+  "must_fail_rejected": "50 of 50"
+ }
+}
