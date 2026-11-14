@@ -167,13 +167,27 @@ recursive fn cc_tuple_value(p: Program&, f: CcBody&, value: i64, type_id: i64, o
     return cc_read(p, f, CcPlace { type_id: p.nodes[field].type_id, address: target, form: CC_REGISTER }, p.nodes[field].type_id, -1);
 }
 fn cc_tuple_result(p: Program&, f: CcBody&, node: i64, type_id: i64) -> i64 {
-    let result = cc_temp(p, f, type_id); let raw = f.serial; f.serial++;
+    let receives = cc_tuple_channels(p, type_id) && f.receiver >= 0 && f.active_node == node && cc_queue_same(p, f.destinations[f.receiver].type_id, type_id);
+    // A component whose channel names a destination is built there, so the
+    // temporary's own storage for it is never written or read: when every
+    // component owning regions is received, the temporary takes no region,
+    // and a forwarded recursive call (`return f(n - 1)`) retains none.
+    var seed = false; var field = p.types[type_id].first; var ordinal = 0;
+    while field >= 0 && !seed {
+        if cc_region_width(p, p.nodes[field].type_id) > 0 && !receives {
+            var received = false;
+            for item in f.receiving {
+                if cc_tuple_channels(p, type_id) && item.call >= 0 && item.call == node && item.ordinal == ordinal && cc_queue_same(p, f.destinations[item.destination].type_id, p.nodes[field].type_id) { received = true; }
+            }
+            seed = !received;
+        }
+        field = p.nodes[field].next; ordinal++;
+    }
+    let result = cc_temp(p, f, type_id, true, seed); let raw = f.serial; f.serial++;
     cc_id(f.out, "GRef g_channels", raw); cc_text(f.out, "["); cc_number(f.out, p.types[type_id].count); cc_text(f.out, "];\n");
     var receiving = -1;
-    if cc_tuple_channels(p, type_id) && f.receiver >= 0 && f.active_node == node && cc_queue_same(p, f.destinations[f.receiver].type_id, type_id) {
-        receiving = f.destinations[f.receiver].header; f.active_node = -1;
-    }
-    var field = p.types[type_id].first; var ordinal = 0;
+    if receives { receiving = f.destinations[f.receiver].header; f.active_node = -1; }
+    field = p.types[type_id].first; ordinal = 0;
     while field >= 0 {
         var target = -1;
         if receiving >= 0 { target = cc_channel_target(p, f, receiving, type_id, ordinal); }

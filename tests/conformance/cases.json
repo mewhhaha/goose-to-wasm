@@ -70697,6 +70697,38 @@
         "provenance": "Must still be rejected (upstream goose_spec.md §7.8 at 2e2bede): a non-fixed-size local is in scope across a recursive call (§7.8); plain upstream 32a4f44 rejects it too: \"total calls into its recursive cycle while non-fixed-size local v ... is in scope (§7.8)\"; neighbour of the recursion region fixes from the upstream differential run."
     },
     {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-forwarded-results/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-forwarded-results.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "15\n15\n24\n14\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §7.3 and §7.8 at 2e2bede: a recursive call whose several results, some owning storage, are forwarded by `return f(n - 1)` builds each where its caller receives it; found by the upstream differential run; expected output from plain upstream 32a4f44 (goose run). Native C gave the call's unused result temporary a data region and refused the recursive call at -O0."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-forwarded-results/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-forwarded-results.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "15\n15\n24\n14\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §7.3 and §7.8 at 2e2bede: a recursive call whose several results, some owning storage, are forwarded by `return f(n - 1)` builds each where its caller receives it; found by the upstream differential run; expected output from plain upstream 32a4f44 (goose run). Native C gave the call's unused result temporary a data region and refused the recursive call at -O0."
+    },
+    {
         "id": "corpus/contracts/range-index/iterations/native",
         "source": "tests/fixtures/contracts/range-index/iterations.goose",
         "phase": "run",
