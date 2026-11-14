@@ -1009,6 +1009,16 @@ fn check_constant_wrap(value: i64, type_id: i64) -> i64 {
     if !check_unsigned(type_id) && (wrapped & (1 << (bits - 1))) != 0 { return wrapped | ~mask; }
     return wrapped;
 }
+fn check_constant_above_i64(p: Program&, c: Checker&, node: i64) -> bool {
+    let constant = check_constant(p, c, node, 0);
+    return constant.valid && constant.type_id == TYPE_U64 && constant.value < 0;
+}
+fn check_constant_negative(p: Program&, c: Checker&, node: i64) -> bool {
+    let constant = check_constant(p, c, node, 0);
+    if constant.valid { return constant.type_id != TYPE_U64 && constant.value < 0; }
+    let flex = check_flex_integer(p, c, node);
+    return flex.valid && flex.minimum < 0;
+}
 fn check_constant_fits(value: CheckConstant, type_id: i64) -> bool {
     if value.type_id == TYPE_U64 && value.value < 0 { return type_id == TYPE_U64; }
     return value.value >= check_min(type_id) && (type_id == TYPE_U64 || value.value <= check_max(type_id));
@@ -2280,7 +2290,8 @@ recursive fn check_conversion(p: Program&, c: Checker&, expression: i64, source_
     }
     if check_integer(destination) && check_literal_tree(p, expression, 0) {
         let constant = check_constant(p, c, expression, 0);
-        if constant.valid && constant.value >= check_min(destination) && constant.value <= check_max(destination) { return 1; }
+        // A u64 constant above i64.max is held as a negative value; it fits only u64.
+        if constant.valid && check_constant_fits(constant, destination) { return 1; }
     }
     if check_float(destination) && check_float_literal_tree(p, expression, 0) { return 1; }
     if check_integer(source) && check_float(destination) { return 4; }
@@ -5637,7 +5648,16 @@ recursive fn check_expression(p: Program&, c: Checker&, node: i64, expected: i64
                             lc = check_integer_constants(p, c, n.left) || check_flex_integer(p, c, n.left).flexible;
                             rc = check_integer_constants(p, c, n.right) || check_flex_integer(p, c, n.right).flexible;
                         }
-                        if lc && !rc {
+                        // Two constants, one above i64.max: the operation is u64, unless the
+                        // other is negative (upstream UnifyNumeric).
+                        let left_above = lc && rc && check_constant_above_i64(p, c, n.left) && check_numeric_value_type(p, lt) == TYPE_U64;
+                        let right_above = lc && rc && !left_above && check_constant_above_i64(p, c, n.right) && check_numeric_value_type(p, rt) == TYPE_U64;
+                        if left_above || right_above {
+                            if check_constant_negative(p, c, n.left) || check_constant_negative(p, c, n.right) {
+                                diagnose(p, n.token, "constant operands have no common type (one is above i64.max, the other negative)");
+                            } else if left_above { check_expect(p, c, n.right, rt, lt); rt = lt; }
+                            else { check_expect(p, c, n.left, lt, rt); lt = rt; }
+                        } else if lc && !rc {
                             if lr < 0 { diagnose(p, n.token, "integer constants do not all fit the other operand's type"); }
                             else { check_expect(p, c, n.left, lt, rt); lt = rt; }
                         } else if rc && !lc {

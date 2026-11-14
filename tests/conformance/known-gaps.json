@@ -1,6 +1,6 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: six invalid programs accepted, 88 runtime contracts refused during compilation (two of them awaiting direct Wasm root struct storage), and upstream/typing/named_constant_literals at both levels, which compiles and prints false for HUGE > B where upstream prints true. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 88 runtime contracts refused during compilation, two of them awaiting direct Wasm root struct storage. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
  "gaps": [
   [
    "corpus/contracts/root-struct/owner/wasm-direct",
@@ -352,14 +352,6 @@
   ],
   [
    "upstream/typing/const_params",
-   2
-  ],
-  [
-   "upstream/typing/named_constant_literals",
-   0
-  ],
-  [
-   "upstream/typing/named_constant_literals",
    2
   ],
   [

@@ -1,0 +1,29 @@
+{
+ "date": "2026-11-14",
+ "compiler_executable_sha256": "fe28a18ec5d400f7aab785c117136db1e3cb75d0fd9c8e8f8d2deae48da83cb5",
+ "generated_c_sha256": "90320e4a96ad28ea7533e1d5252f67aee2348b1fda46cc0418c6d171632ff51c",
+ "fixed_point": true,
+ "conformance": {
+  "selected": 8390,
+  "passed": 8296,
+  "failed": 94
+ },
+ "known_gaps": {
+  "open": 94,
+  "unexpected": 0,
+  "fixed": 0
+ },
+ "equivalence_vs_f3b4248": {
+  "compared": 7633,
+  "differing": 11,
+  "seconds": {
+   "baseline": 120.381,
+   "candidate": 117.65
+  },
+  "differing_sources": [
+   "tests/fixtures/contracts/named-constants/above-i64-narrowing.goose",
+   "tests/fixtures/contracts/named-constants/above-i64-negative.goose",
+   "tests/fixtures/contracts/named-constants/above-i64.goose"
+  ]
+ }
+}
