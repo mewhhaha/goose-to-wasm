@@ -77,7 +77,14 @@ def main():
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=False)
     cache = args.cache_dir.resolve()
-    python = VENV if VENV.exists() else Path(sys.executable)
+    python = Path(sys.executable)
+    # A worktree has no .venv of its own; use the main checkout's.
+    common = subprocess.run(['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], cwd=ROOT,
+                            capture_output=True, text=True).stdout.strip()
+    for candidate in (VENV, Path(common).parent / '.venv/bin/python' if common else None):
+        if candidate is not None and candidate.exists():
+            python = candidate
+            break
     units = args.units_pass == 'always' or args.units_pass == 'auto' and native_changed(args.since)
     summary = {'schema': 'goose-qualification-v1', 'started': time.strftime('%Y-%m-%dT%H:%M:%S%z'),
                'head': subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT, capture_output=True, text=True).stdout.strip(),
