@@ -366,6 +366,9 @@ struct Program {
     // Code generation: a `defer` body may run while a nonlocal return passes
     // through its function (mark_unwinding_functions).
     unwinding: bool = false,
+    // Native code generation: F_UNWINDS marks every function a return may
+    // leave, with or without defers (marked when first needed).
+    leaving_marked: bool = false,
     // Library code inlined into the program's code, in ascending first.
     inline_sites: InlineSite[>..]&,
 }
@@ -503,8 +506,10 @@ let F_UNWINDS: i64 = 576460752303423488;
 // return to another function, or calls a function that may be, directly,
 // through dispatch or through a function-typed value. Returns whether any
 // emitted function holds a `defer` (§6.6) and any may be left so: only then
-// do defer bodies run on the propagation path of such a return.
-fn mark_unwinding_functions(p: Program&) -> bool {
+// do defer bodies run on the propagation path of such a return. With
+// `without_defers`, marks the functions even where no `defer` is held and
+// returns whether any may be left.
+fn mark_unwinding_functions(p: Program&, without_defers: bool = false) -> bool {
     var functions: i64[>..] = []; var defers = false; var sites = false;
     for n, id in p.nodes {
         if n.kind == N_DEFER && (n.flags & F_CHECKED) != 0 { defers = true; }
@@ -512,7 +517,7 @@ fn mark_unwinding_functions(p: Program&) -> bool {
         p.nodes[id].flags &= ~F_UNWINDS;
         if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED && n.right >= 0 { functions.push(id); }
     }
-    if !defers { return false; }
+    if !defers && !without_defers { return false; }
     var changed = true; var work: i64[>..] = [];
     while changed {
         changed = false;

@@ -70745,6 +70745,38 @@
         "provenance": "Upstream goose_spec.md §6.5 at 2e2bede: a range's or count's index counts iterations as an i64; expected output from plain upstream 32a4f44 (goose run). Native C used to bind a range's index to its value."
     },
     {
+        "id": "corpus/contracts/upstream-differential/backends/abandoned-destination/native",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/abandoned-destination.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "9\n[1, 2]\n7\n1 2 2 3 4\n5\n[1, 2] 4 [10, 20]\n3\n3 [1, -65, 99]\n3\n3 [1, -1, -65]\n4\n3 [1, -65, 99]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §7.3 (Exits) and §4.4 at 2e2bede: an exit abandons the part of a value its destination holds, so a cancelled return ... from built behind a named result (a literal array, a record image, multiple results) leaves that result as it was, while a cancelled whole assignment of a growable array keeps what it built in place and a cancelled append adds nothing; each destination prints right after the exit; expected output from plain upstream 32a4f44 (goose run), which prints the same at -O0, -O1 and -O2. Native C built the exit's value over the named result ([11, 2], tag 17, [11, 12] 4 [21, 20]) and built the assignment apart, keeping the old array."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/backends/abandoned-destination/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/abandoned-destination.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "9\n[1, 2]\n7\n1 2 2 3 4\n5\n[1, 2] 4 [10, 20]\n3\n3 [1, -65, 99]\n3\n3 [1, -1, -65]\n4\n3 [1, -65, 99]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §7.3 (Exits) and §4.4 at 2e2bede: an exit abandons the part of a value its destination holds, so a cancelled return ... from built behind a named result (a literal array, a record image, multiple results) leaves that result as it was, while a cancelled whole assignment of a growable array keeps what it built in place and a cancelled append adds nothing; each destination prints right after the exit; expected output from plain upstream 32a4f44 (goose run), which prints the same at -O0, -O1 and -O2. Native C built the exit's value over the named result ([11, 2], tag 17, [11, 12] 4 [21, 20]) and built the assignment apart, keeping the old array."
+    },
+    {
         "id": "corpus/contracts/upstream-differential/backends/varint-push/native",
         "source": "tests/fixtures/contracts/upstream-differential/backends/varint-push.goose",
         "phase": "run",

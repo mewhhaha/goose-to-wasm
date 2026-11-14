@@ -41,6 +41,12 @@ struct CcBody {
     defers: i64[>..]&, running_defers: i64 = 0,
     // The places this body's calls pass located callees, by g_sites index.
     sites: i64[>..]&,
+    // (destination, stage, type, note, exit depth) of each staged exit value
+    // being built (cc_stage).
+    stages: i64[>..]&,
+    // Whether a return can land in this function, and how many image stages
+    // it notes for rewinding there (cc_stage_caught).
+    catches: bool = false, stage_marks: i64 = 0,
 }
 fn cc_region_slot(f: CcBody&, width: i64) -> i64 {
     let slot = f.region_live; f.region_live += width;
@@ -263,6 +269,167 @@ fn cc_bind_named_results(p: Program&, f: CcBody&, node: i64, type_id: i64, targe
         }
         binding = b.next;
     }
+}
+// How an exit's value is staged for a result of this type: 1 a growable
+// array of fixed-size elements, 2 a struct or array value image, else 0 (the
+// value is built in its destination as before).
+fn cc_stage_kind(p: Program&, type_id: i64) -> i64 {
+    if type_id < 0 { return 0; } let kind = cc_kind(p, type_id);
+    if kind == TY_ARRAY && (p.types[type_id].array_kind == A_GROW || p.types[type_id].array_kind == A_GROWSHRINK) {
+        if cc_self_run(p, type_id) || cc_size_class(p, p.types[type_id].element) != 0 { return 0; } return 1;
+    }
+    if cc_image_type(p, type_id) { return 2; }
+    return 0;
+}
+fn cc_ordinal_type(p: Program&, type_id: i64, ordinal: i64) -> i64 {
+    if cc_kind(p, type_id) != TY_TUPLE { return type_id; }
+    var field = p.types[type_id].first;
+    for index in 0..ordinal { if field >= 0 { field = p.nodes[field].next; } }
+    if field < 0 { return -1; } return p.nodes[field].type_id;
+}
+// Whether the values `first` (and those after it) for a result of this type
+// are built in stages: some ordinal's type is staged, and each value is
+// written separately rather than by one producer of the whole tuple.
+fn cc_exit_staged(p: Program&, type_id: i64, first: i64) -> bool {
+    if cc_kind(p, type_id) != TY_TUPLE { return cc_stage_kind(p, type_id) != 0; }
+    if first < 0 || p.nodes[first].next < 0 && cc_kind(p, p.nodes[first].type_id) == TY_TUPLE { return false; }
+    for ordinal in 0..p.types[type_id].count { if cc_stage_kind(p, cc_ordinal_type(p, type_id, ordinal)) != 0 { return true; } }
+    return false;
+}
+// Whether building the values `first` (and those after it) can be left
+// through a return, or a break or continue to a block or loop outside them,
+// as a function inlined into its own exit's target leaves (§7.3 Exits).
+fn cc_values_leave(p: Program&, first: i64) -> bool { return cc_leaves(p, first, true, false); }
+// Whether a whole assignment of a growable array from a literal or fill can
+// be left while the new contents are built: through a jump out of it, or a
+// call a return may leave (§7.9, mark_unwinding_functions).
+fn cc_assignment_left(p: Program&, f: CcBody&, type_id: i64, right: i64) -> bool {
+    if right < 0 || cc_kind(p, type_id) != TY_ARRAY || cc_self_run(p, type_id) { return false; }
+    if p.types[type_id].array_kind != A_GROW && p.types[type_id].array_kind != A_GROWSHRINK { return false; }
+    if p.nodes[right].kind != N_ARRAY && p.nodes[right].kind != N_FILL { return false; }
+    if cc_leaves(p, right, false, false) { return true; }
+    if f.function < 0 { return false; }
+    if !p.leaving_marked { if !p.unwinding { mark_unwinding_functions(p, true); } p.leaving_marked = true; }
+    return (p.nodes[f.function].flags & F_UNWINDS) != 0 && cc_leaves(p, right, false, true);
+}
+// The walk behind cc_values_leave; with `calls`, a call that a return may
+// leave counts too (in a function such a return may leave, so an indirect
+// call can).
+fn cc_leaves(p: Program&, first: i64, siblings: bool, calls: bool) -> bool {
+    var work: i64[>..] = []; var inside: i64[>..] = []; var jumps: i64[>..] = []; var loops = false;
+    work.push(first);
+    while work.len > 0 {
+        let id = work.pop(); if id < 0 { continue; } let n = p.nodes[id];
+        if n.next >= 0 && (siblings || id != first) { work.push(n.next); }
+        if n.kind == N_FUNCTION || n.kind == N_IMPORT || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { continue; }
+        if n.kind == N_RETURN { return true; }
+        if calls && n.kind == N_CALL {
+            if (n.flags & F_DISPATCH) != 0 {
+                var arm = n.third;
+                while arm >= 0 {
+                    let symbol = p.nodes[arm].symbol;
+                    if symbol >= 0 && p.symbols[symbol].node >= 0 && (p.nodes[p.symbols[symbol].node].flags & F_UNWINDS) != 0 { return true; }
+                    arm = p.nodes[arm].next;
+                }
+            } else if n.symbol >= 0 {
+                let callee = p.symbols[n.symbol];
+                if (callee.flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && callee.node >= 0 && (p.nodes[callee.node].flags & F_UNWINDS) != 0 { return true; }
+            } else { return true; }
+        }
+        if n.kind == N_BREAK || n.kind == N_CONTINUE { jumps.push(id); }
+        if n.kind == N_WHILE || n.kind == N_FOR || n.kind == N_LOOP || n.kind == N_CONST_FOR { loops = true; }
+        inside.push(id);
+        for child in [n.first, n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+    }
+    for jump in jumps {
+        let target = p.nodes[jump].symbol;
+        if target < 0 { if !loops { return true; } continue; }
+        var found = false; for id in inside { if id == target { found = true; break; } }
+        if !found { return true; }
+    }
+    return false;
+}
+// A private header for an exit's value behind what its destination's region
+// holds: a growable array placed at the region's top (or unplaced, before the
+// region is reserved), or an image starting there. Nothing links it to the
+// destination, so a cancelled exit leaves the destination as it was. An image
+// stage in a function that catches returns is noted, so that a return caught
+// there while the stage is built can move the region's top back
+// (cc_stage_caught).
+fn cc_stage(p: Program&, f: CcBody&, type_id: i64, header: i64) -> i64 {
+    let raw = f.serial; f.serial++;
+    cc_type(f.out, type_id); cc_id(f.out, " g_stage", raw); cc_id(f.out, ";memcpy(&g_stage", raw); cc_id(f.out, ",g_address(g_v", header);
+    cc_id(f.out, "),sizeof g_stage", raw); cc_text(f.out, ");\n");
+    var mark = -1;
+    if cc_stage_kind(p, type_id) == 1 {
+        cc_id(f.out, "{GArray g_staged;memcpy(&g_staged,&g_stage", raw); cc_text(f.out, ",sizeof g_staged);g_staged.len=0;");
+        cc_text(f.out, "if(g_staged.region && g_staged.region->base)g_staged.data=g_staged.region->stack.top;else g_staged.data=&g_empty_byte;");
+        cc_id(f.out, "memcpy(&g_stage", raw); cc_text(f.out, ",&g_staged,sizeof g_staged);}\n");
+    } else {
+        cc_id(f.out, "{GImage g_staged;memcpy(&g_staged,&g_stage", raw); cc_text(f.out, ",sizeof g_staged);");
+        cc_text(f.out, "if(!g_staged.region || !g_staged.region->base)g_panic(\"image has no receiving region\");g_staged.base=g_staged.end=g_staged.region->stack.top;");
+        if f.catches {
+            mark = f.stage_marks; f.stage_marks++;
+            cc_id(f.out, "g_stage_regions[", mark); cc_id(f.out, "]=g_staged.region;g_stage_tops[", mark); cc_id(f.out, "]=g_staged.base;g_stage_headers[", mark);
+            cc_id(f.out, "]=g_v", header); cc_id(f.out, ";g_stage_selves[", mark); cc_id(f.out, "]=g_ref(&g_stage", raw); cc_text(f.out, ");");
+        }
+        cc_id(f.out, "memcpy(&g_stage", raw); cc_text(f.out, ",&g_staged,sizeof g_staged);}\n");
+    }
+    let ref = cc_ref_temp(f); cc_set(f, ref); cc_id(f.out, "g_ref(&g_stage", raw); cc_text(f.out, ");\n");
+    f.stages.push(header); f.stages.push(ref); f.stages.push(type_id); f.stages.push(mark); f.stages.push(f.exits.len);
+    return ref;
+}
+// Before a jump out of the stages begun inside exit `depth`: drops their
+// notes, so that a return caught later does not rewind what was built since.
+fn cc_stage_leave(p: Program&, f: CcBody&, depth: i64) {
+    var index = f.stages.len;
+    while index > 0 {
+        index -= 5;
+        if f.stages[index + 4] > depth && f.stages[index + 3] >= 0 { cc_id(f.out, "g_stage_regions[", f.stages[index + 3]); cc_text(f.out, "]=NULL;\n"); }
+    }
+}
+// Where a return lands in a function with noted stages: each image stage
+// still being built, unless it is built into another such stage, has the top
+// of its region moved back to where it began, or to the end of its
+// destination's value when that lies further, so that what the abandoned
+// stage wrote does not stay behind what is built there next.
+fn cc_stage_caught(f: CcBody&, out: u8[>..]&) {
+    out.format("for(int g_k=0;g_k<", f.stage_marks, ";g_k++){GRegion *g_r=g_stage_regions[g_k];if(!g_r)continue;int g_nested=0;\n",
+        "for(int g_j=0;g_j<", f.stage_marks, ";g_j++)if(g_stage_regions[g_j] && g_stage_selves[g_j]==g_stage_headers[g_k])g_nested=1;\n",
+        "if(g_nested)continue;unsigned char *g_t=g_stage_tops[g_k];GImage g_d;memcpy(&g_d,g_address(g_stage_headers[g_k]),sizeof g_d);\n",
+        "if(g_d.region==g_r && g_d.end>g_t)g_t=g_d.end;if(g_r->stack.top>g_t)g_r->stack.top=g_t;}\n");
+}
+// The values of an exit: each ordinal of a staged type is built in a stage
+// and, once every value is built, moved into its destination (§7.3 Exits).
+// Otherwise as cc_values. A single value lands in `target` itself, so its
+// caller stores nothing more.
+recursive fn cc_staged_values(p: Program&, f: CcBody&, first: i64, type_id: i64, target: i64) -> i64 {
+    let start = f.stages.len; var result = -1;
+    if cc_kind(p, type_id) != TY_TUPLE {
+        let stage = cc_stage(p, f, type_id, target);
+        result = cc_construct_into(p, f, first, type_id, stage);
+        if result < 0 { f.stages.resize(start); return -1; }
+    } else {
+        var part = p.types[type_id].first; var value = first; var ordinal = 0;
+        while part >= 0 && value >= 0 {
+            let part_type = p.nodes[part].type_id; let header = cc_channel_target(p, f, target, type_id, ordinal); var into = header;
+            if cc_stage_kind(p, part_type) != 0 { into = cc_stage(p, f, part_type, header); }
+            cc_construct_into(p, f, value, part_type, into, cc_value_form(p, part_type));
+            if cc_diverges(p, value) && p.nodes[value].next >= 0 { f.stages.resize(start); return -1; }
+            ordinal++; part = p.nodes[part].next; value = p.nodes[value].next;
+        }
+        if part >= 0 || value >= 0 { cc_fail(p, first, "c: return value arity mismatch"); }
+        result = cc_temp(p, f, type_id, true, false); f.channels.push(CcChannels { value: result, address: target });
+    }
+    var index = start;
+    while index < f.stages.len {
+        let part_type = f.stages[index + 2];
+        cc_id(f.out, "g_store_", part_type); cc_id(f.out, "(g_v", f.stages[index]); cc_text(f.out, ",*("); cc_type(f.out, part_type);
+        cc_text(f.out, "*)g_address("); cc_id(f.out, "g_v", f.stages[index + 1]); cc_text(f.out, "));\n");
+        if f.stages[index + 3] >= 0 { cc_id(f.out, "g_stage_regions[", f.stages[index + 3]); cc_text(f.out, "]=NULL;\n"); }
+        index += 5;
+    }
+    f.stages.resize(start); return result;
 }
 fn cc_seed_symbol(p: Program&, f: CcBody&, symbol: i64) {
     let type_id = p.symbols[symbol].type_id; var index = f.receiving.len;
@@ -1557,9 +1724,15 @@ recursive fn cc_return(p: Program&, f: CcBody&, node: i64) {
         else { cc_text(f.out, "g_ref(g_return_destination("); cc_number(f.out, target); cc_text(f.out, "));\n"); }
         if cc_tuple_channels(p, type_id) { f.channels.push(CcChannels { value: -1, address: receiver }); }
     }
-    let result = cc_values(p, f, n.first, type_id, receiver);
+    // An exit to another function, or a return that can be left while its
+    // value is built, builds it behind what the destination holds, which may
+    // be a named result or a value the exit interrupts (§7.3 Exits).
+    let staged = receiver >= 0 && cc_exit_staged(p, type_id, n.first) && (target != f.function || cc_values_leave(p, n.first));
+    var result = -1;
+    if staged { result = cc_staged_values(p, f, n.first, type_id, receiver); }
+    else { result = cc_values(p, f, n.first, type_id, receiver); }
     if target == f.function {
-        if result >= 0 { cc_return_store(p, f, result, type_id); }
+        if result >= 0 && (!staged || cc_kind(p, type_id) == TY_TUPLE) { cc_return_store(p, f, result, type_id); }
         // The value is built at its destination, then the defers run.
         cc_run_defers(p, f, 0);
         cc_text(f.out, "goto g_return;\n");
@@ -1569,6 +1742,9 @@ recursive fn cc_return(p: Program&, f: CcBody&, node: i64) {
         cc_number(f.out, target); cc_text(f.out, ",");
         if result >= 0 && cc_tuple_channels(p, type_id) {
             cc_text(f.out, "g_address("); cc_id(f.out, "g_v", receiver); cc_text(f.out, "),"); cc_number(f.out, p.types[type_id].count * 8);
+        } else if result >= 0 && staged {
+            // The value is already in its destination, the target's result.
+            cc_text(f.out, "g_address("); cc_id(f.out, "g_v", receiver); cc_text(f.out, "),sizeof("); cc_type(f.out, type_id); cc_text(f.out, ")");
         } else if result >= 0 { cc_text(f.out, "&"); cc_id(f.out, "g_v", result); cc_text(f.out, ",sizeof("); cc_type(f.out, type_id); cc_text(f.out, ")"); }
         else { cc_text(f.out, "NULL,0"); } cc_text(f.out, ");\n");
     }
@@ -2353,6 +2529,9 @@ recursive fn cc_assignment(p: Program&, f: CcBody&, node: i64) {
     if n.integer != T_DOTASSIGN && cc_kind(p, type_id) == TY_REF { ref = cc_read(p, f, place, type_id, n.left); type_id = p.types[type_id].element; }
     if n.integer == T_ASSIGN || n.integer == T_DOTASSIGN {
         if cc_result_location(p, type_id) { cc_construct_into(p, f, n.right, type_id, ref); return; }
+        // Built in place, as whole assignment of a resizable is (§4.4), so an
+        // exit that leaves the literal keeps what it had built (§7.3 Exits).
+        if n.integer == T_ASSIGN && cc_assignment_left(p, f, type_id, n.right) { cc_construct_into(p, f, n.right, type_id, ref); return; }
         let value = cc_to(p, f, n.right, type_id, true); cc_store(p, f, ref, value, type_id, node); return;
     }
     let old = cc_load(p, f, ref, type_id); var right: i64 = -1; var op = n.integer;
@@ -3072,10 +3251,17 @@ recursive fn cc_expr(p: Program&, f: CcBody&, node: i64) -> i64 {
         if n.left >= 0 && exit.result >= 0 {
             var value = -1;
             let destination = cc_temporary_ref(f, exit.result);
-            if cc_kind(p, exit.type_id) == TY_TUPLE && p.nodes[n.left].next >= 0 { value = cc_values(p, f, n.left, exit.type_id, destination); }
+            // A break that can be left while its value is built, as a return
+            // inlined into its target's body is, builds behind what that
+            // block's destination holds (§7.3 Exits).
+            let staged = cc_exit_staged(p, exit.type_id, n.left) && cc_values_leave(p, n.left);
+            if staged { value = cc_staged_values(p, f, n.left, exit.type_id, destination); }
+            else if cc_kind(p, exit.type_id) == TY_TUPLE && p.nodes[n.left].next >= 0 { value = cc_values(p, f, n.left, exit.type_id, destination); }
             else { value = cc_construct_into(p, f, n.left, exit.type_id, destination); }
-            if value >= 0 { cc_store(p, f, destination, value, exit.type_id); }
+            if value >= 0 && (!staged || cc_kind(p, exit.type_id) == TY_TUPLE) { cc_store(p, f, destination, value, exit.type_id); }
         } else if n.left >= 0 { cc_values(p, f, n.left, TYPE_VOID); }
+        // A jump out of a staged value drops its notes.
+        if f.stages.len > 0 { cc_stage_leave(p, f, index); }
         cc_run_defers(p, f, exit.defers);
         var label = exit.done; var mark = exit.regions; if n.kind == N_CONTINUE { label = exit.again; mark = exit.again_regions; }
         cc_restore(f, mark);
@@ -3381,12 +3567,12 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
             }
         }
         cc_text(out, "}\n"); cc_parameter_aliases(p, out, function, true); return; }
-    var body: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = [];
+    var body: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = []; var stages: i64[>..] = [];
     let result_type = cc_function_result(p, function);
     var f = CcBody { out: body, exits: exits, work: work, function: function, natural_members: natural_members, result_type: result_type, has_self_runs: cc_self_runs_used(p),
-        function_index: indices[function], calls: calls, indices: indices, temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites };
+        function_index: indices[function], calls: calls, indices: indices, temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites, stages: stages };
     let returns = cc_kind(p, result_type) != TY_VOID;
-    let nonlocal = (n.flags & F_NONLOCAL) != 0;
+    let nonlocal = (n.flags & F_NONLOCAL) != 0; f.catches = nonlocal; var caught = -1;
     let deferred_result = !nonlocal && cc_kind(p, result_type) == TY_STRUCT && !cc_result_indirect(p, result_type) &&
         !cc_result_location(p, result_type) && !cc_image_type(p, result_type) && cc_region_width(p, result_type) == 0 && !cc_needs_clone(p, result_type, 0);
     f.activation_required = signature_activation || cc_aggregate(p, result_type) && cc_needs_clone(p, result_type, 0);
@@ -3426,7 +3612,7 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
             }
             cc_text(body, ";\n");
         }
-        cc_text(body, "g_return_top=&g_frame;if(setjmp(g_frame.jump))goto g_return;\n");
+        cc_text(body, "g_return_top=&g_frame;if(setjmp(g_frame.jump))goto "); caught = body.len; cc_text(body, "g_return;\n");
     }
     cc_text(body, "{\n");
     for symbol, id in p.symbols {
@@ -3454,7 +3640,13 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         }
     } else { cc_fail(p, function, "c: non-extern function has no body"); }
     let activation = nonlocal || f.activation_required || f.region_peak > 0 || f.indirect.len > 0;
-    cc_text(body, "}\ng_return:;\n");
+    cc_text(body, "}\n");
+    if f.stage_marks > 0 {
+        // A return caught here rewinds the image stages it interrupted.
+        for byte, at in "g_caught" { body[caught + at] = byte; }
+        cc_text(body, "goto g_return;\ng_caught:;\n"); cc_stage_caught(f, body);
+    }
+    cc_text(body, "g_return:;\n");
     if nonlocal { cc_text(body, "g_return_top=g_frame.parent;\n"); }
     if returns && !cc_tuple_channels(p, result_type) && cc_region_width(p, result_type) > 0 && !cc_result_location(p, result_type) { cc_text(body, "memcpy(g_into,(const void*)&g_result,sizeof g_result);\n"); }
     if activation { cc_text(body, "g_activation_leave(&g_activation);\n"); }
@@ -3465,6 +3657,11 @@ fn cc_emit_function(p: Program&, out: u8[>..]&, function: i64, plans: RegionFunc
         cc_text(out, "GWatermark g_watermarks["); cc_number(out, f.region_peak + 1); cc_text(out, "];GActivation g_activation;\n");
         cc_text(out, "g_activation_enter(&g_activation,g_base,"); cc_number(out, f.region_peak); cc_text(out, ",g_watermarks);\n");
     } else { cc_text(out, "g_mark_regions(g_base,0,NULL);\n"); }
+    if f.stage_marks > 0 {
+        cc_text(out, "GRegion *volatile g_stage_regions["); cc_number(out, f.stage_marks); cc_text(out, "]={0};unsigned char *volatile g_stage_tops[");
+        cc_number(out, f.stage_marks); cc_text(out, "];volatile GRef g_stage_headers["); cc_number(out, f.stage_marks);
+        cc_text(out, "],g_stage_selves["); cc_number(out, f.stage_marks); cc_text(out, "];\n");
+    }
     cc_text(out, body); cc_text(out, "}\n");
     if !cc_tuple_channels(p, result_type) && cc_result_indirect(p, result_type) { cc_text(out, "#undef g_result\n"); }
     for id in indirect { cc_undef(out, "g_v", id); }
@@ -3653,9 +3850,9 @@ fn generate_c(p: Program&, out: u8[>..]&) {
         guards.push(out.len); owners.push(node); cc_text(out, "#if G_IN_UNIT(   )\n");
         cc_emit_function(p, out, node, plans, calls, indices, self_images, natural_members); cc_emit_export(p, out, node); cc_text(out, "#endif\n");
     }
-    var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = [];
+    var initialization: u8[>..] = []; var exits: CcExit[>..] = []; var work: i64[>..] = []; var temp_regions: i64[>..] = []; var destinations: CcDestination[>..] = []; var receiving: CcReceiving[>..] = []; var indirect: i64[>..] = []; var fills: CcFill[>..] = []; var channels: CcChannels[>..] = []; var cursors: CcCursor[>..] = []; var defers: i64[>..] = []; var sites: i64[>..] = []; var stages: i64[>..] = [];
     var f = CcBody { out: initialization, exits: exits, work: work, natural_members: natural_members, has_self_runs: cc_self_runs_used(p), function_index: initializer, calls: calls, indices: indices,
-        temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites };
+        temp_regions: temp_regions, destinations: destinations, receiving: receiving, fills: fills, indirect: indirect, channels: channels, cursors: cursors, self_images: self_images, defers: defers, sites: sites, stages: stages };
     for s, symbol in p.symbols {
         if s.owner >= 0 || (s.flags & (S_GLOBAL | S_PARAMETER | S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 ||
            !cc_storage_binding(p, symbol) || !cc_concrete(p, s.type_id) { continue; }
