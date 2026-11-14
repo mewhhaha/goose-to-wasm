@@ -1552,6 +1552,49 @@ recursive fn cg_region_declaration(p: Program&, m: CgModule&, f: CgBody&, node: 
     }
     cg_restore_regions(f, mark); f.region_live = keep;
 }
+// A root owner's declaration builds each component in its place in the
+// owner's frame, in field order. A component that owns storage takes its own
+// region (a dedicated one for a global) and is constructed there as its own
+// declaration would be, so it grows independently and pool-relative `self` in
+// its initializer names that component's storage. A fixed component is
+// stored, an encoded scalar in its encoding.
+recursive fn cg_root_declaration(p: Program&, m: CgModule&, f: CgBody&, node: i64, binding: i64) {
+    let symbol = p.nodes[binding].symbol; let id = p.symbols[symbol].type_id; let init = p.nodes[node].right;
+    if init >= 0 && p.nodes[init].kind != N_RECORD { cg_fail(p, node, "wasm: a root owner is constructed by its record literal at its declaration"); return; }
+    cg_symbol_address(p, m, f, symbol, binding); let owner = cg_save(f, 0x7f);
+    cg_get(f, owner); wb_i32(f.code, 0); wb_i32(f.code, cg_size(p, id)); wb_fill(f.code);
+    var region = m.global_regions[symbol]; var field = p.types[id].first;
+    while field >= 0 {
+        let n = p.nodes[field];
+        if (n.flags & F_PAD) != 0 { field = n.next; continue; }
+        let value = cg_record_initializer(p, init, field); let component = n.type_id;
+        cg_get(f, owner); if n.integer != 0 { wb_i32(f.code, n.integer); wb_byte(f.code, 0x6a); } let address = cg_save(f, 0x7f);
+        if m.regions_enabled && cg_region_value(p, component) {
+            let header = cg_region_acquire(p, m, f, component, address, region, binding); let entry = cg_region_cursor(f, header);
+            var lifetime = CG_BLOCK_OWNER; if region >= 0 { lifetime = CG_STATIC; }
+            let receiving = cg_destination(f, component, address, lifetime, false, false, false, entry, -1);
+            let keep = f.region_live; let mark = cg_mark_regions(f);
+            if value >= 0 { cg_construct_region(p, m, f, value, receiving); }
+            else if cg_frame_owner(p, component) || cg_image_owner(p, component) || cg_enum_image(p, component) { cg_construct_region(p, m, f, -1, receiving); }
+            else {
+                let saved_node = f.active_node; let saved_destination = f.active_destination; f.active_node = node; f.active_destination = receiving;
+                wb_i32(f.code, 0); let count = cg_save(f, 0x7f); cg_region_owner_image(p, m, f, component, address, count, count, node);
+                f.active_node = saved_node; f.active_destination = saved_destination;
+            }
+            cg_restore_regions(f, mark); f.region_live = keep;
+        } else if value >= 0 && cg_fixed_relative(p, component) { cg_fixed_to(p, m, f, value, component, address); }
+        else if value >= 0 {
+            cg_to(p, m, f, value, component);
+            if !cg_diverges(p, value) {
+                if p.types[component].storage == 1 { let encoded = cg_save(f, 0x7e); cg_write_varint(p, f, address, encoded); }
+                else { cg_write_value(p, m, f, component, address, binding); }
+            }
+        } else { cg_default_storage(p, m, f, component, address, binding); }
+        if value >= 0 && cg_diverges(p, value) { return; }
+        if region >= 0 && cg_has_owner(p, component) { region += 1; }
+        field = n.next;
+    }
+}
 fn cg_decl_diverges(p: Program&, node: i64) -> bool {
     if node < 0 { return false; } let n = p.nodes[node]; if cg_diverges(p, node) { return true; }
     var value = n.right; while value >= 0 { if cg_diverges(p, value) { return true; } value = p.nodes[value].next; } return false;
@@ -1626,6 +1669,7 @@ recursive fn cg_declaration(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
 }
 recursive fn cg_declaration_body(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
     let n = p.nodes[node];
+    if n.first < 0 && n.symbol >= 0 && root_struct_type(p, p.symbols[n.symbol].type_id) { cg_root_declaration(p, m, f, node, node); return; }
     if cg_decl_diverges(p, node) { cg_divergent_declaration(p, m, f, node); return; }
     if m.regions_enabled {
         if n.first >= 0 && p.nodes[n.first].next >= 0 { cg_region_multi_declaration(p, m, f, node); return; }
@@ -3153,7 +3197,7 @@ fn cg_emit_function(p: Program&, m: CgModule&, function: i64, function_index: i6
         cg_block_into(p, m, f, p.nodes[function].right, id, first);
     } else {
         for symbol in p.symbols {
-            if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 {
+            if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && symbol.component_owner < 0 {
                 let live = f.region_live; var regions = -1;
                 if m.regions_enabled { regions = cg_mark_regions(f); }
                 cg_declaration(p, m, f, symbol.node);
@@ -3354,6 +3398,16 @@ recursive fn cg_region_type_supported(p: Program&, id: i64) -> bool {
         var component = p.types[value].first; while component >= 0 { if !cg_region_type_supported(p, p.nodes[component].type_id) { return false; } component = p.nodes[component].next; } return true;
     }
     if !cg_has_owner(p, value) { return true; }
+    // A reference component to a root owner is checked where that owner is.
+    if root_struct_type(p, value) {
+        var field = p.types[value].first;
+        while field >= 0 {
+            var component = p.nodes[field].type_id; while cg_type_kind(p, component) == TY_REF { component = p.types[component].element; }
+            if (p.nodes[field].flags & F_PAD) == 0 && !root_struct_type(p, component) && !cg_region_type_supported(p, component) { return false; }
+            field = p.nodes[field].next;
+        }
+        return true;
+    }
     if cg_enum_image(p, value) {
         var variant = p.types[value].first;
         while variant >= 0 { let payload = p.nodes[variant].type_id; if cg_has_owner(p, payload) && (!cg_image_owner(p, payload) || !cg_region_type_supported(p, payload)) { return false; } variant = p.nodes[variant].next; } return true;
@@ -3509,27 +3563,53 @@ recursive fn cg_raw_append_demand(p: Program&, m: CgModule&, node: i64) -> i64 {
     count += cg_raw_append_demand(p, m, n.left) + cg_raw_append_demand(p, m, n.right) + cg_raw_append_demand(p, m, n.third);
     var child = n.first; while child >= 0 { count += cg_raw_append_demand(p, m, child); child = p.nodes[child].next; } return count;
 }
-// Root owners need one independently growing region per component, which the
-// direct backend's single-tail frame owners cannot express yet; the native C
-// backend lowers them.
-fn cg_refuse_root_owners(p: Program&) {
-    for symbol in p.symbols {
-        if symbol.component_owner >= 0 || (symbol.flags & (S_FUNCTION | S_TYPE | S_BUILTIN)) != 0 || !root_struct_type(p, symbol.type_id) { continue; }
-        if symbol.owner >= 0 && (p.nodes[symbol.owner].flags & F_REACHABLE) == 0 { continue; }
-        if symbol.node >= 0 && (p.nodes[symbol.node].kind == N_FIELD || p.nodes[symbol.node].kind == N_VARIANT) { continue; }
-        cg_fail(p, symbol.node, "wasm: root struct storage is not supported by the direct Wasm backend; use --target native"); return;
+// A root owner's frame places its components' own storage side by side, as
+// native C's does: each field takes the slot its type takes as a variable, so
+// a resizable component keeps its 24-byte control there and has its own
+// region. An encoded scalar keeps its encoding, which reads of it as a field
+// decode, in the widest slot it needs. The checked layout (one reference per
+// field) only describes the owner to the frontend; emission uses this one,
+// set before it starts.
+fn cg_root_layouts(p: Program&) {
+    for id in 0..p.types.len {
+        if p.types[id].size < 0 || !root_struct_type(p, id) { continue; }
+        var offset = 0; var align = p.types[id].align; var field = p.types[id].first;
+        while field >= 0 {
+            let component = p.nodes[field].type_id;
+            if (p.nodes[field].flags & F_PAD) == 0 && component >= 0 {
+                let component_align = p.types[component].align; offset = cg_align(offset, component_align);
+                var bytes = cg_slot_size(p, component); if p.types[component].storage == 1 { bytes = 10; }
+                p.nodes[field].integer = offset; offset += bytes;
+                if component_align > align { align = component_align; }
+            }
+            field = p.nodes[field].next;
+        }
+        p.types[id].size = cg_align(offset, align); p.types[id].align = align;
     }
 }
+// The data regions a global of this type owns: one per component that owns
+// storage for a root owner, otherwise its one.
+fn cg_region_width(p: Program&, id: i64) -> i64 {
+    if !root_struct_type(p, id) { return 1; }
+    var width = 0; var field = p.types[id].first;
+    while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 && cg_has_owner(p, p.nodes[field].type_id) { width += 1; } field = p.nodes[field].next; }
+    return width;
+}
 fn cg_collect(p: Program&, m: CgModule&) {
-    cg_refuse_root_owners(p); if p.diagnostics.len > 0 { return; }
+    cg_root_layouts(p);
     cg_scan_effect_targets(p); p.unwinding = mark_unwinding_functions(p); mark_located_functions(p);
     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
     for symbol, i in p.symbols {
         m.globals.push(-1); m.global_regions.push(-1);
-        if (symbol.flags & S_GLOBAL) != 0 && symbol.type_id >= 0 {
+        if (symbol.flags & S_GLOBAL) != 0 && symbol.type_id >= 0 && symbol.component_owner < 0 {
             m.next_data = cg_align(m.next_data, p.types[symbol.type_id].align); m.globals[i] = m.next_data; m.next_data += cg_slot_size(p, symbol.type_id);
-            if cg_has_owner(p, symbol.type_id) { m.global_regions[i] = m.global_region_count; m.global_region_count += 1; }
+            if cg_has_owner(p, symbol.type_id) { m.global_regions[i] = m.global_region_count; m.global_region_count += cg_region_width(p, symbol.type_id); }
         }
+    }
+    // A named component (`owner.field` in an index or relative reference
+    // type) is that field's place inside its global owner's frame.
+    for symbol, i in p.symbols {
+        if symbol.component_owner >= 0 && symbol.component >= 0 && m.globals[symbol.component_owner] >= 0 { m.globals[i] = m.globals[symbol.component_owner] + p.nodes[symbol.component].integer; }
     }
     for n, node in p.nodes {
         if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE || n.symbol < 0 || (n.flags & F_GENERIC) != 0 ||
@@ -3587,7 +3667,7 @@ fn cg_collect(p: Program&, m: CgModule&) {
     }
     var raw_appends = 0;
     for item in m.functions { raw_appends += cg_raw_append_demand(p, m, p.nodes[item.node].right); }
-    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 { raw_appends += cg_raw_append_demand(p, m, p.nodes[symbol.node].right); } }
+    for symbol in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.node >= 0 && symbol.component_owner < 0 { raw_appends += cg_raw_append_demand(p, m, p.nodes[symbol.node].right); } }
     if raw_appends > 1 { m.raw_append = thunk_base; thunk_base += 1; }
     for item, i in m.functions { m.functions[i].thunk = thunk_base + i; }
     if m.functions.len == 1 && m.imports.len == 9 && p.entry == m.functions[0].node && m.functions[0].capture_count == 0 {
@@ -4921,8 +5001,8 @@ fn cg_encoded_scalar(p: Program&, id: i64) -> bool {
     if id < 0 || id >= p.types.len { return false; }
     return p.types[id].storage == 1 || cg_relative_type(p, id) && p.types[id].length_storage == 0;
 }
-// Emission never changes an existing type or field, so these per-type
-// predicates are computed once.
+// Emission never changes an existing type or field (root owners take their
+// frame layout before it starts), so these per-type predicates are computed once.
 let CG_MEMO_BYTE_RECORD: i64 = 0;
 let CG_MEMO_HAS_OWNER: i64 = 1;
 let CG_MEMO_RECORD_IMAGE: i64 = 2;
@@ -4943,6 +5023,8 @@ fn cg_memo_set(p: Program&, id: i64, predicate: i64, value: bool) -> bool {
 fn cg_byte_record(p: Program&, id: i64) -> bool {
     if cg_type_kind(p, id) != TY_STRUCT { return false; }
     let known = cg_memo_get(p, id, CG_MEMO_BYTE_RECORD); if known >= 0 { return known == 1; }
+    // A root owner stores each component apart, never as one byte image.
+    if root_struct_type(p, id) { return cg_memo_set(p, id, CG_MEMO_BYTE_RECORD, false); }
     var field = p.types[id].first;
     while field >= 0 {
         if (p.nodes[field].flags & F_PAD) == 0 && cg_encoded_scalar(p, p.nodes[field].type_id) { return cg_memo_set(p, id, CG_MEMO_BYTE_RECORD, true); }

@@ -194,6 +194,21 @@ terminal array. Growable-tail frame structs use private prefix/length snapshots
 and shared elements for named results, and support pinned whole reconstruction.
 Interrupted initializers preserve fields whose positions have not been reached.
 
+A root struct owner's frame places its components' own storage side by side,
+as native C's does: each field takes the slot its type takes as a variable, so
+a resizable component keeps its 24-byte control there, and an encoded integer
+keeps its encoding in a 10-byte slot. The checked layout (one reference per
+field) only describes the owner to the frontend; emission replaces it before
+it starts. A declaration constructs each component in field order in its
+place. Each component that owns storage acquires its own region, so components
+grow, shrink and reach their limits independently: a local owner's regions are
+transient and released with its scope, and a global owner takes one dedicated
+region per such component. Owners pass by address and a field access is a
+static offset. A named component (`owner.field` in an index or relative
+reference type) is that field's static address in its global owner. Modules
+that stay on the heap backend, for example because a component's elements own
+storage, keep each component as its own heap image.
+
 Regions partition the memory budget remaining after final static allocation.
 For maximum bytes `M`, aligned static end `S` and region count `R > 0`, each data
 region receives `B = align_down((M-S)/(R+1), 8)` bytes. Activation frames and

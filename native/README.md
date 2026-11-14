@@ -64,7 +64,8 @@ components grow, shrink and reserve independently; fixed fields sit beside
 them. Local owners take their slots like other locals and release them at
 scope exit, globals take dedicated slots, and owners pass by address. A named
 component (`owner.field` in an index or relative type) is that field's place
-in its global owner's frame. The direct Wasm backend refuses root owners.
+in its global owner's frame. The direct Wasm backend lays owners out the same
+way ([target notes](../docs/TARGET.md)).
 
 `slice_pool.h` implements the externs of upstream `stdlib/slice_pool_internal.goose`
 (`gs_slice_pool_place`, `_free`, `_regrow`, `_trim`): the runtime's span tree,
