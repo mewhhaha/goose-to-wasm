@@ -16,10 +16,18 @@ import compare_compilers as bench
 import example_charts as charts
 import langbench_charts as common
 
-COMPILER_COLORS = ("#94a3b8", "#d39b28", "#087f8c")
-DEFAULT_COMPILERS = tuple(zip(bench.COMPILERS,
-    ("Previous C++", "Previous Goose", "Current Goose"), COMPILER_COLORS))
-LEGACY_COMPILERS = {"cpp": "Previous C++", "goose56": "Goose 56", "goose57": "Goose 57"}
+V1 = "goose-compiler-comparison-v1"
+V2 = "goose-compiler-comparison-v2"
+V3 = "goose-compiler-comparison-v3"
+# Dated v1/v2 reports also timed the earlier C++ compiler, which needed --standalone
+# for C. Its binary may be gone; such a chart keeps the report's recorded sha256.
+RETIRED = "cpp"
+V1_COMPILERS = {RETIRED: "Previous C++", "goose56": "Goose 56", "goose57": "Goose 57"}
+V2_COMPILERS = (RETIRED, "parent", "candidate")
+COMPILER_COLORS = {RETIRED: "#94a3b8", "goose56": "#d39b28", "parent": "#d39b28",
+                   "goose57": "#087f8c", "candidate": "#087f8c"}
+DEFAULT_COMPILERS = tuple((name, label, COMPILER_COLORS[name]) for name, label in
+                          zip(bench.COMPILERS, ("Previous Goose", "Current Goose")))
 LABELS = {**charts.LABELS, "mandelbrot": "Mandelbrot"}
 
 
@@ -35,26 +43,47 @@ def command(record, report):
     return words[3:]
 
 
+def absent_compilers(report):
+    """Re-hash each recorded compiler; only the retired C++ binary may be absent."""
+    absent = []
+    for name, identity in report["compilers"].items():
+        path = Path(identity["path"])
+        if not path.exists():
+            if name != RETIRED:
+                raise ValueError(f"compiler binary is missing: {path}")
+            absent.append(name)
+        elif bench.cold.sha256(path) != identity["sha256"]:
+            raise ValueError("compiler binary changed")
+    return absent
+
+
+def declared_build_command(report, compiler, case, target, artifact):
+    command = bench.build_command(report["compilers"][compiler]["path"], case, target, artifact,
+                                  Path(report["configuration"]["stdlib"]).resolve())
+    if compiler == RETIRED and target == "native-c":
+        command.insert(command.index("-o"), "--standalone")
+    return command
+
+
 def checked_rows(report):
     schema = report.get("schema")
-    if schema not in ("goose-compiler-comparison-v1", "goose-compiler-comparison-v2") or report.get("status") not in ("passed", "failed"):
+    if schema not in (V1, V2, V3) or report.get("status") not in ("passed", "failed"):
         raise ValueError("a completed compiler comparison is required")
     if not report.get("inputs_unchanged") or not report.get("artifacts_unchanged"):
         raise ValueError("compiler comparison inputs or artifacts changed")
     order = bench.compiler_order(report)
-    if schema == "goose-compiler-comparison-v1":
-        if set(order) != {"cpp", "goose56", "goose57"}:
+    if schema == V1:
+        if set(order) != set(V1_COMPILERS):
             raise ValueError("legacy report must contain its three compiler identities")
     else:
         labels = report.get("compiler_labels")
-        if (order != bench.COMPILERS or not isinstance(labels, dict) or set(labels) != set(order) or
+        expected = V2_COMPILERS if schema == V2 else bench.COMPILERS
+        if (order != expected or not isinstance(labels, dict) or set(labels) != set(order) or
                 any(not isinstance(label, str) or not label for label in labels.values())):
-            raise ValueError("version 2 compiler order or labels are invalid")
+            raise ValueError("compiler order or labels are invalid for the report version")
     if set(report["compilers"]) != set(order):
         raise ValueError("compiler identities differ from declared order")
-    for identity in report["compilers"].values():
-        if bench.cold.sha256(Path(identity["path"])) != identity["sha256"]:
-            raise ValueError("compiler binary changed")
+    absent_compilers(report)
     cases = {case["name"]: case for case in report["workloads"]}
     if len(cases) != len(report["workloads"]) or set(cases) != set(LABELS):
         raise ValueError("expected all eleven distinct workloads")
@@ -73,9 +102,7 @@ def checked_rows(report):
         if record["compiler"] not in order or record["target"] not in bench.TARGETS or record["phase"] not in ("warmup", "measurement"):
             raise ValueError("unexpected compiler, target or sample phase")
         case = cases[record["workload"]]
-        compiler = record["compiler"]
-        expected = bench.build_command(report["compilers"][compiler]["path"], compiler, case,
-            record["target"], record["artifact"], Path(report["configuration"]["stdlib"]).resolve())
+        expected = declared_build_command(report, record["compiler"], case, record["target"], record["artifact"])
         if command(record, report) != list(map(str, expected)):
             raise ValueError("build invocation differs from declared source, target or compiler")
         if record["status"] != "passed":
@@ -119,12 +146,12 @@ def checked_rows(report):
 
 def compiler_specs(report):
     specs = []
-    for index, compiler in enumerate(bench.compiler_order(report)):
-        if report["schema"] == "goose-compiler-comparison-v2":
-            label = report["compiler_labels"][compiler]
+    for compiler in bench.compiler_order(report):
+        if report["schema"] == V1:
+            label = V1_COMPILERS[compiler]
         else:
-            label = LEGACY_COMPILERS[compiler]
-        specs.append((compiler, label, COMPILER_COLORS[index]))
+            label = report["compiler_labels"][compiler]
+        specs.append((compiler, label, COMPILER_COLORS[compiler]))
     return tuple(specs)
 
 
@@ -192,6 +219,8 @@ def render(report_path, output):
         "Source": f"{report_path} sha256:{digest}", "Description": report["method"]})
     return dict(schema="goose-compiler-comparison-chart-v1", report=str(report_path), report_sha256=digest,
                 renderer_sha256=bench.cold.sha256(Path(__file__)),
+                # Absent binaries keep only the report's recorded sha256 as identity.
+                unverified_compilers=absent_compilers(report),
                 charts={path.name: dict(sha256=bench.cold.sha256(path), values=values)})
 
 

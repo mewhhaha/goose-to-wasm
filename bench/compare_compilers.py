@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Compare cold C++/Goose compiler processes emitting Wasm and standalone C.
+"""Compare cold parent and candidate Goose compiler processes emitting Wasm and standalone C.
 
 C compilation and golden-output validation happen after the timed campaign.
-The C++ compiler is a benchmark competitor, never a correctness oracle.
+Golden outputs, never either compiler, decide correctness.
 """
 from __future__ import annotations
 
@@ -21,10 +21,8 @@ import sys
 import langbench as cold
 
 ROOT = cold.ROOT
-COMPILERS = ("cpp", "parent", "candidate")
+COMPILERS = ("parent", "candidate")
 TARGETS = ("wasm-direct", "native-c")
-CPP = ROOT / "build/next-runtime-hills/final/bin/goose"
-CPP_IDENTITY = ROOT / "bench/results/2026-11-04/leaf-and-loads/compiler-identity.json"
 C_FLAGS = ["-std=gnu11", "-O2", "-fno-strict-aliasing", "-rdynamic"]
 
 
@@ -42,14 +40,12 @@ def workloads() -> list[dict]:
     return cases
 
 
-def build_command(compiler, name, case, target, artifact, stdlib):
+def build_command(compiler, case, target, artifact, stdlib):
     command = [compiler, case["source"], "--stdlib", stdlib, "-O2", "--target"]
     if target == "wasm-direct":
         command += ["wasm-direct", "--wasm-initial-pages", "16", "--wasm-max-pages", "256"]
     else:
         command += ["native"]
-        if name == "cpp":
-            command += ["--standalone"]
     return [*command, "-o", artifact]
 
 
@@ -143,7 +139,6 @@ def save(report, output):
 
 def parser():
     cli = argparse.ArgumentParser(description=__doc__)
-    cli.add_argument("--cpp", type=Path, default=CPP)
     cli.add_argument("--parent", type=Path, required=True)
     cli.add_argument("--candidate", type=Path, required=True)
     cli.add_argument("--parent-source", type=Path, required=True)
@@ -169,7 +164,7 @@ def main():
         cli.error("samples and timeout must be positive")
     if args.cpu not in os.sched_getaffinity(0):
         cli.error("CPU is outside process affinity")
-    compilers = {"cpp": args.cpp.resolve(), "parent": args.parent.resolve(), "candidate": args.candidate.resolve()}
+    compilers = {"parent": args.parent.resolve(), "candidate": args.candidate.resolve()}
     for source_root in (args.parent_source, args.candidate_source):
         if not (source_root / "main.goose").is_file():
             cli.error(f"compiler source root has no main.goose: {source_root}")
@@ -183,7 +178,7 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     paths = [Path(__file__), Path(cold.__file__), Path(cold.process.__file__),
              ROOT / "examples/manifest.json", ROOT / "bench/langbench/manifest.json", ROOT / "bench/host_input.c",
-             ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py", args.stdlib, CPP_IDENTITY,
+             ROOT / "scripts/run_wasm.mjs", ROOT / "scripts/run_wasmtime.py", args.stdlib,
              *[Path(case["source"]) for case in cases],
              *[Path(case["expected_path"]) for case in cases if "expected_path" in case],
              *sorted(args.parent_source.glob("*.goose")), *sorted(args.candidate_source.glob("*.goose")),
@@ -192,17 +187,13 @@ def main():
     import wasmtime._ffi as ffi
     paths.append(Path(ffi.dll._name))
     identities = cold.fingerprint(paths)
-    cpp_identity = json.loads(CPP_IDENTITY.read_text())
-    report = dict(schema="goose-compiler-comparison-v2", status="incomplete",
+    report = dict(schema="goose-compiler-comparison-v3", status="incomplete",
                   started_utc=datetime.now(timezone.utc).isoformat(), samples=args.samples,
                   configuration={key: str(value) for key, value in vars(args).items()},
-                  method="Fresh compiler process per build; retained OS caches; Goose -O2. One unmeasured warmup per cell, followed by shuffled balanced rounds. Front-end bars end after Wasm/C emission; C compiler and golden-output execution run only after the timed campaign. C++ is a benchmark competitor, never an oracle. No Zig compiler is measured.",
+                  method="Fresh compiler process per build; retained OS caches; Goose -O2. One unmeasured warmup per cell, followed by shuffled balanced rounds. Front-end bars end after Wasm/C emission; C compiler and golden-output execution run only after the timed campaign. Both compilers are Goose; golden outputs, never either compiler, decide correctness. No Zig compiler is measured.",
                   compiler_order=list(COMPILERS),
-                  compiler_labels={"cpp": "Previous C++", "parent": args.parent_label,
-                                   "candidate": args.candidate_label},
+                  compiler_labels={"parent": args.parent_label, "candidate": args.candidate_label},
                   compilers={name: dict(path=str(path), sha256=cold.sha256(path)) for name, path in compilers.items()},
-                  cpp_source_identity=cpp_identity,
-                  cpp_source_identity_matches=cpp_identity["compiler_sha256"] == cold.sha256(args.cpp),
                   compiler_source_roots={"parent": str(args.parent_source.resolve()), "candidate": str(args.candidate_source.resolve())},
                   compiler_source_linkage="Caller-supplied frozen source roots; fingerprints identify those files. Binary/source build linkage belongs to the separate compiler qualification evidence.",
                   workloads=cases, builds=[], validations={}, summary=[], input_fingerprints=identities,
@@ -223,7 +214,7 @@ def main():
             directory.mkdir(parents=True)
             suffix = ".wasm" if target == "wasm-direct" else ".c"
             artifact = directory / ("program" + suffix)
-            command = build_command(compilers[name], name, case, target, artifact, args.stdlib.resolve())
+            command = build_command(compilers[name], case, target, artifact, args.stdlib.resolve())
             row = dict(compiler=name, workload=case["name"], target=target, round=sample,
                        phase="measurement", artifact=str(artifact))
             if sample < 0:

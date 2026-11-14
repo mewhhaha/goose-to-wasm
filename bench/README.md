@@ -96,11 +96,15 @@ compiler executables are unavailable. See the
 
 The [dated results](results/2026-11-08/scalar-wasm-locals/README.md) record exact compiler, source, workload and engine identities, raw measurements and limitations. Official Mandelbrot computation took 2.64 s in resident Wasmtime, 2.57 s in resident V8 and 2.45 s natively. The separate compiler execution comparison measures three compilers across eleven programs: Goose 57 took 3.00× the previous optimized C++ compiler’s time to emit Wasm and 2.21× to emit C (geometric means). These frontend timings exclude downstream C compilation, unlike the complete-build chart.
 
+`compare_compilers.py` now measures only two Goose compilers, a parent and a
+candidate; `compiler_comparison_charts.py` still renders the dated reports
+that included the C++ compiler.
+
 ```sh
 python3 bench/compare_compilers.py \
-  --cpp /path/to/previous-cpp/goose --parent /path/to/goose56 \
-  --candidate build/bin/goose --parent-source /path/to/snapshot56/selfhost \
-  --candidate-source selfhost --output-dir build/compiler-comparison
+  --parent /path/to/previous/goose --parent-source /path/to/previous/selfhost \
+  --candidate build/bin/goose --candidate-source selfhost \
+  --output-dir build/compiler-comparison
 ```
 
 The [Langbench guide](langbench/README.md) describes the resident runtime boundary. The [previous snapshot 56 results](results/2026-11-07/langbench-hot/README.md) were collected separately. A new alternating comparison on the smaller input confirmed 13.93× Wasmtime and 17.25× V8 runtime improvements. This is a scalar-module optimization; the ten full examples remain separate process benchmarks.

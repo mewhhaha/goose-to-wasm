@@ -31,10 +31,10 @@ class CompilerComparison(unittest.TestCase):
             involuntary_context_switches=2, block_input_operations=4,
             block_output_operations=5))
 
-    def report(self):
+    def report(self, compilers=BENCH.COMPILERS):
         report = dict(samples=2, workloads=[dict(name="small")], builds=[],
                       validations={"proof": dict(status="passed")})
-        for compiler in BENCH.COMPILERS:
+        for compiler in compilers:
             for target in BENCH.TARGETS:
                 for sample in [-1, 0, 1]:
                     report["builds"].append(dict(compiler=compiler, workload="small", target=target,
@@ -44,27 +44,29 @@ class CompilerComparison(unittest.TestCase):
 
     def test_complete_rows_and_stats(self):
         rows = BENCH.summaries(self.report())
-        self.assertEqual(len(rows), 6)
+        self.assertEqual(len(rows), 4)
         self.assertTrue(all(row["qualified"] for row in rows))
         self.assertTrue(all(row["compile_wall_seconds"]["n"] == 2 for row in rows))
 
-    def test_order_comes_from_v2_or_legacy_report(self):
+    def test_order_comes_from_report_including_legacy_cpp_reports(self):
+        self.assertEqual(BENCH.COMPILERS, ("parent", "candidate"))
         report = self.report()
-        report["compiler_order"] = ["cpp", "parent", "candidate"]
-        self.assertEqual(BENCH.compiler_order(report), ("cpp", "parent", "candidate"))
-        legacy = self.report()
+        report["compiler_order"] = list(BENCH.COMPILERS)
+        self.assertEqual(BENCH.compiler_order(report), ("parent", "candidate"))
+        v2 = self.report(("cpp", "parent", "candidate"))
+        v2["compiler_order"] = ["cpp", "parent", "candidate"]
+        self.assertEqual(BENCH.compiler_order(v2), ("cpp", "parent", "candidate"))
+        self.assertEqual(len(BENCH.summaries(v2)), 6)
+        self.assertTrue(all(row["qualified"] for row in BENCH.summaries(v2)))
+        legacy = self.report(("cpp", "goose56", "goose57"))
         legacy["compilers"] = {"cpp": {}, "goose56": {}, "goose57": {}}
-        for row in legacy["builds"]:
-            if row["compiler"] == "parent":
-                row["compiler"] = "goose56"
-            elif row["compiler"] == "candidate":
-                row["compiler"] = "goose57"
         self.assertEqual(BENCH.compiler_order(legacy), ("cpp", "goose56", "goose57"))
         self.assertEqual([row["compiler"] for row in BENCH.summaries(legacy)[:3]],
                          ["cpp", "cpp", "goose56"])
 
     def test_parent_binary_and_source_are_required(self):
         actions = {action.dest: action for action in BENCH.parser()._actions}
+        self.assertNotIn("cpp", actions)
         self.assertTrue(actions["parent"].required)
         self.assertTrue(actions["parent_source"].required)
         self.assertEqual(actions["parent_label"].default, "Previous Goose")
@@ -86,7 +88,7 @@ class CompilerComparison(unittest.TestCase):
             else:
                 report["builds"][0]["status"] = "failed"
             rows = BENCH.summaries(report)
-            self.assertEqual(len(rows), 6)
+            self.assertEqual(len(rows), 4)
             self.assertFalse(rows[0]["qualified"], mutation)
             self.assertIsNone(rows[0]["compile_wall_seconds"], mutation)
 
@@ -97,14 +99,14 @@ class CompilerComparison(unittest.TestCase):
                             for row in BENCH.summaries(report)))
 
     def test_command_target_and_standalone_contract(self):
-        for compiler in BENCH.COMPILERS:
-            native = list(map(str, BENCH.build_command("compiler", compiler,
-                dict(source="same.goose"), "native-c", "program.c", "same-stdlib")))
-            self.assertEqual("--standalone" in native, compiler == "cpp")
-            wasm = list(map(str, BENCH.build_command("compiler", compiler,
-                dict(source="same.goose"), "wasm-direct", "program.wasm", "same-stdlib")))
-            self.assertIn("--wasm-max-pages", wasm)
-            self.assertNotIn("--standalone", wasm)
+        native = list(map(str, BENCH.build_command("compiler", dict(source="same.goose"),
+            "native-c", "program.c", "same-stdlib")))
+        self.assertEqual(native[-3:], ["native", "-o", "program.c"])
+        self.assertNotIn("--standalone", native)
+        wasm = list(map(str, BENCH.build_command("compiler", dict(source="same.goose"),
+            "wasm-direct", "program.wasm", "same-stdlib")))
+        self.assertIn("--wasm-max-pages", wasm)
+        self.assertNotIn("--standalone", wasm)
 
     def test_golden_contract_is_independent_and_strict(self):
         result = dict(status="passed", stdout="636\n42\n", stderr="", exit_code=0)
