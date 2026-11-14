@@ -47,3 +47,14 @@ Discovery pass 1 visits a frame for each analyzed call context. The baseline ran
 - blot2 with a main still does not finish. Each place that reads back through a non-exact reference makes one atom per candidate global, because the atom records the reading place as `from`. Atoms grew from 2.2 M to 23.7 M between frames 25,000 and 30,000. Read-backs, with one atom lookup per candidate, and the summary merges' subset tests lead the profile.
 - Memory: checking the fixture with a main peaked at 8,655 MiB. The atom table alone is 1.6 GB by then (67 M 24-byte slots). Other runs that reached the same state peaked at 6.2–8.0 GiB, depending on the machine's memory pressure. The self-check and the fixture without a main use less memory than before.
 - The candidate's sets are larger (56 bytes instead of 32), and an atom table and root indexes come on top. This costs little on the self-check because far fewer sets are kept.
+
+## On `big-workload-parse`
+
+Cherry-picked as `8694f1f` onto `49fffe6`, with slice_pool, abort sites and parallel native units, and qualified again. `scripts/bootstrap.py --verify` reached a fixed point (`67437a5c…`, executable `e7ff8bab…`). Conformance passed 8,320 of 8,414 rows as one unit and as three native units, failing exactly the 94 recorded gaps. The native checks passed 54 of 54. Output equivalence against the `27040e5` compiler (`cffd13ea…`) found 0 of 7,673 compilations differing, the compiler's own sources included. [Data](combined.json)
+
+## The upstream compiler on blot2 with a main
+
+Measured on 2026-11-14 with `goose check main.goose` in blot2's `compiler-goose/src`, one run each at load 8–12. These are separately collected reference runs, not this compiler:
+
+- Plain upstream at `32a4f44` was stopped by a 1,200 s timeout after 1,008 s of user time, at 2,154 MiB. It did not finish.
+- With blot2's private patches 01–11 on `32a4f44`, it stopped after 72 s of user time at 3,781 MiB, at its first lifetime error (`reuse/code_expectation.goose:40`, "returning a reference rooted in n"). Those patches restrict checking to what `main` reaches, as `--reachable-program` does here. Upstream stops at its first lifetime error, whereas this analysis reports only after its discovery passes. blot2 builds with patches 01–29, which include precision changes that accept code upstream rejects.
