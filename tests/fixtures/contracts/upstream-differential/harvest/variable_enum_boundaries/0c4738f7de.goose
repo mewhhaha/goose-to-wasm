@@ -1,0 +1,1 @@
+enum E { Data { x: i64 } } struct Box { tag: u8, value: E.. } fn main() { let b = Box { 1, E.Data { 2 } }; match b.value { Data p => print(p.x) } }

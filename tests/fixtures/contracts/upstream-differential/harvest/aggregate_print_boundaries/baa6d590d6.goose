@@ -1,0 +1,1 @@
+struct R{value:i64&}fn main(){var n=7;let rows:i64[2]=[1,2];let r=R{n};print(r);}

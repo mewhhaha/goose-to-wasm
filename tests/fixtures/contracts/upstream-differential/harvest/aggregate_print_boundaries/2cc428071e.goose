@@ -1,0 +1,1 @@
+struct R{value:i64} fn format(out:u8[>..]&,r:R){out.append("custom");}fn main(){print([R{7},R{9}]);}

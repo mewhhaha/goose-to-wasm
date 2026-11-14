@@ -1,0 +1,1 @@
+struct Record { data: u8[0], value: u64 } fn main() {}

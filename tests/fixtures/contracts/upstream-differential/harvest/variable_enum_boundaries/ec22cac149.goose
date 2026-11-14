@@ -1,0 +1,1 @@
+enum E { Empty, Data { x: i64 } } fn main() { var e: E.. = E.Data { 1 }; e = E.Empty; }

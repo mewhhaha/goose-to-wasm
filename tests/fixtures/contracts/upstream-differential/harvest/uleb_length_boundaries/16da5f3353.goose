@@ -1,0 +1,1 @@
+struct R{tag:varint,values:u8[varint]} fn main(){let r=R{1,[7;128]};print(r.values.len);}

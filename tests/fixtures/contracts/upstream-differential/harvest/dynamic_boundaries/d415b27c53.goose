@@ -1,0 +1,1 @@
+var xs: i64[>..] = [1]; fn same() -> i64[>..] { return xs[..]; } fn main() { xs = same(); }

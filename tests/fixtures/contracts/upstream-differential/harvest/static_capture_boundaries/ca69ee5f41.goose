@@ -1,0 +1,1 @@
+fn size(xs: const i64[:]) -> i64 { xs.len } fn apply<F>() -> i64 { size(F()) } fn main() { print(apply() { var xs: i64[>..] = [7, 8]; xs[..] }); }

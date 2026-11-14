@@ -1,0 +1,1 @@
+fn make() -> i64[>..] { return [1, 2]; } fn main() { let view: const i64[:] = make(); print(view.len); }

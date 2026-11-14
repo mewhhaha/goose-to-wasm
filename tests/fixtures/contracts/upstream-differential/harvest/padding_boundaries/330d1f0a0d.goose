@@ -1,0 +1,1 @@
+struct P{pad 200000000,pad 200000000} fn main(){let p=P{};}

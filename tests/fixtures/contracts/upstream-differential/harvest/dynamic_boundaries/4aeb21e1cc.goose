@@ -1,0 +1,1 @@
+fn make() -> i64[>..] { return [1, 2]; } fn first(view: const i64[:]) -> const i64& { return view[0]; } fn bad() -> const i64& { return first(make()); } fn main() { bad(); }

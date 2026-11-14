@@ -1,0 +1,1 @@
+enum E { Data { values: i64[] } } fn main() { let xs: E.Data[] = [E.Data { [1] }]; print(xs.len); }

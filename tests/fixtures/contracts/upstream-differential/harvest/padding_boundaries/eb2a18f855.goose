@@ -1,0 +1,1 @@
+enum E{A{a:u8,pad,b:u32},Empty} recursive fn make()->E.A{return E.A{0x11,0x22334455};} fn main(){let e:E..=make();match e{A p=>print(p.b as i64),Empty=>{}}}

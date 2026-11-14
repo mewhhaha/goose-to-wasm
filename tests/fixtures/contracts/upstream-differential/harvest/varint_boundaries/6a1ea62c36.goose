@@ -1,0 +1,1 @@
+struct Inner{n:varint} struct Outer{tag:u8,inner:Inner} fn main(){let r=Outer{1,Inner{2}};print(r.inner.n);}

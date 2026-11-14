@@ -1,0 +1,1 @@
+enum E { Empty, Data { values: i64[>..] } } fn main() { let e: E.. = E.Data { [1] }; match e { Data => print(1), _ => {} } }

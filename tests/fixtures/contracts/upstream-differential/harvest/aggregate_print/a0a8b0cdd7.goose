@@ -1,0 +1,1 @@
+struct Text{bytes:u8[7]} fn main(){print(Text{[255,0,128,34,92,10,9]});}

@@ -1,0 +1,1 @@
+fn main() { for value:u8 in 254..258 { print(value); } }

@@ -1,0 +1,1 @@
+struct R{n:varint} fn target()->R{recursive fn leave(){return R{1} from target;}leave();return R{0};} fn main(){let r=target();print(r.n);}

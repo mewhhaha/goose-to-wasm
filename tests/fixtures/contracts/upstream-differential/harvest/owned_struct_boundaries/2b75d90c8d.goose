@@ -1,0 +1,1 @@
+struct Packet { id: i64, values: i64[] } fn main() { var x = Packet { 1, [2] }; x = Packet { 3, [4] }; }

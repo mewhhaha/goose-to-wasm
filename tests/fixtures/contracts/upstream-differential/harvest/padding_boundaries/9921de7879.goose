@@ -1,0 +1,1 @@
+struct R{values:u8[u8],pad 1} fn main(){let r=R{[1]};print(r.values.len);}

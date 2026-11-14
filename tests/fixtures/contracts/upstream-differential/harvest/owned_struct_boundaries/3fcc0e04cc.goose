@@ -1,0 +1,1 @@
+struct Packet { id: i64, values: i64[] } fn bad(p: Packet) -> const i64& { return p.id; } fn main() { bad(Packet { 1, [2] }); }

@@ -1,0 +1,1 @@
+fn main() { var xs: i64[>..] = [1]; xs = copy(xs); }

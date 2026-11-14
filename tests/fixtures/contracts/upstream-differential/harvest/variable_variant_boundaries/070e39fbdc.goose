@@ -1,0 +1,1 @@
+enum E { Data { id: i64, values: i64[] } } fn main() { print(E.Data { 1, [2] }); }

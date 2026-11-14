@@ -1,0 +1,1 @@
+struct Inner { values: i64[] } struct Outer { inner: Inner, values: i64[>..] } fn main() { let x = Outer { Inner { [2] }, [3] }; print(x.inner.values.len); }

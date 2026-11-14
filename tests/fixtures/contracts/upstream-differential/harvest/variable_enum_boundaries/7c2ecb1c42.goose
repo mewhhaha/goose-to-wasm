@@ -1,0 +1,1 @@
+enum E { Empty, Data { x: i64 } } fn main() { let e: E.. = E.Data { 1 }; print(e); }

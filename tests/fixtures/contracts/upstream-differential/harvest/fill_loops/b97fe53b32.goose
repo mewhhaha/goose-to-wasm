@@ -1,0 +1,1 @@
+var backing:u8[4]=[17,34,51,68];  fn main() { for j in 2 { let xs=backing[..]; for i in xs.len { xs[i]=0; } } }

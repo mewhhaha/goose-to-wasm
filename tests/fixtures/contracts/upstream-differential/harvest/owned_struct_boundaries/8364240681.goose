@@ -1,0 +1,1 @@
+struct Packet { id: i64, values: i64[] } fn main() { print(Packet { 1, [2] }); }

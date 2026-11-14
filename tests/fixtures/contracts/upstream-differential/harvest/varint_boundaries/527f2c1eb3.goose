@@ -1,0 +1,1 @@
+enum E{Data{n:varint},Empty} fn main(){let e:E..=E.Data{1};match e{Data p=>print(p.n),Empty=>{}}}

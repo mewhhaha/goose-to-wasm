@@ -1,0 +1,1 @@
+fn main(){var rows:u64[..0][2];print(rows.len);}

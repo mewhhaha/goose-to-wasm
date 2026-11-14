@@ -1,0 +1,1 @@
+fn make() -> i64[>..] { return [1, 2]; } fn size(view: const i64[:]) -> i64 { return view.len; } fn main() { print(size(if true { make() } else { make() })); }

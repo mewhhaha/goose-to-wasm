@@ -1,7 +1,63 @@
 {
  "schema": "goose-conformance-known-gaps-v1",
- "note": "Rows that fail on the qualified compiler: six invalid programs accepted and 86 runtime contracts refused during compilation. tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "note": "Rows that fail on the qualified compiler: six invalid programs accepted, 86 runtime contracts refused during compilation, and 12 rows of the harvested upstream-differential contracts (two refused during compilation, ten that run and differ), whose causes are listed under \"causes\". tests/conformance.py --known-gaps fails on any other failure and on a recorded gap that passes.",
+ "causes": {
+  "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct": "New: direct Wasm builds a multiple-result return over a returned local that a later result reads through a reference, so `return E.New { 0x0102030405060708 }, kept` gives 16909060 for kept where upstream and native C give 0 (goose_spec.md section 7.3, Named results: a returned local that another return's value may read is copied).",
+  "corpus/contracts/upstream-differential/harvest/padding_boundaries/330d1f0a0d/native": "New: the checker applies the direct-Wasm memory size (--wasm-max-pages, default 256 pages) to struct layouts on native C too, so a 400,000,000-byte struct is rejected (\"aggregate layout exceeds configured memory\"); upstream accepts it and runs it, and goose_spec.md section 10.4 sets the limit at 2^48 bytes.",
+  "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct": "Open in docs/FEATURES.md (Differences found by the upstream differential run, the limited-capacity row): an overflowing runtime-capacity push reports \"array capacity exceeded\" on direct Wasm, where upstream and native C say \"limited array capacity exceeded\".",
+  "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/native": "New: a fill [v; n] whose count the backend cannot hold aborts before v is evaluated, so the exit inside v is never taken (goose_spec.md section 4.2: v is evaluated once; section 2: evaluation is left to right). Direct Wasm traps \"array repetition count out of range\"; native C, building a whole assignment's fill in place, overflows its data stack first. Upstream evaluates v, takes its exit and prints 7.",
+  "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct": "New: a fill [v; n] whose count the backend cannot hold aborts before v is evaluated, so the exit inside v is never taken (goose_spec.md section 4.2: v is evaluated once; section 2: evaluation is left to right). Direct Wasm traps \"array repetition count out of range\"; native C, building a whole assignment's fill in place, overflows its data stack first. Upstream evaluates v, takes its exit and prints 7.",
+  "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct": "New: a fill [v; n] whose count the backend cannot hold aborts before v is evaluated, so the exit inside v is never taken (goose_spec.md section 4.2: v is evaluated once; section 2: evaluation is left to right). Direct Wasm traps \"array repetition count out of range\"; native C, building a whole assignment's fill in place, overflows its data stack first. Upstream evaluates v, takes its exit and prints 7."
+ },
  "gaps": [
+  [
+   "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a/wasm-direct",
+   2
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/padding_boundaries/330d1f0a0d/native",
+   0
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/padding_boundaries/330d1f0a0d/native",
+   2
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+   2
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/native",
+   0
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/native",
+   2
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+   2
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+   2
+  ],
   [
    "upstream/codegen/codegen_exec",
    0

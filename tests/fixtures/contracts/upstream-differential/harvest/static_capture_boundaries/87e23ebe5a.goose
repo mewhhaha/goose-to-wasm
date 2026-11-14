@@ -1,0 +1,1 @@
+struct View { xs: const i64[:] } fn size(v: View) -> i64 { v.xs.len } fn apply<F>() -> i64 { size(F([7, 8])) } fn main() { print(apply() { xs: i64[>..] => View { xs: xs[..] } }); }

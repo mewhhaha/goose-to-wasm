@@ -1,0 +1,1 @@
+var backing:u8[4]=[17,34,51,68]; inline fn prepare() { let xs=backing[..]; for i in xs.len { xs[i]=0; } } fn main() { prepare(); }

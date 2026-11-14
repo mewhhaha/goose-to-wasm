@@ -1,0 +1,1 @@
+enum E { Data { id: i64, values: i64[] } } fn bad(p: E.Data) -> const i64& { return p.id; } fn main() { bad(E.Data { 1, [2] }); }

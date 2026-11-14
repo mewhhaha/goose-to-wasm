@@ -1,0 +1,1 @@
+enum E { Data { id: i64, values: i64[] } } fn main() { var p = E.Data { 1, [2] }; p = E.Data { 3, [4] }; }

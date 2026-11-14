@@ -1,0 +1,1 @@
+fn named() -> i64 { 1 } fn main() { let stored = named; print(stored()); }

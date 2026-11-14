@@ -1,0 +1,1 @@
+struct R{value:i64&} fn main(){var n=7;let a:R[u8]=[R{n}];print(a);}

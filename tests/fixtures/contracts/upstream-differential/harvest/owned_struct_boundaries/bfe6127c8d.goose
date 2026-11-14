@@ -1,0 +1,1 @@
+struct Packet { values: i64[] } fn main() { let xs: Packet[] = [Packet { [1] }]; print(xs.len); }

@@ -1,0 +1,1 @@
+struct Box{value:u64[..0]} fn main(){let b=Box{[]};print(b.value.len);}

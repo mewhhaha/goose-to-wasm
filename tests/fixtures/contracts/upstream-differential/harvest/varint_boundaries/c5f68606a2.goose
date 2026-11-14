@@ -1,0 +1,1 @@
+struct R{n:varint,values:u8[u8]} fn main(){let r=R{1,[2]};print(r.n);}

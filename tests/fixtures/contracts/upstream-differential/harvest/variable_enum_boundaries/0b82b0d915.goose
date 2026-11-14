@@ -1,0 +1,1 @@
+enum E { Data { x: i64 } } fn bad(e: E..) -> const i64& { return match e { Data &p => p.x }; } fn main() { bad(E.Data { 1 }); }
