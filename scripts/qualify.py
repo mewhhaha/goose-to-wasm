@@ -43,8 +43,9 @@ UNIT_TESTS = ['tests.test_conformance_runner', 'tests.test_bootstrap_optimizatio
 def run(name, command, log, env=None):
     started = time.monotonic()
     with log.open('wb') as stream:
-        code = subprocess.run(list(map(str, command)), cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
-                              env=env).returncode
+        # No stage reads input; an inherited open stdin would block a program that reads it.
+        code = subprocess.run(list(map(str, command)), cwd=ROOT, stdin=subprocess.DEVNULL, stdout=stream,
+                              stderr=subprocess.STDOUT, env=env).returncode
     return {'stage': name, 'command': list(map(str, command)), 'exit': code,
             'seconds': round(time.monotonic() - started, 1), 'log': str(log)}
 
