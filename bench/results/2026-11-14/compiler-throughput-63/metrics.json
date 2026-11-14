@@ -1,0 +1,462 @@
+{
+ "schema": "goose-compiler-throughput-metrics-v1",
+ "snapshot": 63,
+ "date": "2026-11-14",
+ "compilers": {
+  "Snapshot 61": {
+   "path": "/home/jacobt/src/goose-to-wasm/build/baselines/goose-snapshot61",
+   "sha256": "2505585544a1bb3dcf70204071d8c4388160e09b6775fe858d25a8efeb63c4fe"
+  },
+  "Snapshot 63": {
+   "path": "/home/jacobt/src/goose-to-wasm/build/baselines/goose-snapshot63-pgo",
+   "sha256": "10ade9d54abd059038d05cb76d1f81f9c89b9254c2f3529794995e298518ab56"
+  },
+  "Snapshot 62": {
+   "path": "/home/jacobt/src/goose-to-wasm/build/baselines/goose-snapshot62-pgo",
+   "sha256": "2d2c4a3d677f47d1c512b39a8266c1c305c73cd3f1e219915cda3ee794fe5cbd"
+  }
+ },
+ "runs": [
+  {
+   "name": "primary",
+   "parent": "Snapshot 61",
+   "candidate": "Snapshot 63",
+   "cpu": 7,
+   "seed": 630063,
+   "samples": 31,
+   "status": "passed",
+   "started_utc": "2026-11-14T19:08:24.495014+00:00",
+   "report_sha256": "55b57a6a07214e112b0d4463ddd1856fa0bb7dd2e83e898b22c9751c66c4a263",
+   "geomean_time_ratio": {
+    "wasm-direct:candidate/parent": 1.04087,
+    "native-c:candidate/parent": 1.05669,
+    "all-cells:candidate/parent": 1.04875
+   },
+   "median_ms": {
+    "wasm-direct": {
+     "errors": {
+      "Snapshot 61": 8.539,
+      "Snapshot 63": 9.007
+     },
+     "functions": {
+      "Snapshot 61": 23.007,
+      "Snapshot 63": 23.821
+     },
+     "life": {
+      "Snapshot 61": 6.244,
+      "Snapshot 63": 6.493
+     },
+     "mandelbrot": {
+      "Snapshot 61": 4.431,
+      "Snapshot 63": 4.491
+     },
+     "maze": {
+      "Snapshot 61": 9.542,
+      "Snapshot 63": 10.243
+     },
+     "sieve": {
+      "Snapshot 61": 5.219,
+      "Snapshot 63": 5.483
+     },
+     "sorting": {
+      "Snapshot 61": 24.325,
+      "Snapshot 63": 26.189
+     },
+     "squares": {
+      "Snapshot 61": 3.084,
+      "Snapshot 63": 3.021
+     },
+     "sudoku": {
+      "Snapshot 61": 5.823,
+      "Snapshot 63": 6.014
+     },
+     "tour": {
+      "Snapshot 61": 7.989,
+      "Snapshot 63": 8.585
+     },
+     "vm": {
+      "Snapshot 61": 7.646,
+      "Snapshot 63": 7.816
+     }
+    },
+    "native-c": {
+     "errors": {
+      "Snapshot 61": 8.661,
+      "Snapshot 63": 9.371
+     },
+     "functions": {
+      "Snapshot 61": 23.227,
+      "Snapshot 63": 24.617
+     },
+     "life": {
+      "Snapshot 61": 5.956,
+      "Snapshot 63": 6.317
+     },
+     "mandelbrot": {
+      "Snapshot 61": 4.667,
+      "Snapshot 63": 4.874
+     },
+     "maze": {
+      "Snapshot 61": 9.087,
+      "Snapshot 63": 10.179
+     },
+     "sieve": {
+      "Snapshot 61": 4.584,
+      "Snapshot 63": 4.669
+     },
+     "sorting": {
+      "Snapshot 61": 24.69,
+      "Snapshot 63": 27.466
+     },
+     "squares": {
+      "Snapshot 61": 3.212,
+      "Snapshot 63": 3.135
+     },
+     "sudoku": {
+      "Snapshot 61": 5.979,
+      "Snapshot 63": 6.319
+     },
+     "tour": {
+      "Snapshot 61": 5.959,
+      "Snapshot 63": 6.383
+     },
+     "vm": {
+      "Snapshot 61": 7.088,
+      "Snapshot 63": 7.298
+     }
+    }
+   }
+  },
+  {
+   "name": "replicate",
+   "parent": "Snapshot 61",
+   "candidate": "Snapshot 63",
+   "cpu": 5,
+   "seed": 630064,
+   "samples": 31,
+   "status": "passed",
+   "started_utc": "2026-11-14T19:09:16.694008+00:00",
+   "report_sha256": "af4e6f61f10103029611c85b6d5fbac8862a85f816eb9adc42eab8819c7f9996",
+   "geomean_time_ratio": {
+    "wasm-direct:candidate/parent": 1.02716,
+    "native-c:candidate/parent": 1.04677,
+    "all-cells:candidate/parent": 1.03692
+   },
+   "median_ms": {
+    "wasm-direct": {
+     "errors": {
+      "Snapshot 61": 5.984,
+      "Snapshot 63": 6.279
+     },
+     "functions": {
+      "Snapshot 61": 15.211,
+      "Snapshot 63": 15.63
+     },
+     "life": {
+      "Snapshot 61": 4.512,
+      "Snapshot 63": 4.603
+     },
+     "mandelbrot": {
+      "Snapshot 61": 3.336,
+      "Snapshot 63": 3.36
+     },
+     "maze": {
+      "Snapshot 61": 6.789,
+      "Snapshot 63": 7.046
+     },
+     "sieve": {
+      "Snapshot 61": 3.834,
+      "Snapshot 63": 4.012
+     },
+     "sorting": {
+      "Snapshot 61": 16.139,
+      "Snapshot 63": 17.25
+     },
+     "squares": {
+      "Snapshot 61": 2.393,
+      "Snapshot 63": 2.327
+     },
+     "sudoku": {
+      "Snapshot 61": 4.314,
+      "Snapshot 63": 4.355
+     },
+     "tour": {
+      "Snapshot 61": 5.68,
+      "Snapshot 63": 5.969
+     },
+     "vm": {
+      "Snapshot 61": 5.432,
+      "Snapshot 63": 5.499
+     }
+    },
+    "native-c": {
+     "errors": {
+      "Snapshot 61": 6.239,
+      "Snapshot 63": 6.591
+     },
+     "functions": {
+      "Snapshot 61": 15.566,
+      "Snapshot 63": 16.32
+     },
+     "life": {
+      "Snapshot 61": 4.413,
+      "Snapshot 63": 4.615
+     },
+     "mandelbrot": {
+      "Snapshot 61": 3.548,
+      "Snapshot 63": 3.532
+     },
+     "maze": {
+      "Snapshot 61": 6.412,
+      "Snapshot 63": 7.062
+     },
+     "sieve": {
+      "Snapshot 61": 3.417,
+      "Snapshot 63": 3.498
+     },
+     "sorting": {
+      "Snapshot 61": 16.729,
+      "Snapshot 63": 18.202
+     },
+     "squares": {
+      "Snapshot 61": 2.503,
+      "Snapshot 63": 2.439
+     },
+     "sudoku": {
+      "Snapshot 61": 4.373,
+      "Snapshot 63": 4.628
+     },
+     "tour": {
+      "Snapshot 61": 4.349,
+      "Snapshot 63": 4.786
+     },
+     "vm": {
+      "Snapshot 61": 5.112,
+      "Snapshot 63": 5.266
+     }
+    }
+   }
+  },
+  {
+   "name": "versus-62",
+   "parent": "Snapshot 62",
+   "candidate": "Snapshot 63",
+   "cpu": 7,
+   "seed": 630065,
+   "samples": 31,
+   "status": "passed",
+   "started_utc": "2026-11-14T19:09:54.564462+00:00",
+   "report_sha256": "1eb99ae3312b5aa6399dfa4185b50ce1ef5818358fb8260610070b258b181c2c",
+   "geomean_time_ratio": {
+    "wasm-direct:candidate/parent": 0.78299,
+    "native-c:candidate/parent": 0.78091,
+    "all-cells:candidate/parent": 0.78195
+   },
+   "median_ms": {
+    "wasm-direct": {
+     "errors": {
+      "Snapshot 62": 10.956,
+      "Snapshot 63": 8.8
+     },
+     "functions": {
+      "Snapshot 62": 25.519,
+      "Snapshot 63": 23.145
+     },
+     "life": {
+      "Snapshot 62": 8.559,
+      "Snapshot 63": 6.336
+     },
+     "mandelbrot": {
+      "Snapshot 62": 6.562,
+      "Snapshot 63": 4.347
+     },
+     "maze": {
+      "Snapshot 62": 12.398,
+      "Snapshot 63": 9.864
+     },
+     "sieve": {
+      "Snapshot 62": 7.026,
+      "Snapshot 63": 5.352
+     },
+     "sorting": {
+      "Snapshot 62": 27.273,
+      "Snapshot 63": 25.76
+     },
+     "squares": {
+      "Snapshot 62": 4.468,
+      "Snapshot 63": 3.02
+     },
+     "sudoku": {
+      "Snapshot 62": 8.156,
+      "Snapshot 63": 5.864
+     },
+     "tour": {
+      "Snapshot 62": 9.982,
+      "Snapshot 63": 8.359
+     },
+     "vm": {
+      "Snapshot 62": 9.298,
+      "Snapshot 63": 7.577
+     }
+    },
+    "native-c": {
+     "errors": {
+      "Snapshot 62": 10.937,
+      "Snapshot 63": 9.154
+     },
+     "functions": {
+      "Snapshot 62": 26.458,
+      "Snapshot 63": 24.172
+     },
+     "life": {
+      "Snapshot 62": 7.948,
+      "Snapshot 63": 6.174
+     },
+     "mandelbrot": {
+      "Snapshot 62": 6.407,
+      "Snapshot 63": 4.718
+     },
+     "maze": {
+      "Snapshot 62": 11.529,
+      "Snapshot 63": 9.827
+     },
+     "sieve": {
+      "Snapshot 62": 6.694,
+      "Snapshot 63": 4.568
+     },
+     "sorting": {
+      "Snapshot 62": 28.629,
+      "Snapshot 63": 26.665
+     },
+     "squares": {
+      "Snapshot 62": 5.267,
+      "Snapshot 63": 3.086
+     },
+     "sudoku": {
+      "Snapshot 62": 7.981,
+      "Snapshot 63": 6.258
+     },
+     "tour": {
+      "Snapshot 62": 8.015,
+      "Snapshot 63": 6.301
+     },
+     "vm": {
+      "Snapshot 62": 9.265,
+      "Snapshot 63": 7.132
+     }
+    }
+   }
+  },
+  {
+   "name": "62-versus-61",
+   "parent": "Snapshot 61",
+   "candidate": "Snapshot 62",
+   "cpu": 7,
+   "seed": 620062,
+   "samples": 31,
+   "status": "passed",
+   "started_utc": "2026-11-14T18:05:16.385300+00:00",
+   "report_sha256": "ee4f586a82412a142938699aa48bb32d463a2abd03995810901a812b9cf3ecc0",
+   "geomean_time_ratio": {
+    "wasm-direct:candidate/parent": 1.34953,
+    "native-c:candidate/parent": 1.36104,
+    "all-cells:candidate/parent": 1.35527
+   },
+   "median_ms": {
+    "wasm-direct": {
+     "errors": {
+      "Snapshot 61": 5.58,
+      "Snapshot 62": 7.604
+     },
+     "functions": {
+      "Snapshot 61": 14.404,
+      "Snapshot 62": 16.643
+     },
+     "life": {
+      "Snapshot 61": 4.219,
+      "Snapshot 62": 5.962
+     },
+     "mandelbrot": {
+      "Snapshot 61": 3.133,
+      "Snapshot 62": 4.694
+     },
+     "maze": {
+      "Snapshot 61": 6.19,
+      "Snapshot 62": 8.37
+     },
+     "sieve": {
+      "Snapshot 61": 3.608,
+      "Snapshot 62": 4.831
+     },
+     "sorting": {
+      "Snapshot 61": 15.117,
+      "Snapshot 62": 17.796
+     },
+     "squares": {
+      "Snapshot 61": 2.129,
+      "Snapshot 62": 3.392
+     },
+     "sudoku": {
+      "Snapshot 61": 3.987,
+      "Snapshot 62": 5.686
+     },
+     "tour": {
+      "Snapshot 61": 5.225,
+      "Snapshot 62": 6.82
+     },
+     "vm": {
+      "Snapshot 61": 5.047,
+      "Snapshot 62": 6.477
+     }
+    },
+    "native-c": {
+     "errors": {
+      "Snapshot 61": 5.738,
+      "Snapshot 62": 7.554
+     },
+     "functions": {
+      "Snapshot 61": 14.873,
+      "Snapshot 62": 17.466
+     },
+     "life": {
+      "Snapshot 61": 4.118,
+      "Snapshot 62": 5.55
+     },
+     "mandelbrot": {
+      "Snapshot 61": 3.28,
+      "Snapshot 62": 4.487
+     },
+     "maze": {
+      "Snapshot 61": 6.003,
+      "Snapshot 62": 7.936
+     },
+     "sieve": {
+      "Snapshot 61": 3.064,
+      "Snapshot 62": 4.74
+     },
+     "sorting": {
+      "Snapshot 61": 15.861,
+      "Snapshot 62": 18.794
+     },
+     "squares": {
+      "Snapshot 61": 2.373,
+      "Snapshot 62": 3.874
+     },
+     "sudoku": {
+      "Snapshot 61": 4.07,
+      "Snapshot 62": 5.511
+     },
+     "tour": {
+      "Snapshot 61": 4.034,
+      "Snapshot 62": 5.729
+     },
+     "vm": {
+      "Snapshot 61": 4.794,
+      "Snapshot 62": 6.56
+     }
+    }
+   }
+  }
+ ],
+ "note": "Primary run is compiler-comparison.json. The other reports are summarized here. The shared host carried other workloads (load 3-4 for the snapshot 63 runs, about 3 for the snapshot 62 run); each run interleaved its two compilers in shuffled rounds on one pinned CPU. 62-versus-61 was collected earlier the same day, before the fixes."
+}
