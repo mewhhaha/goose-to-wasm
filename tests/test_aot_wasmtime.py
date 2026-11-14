@@ -7,6 +7,7 @@ import subprocess
 import sys
 import unittest
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import test_native_wasmtime as native
 
 ROOT = native.ROOT

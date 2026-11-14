@@ -34,7 +34,10 @@ NATIVE_PATHS = ['selfhost/codegen_c.goose', 'selfhost/codegen_c_images.goose', '
                 'selfhost/codegen_c_threads.goose', 'native', 'tests/conformance.py']
 UNIT_TESTS = ['tests.test_conformance_runner', 'tests.test_bootstrap_optimization', 'tests.test_native_units',
               'tests.test_driver_outputs', 'tests.test_cli_outputs', 'tests.test_root_struct_backends',
-              'tests.test_slice_pool_backends']
+              'tests.test_slice_pool_backends',
+              # Optimizer statistics: an optimization that stops firing changes no output.
+              'tests.test_loop_ordinals', 'tests.test_dynamic_remainder', 'tests.test_descending_while',
+              'tests.test_zero_stores', 'tests.test_aggregate_print', 'tests.test_while_unroll']
 
 
 def run(name, command, log, env=None):
