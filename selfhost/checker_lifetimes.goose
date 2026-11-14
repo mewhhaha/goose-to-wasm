@@ -77,9 +77,10 @@ struct Lifetimes {
     // Per function node, the globals its body may read (life_reads_global):
     // a span of global_read_list, sorted; count -1 until computed.
     global_read_spans: LifeSpan[>..]&, global_read_list: i64[>..]&,
-    // Recent discovery offers (direct-mapped), the activation count, and how
+    // Recent discovery offers (direct-mapped; grown by life_offer_repeated),
+    // the offers recorded since it last grew, the activation count, and how
     // many times a frame's recursion flag has been set.
-    offers: LifeOffer[>..]&, activations: i64 = 0, recursion_epoch: i64 = 0,
+    offers: LifeOffer[>..]&, offers_recorded: i64 = 0, activations: i64 = 0, recursion_epoch: i64 = 0,
     effect_heads: i64[>..]&, indexed_effects: i64 = 0,
     // Per effect, kept apart from the effects themselves so a bucket walk
     // stays in dense memory.
@@ -262,6 +263,14 @@ fn life_offer_repeated(l: Lifetimes&, effect: const LifeEffect&) -> bool {
        o.refs == effect.value.refs && o.contents == effect.value.contents && o.place == effect.value.place { return true; }
     l.offers[slot] = LifeOffer { frame: l.frame, activation: activation, epoch: l.recursion_epoch, kind: effect.kind, node: effect.node, type_id: effect.value.type_id,
         cell: effect.cell, field: effect.field, places: effect.places, refs: effect.value.refs, contents: effect.value.contents, place: effect.value.place };
+    // The table starts at the program's size (check_lifetimes), since filling
+    // all of it cost a small program more than its whole check, and grows as
+    // offers are recorded. Entries
+    // keep their old slots: a match compares every field, so one left in
+    // another slot still names an offer already made, and is found or
+    // overwritten like any collision.
+    l.offers_recorded++;
+    if l.offers_recorded > 4 * l.offers.len && l.offers.len < 65536 { l.offers.resize(4 * l.offers.len, LifeOffer {}); l.offers_recorded = 0; }
     return false;
 }
 fn life_effect(l: Lifetimes&, effect: LifeEffect) {
@@ -3026,7 +3035,11 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     visited.resize(p.nodes.len, 0);
     summary_heads.resize(2 * p.nodes.len + 1, -1);
     var summaries: LifeSummary[>..] = []; var capture_reads: i64[>..] = [];
-    var offers: LifeOffer[>..] = []; offers.resize(65536, LifeOffer {});
+    // A program of n nodes starts with about n / 8 offer slots (a power of
+    // four from 256 to 65,536), so a large one never waits for the table to
+    // grow; life_offer_repeated grows a small one as it records offers.
+    var offer_slots: i64 = 256; while offer_slots < 65536 && 8 * offer_slots < p.nodes.len { offer_slots *= 4; }
+    var offers: LifeOffer[>..] = []; offers.resize(offer_slots, LifeOffer {});
     var global_read_spans: LifeSpan[>..] = []; var global_read_list: i64[>..] = [];
     var size_classes: i64[>..] = []; size_classes.resize(p.types.len, -1);
     var build_alts: LifeAlt[>..] = []; var build_slots: i64[>..] = []; var set_index: i64[>..] = []; var scratch: LifeAlt[>..] = [];
