@@ -41,6 +41,8 @@ struct LifeCellKey { root: i64, depth: i64, type_id: i64, element: i64, global: 
 // (life_global_candidates): a span of candidate_alts, made at a global_epoch
 // and for a depth.
 struct LifeGlobalCandidates { epoch: i64 = -1, depth: i64 = 0, first: i64 = 0, count: i64 = 0 }
+// A join of two sets and its result (life_join).
+struct LifeJoin { a: i64 = -1, b: i64 = -1, set: i64 = -1 }
 // index_key, index_next and epoch: a validation-pass effect's hash, chain
 // in effect_heads and its frame's effect_epoch when it was recorded.
 struct LifeEffect { kind: i64, node: i64, value: LifeValue, places: i64 = 0, cell: i64 = -1, field: i64 = -1, next: i64 = -1, previous: i64 = -1, owner: i64 = -1, index_key: i64 = -1, index_next: i64 = -1, epoch: i64 = 0 }
@@ -101,6 +103,10 @@ struct Lifetimes {
     atom_slots: LifeAtomSlot[>..]&,
     // Per cell (life_candidates).
     cell_keys: LifeCellKey[>..]&,
+    // Recent joins of large sets, direct-mapped, and how many were recorded
+    // since the table last grew. Sets never change and equal lists are one
+    // set, so a join of the same two sets is the same set again.
+    joins: LifeJoin[>..]&, joins_recorded: i64 = 0,
     // The global cells in index order; how many times one's liveness or refs
     // changed; and by pointee type, the candidates a global container's
     // read-back found, whose lists candidate_alts holds for candidate_epoch.
@@ -808,11 +814,20 @@ fn life_join(l: Lifetimes&, a: i64, b: i64) -> i64 {
     // equals only an empty b.
     if b == 0 || a == b { return a; }
     if a == 0 { if l.sets[b].count == 0 { return a; } return b; }
-    if life_subset(l, b, a) { return a; }
     if l.sets[a].count + l.sets[b].count >= LIFE_BIG {
-        var build = LifeBuild { set: a }; life_build_open(l, build); life_build_step(l, build, b);
-        return life_build_end(l, build);
+        if l.joins.len == 0 { l.joins.resize(1024, LifeJoin {}); }
+        var h: u64 = (a as! u64) * 11400714819323198485 ^ (b as! u64) * 14029467366897019727; h ^= h >> 29;
+        let slot = (h & ((l.joins.len - 1) as! u64)) as i64;
+        if l.joins[slot].a == a && l.joins[slot].b == b { return l.joins[slot].set; }
+        var set = a;
+        if !life_subset(l, b, a) { var build = LifeBuild { set: a }; life_build_open(l, build); life_build_step(l, build, b); set = life_build_end(l, build); }
+        l.joins[slot] = LifeJoin { a: a, b: b, set: set };
+        // Entries keep their slots when the table grows, as offers do.
+        l.joins_recorded++;
+        if l.joins_recorded > 4 * l.joins.len && l.joins.len < 1048576 { l.joins.resize(4 * l.joins.len, LifeJoin {}); l.joins_recorded = 0; }
+        return set;
     }
+    if life_subset(l, b, a) { return a; }
     // The new set, as life_insert would list it, made after its list.
     let start = l.scratch.len;
     var at = l.sets[a].first;
@@ -3109,13 +3124,13 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
     var live_bits: u64[>..] = []; var live_words: u64[>..] = [];
-    var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+    var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
-        live_bits: live_bits, live_words: live_words, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
+        live_bits: live_bits, live_words: live_words, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
