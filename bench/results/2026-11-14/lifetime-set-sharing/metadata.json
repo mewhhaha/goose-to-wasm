@@ -1,0 +1,31 @@
+{
+ "date": "2026-11-14",
+ "baseline": {
+  "source": "f3b4248",
+  "binary_sha256": "c3de8479ca552a1fe42417226e50eaf3bc6c677c1bc004d992094fdd0c5a07ad",
+  "build": "C emitted at -O2 by the bootstrapped f3b4248 compiler (b42e927c...), clang 23.1.4 -std=gnu11 -O2, no PGO"
+ },
+ "candidate": {
+  "source": "37d9f56 (checker_lifetimes.goose sha256 00cf4baca85f0e65eaecf5c4f1eeef982208373f9071703aac1f3e903416fc4b)",
+  "binary_sha256": "95b4ca4004a795b9963bf71186d0f840b6d22052a46c65bc0b53b6a53a190509",
+  "build": "C emitted at -O2 by the baseline binary above, then the same clang build"
+ },
+ "workloads": {
+  "self": "selfhost/main.goose --stdlib stdlib --target native --check, from a frozen copy of the candidate sources",
+  "fixture": "bench/fixtures/compiler-goose (blot2 2d1f0836 compiler-goose/src, 450 sources): main.goose --target native --check --stdlib build/bin/stdlib --reachable-program --expansion-node-limit 1000000",
+  "fixture_with_main": "the fixture with `fn ::main() -> i32 { return blot_main::mainEntry(); }` appended to main.goose, same flags"
+ },
+ "method": "3 interleaved rounds per workload (baseline, candidate), fresh processes, getrusage per child; one run each with a main; machine shared, load average 8-14 (with a main: about 12 and 17)",
+ "equivalence": {
+  "output_equivalence": {"compared": 7621, "differing": 0, "baseline": "bootstrapped f3b4248 (b42e927c...)", "seconds": {"baseline": 128.5, "candidate": 154.3}},
+  "fixture_check_output_identical": true,
+  "state_fingerprints": {"sources": 3748, "reaching_the_pass": 2539, "fingerprints": 9532, "differing": 0, "also": ["self-check (7 per run)", "fixture"]},
+  "bootstrap_verify": {"fixed_point": true, "generated_c_sha256": "0009adb4aca2f778f44f6623a4b83976574e1d88a6ad8749dbc6dfdffd861e13", "executable_sha256": "5cf20e49e90aa356ee9efa2337c00189a71c7e0b48eee61d86ba9085c3b0a792"},
+  "conformance": {"levels": [0, 2], "selected": 8384, "passed": 8288, "failed": 96, "open_gaps": 96, "unexpected_failures": 0, "fixed_gaps": 0}
+ },
+ "fixture_with_main": {
+  "baseline": {"exit": 1, "error": "data stack overflow", "user_s": 100.58, "rss_mib": 4842, "frames": 1646, "sets": 111740, "alternatives": 42001295},
+  "candidate": {"exit": 1, "error": "data stack overflow", "user_s": 996.11, "rss_mib": 8655, "frames": 31000, "set_ids": 1395353348, "sets": 38032736, "alternatives": 38480059, "atoms": 23728533},
+  "frame_counts_from": "instrument.py progress builds of the candidate; the baseline counts from the investigation's instrumented build of the baseline sources"
+ }
+}
