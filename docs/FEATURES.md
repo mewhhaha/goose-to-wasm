@@ -4,7 +4,7 @@ This page tracks which [upstream Goose](https://github.com/aardappel/goose) lang
 
 **Inventory (2026-11-14).**
 - Contracts are pinned at upstream `2e2bede`; this inventory compares against upstream HEAD `855f103` (2026-11-12), 236 commits later.
-- Compiler: the sources of `2244213` (root struct storage, `defer`, `const if` and the small-gap fixes, on the indexed checker of `eb0c15d`), built by `scripts/bootstrap.py --verify` at a fixed point with clang 23, `-O2` Goose and no profile. Executable SHA-256 `b42e927c…`.
+- Compiler: the sources of `27040e5` (root struct storage, `defer`, `const if`, the small-gap and named-constant fixes, stdlib abort sites and `slice_pool`'s externs, on the indexed checker of `eb0c15d`), built by `scripts/bootstrap.py --verify` at a fixed point with clang 23, `-O2` Goose and no profile. Executable SHA-256 `cffd13ea…`.
 - How it was run: every upstream HEAD test, native target at `-O0`, with the HEAD standard library, 4 jobs. Positive tests compile, run and compare against `test/expected`. `errors` must fail at parse; `errors_tc` must fail at check.
 - Hand verdicts: ten results are carried from the first inventory (below), each with the same first diagnostic as then. `packages/pkg_own_c` passes when its C is linked by hand, and nine `errors_tc/recovery` files count as rejected although they stop at parse.
 - Not covered: `-O2`, direct Wasm, upstream's second `GS_DEBUG` run, and the JIT, LSP and Python tool tests.
@@ -12,12 +12,12 @@ This page tracks which [upstream Goose](https://github.com/aardappel/goose) lang
 
 | Group | Pinned | Changed since pin | New since pin |
 |---|---|---|---|
-| Positive tests (compile, run, compare) | 543/620 | 23/34 | 101/149 |
+| Positive tests (compile, run, compare) | 544/620 | 23/34 | 138/149 |
 | Must-fail tests (rejected) | 1,887/1,898 | 1/1 | 153/156 |
 
-The first inventory (2026-11-13, installed snapshot 61, executable SHA-256 `25055855…`) had 533/620, 12/34 and 40/149 positive, and 1,887/1,898, 1/1 and 151/156 must-fail. Since then, 84 tests have started to pass and none has stopped passing.
+The first inventory (2026-11-13, installed snapshot 61, executable SHA-256 `25055855…`) had 533/620, 12/34 and 40/149 positive, and 1,887/1,898, 1/1 and 151/156 must-fail. The second (2026-11-14, sources of `2244213`, executable `b42e927c…`) had 543/620, 23/34 and 101/149 positive and the same must-fail counts as now. Since the second, 38 tests have started to pass and none has stopped passing: `typing/named_constant_literals`, the 20 `stdlib_slice_pool*` tests, `threads/slice_pool_worker`, `codegen/root_defer` and 15 aborts that now report the caller's line.
 
-Of the 77 pinned positive failures, 43 are [recorded gaps](../tests/conformance/known-gaps.json), 30 import native packages (audio, gfx, physics, ui), and 4 need C sources or `--include`. None fails only because of the HEAD standard library any more. Rejected programs are rejected, but upstream's `// error:` wording matches in only 131 of 2,041 cases.
+Of the 76 pinned positive failures, 42 are [recorded gaps](../tests/conformance/known-gaps.json), 30 import native packages (audio, gfx, physics, ui), and 4 need C sources or `--include`. None fails only because of the HEAD standard library any more. Rejected programs are rejected, but upstream's `// error:` wording matches in only 131 of 2,041 cases.
 
 Status key: **yes** = matches upstream on the tests named. **partial** = some forms or stages work. **refused** = parsed, then refused with a clear diagnostic at the named stage. **no** = not recognized. **wip** = a branch is in progress.
 
