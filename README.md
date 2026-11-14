@@ -8,7 +8,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose, produci
 
 ![Compiler execution time for eleven programs](bench/charts/compiler-comparison.svg)
 
-**Large programs.** On 2026-11-13, checking a 450-module, 120,000-line compiler took 0.43 of the previous build's CPU time, and the compiler took 0.66 to check itself. Both produced identical output. Type checking now uses indexed scope, effect and return-root lookups, and the lifetime analysis skips effects it has already recorded. [Method and results](bench/results/2026-11-13/large-program-checking/README.md)
+**Large programs.** On 2026-11-13, checking a 450-module, 120,000-line compiler took 0.37–0.43 of the previous build's CPU time (11 s instead of 30 s on a quiet machine), and the compiler took 0.56–0.66 to check itself. Both produced identical output. Type checking now uses indexed scope, effect and return-root lookups, and the lifetime analysis skips effects it has already recorded. [Method and results](bench/results/2026-11-13/large-program-checking/README.md)
 
 **Example programs.** These and the Mandelbrot measurements are from the snapshot 58 campaign ([results](bench/results/2026-11-08/compiler-throughput-58/README.md)). Across ten examples, median cold builds took 50–69 ms for direct Wasm and 253–1,924 ms for native executables. Native builds include C compilation and linking; process times include launch and exit. Wasmtime preparation is measured separately. Sorting took 177 ms with minimal AOT and 113 ms native.
 

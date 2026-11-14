@@ -7,7 +7,14 @@ Commit `eb0c15d` indexes the type checker's whole-program lookups and stops re-o
 | Compiler checks itself (32 sources, 1,245 reached functions) | 65.3 s | 43.3 s | 0.66 | 321 → 416 MiB |
 | [blot2 compiler fixture](../../../fixtures/compiler-goose/manifest.json) (450 sources, 27,920 reached functions) | 54.1 s | 23.0 s | 0.43 | 2,437 → 2,908 MiB |
 
-Each value is the median of three interleaved runs in fresh processes. On the fixture the lifetime analysis fell from 2.19 s to 0.82 s; the rest is type checking. Other workloads were running on this shared machine, with load averages of 21–25, so absolute times are higher than in quiet runs and the ratios are what matter. In an earlier, quieter set (load about 8), the lifetime analysis alone took 36.0 s at baseline and 27.3 s with the first two changes.
+A second, quieter set on 2026-11-14 (load average 1–7, two interleaved runs each) gave:
+
+| Workload | Baseline user CPU | Candidate user CPU | Ratio | Max RSS |
+|---|---|---|---|---|
+| Compiler checks itself | 40.3, 41.5 s | 24.6, 21.3 s | 0.56 | 334 → 421 MiB |
+| blot2 compiler fixture | 29.6, 31.5 s | 11.4, 11.0 s | 0.37 | 2,751 → 2,944 MiB |
+
+Each value in the first table is the median of three interleaved runs in fresh processes. On the fixture the lifetime analysis fell from 2.19 s to 0.82 s; the rest is type checking. Other workloads were running on this shared machine, with load averages of 21–25, so absolute times are higher than in quiet runs and the ratios are what matter. In an earlier, quieter set (load about 8), the lifetime analysis alone took 36.0 s at baseline and 27.3 s with the first two changes.
 
 ## Equivalence
 
@@ -37,6 +44,6 @@ The profile came from an `LD_PRELOAD` SIGPROF sampler on frame-pointer builds. `
 
 ## Limits
 
-- The extra indexes cost memory: +95 MiB on the self-compile and +471 MiB on the fixture.
+- The extra indexes cost memory: about +90 MiB on the self-compile and +193 MiB (7%) on the fixture in the quieter set. The loaded set's +471 MiB fixture figure includes the baseline's run-to-run RSS variation under load (2,437–2,702 MiB).
 - With `--reachable-program` and no `main`, the fixture's lifetime analysis has no program root, so it analyzes little of the program. Adding a `main` that calls the entry exhausts the data stack in the lifetime analysis. That case is under investigation and is not measured here.
 - Native C compilation is outside these timings.
