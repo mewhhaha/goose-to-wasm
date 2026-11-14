@@ -30,7 +30,8 @@ def sha(data):
 
 class BootstrapOptimizationTests(unittest.TestCase):
     def stage(self, seed_level, requested=None, verify=False, converge=False, seed_only=False,
-              profile=None, version='clang version 21.1.0', fail_profile=False, changed=False, canonical_seed=False):
+              profile=None, version='clang version 21.1.0', fail_profile=False, changed=False, canonical_seed=False,
+              jobs=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / 'selfhost'; source.mkdir()
@@ -92,6 +93,16 @@ class BootstrapOptimizationTests(unittest.TestCase):
                         return subprocess.CompletedProcess(argv, 0, version.encode(), b'')
                     if argv[1:] == ['-dumpmachine']:
                         return subprocess.CompletedProcess(argv, 0, b'x86_64-unknown-linux-gnu\n', b'')
+                    if '-c' in argv or 'runtime.o' in argv:
+                        # A unit build: objects, then the executable linked from them.
+                        directory = Path(kwargs['cwd'])
+                        self.assertTrue(directory.name.startswith('cc-build-'))
+                        if '-c' in argv:
+                            text = (directory / argv[argv.index('-c') + 1]).read_bytes()
+                            (directory / argv[argv.index('-o') + 1]).write_bytes(text)
+                        else:
+                            (directory / argv[argv.index('-o') + 1]).write_bytes(b'plain:' + (directory / 'seed.c').read_bytes())
+                        return subprocess.CompletedProcess(argv, 0, b'', b'')
                     self.assertEqual(argv[3], 'seed.c')
                     self.assertTrue(Path(kwargs['cwd']).name.startswith('cc-build-'))
                     staged = Path(kwargs['cwd']) / argv[3]
@@ -121,6 +132,8 @@ class BootstrapOptimizationTests(unittest.TestCase):
                                      (native / 'runtime.h').read_bytes())
                     self.assertTrue((Path(kwargs['cwd']) / 'stdlib/base.goose').is_file())
                     data = ('/* ' + argv[1] + ' ' + argv[argv.index('--stdlib') + 1] + ' */\n').encode()
+                    if jobs:
+                        data += b'#ifdef G_RUNTIME_UNIT\n#else /* program units */\n#if G_IN_UNIT(  0)\n#endif\n#endif\n'
                     if converge and len(emissions) == 1:
                         data = b'/* first generation */\n'
                     Path(argv[argv.index('-o') + 1]).write_bytes(data)
@@ -135,6 +148,8 @@ class BootstrapOptimizationTests(unittest.TestCase):
                 args += ['--verify']
             if seed_only:
                 args += ['--seed-only']
+            if jobs:
+                args += ['--jobs', str(jobs)]
             with patch.object(sys, 'argv', args), patch.object(module.subprocess, 'run', run), contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(module.main(), 0)
             report = json.loads((output / 'report.json').read_text())
@@ -162,6 +177,23 @@ class BootstrapOptimizationTests(unittest.TestCase):
         for command in commands:
             self.assertIn('-O2', command)
             self.assertNotIn('-O0', command)
+
+    def test_jobs_split_only_marked_c_without_profile(self):
+        report, _ = self.stage(0, verify=True, converge=True, profile='emitted', jobs=3)
+        # The seed's and first generation's C carry no unit marks and compile whole.
+        self.assertNotIn('units', report['builds']['build-seed'])
+        self.assertNotIn('units', report['builds']['build-goose'])
+        split = report['builds']['build-next-generation']
+        self.assertEqual(split['units'], 3)
+        self.assertFalse(split['profile_used'])
+        self.assertEqual(report['executable_build'], split)
+        names = [row['name'] for row in report['commands']]
+        for name in ('build-next-generation-runtime', 'build-next-generation-unit0', 'build-next-generation-unit2'):
+            self.assertIn(name, names)
+        self.assertEqual(names.index('build-next-generation'), max(names.index(name) for name in names if name.startswith('build-next-generation')))
+        units = [row['command'] for row in report['commands'] if row['name'].startswith('build-next-generation-unit')]
+        self.assertEqual(sorted(command[command.index('-c') - 1] for command in units), ['-DG_UNIT=0', '-DG_UNIT=1', '-DG_UNIT=2'])
+        self.assertTrue(all('-DG_UNITS=3' in command for command in units))
 
     def test_matching_optimized_seed_reuses_c(self):
         report, commands = self.stage(2)
