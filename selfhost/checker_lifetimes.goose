@@ -1765,9 +1765,13 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
 }
 fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool = false) -> LifeValue {
     var out = LifeValue { type_id: type_id, place: places };
-    out.contents = life_contents(l, places); if !l.discovery { out.contents = life_live_contents(l, places); }
+    // Only a type that holds references keeps the contents, and validation
+    // reads the live ones.
+    let holds = life_holds(p, type_id);
+    if holds && l.discovery { out.contents = life_contents(l, places); }
+    else if holds { out.contents = life_live_contents(l, places); }
     if life_is_ref(p, type_id) { out.refs = life_readback(p, l, type_id, places); }
-    if !life_holds(p, type_id) { out.contents = 0; }
+    if !holds { out.contents = 0; }
     else if !life_is_ref(p, type_id) {
         var mutable = LifeBuild { set: out.contents }; var at = l.sets[places].first;
         while at >= 0 {
@@ -2524,8 +2528,8 @@ recursive fn life_eval(p: Program&, l: Lifetimes&, node: i64, destination: i64 =
         if !l.discovery && (p.symbols[n.symbol].flags & (S_GLOBAL | S_MUTABLE)) != (S_GLOBAL | S_MUTABLE) { out.refs = l.cells[cell].live_refs; }
         out.contents = l.roots[l.cells[cell].root].contents;
         if !l.discovery { out.contents = l.roots[l.cells[cell].root].live_contents; }
-        if n.type_id >= 0 && p.types[n.type_id].kind == TY_REF {
-            out.contents = life_contents(l, out.refs); if !l.discovery { out.contents = life_live_contents(l, out.refs); }
+        if n.type_id >= 0 && p.types[n.type_id].kind == TY_REF && life_holds(p, n.type_id) {
+            if l.discovery { out.contents = life_contents(l, out.refs); } else { out.contents = life_live_contents(l, out.refs); }
         }
         if !life_holds(p, n.type_id) { out.contents = 0; }
         life_construct_read(p, l, node, out);
