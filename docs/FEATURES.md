@@ -81,6 +81,7 @@ Status key: **yes** = matches upstream on the tests named. **partial** = some fo
 |---|---|---|---|
 | Lifetime refinements (80+ commits since the pin) | 2026-11 | partial | New `lifetimes/*` 5/7. `emptied_static_fields` and `holder_param_stores_later` are refused. |
 | Invalid programs accepted | | 9 | `errors_tc/holder_param_inexact_views`, `holder_param_inexact_copy`, `global_before_init_from_bytes_index`, `checkfree_loaded_index` and 5 more |
+| `checkfree` judged by what runs, not by callee annotations | `16437205`, `4602c986`, 2026-11-13 (after `855f103`) | no | We keep the pinned rule: a `checkfree` function may call only `checkfree` functions. Upstream now accepts any callee whose code that runs inside `checkfree` keeps no bounds check, and its stdlib has dropped 132 `checkfree` annotations. As a result, `checkfree` code that calls the newest std helpers is rejected here. Adopting the new rule needs a bounds-check judgment pass, and the pinned contracts must be re-pinned (`errors_tc/checkfree_callee` changed). |
 | Error recovery ordering | | partial | All 16 `errors_tc/recovery` files are rejected; the expected error sequence matches in 0 |
 
 ## Tools and packages

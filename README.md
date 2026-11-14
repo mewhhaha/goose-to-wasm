@@ -1,6 +1,6 @@
 # Goose to Wasm
 
-A [Goose](https://github.com/aardappel/goose) compiler written in Goose, producing WebAssembly directly or native executables through C. Conformance is partial: 100 of 8,055 contract rows remain open.
+A [Goose](https://github.com/aardappel/goose) compiler written in Goose, producing WebAssembly directly or native executables through C. Conformance is partial: 96 of 8,384 contract rows remain open. The features of upstream Goose since those contracts were pinned are [tracked separately](docs/FEATURES.md).
 
 ## Benchmarks
 
@@ -26,7 +26,7 @@ A [Goose](https://github.com/aardappel/goose) compiler written in Goose, produci
 
 ## Construction and contracts
 
-The compiler implements its frontend, optimizer and backends in Goose. A checked-in C seed bootstraps it; `--verify` checks consecutive generated C outputs match. A C++ reference guided the initial port. Frozen source and output contracts now check behavior: snapshot 59 passes 7,955 of 8,055 rows, each matching snapshot 58. The 100 existing gaps remain. [Qualification](selfhost/results/2026-11-11/compiler-throughput-59/README.md)
+The compiler implements its frontend, optimizer and backends in Goose. A checked-in C seed bootstraps it; `--verify` checks consecutive generated C outputs match. A C++ reference guided the initial port. Frozen source and output contracts now check behavior: snapshot 59 passes 7,955 of 8,055 rows, each matching snapshot 58. The 100 existing gaps remain. [Qualification](selfhost/results/2026-11-11/compiler-throughput-59/README.md) The current sources add root structs, `defer` and `const if`, and pass 8,288 of 8,384 rows. [Qualification](selfhost/results/2026-11-14/upstream-features/README.md)
 
 With Python 3, a native C compiler and Node:
 
