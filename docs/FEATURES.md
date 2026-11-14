@@ -117,3 +117,12 @@ Backend differences from the same run:
 - Fixed: a call to a function whose reference parameter type is unknown aborted the compiler during overload choice (index -1) instead of reporting "unknown type name". Contract: `corpus/contracts/unknown-types/reference-member`.
 - `--run` without `-o` writes `out.c` and then fails to execute `out.c.bin`.
 - Fixed: a named constant above `i64.max` (`let HUGE = 18446744073709551615`) converted silently to `i64` (as -1) when it met an `i64` named constant whose storage was referenced, so `HUGE > B` printed `false`. It now converts only to `u64`. Two such constants operate as `u64`, and a negative partner is an error, as in upstream `UnifyNumeric`. `typing/named_constant_literals` passes. Contracts: `corpus/contracts/named-constants/*`.
+
+## Differences found by the upstream differential run
+
+About 700 programs were run against plain upstream `32a4f44` (`goose run`). These rows are the lifetime and data-region differences; the contracts are under `corpus/contracts/upstream-differential/lifetimes/`, on native C and direct Wasm at `-O0` and `-O2`.
+
+| Difference | Upstream | Status | Evidence and notes |
+|---|---|---|---|
+| An owned copy of a slice, returned or stored straight from a call (`return f(xs[..])`, `outer = f(xs[..])`, `f` returning `i64[]`) | pin (§9.2) | yes | We rejected it ("returned reference points into this invocation's local or temporary storage", or "stored reference does not outlive the storage that receives it"), though `let r = f(xs[..]); return r;` passed. Coercing a slice to an owned value kept the slice's roots as the copy's contents. A value whose type holds no references now holds nothing, as upstream's `ContentsOf` says. Holders are still checked by what they hold: a view field, a copy of views or a reference into the local is still rejected, as upstream rejects it. Contracts: `owned-copy-{return,store}`, plus type-error rows `returned-{view,holder-view,copied-views,tuple-view}-of-local`, `returned-reference-into-local` and `stored-view-of-local`. |
+| A block result that views the block's own by-value parameter or local (`apply() { xs: i64[>..] => xs[..] }`) | pin (§9.2, §7.6) | refused | Upstream false accept. Upstream accepts it, and in the contract its `observe()` prints 99, not 7: it reads the parameter's elements after `churn()` reused their storage. We keep rejecting it as an escaping reference. Contract: type-error rows `block-result-views-parameter`. |

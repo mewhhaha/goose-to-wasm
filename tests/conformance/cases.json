@@ -70313,6 +70313,294 @@
         "provenance": "Independently specified root struct v1 storage (upstream docs/design/root_structs.md: independent components, owner references, scope release); expected output derived by hand from the source: an encoded integer component; plain upstream 32a4f44 prints the same"
     },
     {
+        "id": "corpus/contracts/upstream-differential/lifetimes/owned-copy-return/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/owned-copy-return.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[7, 8] [7, 9] [7, 10] [7, 11]\n[7, 12]\n[7, 13] [5, 6]\n[7, 14, 15] 3\n[7, 16] [17] [7, 18]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §9.2 at 2e2bede (Return: a returned value that holds references is checked by the references it holds; references into a value being copied do not transfer to the copy): an owned array copied out of a slice of a local, a temporary or a parameter holds no references, so a call's owned copy is returned directly, also as a struct field, a tuple component, an if's branches, a block tail and a return from; found by the upstream differential run; expected output from plain upstream 32a4f44 (goose run). The lifetime pass kept the slice's roots as the copy's contents and rejected the return."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/owned-copy-return/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/owned-copy-return.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[7, 8] [7, 9] [7, 10] [7, 11]\n[7, 12]\n[7, 13] [5, 6]\n[7, 14, 15] 3\n[7, 16] [17] [7, 18]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §9.2 at 2e2bede (Return: a returned value that holds references is checked by the references it holds; references into a value being copied do not transfer to the copy): an owned array copied out of a slice of a local, a temporary or a parameter holds no references, so a call's owned copy is returned directly, also as a struct field, a tuple component, an if's branches, a block tail and a return from; found by the upstream differential run; expected output from plain upstream 32a4f44 (goose run). The lifetime pass kept the slice's roots as the copy's contents and rejected the return."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/owned-copy-store/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/owned-copy-store.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[1, 2]\n[3, 4]\n[[5, 6], [7]]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §9.2 at 2e2bede (Store; references into a value being copied do not transfer to the copy): a call's owned copy of an inner local's slice holds no references, so it is stored into an outer variable, a global and an outer array; found by the upstream differential run; expected output from plain upstream 32a4f44 (goose run). The lifetime pass kept the slice's roots as the copy's contents and rejected the stores."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/owned-copy-store/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/owned-copy-store.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[1, 2]\n[3, 4]\n[[5, 6], [7]]\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §9.2 at 2e2bede (Store; references into a value being copied do not transfer to the copy): a call's owned copy of an inner local's slice holds no references, so it is stored into an outer variable, a global and an outer array; found by the upstream differential run; expected output from plain upstream 32a4f44 (goose run). The lifetime pass kept the slice's roots as the copy's contents and rejected the stores."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-view-of-local/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-view-of-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a function returning a view of its argument keeps the argument's root, so returning that view of a local escapes it; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-view-of-local/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-view-of-local.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a function returning a view of its argument keeps the argument's root, so returning that view of a local escapes it; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-reference-into-local/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-reference-into-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a function returning a reference into its argument keeps the argument's root, so returning that reference into a local escapes it; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-reference-into-local/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-reference-into-local.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a function returning a reference into its argument keeps the argument's root, so returning that reference into a local escapes it; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-holder-view-of-local/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a holder result is checked by the references it holds: its owned copy holds none, its view field still points into the local; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-holder-view-of-local/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a holder result is checked by the references it holds: its owned copy holds none, its view field still points into the local; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-copied-views-of-local/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-copied-views-of-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): an owned array of views copied out of a slice holds those views, so a copy of views into a local escapes it; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in views, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-copied-views-of-local/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-copied-views-of-local.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): an owned array of views copied out of a slice holds those views, so a copy of views into a local escapes it; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in views, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-tuple-view-of-local/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-tuple-view-of-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): each result is checked apart: the owned copy may leave, the view of the local may not; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/returned-tuple-view-of-local/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-tuple-view-of-local.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): each result is checked apart: the owned copy may leave, the view of the local may not; plain upstream 32a4f44 rejects it too: \"returning a reference rooted in xs, which dies with this function (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/stored-view-of-local/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/stored-view-of-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "does not outlive the storage that receives it"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a view of an inner local is not stored into an outer array (§9.2 Store); plain upstream 32a4f44 rejects it too: \"storing a reference rooted at xs, which does not outlive the destination (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/stored-view-of-local/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/stored-view-of-local.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "does not outlive the storage that receives it"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §9.2 at 2e2bede): a view of an inner local is not stored into an outer array (§9.2 Store); plain upstream 32a4f44 rejects it too: \"storing a reference rooted at xs, which does not outlive the destination (§9.2)\"; neighbour of the owned-copy lifetime fix from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/block-result-views-parameter/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/block-result-views-parameter.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §9.2 (Return, Branch values) and §7.6 at 2e2bede: a block's by-value parameter ends with the block, so a block result viewing it escapes; found by the upstream differential run as a program we reject, but plain upstream 32a4f44 accepts it and prints 99, not 7: observe() reads the parameter's elements after churn() reused their storage. Kept rejected as an upstream false accept."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/block-result-views-parameter/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/block-result-views-parameter.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "points into this invocation's local or temporary storage"
+            ]
+        },
+        "provenance": "Upstream goose_spec.md §9.2 (Return, Branch values) and §7.6 at 2e2bede: a block's by-value parameter ends with the block, so a block result viewing it escapes; found by the upstream differential run as a program we reject, but plain upstream 32a4f44 accepts it and prints 99, not 7: observe() reads the parameter's elements after churn() reused their storage. Kept rejected as an upstream false accept."
+    },
+    {
         "id": "corpus/contracts/range-index/iterations/native",
         "source": "tests/fixtures/contracts/range-index/iterations.goose",
         "phase": "run",

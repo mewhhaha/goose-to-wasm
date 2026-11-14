@@ -1562,6 +1562,10 @@ fn life_coerce(p: Program&, l: Lifetimes&, value: LifeValue, expected: i64) -> L
         if p.types[expected].kind == TY_SLICE { out.refs = life_interior(l, out.refs); }
     }
     if !life_is_ref(p, expected) && life_is_ref(p, value.type_id) { out.place = value.refs; out.refs = 0; }
+    // A value whose type holds no references holds nothing, whatever it
+    // was copied out of: an owned array copied from a slice does not keep
+    // the slice's roots (§9.2, upstream ContentsOf).
+    if !life_is_ref(p, expected) && !life_holds(p, expected) { out.contents = 0; }
     out.type_id = expected;
     return out;
 }
