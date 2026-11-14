@@ -258,6 +258,7 @@
           "tests/fixtures/aggregate_print_wide_enum.goose"
         ],
         "boundary_fixtures": [
+          "tests/test_aggregate_print.py",
           "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print/a0a8b0cdd7.goose",
           "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/2cc428071e.goose",
           "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/35e5648796.goose",

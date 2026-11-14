@@ -11,7 +11,7 @@
    "ran": 1,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_aggregate_print_boundaries.py",
@@ -122,7 +122,7 @@
    "ran": 6,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_byte_stencil.py",
@@ -298,7 +298,7 @@
    "ran": 2,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_differential_selection.py",
@@ -344,7 +344,7 @@
    "ran": 3,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_encoded_record_tail_boundaries.py",
@@ -456,7 +456,7 @@
    "ran": 3,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_incremental.py",
@@ -595,7 +595,7 @@
    "ran": 2,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_memory_growth_helper.py",
@@ -623,7 +623,7 @@
    "ran": 5,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_named_callback_forwarding.py",
@@ -1194,7 +1194,7 @@
    "ran": 1,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  },
  {
   "module": "tests/test_zero_stores.py",
@@ -1208,6 +1208,6 @@
    "ran": 2,
    "result": "OK"
   },
-  "call": "delete: programs harvested; fails on --offline, and passes once --offline is dropped"
+  "call": "keep: restored without --offline, sharing tests/goose_stats.py; programs also harvested; the optimizer statistics it checks hold for this compiler"
  }
 ]

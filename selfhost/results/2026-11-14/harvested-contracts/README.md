@@ -48,7 +48,7 @@ Under unittest with `GOOSE_COMPILER` set, 21 of the 94 modules passed. [Classifi
 - 6, with `bench/incremental.py`, tested the C++ compiler's session mode.
 - `test_command_logs` errors in one test: it reads a `BACKENDS` list that `bench/qualify_compiler.py` no longer has. It is kept. `tests/run_differential.py`, a script, passes `--offline` to the driver and fails every observation. It is kept, since `bench/` imports its cases.
 
-The 72 in the first three groups are removed. 22 modules remain.
+The 72 in the first three groups were removed. The 9 that pass once `--offline` is dropped then came back without it: `test_aggregate_print`, `test_byte_scans`, `test_descending_while`, `test_dynamic_remainder`, `test_function_value_forwarding`, `test_loop_ordinals`, `test_merge_bounds`, `test_while_unroll` and `test_zero_stores`. They check optimizer statistics this compiler writes, which neither the contracts nor output equivalence can see. The helpers they took from five removed modules now live in `tests/goose_stats.py`. 63 modules are removed and 31 remain. Run together, the nine take 216 s: `test_byte_scans` 82 s, `test_merge_bounds` 60 s and `test_function_value_forwarding` 50 s, and the other six 26 s. That is too long for qualification's unit-test stage, so they are not in it.
 
 ## Qualification
 
