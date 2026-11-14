@@ -80,8 +80,9 @@ alongside comparisons. Engine tiering, compiler optimizations, CPU frequency,
 host-boundary costs, and background load affect results. A result from this
 suite does not justify a universal claim that one backend is faster.
 
-Unchanged-build and edited-source measurements belong to
-`bench/incremental.py`; they use a separate contract and report.
+This suite does not measure unchanged-build or edited-source latency. The
+incremental session mode that `bench/incremental.py` measured belonged to the
+C++ compiler; the Goose compiler has none, and that script was removed.
 
 ## Paired compiler changes
 

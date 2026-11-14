@@ -43,7 +43,9 @@
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/2378b2f4fd.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/446862a5b7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/5e522c7b21.goose",
           "tests/fixtures/runtime_limited_errors.goose"
         ]
       },
@@ -87,7 +89,8 @@
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/2378b2f4fd.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/446862a5b7.goose",
           "tests/fixtures/runtime_limited_errors.goose"
         ]
       },
@@ -118,8 +121,7 @@
           "tests/fixtures/record_image_sparse.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_dynamic_boundaries.py",
-          "tests/test_record_images.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/dynamic_boundaries/fbba8ae507.goose"
         ]
       },
       "B_DEFAULT": {
@@ -219,7 +221,9 @@
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/4eec3056a4.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/a2eae29768.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/a3fa5f9a8f.goose",
           "tests/fixtures/runtime_limited_errors.goose"
         ]
       },
@@ -236,7 +240,6 @@
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
           "tests/fixtures/runtime_limited_errors.goose"
         ]
       },
@@ -255,11 +258,19 @@
           "tests/fixtures/aggregate_print_wide_enum.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_aggregate_print.py",
-          "tests/test_aggregate_print_boundaries.py",
-          "tests/test_owned_struct_boundaries.py",
-          "tests/test_variable_enum_boundaries.py",
-          "tests/test_regions.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print/a0a8b0cdd7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/2cc428071e.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/35e5648796.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/aggregate_print_boundaries/3c7a763894.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/18b8a92f7d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/49f4853182.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/8364240681.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_enum_boundaries/0c4738f7de.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_enum_boundaries/5031b39d6d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_enum_boundaries/6da0b35aef.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/03032a8d7a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/065e9dd9ed.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/0c381f1284.goose"
         ]
       },
       "B_PUSH": {
@@ -275,7 +286,9 @@
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/03032a8d7a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/2378b2f4fd.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/4eec3056a4.goose",
           "tests/fixtures/runtime_limited_errors.goose"
         ]
       },
@@ -322,7 +335,9 @@
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/0c381f1284.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/327f770cb0.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/446862a5b7.goose",
           "tests/fixtures/runtime_limited_errors.goose"
         ]
       },
@@ -440,7 +455,9 @@
           "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/2b75d90c8d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/3fcc0e04cc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/5c714f944e.goose"
         ]
       },
       "NK_ConstFor": {
@@ -476,7 +493,9 @@
           "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/3fcc0e04cc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/5c714f944e.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/18b8a92f7d.goose"
         ]
       },
       "NK_EarlyBlock": {
@@ -525,8 +544,11 @@
           "tests/fixtures/static_capture_bindings.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_static_capture_boundaries.py",
-          "tests/test_regions.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/87e23ebe5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/ca69ee5f41.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/0e12185ea3.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/10030d3b69.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/2378b2f4fd.goose"
         ]
       },
       "NK_Ident": {
@@ -578,7 +600,9 @@
           "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/2b75d90c8d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/3fcc0e04cc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/5c714f944e.goose"
         ]
       },
       "NK_IntLit": {
@@ -639,7 +663,8 @@
           "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/3fcc0e04cc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/5c714f944e.goose"
         ]
       },
       "NK_SelfRef": {
@@ -690,8 +715,12 @@
           "tests/fixtures/record_image_sparse.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py",
-          "tests/test_record_images.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/2b75d90c8d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/3fcc0e04cc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/5c714f944e.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_images/1d59aa8bb8.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_images/45dfc5dca5.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_images/6365b91515.goose"
         ]
       },
       "NK_Unary": {
@@ -719,7 +748,7 @@
           "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/2b75d90c8d.goose"
         ]
       },
       "NK_While": {
@@ -771,10 +800,18 @@
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
-          "tests/test_dynamic_boundaries.py",
-          "tests/test_varint_grow.py",
-          "tests/test_varint_grow_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/03032a8d7a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/065e9dd9ed.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/0c381f1284.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/dynamic_boundaries/199c5a473d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/dynamic_boundaries/4aeb21e1cc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/dynamic_boundaries/4f13cb421f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/ba8defee51.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/d549906961.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/e5af07cbaf.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow_boundaries/7eb7d66bd2.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow_boundaries/98cba3e78b.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow_boundaries/c51540ca21.goose"
         ]
       },
       "A_GROWSHRINK": {
@@ -798,8 +835,9 @@
         ],
         "boundary_fixtures": [
           "tests/fixtures/growable_errors.goose",
-          "tests/test_regions.py",
-          "tests/test_dynamic_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/446862a5b7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/5febdb0949.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/683f7097ed.goose"
         ]
       },
       "A_LIMITED": {
@@ -817,9 +855,13 @@
         "boundary_fixtures": [
           "tests/fixtures/limited_array_errors.goose",
           "tests/fixtures/runtime_limited_errors.goose",
-          "tests/test_regions.py",
-          "tests/test_array_images.py",
-          "tests/test_static_limited_images.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/158a20d039.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/342b5fe809.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/4eec3056a4.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/array_images/421d04fea4.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_limited_images/220da39721.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_limited_images/9fc41d6fb0.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_limited_images/1866a90102.goose"
         ]
       },
       "A_VAR": {
@@ -846,17 +888,35 @@
         ],
         "boundary_fixtures": [
           "tests/fixtures/unsupported_varint_array.goose",
-          "tests/test_dynamic_boundaries.py",
-          "tests/test_regions.py",
-          "tests/test_array_images.py",
-          "tests/test_varint_arrays.py",
-          "tests/test_varint_array_boundaries.py",
-          "tests/test_uleb_lengths.py",
-          "tests/test_uleb_length_boundaries.py",
-          "tests/test_combined_varints.py",
-          "tests/test_combined_varint_boundaries.py",
-          "tests/test_encoded_record_tails.py",
-          "tests/test_encoded_record_tail_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/dynamic_boundaries/af575bc7f7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/065e9dd9ed.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/158a20d039.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/15a1a46be6.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/array_images/0bd18ef9aa.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/array_images/6fa9a15ef0.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/array_images/94b21c0842.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_arrays/7c8bbe14d9.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_arrays/89b3a4e261.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_arrays/99a519f6c0.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_array_boundaries/2c5eae71f8.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_array_boundaries/7645ffd0de.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_lengths/0f881e05a5.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_lengths/158ac2baf1.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_lengths/220a025884.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_length_boundaries/16da5f3353.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_length_boundaries/349c0735bc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varints/0b7ecd4778.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varints/0bdf9a9c61.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varints/152d22a7d1.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varint_boundaries/3e570566f9.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varint_boundaries/46a8ae95de.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/5869bc9f5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/b5a609176f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/d460a232b7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/0f3733cb0d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/1148a7a243.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/1ca0c5773e.goose"
         ]
       }
     },
@@ -877,8 +937,11 @@
           "tests/fixtures/compact_enum_tags.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_packed_layout_boundaries.py",
-          "tests/test_enum_tags.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/packed_layout_boundaries/a2c9be902f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_tags/2ff2e3d16a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_tags/489f1c12ab.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_tags/592669d2c6.goose"
         ]
       },
       "variant": {
@@ -900,11 +963,16 @@
           "tests/fixtures/compact_enum_tags.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_variable_variant_boundaries.py",
-          "tests/test_regions.py",
-          "tests/test_packed_layout_boundaries.py",
-          "tests/test_record_images.py",
-          "tests/test_enum_tags.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_variant_boundaries/04f38e90f4.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_variant_boundaries/06d7f9ce6d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_variant_boundaries/b935524611.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/10030d3b69.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/21ea0f05d6.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/2a58711cd7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/packed_layout_boundaries/a2c9be902f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_images/1d59aa8bb8.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_tags/592669d2c6.goose"
         ]
       },
       "variable": {
@@ -942,13 +1010,19 @@
           "tests/fixtures/enum_image_borrowed_ordinary.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_variable_enum_boundaries.py",
-          "tests/test_regions.py",
-          "tests/test_packed_layout_boundaries.py",
-          "tests/test_record_images.py",
-          "tests/test_enum_tags.py",
-          "tests/test_enum_images.py",
-          "tests/test_enum_image_returns.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_enum_boundaries/0b82b0d915.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_enum_boundaries/ec22cac149.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/variable_enum_boundaries/0c4738f7de.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/10030d3b69.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/21ea0f05d6.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/3254bd706b.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/packed_layout_boundaries/5e21f78e5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/packed_layout_boundaries/a2c9be902f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_images/4e10dbd1c0.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_images/6c8eb4fe8f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_images/881d62a601.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_image_returns/704ef05445.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_image_returns/95e85a9877.goose"
         ]
       }
     },
@@ -1021,7 +1095,9 @@
           "tests/fixtures/variable_variant_narrow.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_owned_struct_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/2b75d90c8d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/3fcc0e04cc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/owned_struct_boundaries/5c714f944e.goose"
         ]
       },
       "captured_environment": {
@@ -1039,8 +1115,12 @@
           "tests/fixtures/owned_function_value_recursion.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_static_capture_boundaries.py",
-          "tests/test_regions.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/797e952151.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/87e23ebe5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/ca69ee5f41.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/03032a8d7a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/065e9dd9ed.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/0c381f1284.goose"
         ]
       },
       "overload_dispatch": {
@@ -1057,8 +1137,9 @@
           "tests/fixtures/dispatch_captured_cases.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_regions.py",
-          "tests/test_static_capture_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/6520faf767.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/8bac2609fb.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/9132118185.goose"
         ]
       },
       "nonlocal_return": {
@@ -1158,9 +1239,14 @@
           "tests/fixtures/nonlocal_enum_nested_replacement.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_regions.py",
-          "tests/test_static_capture_boundaries.py",
-          "tests/test_enum_image_returns.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/158a20d039.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/15a1a46be6.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/4eec3056a4.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/04c054f3db.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/177b991034.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/static_capture_boundaries/2d900186f5.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_image_returns/704ef05445.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_image_returns/95e85a9877.goose"
         ]
       },
       "aggregate_host_abi": {
@@ -1187,12 +1273,17 @@
           "tests/fixtures/encoded_record_tail_grow_tail.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_static_limited_images.py",
-          "tests/test_enum_images.py",
-          "tests/test_record_images.py",
-          "tests/test_packed_layout_boundaries.py",
-          "tests/test_encoded_record_tails.py",
-          "tests/test_encoded_record_tail_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_images/4e10dbd1c0.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/enum_images/ae241ae871.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_images/1d59aa8bb8.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_images/45dfc5dca5.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_images/6365b91515.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/5869bc9f5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/b5a609176f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/d460a232b7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/0f3733cb0d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/1148a7a243.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/1ca0c5773e.goose"
         ]
       },
       "padding": {
@@ -1204,9 +1295,15 @@
           "tests/fixtures/padding_enums.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_record_padding.py",
-          "tests/test_padding_boundaries.py",
-          "tests/test_regions.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/record_padding/20ddb3579e.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_padding/2144be01f0.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/record_padding/8ebf558b83.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/padding_boundaries/330d1f0a0d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/padding_boundaries/53b86f78d2.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/padding_boundaries/54a53b5f21.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/3a130b5dbc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/4a93af6da6.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/5cddfd0e46.goose"
         ]
       },
       "varints": {
@@ -1235,20 +1332,43 @@
           "tests/fixtures/encoded_record_tail_grow_tail.goose"
         ],
         "boundary_fixtures": [
-          "tests/test_varint_records.py",
-          "tests/test_varint_boundaries.py",
-          "tests/test_regions.py",
-          "tests/test_varint_capture_boundaries.py",
-          "tests/test_varint_arrays.py",
-          "tests/test_varint_array_boundaries.py",
-          "tests/test_varint_grow.py",
-          "tests/test_varint_grow_boundaries.py",
-          "tests/test_uleb_lengths.py",
-          "tests/test_uleb_length_boundaries.py",
-          "tests/test_combined_varints.py",
-          "tests/test_combined_varint_boundaries.py",
-          "tests/test_encoded_record_tails.py",
-          "tests/test_encoded_record_tail_boundaries.py"
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_records/1a36c0ae11.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_records/1a85e0ce30.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_records/2c43b8f6ae.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_boundaries/527f2c1eb3.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_boundaries/678ce1d930.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_boundaries/6a1ea62c36.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/065e9dd9ed.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/2378b2f4fd.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/regions/3498271a92.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_arrays/7c8bbe14d9.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_arrays/89b3a4e261.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_arrays/8a2ef5511f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_array_boundaries/2c5eae71f8.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_array_boundaries/7645ffd0de.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/ba8defee51.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/d549906961.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow/e5af07cbaf.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow_boundaries/7eb7d66bd2.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow_boundaries/98cba3e78b.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/varint_grow_boundaries/c51540ca21.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_lengths/0f881e05a5.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_lengths/158ac2baf1.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_lengths/220a025884.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_length_boundaries/16da5f3353.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_length_boundaries/349c0735bc.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varints/0b7ecd4778.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varints/0bdf9a9c61.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varints/152d22a7d1.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varint_boundaries/3e570566f9.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/combined_varint_boundaries/46a8ae95de.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/5869bc9f5a.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/b5a609176f.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tails/d460a232b7.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/0f3733cb0d.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/1148a7a243.goose",
+          "tests/fixtures/contracts/upstream-differential/harvest/encoded_record_tail_boundaries/1ca0c5773e.goose"
         ]
       },
       "validation": {
@@ -1300,20 +1420,15 @@
     },
     "incremental": {
       "artifacts": {
-        "status": "qualified_subset",
-        "scope": "Complete-module cache with recorded source/config/probes; embedded/package-scan builds bypass reuse.",
-        "fixtures": [
-          "tests/test_incremental.py",
-          "tests/test_input_dependencies.py"
-        ],
+        "status": "pending",
+        "scope": "Complete-module cache with recorded source/config/probes; embedded/package-scan builds bypass reuse. Qualified only in the earlier C++ compiler; the Goose compiler has no incremental session mode.",
+        "fixtures": [],
         "boundary_fixtures": []
       },
       "sessions": {
-        "status": "qualified_subset",
-        "scope": "Fresh request AST, persistent worker, per-request overlays.",
-        "fixtures": [
-          "tests/test_compiler_session.py"
-        ],
+        "status": "pending",
+        "scope": "Fresh request AST, persistent worker, per-request overlays. Qualified only in the earlier C++ compiler; the Goose compiler has no incremental session mode.",
+        "fixtures": [],
         "boundary_fixtures": []
       },
       "lexer": {
@@ -1323,27 +1438,21 @@
         "boundary_fixtures": []
       },
       "parser": {
-        "status": "qualified_subset",
-        "scope": "Opt-in bounded pristine syntax imports.",
-        "fixtures": [
-          "tests/test_syntax_cache.py"
-        ],
+        "status": "pending",
+        "scope": "Opt-in bounded pristine syntax imports. Qualified only in the earlier C++ compiler; the Goose compiler has no incremental session mode.",
+        "fixtures": [],
         "boundary_fixtures": []
       },
       "closed_scalar_leaves": {
-        "status": "qualified_subset",
-        "scope": "Exact bounded closed-leaf eligibility only.",
-        "fixtures": [
-          "tests/test_checked_leaf_cache.py"
-        ],
+        "status": "pending",
+        "scope": "Exact bounded closed-leaf eligibility only. Qualified only in the earlier C++ compiler; the Goose compiler has no incremental session mode.",
+        "fixtures": [],
         "boundary_fixtures": []
       },
       "closed_scalar_callers": {
-        "status": "qualified_subset",
-        "scope": "Closed acyclic canonical-i64 callers with parameter-only call arguments.",
-        "fixtures": [
-          "tests/test_checked_scalar_cache.py"
-        ],
+        "status": "pending",
+        "scope": "Closed acyclic canonical-i64 callers with parameter-only call arguments. Qualified only in the earlier C++ compiler; the Goose compiler has no incremental session mode.",
+        "fixtures": [],
         "boundary_fixtures": []
       },
       "general_semantics": {

@@ -189,7 +189,7 @@ def render(report):
         lines.append("- Failed: " + failure)
     lines += ["", "Raw samples, min/max, quartiles, tool versions, commands, checksums, fixture hashes, and driver phase "
               "timings are in `report.json` and the adjacent per-sample logs. Unchanged-build and edited-source latency "
-              "are measured separately by `bench/incremental.py`.", ""]
+              "are not measured: the Goose compiler has no incremental session mode.", ""]
     return "\n".join(lines)
 
 

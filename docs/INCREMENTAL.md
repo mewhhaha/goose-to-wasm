@@ -1,5 +1,10 @@
 # Incremental compilation architecture
 
+This describes the earlier C++ compiler. Its incremental session mode (the
+persistent worker, `goose_wasm.py serve`, the syntax and checked-leaf caches)
+has no counterpart in the Goose compiler. The tests and `bench/incremental.py`
+that exercised it were removed on 2026-11-14 and remain in git history.
+
 ## Implemented now
 
 The direct compiler consumes the existing typed/specialized Goose AST after the
@@ -184,7 +189,7 @@ estimated retained bytes are reported separately. `semantic_reused` becomes
 true when at least one checked leaf is imported. `frontend_reused` remains false.
 An artifact hit reports the original build's stored statistics.
 
-`tests/test_checked_leaf_cache.py` checks edits, alias changes, fresh module
+`tests/test_checked_leaf_cache.py` (removed) checked edits, alias changes, fresh module
 equivalence, excluded bodies, source reindexing, errors, and storage bounds.
 The benchmark's `--shape leaves` workload keeps independent helpers unchanged
 while editing their caller; its default `chain` workload remains available.
@@ -243,7 +248,7 @@ entry count, and estimated bytes. `semantic_reused` records any body reuse;
 `frontend_reused` remains false. The narrower leaf option keeps its existing
 counter names; selecting both options uses scalar mode.
 
-`tests/test_checked_scalar_cache.py` compares warm and edited chains, diamonds,
+`tests/test_checked_scalar_cache.py` (removed) compared warm and edited chains, diamonds,
 argument order, namespaces, overloads, changed signatures, effects, recursion,
 diagnostics, `checkfree`, source reindexing, and depth fallback against fresh
 compilation. The ownership harness now covers leaf and caller import, nested
@@ -259,7 +264,7 @@ and direct call dependencies. These fingerprints are useful for understanding
 how much generated code an edit changes. They do not imply that generation was
 skipped, and module indices are not a persistent symbol identity.
 
-`bench/incremental.py` reports five distinct costs:
+`bench/incremental.py` (removed) reported five distinct costs:
 
 1. A fresh raw native-compiler invocation.
 2. An uncached Python-driver invocation.
