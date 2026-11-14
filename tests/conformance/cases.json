@@ -70393,6 +70393,38 @@
         "provenance": "Upstream goose_spec.md §4.2 at 2e2bede: default<T>() applies declared field defaults wherever a struct declares them, so each element of a default array runs them, while a [v; n] fill evaluates v once; expected output from plain upstream 32a4f44 (goose run), which prints the same. Direct Wasm used to evaluate a default array's element once and copy it, so effectful field defaults ran once per array."
     },
     {
+        "id": "corpus/contracts/upstream-differential/backends/diverging-return-value/native",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/diverging-return-value.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[7] 8\n6 [7, 7] -7\n10 [11]\n22 33\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §7.9 at 2e2bede: return … from unwinds to its target, so the return values after a diverging one never run; expected output from plain upstream 32a4f44 (goose run), which prints the same. Native C used to lower those unchecked values (c: expression lacks a checked type, or an index -1 abort), and at -O2 both backends lost the exit when the inlined exit sat in a later return value."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/backends/diverging-return-value/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/diverging-return-value.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "[7] 8\n6 [7, 7] -7\n10 [11]\n22 33\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §7.9 at 2e2bede: return … from unwinds to its target, so the return values after a diverging one never run; expected output from plain upstream 32a4f44 (goose run), which prints the same. Native C used to lower those unchecked values (c: expression lacks a checked type, or an index -1 abort), and at -O2 both backends lost the exit when the inlined exit sat in a later return value."
+    },
+    {
         "id": "corpus/contracts/range-index/iterations/wasm-direct",
         "source": "tests/fixtures/contracts/range-index/iterations.goose",
         "phase": "run",

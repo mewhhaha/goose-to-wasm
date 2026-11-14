@@ -1505,6 +1505,8 @@ recursive fn cc_values(p: Program&, f: CcBody&, first: i64, type_id: i64, target
         while part >= 0 && value >= 0 {
             let header = cc_channel_target(p, f, target, type_id, ordinal);
             cc_construct_into(p, f, value, p.nodes[part].type_id, header, cc_value_form(p, p.nodes[part].type_id));
+            // The checker leaves the values after a diverging one unchecked.
+            if cc_diverges(p, value) && p.nodes[value].next >= 0 { return -1; }
             ordinal++; part = p.nodes[part].next; value = p.nodes[value].next;
         }
         if part >= 0 || value >= 0 { cc_fail(p, first, "c: return value arity mismatch"); }
@@ -1520,7 +1522,7 @@ recursive fn cc_values(p: Program&, f: CcBody&, first: i64, type_id: i64, target
     let result = cc_temp(p, f, type_id); var part = p.types[type_id].first; var value = first; var index = 0;
     while part >= 0 && value >= 0 {
         let v = cc_to(p, f, value, p.nodes[part].type_id, true);
-        if v < 0 { return -1; }
+        if v < 0 || cc_diverges(p, value) && p.nodes[value].next >= 0 { return -1; }
         if cc_relative_cell(p, p.nodes[part].type_id) { cc_id(f.out, "g_v", result); cc_id(f.out, ".f", index); cc_text(f.out, "="); cc_id(f.out, "g_v", v); cc_text(f.out, ";\n"); }
         else { cc_id(f.out, "g_store_", p.nodes[part].type_id); cc_text(f.out, "(g_ref(&"); cc_id(f.out, "g_v", result); cc_id(f.out, ".f", index); cc_text(f.out, "),"); cc_id(f.out, "g_v", v); cc_text(f.out, ");\n"); }
         index++; part = p.nodes[part].next; value = p.nodes[value].next;

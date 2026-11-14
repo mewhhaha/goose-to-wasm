@@ -2375,7 +2375,10 @@ recursive fn check_retarget_exits(p: Program&, node: i64, previous: i64, replace
     if (n.kind == N_BREAK || n.kind == N_CONTINUE) && n.symbol == previous { p.nodes[node].symbol = replacement; }
     var child = n.first;
     while child >= 0 { check_retarget_exits(p, child, previous, replacement); child = p.nodes[child].next; }
-    check_retarget_exits(p, n.left, previous, replacement); check_retarget_exits(p, n.right, previous, replacement); check_retarget_exits(p, n.third, previous, replacement);
+    // A break's values are the list at its left; a later one may hold an exit.
+    if n.kind == N_BREAK { child = n.left; while child >= 0 { check_retarget_exits(p, child, previous, replacement); child = p.nodes[child].next; } }
+    else { check_retarget_exits(p, n.left, previous, replacement); }
+    check_retarget_exits(p, n.right, previous, replacement); check_retarget_exits(p, n.third, previous, replacement);
 }
 
 fn check_wrap_unary(p: Program&, node: i64, op: i64, ty: i64) {
