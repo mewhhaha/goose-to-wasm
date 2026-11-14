@@ -951,8 +951,8 @@ recursive fn cg_array_literal(p: Program&, m: CgModule&, f: CgBody&, node: i64) 
     }
     else { wb_i32(f.code, count); count_local = cg_save(f, 0x7f); }
     cg_check_array_length(p, m, f, id, count_local, node);
-    var fill_value = -1;
-    if n.right >= 0 && n.first >= 0 && !cg_has_relative(p, element) {
+    var fill_value = -1; let each = cg_fill_each(p, node, element);
+    if n.right >= 0 && n.first >= 0 && !cg_has_relative(p, element) && !each {
         var value_type = element; if p.types[element].storage == 1 { value_type = TYPE_I64; }
         cg_to(p, m, f, n.first, value_type); fill_value = cg_save(f, cg_wasm_type(p, value_type));
     }
@@ -983,7 +983,11 @@ recursive fn cg_array_literal(p: Program&, m: CgModule&, f: CgBody&, node: i64) 
         let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
         cg_get(f, counter); cg_get(f, count_local); wb_byte(f.code, 0x4f); cg_branch(p, f, done, true);
         cg_get(f, base); cg_get(f, counter); wb_i32(f.code, cg_size(p, element)); wb_byte(f.code, 0x6c); wb_byte(f.code, 0x6a); let address = cg_save(f, 0x7f);
-        cg_get(f, value); cg_write_value(p, m, f, element, address, node);
+        if each {
+            // Each slot's defaults release their temporaries' regions.
+            let live = f.region_live; var mark = -1; if m.regions_enabled { mark = cg_mark_regions(f); }
+            cg_to(p, m, f, n.first, element); cg_write_value(p, m, f, element, address, node); cg_restore_regions(f, mark); f.region_live = live;
+        } else { cg_get(f, value); cg_write_value(p, m, f, element, address, node); }
         cg_get(f, counter); wb_i32(f.code, 1); wb_byte(f.code, 0x6a); cg_set(f, counter); cg_branch(p, f, again, false); cg_end(f); cg_end(f);
     } else {
         child = n.first; var ordinal = 0;
@@ -1042,6 +1046,25 @@ fn cg_has_relative(p: Program&, id: i64) -> bool {
         }
     }
     return false;
+}
+recursive fn cg_field_defaults(p: Program&, id: i64) -> bool {
+    let t = p.types[id];
+    if t.kind == TY_ARRAY { return t.array_kind == A_FIXED && t.count > 0 && cg_field_defaults(p, t.element); }
+    if t.kind == TY_ENUM { return t.first >= 0 && cg_field_defaults(p, p.nodes[t.first].type_id); }
+    if t.kind != TY_STRUCT { return false; }
+    var field = t.first;
+    while field >= 0 {
+        let n = p.nodes[field];
+        if (n.flags & F_PAD) == 0 && (n.right >= 0 || cg_field_defaults(p, n.type_id)) { return true; } field = n.next;
+    }
+    return false;
+}
+// A default fill builds each element from the declared field defaults, which
+// may have effects, so it evaluates its element once per slot; a written
+// `[v; n]` evaluates `v` once.
+fn cg_fill_each(p: Program&, node: i64, element: i64) -> bool {
+    let n = p.nodes[node];
+    return n.right >= 0 && n.first >= 0 && (n.flags & F_DEFAULT) != 0 && cg_field_defaults(p, element);
 }
 fn cg_relative_literal(p: Program&, node: i64, id: i64) -> bool {
     if node < 0 || !cg_aggregate(p, id) || cg_has_owner(p, id) || !cg_has_relative(p, id) { return false; }
@@ -1102,11 +1125,14 @@ recursive fn cg_literal_count(p: Program&, m: CgModule&, f: CgBody&, node: i64, 
 recursive fn cg_literal_elements(p: Program&, m: CgModule&, f: CgBody&, node: i64, element: i64, destination: i64, count: i64, captured: i64 = -1, in_place: bool = false) {
     let n = p.nodes[node]; let mark = f.work.len; var replay = captured;
     if n.right >= 0 && n.first >= 0 {
-        if replay < 0 { replay = mark; cg_capture_literal(p, m, f, n.first, element); if cg_diverges(p, n.first) { f.work.resize(mark); return; } }
+        let each = replay < 0 && cg_fill_each(p, node, element);
+        if replay < 0 && !each { replay = mark; cg_capture_literal(p, m, f, n.first, element); if cg_diverges(p, n.first) { f.work.resize(mark); return; } }
         wb_i32(f.code, 0); let index = cg_save(f, 0x7f); let done = cg_begin(f, 0x02, 0x40); let again = cg_begin(f, 0x03, 0x40);
         cg_get(f, index); cg_get(f, count); wb_byte(f.code, 0x4f); cg_branch(p, f, done, true);
         cg_get(f, destination); cg_get(f, index); wb_i32(f.code, cg_size(p, element)); wb_byte(f.code, 0x6c); wb_byte(f.code, 0x6a); let address = cg_save(f, 0x7f);
+        let live = f.region_live; var regions = -1; if each && m.regions_enabled { regions = cg_mark_regions(f); }
         cg_literal_at(p, m, f, n.first, element, address, replay, in_place);
+        if each { cg_restore_regions(f, regions); f.region_live = live; }
         cg_get(f, index); wb_i32(f.code, 1); wb_byte(f.code, 0x6a); cg_set(f, index); cg_branch(p, f, again, false); cg_end(f); cg_end(f);
     } else {
         var child = n.first; var ordinal = 0;
@@ -4602,12 +4628,14 @@ recursive fn cg_construct_array(p: Program&, m: CgModule&, f: CgBody&, node: i64
             if !cg_diverges(p, node) { cg_region_publish(f, header, top); }
             cg_close_constructor(f, target.construction, !control, saved_node, saved_destination, saved_raw); return;
         }
-        var fill = -1;
+        var fill = -1; let each = cg_fill_each(p, node, element);
         if n.right >= 0 && n.first >= 0 {
             var value_type = element; if p.types[element].storage == 1 { value_type = TYPE_I64; }
-            cg_to(p, m, f, n.first, value_type);
-            if cg_diverges(p, n.first) { cg_close_constructor(f, target.construction, !control, saved_node, saved_destination, saved_raw); return; }
-            fill = cg_save(f, cg_wasm_type(p, value_type));
+            if !each {
+                cg_to(p, m, f, n.first, value_type);
+                if cg_diverges(p, n.first) { cg_close_constructor(f, target.construction, !control, saved_node, saved_destination, saved_raw); return; }
+                fill = cg_save(f, cg_wasm_type(p, value_type));
+            }
             if p.types[element].storage != 1 {
                 cg_get(f, count_local); wb_byte(f.code, 0xad); wb_i64(f.code, cg_size(p, element)); wb_byte(f.code, 0x7e); let bytes = cg_save(f, 0x7e); cg_region_reserve(p, m, f, header, bytes, node);
             }
@@ -4617,8 +4645,11 @@ recursive fn cg_construct_array(p: Program&, m: CgModule&, f: CgBody&, node: i64
             cg_get(f, index); cg_get(f, count_local); wb_byte(f.code, 0x4f); cg_branch(p, f, done, true);
             if p.types[element].storage == 1 { cg_region_varint(p, m, f, header, fill, node); }
             else {
+                let live = f.region_live; var regions = -1;
+                if each { regions = cg_mark_regions(f); cg_to(p, m, f, n.first, element); fill = cg_save(f, cg_wasm_type(p, element)); }
                 wb_i64(f.code, cg_size(p, element)); let bytes = cg_save(f, 0x7e); let top = cg_region_reserve(p, m, f, header, bytes, node); let cursor = cg_region_cursor(f, header);
                 cg_get(f, fill); cg_write_value(p, m, f, element, cursor, node); cg_region_publish(f, header, top);
+                if each { cg_restore_regions(f, regions); f.region_live = live; }
             }
             cg_get(f, index); wb_i32(f.code, 1); wb_byte(f.code, 0x6a); cg_set(f, index); cg_branch(p, f, again, false); cg_end(f); cg_end(f);
         } else {

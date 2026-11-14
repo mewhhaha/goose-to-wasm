@@ -70361,6 +70361,38 @@
         "provenance": "Upstream goose_spec.md §3.6 and §5.1 at 2e2bede: a grow-only array of varint elements, global and local, pushed, appended and assigned; expected output from plain upstream 32a4f44 (goose run), which prints the same. Native C used to write the element images with g_image_space and g_image_commit without bringing in its image runtime, so its C did not compile."
     },
     {
+        "id": "corpus/contracts/upstream-differential/backends/default-fill-effects/native",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/default-fill-effects.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1 4 4\n1 2 3 4 4\n5 7 9 12 12\n9 13 18 18\n19 24 24\n25 25 26 26\n27 30 34 34\n39 42 42\n43 44 45 45\n93 691 345\n693 1291 645\n1293 1891 945\n1893 2491 1245\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.2 at 2e2bede: default<T>() applies declared field defaults wherever a struct declares them, so each element of a default array runs them, while a [v; n] fill evaluates v once; expected output from plain upstream 32a4f44 (goose run), which prints the same. Direct Wasm used to evaluate a default array's element once and copy it, so effectful field defaults ran once per array."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/backends/default-fill-effects/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/backends/default-fill-effects.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "1 4 4\n1 2 3 4 4\n5 7 9 12 12\n9 13 18 18\n19 24 24\n25 25 26 26\n27 30 34 34\n39 42 42\n43 44 45 45\n93 691 345\n693 1291 645\n1293 1891 945\n1893 2491 1245\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §4.2 at 2e2bede: default<T>() applies declared field defaults wherever a struct declares them, so each element of a default array runs them, while a [v; n] fill evaluates v once; expected output from plain upstream 32a4f44 (goose run), which prints the same. Direct Wasm used to evaluate a default array's element once and copy it, so effectful field defaults ran once per array."
+    },
+    {
         "id": "corpus/contracts/range-index/iterations/wasm-direct",
         "source": "tests/fixtures/contracts/range-index/iterations.goose",
         "phase": "run",
