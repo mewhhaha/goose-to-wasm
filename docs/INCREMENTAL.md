@@ -186,8 +186,6 @@ An artifact hit reports the original build's stored statistics.
 
 `tests/test_checked_leaf_cache.py` checks edits, alias changes, fresh module
 equivalence, excluded bodies, source reindexing, errors, and storage bounds.
-`tests/test_checked_leaf_ownership.py` destroys the producer AST before import
-and evicts entries before optimizing/emitting the consumer under sanitizers.
 The benchmark's `--shape leaves` workload keeps independent helpers unchanged
 while editing their caller; its default `chain` workload remains available.
 The retained [O0/O2 comparison](../bench/results/2026-10-30/checked-leaves.md)

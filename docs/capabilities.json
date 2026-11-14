@@ -1317,11 +1317,9 @@
         "boundary_fixtures": []
       },
       "lexer": {
-        "status": "qualified_subset",
-        "scope": "Opt-in bounded immutable scanner transitions.",
-        "fixtures": [
-          "tests/test_lexical_cache.py"
-        ],
+        "status": "pending",
+        "scope": "Bounded immutable scanner transitions were qualified only in the earlier C++ compiler; the Goose compiler has no lexical cache yet.",
+        "fixtures": [],
         "boundary_fixtures": []
       },
       "parser": {
