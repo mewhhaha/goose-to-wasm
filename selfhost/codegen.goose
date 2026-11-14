@@ -1711,6 +1711,37 @@ recursive fn cg_declaration_body(p: Program&, m: CgModule&, f: CgBody&, node: i6
         let symbol = p.nodes[binding].symbol;
         if symbol >= 0 && cg_region_value(p, p.symbols[symbol].type_id) { cg_region_declaration(p, m, f, node, binding); return; }
     }
+    // A plain declaration's value lies outside the regions its initializer
+    // acquires. Unless it can hold a reference it keeps none of them (a
+    // declaration cannot bind a view of a statement temporary, §9.2), so
+    // they are released after it, as after any other statement
+    // (cg_statement) and as native C does (cc_variable): a later recursive
+    // call does not retain them.
+    let live = f.region_live; var mark = -1;
+    if m.regions_enabled && n.right >= 0 && cg_may_region(p, m, node) && !cg_declaration_borrows(p, node) { mark = cg_mark_regions(f); }
+    cg_plain_declaration(p, m, f, node);
+    if mark >= 0 { cg_restore_regions(f, mark); f.region_live = live; }
+}
+// Whether a declared binding's type may hold a reference, slice or function
+// value, in any element or field (cc_frame_borrows); an unknown type may.
+fn cg_declaration_borrows(p: Program&, node: i64) -> bool {
+    let n = p.nodes[node]; var pending: i64[>..] = []; var seen: i64[>..] = [];
+    if n.first < 0 { pending.push(n.type_id); if n.symbol >= 0 { pending.push(p.symbols[n.symbol].type_id); } }
+    var binding = n.first; while binding >= 0 { pending.push(p.nodes[binding].type_id); binding = p.nodes[binding].next; }
+    while pending.len > 0 {
+        let current = pending.pop(); if current < 0 || current >= p.types.len { return true; }
+        var visited = false; for old in seen { if old == current { visited = true; break; } } if visited { continue; } seen.push(current);
+        let t = p.types[current];
+        if t.kind == TY_REF || t.kind == TY_SLICE || t.kind == TY_FN { return true; }
+        if t.kind == TY_ARRAY { pending.push(t.element); }
+        else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var field = t.first; while field >= 0 { if (p.nodes[field].flags & F_PAD) == 0 { pending.push(p.nodes[field].type_id); } field = p.nodes[field].next; }
+        }
+    }
+    return false;
+}
+recursive fn cg_plain_declaration(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
+    let n = p.nodes[node];
     if n.first >= 0 {
         var binding = n.first; var first_slot = -1;
         while binding >= 0 {

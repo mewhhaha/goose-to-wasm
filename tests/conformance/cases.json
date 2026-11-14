@@ -70601,6 +70601,102 @@
         "provenance": "Upstream goose_spec.md §9.2 (Return, Branch values) and §7.6 at 2e2bede: a block's by-value parameter ends with the block, so a block result viewing it escapes; found by the upstream differential run as a program we reject, but plain upstream 32a4f44 accepts it and prints 99, not 7: observe() reads the parameter's elements after churn() reused their storage. Kept rejected as an upstream false accept."
     },
     {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-declaration-temporaries/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-declaration-temporaries.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "100 1325 1325\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §9.2 and §7.8 at 2e2bede: a temporary lasts for the rest of its statement, so a declaration of a length, an element or a fixed struct read out of a call's owned array releases it before a later recursive call; found by the upstream differential run (tests/test_regions.py expects the same of direct Wasm); expected output from plain upstream 32a4f44 (goose run). Direct Wasm kept a declaration's temporaries until its block ended and refused the recursive call."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-declaration-temporaries/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-declaration-temporaries.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "stdin": "",
+        "expect": {
+            "stdout": "100 1325 1325\n",
+            "exit": 0
+        },
+        "provenance": "Upstream goose_spec.md §9.2 and §7.8 at 2e2bede: a temporary lasts for the rest of its statement, so a declaration of a length, an element or a fixed struct read out of a call's owned array releases it before a later recursive call; found by the upstream differential run (tests/test_regions.py expects the same of direct Wasm); expected output from plain upstream 32a4f44 (goose run). Direct Wasm kept a declaration's temporaries until its block ended and refused the recursive call."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-live-temporary/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-live-temporary.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "keeps a nonfixed temporary alive until the statement ends"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §7.8 at 2e2bede): a temporary built before a recursive call in the same statement is live across the call (§7.8); plain upstream 32a4f44 rejects it too: \"total calls into its recursive cycle while the non-fixed-size temporary make(n) ... is live (§7.8)\"; neighbour of the recursion region fixes from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-live-temporary/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-live-temporary.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "keeps a nonfixed temporary alive until the statement ends"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §7.8 at 2e2bede): a temporary built before a recursive call in the same statement is live across the call (§7.8); plain upstream 32a4f44 rejects it too: \"total calls into its recursive cycle while the non-fixed-size temporary make(n) ... is live (§7.8)\"; neighbour of the recursion region fixes from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-live-local/native",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-live-local.goose",
+        "phase": "type-error",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "keeps nonfixed local or parameter storage live across the call"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §7.8 at 2e2bede): a non-fixed-size local is in scope across a recursive call (§7.8); plain upstream 32a4f44 rejects it too: \"total calls into its recursive cycle while non-fixed-size local v ... is in scope (§7.8)\"; neighbour of the recursion region fixes from the upstream differential run."
+    },
+    {
+        "id": "corpus/contracts/upstream-differential/lifetimes/recursion-live-local/wasm-direct",
+        "source": "tests/fixtures/contracts/upstream-differential/lifetimes/recursion-live-local.goose",
+        "phase": "type-error",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stderr_contains": [
+                "keeps nonfixed local or parameter storage live across the call"
+            ]
+        },
+        "provenance": "Must still be rejected (upstream goose_spec.md §7.8 at 2e2bede): a non-fixed-size local is in scope across a recursive call (§7.8); plain upstream 32a4f44 rejects it too: \"total calls into its recursive cycle while non-fixed-size local v ... is in scope (§7.8)\"; neighbour of the recursion region fixes from the upstream differential run."
+    },
+    {
         "id": "corpus/contracts/range-index/iterations/native",
         "source": "tests/fixtures/contracts/range-index/iterations.goose",
         "phase": "run",
