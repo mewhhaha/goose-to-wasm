@@ -64,7 +64,9 @@ struct CgBody {
     function: i64 = -1, function_index: i64 = -1, params: i64 = 0, serial: i64 = 0,
     region_live: i64 = 0, region_peak: i64 = 0, region_mark: i64 = -1, publication_mark: i64 = -1,
     frame: i64 = -1, frame_bytes: i64 = 0, effect: i64 = 0, effect_metadata: i64 = -1, done: i64 = -1, frame_free: bool = false,
-    diagnostic_line: i64 = -1, heap_mark: i64 = -1, forward_mark: i64 = -1, scratch: bool = false, elements: bool = false, raw_node: i64 = -1, active_node: i64 = -1, active_destination: i64 = -1,
+    // diagnostic_line: a helper's line parameter. at: a located function's
+    // caller's line (mark_located_functions), the host's abort taking a line.
+    diagnostic_line: i64 = -1, at: i64 = -1, heap_mark: i64 = -1, forward_mark: i64 = -1, scratch: bool = false, elements: bool = false, raw_node: i64 = -1, active_node: i64 = -1, active_destination: i64 = -1,
     // The `defer` statements of the blocks being emitted, in registration
     // order (§6.6): an exit emits the bodies above its height, latest first.
     defers: i64[>..]&, running_defers: i64 = 0,
@@ -254,11 +256,18 @@ fn cg_data(m: CgModule&, bytes: u8[:]) -> i64 {
 fn cg_text(m: CgModule&, f: CgBody&, text: u8[:]) {
     wb_i32(f.code, cg_data(m, text)); wb_i32(f.code, text.len); wb_op(f.code, 0x10, CG_WRITE);
 }
+// The line a failed check at node reports, and the one a call at node passes
+// a located callee (upstream CodeGen::LocArgs, CallerLoc): its own, or, on a
+// library line of a located function, the caller's, its at parameter.
+fn cg_line(p: Program&, f: CgBody&, node: i64) {
+    let token = location_token(p, node);
+    if f.at >= 0 && library_token(p, token) { cg_get(f, f.at); return; }
+    var line = 0; if token >= 0 && token < p.tokens.len { line = p.tokens[token].line; }
+    wb_i32(f.code, line);
+}
 fn cg_abort(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
     wb_i32(f.code, cg_data(m, text)); wb_i32(f.code, text.len);
-    var line = 0;
-    if node >= 0 && p.nodes[node].token >= 0 { line = p.tokens[p.nodes[node].token].line; }
-    if f.diagnostic_line >= 0 { cg_get(f, f.diagnostic_line); } else { wb_i32(f.code, line); }
+    if f.diagnostic_line >= 0 { cg_get(f, f.diagnostic_line); } else { cg_line(p, f, node); }
     wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0);
 }
 fn cg_trap_if(p: Program&, m: CgModule&, f: CgBody&, node: i64, text: u8[:]) {
@@ -347,6 +356,7 @@ fn cg_make_signature(p: Program&, m: CgModule&, function: i64, closure: bool) ->
         if cg_aggregate(p, id) { args.push(0x7f); }
         results.push(cg_wasm_type(p, id) as u8);
     }
+    if !closure && (p.nodes[function].flags & F_LOCATED) != 0 { args.push(0x7f); }
     return cg_signature(m, args, results);
 }
 recursive fn cg_convert(p: Program&, m: CgModule&, f: CgBody&, from: i64, to: i64, node: i64) {
@@ -876,6 +886,7 @@ recursive fn cg_call(p: Program&, m: CgModule&, f: CgBody&, node: i64) {
             if index >= 0 { target = m.functions[index].index; cg_region_call(m, f, index, node); }
             else { for item, i in m.imports { if item.symbol == n.symbol { target = i; } } }
             if target < 0 { cg_fail(p, node, "wasm: call has no emitted function or import"); return; }
+            if (p.nodes[function].flags & F_LOCATED) != 0 { cg_line(p, f, node); }
             wb_op(f.code, 0x10, target);
         }
     } else {
@@ -2143,9 +2154,8 @@ fn cg_abort_index(p: Program&, m: CgModule&, f: CgBody&, index: i64, length: i64
     cg_message_literal(m, f, cursor, "index "); cg_message_bytes(f, cursor, cg_integer_text(p, f, TYPE_I64, index));
     cg_message_literal(m, f, cursor, " out of bounds (length "); cg_get(f, length); wb_byte(f.code, 0xad); let count = cg_save(f, 0x7e);
     cg_message_bytes(f, cursor, cg_integer_text(p, f, TYPE_U64, count)); cg_message_literal(m, f, cursor, ")");
-    cg_get(f, buffer); cg_get(f, cursor); cg_get(f, buffer); wb_byte(f.code, 0x6b); var line = 0;
-    if node >= 0 && p.nodes[node].token >= 0 { line = p.tokens[p.nodes[node].token].line; }
-    wb_i32(f.code, line); wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0);
+    cg_get(f, buffer); cg_get(f, cursor); cg_get(f, buffer); wb_byte(f.code, 0x6b);
+    cg_line(p, f, node); wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0);
 }
 recursive fn cg_pool_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builtin: i64) {
     let n = p.nodes[node]; let receiver = n.first; let argument = p.nodes[receiver].next; var id = p.nodes[receiver].type_id;
@@ -2450,8 +2460,7 @@ fn cg_raw_append_type(p: Program&, id: i64) -> bool {
 fn cg_format_bytes(p: Program&, m: CgModule&, f: CgBody&, id: i64, output: i64, data: i64, length: i64, node: i64) {
     if m.raw_append >= 0 && !f.scratch && cg_raw_append_type(p, id) {
         cg_get(f, output); cg_get(f, data); cg_get(f, length);
-        var line = 0; if node >= 0 && p.nodes[node].token >= 0 { line = p.tokens[p.nodes[node].token].line; }
-        wb_i32(f.code, line); wb_op(f.code, 0x10, m.raw_append); return;
+        cg_line(p, f, node); wb_op(f.code, 0x10, m.raw_append); return;
     }
     cg_format_bytes_inline(p, m, f, id, output, data, length, node);
 }
@@ -2615,8 +2624,7 @@ recursive fn cg_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builti
     if builtin == 4 {
         cg_expr(p, m, f, arg); cg_pack_view(p, m, f, p.nodes[arg].type_id, node); let view = cg_save(f, 0x7e);
         cg_get(f, view); wb_byte(f.code, 0xa7); cg_get(f, view); wb_i64(f.code, 32); wb_byte(f.code, 0x88); wb_byte(f.code, 0xa7);
-        var line = 0; if n.token >= 0 { line = p.tokens[n.token].line; }
-        wb_i32(f.code, line); wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0); return;
+        cg_line(p, f, node); wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0); return;
     }
     if builtin == 5 { cg_to(p, m, f, arg, TYPE_I32); wb_op(f.code, 0x10, CG_EXIT); wb_byte(f.code, 0); return; }
     if builtin == 14 {
@@ -2980,6 +2988,7 @@ fn cg_prepare_function(p: Program&, m: CgModule&, f: CgBody&, function: i64) {
     var results: i64[>..] = []; if function >= 0 { cg_function_results(p, function, results); }
     let destination_start = f.params;
     for id in results { if cg_aggregate(p, id) { f.params++; } }
+    if function >= 0 && (p.nodes[function].flags & F_LOCATED) != 0 { f.at = f.params; f.params++; }
     f.frame = cg_local(f, 0x7f); cg_body_tables(p, f);
     if m.regions_enabled { f.region_mark = cg_local(f, 0x7f); f.publication_mark = cg_local(f, 0x7f); }
     if !m.scalar && function >= 0 {
@@ -3217,6 +3226,7 @@ fn cg_emit_thunk(p: Program&, m: CgModule&, function_index: i64, out: u8[>..]&) 
     var results: i64[>..] = []; cg_function_results(p, item.node, results);
     var destination = count + 1;
     for id in results { if cg_aggregate(p, id) { wb_op(code, 0x20, destination); destination++; } }
+    if (p.nodes[item.node].flags & F_LOCATED) != 0 { wb_i32(code, p.tokens[p.nodes[item.node].token].line); }
     wb_op(code, 0x10, item.index); wb_byte(code, 0x0b); wb_body(out, no_locals, code);
 }
 recursive fn cg_propagate_captures(p: Program&, m: CgModule&, function: i64, node: i64) {
@@ -3512,7 +3522,7 @@ fn cg_refuse_root_owners(p: Program&) {
 }
 fn cg_collect(p: Program&, m: CgModule&) {
     cg_refuse_root_owners(p); if p.diagnostics.len > 0 { return; }
-    cg_scan_effect_targets(p); p.unwinding = mark_unwinding_functions(p);
+    cg_scan_effect_targets(p); p.unwinding = mark_unwinding_functions(p); mark_located_functions(p);
     for host in 0..9 { m.imports.push(CgImport { signature: cg_host_signature(m, host), host: host }); }
     for symbol, i in p.symbols {
         m.globals.push(-1); m.global_regions.push(-1);
@@ -5322,6 +5332,7 @@ fn cg_dispatch_invoke(p: Program&, m: CgModule&, f: CgBody&, node: i64, symbol: 
     }
     let target = cg_function(m, symbol);
     if target < 0 { cg_fail(p, node, "wasm: dispatch specialization has no emitted body"); return; }
+    if (p.nodes[function].flags & F_LOCATED) != 0 { cg_line(p, f, node); }
     cg_region_call(m, f, target, node); wb_op(f.code, 0x10, m.functions[target].index); cg_effect_check(p, m, f, results);
     if results.len == 1 && results[0] != p.nodes[node].type_id && !cg_diverges(p, node) { cg_convert(p, m, f, results[0], p.nodes[node].type_id, node); }
 }

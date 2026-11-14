@@ -70737,6 +70737,139 @@
             0
         ],
         "provenance": "Named constants above i64.max (spec section 3.1; upstream UnifyNumeric): two integer constants, one above i64.max, operate as u64 unless the other is negative; such a constant converts implicitly only to u64; const references keep them from being folded; checked against upstream C++ goose d5ae5bb (bench/fixtures/compiler-goose reference checker)"
+    },
+    {
+        "id": "corpus/contracts/abort-sites/library-assert/native",
+        "source": "tests/fixtures/contracts/abort-sites/library_assert.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "assert failed",
+                "library_assert.goose:7)"
+            ]
+        },
+        "provenance": "Upstream 52282722: a failed check inside a standard library function reports the program's call into the library (goose_spec.md section 9.3), here std's min through a program function, inlined at -O2; checked against upstream C++ goose d5ae5bb (blot2 goose-port build-precision) with this stdlib"
+    },
+    {
+        "id": "corpus/contracts/abort-sites/library-assert/wasm-direct",
+        "source": "tests/fixtures/contracts/abort-sites/library_assert.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "1\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "assertion failed",
+                "(line 7)"
+            ]
+        },
+        "provenance": "Upstream 52282722: a failed check inside a standard library function reports the program's call into the library; the direct Wasm host's abort carries the line only; line checked against upstream C++ goose d5ae5bb (blot2 goose-port build-precision) with this stdlib"
+    },
+    {
+        "id": "corpus/contracts/abort-sites/library-chain/native",
+        "source": "tests/fixtures/contracts/abort-sites/library_chain.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "2\n4\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "index 0 out of bounds (length 0)",
+                "library_chain.goose:13)"
+            ]
+        },
+        "provenance": "Upstream 52282722: a library function passes its caller's location on to the library functions it calls, so a check two library calls deep (heap_pop through a function value written in std) reports the program's call; checked against upstream C++ goose d5ae5bb (blot2 goose-port build-precision) with this stdlib"
+    },
+    {
+        "id": "corpus/contracts/abort-sites/library-chain/wasm-direct",
+        "source": "tests/fixtures/contracts/abort-sites/library_chain.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "2\n4\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "array index out of bounds",
+                "(line 13)"
+            ]
+        },
+        "provenance": "Upstream 52282722: a library function passes its caller's location on to the library functions it calls; the direct Wasm host's abort carries the line only; line checked against upstream C++ goose d5ae5bb (blot2 goose-port build-precision) with this stdlib"
+    },
+    {
+        "id": "corpus/contracts/abort-sites/library-block/native",
+        "source": "tests/fixtures/contracts/abort-sites/library_block.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "5\n7\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "assert failed",
+                "library_block.goose:10)"
+            ]
+        },
+        "provenance": "Upstream 52282722: the program's own block that a library function runs keeps the program's lines, so a library call inside it reports the block's line; checked against upstream C++ goose d5ae5bb (blot2 goose-port build-precision) with this stdlib"
+    },
+    {
+        "id": "corpus/contracts/abort-sites/library-block/wasm-direct",
+        "source": "tests/fixtures/contracts/abort-sites/library_block.goose",
+        "phase": "run",
+        "target": "wasm-direct",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "5\n7\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "assertion failed",
+                "(line 10)"
+            ]
+        },
+        "provenance": "Upstream 52282722: the program's own block that a library function runs keeps the program's lines; the direct Wasm host's abort carries the line only; line checked against upstream C++ goose d5ae5bb (blot2 goose-port build-precision) with this stdlib"
+    },
+    {
+        "id": "corpus/contracts/abort-sites/slot-pool-free/native",
+        "source": "tests/fixtures/contracts/abort-sites/slot_pool_free.goose",
+        "phase": "run",
+        "target": "native",
+        "levels": [
+            0,
+            2
+        ],
+        "expect": {
+            "stdout": "0\n",
+            "exit": "nonzero",
+            "stderr_contains": [
+                "slot_pool.free: index is not a slot of this pool",
+                "slot_pool_free.goose:6)"
+            ]
+        },
+        "provenance": "Upstream 52282722 and stdlib/slot_pool.goose (855f1037): slot_pool's own abort reports the program's call into the pool; checked against upstream C++ goose d5ae5bb (blot2 goose-port build-precision) with this stdlib"
     }
   ],
   "legacy_math_capture": {

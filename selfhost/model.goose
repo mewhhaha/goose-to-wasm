@@ -329,6 +329,10 @@ struct Diagnostic {
 struct TypeBucket { head: i64 = -1, tail: i64 = -1 }
 // An indexed type's successor in its bucket's chain, and its bucket hash.
 struct TypeLink { next: i64 = -1, hash: i64 = 0 }
+// Library nodes the optimizer copied into the program's own code (upstream
+// Inliner::AtCallSite), nodes first until end: a failed check at one reports
+// the line of site, the program's call into the library (location_token).
+struct InlineSite { first: i64 = 0, end: i64 = 0, site: i64 = -1 }
 struct Program {
     text: u8[>..]&, messages: u8[>..]&, sources: Source[>..]&,
     tokens: Token[>..]&, nodes: Node[>..]&, types: Type[>..]&,
@@ -362,6 +366,8 @@ struct Program {
     // Code generation: a `defer` body may run while a nonlocal return passes
     // through its function (mark_unwinding_functions).
     unwinding: bool = false,
+    // Library code inlined into the program's code, in ascending first.
+    inline_sites: InlineSite[>..]&,
 }
 inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }
@@ -409,6 +415,74 @@ fn diagnose(p: Program&, token: i64, message: u8[:]) {
 fn library_node(p: Program&, node: i64) -> bool {
     let token = p.nodes[node].token;
     return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
+}
+fn library_token(p: Program&, token: i64) -> bool {
+    return token >= 0 && token < p.tokens.len && p.sources[p.tokens[token].source].library;
+}
+// The token whose line a failed check at node reports: its own, or, for a
+// library node an inline copied into the program's code, the program's call.
+fn location_token(p: Program&, node: i64) -> i64 {
+    if node < 0 || node >= p.nodes.len { return -1; }
+    let token = p.nodes[node].token;
+    if p.inline_sites.len == 0 || !library_token(p, token) { return token; }
+    var low = 0; var high = p.inline_sites.len;
+    while low < high {
+        let middle = (low + high) / 2;
+        if p.inline_sites[middle].first <= node { low = middle + 1; } else { high = middle; }
+    }
+    if low > 0 && node < p.inline_sites[low - 1].end { return p.inline_sites[low - 1].site; }
+    return token;
+}
+// Code generation scratch on function nodes: the function takes the place
+// where the program called the standard library as a hidden last parameter
+// (upstream SpecInfo::located, 52282722). A failed check on one of its own
+// library lines reports there, and its calls from those lines pass it on.
+let F_LOCATED: i64 = 288230376151711744;
+// Marks the located functions: every checked function of a --stdlib module
+// but externs, exports, main, thread functions and functions a function
+// value names, which their callers reach without a location. A function
+// value is a function's name or a function literal that code generation
+// evaluates, so neither a direct call's callee nor the trailing block a
+// call binds to a function parameter. Returns whether any function is
+// located.
+fn mark_located_functions(p: Program&) -> bool {
+    var candidates = false;
+    for n, id in p.nodes {
+        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
+        p.nodes[id].flags &= ~F_LOCATED;
+        if (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED && library_node(p, id) { candidates = true; }
+    }
+    if !candidates { return false; }
+    var values: bool[>..] = []; values.resize(p.nodes.len, false); var roots: i64[>..] = []; var work: i64[>..] = [];
+    for n in p.nodes {
+        if (n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE) && (n.flags & (F_CHECKED | F_GENERIC)) == F_CHECKED { roots.push(n.right); }
+    }
+    for s in p.symbols { if (s.flags & S_GLOBAL) != 0 && s.node >= 0 { roots.push(p.nodes[s.node].right); } }
+    for root in roots {
+        work.clear(); work.push(root);
+        while work.len > 0 {
+            let id = work.pop(); if id < 0 { continue; }
+            let n = p.nodes[id];
+            if id != root && n.next >= 0 { work.push(n.next); }
+            if n.kind == N_FUNCTION || n.kind == N_IMPORT || n.kind == N_STRUCT || n.kind == N_ENUM || n.kind == N_ALIAS || n.kind == N_PATTERN { continue; }
+            if n.kind == N_FUNCTION_VALUE { values[id] = true; continue; }
+            if n.kind == N_NAME && n.symbol >= 0 && (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION && p.symbols[n.symbol].node >= 0 {
+                values[p.symbols[n.symbol].node] = true;
+            }
+            var callee = false;
+            if n.kind == N_CALL && n.symbol >= 0 { callee = (n.flags & F_DISPATCH) != 0 || (p.symbols[n.symbol].flags & (S_FUNCTION | S_BUILTIN)) == S_FUNCTION; }
+            if callee { work.push(n.first); continue; }
+            for child in [n.first, n.left, n.right, n.third] { if child >= 0 { work.push(child); } }
+        }
+    }
+    var located = false;
+    for n, id in p.nodes {
+        if n.kind != N_FUNCTION && n.kind != N_FUNCTION_VALUE { continue; }
+        if (n.flags & (F_CHECKED | F_GENERIC)) != F_CHECKED || !library_node(p, id) || values[id] { continue; }
+        if (n.flags & (F_EXPORT | F_THREAD | F_EXTERN)) != 0 || id == p.entry { continue; }
+        p.nodes[id].flags |= F_LOCATED; located = true;
+    }
+    return located;
 }
 // Code generation scratch on function nodes: a call to the function may
 // leave through a nonlocal return in flight (mark_unwinding_functions).

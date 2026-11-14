@@ -43,6 +43,9 @@ struct Optimizer {
     facts: OptFact[>..]&, visited: i64[>..]&, active: i64[>..]&, maps: OptMap[>..]&, node_maps: OptNodeMap[>..]&, dependency_work: i64[>..]&, proof_old: i64[>..]&, proof_new: i64[>..]&,
     current_function: i64 = -1, next_slot: i64 = 0, folded: i64 = 0, propagated: i64 = 0,
     inlined: i64 = 0, tail_loops: i64 = 0,
+    // While a library body is copied into the program's code, the call its
+    // library nodes report at (opt_note_site); -1 otherwise.
+    site: i64 = -1,
 }
 fn opt_fact(o: Optimizer&, symbol: i64) {
     while o.facts.len <= symbol { o.facts.push(OptFact {}); }
@@ -199,6 +202,19 @@ recursive fn opt_inline_dependencies(p: Program&, o: Optimizer&, node: i64, owne
     if n.kind != N_RECORD && n.kind != N_VARIABLE && n.kind != N_PARAM && n.kind != N_FIELD && opt_inline_dependencies(p, o, n.left, owner, strict) { return true; }
     return opt_inline_dependencies(p, o, n.right, owner, strict) || opt_inline_dependencies(p, o, n.third, owner, strict);
 }
+// A copy fails where its original does (location_token): a library node an
+// inline from the library into the program's code copies reports that call,
+// o.site, and a copy of a node so re-anchored keeps its place. Copies are
+// made in ascending node order, which keeps p.inline_sites sorted.
+fn opt_note_site(p: Program&, o: Optimizer&, original: i64, copy: i64) {
+    let token = location_token(p, original); var site = -1;
+    if library_token(p, token) { site = o.site; }
+    else if token != p.nodes[original].token { site = token; }
+    if site < 0 { return; }
+    let last = p.inline_sites.len - 1;
+    if last >= 0 && p.inline_sites[last].end == copy && p.inline_sites[last].site == site { p.inline_sites[last].end = copy + 1; return; }
+    p.inline_sites.push(InlineSite { first: copy, end: copy + 1, site: site });
+}
 fn opt_mapped_symbol(o: Optimizer&, symbol: i64, map_start: i64) -> i64 {
     for index in map_start..o.maps.len { if o.maps[index].from == symbol { return o.maps[index].to; } }
     return symbol;
@@ -213,7 +229,7 @@ recursive fn opt_clone(p: Program&, o: Optimizer&, node: i64, map_start: i64) ->
     if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE {
         let empty = new_node(p, N_EMPTY, n.token); p.nodes[empty].flags = F_CHECKED; p.nodes[empty].type_id = TYPE_VOID; return empty;
     }
-    let result = p.nodes.len; p.nodes.push(n); o.node_maps.push(OptNodeMap { from: node, to: result });
+    let result = p.nodes.len; p.nodes.push(n); o.node_maps.push(OptNodeMap { from: node, to: result }); opt_note_site(p, o, node, result);
     if (n.kind == N_BINDING || n.kind == N_VARIABLE) && n.symbol >= 0 && n.symbol < p.symbols.len && p.symbols[n.symbol].node == node {
         var symbol = p.symbols[n.symbol]; let original = n.symbol;
         symbol.node = result; symbol.owner = o.current_function; symbol.scope = -2;
@@ -311,6 +327,10 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     let cost = opt_inline_cost(p, callee.right, budget);
     if cost > budget || opt_inline_dependencies(p, o, callee.right, symbol.node, strict) { return false; }
     let map_start = o.maps.len; let node_start = o.node_maps.len;
+    // A library body copied into the program's code, but into a checkfree
+    // function, has its library nodes report at the call (upstream AtCallSite).
+    let site = location_token(p, node); let outer_site = o.site; o.site = -1;
+    if library_node(p, symbol.node) && !library_token(p, site) && (p.nodes[o.current_function].flags & F_CHECKFREE) == 0 { o.site = site; }
     let inline_body = new_node(p, N_BLOCK, call.token); p.nodes[inline_body].flags = F_CHECKED | F_EARLY | (call.flags & F_DIVERGES);
     p.nodes[inline_body].type_id = call.type_id; p.nodes[inline_body].scope = call.scope;
     p.nodes[inline_body].origin = symbol.node; p.nodes[inline_body].symbol = call.symbol;
@@ -318,12 +338,12 @@ recursive fn opt_try_inline(p: Program&, o: Optimizer&, node: i64) -> bool {
     while formal >= 0 {
         let next = p.nodes[argument].next; p.nodes[argument].next = -1;
         let local = opt_temporary(p, o, o.current_function, call.scope, p.nodes[formal].token, p.nodes[formal].type_id, argument);
-        p.nodes[local].origin = formal;
+        p.nodes[local].origin = formal; opt_note_site(p, o, formal, local);
         append_child(p, inline_body, local);
         o.maps.push(OptMap { from: p.nodes[formal].symbol, to: p.nodes[local].symbol }); opt_copy_fact(o, p.nodes[formal].symbol, p.nodes[local].symbol);
         formal = p.nodes[formal].next; argument = next;
     }
-    let body = opt_clone(p, o, callee.right, map_start);
+    let body = opt_clone(p, o, callee.right, map_start); o.site = outer_site;
     opt_fix_inline(p, o, body, call.symbol, inline_body, map_start, node_start);
     var child = p.nodes[body].first;
     while child >= 0 { let next = p.nodes[child].next; p.nodes[child].next = -1; append_child(p, inline_body, child); child = next; }
