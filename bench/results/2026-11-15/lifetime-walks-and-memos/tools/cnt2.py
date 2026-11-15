@@ -25,19 +25,19 @@ rep("""    var previous = l.summary_heads[bucket];
 rep("""            previous = next; continue;
         }""", """            dbg_key_mismatch += 1; previous = next; continue;
         }""")
-rep("""            if summary.walked == (walked | 1) || summary.walked == walked { return 2; }
+rep("""            if walked >= 0 && (summary.walked == (walked | 1) || summary.walked == walked) { return 2; }
             l.summaries[previous].walked = walked;
             return 1;
         }
         // The same lists""", """            dbg_ident_path += 1;
-            if summary.walked == (walked | 1) || summary.walked == walked { dbg_stop2 += 1; return 2; }
+            if walked >= 0 && (summary.walked == (walked | 1) || summary.walked == walked) { dbg_stop2 += 1; return 2; }
             l.summaries[previous].walked = walked;
             return 1;
         }
         // The same lists""")
 rep("""            life_summary_seen(l, previous, effect);
-            if summary.walked == (walked | 1) || summary.walked == walked { return 2; }""", """            life_summary_seen(l, previous, effect); dbg_same_path += 1;
-            if summary.walked == (walked | 1) || summary.walked == walked { dbg_stop2 += 1; return 2; }""")
+            if walked >= 0 && (summary.walked == (walked | 1) || summary.walked == walked) { return 2; }""", """            life_summary_seen(l, previous, effect); dbg_same_path += 1;
+            if walked >= 0 && (summary.walked == (walked | 1) || summary.walked == walked) { dbg_stop2 += 1; return 2; }""")
 rep("""            let old_places = old.places; let old_refs = old.value.refs;""", """            dbg_join_path += 1;
             let old_places = old.places; let old_refs = old.value.refs;""")
 rep("""    var previous = last;

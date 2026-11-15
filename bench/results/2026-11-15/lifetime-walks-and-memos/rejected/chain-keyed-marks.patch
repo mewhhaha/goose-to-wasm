@@ -1,0 +1,241 @@
+--- a/selfhost/checker_lifetimes.goose
++++ b/selfhost/checker_lifetimes.goose
+@@ -31,6 +31,10 @@
+ // live is set and cleared through life_set_live, which mirrors it in live_bits.
+ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1 }
+ // chain: how many frames the parent chain holds, set at each activation.
++// chain_id: which frames those are, in order (life_chain_id): the same in two
++// activations entered under the same frames.
++// summary_version: how many times a summary entry of the frame was made or
++// had its sets changed.
+ // chain_recursive: the nearest recursive frame of that chain, from this
+ // frame up, or 0, as of recursion epoch chain_epoch (life_nearest_recursive).
+ // inputs_hash, inputs_kinds: life_inputs_key of inputs. mixed_kinds: an
+@@ -38,7 +42,7 @@
+ // next older frame in its input_heads and home_heads buckets.
+ // function_active: on the newest frame of a function, how many of the
+ // function's frames are active.
+-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0 }
++struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0, chain_id: i64 = 0, summary_version: i64 = 0 }
+ struct LifeWalk { root: i64, type_id: i64 }
+ struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
+ struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
+@@ -67,6 +71,10 @@
+ // What life_load makes of a holder's contents and its places: `contents` is
+ // twice the contents set, plus one for a slot load.
+ struct LifeLoaded { contents: i64 = -1, places: i64 = -1, set: i64 = 0 }
++// A frame's whole summary replayed into a frame under a chain (life_replay),
++// when the summary was at `version` and the recursion epoch at `epoch`.
++// reading: a place was being read then, so construct reads were not offered.
++struct LifeReplayed { frame: i64 = -1, chain: i64 = -1, version: i64 = -1, epoch: i64 = -1, reading: bool = false }
+ // What a read-back through global containers found (life_readback): it holds
+ // for its type and places while global_epoch stays at `epoch`.
+ struct LifeReadBack { type_id: i64 = -1, places: i64 = -1, epoch: i64 = -1, set: i64 = 0 }
+@@ -82,20 +90,21 @@
+ // effect's own, which never change), and the sets last merged into it. Merging
+ // those same sets again changes nothing: an entry only grows, and a join with
+ // a subset returns the entry's own set.
+-// walked: twice the owner's activation in which an offer of those last sets
+-// went on from this entry up the chain, plus one if a place of that offer
+-// was outside every frame of the chain. The chain above a frame is fixed for
+-// its activation. An offer with every place in a frame of the chain is taken
+-// by the frames below the outermost of those frames, and those of them above
+-// the owner are the same frames for the same sets later in the activation;
+-// an offer with a place outside the chain is taken by every frame. So the
+-// frames above have nothing more to take from the same sets (life_effect),
+-// unless one of them is recursive, which also takes by its cells.
+-// replayed: the activation of the frame this entry's effect was last
+-// replayed into (life_replay), at recursion epoch replayed_epoch, if every
+-// offer of that replay was one no recursive frame takes by its cells
++// walked: twice the owner's chain ID (LifeFrame.chain_id) when an offer of
++// those last sets went on from this entry up the chain, plus one if a place
++// of that offer was outside every frame of the chain. An offer with every
++// place in a frame of the chain is taken by the frames below the outermost
++// of those frames, and those of them above the owner are the same frames for
++// the same sets whenever the owner is under that chain again; an offer with
++// a place outside the chain is taken by every frame. Entries only grow, so
++// the frames above have nothing more to take from the same sets
++// (life_effect), in that activation or a later one, unless one of them is
++// recursive, which also takes by its cells.
++// replayed: the chain ID of the frame this entry's effect was last replayed
++// into (life_replay), at recursion epoch replayed_epoch, if every offer of
++// that replay was one no recursive frame takes by its cells
+ // (Lifetimes.offer_recursive); -1 once the entry's sets change. The same
+-// sets replayed into that activation again change nothing.
++// sets replayed into that frame under that chain again change nothing.
+ struct LifeSummary {
+     key: i64 = -1, next: i64 = -1, owner: i64 = -1, kind: i64 = 0, node: i64 = -1, type_id: i64 = -1, cell: i64 = -1, field: i64 = -1,
+     places: i64 = -1, refs: i64 = -1, contents: i64 = -1, place: i64 = -1, walked: i32 = -1,
+@@ -167,6 +176,8 @@
+     // The last life_gs_contains answer for each owner type, and what it was
+     // asked: twice the pointee type, plus one for a byte view.
+     gs_asked: i64[>..]&, gs_answer: bool[>..]&,
++    // Recent whole replays, direct-mapped by frame and chain.
++    replays: LifeReplayed[>..]&, replays_recorded: i64 = 0,
+     // Recent read-backs through global containers, direct-mapped.
+     readbacks: LifeReadBack[>..]&, readbacks_recorded: i64 = 0,
+     // Per type and include_pool: life_relative_storage, 0 until asked, then 1 or 2.
+@@ -175,6 +186,9 @@
+     // global's initializer. Only those count toward what frame 0 reaches
+     // (life_reach); the globals themselves are at depth 0.
+     deep_cells: i64[>..]&,
++    // Chains of frames by ID: a chain is its last frame and the chain above
++    // it (ID 0 is frame 0 alone), found again through chain_slots.
++    chain_parents: i64[>..]&, chain_frames: i64[>..]&, chain_slots: i64[>..]&,
+     // Frames by function, lexical frame, selected result and argument sets
+     // (life_inputs_key), and by function, home frame and call: bucket heads
+     // of chains through LifeFrame.next_inputs and next_home, newest first as
+@@ -277,17 +291,40 @@
+     l.summaries[index].places = effect.places; l.summaries[index].refs = effect.value.refs;
+     l.summaries[index].contents = effect.value.contents; l.summaries[index].place = effect.value.place;
+ }
++// The ID of the chain that is `frame` under the chain `parent`.
++fn life_chain_id(l: Lifetimes&, parent: i64, frame: i64) -> i64 {
++    if l.chain_parents.len == 0 { l.chain_parents.push(-1); l.chain_frames.push(0); }
++    if 2 * (l.chain_parents.len + 1) > l.chain_slots.len {
++        var size: i64 = 64; while size < 4 * (l.chain_parents.len + 1) { size <<= 1; }
++        l.chain_slots.clear(); l.chain_slots.resize(size, -1);
++        for index in 1..l.chain_parents.len {
++            var slot = life_frame_hash(l.chain_parents[index], l.chain_frames[index], size - 1);
++            while l.chain_slots[slot] >= 0 { slot = (slot + 1) & (size - 1); }
++            l.chain_slots[slot] = index;
++        }
++    }
++    let mask = l.chain_slots.len - 1; var slot = life_frame_hash(parent, frame, mask);
++    loop {
++        let found = l.chain_slots[slot];
++        if found < 0 { break; }
++        if l.chain_parents[found] == parent && l.chain_frames[found] == frame { return found; }
++        slot = (slot + 1) & mask;
++    }
++    let id = l.chain_parents.len; l.chain_parents.push(parent); l.chain_frames.push(frame); l.chain_slots[slot] = id;
++    return id;
++}
+ // LifeSummary.walked for an offer going up from a frame now, or -1 where the
+-// activation count no longer fits its 32 bits and nothing is recorded.
++// chain ID no longer fits its 32 bits and nothing is recorded.
+ inline fn life_walked(l: Lifetimes&, frame: i64, outside: bool) -> i32 {
+-    if l.activations >= 1073741824 { return -1; }
+-    var walked = (2 * l.frames[frame].activation) as i32; if outside { walked += 1; }
++    let chain = l.frames[frame].chain_id;
++    if chain >= 1073741824 { return -1; }
++    var walked = (2 * chain) as i32; if outside { walked += 1; }
+     return walked;
+ }
+ // Discovery merges a frame's summary effects by site: 0 if none took it, 1 if
+-// one did, 2 if one did that already sent these sets up the chain in this
+-// activation (LifeSummary.walked). outside: a place of the effect is outside
+-// every frame of the chain.
++// one did, 2 if one did that already sent these sets up this chain
++// (LifeSummary.walked). outside: a place of the effect is outside every
++// frame of the chain.
+ fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64, key: i64, outside: bool) -> i64 {
+     let walked = life_walked(l, frame, outside);
+     var previous = l.summary_heads[bucket];
+@@ -316,7 +353,7 @@
+             let places = life_join(l, old_places, effect.places);
+             let refs = life_join(l, old_refs, effect.value.refs); let contents = life_join(l, old_contents, effect.value.contents);
+             let value_places = life_join(l, old_place, effect.value.place);
+-            if !life_equal(l, places, old_places) || !life_equal(l, refs, old_refs) || !life_equal(l, contents, old_contents) || !life_equal(l, value_places, old_place) { l.revision += 1; }
++            if !life_equal(l, places, old_places) || !life_equal(l, refs, old_refs) || !life_equal(l, contents, old_contents) || !life_equal(l, value_places, old_place) { l.revision += 1; l.frames[frame].summary_version += 1; }
+             l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
+             life_summary_seen(l, previous, effect);
+             l.summaries[previous].walked = walked; l.summaries[previous].replayed = -1;
+@@ -428,9 +465,9 @@
+     let ordered = effect.kind == 1 || effect.kind == 4 || effect.kind == 6 || effect.kind == 7;
+     var indexed_key = -1;
+     var frame = l.frame; var depth = 0; let chain = l.frames[l.frame].chain;
+-    // settled: a frame below has already sent these sets up the chain in its
+-    // activation (LifeSummary.walked, LifeEffect.walked), so the frames they
+-    // are outside of have taken them.
++    // settled: a frame below has already sent these sets up this chain
++    // (LifeSummary.walked, LifeEffect.walked), so the frames they are outside
++    // of have taken them.
+     var settled = false;
+     while frame > 0 {
+         // The frames between a settled entry and the outermost frame that
+@@ -473,7 +510,7 @@
+                 l.summaries.push(LifeSummary { key: summary_key, owner: frame, kind: entry.kind, node: entry.node, type_id: entry.value.type_id, cell: entry.cell, field: entry.field });
+                 if l.discovery {
+                     life_summary_seen(l, index, entry); l.summaries[index].next = l.summary_heads[bucket]; l.summary_heads[bucket] = index;
+-                    l.summaries[index].walked = life_walked(l, frame, outside);
++                    l.summaries[index].walked = life_walked(l, frame, outside); l.frames[frame].summary_version += 1;
+                 }
+                 if indexed >= 0 {
+                     let slot = life_index_bucket(l, indexed);
+@@ -2691,6 +2728,7 @@
+     if !l.frames[target].active {
+         l.frames[target].parent = previous_frame; l.frames[target].destination = destination;
+         l.frames[target].chain = l.frames[previous_frame].chain + 1; l.frames[target].chain_epoch = -1;
++        l.frames[target].chain_id = life_chain_id(l, l.frames[previous_frame].chain_id, target);
+         l.activations += 1; l.frames[target].activation = l.activations;
+     }
+     l.frame = target; l.scope = p.nodes[function_node].scope;
+@@ -3323,10 +3361,23 @@
+ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false) {
+     var at = l.frames[frame].first_effect; if summary { at = l.frames[frame].first_summary; }
+     // A discovery replay only offers effects and joins into contents and
+-    // references, which only grow: an entry replayed into this activation
+-    // before, unchanged since, has nothing left to add (LifeSummary.replayed).
+-    let memo = summary && l.discovery && l.frame > 0 && l.activations < 1073741824;
+-    let into = l.frames[l.frame].activation as i32; let epoch = l.recursion_epoch as i32;
++    // references, which only grow: an entry replayed into this frame under
++    // this chain before, unchanged since, has nothing left to add
++    // (LifeSummary.replayed).
++    let memo = summary && l.discovery && l.frame > 0 && l.frames[l.frame].chain_id < 1073741824;
++    let into = l.frames[l.frame].chain_id as i32; let epoch = l.recursion_epoch as i32;
++    // The same holds of a whole summary whose every entry was replayed so:
++    // while none is made or changed, replaying it into this frame under this
++    // chain again adds nothing. Construct reads are not offered while a
++    // place is being read, so a replay made then only stands for others
++    // made then.
++    var whole = -1; var complete = true;
++    if memo {
++        if l.replays.len == 0 { l.replays.resize(64, LifeReplayed {}); }
++        whole = life_frame_hash(frame, into, l.replays.len - 1);
++        let r: const LifeReplayed& = l.replays[whole];
++        if r.frame == frame && r.chain == into && r.version == l.frames[frame].summary_version && r.epoch == l.recursion_epoch && (!r.reading || l.reading_place > 0) { return; }
++    }
+     while at >= 0 {
+         if memo {
+             let s: const LifeSummary& = l.summaries[at];
+@@ -3356,8 +3407,15 @@
+             }
+         }
+         if memo && l.offer_count > 0 && !l.offer_recursive { l.summaries[at].replayed = into; l.summaries[at].replayed_epoch = epoch; }
++        if memo && l.offer_recursive { complete = false; }
+         at = effect.next;
+     }
++    if memo && complete {
++        l.replays[whole] = LifeReplayed { frame: frame, chain: into, version: l.frames[frame].summary_version, epoch: l.recursion_epoch, reading: l.reading_place > 0 };
++        // Entries keep their slots when the table grows, as joins do.
++        l.replays_recorded++;
++        if l.replays_recorded > 4 * l.replays.len && l.replays.len < 1048576 { l.replays.resize(4 * l.replays.len, LifeReplayed {}); l.replays_recorded = 0; }
++    }
+ }
+ 
+ // Persist the final root proof by Symbol ID so optimizer clones can carry it
+@@ -3629,9 +3687,10 @@
+     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
+     var live_bits: u64[>..] = []; var live_words: u64[>..] = [];
+     var deep_cells: i64[>..] = []; var input_heads: i64[>..] = []; var home_heads: i64[>..] = [];
++    var chain_parents: i64[>..] = []; var chain_frames: i64[>..] = []; var chain_slots: i64[>..] = [];
+     var cell_slots: i32[>..] = []; var temp_slots: i32[>..] = []; var contents_memo: LifeContents[>..] = []; var root_stamps: i64[>..] = [];
+     var loaded: LifeLoaded[>..] = []; var gs_asked: i64[>..] = []; var gs_answer: bool[>..] = []; var relative_storage: i64[>..] = [];
+-    var readbacks: LifeReadBack[>..] = [];
++    var readbacks: LifeReadBack[>..] = []; var replays: LifeReplayed[>..] = [];
+     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
+         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
+@@ -3639,9 +3698,9 @@
+         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
+         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
+         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
+-        deep_cells: deep_cells, input_heads: input_heads, home_heads: home_heads,
++        deep_cells: deep_cells, input_heads: input_heads, home_heads: home_heads, chain_parents: chain_parents, chain_frames: chain_frames, chain_slots: chain_slots,
+         cell_slots: cell_slots, temp_slots: temp_slots, contents_memo: contents_memo, root_stamps: root_stamps,
+-        loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
++        loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks, replays: replays,
+         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
+     life_validate_pools(p, l, pool_references);
+     if p.diagnostics.len > 0 { return; }
