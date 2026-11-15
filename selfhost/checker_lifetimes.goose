@@ -15,7 +15,8 @@ struct LifeAlt { root: i32, exact: bool = true, from: i32 = -1, slotread: bool =
 // index: for a set of LIFE_BIG or more alternatives, a hashed root index in
 // set_index at index, of index_mask + 1 slots, made when the set is first
 // searched. A slot is an alternative's index, which fits 32 bits as next does.
-struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0 }
+// hash: life_set_hash, once asked and not 0.
+struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0, hash: i64 = 0 }
 // A span of global_read_list; count -1 until computed.
 struct LifeSpan { first: i64 = 0, count: i64 = -1 }
 struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1 }
@@ -27,7 +28,10 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
 // chain: how many frames the parent chain holds, set at each activation.
 // chain_recursive: the nearest recursive frame of that chain, from this
 // frame up, or 0, as of recursion epoch chain_epoch (life_nearest_recursive).
-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0 }
+// inputs_hash, inputs_kinds: life_inputs_key of inputs. mixed_kinds: an
+// older frame of the function has other kinds. next_inputs, next_home: the
+// next older frame in its input_heads and home_heads buckets.
+struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1 }
 struct LifeWalk { root: i64, type_id: i64 }
 struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
 struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
@@ -56,9 +60,9 @@ struct LifeContents { places: i64 = -1, stamp: i64 = 0, set: i64 = 0 }
 // What life_load makes of a holder's contents and its places: `contents` is
 // twice the contents set, plus one for a slot load.
 struct LifeLoaded { contents: i64 = -1, places: i64 = -1, set: i64 = 0 }
-// A life_gs_contains answer: `pointee` is twice the pointee type, plus one
-// for a byte view.
-struct LifeGsContains { owner: i64 = -1, pointee: i64 = -1, answer: bool = false }
+// What a read-back through global containers found (life_readback): it holds
+// for its type and places while global_epoch stays at `epoch`.
+struct LifeReadBack { type_id: i64 = -1, places: i64 = -1, epoch: i64 = -1, set: i64 = 0 }
 // index_key, index_next and epoch: a validation-pass effect's hash, chain
 // in effect_heads and its frame's effect_epoch when it was recorded.
 // walked: for such an effect, 1 once an equal effect has gone on from its
@@ -148,8 +152,13 @@ struct Lifetimes {
     // as joins are; how many times a root's contents have changed; and for
     // each root the count at its last change.
     contents_memo: LifeContents[>..]&, contents_recorded: i64 = 0, contents_stamp: i64 = 0, root_stamps: i64[>..]&,
-    // Recent life_load results and life_gs_contains answers, direct-mapped.
-    loaded: LifeLoaded[>..]&, loaded_recorded: i64 = 0, gs_contains: LifeGsContains[>..]&,
+    // Recent life_load results, direct-mapped.
+    loaded: LifeLoaded[>..]&, loaded_recorded: i64 = 0,
+    // The last life_gs_contains answer for each owner type, and what it was
+    // asked: twice the pointee type, plus one for a byte view.
+    gs_asked: i64[>..]&, gs_answer: bool[>..]&,
+    // Recent read-backs through global containers, direct-mapped.
+    readbacks: LifeReadBack[>..]&, readbacks_recorded: i64 = 0,
     // Per type and include_pool: life_relative_storage, 0 until asked, then 1 or 2.
     relative_storage: i64[>..]&,
     // The cells of frame 0 whose root is deeper than depth 0: a local of a
@@ -158,6 +167,11 @@ struct Lifetimes {
     deep_cells: i64[>..]&,
     // Per function node, how many of its frames are active.
     active_frames: i64[>..]&,
+    // Frames by function, lexical frame, selected result and argument sets
+    // (life_inputs_key), and by function, home frame and call: bucket heads
+    // of chains through LifeFrame.next_inputs and next_home, newest first as
+    // function_frames is.
+    input_heads: i64[>..]&, home_heads: i64[>..]&,
     // Class tables of life_classes_cover, as a stack: alternative and hash.
     class_slots: i64[>..]&,
     // Recent joins of large sets, direct-mapped, and how many were recorded
@@ -182,14 +196,17 @@ struct Lifetimes {
     pass: i64 = 0,
 }
 
-// An order-independent hash of a set, equal for sets life_equal accepts.
+// An order-independent hash of a set, equal for sets life_equal accepts. A
+// set does not change once it is made, so its hash is kept.
 fn life_set_hash(l: Lifetimes&, set: i64) -> i64 {
+    if l.sets[set].hash != 0 { return l.sets[set].hash; }
     var sum = 0; var at = l.sets[set].first;
     while at >= 0 {
         let alt = l.alts[at]; var h = (alt.root as i64) * 1000003 + (alt.from as i64) * 8191 + (alt.target_type as i64) * 131 + (alt.bound as i64) * 31 + (alt.component as i64) * 17;
         if alt.exact { h += 1; } if alt.slotread { h += 2; } if alt.byteview { h += 4; }
         sum += h ^ (h >> 17); at = alt.next;
     }
+    l.sets[set].hash = sum;
     return sum;
 }
 fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEffect&) -> bool {
@@ -1183,16 +1200,15 @@ fn life_value_roots(p: Program&, value: LifeValue) -> i64 {
 }
 fn life_gs_contains(p: Program&, l: Lifetimes&, owner: i64, pointee: i64, byteview: bool) -> bool {
     if owner < 0 { return false; }
-    // Types do not change during evaluation, so an answer is kept
-    // (direct-mapped: one store's sources mostly share a few owner types).
-    if !l.types_frozen { return life_gs_contains_walk(p, l, owner, pointee, byteview); }
-    if l.gs_contains.len == 0 { l.gs_contains.resize(256, LifeGsContains {}); }
+    // Types do not change during evaluation, and one store asks about one
+    // pointee for the type of every source, so each owner type keeps its
+    // last answer (as life_contains_memo does).
+    if !l.types_frozen || pointee < 0 { return life_gs_contains_walk(p, l, owner, pointee, byteview); }
+    while l.gs_asked.len <= owner { l.gs_asked.push(-1); l.gs_answer.push(false); }
     var key = 2 * pointee; if byteview { key += 1; }
-    var h: u64 = (owner as! u64) * 11400714819323198485 ^ (key as! u64) * 14029467366897019727; h ^= h >> 29;
-    let slot = (h & ((l.gs_contains.len - 1) as! u64)) as i64;
-    if l.gs_contains[slot].owner == owner && l.gs_contains[slot].pointee == key { return l.gs_contains[slot].answer; }
+    if l.gs_asked[owner] == key { return l.gs_answer[owner]; }
     let answer = life_gs_contains_walk(p, l, owner, pointee, byteview);
-    l.gs_contains[slot] = LifeGsContains { owner: owner, pointee: key, answer: answer };
+    l.gs_asked[owner] = key; l.gs_answer[owner] = answer;
     return answer;
 }
 fn life_gs_contains_walk(p: Program&, l: Lifetimes&, owner: i64, pointee: i64, byteview: bool) -> bool {
@@ -1931,6 +1947,23 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
     // such containers' candidates are in, each reads from no one container
     // and is bounded by both: a later one that is no more slot-read and no
     // deeper bound adds nothing a join would keep, and is skipped.
+    // Where every place is a global container, the candidates are the global
+    // cells', which change only with global_epoch, and the rest is the places
+    // and types: the same read-back in the same epoch is the same list, and
+    // so the same set (life_list_set).
+    var remembered = t.element >= 0; var probe = l.sets[places].first;
+    while probe >= 0 && remembered {
+        let symbol = l.roots[l.alts[probe].root].symbol;
+        remembered = symbol >= 0 && (p.symbols[symbol].flags & S_GLOBAL) != 0; probe = l.alts[probe].next;
+    }
+    var memo = 0;
+    if remembered {
+        if l.readbacks.len == 0 { l.readbacks.resize(64, LifeReadBack {}); }
+        var h: u64 = (type_id as! u64) * 11400714819323198485 ^ (places as! u64) * 14029467366897019727; h ^= h >> 29;
+        memo = (h & ((l.readbacks.len - 1) as! u64)) as i64;
+        let r: const LifeReadBack& = l.readbacks[memo];
+        if r.type_id == type_id && r.places == places && r.epoch == l.global_epoch { return r.set; }
+    }
     var global_reads = 0; var global_depth = 0; var global_holder = false; var global_bound: i64 = 0;
     var result = LifeBuild {}; var at = l.sets[places].first;
     while at >= 0 {
@@ -1971,7 +2004,14 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         l.scratch.resize(start);
         at = alt.next;
     }
-    return life_build_end(l, result);
+    let set = life_build_end(l, result);
+    if remembered {
+        l.readbacks[memo] = LifeReadBack { type_id: type_id, places: places, epoch: l.global_epoch, set: set };
+        // Entries keep their slots when the table grows, as joins do.
+        l.readbacks_recorded++;
+        if l.readbacks_recorded > 4 * l.readbacks.len && l.readbacks.len < 1048576 { l.readbacks.resize(4 * l.readbacks.len, LifeReadBack {}); l.readbacks_recorded = 0; }
+    }
+    return set;
 }
 fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool = false) -> LifeValue {
     var out = LifeValue { type_id: type_id, place: places };
@@ -2419,6 +2459,51 @@ fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, 
     return life_build_end(l, result);
 }
 
+// What life_arguments_equal compares of a frame's inputs, with the frame's
+// lexical frame and selected result. kinds: per argument, two bits for
+// whether that is its references, its contents or nothing, which its own
+// type decides, under a leading 1; 0 for more arguments than fit. hash: of
+// the sets compared, equal wherever life_arguments_equal holds between
+// inputs of the same kinds.
+struct LifeInputs { hash: i64, kinds: i64 }
+fn life_inputs_key(p: Program&, l: Lifetimes&, arguments: i64, lexical: i64, selected_result: i64) -> LifeInputs {
+    var h: u64 = 1469598103934665603; var kinds = 1; var count = 0; var input = arguments;
+    h = (h ^ (lexical as! u64)) * 1099511628211; h ^= h >> 29; h = (h ^ (selected_result as! u64)) * 1099511628211; h ^= h >> 29;
+    while input >= 0 {
+        let v: const LifeValue& = l.items[input].value; var kind = 0; var part = 0;
+        if life_is_ref(p, v.type_id) { kind = 1; part = life_set_hash(l, v.refs); }
+        else if life_holds(p, v.type_id) { kind = 2; part = life_set_hash(l, v.contents); }
+        count += 1; if count <= 30 { kinds = 4 * kinds + kind; }
+        h = (h ^ (part as! u64)) * 1099511628211; h ^= h >> 29;
+        input = l.items[input].next;
+    }
+    if count > 30 { kinds = 0; }
+    return LifeInputs { hash: (h >> 1) as! i64, kinds: kinds };
+}
+inline fn life_inputs_bucket(l: Lifetimes&, function_node: i64, hash: i64) -> i64 {
+    var h: u64 = (function_node as! u64) * 11400714819323198485 ^ (hash as! u64) * 14029467366897019727; h ^= h >> 29;
+    return (h & ((l.input_heads.len - 1) as! u64)) as i64;
+}
+inline fn life_home_bucket(l: Lifetimes&, function_node: i64, home: i64, call: i64) -> i64 {
+    var h: u64 = (function_node as! u64) * 11400714819323198485 ^ (home as! u64) * 14029467366897019727; h ^= h >> 29;
+    h = (h ^ (call as! u64)) * 1099511628211; h ^= h >> 31;
+    return (h & ((l.home_heads.len - 1) as! u64)) as i64;
+}
+// Links a frame into both indexes, as the newest of its buckets.
+fn life_index_frame(l: Lifetimes&, index: i64) {
+    let inputs = life_inputs_bucket(l, l.frames[index].function_node, l.frames[index].inputs_hash);
+    l.frames[index].next_inputs = l.input_heads[inputs]; l.input_heads[inputs] = index;
+    let home = life_home_bucket(l, l.frames[index].function_node, l.frames[index].home, l.frames[index].call);
+    l.frames[index].next_home = l.home_heads[home]; l.home_heads[home] = index;
+}
+// Room for one more frame at two per bucket at most, on average. Relinking
+// in index order keeps every chain newest first.
+fn life_frames_reserve(l: Lifetimes&) {
+    if l.frames.len < 2 * l.input_heads.len { return; }
+    var size: i64 = 64; while 2 * size <= l.frames.len { size <<= 1; }
+    l.input_heads.clear(); l.input_heads.resize(size, -1); l.home_heads.clear(); l.home_heads.resize(size, -1);
+    for index in 1..l.frames.len { life_index_frame(l, index); }
+}
 recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call: i64, arguments: i64, destination: i64, selected_result: i64 = -1) -> LifeValue {
     if function_node < 0 || p.nodes[function_node].right < 0 { return LifeValue {}; }
     var lexical = 0;
@@ -2472,26 +2557,42 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         if l.frames[active].function_node == function_node && l.frames[active].lexical == lexical && l.frames[active].selected_result == selected_result && (!receiver_sensitive || life_equal(l, l.frames[active].destination, destination)) && life_classes_equal(p, l, l.frames[active].inputs, arguments) { target = active; break; }
         active = l.frames[active].parent;
     }
-    if target < 0 {
-        var index = l.function_frames[function_node];
+    // The newest frame of the function with these arguments, lexical frame
+    // and selected result. Where every frame of the function has inputs of
+    // the kinds these arguments have, those frames are in one bucket of
+    // input_heads, newest first; otherwise each frame is tried.
+    life_frames_reserve(l);
+    let key = life_inputs_key(p, l, arguments, lexical, selected_result); let newest = l.function_frames[function_node];
+    let mixed = key.kinds == 0 || newest >= 0 && (l.frames[newest].mixed_kinds || l.frames[newest].inputs_kinds != key.kinds);
+    if target < 0 && !mixed {
+        var index = l.input_heads[life_inputs_bucket(l, function_node, key.hash)];
         while index >= 0 {
-            let frame = l.frames[index];
+            let frame: const LifeFrame& = l.frames[index];
+            if frame.function_node == function_node && frame.inputs_hash == key.hash && frame.lexical == lexical && frame.selected_result == selected_result && (!receiver_sensitive || life_equal(l, frame.destination, destination)) && life_arguments_equal(p, l, frame.inputs, arguments) { target = index; break; }
+            index = frame.next_inputs;
+        }
+    }
+    if target < 0 && mixed {
+        var index = newest;
+        while index >= 0 {
+            let frame: const LifeFrame& = l.frames[index];
             if frame.lexical == lexical && frame.selected_result == selected_result && (!receiver_sensitive || life_equal(l, frame.destination, destination)) && life_arguments_equal(p, l, frame.inputs, arguments) { target = index; break; }
             index = frame.next_function;
         }
     }
+    // In discovery, the newest inactive frame this call made from this frame.
     if target < 0 && l.discovery {
-        var index = l.function_frames[function_node];
+        var index = l.home_heads[life_home_bucket(l, function_node, l.frame, call)];
         while index >= 0 {
-            let frame = l.frames[index];
-            if !frame.active && frame.lexical == lexical && frame.home == l.frame && frame.call == call && frame.selected_result == selected_result && (!receiver_sensitive || life_equal(l, frame.destination, destination)) { target = index; break; }
-            index = frame.next_function;
+            let frame: const LifeFrame& = l.frames[index];
+            if frame.function_node == function_node && !frame.active && frame.lexical == lexical && frame.home == l.frame && frame.call == call && frame.selected_result == selected_result && (!receiver_sensitive || life_equal(l, frame.destination, destination)) { target = index; break; }
+            index = frame.next_home;
         }
     }
     if target < 0 {
         target = l.frames.len;
-        l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: lexical, call: call, inputs: arguments, base: base, destination: destination, selected_result: selected_result, next_function: l.function_frames[function_node], home: l.frame });
-        l.function_frames[function_node] = target;
+        l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: lexical, call: call, inputs: arguments, base: base, destination: destination, selected_result: selected_result, next_function: newest, home: l.frame, inputs_hash: key.hash, inputs_kinds: key.kinds, mixed_kinds: mixed });
+        l.function_frames[function_node] = target; life_index_frame(l, target);
     }
     life_cycle_call(p, l, target, call, destination);
     if !l.discovery && !l.frames[target].active {
@@ -3456,18 +3557,19 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
     var live_bits: u64[>..] = []; var live_words: u64[>..] = [];
-    var deep_cells: i64[>..] = []; var active_frames: i64[>..] = [];
+    var deep_cells: i64[>..] = []; var active_frames: i64[>..] = []; var input_heads: i64[>..] = []; var home_heads: i64[>..] = [];
     var cell_slots: i32[>..] = []; var temp_slots: i32[>..] = []; var contents_memo: LifeContents[>..] = []; var root_stamps: i64[>..] = [];
-    var loaded: LifeLoaded[>..] = []; var gs_contains: LifeGsContains[>..] = []; var relative_storage: i64[>..] = [];
+    var loaded: LifeLoaded[>..] = []; var gs_asked: i64[>..] = []; var gs_answer: bool[>..] = []; var relative_storage: i64[>..] = [];
+    var readbacks: LifeReadBack[>..] = [];
     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
-        deep_cells: deep_cells, active_frames: active_frames,
+        deep_cells: deep_cells, active_frames: active_frames, input_heads: input_heads, home_heads: home_heads,
         cell_slots: cell_slots, temp_slots: temp_slots, contents_memo: contents_memo, root_stamps: root_stamps,
-        loaded: loaded, gs_contains: gs_contains, relative_storage: relative_storage,
+        loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }
