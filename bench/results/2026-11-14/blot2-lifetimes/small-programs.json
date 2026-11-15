@@ -1,0 +1,257 @@
+{
+ "compilers": {
+  "base": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/dev-9806/bin/goose",
+  "canon": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/canon/goose",
+  "direct": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/direct/goose",
+  "gcand": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/gcand/goose",
+  "jmemo": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/jmemo/goose",
+  "skip": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/skip/goose",
+  "lazy": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/lazy/goose",
+  "pack": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/pack/goose",
+  "ckey": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/exp/ckey/goose",
+  "final": "/home/jacobt/src/goose-to-wasm/.claude/worktrees/agent-a17bf72e44110d4f2/build/dev-final/bin/goose"
+ },
+ "rounds": 41,
+ "rows": [
+  {
+   "compiler": "base",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.69,
+   "user_ms": 0.0,
+   "minflt": 236
+  },
+  {
+   "compiler": "canon",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.61,
+   "user_ms": 0.0,
+   "minflt": 236
+  },
+  {
+   "compiler": "ckey",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.56,
+   "user_ms": 0.0,
+   "minflt": 235
+  },
+  {
+   "compiler": "direct",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.58,
+   "user_ms": 0.0,
+   "minflt": 236
+  },
+  {
+   "compiler": "final",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.7,
+   "user_ms": 0.0,
+   "minflt": 236
+  },
+  {
+   "compiler": "gcand",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.62,
+   "user_ms": 0.0,
+   "minflt": 236
+  },
+  {
+   "compiler": "jmemo",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.58,
+   "user_ms": 0.0,
+   "minflt": 235
+  },
+  {
+   "compiler": "lazy",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.56,
+   "user_ms": 0.0,
+   "minflt": 235
+  },
+  {
+   "compiler": "pack",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.55,
+   "user_ms": 0.0,
+   "minflt": 235
+  },
+  {
+   "compiler": "skip",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.6,
+   "user_ms": 0.0,
+   "minflt": 235
+  },
+  {
+   "compiler": "base",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.67,
+   "user_ms": 10.23,
+   "minflt": 1213
+  },
+  {
+   "compiler": "canon",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.63,
+   "user_ms": 10.19,
+   "minflt": 1212
+  },
+  {
+   "compiler": "ckey",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.57,
+   "user_ms": 10.8,
+   "minflt": 1211
+  },
+  {
+   "compiler": "direct",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.39,
+   "user_ms": 9.95,
+   "minflt": 1212
+  },
+  {
+   "compiler": "final",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.66,
+   "user_ms": 10.04,
+   "minflt": 1210
+  },
+  {
+   "compiler": "gcand",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.43,
+   "user_ms": 9.69,
+   "minflt": 1213
+  },
+  {
+   "compiler": "jmemo",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.55,
+   "user_ms": 10.66,
+   "minflt": 1211
+  },
+  {
+   "compiler": "lazy",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.33,
+   "user_ms": 9.93,
+   "minflt": 1211
+  },
+  {
+   "compiler": "pack",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.7,
+   "user_ms": 10.33,
+   "minflt": 1207
+  },
+  {
+   "compiler": "skip",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 15.67,
+   "user_ms": 10.43,
+   "minflt": 1211
+  },
+  {
+   "compiler": "base",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 34.62,
+   "user_ms": 23.13,
+   "minflt": 1758
+  },
+  {
+   "compiler": "canon",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 34.91,
+   "user_ms": 23.94,
+   "minflt": 1758
+  },
+  {
+   "compiler": "ckey",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 34.82,
+   "user_ms": 23.18,
+   "minflt": 1756
+  },
+  {
+   "compiler": "direct",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 35.24,
+   "user_ms": 23.71,
+   "minflt": 1759
+  },
+  {
+   "compiler": "final",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 35.56,
+   "user_ms": 24.5,
+   "minflt": 1755
+  },
+  {
+   "compiler": "gcand",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 34.53,
+   "user_ms": 23.46,
+   "minflt": 1760
+  },
+  {
+   "compiler": "jmemo",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 36.15,
+   "user_ms": 23.54,
+   "minflt": 1758
+  },
+  {
+   "compiler": "lazy",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 35.24,
+   "user_ms": 24.08,
+   "minflt": 1758
+  },
+  {
+   "compiler": "pack",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 34.79,
+   "user_ms": 24.67,
+   "minflt": 1754
+  },
+  {
+   "compiler": "skip",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 35.04,
+   "user_ms": 23.46,
+   "minflt": 1757
+  }
+ ]
+}

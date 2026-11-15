@@ -1,0 +1,196 @@
+{
+ "baseline": {
+  "sources": "9806f0e",
+  "sha256": "e5957443e9fa1854d3eb73d225bb427c5fe47251a8c4a5ef9b7c6b9953e0d655"
+ },
+ "changes": [
+  {
+   "commit": "e232600",
+   "candidate_sha256": "908a6764586621ec90176cf0f60b564170210d97f9ab8518f34fbb07438e649e",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 141.795,
+     "candidate": 141.439
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "09bf604cb9265b104ba1f75c3b88a680546f1671dfa596e87b15b18c64e5034e"
+  },
+  {
+   "commit": "bf393e1",
+   "candidate_sha256": "910d4d9efd298c0a11570fc0a87145ac0176161d65268a252feaf12fde7ecd76",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 240.958,
+     "candidate": 200.423
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "c217e628f0ce93534cc272ded9f128a9e73cd52142def453bfe7ccbe637f4811"
+  },
+  {
+   "commit": "c7b2ba7",
+   "candidate_sha256": "48054698d61138a64972c347fd3727df4b92f95d31f6478b0637572117f93c85",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 155.229,
+     "candidate": 183.131
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "9da90881d9ef05f516f606544b9d1101010729d9cce59229e2de101dcc81d989"
+  },
+  {
+   "commit": "15985fd",
+   "candidate_sha256": "2eec541822686b8ed1daf6e8ceef445ca8c6fb4f5f186d7848a817a8baff9d80",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 196.333,
+     "candidate": 176.338
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "50950ed445d4f0bcb9fe20580832364c3c9d23c174dcaaaa5f633c59a75266ff"
+  },
+  {
+   "commit": "f558402",
+   "candidate_sha256": "85da46d8728a6bdb15ba4117b5d7506907302a1346e4b960bfe78672dc9fa401",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 184.948,
+     "candidate": 181.044
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "9c3daf11b97ee69e7ad77cc3300112c0aa7a09904e21127ee04560bfaf8fb2d6"
+  },
+  {
+   "commit": "f0eee87",
+   "candidate_sha256": "dd25ecd15fb01decebff5dcf6231e2e777c6a4177e487139f4d4018a8a8ccfd7",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 156.801,
+     "candidate": 285.16
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "9630c87a16f7cd10834f8d3effe8fc01fa3dc1fd1b6f251c3eff238919717e3a"
+  },
+  {
+   "commit": "77c8328",
+   "candidate_sha256": "d592acdeb9bf43f572c76220d912f18615e7befb994c790230ad131f9229e982",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 180.723,
+     "candidate": 165.537
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "23ab93ee8fb79f8e04bb842a673e0db5b3ca1ecbf17fd0b5c023021c5bdc7f58"
+  },
+  {
+   "commit": "8ea3034",
+   "candidate_sha256": "76451ab9e1be06945a43489a163ebb81fc67efd47379630505bab5fc464f1a1c",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 187.086,
+     "candidate": 168.37
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "34cb7655ab1699bef36b06f3145b48018ad1a6fe24a29ce707b6f119f8f79791"
+  },
+  {
+   "commit": "42637bb",
+   "candidate_sha256": "9b90416d728222a969b4bd1c6f1fc898a682df97c2021bcad74c8addb4e85d97",
+   "output_equivalence": {
+    "compared": 10049,
+    "differing": 0,
+    "seconds": {
+     "baseline": 188.875,
+     "candidate": 180.452
+    }
+   },
+   "state_fingerprints": {
+    "compared": 4355,
+    "differing": 0,
+    "with_lifetime_fingerprints": 1488,
+    "fingerprint_lines": 5313
+   },
+   "tested_checker_lifetimes_sha256": "e4260490e4eadfa62d2aa23433e78158f1e4675c8d29aebe39e760e92b063779"
+  }
+ ],
+ "note": "Each change was tested as a build of its frozen working copy; the committed source differs from it at most in where two comments and one declaration sit. The 42637bb build is byte-identical to bootstrap.py --jobs 8 of the commit.",
+ "blot2_frame_fingerprints": {
+  "baseline": "9806f0e",
+  "candidate": "the f558402 working copy",
+  "every_frames": 2000,
+  "compared": 14,
+  "differing": 0,
+  "up_to_frames": 28000
+ },
+ "self_check_fingerprints": {
+  "lines": 7,
+  "differing": 0,
+  "candidates": [
+   "bf393e1",
+   "42637bb"
+  ]
+ }
+}
