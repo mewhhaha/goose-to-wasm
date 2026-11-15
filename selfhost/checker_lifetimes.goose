@@ -70,9 +70,15 @@ struct LifeFailure { node: i64, message: const u8[:] }
 // an offer with a place outside the chain is taken by every frame. So the
 // frames above have nothing more to take from the same sets (life_effect),
 // unless one of them is recursive, which also takes by its cells.
+// replayed: the activation of the frame this entry's effect was last
+// replayed into (life_replay), at recursion epoch replayed_epoch, if every
+// offer of that replay was one no recursive frame takes by its cells
+// (Lifetimes.offer_recursive); -1 once the entry's sets change. The same
+// sets replayed into that activation again change nothing.
 struct LifeSummary {
     key: i64 = -1, next: i64 = -1, owner: i64 = -1, kind: i64 = 0, node: i64 = -1, type_id: i64 = -1, cell: i64 = -1, field: i64 = -1,
     places: i64 = -1, refs: i64 = -1, contents: i64 = -1, place: i64 = -1, walked: i64 = -1,
+    replayed: i64 = -1, replayed_epoch: i64 = -1,
 }
 // A discovery effect offered up the frame chain, remembered by what the
 // offer depends on: its current frame's activation (which fixes the chain of
@@ -104,6 +110,10 @@ struct Lifetimes {
     // the offers recorded since it last grew, the activation count, and how
     // many times a frame's recursion flag has been set.
     offers: LifeOffer[>..]&, offers_recorded: i64 = 0, activations: i64 = 0, recursion_epoch: i64 = 0,
+    // Since life_replay last cleared them: how many effects were offered, and
+    // whether one had a place in a recursive frame of the chain, which such a
+    // frame may take by its cells (life_effect_recursive) as they grow.
+    offer_count: i64 = 0, offer_recursive: bool = false,
     effect_heads: i64[>..]&, indexed_effects: i64 = 0,
     // Per effect, kept apart from the effects themselves so a bucket walk
     // stays in dense memory.
@@ -170,8 +180,10 @@ fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEff
 // chain: the chain position past which some place of the effect is not.
 // The frames above the current one are the active ones with a smaller chain
 // count, so a root's frame is on the chain, and how far up, without a walk.
-// home: the frame at that position.
-struct LifeFar { far: i64, home: i64 }
+// home: the frame at that position. cyclic: a place is in a recursive
+// frame of the chain; with a place outside the chain every frame takes the
+// effect as external, and none is asked about its cells.
+struct LifeFar { far: i64, home: i64, cyclic: bool = false }
 fn life_effect_far(l: Lifetimes&, effect: const LifeEffect&) -> LifeFar {
     var out = LifeFar { far: 0, home: l.frame }; var at = l.sets[effect.places].first; let chain = l.frames[l.frame].chain;
     while at >= 0 {
@@ -179,11 +191,12 @@ fn life_effect_far(l: Lifetimes&, effect: const LifeEffect&) -> LifeFar {
         if root != 0 {
             let home = l.roots[root].frame;
             if l.frame <= 0 || home <= 0 { return LifeFar { far: 9223372036854775807, home: 0 }; }
+            let h: const LifeFrame& = l.frames[home];
             if home != l.frame {
-                let h: const LifeFrame& = l.frames[home];
                 if !h.active || h.chain >= chain { return LifeFar { far: 9223372036854775807, home: 0 }; }
                 if chain - h.chain > out.far { out.far = chain - h.chain; out.home = home; }
             }
+            if h.recursive_call { out.cyclic = true; }
         }
         at = l.alts[at].next;
     }
@@ -253,7 +266,7 @@ fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucke
             if !life_equal(l, places, old_places) || !life_equal(l, refs, old_refs) || !life_equal(l, contents, old_contents) || !life_equal(l, value_places, old_place) { l.revision += 1; }
             l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
             life_summary_seen(l, previous, effect);
-            l.summaries[previous].walked = walked;
+            l.summaries[previous].walked = walked; l.summaries[previous].replayed = -1;
             return 1;
         }
         previous = next;
@@ -354,8 +367,11 @@ fn life_offer_repeated(l: Lifetimes&, effect: const LifeEffect&) -> bool {
     return false;
 }
 fn life_effect(l: Lifetimes&, effect: LifeEffect) {
+    l.offer_count += 1;
+    // A repeated offer is recorded only where no frame of the chain is recursive.
     if l.discovery && l.frame > 0 && life_offer_repeated(l, effect) { return; }
     let reach = life_effect_far(l, effect); let far = reach.far; let outside = far == 9223372036854775807;
+    if reach.cyclic { l.offer_recursive = true; }
     let ordered = effect.kind == 1 || effect.kind == 4 || effect.kind == 6 || effect.kind == 7;
     var indexed_key = -1;
     var frame = l.frame; var depth = 0; let chain = l.frames[l.frame].chain;
@@ -3008,7 +3024,16 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
 
 fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false) {
     var at = l.frames[frame].first_effect; if summary { at = l.frames[frame].first_summary; }
+    // A discovery replay only offers effects and joins into contents and
+    // references, which only grow: an entry replayed into this activation
+    // before, unchanged since, has nothing left to add (LifeSummary.replayed).
+    let memo = summary && l.discovery && l.frame > 0; let into = l.frames[l.frame].activation;
     while at >= 0 {
+        if memo {
+            let s: const LifeSummary& = l.summaries[at];
+            if s.replayed == into && s.replayed_epoch == l.recursion_epoch { at = l.effects[at].next; continue; }
+            l.offer_count = 0; l.offer_recursive = false;
+        }
         let effect = l.effects[at];
         if effect.kind == 1 { life_shrink(p, l, effect.node, effect.value); }
         else if effect.kind == 2 { life_grow(p, l, effect.node, effect.value); }
@@ -3031,6 +3056,7 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false) {
                 }
             }
         }
+        if memo && l.offer_count > 0 && !l.offer_recursive { l.summaries[at].replayed = into; l.summaries[at].replayed_epoch = l.recursion_epoch; }
         at = effect.next;
     }
 }
