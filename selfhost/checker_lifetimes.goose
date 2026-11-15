@@ -24,7 +24,10 @@ struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i
 struct LifeItem { value: LifeValue, next: i64 = -1 }
 // live is set and cleared through life_set_live, which mirrors it in live_bits.
 struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, refs: i64 = 0, live_refs: i64 = 0, contents: i64 = 0, initial: i64 = 0, committed: bool = false, growshrink: bool = false, depth: i64 = 0, initialized: bool = false, live: bool = false, next_symbol: i64 = -1, next_frame: i64 = -1 }
-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0 }
+// chain: how many frames the parent chain holds, set at each activation.
+// chain_recursive: the nearest recursive frame of that chain, from this
+// frame up, or 0, as of recursion epoch chain_epoch (life_nearest_recursive).
+struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0 }
 struct LifeWalk { root: i64, type_id: i64 }
 struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
 struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
@@ -48,16 +51,28 @@ struct LifeGlobalCandidates { epoch: i64 = -1, depth: i64 = 0, first: i64 = 0, c
 struct LifeJoin { a: i64 = -1, b: i64 = -1, set: i64 = -1 }
 // index_key, index_next and epoch: a validation-pass effect's hash, chain
 // in effect_heads and its frame's effect_epoch when it was recorded.
-struct LifeEffect { kind: i64, node: i64, value: LifeValue, places: i64 = 0, cell: i64 = -1, field: i64 = -1, next: i64 = -1, previous: i64 = -1, owner: i64 = -1, index_key: i64 = -1, index_next: i64 = -1, epoch: i64 = 0 }
+// walked: for such an effect, 1 once an equal effect has gone on from its
+// frame up the chain, 2 if a place of one was outside every frame of the
+// chain; as LifeSummary.walked, for the frame's current list.
+struct LifeEffect { kind: i64, node: i64, value: LifeValue, places: i64 = 0, cell: i64 = -1, field: i64 = -1, next: i64 = -1, previous: i64 = -1, owner: i64 = -1, index_key: i64 = -1, index_next: i64 = -1, epoch: i64 = 0, walked: i64 = 0 }
 struct LifeFailure { node: i64, message: const u8[:] }
 // Per effect, for discovery merges: its summary key and the next effect in its
 // summary_heads bucket, the fields a merge compares exactly (copies of the
 // effect's own, which never change), and the sets last merged into it. Merging
 // those same sets again changes nothing: an entry only grows, and a join with
 // a subset returns the entry's own set.
+// walked: twice the owner's activation in which an offer of those last sets
+// went on from this entry up the chain, plus one if a place of that offer
+// was outside every frame of the chain. The chain above a frame is fixed for
+// its activation. An offer with every place in a frame of the chain is taken
+// by the frames below the outermost of those frames, and those of them above
+// the owner are the same frames for the same sets later in the activation;
+// an offer with a place outside the chain is taken by every frame. So the
+// frames above have nothing more to take from the same sets (life_effect),
+// unless one of them is recursive, which also takes by its cells.
 struct LifeSummary {
     key: i64 = -1, next: i64 = -1, owner: i64 = -1, kind: i64 = 0, node: i64 = -1, type_id: i64 = -1, cell: i64 = -1, field: i64 = -1,
-    places: i64 = -1, refs: i64 = -1, contents: i64 = -1, place: i64 = -1,
+    places: i64 = -1, refs: i64 = -1, contents: i64 = -1, place: i64 = -1, walked: i64 = -1,
 }
 // A discovery effect offered up the frame chain, remembered by what the
 // offer depends on: its current frame's activation (which fixes the chain of
@@ -147,19 +162,26 @@ fn life_same_effect(l: Lifetimes&, old: const LifeEffect&, effect: const LifeEff
 }
 // A place is local to the frames from its root's frame up the current
 // chain: the chain position past which some place of the effect is not.
-fn life_effect_far(l: Lifetimes&, effect: const LifeEffect&) -> i64 {
-    var far = 0; var at = l.sets[effect.places].first;
+// The frames above the current one are the active ones with a smaller chain
+// count, so a root's frame is on the chain, and how far up, without a walk.
+// home: the frame at that position.
+struct LifeFar { far: i64, home: i64 }
+fn life_effect_far(l: Lifetimes&, effect: const LifeEffect&) -> LifeFar {
+    var out = LifeFar { far: 0, home: l.frame }; var at = l.sets[effect.places].first; let chain = l.frames[l.frame].chain;
     while at >= 0 {
         let root = l.alts[at].root;
         if root != 0 {
-            let home = l.roots[root].frame; var inside = l.frame; var position = 0;
-            while inside > 0 && inside != home { inside = l.frames[inside].parent; position += 1; }
-            if inside <= 0 { return 9223372036854775807; }
-            if position > far { far = position; }
+            let home = l.roots[root].frame;
+            if l.frame <= 0 || home <= 0 { return LifeFar { far: 9223372036854775807, home: 0 }; }
+            if home != l.frame {
+                let h: const LifeFrame& = l.frames[home];
+                if !h.active || h.chain >= chain { return LifeFar { far: 9223372036854775807, home: 0 }; }
+                if chain - h.chain > out.far { out.far = chain - h.chain; out.home = home; }
+            }
         }
         at = l.alts[at].next;
     }
-    return far;
+    return out;
 }
 // A recursive activation's own root reached through one of its parameters
 // belongs to another activation.
@@ -190,20 +212,31 @@ fn life_summary_seen(l: Lifetimes&, index: i64, effect: const LifeEffect&) {
     l.summaries[index].places = effect.places; l.summaries[index].refs = effect.value.refs;
     l.summaries[index].contents = effect.value.contents; l.summaries[index].place = effect.value.place;
 }
-// Discovery merges a frame's summary effects by site: whether one took it.
-fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64, key: i64) -> bool {
+// Discovery merges a frame's summary effects by site: 0 if none took it, 1 if
+// one did, 2 if one did that already sent these sets up the chain in this
+// activation (LifeSummary.walked). outside: a place of the effect is outside
+// every frame of the chain.
+fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64, key: i64, outside: bool) -> i64 {
+    var walked = 2 * l.frames[frame].activation; if outside { walked += 1; }
     var previous = l.summary_heads[bucket];
     while previous >= 0 {
         let summary: const LifeSummary& = l.summaries[previous]; let next = summary.next;
         if summary.key != key || summary.owner != frame || summary.kind != effect.kind || summary.node != effect.node || summary.type_id != effect.value.type_id || summary.cell != effect.cell || summary.field != effect.field {
             previous = next; continue;
         }
-        if summary.places == effect.places && summary.refs == effect.value.refs && summary.contents == effect.value.contents && summary.place == effect.value.place { return true; }
+        if summary.places == effect.places && summary.refs == effect.value.refs && summary.contents == effect.value.contents && summary.place == effect.value.place {
+            if summary.walked == (walked | 1) || summary.walked == walked { return 2; }
+            l.summaries[previous].walked = walked;
+            return 1;
+        }
         // The same lists under other IDs: as with those sets, every join
         // below returns the entry's own set, so only the sets seen change.
         if life_same_list(l, summary.places, effect.places) && life_same_list(l, summary.refs, effect.value.refs) &&
            life_same_list(l, summary.contents, effect.value.contents) && life_same_list(l, summary.place, effect.value.place) {
-            life_summary_seen(l, previous, effect); return true;
+            life_summary_seen(l, previous, effect);
+            if summary.walked == (walked | 1) || summary.walked == walked { return 2; }
+            l.summaries[previous].walked = walked;
+            return 1;
         }
         let old: const LifeEffect& = l.effects[previous];
         if effect.kind != 4 || life_equal(l, old.places, effect.places) {
@@ -214,11 +247,12 @@ fn life_effect_merge(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucke
             if !life_equal(l, places, old_places) || !life_equal(l, refs, old_refs) || !life_equal(l, contents, old_contents) || !life_equal(l, value_places, old_place) { l.revision += 1; }
             l.effects[previous].places = places; l.effects[previous].value.refs = refs; l.effects[previous].value.contents = contents; l.effects[previous].value.place = value_places;
             life_summary_seen(l, previous, effect);
-            return true;
+            l.summaries[previous].walked = walked;
+            return 1;
         }
         previous = next;
     }
-    return false;
+    return 0;
 }
 // Validation-pass effects that no other kind orders against are indexed by
 // a hash of everything life_same_effect compares, and their frame.
@@ -234,15 +268,22 @@ fn life_index_reserve(l: Lifetimes&) {
     }
 }
 // Such an effect is redundant wherever an equal one is in the frame's
-// current list: whether the bucket holds one.
-fn life_effect_indexed(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64) -> bool {
+// current list: 0 if the bucket holds none, 1 if it holds one, 2 if it holds
+// one that an equal effect has already gone up the chain from
+// (LifeEffect.walked). outside: a place of the effect is outside every frame
+// of the chain.
+fn life_effect_indexed(l: Lifetimes&, effect: const LifeEffect&, frame: i64, bucket: i64, outside: bool) -> i64 {
     var probe = l.effect_heads[bucket];
     while probe >= 0 {
         let old: const LifeEffect& = l.effects[probe];
-        if old.owner == frame && old.epoch == l.frames[frame].effect_epoch && life_same_effect(l, old, effect) { return true; }
+        if old.owner == frame && old.epoch == l.frames[frame].effect_epoch && life_same_effect(l, old, effect) {
+            if old.walked == 2 || old.walked == 1 && !outside { return 2; }
+            l.effects[probe].walked = 1; if outside { l.effects[probe].walked = 2; }
+            return 1;
+        }
         probe = old.index_next;
     }
-    return false;
+    return 0;
 }
 // An ordered effect is redundant only after an equal one with nothing it
 // orders against in between.
@@ -258,6 +299,24 @@ fn life_effect_repeated(l: Lifetimes&, effect: const LifeEffect&, last: i64) -> 
     }
     return false;
 }
+// The nearest recursive frame of the chain from this frame up, or 0. The
+// chain above a frame is fixed from its activation, which clears
+// chain_epoch, and a frame becomes recursive only as recursion_epoch moves
+// on, so an answer holds for its epoch, and for the frames passed on the way.
+fn life_nearest_recursive(l: Lifetimes&, frame: i64) -> i64 {
+    var at = frame; var answer = 0;
+    while at > 0 {
+        let f: const LifeFrame& = l.frames[at];
+        if f.recursive_call { answer = at; break; }
+        if f.chain_epoch == l.recursion_epoch { answer = f.chain_recursive; break; }
+        at = f.parent;
+    }
+    var fill = frame;
+    while fill > 0 && fill != at {
+        l.frames[fill].chain_epoch = l.recursion_epoch; l.frames[fill].chain_recursive = answer; fill = l.frames[fill].parent;
+    }
+    return answer;
+}
 fn life_offer_slot(l: Lifetimes&, effect: const LifeEffect&) -> i64 {
     var h: u64 = 1469598103934665603;
     for part in [l.frame, effect.kind, effect.node, effect.value.type_id, effect.cell, effect.field,
@@ -270,8 +329,7 @@ fn life_offer_slot(l: Lifetimes&, effect: const LifeEffect&) -> i64 {
 // activation; records it otherwise. Recursive frames are left out, as an
 // offer to one depends on its cells.
 fn life_offer_repeated(l: Lifetimes&, effect: const LifeEffect&) -> bool {
-    var frame = l.frame;
-    while frame > 0 { if l.frames[frame].recursive_call { return false; } frame = l.frames[frame].parent; }
+    if life_nearest_recursive(l, l.frame) > 0 { return false; }
     let slot = life_offer_slot(l, effect); let activation = l.frames[l.frame].activation;
     let o: const LifeOffer& = l.offers[slot];
     if o.frame == l.frame && o.activation == activation && o.epoch == l.recursion_epoch && o.kind == effect.kind && o.node == effect.node &&
@@ -291,11 +349,24 @@ fn life_offer_repeated(l: Lifetimes&, effect: const LifeEffect&) -> bool {
 }
 fn life_effect(l: Lifetimes&, effect: LifeEffect) {
     if l.discovery && l.frame > 0 && life_offer_repeated(l, effect) { return; }
-    let far = life_effect_far(l, effect);
+    let reach = life_effect_far(l, effect); let far = reach.far; let outside = far == 9223372036854775807;
     let ordered = effect.kind == 1 || effect.kind == 4 || effect.kind == 6 || effect.kind == 7;
     var indexed_key = -1;
-    var frame = l.frame; var depth = 0;
+    var frame = l.frame; var depth = 0; let chain = l.frames[l.frame].chain;
+    // settled: a frame below has already sent these sets up the chain in its
+    // activation (LifeSummary.walked, LifeEffect.walked), so the frames they
+    // are outside of have taken them.
+    var settled = false;
     while frame > 0 {
+        // The frames between a settled entry and the outermost frame that
+        // holds a place have taken these sets. From that frame up, only a
+        // recursive frame can take the effect, by its cells.
+        if settled && far > depth { frame = reach.home; depth = far; }
+        if far <= depth {
+            frame = life_nearest_recursive(l, frame);
+            if frame <= 0 { break; }
+            depth = chain - l.frames[frame].chain;
+        }
         if !l.frames[frame].validated {
             var external = far > depth;
             if !external && l.frames[frame].recursive_call { external = life_effect_recursive(l, effect, frame); }
@@ -305,7 +376,9 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
                 var key = frame * 1000003 + (effect.node + 1) * 97 + effect.kind * 17 + effect.cell + 1;
                 if effect.kind == 4 && effect.places != 0 { key += (l.alts[l.sets[effect.places].first].root as i64) * 31; }
                 bucket = key % l.summary_heads.len; summary_key = life_summary_key(effect, frame);
-                if life_effect_merge(l, effect, frame, bucket, summary_key) { external = false; }
+                let merged = life_effect_merge(l, effect, frame, bucket, summary_key, outside);
+                if merged == 2 { if outside { return; } settled = true; }
+                if merged != 0 { external = false; }
             }
             if external && !l.discovery && !ordered {
                 if indexed_key < 0 {
@@ -315,16 +388,22 @@ fn life_effect(l: Lifetimes&, effect: LifeEffect) {
                 }
                 life_index_reserve(l);
                 indexed = indexed_key + frame * 1000003;
-                if life_effect_indexed(l, effect, frame, life_index_bucket(l, indexed)) { external = false; }
+                let found = life_effect_indexed(l, effect, frame, life_index_bucket(l, indexed), outside);
+                if found == 2 { if outside { return; } settled = true; }
+                if found != 0 { external = false; }
             }
             if external && !l.discovery && ordered && life_effect_repeated(l, effect, last) { external = false; }
             if external {
                 let index = l.effects.len; var entry = effect; entry.next = -1; entry.previous = last; entry.owner = frame;
                 l.summaries.push(LifeSummary { key: summary_key, owner: frame, kind: entry.kind, node: entry.node, type_id: entry.value.type_id, cell: entry.cell, field: entry.field });
-                if l.discovery { life_summary_seen(l, index, entry); l.summaries[index].next = l.summary_heads[bucket]; l.summary_heads[bucket] = index; }
+                if l.discovery {
+                    life_summary_seen(l, index, entry); l.summaries[index].next = l.summary_heads[bucket]; l.summary_heads[bucket] = index;
+                    l.summaries[index].walked = 2 * l.frames[frame].activation; if outside { l.summaries[index].walked += 1; }
+                }
                 if indexed >= 0 {
                     let slot = life_index_bucket(l, indexed);
                     entry.index_key = indexed; entry.index_next = l.effect_heads[slot]; entry.epoch = l.frames[frame].effect_epoch;
+                    entry.walked = 1; if outside { entry.walked = 2; }
                     l.effect_heads[slot] = index; l.indexed_effects += 1;
                 }
                 l.effects.push(entry);
@@ -2278,6 +2357,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
     let previous_frame = l.frame; let previous_scope = l.scope;
     if !l.frames[target].active {
         l.frames[target].parent = previous_frame; l.frames[target].destination = destination;
+        l.frames[target].chain = l.frames[previous_frame].chain + 1; l.frames[target].chain_epoch = -1;
         l.activations += 1; l.frames[target].activation = l.activations;
     }
     l.frame = target; l.scope = p.nodes[function_node].scope;
