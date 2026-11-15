@@ -33,7 +33,11 @@ struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_c
 // belongs to and its class there (life_classify, life_class_new);
 // class_one: it stands for one root exactly at every call. map_serial,
 // map_class: the classification that last gave this root a class, and the class.
-struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1 }
+// class_parent, class_type: for a storage class of one pointee type
+// (life_class_typed), the class root whose storage it is of and the pointee;
+// class_next: the next such root of its frame; class_level: how many such
+// classes deep it is.
+struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1, class_parent: i64 = -1, class_type: i64 = -1, class_next: i64 = -1, class_level: i64 = 0 }
 // Element owner: -1 none, -2 inside elements with unknown owner, otherwise type ID.
 struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i64 = 0, self_pools: i64 = 0, relative_roots: i64 = 0, tuple: i64 = -1, element_array: i64 = -1 }
 struct LifeItem { value: LifeValue, next: i64 = -1 }
@@ -60,8 +64,9 @@ struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, 
     // its body builds a result in; discovered: evaluated in a discovery pass;
     // class_stored: everything its body has stored through a class root.
     // quiet_pass (any frame): the discovery pass in which it was last evaluated
-    // without a summary being kept (life_effect).
-    island: i64 = 0, classes: i64 = -1, class_count: i64 = 0, class_base: i64 = 0, key: i64 = -1, key_len: i64 = 0, key_hash: i64 = 0, next_class: i64 = -1, map_base: i64 = -1, assumptions: i64 = -1, class_destination: i64 = 0, discovered: bool = false, result_class: i64 = -1, class_stored: i64 = 0, quiet_pass: i64 = -1 }
+    // without a summary being kept (life_effect). typed_first: its newest
+    // storage class of one pointee type (LifeRoot.class_next).
+    island: i64 = 0, classes: i64 = -1, class_count: i64 = 0, class_base: i64 = 0, key: i64 = -1, key_len: i64 = 0, key_hash: i64 = 0, next_class: i64 = -1, map_base: i64 = -1, assumptions: i64 = -1, class_destination: i64 = 0, discovered: bool = false, result_class: i64 = -1, class_stored: i64 = 0, quiet_pass: i64 = -1, typed_first: i64 = -1 }
 struct LifeWalk { root: i64, type_id: i64 }
 // What a class-keyed frame's body asked about the arguments its classes stand
 // for, and the answer it was checked with (life_class_query): a later call
@@ -85,7 +90,7 @@ struct LifeClasses { sets: i64 = 0, count: i64 = 0, depths: i64 = 0, depth_count
 // map_roots[sets + k] where that is not negative; the others are what the
 // storage of those holds (life_class_set); a bound 2 * (r + 1) is the depth
 // map_depths[depths + r]. serial: of the call, for map_memo.
-struct LifeMap { classes: i64 = 0, count: i64 = 0, base: i64 = 1, sets: i64 = 0, depths: i64 = 0, depth_count: i64 = 0, serial: i64 = 0 }
+struct LifeMap { classes: i64 = 0, count: i64 = 0, base: i64 = 1, sets: i64 = 0, depths: i64 = 0, depth_count: i64 = 0, serial: i64 = 0, frame: i64 = -1 }
 // What life_map_set made of a set for the call of this serial.
 struct LifeMapped { serial: i64 = -1, set: i64 = -1, result: i64 = 0 }
 struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
@@ -276,6 +281,9 @@ struct Lifetimes {
     // and per function node whether it is contained (life_contained): 0
     // unknown, 1 yes, 2 no.
     body_owners: i64[>..]&, contained: i64[>..]&,
+    // The storage classes of one pointee type, by parent and pointee (open
+    // addressing over root indexes), and how many there are.
+    typed_slots: i64[>..]&, typed_count: i64 = 0,
 }
 
 // An order-independent hash of a set, equal for sets life_equal accepts. A
@@ -1250,7 +1258,11 @@ fn life_temporary(p: Program&, l: Lifetimes&, node: i64) -> i64 {
 }
 
 fn life_bound(l: Lifetimes&, sources: i64, depth: i64) -> i64 {
-    if depth == 0 || sources == 0 { return sources; }
+    // With class-keyed frames in use no bound is added: a class root's rank
+    // is what a read through a parameter is held to there, and the same
+    // roots under every caller's depth were most of the sets a large
+    // program made.
+    if depth == 0 || sources == 0 || l.class_frames > 0 { return sources; }
     if l.sets[sources].bound_depth == depth { return l.sets[sources].bound_result; }
     var build = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
@@ -1871,9 +1883,117 @@ fn life_held(l: Lifetimes&, set: i64) -> i64 {
     }
     return life_build_end(l, out);
 }
+// What a class root's storage holds is one class whatever the references
+// point at, which a body that reads one field would then store or return as
+// all of them. A read of one pointee type gets a storage class of its own
+// instead: of the class root it reads out of and that pointee, made when
+// first read. A call maps it to what its argument's storage holds of that
+// pointee, picked as a read-back picks (life_typed_held). A read out of its
+// own storage is such a class in turn, LIFE_CLASS_DEPTH deep at most (a loop
+// that follows links would go on making them); past that its storage holds
+// only something read out of itself.
+let LIFE_CLASS_DEPTH: i64 = 4;
+inline fn life_typed_hash(parent: i64, pointee: i64, mask: i64) -> i64 {
+    var h: u64 = (parent as! u64) * 11400714819323198485 ^ (pointee as! u64) * 14029467366897019727; h ^= h >> 29;
+    return (h & (mask as! u64)) as i64;
+}
+fn life_class_typed(l: Lifetimes&, parent: i64, pointee: i64) -> i64 {
+    if 2 * (l.typed_count + 1) > l.typed_slots.len {
+        var size: i64 = 256; while size < 4 * (l.typed_count + 1) { size <<= 1; }
+        l.typed_slots.clear(); l.typed_slots.resize(size, -1);
+        for root, index in l.roots {
+            if root.class_parent < 0 { continue; }
+            var slot = life_typed_hash(root.class_parent, root.class_type, size - 1);
+            while l.typed_slots[slot] >= 0 { slot = (slot + 1) & (size - 1); }
+            l.typed_slots[slot] = index;
+        }
+    }
+    let mask = l.typed_slots.len - 1; var slot = life_typed_hash(parent, pointee, mask);
+    loop {
+        let found = l.typed_slots[slot];
+        if found < 0 { break; }
+        if l.roots[found].class_parent == parent && l.roots[found].class_type == pointee { return found; }
+        slot = (slot + 1) & mask;
+    }
+    let frame = l.roots[parent].class_frame; let root = l.roots.len;
+    l.roots.push(LifeRoot { frame: 0, depth: l.roots[parent].depth, class_frame: frame, class_index: root - l.frames[frame].classes, class_parent: parent, class_type: pointee, class_next: l.frames[frame].typed_first, class_level: l.roots[parent].class_level + 1 });
+    l.frames[frame].typed_first = root; l.typed_slots[slot] = root; l.typed_count += 1;
+    let own = life_single(l, root, false, root); life_set_contents(l, root, own); l.roots[root].live_contents = own;
+    return root;
+}
+// What the storage of a set's roots holds of references to `pointee`: the
+// alternatives a read-back of that pointee would keep (life_readback).
+fn life_typed_held(p: Program&, l: Lifetimes&, set: i64, pointee: i64) -> i64 {
+    let held = life_held(l, set); var out = LifeBuild {}; var at = l.sets[held].first; var dropped = false;
+    while at >= 0 {
+        let r = l.alts[at]; at = r.next;
+        if (r.target_type < 0 || life_same(p, r.target_type as i64, pointee)) && (r.root == 0 || r.byteview || !r.exact || l.roots[r.root].class_frame >= 0 || life_contains_memo(p, l, l.roots[r.root].type_id, pointee)) {
+            var kept = r; kept.next = -1; life_build_add_alt(l, out, kept);
+        } else { dropped = true; }
+    }
+    let result = life_build_end(l, out);
+    if !dropped { return held; }
+    return result;
+}
+// What a storage class of one pointee type stands for at a call: what the
+// storage of its parent class's roots holds of that pointee. serial: the
+// call's, to keep the answer for it (map_memo), or -1.
+recursive fn life_typed_set(p: Program&, l: Lifetimes&, classes: i64, base: i64, sets: i64, serial: i64, root: i64) -> i64 {
+    var memo = -1;
+    if serial >= 0 {
+        if l.map_memo.len == 0 { l.map_memo.resize(8192, LifeMapped {}); }
+        var mh: u64 = ((0 - 2 - root) as! u64) * 11400714819323198485 ^ (serial as! u64) * 14029467366897019727; mh ^= mh >> 29;
+        memo = (mh & ((l.map_memo.len - 1) as! u64)) as i64;
+        if l.map_memo[memo].serial == serial && l.map_memo[memo].set == 0 - 2 - root { return l.map_memo[memo].result; }
+    }
+    let parent = l.roots[root].class_parent; var of = 0;
+    if l.roots[parent].class_parent < 0 { of = life_class_set(l, base, sets, parent - classes); }
+    else { of = life_typed_set(p, l, classes, base, sets, serial, parent); }
+    let set = life_typed_held(p, l, of, l.roots[root].class_type);
+    if memo >= 0 { l.map_memo[memo] = LifeMapped { serial: serial, set: 0 - 2 - root, result: set }; }
+    return set;
+}
 // What class `index` of a frame with `base` argument classes stands for at
 // the call whose sets are at `sets`: an argument class is the call's set,
 // the others what the storage of those holds, one read in per level.
+// Everything reachable by reading out of the storage of a set's exactly
+// named roots, one read or more: what something read deep out of that
+// storage may be. Past LIFE_DEEP_ROOTS storages, the rest are bounds.
+let LIFE_DEEP_ROOTS: i64 = 16;
+fn life_deep(l: Lifetimes&, set: i64) -> i64 {
+    var out = life_held(l, set); var visited: i64[>..] = []; var at = l.sets[set].first;
+    while at >= 0 { visited.push(l.alts[at].root as i64); at = l.alts[at].next; }
+    loop {
+        var next = 0; var wide = false; at = l.sets[out].first;
+        while at >= 0 {
+            let a = l.alts[at]; at = a.next;
+            if !a.exact || a.root == 0 { continue; }
+            var seen = false; for old in visited { if old == a.root { seen = true; break; } }
+            if seen { continue; }
+            visited.push(a.root as i64);
+            if visited.len > LIFE_DEEP_ROOTS { wide = true; break; }
+            next = life_join(l, next, life_held(l, life_single(l, a.root, true, -1, false, false, -1, a.bound)));
+        }
+        if wide {
+            // Too wide to follow: whatever the rest holds outlives it.
+            var bounds = LifeBuild { set: out }; at = l.sets[out].first;
+            while at >= 0 { let a = l.alts[at]; at = a.next; if a.exact && a.root != 0 { life_build_add_alt(l, bounds, LifeAlt { root: a.root, exact: false, byteview: a.byteview, bound: a.bound }); } }
+            return life_build_end(l, bounds);
+        }
+        let grown = life_join(l, out, next);
+        if life_equal(l, grown, out) { return out; }
+        out = grown;
+    }
+    return out;
+}
+// What something read deep out of the storage of an argument class may be
+// at the call whose sets are at `sets`, kept for the call as the storage
+// classes are.
+fn life_class_deep(l: Lifetimes&, base: i64, sets: i64, index: i64) -> i64 {
+    let slot = sets + 3 * base + index % base;
+    if l.map_sets[slot] < 0 { let deep = life_deep(l, l.map_sets[sets + index % base]); l.map_sets[slot] = deep; }
+    return l.map_sets[slot];
+}
 // A storage class is worked out when the call first needs it and kept for
 // the call (its slot in map_sets is -1 before): what the storage held as
 // the call began to be read; what the call's own effects store there since
@@ -1887,7 +2007,10 @@ fn life_class_set(l: Lifetimes&, base: i64, sets: i64, index: i64) -> i64 {
 }
 // Queries 3, 4 and 6, of the call whose sets are at `sets`.
 recursive fn life_class_answer_roots(l: Lifetimes&, frame: i64, sets: i64, query: i64, index: i64, subject: i64, flag: bool) -> bool {
-    let base = l.frames[frame].class_base; let set = life_class_set(l, base, sets, index);
+    let base = l.frames[frame].class_base;
+    // What some storage holds may be anything: the cautious answer.
+    if index >= base { return query != 6; }
+    let set = life_class_set(l, base, sets, index);
     if query == 4 {
         let other = life_class_set(l, base, sets, subject); var ai = l.sets[set].first;
         while ai >= 0 {
@@ -1979,7 +2102,10 @@ fn life_gs_holder(p: Program&, l: Lifetimes&, storage: i64, holder: i64, bytevie
 // Queries 0, 1 and 2, which read the types of the roots a class stands for.
 recursive fn life_class_answer(p: Program&, l: Lifetimes&, frame: i64, sets: i64, query: i64, index: i64, subject: i64, flag: bool) -> bool {
     if query >= 3 { return life_class_answer_roots(l, frame, sets, query, index, subject, flag); }
-    var at = l.sets[life_class_set(l, l.frames[frame].class_base, sets, index)].first;
+    let base = l.frames[frame].class_base; var set = 0;
+    if index < 3 * base { set = life_class_set(l, base, sets, index); }
+    else { set = life_typed_set(p, l, l.frames[frame].classes, base, sets, -1, l.frames[frame].classes + index); }
+    var at = l.sets[set].first;
     while at >= 0 {
         let a = l.alts[at]; at = a.next;
         if a.root == 0 { continue; }
@@ -2431,9 +2557,9 @@ fn life_fold(l: Lifetimes&, set: i64) -> i64 {
             let alt = l.alts[at]; at = alt.next; let root = l.roots[alt.root];
             if alt.root == l.globals_root || root.symbol >= 0 && root.frame == 0 && root.depth == 0 {
                 if !alt.slotread { all_slots = false; } if alt.byteview { any_bytes = true; } if alt.bound > bound { bound = alt.bound; }
-            } else { var kept = alt; kept.next = -1; life_build_add_alt(l, out, kept); }
+            } else { var kept = alt; kept.next = -1; kept.bound = 0; life_build_add_alt(l, out, kept); }
         }
-        life_build_add_alt(l, out, LifeAlt { root: l.globals_root as i32, exact: false, slotread: all_slots, byteview: any_bytes, bound: bound });
+        life_build_add_alt(l, out, LifeAlt { root: l.globals_root as i32, exact: false, slotread: all_slots, byteview: any_bytes });
         result = life_build_end(l, out);
     }
     l.sets[set].folded = result;
@@ -2510,7 +2636,24 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
             if t.kind == TY_REF && t.element >= 0 && (p.types[t.element].kind == TY_ARRAY || p.types[t.element].kind == TY_STRUCT || p.types[t.element].kind == TY_ENUM) {
                 source = life_join(l, source, life_class_candidates(p, l, alt.root, t.element));
             }
-            var item = l.sets[source].first; while item >= 0 { l.scratch.push(l.alts[item]); item = l.alts[item].next; }
+            var item = l.sets[source].first;
+            while item >= 0 {
+                var r = l.alts[item]; item = r.next;
+                // What a class root's storage holds, read as one pointee type.
+                if l.class_frames > 0 && r.exact && t.element >= 0 && l.roots[r.root].class_frame >= 0 && l.roots[r.root].class_parent < 0 {
+                    let owner = l.roots[r.root].class_frame; let own = l.roots[r.root].class_index;
+                    if l.frames[owner].active && own >= l.frames[owner].class_base {
+                        r.root = life_class_typed(l, l.frames[owner].classes + own - l.frames[owner].class_base, t.element) as i32; r.target_type = -1;
+                    }
+                } else if l.class_frames > 0 && !r.exact && t.element >= 0 && r.from == r.root && (r.root as i64) == (alt.root as i64) && l.roots[r.root].class_frame >= 0 && l.roots[r.root].class_level < LIFE_CLASS_DEPTH {
+                    // The place is a storage class and this is what its own
+                    // storage holds: the class of that for this pointee.
+                    if l.frames[l.roots[r.root].class_frame].active {
+                        r.root = life_class_typed(l, alt.root, t.element) as i32; r.exact = true; r.from = -1; r.target_type = -1;
+                    }
+                }
+                l.scratch.push(r);
+            }
         }
         let end = l.scratch.len;
         for item in start..end {
@@ -2698,6 +2841,9 @@ fn life_store(p: Program&, l: Lifetimes&, node: i64, places: i64, value: LifeVal
     var destination = l.sets[places].first;
     while destination >= 0 {
         let d = l.alts[destination]; let owner = l.roots[d.root];
+        // (With class-keyed frames in use: static data takes no store. A
+        // place that may be the empty default slice is one such.)
+        if d.root == 0 && l.class_frames > 0 { destination = d.next; continue; }
         let global = owner.symbol >= 0 && (p.symbols[owner.symbol].flags & S_GLOBAL) != 0;
         if (!binding || global || through) && life_gs_value(p, l, value) {
             life_error(p, l, node, "reference into grow-shrink elements cannot be stored in a field, element, or global");
@@ -3046,7 +3192,7 @@ fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, 
             }
         }
     }
-    if view { return sources; }
+    if view || l.class_frames > 0 { return sources; }
     var result = LifeBuild {}; var at = l.sets[sources].first;
     while at >= 0 {
         var alt = l.alts[at]; at = alt.next; let depth = l.roots[alt.root].depth;
@@ -3151,10 +3297,10 @@ fn life_classify_set(l: Lifetimes&, c: LifeClasses&, set: i64) {
         while at >= 0 {
             let alt = l.alts[at]; at = alt.next;
             if !alt.slotread { all_slots = false; } if alt.byteview { any_bytes = true; }
-            if alt.bound > bound { bound = alt.bound; } if l.roots[alt.root].depth > depth { depth = l.roots[alt.root].depth; }
+            if l.roots[alt.root].depth > depth { depth = l.roots[alt.root].depth; }
         }
         var flags = 0; if all_slots { flags += 1; } if any_bytes { flags += 2; }
-        if bound <= depth { bound = 0; }
+        bound = 0;
         let index = l.map_sets.len - c.sets; l.map_sets.push(set); l.map_roots.push(-1); l.class_scratch.push(depth);
         l.key_scratch.push(-1); l.bound_scratch.push(l.key_scratch.len + 4);
         for part in [index, flags, -1, -1, bound] { l.key_scratch.push(part); }
@@ -3166,10 +3312,10 @@ fn life_classify_set(l: Lifetimes&, c: LifeClasses&, set: i64) {
         let alt = l.alts[at]; at = alt.next;
         var flags = 0; if alt.slotread { flags += 1; } if alt.byteview { flags += 2; }
         var index = -1; var component = alt.component as i64; var bound = alt.bound as i64;
-        if alt.root == 0 { if alt.exact { flags += 4; } }
+        if alt.root == 0 { if alt.exact { flags += 4; } bound = 0; }
         else {
             if alt.exact && (l.roots[alt.root].class_frame < 0 || l.roots[alt.root].class_one) { flags += 8; }
-            let depth = l.roots[alt.root].depth; if bound <= depth { bound = 0; }
+            let depth = l.roots[alt.root].depth; bound = 0;
             if alt.exact && l.roots[alt.root].map_serial == c.serial { index = l.roots[alt.root].map_class; }
             else {
                 index = l.map_sets.len - c.sets; l.class_scratch.push(depth);
@@ -3230,7 +3376,7 @@ fn life_classify(p: Program&, l: Lifetimes&, function_node: i64, arguments: i64,
     // A call of no roots at all still has one class, which nothing names.
     if l.map_sets.len == c.sets { l.map_sets.push(0); l.map_roots.push(-1); l.class_scratch.push(0); }
     c.count = l.map_sets.len - c.sets;
-    for item in 0..2 * c.count { l.map_sets.push(-1); l.map_roots.push(-1); }
+    for item in 0..3 * c.count { l.map_sets.push(-1); l.map_roots.push(-1); }
     for item in 0..c.count { life_depth_note(l, c.depths, l.class_scratch[item]); }
     for slot in l.bound_scratch { life_depth_note(l, c.depths, l.key_scratch[slot]); }
     c.depth_count = l.map_depths.len - c.depths;
@@ -3349,6 +3495,20 @@ inline fn life_elsewhere(l: Lifetimes&, root: i64) -> bool {
     let frame = l.roots[root].frame; let owner = l.roots[root].class_frame;
     return frame > 0 && l.frames[frame].island != l.island || owner >= 0 && owner != l.island;
 }
+// Adds to a build what alternative x of a class root becomes over the
+// alternatives the class stands for (`source`). read: x was read out of the
+// class's storage, and the alternatives are what that storage holds.
+fn life_map_onto(l: Lifetimes&, out: LifeBuild&, source: i64, x: LifeAlt, bound: i64, read: bool) {
+    let exact = x.exact || read; var ai = l.sets[source].first;
+    while ai >= 0 {
+        let a = l.alts[ai]; ai = a.next;
+        var slotread = x.slotread; if x.exact { slotread = a.slotread && x.slotread; }
+        var target = x.target_type; if target < 0 { target = a.target_type; } else if a.target_type >= 0 && a.target_type != target { target = -1; }
+        var component: i32 = -1; if exact { component = a.component; if component < 0 && x.exact { component = x.component; } }
+        var from: i32 = -1; if read && a.from == a.root && l.roots[a.root].class_frame >= 0 { from = a.from; }
+        life_build_add_alt(l, out, LifeAlt { root: a.root, exact: a.exact && exact, from: from, slotread: slotread, byteview: a.byteview || x.byteview, target_type: target, bound: bound as i32, component: component });
+    }
+}
 // A set of a class-keyed frame as one call reads it: each alternative at a
 // class root becomes the call's own, and the rest stay. An argument class
 // is the argument's alternatives; a storage class is what the storage of
@@ -3373,37 +3533,39 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&) -> i64 
     while at >= 0 {
         var x = l.alts[at]; at = x.next; let k = (x.root as i64) - m.classes;
         if k < 0 || k >= m.count {
+            // A storage class of one pointee type: what the storage of its
+            // parent class holds of that pointee at this call; read out of
+            // in turn, what that holds; any deeper, what it leads to.
+            if l.roots[x.root].class_frame == m.frame && l.roots[x.root].class_parent >= 0 {
+                var held = life_typed_set(p, l, m.classes, m.base, m.sets, m.serial, x.root); fresh = false;
+                if !x.exact && x.from == x.root { held = life_held(l, held); }
+                else if !x.exact { held = life_deep(l, held); }
+                life_map_onto(l, out, held, x, 0, !x.exact);
+                continue;
+            }
             // A root of the callee's own island (a temporary a result was
             // in) is gone with the call.
             if life_elsewhere(l, x.root) { continue; }
             if (x.from as i64) >= m.classes && (x.from as i64) < end { x.from = -1; }
-            x.next = -1; life_build_add_alt(l, out, x); continue;
+            x.next = -1; x.bound = 0; life_build_add_alt(l, out, x); continue;
         }
-        var bound: i64 = 0;
-        if x.bound >= 2 && (x.bound as i64) <= 2 * m.depth_count && x.bound % 2 == 0 { bound = l.map_depths[m.depths + (x.bound as i64) / 2 - 1]; }
-        let read = !x.exact && x.from == x.root;
+        let bound: i64 = 0;
+        var read = !x.exact && x.from == x.root;
         var root: i64 = -1; var source = 0;
         if k < m.base { root = l.map_roots[m.sets + k]; source = l.map_sets[m.sets + k]; }
         else { source = life_class_set(l, m.base, m.sets, k); }
         if read { source = life_held(l, source); fresh = false; root = -1; }
+        // Any other inexact alternative at a storage class was read deeper
+        // out of it: whatever the argument's storage leads to.
+        else if !x.exact && k >= m.base { source = life_class_deep(l, m.base, m.sets, k); read = true; }
         if root >= 0 {
             var component = x.component; if !x.exact { component = -1; }
             life_build_add_alt(l, out, LifeAlt { root: root as i32, exact: x.exact, slotread: x.slotread, byteview: x.byteview, target_type: x.target_type, bound: bound as i32, component: component });
             continue;
         }
-        let exact = x.exact || read;
         // A plain reference to a large set is that set: joined whole below.
         if x.exact && x.slotread && !x.byteview && x.target_type < 0 && x.component < 0 && bound == 0 && l.sets[source].count >= LIFE_BIG { whole.push(source); continue; }
-        var ai = l.sets[source].first;
-        while ai >= 0 {
-            let a = l.alts[ai]; ai = a.next;
-            var slotread = x.slotread; if x.exact { slotread = a.slotread && x.slotread; }
-            var target = x.target_type; if target < 0 { target = a.target_type; } else if a.target_type >= 0 && a.target_type != target { target = -1; }
-            var limit = a.bound as i64; if bound > limit { limit = bound; }
-            var component: i32 = -1; if exact { component = a.component; if component < 0 && x.exact { component = x.component; } }
-            var from: i32 = -1; if read && a.from == a.root && l.roots[a.root].class_frame >= 0 { from = a.from; }
-            life_build_add_alt(l, out, LifeAlt { root: a.root, exact: a.exact && exact, from: from, slotread: slotread, byteview: a.byteview || x.byteview, target_type: target, bound: limit as i32, component: component });
-        }
+        life_map_onto(l, out, source, x, bound, read);
     }
     var result = life_build_end(l, out);
     for large in whole { result = life_join(l, large, result); }
@@ -3462,7 +3624,7 @@ fn life_class_remap(p: Program&, l: Lifetimes&, target: i64, arguments: i64, des
     }
     if receiver_sensitive { let kind = l.class_keys[cursor]; cursor += 1; if kind != 0 { cursor = life_remap_record(l, sets, cursor, destination); } }
     else { l.map_sets[sets + count - 1] = destination; }
-    for item in 0..2 * count { l.map_sets.push(-1); l.map_roots.push(-1); }
+    for item in 0..3 * count { l.map_sets.push(-1); l.map_roots.push(-1); }
 }
 // One evaluation of a class-keyed frame's body, as an island.
 recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64) {
@@ -3477,7 +3639,11 @@ recursive fn life_class_eval(p: Program&, l: Lifetimes&, target: i64, sets: i64)
     l.frame = target; l.scope = p.nodes[function_node].scope; l.island = target;
     l.hold_floor = l.hold_count; l.future_floor = l.future_count; l.conditional = 0; l.reading_place = 0; l.sequence_frame = -1;
     let classes = l.frames[target].classes; let class_count = l.frames[target].class_count;
-    if !l.discovery { for root in classes..classes + class_count { l.roots[root].live_contents = l.roots[root].contents; } }
+    if !l.discovery {
+        for root in classes..classes + class_count { l.roots[root].live_contents = l.roots[root].contents; }
+        var typed = l.frames[target].typed_first;
+        while typed >= 0 { l.roots[typed].live_contents = l.roots[typed].contents; typed = l.roots[typed].class_next; }
+    }
     var formal = p.nodes[function_node].first; var index = 0; let arguments = l.frames[target].inputs;
     while formal >= 0 {
         let symbol = p.nodes[formal].symbol; let cell = life_cell(p, l, symbol);
@@ -3520,7 +3686,7 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
     }
     if target < 0 { target = life_class_new(p, l, function_node, call, selected_result, receiver_sensitive, c); }
     else { life_class_check(p, l, target, c.sets); }
-    let m = LifeMap { classes: l.frames[target].classes, count: l.frames[target].class_count, base: l.frames[target].class_base, sets: c.sets, depths: c.depths, depth_count: depth_count, serial: c.serial };
+    let m = LifeMap { classes: l.frames[target].classes, count: l.frames[target].class_count, base: l.frames[target].class_base, sets: c.sets, depths: c.depths, depth_count: depth_count, serial: c.serial, frame: target };
     life_cycle_call(p, l, target, call, destination);
     let back_edge = l.frames[target].active; var evaluate = !back_edge;
     if evaluate && l.discovery && l.frames[target].checked_revision == l.pass { evaluate = false; }
@@ -4316,6 +4482,8 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
             if l.island > 0 {
                 let first = l.frames[l.island].classes;
                 for root in first..first + l.frames[l.island].class_count { l.roots[root].live_contents = l.roots[root].contents; }
+                var typed = l.frames[l.island].typed_first;
+                while typed >= 0 { l.roots[typed].live_contents = l.roots[typed].contents; typed = l.roots[typed].class_next; }
             }
         }
         let futures = l.future_count; life_push_future(l, n.right, n.scope); life_push_future(l, n.left, n.scope);
@@ -4384,19 +4552,25 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
             var ai = l.sets[effect.places].first;
             while ai >= 0 {
                 let alt = l.alts[ai];
+                if alt.root == 0 && l.class_frames > 0 { ai = alt.next; continue; }
+                var refused = false;
                 if mapped {
                     // The body's check stood for the classes' ranks; where the
                     // store lands in this call, each stored root must outlive it.
                     var si = l.sets[effect.value.contents].first;
                     while si >= 0 {
                         let source = l.alts[si]; si = source.next; let owner = l.roots[source.root].class_frame;
-                        // What a class of the island being evaluated holds is
-                        // judged where that island's calls land it in turn.
-                        if owner >= 0 && (l.roots[source.root].class_index >= l.frames[owner].class_base || !source.exact && source.from == source.root) { continue; }
-                        if l.roots[source.root].depth > l.roots[alt.root].depth { life_scope_error(p, l, call, "stored reference does not outlive the storage that receives it"); }
+                        // What a class of the island being evaluated holds, or
+                        // something only known to outlive one, is judged where
+                        // that island's calls land it in turn.
+                        if owner >= 0 && (l.roots[source.root].class_index >= l.frames[owner].class_base || !source.exact) { continue; }
+                        if l.roots[source.root].depth > l.roots[alt.root].depth { life_scope_error(p, l, call, "stored reference does not outlive the storage that receives it"); refused = true; }
                     }
                 }
-                life_add_contents(l, alt.root, effect.value.contents); ai = alt.next;
+                // A refused store is reported here, once: it does not land,
+                // and so is not judged again at every call above this one.
+                if !refused { life_add_contents(l, alt.root, effect.value.contents); }
+                ai = alt.next;
             }
         } else if (effect.kind == 6 || effect.kind == 7) && mapped && (l.conditional != 0 || l.sets[effect.places].count != 1 || !l.alts[l.sets[effect.places].first].exact) {
             // A kill holds only where the class is one exactly named root.
@@ -4703,7 +4877,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var readbacks: LifeReadBack[>..] = [];
     var class_list: i64[>..] = []; var class_heads: i64[>..] = []; var class_keys: i64[>..] = [];
     var map_sets: i64[>..] = []; var map_roots: i64[>..] = []; var map_depths: i64[>..] = []; var key_scratch: i64[>..] = []; var class_scratch: i64[>..] = []; var bound_scratch: i64[>..] = [];
-    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var contained: i64[>..] = [];
+    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = [];
     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
@@ -4716,7 +4890,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
         loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts,
         class_list: class_list, class_heads: class_heads, class_keys: class_keys,
-        map_sets: map_sets, map_roots: map_roots, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, contained: contained };
+        map_sets: map_sets, map_roots: map_roots, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, contained: contained, typed_slots: typed_slots };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }
     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
