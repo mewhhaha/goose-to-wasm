@@ -121,6 +121,12 @@ struct Lifetimes {
     atom_slots: LifeAtomSlot[>..]&,
     // Per cell (life_candidates).
     cell_keys: LifeCellKey[>..]&,
+    // The cells of frame 0 whose root is deeper than depth 0: a local of a
+    // global's initializer. Only those count toward what frame 0 reaches
+    // (life_reach); the globals themselves are at depth 0.
+    deep_cells: i64[>..]&,
+    // Per function node, how many of its frames are active.
+    active_frames: i64[>..]&,
     // Class tables of life_classes_cover, as a stack: alternative and hash.
     class_slots: i64[>..]&,
     // Recent joins of large sets, direct-mapped, and how many were recorded
@@ -979,6 +985,7 @@ fn life_cell(p: Program&, l: Lifetimes&, symbol: i64) -> i64 {
     let type_id = p.symbols[symbol].type_id; var element = -1; if life_is_ref(p, type_id) { element = p.types[type_id].element; }
     l.cell_keys.push(LifeCellKey { root: root, depth: depth, type_id: type_id, element: element, global: (p.symbols[symbol].flags & S_GLOBAL) != 0 });
     if (p.symbols[symbol].flags & S_GLOBAL) != 0 { l.global_cells.push(index); }
+    if frame == 0 && depth > 0 { l.deep_cells.push(index); }
     l.symbol_cells[symbol] = index; l.frames[frame].first_cell = index;
     return index;
 }
@@ -2236,16 +2243,27 @@ fn life_cycle_call(p: Program&, l: Lifetimes&, target: i64, call: i64, destinati
     }
 }
 
-// The caller's storage bounds a parameter read unless this call owns a
-// private view of the holder's known contents. Lexical/callback reach keeps
-// possibly aliased holders on their storage class instead.
-fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, function_node: i64, lexical: i64) -> i64 {
-    if type_id >= 0 && p.types[type_id].kind == TY_REF && p.types[type_id].element >= 0 && p.types[p.types[type_id].element].kind == TY_SLICE { return sources; }
-    var reach = 0; var ci = l.frames[lexical].first_cell;
+// The deepest root of a frame's live cells, or 0. Frame 0 holds every
+// global, at depth 0, so only its deep_cells are looked at.
+fn life_reach(l: Lifetimes&, frame: i64) -> i64 {
+    var reach = 0;
+    if frame == 0 {
+        for ci in l.deep_cells { if l.cells[ci].live && l.roots[l.cells[ci].root].depth > reach { reach = l.roots[l.cells[ci].root].depth; } }
+        return reach;
+    }
+    var ci = l.frames[frame].first_cell;
     while ci >= 0 {
-        let cell = l.cells[ci]; if cell.live && l.roots[cell.root].depth > reach { reach = l.roots[cell.root].depth; }
+        let cell: const LifeCell& = l.cells[ci]; if cell.live && l.roots[cell.root].depth > reach { reach = l.roots[cell.root].depth; }
         ci = cell.next_frame;
     }
+    return reach;
+}
+// The caller's storage bounds a parameter read unless this call owns a
+// private view of the holder's known contents. Lexical/callback reach keeps
+// possibly aliased holders on their storage class instead. reach: life_reach
+// of the lexical frame.
+fn life_parameter_roots(p: Program&, l: Lifetimes&, sources: i64, type_id: i64, function_node: i64, reach: i64) -> i64 {
+    if type_id >= 0 && p.types[type_id].kind == TY_REF && p.types[type_id].element >= 0 && p.types[p.types[type_id].element].kind == TY_SLICE { return sources; }
     var view = false;
     if type_id >= 0 && p.types[type_id].kind == TY_REF && p.types[type_id].length_storage < 0 &&
        (p.nodes[function_node].flags & F_RECURSIVE) == 0 && l.sets[sources].count == 1 {
@@ -2270,7 +2288,8 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
     if function_node < 0 || p.nodes[function_node].right < 0 { return LifeValue {}; }
     var lexical = 0;
     if p.nodes[function_node].symbol >= 0 {
-        let owner = p.symbols[p.nodes[function_node].symbol].owner; var frame = l.frame;
+        // No frame is of function node -1, the owner of a top-level function.
+        let owner = p.symbols[p.nodes[function_node].symbol].owner; var frame = l.frame; if owner < 0 { frame = 0; }
         while frame > 0 { if l.frames[frame].function_node == owner { lexical = frame; break; } frame = l.frames[frame].parent; }
     }
     // A body that reads no captured binding, through any call, finds none in
@@ -2301,11 +2320,11 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         if depth + 2 > base { base = depth + 2; }
         input = l.items[input].next;
     }
-    var captured = l.frames[lexical].first_cell;
-    while captured >= 0 { let cell = l.cells[captured]; if cell.live && l.roots[cell.root].depth + 2 > base { base = l.roots[cell.root].depth + 2; } captured = cell.next_frame; }
+    let reach = life_reach(l, lexical); if reach + 2 > base { base = reach + 2; }
     let result_type = p.types[p.nodes[function_node].type_id].element;
     let receiver_sensitive = life_relative_storage(p, result_type, true);
-    var target = -1; var active = l.frame;
+    while l.active_frames.len <= function_node { l.active_frames.push(0); }
+    var target = -1; var active = l.frame; if l.active_frames[function_node] == 0 { active = 0; }
     while active > 0 {
         if l.frames[active].function_node == function_node && l.frames[active].lexical == lexical && l.frames[active].selected_result == selected_result && (!receiver_sensitive || life_equal(l, l.frames[active].destination, destination)) && life_classes_equal(p, l, l.frames[active].inputs, arguments) { target = active; break; }
         active = l.frames[active].parent;
@@ -2368,7 +2387,10 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
             let value = life_coerce(p, l, life_item(l, arguments, index), p.nodes[formal].type_id);
             l.cells[cell].initialized = true;
             life_set_live(l, cell, true);
-            let roots = life_parameter_roots(p, l, life_value_roots(p, value), p.nodes[formal].type_id, function_node, lexical);
+            // Binding a parameter makes its cell live, which only counts
+            // where the lexical frame is the one being entered.
+            var formal_reach = reach; if lexical == target { formal_reach = life_reach(l, lexical); }
+            let roots = life_parameter_roots(p, l, life_value_roots(p, value), p.nodes[formal].type_id, function_node, formal_reach);
             if life_is_ref(p, p.nodes[formal].type_id) {
                 let next = life_join(l, l.cells[cell].refs, roots);
                 if !life_equal(l, next, l.cells[cell].refs) { life_set_refs(l, cell, next); l.revision += 1; }
@@ -2389,9 +2411,9 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         life_replay(p, l, target, true); return life_cycle_value(l, l.frames[target].result);
     }
     if !l.frames[target].active {
-        l.frames[target].active = true; let temporary_base = l.temp_count;
+        l.frames[target].active = true; l.active_frames[function_node] += 1; let temporary_base = l.temp_count;
         life_eval(p, l, p.nodes[function_node].right, destination, selected_result);
-        l.temp_count = temporary_base; l.frames[target].active = false;
+        l.temp_count = temporary_base; l.frames[target].active = false; l.active_frames[function_node] -= 1;
         l.frames[target].checked_revision = l.pass;
         if !l.discovery { l.frames[target].validated = true; }
         var ci = l.frames[target].first_cell;
@@ -3280,12 +3302,14 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
     var live_bits: u64[>..] = []; var live_words: u64[>..] = [];
+    var deep_cells: i64[>..] = []; var active_frames: i64[>..] = [];
     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
+        deep_cells: deep_cells, active_frames: active_frames,
         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
     life_validate_pools(p, l, pool_references);
     if p.diagnostics.len > 0 { return; }
