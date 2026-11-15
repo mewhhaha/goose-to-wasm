@@ -1,0 +1,1 @@
+{"cmd": ["timeout", "580", "/home/user/goose-to-wasm/build/exp/clsp.exe", "main.goose", "--stdlib", "/home/user/goose-to-wasm/stdlib", "--reachable-program", "--expansion-node-limit", "1000000", "--check"], "exit": 1, "stopped_at_limit": false, "limit_mib": 10000, "wall_s": 246.7, "user_s": 239.4, "sys_s": 6.2, "peak_rss_mib_sampled": 1}

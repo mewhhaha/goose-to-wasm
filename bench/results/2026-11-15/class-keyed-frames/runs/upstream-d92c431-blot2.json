@@ -1,0 +1,1 @@
+{"cmd": ["timeout", "1500", "/home/user/goose-to-wasm/build/upstream-d92c431/out/goose", "check", "main.goose", "--stdlib", "/home/user/goose-to-wasm/build/upstream-d92c431/source/stdlib"], "exit": 124, "stopped_at_limit": false, "limit_mib": 6000, "wall_s": 1500.1, "user_s": 1489.4, "sys_s": 4.2, "peak_rss_mib_sampled": 1}
