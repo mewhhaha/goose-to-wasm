@@ -36,7 +36,9 @@ struct LifeCell { symbol: i64, frame: i64, root: i64, parameter: bool = false, r
 // inputs_hash, inputs_kinds: life_inputs_key of inputs. mixed_kinds: an
 // older frame of the function has other kinds. next_inputs, next_home: the
 // next older frame in its input_heads and home_heads buckets.
-struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1 }
+// function_active: on the newest frame of a function, how many of the
+// function's frames are active.
+struct LifeFrame { function_node: i64 = -1, parent: i64 = -1, lexical: i64 = 0, call: i64 = -1, inputs: i64 = -1, base: i64 = 0, active: bool = false, result: LifeValue = LifeValue {}, destination: i64 = 0, selected_result: i64 = -1, checked_revision: i64 = -1, next_function: i64 = -1, first_cell: i64 = -1, first_effect: i64 = -1, last_effect: i64 = -1, validated: bool = false, first_summary: i64 = -1, last_summary: i64 = -1, effect_epoch: i64 = 0, recursive_call: bool = false, home: i64 = -1, capture_inputs: i64 = -1, cycle: i64 = -1, activation: i64 = 0, chain: i64 = 0, chain_epoch: i64 = -1, chain_recursive: i64 = 0, inputs_hash: i64 = 0, inputs_kinds: i64 = 0, mixed_kinds: bool = false, next_inputs: i64 = -1, next_home: i64 = -1, function_active: i64 = 0 }
 struct LifeWalk { root: i64, type_id: i64 }
 struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
 struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
@@ -173,8 +175,6 @@ struct Lifetimes {
     // global's initializer. Only those count toward what frame 0 reaches
     // (life_reach); the globals themselves are at depth 0.
     deep_cells: i64[>..]&,
-    // Per function node, how many of its frames are active.
-    active_frames: i64[>..]&,
     // Frames by function, lexical frame, selected result and argument sets
     // (life_inputs_key), and by function, home frame and call: bucket heads
     // of chains through LifeFrame.next_inputs and next_home, newest first as
@@ -2619,8 +2619,9 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         }
         receiver_sensitive = l.relative_storage[result_type] == 2;
     }
-    while l.active_frames.len <= function_node { l.active_frames.push(0); }
-    var target = -1; var active = l.frame; if l.active_frames[function_node] == 0 { active = 0; }
+    // Only an active frame of the function is on the chain.
+    let newest = l.function_frames[function_node];
+    var target = -1; var active = l.frame; if newest < 0 || l.frames[newest].function_active == 0 { active = 0; }
     while active > 0 {
         if l.frames[active].function_node == function_node && l.frames[active].lexical == lexical && l.frames[active].selected_result == selected_result && (!receiver_sensitive || life_equal(l, l.frames[active].destination, destination)) && life_classes_equal(p, l, l.frames[active].inputs, arguments) { target = active; break; }
         active = l.frames[active].parent;
@@ -2630,7 +2631,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
     // the kinds these arguments have, those frames are in one bucket of
     // input_heads, newest first; otherwise each frame is tried.
     life_frames_reserve(l);
-    let key = life_inputs_key(p, l, arguments, lexical, selected_result); let newest = l.function_frames[function_node];
+    let key = life_inputs_key(p, l, arguments, lexical, selected_result);
     let mixed = key.kinds == 0 || newest >= 0 && (l.frames[newest].mixed_kinds || l.frames[newest].inputs_kinds != key.kinds);
     if target < 0 && !mixed {
         var index = l.input_heads[life_inputs_bucket(l, function_node, key.hash)];
@@ -2660,6 +2661,7 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
     if target < 0 {
         target = l.frames.len;
         l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: lexical, call: call, inputs: arguments, base: base, destination: destination, selected_result: selected_result, next_function: newest, home: l.frame, inputs_hash: key.hash, inputs_kinds: key.kinds, mixed_kinds: mixed });
+        if newest >= 0 { l.frames[target].function_active = l.frames[newest].function_active; }
         l.function_frames[function_node] = target; life_index_frame(l, target);
     }
     life_cycle_call(p, l, target, call, destination);
@@ -2723,9 +2725,9 @@ recursive fn life_function(p: Program&, l: Lifetimes&, function_node: i64, call:
         life_replay(p, l, target, true); return life_cycle_value(l, l.frames[target].result);
     }
     if !l.frames[target].active {
-        l.frames[target].active = true; l.active_frames[function_node] += 1; let temporary_base = l.temp_count;
+        l.frames[target].active = true; l.frames[l.function_frames[function_node]].function_active += 1; let temporary_base = l.temp_count;
         life_eval(p, l, p.nodes[function_node].right, destination, selected_result);
-        l.temp_count = temporary_base; l.frames[target].active = false; l.active_frames[function_node] -= 1;
+        l.temp_count = temporary_base; l.frames[target].active = false; l.frames[l.function_frames[function_node]].function_active -= 1;
         l.frames[target].checked_revision = l.pass;
         if !l.discovery { l.frames[target].validated = true; }
         var ci = l.frames[target].first_cell;
@@ -3626,7 +3628,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
     var contains_pointee: i64[>..] = []; var contains_answer: bool[>..] = [];
     var live_bits: u64[>..] = []; var live_words: u64[>..] = [];
-    var deep_cells: i64[>..] = []; var active_frames: i64[>..] = []; var input_heads: i64[>..] = []; var home_heads: i64[>..] = [];
+    var deep_cells: i64[>..] = []; var input_heads: i64[>..] = []; var home_heads: i64[>..] = [];
     var cell_slots: i32[>..] = []; var temp_slots: i32[>..] = []; var contents_memo: LifeContents[>..] = []; var root_stamps: i64[>..] = [];
     var loaded: LifeLoaded[>..] = []; var gs_asked: i64[>..] = []; var gs_answer: bool[>..] = []; var relative_storage: i64[>..] = [];
     var readbacks: LifeReadBack[>..] = [];
@@ -3637,7 +3639,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
         bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
-        deep_cells: deep_cells, active_frames: active_frames, input_heads: input_heads, home_heads: home_heads,
+        deep_cells: deep_cells, input_heads: input_heads, home_heads: home_heads,
         cell_slots: cell_slots, temp_slots: temp_slots, contents_memo: contents_memo, root_stamps: root_stamps,
         loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts };
