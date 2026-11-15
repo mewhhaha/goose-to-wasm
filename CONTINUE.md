@@ -4,8 +4,10 @@ Where the work stands on 2026-11-15 and how to pick it up. The standing rules ar
 
 ## Rules in force
 
+- **The owner's order (2026-11-15): match upstream Goose in functionality, get to where this compiler can compile blot2, and only then work on compiling it faster.** Plain upstream is the reference; blot2 builds its Goose port with `aardappel/goose` at `d92c4315`, unpatched.
 - Push qualified batches straight to `origin/main`, with no pull request, and check the remote head with `git ls-remote origin main`.
 - A performance change keeps every output byte-identical. `scripts/qualify.py` proves this against a compiler built from the previous sources. For the lifetime pass, also compare the analysis state (see Commands).
+- A change made to match upstream, such as keying the lifetime pass's frames by argument classes, changes what is analyzed, so the state comparison does not apply to it. The contracts carry it instead, together with the diagnostics of every conformance source against the previous compiler's (`fpcompare.py` compares them).
 - Keep rejected experiments and their tradeoffs in the dated evidence. Keep the README's benchmark text and charts in step with that evidence.
 - The C++ reference compiler has been removed, so all work is on the Goose compiler. Upstream Goose is the reference, used read-only.
 - ../blot2 is a workload; don't edit it. Copy its sources before measuring, because its checkout keeps moving.
@@ -44,7 +46,7 @@ Parsing and type checking take about 12 s. The lifetime pass runs after that.
 
 Upstream keys a specialization by the *class* of each argument's root, its outlives rank among the call's arguments plus a few flags (`GetOrCreateSpec` in `typecheck_calls.h`, `RootArg` in `ast.h`, at `32a4f44`), checks the body once per key against class roots, and maps the record onto each call's arguments. This pass has upstream's rules but not that key: it looks for a class-equal frame only among the active ones, to find recursion.
 
-**The decision this needs.** Finishing blot2 takes frames keyed by argument classes, with a callee's summary mapped onto each caller's roots. That is a redesign of `checker_lifetimes.goose`, and it changes which contexts are analyzed: the state comparison used for every lifetime commit so far cannot hold, so the contracts (10,793 rows, 560 of them upstream-differential) would carry the equivalence instead. It is the owner's call, like the precision patches below.
+**Decided (owner, 2026-11-15): do it.** Finishing blot2 takes frames keyed by argument classes, with a callee's summary mapped onto each caller's roots. That is a redesign of `checker_lifetimes.goose`, and it changes which contexts are analyzed: the state comparison used for every lifetime commit so far cannot hold, so the contracts (10,793 rows, 560 of them upstream-differential) carry the equivalence instead.
 
 **If the present pass is pushed further anyway,** memory is what stops it, and time no longer is:
 - **Reclaim unreachable lists.** Worth about 2.3× in alternatives. Set IDs live in locals throughout an evaluation, so the safe points are activation exits, and each one needs a scan of all persistent state.
