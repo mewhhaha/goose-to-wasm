@@ -1,0 +1,82 @@
+samples 31031
+life_* 85.6%
+ 10.29%     3193 life_readback
+ 10.18%     3159 life_list_set
+  9.42%     2922 life_effect
+  8.06%     2502 life_build_slot
+  6.39%     1983 life_build_push
+  4.91%     1524 life_find
+  4.69%     1455 life_eval_body
+  3.95%     1225 life_build_add_alt
+  3.85%     1196 life_contains
+  3.62%     1124 life_build_order
+  2.73%      846 g_moving
+  1.52%      473 life_contains_memo
+  1.38%      429 life_build_open
+  1.30%      402 life_function
+  1.17%      362 check_lookup_scope
+  1.13%      350 life_subset
+  1.03%      321 life_set_depth
+  1.01%      313 life_store
+  1.01%      312 life_find_linear
+  0.96%      298 life_interior
+  0.91%      281 life_single
+  0.83%      258 check_choose_call
+  0.82%      254 life_cell
+  0.79%      244 check_type_property
+  0.75%      232 life_stored_roots
+  0.74%      231 life_join
+--- self <- caller
+ 10.29%     3193 life_readback <- life_load
+  8.19%     2540 life_effect <- life_construct_read
+  6.98%     2166 life_list_set <- life_build_end
+  5.36%     1664 life_build_push <- life_build_add_alt
+  4.84%     1502 life_build_slot <- life_build_add_alt
+  4.68%     1453 life_eval_body <- life_eval
+  3.81%     1183 life_contains <- life_contains_memo
+  3.73%     1156 life_find <- life_subset
+  3.62%     1124 life_build_order <- life_build_end
+  3.05%      945 life_list_set <- life_build_add_alt
+  2.38%      739 life_build_add_alt <- life_readback
+  2.13%      660 life_build_slot <- life_build_push
+  1.59%      494 g_moving <- <outside>
+  1.32%      410 life_contains_memo <- life_readback
+  1.30%      402 life_function <- life_call
+  1.08%      335 life_subset <- life_join
+  1.06%      330 g_moving <- life_eval
+  1.02%      316 life_set_depth <- life_function
+  1.01%      313 life_store <- life_eval_body
+  0.96%      298 life_interior <- life_eval_body
+  0.84%      260 life_effect <- life_add_contents
+  0.83%      258 check_choose_call <- check_call
+  0.78%      242 life_find_linear <- life_find
+  0.73%      227 life_stored_roots <- life_store
+  0.64%      199 check_lookup_scope <- check_lookup
+  0.58%      180 life_join <- life_effect
+--- self <- caller <- caller2
+ 10.29%     3193 life_readback <- life_load <- life_eval_body
+  7.04%     2185 life_effect <- life_construct_read <- life_replay
+  4.13%     1282 life_eval_body <- life_eval <- life_eval_body
+  3.59%     1114 life_find <- life_subset <- life_join
+  3.30%     1024 life_build_slot <- life_build_add_alt <- life_readback
+  2.78%      862 life_contains <- life_contains_memo <- life_readback
+  2.38%      739 life_build_add_alt <- life_readback <- life_load
+  2.03%      629 life_build_push <- life_build_add_alt <- life_readback
+  2.02%      627 life_build_slot <- life_build_push <- life_build_add_alt
+  1.89%      587 life_list_set <- life_build_end <- life_readback
+  1.71%      531 life_build_push <- life_build_add_alt <- life_interior
+  1.59%      494 g_moving <- <outside> <- <outside>
+  1.43%      445 life_list_set <- life_build_end <- life_interior
+  1.32%      410 life_contains_memo <- life_readback <- life_load
+  1.30%      402 life_function <- life_call <- life_eval_body
+  1.08%      335 life_build_order <- life_build_end <- life_readback
+  1.05%      327 life_subset <- life_join <- life_effect
+  1.03%      321 life_contains <- life_contains_memo <- life_candidates
+  1.02%      316 life_set_depth <- life_function <- life_call
+  1.01%      313 life_store <- life_eval_body <- life_eval
+  1.00%      311 life_effect <- life_construct_read <- life_eval_body
+  0.98%      305 g_moving <- life_eval <- life_eval_body
+  0.96%      299 life_build_order <- life_build_end <- life_interior
+  0.96%      298 life_interior <- life_eval_body <- life_eval
+  0.96%      298 life_list_set <- life_build_add_alt <- life_interior
+  0.95%      296 life_list_set <- life_build_end <- life_join

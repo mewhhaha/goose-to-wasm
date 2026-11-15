@@ -1,0 +1,70 @@
+samples 2046
+life_* 91.8%
+ 54.06%     1106 life_effect
+  9.19%      188 life_replay
+  6.35%      130 life_held_into
+  2.59%       53 life_construct_read
+  2.30%       47 life_eval_body
+  1.56%       32 life_eval
+  1.32%       27 life_in_scope
+  1.22%       25 <outside>
+  1.22%       25 life_function
+  1.03%       21 life_call
+  0.98%       20 life_nearest_recursive
+  0.88%       18 life_list_set
+  0.88%       18 life_shrink
+  0.83%       17 life_cell
+  0.83%       17 life_append
+  0.73%       15 g_moving
+  0.73%       15 check_lookup_scope
+  0.68%       14 life_contains
+  0.64%       13 lex_tokens
+  0.59%       12 life_readback
+  0.59%       12 life_points_into
+  0.54%       11 new_node
+--- self <- caller
+ 50.05%     1024 life_effect <- life_construct_read
+  9.14%      187 life_replay <- life_function
+  6.35%      130 life_held_into <- life_points_into
+  2.98%       61 life_effect <- life_grow
+  2.49%       51 life_construct_read <- life_replay
+  2.30%       47 life_eval_body <- life_eval
+  1.32%       27 life_eval <- life_eval_body
+  1.27%       26 life_in_scope <- life_eval_body
+  1.08%       22 life_function <- life_call
+  1.03%       21 life_call <- life_eval_body
+  0.98%       20 <outside> <- life_construct_read
+  0.88%       18 life_shrink <- life_replay
+  0.83%       17 life_list_set <- life_build_add_alt
+  0.78%       16 life_append <- life_call
+  0.73%       15 check_lookup_scope <- check_lookup
+  0.68%       14 life_nearest_recursive <- life_effect
+  0.64%       13 lex_tokens <- lex_source
+  0.64%       13 life_effect <- life_add_contents
+  0.59%       12 life_readback <- life_load
+  0.59%       12 life_points_into <- life_shrink
+  0.49%       10 check_program_types <- check_program
+  0.49%       10 life_body <- life_body_walk
+--- self <- caller <- caller2
+ 48.24%      987 life_effect <- life_construct_read <- life_replay
+  9.14%      187 life_replay <- life_function <- life_call
+  6.35%      130 life_held_into <- life_points_into <- life_shrink
+  2.79%       57 life_effect <- life_grow <- life_replay
+  2.49%       51 life_construct_read <- life_replay <- life_function
+  1.96%       40 life_eval_body <- life_eval <- life_eval_body
+  1.71%       35 life_effect <- life_construct_read <- life_eval_body
+  1.32%       27 life_eval <- life_eval_body <- life_eval
+  1.27%       26 life_in_scope <- life_eval_body <- life_eval
+  1.08%       22 life_function <- life_call <- life_eval_body
+  1.03%       21 life_call <- life_eval_body <- life_eval
+  0.88%       18 life_shrink <- life_replay <- life_function
+  0.83%       17 <outside> <- life_construct_read <- life_replay
+  0.78%       16 life_append <- life_call <- life_eval_body
+  0.73%       15 check_lookup_scope <- check_lookup <- check_lookup_name
+  0.68%       14 life_nearest_recursive <- life_effect <- life_construct_read
+  0.64%       13 lex_tokens <- lex_source <- load_sources
+  0.59%       12 life_readback <- life_load <- life_eval_body
+  0.59%       12 life_points_into <- life_shrink <- life_replay
+  0.54%       11 life_list_set <- life_build_add_alt <- life_interior
+  0.49%       10 check_program_types <- check_program <- driver_main
+  0.49%       10 life_body <- life_body_walk <- life_function

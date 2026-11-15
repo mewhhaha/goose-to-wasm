@@ -1,0 +1,57 @@
+{
+ "summary": {
+  "sources": 4355,
+  "reached_the_pass": 2872,
+  "paths": {
+   "mixed_kinds_lookups": {
+    "events": 0,
+    "sources": 0
+   },
+   "deep_cells": {
+    "events": 51,
+    "sources": 14
+   },
+   "frame0_reach_calls": {
+    "events": 202,
+    "sources": 8
+   },
+   "lexical_is_target": {
+    "events": 0,
+    "sources": 0
+   },
+   "settled_walks": {
+    "events": 13900,
+    "sources": 290
+   },
+   "settled_validation_walks": {
+    "events": 18174,
+    "sources": 876
+   },
+   "replay_skips": {
+    "events": 7988,
+    "sources": 102
+   },
+   "offers_with_recursive_place": {
+    "events": 4557,
+    "sources": 145
+   },
+   "readback_hits": {
+    "events": 945,
+    "sources": 135
+   },
+   "contents_hits": {
+    "events": 3493,
+    "sources": 261
+   },
+   "load_hits": {
+    "events": 13812,
+    "sources": 425
+   },
+   "byte_view_holders": {
+    "events": 34,
+    "sources": 19
+   }
+  }
+ },
+ "differing": []
+}

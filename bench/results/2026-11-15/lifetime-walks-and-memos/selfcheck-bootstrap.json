@@ -1,0 +1,119 @@
+{
+ "compilers": {
+  "86f7a18": "build/q-base/bootstrap/bin/goose (scripts/bootstrap.py, one unit)",
+  "fe05443": "build/q-final/bootstrap/bin/goose (scripts/bootstrap.py, one unit)"
+ },
+ "source": "build/frozen-final/selfhost (selfhost/ at fe05443)",
+ "rows": [
+  {
+   "compiler": "86f7a18",
+   "round": 0,
+   "exit": 0,
+   "wall_s": 23.545,
+   "user_s": 23.154,
+   "max_rss_mib": 443.2,
+   "typecheck_s": 23.428,
+   "lifetime_s": 23.177,
+   "load": 0.9
+  },
+  {
+   "compiler": "fe05443",
+   "round": 0,
+   "exit": 0,
+   "wall_s": 7.131,
+   "user_s": 6.867,
+   "max_rss_mib": 455.7,
+   "typecheck_s": 7.029,
+   "lifetime_s": 6.822,
+   "load": 1.0
+  },
+  {
+   "compiler": "fe05443",
+   "round": 1,
+   "exit": 0,
+   "wall_s": 7.783,
+   "user_s": 7.506,
+   "max_rss_mib": 455.8,
+   "typecheck_s": 7.669,
+   "lifetime_s": 7.413,
+   "load": 1.0
+  },
+  {
+   "compiler": "86f7a18",
+   "round": 1,
+   "exit": 0,
+   "wall_s": 27.95,
+   "user_s": 27.636,
+   "max_rss_mib": 443.3,
+   "typecheck_s": 27.837,
+   "lifetime_s": 27.598,
+   "load": 1.0
+  },
+  {
+   "compiler": "86f7a18",
+   "round": 2,
+   "exit": 0,
+   "wall_s": 29.325,
+   "user_s": 28.979,
+   "max_rss_mib": 443.3,
+   "typecheck_s": 29.204,
+   "lifetime_s": 28.959,
+   "load": 1.0
+  },
+  {
+   "compiler": "fe05443",
+   "round": 2,
+   "exit": 0,
+   "wall_s": 6.846,
+   "user_s": 6.489,
+   "max_rss_mib": 455.7,
+   "typecheck_s": 6.739,
+   "lifetime_s": 6.468,
+   "load": 1.0
+  },
+  {
+   "compiler": "fe05443",
+   "round": 3,
+   "exit": 0,
+   "wall_s": 6.14,
+   "user_s": 5.88,
+   "max_rss_mib": 455.7,
+   "typecheck_s": 6.046,
+   "lifetime_s": 5.839,
+   "load": 1.0
+  },
+  {
+   "compiler": "86f7a18",
+   "round": 3,
+   "exit": 0,
+   "wall_s": 24.715,
+   "user_s": 24.382,
+   "max_rss_mib": 443.1,
+   "typecheck_s": 24.605,
+   "lifetime_s": 24.39,
+   "load": 1.0
+  },
+  {
+   "compiler": "86f7a18",
+   "round": 4,
+   "exit": 0,
+   "wall_s": 23.273,
+   "user_s": 22.892,
+   "max_rss_mib": 443.2,
+   "typecheck_s": 23.162,
+   "lifetime_s": 22.919,
+   "load": 1.0
+  },
+  {
+   "compiler": "fe05443",
+   "round": 4,
+   "exit": 0,
+   "wall_s": 7.049,
+   "user_s": 6.813,
+   "max_rss_mib": 455.7,
+   "typecheck_s": 6.927,
+   "lifetime_s": 6.694,
+   "load": 1.0
+  }
+ ]
+}

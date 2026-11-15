@@ -1,0 +1,57 @@
+{
+ "compilers": {
+  "86f7a18": "build/q-base/bootstrap/bin/goose",
+  "fe05443": "build/q-final/bootstrap/bin/goose"
+ },
+ "rounds": 41,
+ "rows": [
+  {
+   "compiler": "86f7a18",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.97,
+   "user_ms": 2.34,
+   "minflt": 218
+  },
+  {
+   "compiler": "fe05443",
+   "workload": "empty-check",
+   "samples": 41,
+   "wall_ms": 2.9,
+   "user_ms": 2.32,
+   "minflt": 218
+  },
+  {
+   "compiler": "86f7a18",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 10.59,
+   "user_ms": 7.61,
+   "minflt": 1196
+  },
+  {
+   "compiler": "fe05443",
+   "workload": "sorting-check",
+   "samples": 41,
+   "wall_ms": 10.24,
+   "user_ms": 8.79,
+   "minflt": 1197
+  },
+  {
+   "compiler": "86f7a18",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 20.84,
+   "user_ms": 15.17,
+   "minflt": 1738
+  },
+  {
+   "compiler": "fe05443",
+   "workload": "sorting-native-O2",
+   "samples": 41,
+   "wall_ms": 20.74,
+   "user_ms": 16.96,
+   "minflt": 1729
+  }
+ ]
+}
