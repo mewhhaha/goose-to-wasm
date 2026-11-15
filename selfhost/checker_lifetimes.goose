@@ -19,6 +19,11 @@ struct LifeAlt { root: i32, exact: bool = true, from: i32 = -1, slotread: bool =
 struct LifeSet { first: i64 = -1, count: i64 = 0, bound_depth: i64 = -1, bound_result: i64 = 0, index: i64 = -1, index_mask: i64 = 0, hash: i64 = 0 }
 // A span of global_read_list; count -1 until computed.
 struct LifeSpan { first: i64 = 0, count: i64 = -1 }
+// What the nodes a walk reaches from `start` say without following calls
+// (life_body): whether one names a captured binding, the globals they name
+// (a span of body_globals, as found) and the nodes their calls go on to (a
+// span of body_calls, sorted). seen: the life_body_walk that last reached it.
+struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_count: i64 = 0, calls: i64 = 0, call_count: i64 = 0, seen: i64 = 0 }
 struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1 }
 // Element owner: -1 none, -2 inside elements with unknown owner, otherwise type ID.
 struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i64 = 0, self_pools: i64 = 0, relative_roots: i64 = 0, tuple: i64 = -1, element_array: i64 = -1 }
@@ -120,6 +125,9 @@ struct Lifetimes {
     // Per function node, the globals its body may read (life_reads_global):
     // a span of global_read_list, sorted; count -1 until computed.
     global_read_spans: LifeSpan[>..]&, global_read_list: i64[>..]&,
+    // The bodies scanned so far, by start node (open addressing in
+    // body_slots), their spans, and the walks made over them.
+    bodies: LifeBody[>..]&, body_slots: i64[>..]&, body_globals: i64[>..]&, body_calls: i64[>..]&, body_walks: i64 = 0,
     // Recent discovery offers (direct-mapped; grown by life_offer_repeated),
     // the offers recorded since it last grew, the activation count, and how
     // many times a frame's recursion flag has been set.
@@ -1498,24 +1506,81 @@ fn life_reads(p: Program&, l: Lifetimes&, node: i64, symbol: i64) -> bool {
     return answer;
 }
 
+// The walk life_reads makes from a node, following every call, reaches the
+// nodes below it and those below the node of each called symbol, and so on.
+// What the first part says is scanned once per start node, here; a walk then
+// goes from body to body (life_body_walk) instead of over every node again.
+fn life_body(p: Program&, l: Lifetimes&, start: i64) -> i64 {
+    if 2 * (l.bodies.len + 1) > l.body_slots.len {
+        var size: i64 = 64; while size < 4 * (l.bodies.len + 1) { size <<= 1; }
+        l.body_slots.clear(); l.body_slots.resize(size, -1);
+        for body, index in l.bodies {
+            var slot = life_root_hash(body.start, size - 1);
+            while l.body_slots[slot] >= 0 { slot = (slot + 1) & (size - 1); }
+            l.body_slots[slot] = index;
+        }
+    }
+    let mask = l.body_slots.len - 1; var slot = life_root_hash(start, mask);
+    loop {
+        let found = l.body_slots[slot];
+        if found < 0 { break; }
+        if l.bodies[found].start == start { return found; }
+        slot = (slot + 1) & mask;
+    }
+    var body = LifeBody { start: start, globals: l.body_globals.len, calls: l.body_calls.len };
+    l.visit += 1; var work: i64[>..] = []; life_read_child(l, work, start); var at = 0;
+    while at < work.len {
+        let current = work[at]; at += 1; let n: const Node& = p.nodes[current];
+        if n.kind == N_NAME && n.symbol >= 0 && n.symbol < p.symbols.len {
+            let flags = p.symbols[n.symbol].flags;
+            if (flags & S_CAPTURE) != 0 { body.captures = true; }
+            if (flags & S_GLOBAL) != 0 { l.body_globals.push(n.symbol); }
+        }
+        life_read_child(l, work, n.next);
+        if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { continue; }
+        for child in [n.first, n.left, n.right, n.third] { life_read_child(l, work, child); }
+        if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) == 0 {
+            let callee = p.symbols[n.symbol].node;
+            if callee >= 0 && p.nodes[callee].right >= 0 { l.body_calls.push(p.nodes[callee].right); }
+        }
+    }
+    // Each called node once.
+    l.body_calls[body.calls..l.body_calls.len].sort();
+    var kept = body.calls;
+    for index in body.calls..l.body_calls.len {
+        if index == body.calls || l.body_calls[index] != l.body_calls[kept - 1] { l.body_calls[kept] = l.body_calls[index]; kept += 1; }
+    }
+    l.body_calls.resize(kept, 0);
+    body.global_count = l.body_globals.len - body.globals; body.call_count = kept - body.calls;
+    let index = l.bodies.len; l.bodies.push(body); l.body_slots[slot] = index;
+    return index;
+}
+// Every body the walk from a node reaches, each once, appended to `reached`;
+// stops at the first that names a captured binding if `captures`, and says
+// whether there was one.
+fn life_body_walk(p: Program&, l: Lifetimes&, start: i64, reached: i64[>..]&, captures: bool) -> bool {
+    if start < 0 { return false; }
+    l.body_walks += 1; let walk = l.body_walks;
+    let first = life_body(p, l, start); l.bodies[first].seen = walk; reached.push(first);
+    var at = 0;
+    while at < reached.len {
+        let body = l.bodies[reached[at]]; at += 1;
+        if captures && body.captures { return true; }
+        for call in body.calls..body.calls + body.call_count {
+            let next = life_body(p, l, l.body_calls[call]);
+            if l.bodies[next].seen != walk { l.bodies[next].seen = walk; reached.push(next); }
+        }
+    }
+    return false;
+}
 // Whether a function's body may read a captured binding: life_reads' walk,
 // following every call, finds a name of one. A superset of what life_reads
 // visits for any captured symbol, so false answers every such query.
 fn life_reads_captures(p: Program&, l: Lifetimes&, function_node: i64) -> bool {
     while l.capture_reads.len < p.nodes.len { l.capture_reads.push(0); }
     if l.capture_reads[function_node] != 0 { return l.capture_reads[function_node] == 2; }
-    l.visit += 1; var work: i64[>..] = []; life_read_child(l, work, p.nodes[function_node].right); var at = 0; var answer = false;
-    while at < work.len {
-        let current = work[at]; at += 1; let n: const Node& = p.nodes[current];
-        if n.kind == N_NAME && n.symbol >= 0 && n.symbol < p.symbols.len && (p.symbols[n.symbol].flags & S_CAPTURE) != 0 { answer = true; break; }
-        life_read_child(l, work, n.next);
-        if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { continue; }
-        for child in [n.first, n.left, n.right, n.third] { life_read_child(l, work, child); }
-        if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) == 0 {
-            let callee = p.symbols[n.symbol].node;
-            if callee >= 0 { life_read_child(l, work, p.nodes[callee].right); }
-        }
-    }
+    var reached: i64[>..] = [];
+    let answer = life_body_walk(p, l, p.nodes[function_node].right, reached, true);
     if answer { l.capture_reads[function_node] = 2; } else { l.capture_reads[function_node] = 1; }
     return answer;
 }
@@ -1526,17 +1591,10 @@ fn life_reads_global(p: Program&, l: Lifetimes&, function_node: i64, symbol: i64
     while l.global_read_spans.len < p.nodes.len { l.global_read_spans.push(LifeSpan {}); }
     if l.global_read_spans[function_node].count < 0 {
         let first = l.global_read_list.len;
-        l.visit += 1; var work: i64[>..] = []; life_read_child(l, work, p.nodes[function_node].right); var at = 0;
-        while at < work.len {
-            let current = work[at]; at += 1; let n: const Node& = p.nodes[current];
-            if n.kind == N_NAME && n.symbol >= 0 && n.symbol < p.symbols.len && (p.symbols[n.symbol].flags & S_GLOBAL) != 0 { l.global_read_list.push(n.symbol); }
-            life_read_child(l, work, n.next);
-            if n.kind == N_FUNCTION || n.kind == N_FUNCTION_VALUE || n.kind == N_IMPORT { continue; }
-            for child in [n.first, n.left, n.right, n.third] { life_read_child(l, work, child); }
-            if n.kind == N_CALL && n.symbol >= 0 && (p.symbols[n.symbol].flags & S_BUILTIN) == 0 {
-                let callee = p.symbols[n.symbol].node;
-                if callee >= 0 { life_read_child(l, work, p.nodes[callee].right); }
-            }
+        var reached: i64[>..] = []; life_body_walk(p, l, p.nodes[function_node].right, reached, false);
+        for index in reached {
+            let body = l.bodies[index];
+            for at in body.globals..body.globals + body.global_count { l.global_read_list.push(l.body_globals[at]); }
         }
         l.global_read_list[first..l.global_read_list.len].sort();
         var kept = first;
@@ -3552,6 +3610,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var offer_slots: i64 = 256; while offer_slots < 65536 && 8 * offer_slots < p.nodes.len { offer_slots *= 4; }
     var offers: LifeOffer[>..] = []; offers.resize(offer_slots, LifeOffer {});
     var global_read_spans: LifeSpan[>..] = []; var global_read_list: i64[>..] = [];
+    var bodies: LifeBody[>..] = []; var body_slots: i64[>..] = []; var body_globals: i64[>..] = []; var body_calls: i64[>..] = [];
     var size_classes: i64[>..] = []; size_classes.resize(p.types.len, -1);
     var build_alts: LifeAlt[>..] = []; var build_slots: i64[>..] = []; var set_index: i32[>..] = []; var scratch: LifeAlt[>..] = [];
     var list_slots: i64[>..] = []; var list_sets: i64[>..] = []; var list_keys: i64[>..] = []; var atom_slots: LifeAtomSlot[>..] = []; var cell_keys: LifeCellKey[>..] = [];
@@ -3565,6 +3624,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
         futures: futures, holds: holds, temps: temps, reads: reads, kills: kills, size_classes: size_classes, atoms: atoms, failures: failures, effects: effects, symbol_cells: symbol_cells, node_roots: node_roots, function_frames: function_frames, read_heads: read_heads, visited: visited, summary_heads: summary_heads, effect_heads: effect_heads, summaries: summaries, capture_reads: capture_reads, offers: offers, global_read_spans: global_read_spans, global_read_list: global_read_list,
+        bodies: bodies, body_slots: body_slots, body_globals: body_globals, body_calls: body_calls,
         build_alts: build_alts, build_slots: build_slots, set_index: set_index, scratch: scratch,
         list_slots: list_slots, list_sets: list_sets, list_keys: list_keys, atom_slots: atom_slots, cell_keys: cell_keys, contains_pointee: contains_pointee, contains_answer: contains_answer,
         deep_cells: deep_cells, active_frames: active_frames, input_heads: input_heads, home_heads: home_heads,
