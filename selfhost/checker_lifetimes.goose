@@ -1698,17 +1698,27 @@ fn life_held_into(p: Program&, l: Lifetimes&, owners: i64, holder_type: i64, tar
     while current < work.len {
         let held = work[current]; current += 1; if held.type_id < 0 { continue; }
         let root = l.roots[held.root]; var types: i64[>..] = [held.type_id]; var ti = 0;
+        // Whether a held alternative is a byte view: 0 not looked yet, 1 none, 2 some.
+        var bytes = 0;
         while ti < types.len {
             let ty = types[ti]; ti += 1; let t: const Type& = p.types[ty];
             if t.kind == TY_REF || t.kind == TY_SLICE {
                 if t.kind == TY_REF && t.length_storage >= 0 { continue; }
+                // A reference that can neither point into the elements nor
+                // lead on to further holders finds its target only through
+                // a byte view.
+                let reaches = life_contains(p, l, element, t.element); let leads = life_holds(p, t.element);
+                if !reaches && !leads {
+                    if bytes == 0 { bytes = 1; if life_has_bytes(l, root.live_contents) { bytes = 2; } }
+                    if bytes == 1 { continue; }
+                }
                 var ai = l.sets[root.live_contents].first;
                 while ai >= 0 {
                     let alt = l.alts[ai]; ai = alt.next; let storage = l.roots[alt.root];
                     if !alt.byteview && (!life_contains(p, l, storage.type_id, t.element) || alt.target_type >= 0 && !life_same(p, alt.target_type, t.element)) { continue; }
-                    if (alt.byteview || life_contains(p, l, element, t.element)) &&
+                    if (alt.byteview || reaches) &&
                        life_alt_overlaps(l, alt, target, slot_safe) { return true; }
-                    if life_holds(p, t.element) {
+                    if leads {
                         var seen = false; for old in work { if old.root == alt.root && old.type_id == t.element { seen = true; } }
                         if !seen { work.push(LifeWalk { root: alt.root, type_id: t.element }); }
                     }
