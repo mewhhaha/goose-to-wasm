@@ -250,7 +250,9 @@ def main():
         for word in map(str, command):
             if word == str(output):
                 words.append('<output>')
-            elif Path(word).is_file():
+            # os.path.isfile, not Path.is_file: before Python 3.14 that raises for a
+            # word longer than a file name can be, such as the units' shell script.
+            elif os.path.isfile(word):
                 words.append('sha256:' + digest(word))
             else:
                 words.append(word)
