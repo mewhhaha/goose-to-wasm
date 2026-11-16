@@ -230,7 +230,10 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         text = goose_float(value, bits).encode()
         if len(text) > 32:
             raise RuntimeError("formatted float exceeds host buffer")
-        pointer &= 0xffffffff
+        if pointer < 0:
+            # An i32 address above 2 GiB arrives negative; an i64 one of a
+            # 64-bit memory keeps all its bits.
+            pointer &= 0xffffffff
         memory_bytes(caller, pointer, 32)
         write_bytes(caller, pointer, text)
         return len(text)

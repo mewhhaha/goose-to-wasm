@@ -285,7 +285,7 @@ fn check_array_type(p: Program&, element: i64, count: i64, array_kind: i64, flag
            t.array_kind == array_kind && t.flags == flags { return id; }
         id = p.type_links[id].next;
     }
-    var size = 24; var align = 4;
+    var size = p.control_bytes; var align = p.control_align;
     if array_kind == A_FIXED && element >= 0 {
         align = p.types[element].align;
         if count >= 0 && p.types[element].size <= 2147483647 / (count + 1) {
@@ -1448,9 +1448,9 @@ recursive fn check_finish_record_layout(p: Program&, type_id: i64, first: i64, s
         }
         last = field; field = p.nodes[field].next;
     }
-    if byte_record { p.types[type_id].size = 24; p.types[type_id].align = 4; p.types[type_id].tail = last; }
+    if byte_record { p.types[type_id].size = p.control_bytes; p.types[type_id].align = p.control_align; p.types[type_id].tail = last; }
     else if last >= 0 && p.nodes[last].type_id >= 0 && check_size_class(p, p.nodes[last].type_id, 0) > 0 {
-        p.types[type_id].prefix = p.nodes[last].integer; p.types[type_id].tail = last; p.types[type_id].align = 4;
+        p.types[type_id].prefix = p.nodes[last].integer; p.types[type_id].tail = last; p.types[type_id].align = p.control_align;
     }
 }
 recursive fn check_layout_variant(p: Program&, c: Checker&, type_id: i64) {
@@ -1475,14 +1475,14 @@ recursive fn check_variable_enum_type(p: Program&, c: Checker&, base: i64) -> i6
     for candidate, id in p.types {
         if candidate.kind == TY_ENUM && candidate.declaration == t.declaration && candidate.flags == (t.flags | F_VARIABLE_MODE) { result = id; break; }
     }
-    if result < 0 { var copy = t; copy.flags |= F_VARIABLE_MODE; copy.size = 24; copy.align = 4; result = add_type(p, copy); }
+    if result < 0 { var copy = t; copy.flags |= F_VARIABLE_MODE; copy.size = p.control_bytes; copy.align = p.control_align; result = add_type(p, copy); }
     if p.types[base].size == -1 || (p.nodes[t.declaration].flags & F_CHECKED) == 0 { return result; }
-    var size = 24; var align = 4; var variant = declaration_layout.first;
+    var size = p.control_bytes; var align = p.control_align; var variant = declaration_layout.first;
     while variant >= 0 {
         let payload = p.nodes[variant].type_id;
         if check_size_class(p, payload, 0) == 0 { p.nodes[variant].aux = 0; }
         else {
-            var alignment = p.types[payload].align; if alignment < 4 { alignment = 4; }
+            var alignment = p.types[payload].align; if alignment < p.control_align { alignment = p.control_align; }
             if alignment > align { align = alignment; }
             size = check_align(size, alignment); p.nodes[variant].aux = size; size += p.types[payload].size;
         }
@@ -3344,7 +3344,7 @@ fn check_has_format_hooks(p: Program&, c: Checker&) -> bool {
 }
 recursive fn check_lower_rendering(p: Program&, c: Checker&, node: i64, builtin: i64, args: CheckList&) -> i64 {
     let hooks_exist = check_has_format_hooks(p, c);
-    let wasm_default = p.pointer_bytes == 4 && builtin >= 0 && builtin <= 2;
+    let wasm_default = (p.pointer_bytes == 4 || p.wide) && builtin >= 0 && builtin <= 2;
     if !hooks_exist && !wasm_default { return -2; }
     var first = 0; if builtin == 2 { first = 1; }
     for index in first..args.count { let argument = check_list_at(c, args, index); if !check_render_layout(p, c, p.nodes[argument].type_id, p.nodes[argument].token) { return -1; } }
@@ -6573,7 +6573,7 @@ recursive fn check_variable(p: Program&, c: Checker&, node: i64) {
                 if (n.flags & F_VAR) == 0 || p.nodes[init].kind != N_ARRAY {
                     diagnose(p, n.token, "empty array element inference requires a var initialized directly with []");
                 }
-                ty = add_type(p, Type { kind: TY_ARRAY, element: -1, count: -1, size: 24, align: 4, array_kind: A_GROW, length_storage: -1 });
+                ty = add_type(p, Type { kind: TY_ARRAY, element: -1, count: -1, size: p.control_bytes, align: p.control_align, array_kind: A_GROW, length_storage: -1 });
                 p.nodes[init].type_id = ty;
             }
         } else if annotation < 0 { diagnose(p, n.token, "binding requires a type or initializer"); }

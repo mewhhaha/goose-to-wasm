@@ -352,6 +352,10 @@ struct Program {
     entry: i64 = -1, first_decl_source: i64 = -1, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     optimization: i64 = 0, debug: bool = false,
     pointer_bytes: i64 = 4,
+    // wide: the direct Wasm target with 64-bit memory (--wasm-memory64).
+    // pointer_bytes is 8 there as on the native target; a growable array's
+    // control is six address-sized words, control_bytes of them.
+    wide: bool = false, control_bytes: i64 = 24, control_align: i64 = 4,
     library: bool = false,
     // check_only: --check or --parse, where a program that declares no main
     // is checked on its own (upstream nomain). reachable_program: unreached

@@ -3,6 +3,15 @@
 import { readFileSync, writeFileSync, appendFileSync, statSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { Worker, isMainThread, parentPort, workerData } from "node:worker_threads";
+import v8 from "node:v8";
+
+// 64-bit memories (--wasm-memory64 modules, and the C oracle's standalone
+// profile) are behind a flag before V8 13.3. It has to be set before the
+// first module is compiled, on every thread that compiles one.
+{
+  const [major, minor] = process.versions.v8.split(".").map(Number);
+  if (major < 13 || (major === 13 && minor < 3)) v8.setFlagsFromString("--experimental-wasm-memory64");
+}
 
 // A program that recurses deeply (the compiler compiled to Wasm does, over
 // its syntax trees) needs more stack than V8 gives the main thread: a module
@@ -168,38 +177,65 @@ export async function runModule(bytes, input = "", programArguments = ["program"
     for (let i = 0; i < length; i++) result.push([read64(base + i * 16), read64(base + i * 16 + 8)]);
     return result;
   };
-  // A slice argument: an i64 of pointer (low 32 bits) and element count.
-  const sliceBytes = (value) => {
-    const packed = BigInt.asUintN(64, value);
-    return memoryBytes(Number(packed & 0xffffffffn), Number(packed >> 32n));
+  // A slice argument. A 32-bit module passes one i64 of pointer (low 32 bits)
+  // and element count; a 64-bit one passes the pointer and the count as two
+  // i64, since its slice, a v128, cannot cross to the host. `sliced` gives an
+  // import the same arguments either way: `kinds` has an "s" for each slice
+  // parameter, which arrives as its bytes, and another letter for each other.
+  const sliced = (kinds, action) => (...values) => {
+    const wide = values.length > kinds.length;
+    const converted = [];
+    let at = 0;
+    for (const kind of kinds) {
+      if (kind !== "s") converted.push(values[at++]);
+      else if (wide) { converted.push(memoryBytes(values[at], values[at + 1])); at += 2; }
+      else {
+        const packed = BigInt.asUintN(64, values[at++]);
+        converted.push(memoryBytes(Number(packed & 0xffffffffn), Number(packed >> 32n)));
+      }
+    }
+    return action(...converted);
   };
-  const sliceText = (value) => sliceBytes(value).toString("utf8");
-  // Appends to the growable byte array whose control is at `control` (u32
-  // base, length, limit, ...): the bytes go at its region's cursor, which is
-  // kept in the module's cursor table and moves with them. The module exports
-  // the words that find it (docs/TARGET.md).
+  // Appends to the growable byte array whose control is at `control` (words
+  // base, length, limit, ...; u32 in a 32-bit module, u64 in a 64-bit one):
+  // the bytes go at its region's cursor, which is kept in the module's cursor
+  // table and moves with them. The module exports the words that find it
+  // (docs/TARGET.md), as i64 globals when its memory is 64-bit.
   const appendBytes = (control, data) => {
-    const word = (name) => {
+    const exported = (name) => {
       const global = instance.exports[name];
       if (!(global instanceof WebAssembly.Global)) throw new Error("module does not export " + name);
-      return global.value >>> 0;
+      return global.value;
+    };
+    const wide = typeof exported("goose.region_base") === "bigint";
+    const bytes = wide ? 8 : 4;
+    const word = (name) => wide ? address(exported(name)) : exported(name) >>> 0;
+    const read = (at) => {
+      const view = memoryView(at, bytes);
+      const data = new DataView(view.buffer, view.byteOffset, bytes);
+      return wide ? address(data.getBigUint64(0, true)) : data.getUint32(0, true);
+    };
+    const write = (at, value) => {
+      const view = memoryView(at, bytes);
+      const data = new DataView(view.buffer, view.byteOffset, bytes);
+      if (wide) data.setBigUint64(0, BigInt(value), true); else data.setUint32(0, value, true);
     };
     const header = address(control);
-    const before = memoryView(header, 24);
-    const words = new DataView(before.buffer, before.byteOffset, 24);
-    const length = words.getUint32(4, true), limit = words.getUint32(8, true);
-    const slot = word("goose.region_cursors") + 4 * (Math.floor((limit - word("goose.region_base")) / word("goose.region_bytes")) - 1);
-    const cursorBytes = memoryView(slot, 4);
-    const cursor = new DataView(cursorBytes.buffer, cursorBytes.byteOffset, 4).getUint32(0, true);
+    const length = read(header + bytes), limit = read(header + 2 * bytes);
+    const slot = word("goose.region_cursors") + bytes * (Math.floor((limit - word("goose.region_base")) / word("goose.region_bytes")) - 1);
+    const cursor = read(slot);
     if (data.length > limit - cursor) throw new Error("goose runtime error: data region exhausted");
     const end = cursor + data.length;
     const memory = instance.exports.memory;
-    if (end > memory.buffer.byteLength) memory.grow(Math.ceil((end - memory.buffer.byteLength) / 65536));
+    if (end > memory.buffer.byteLength) {
+      const pages = Math.ceil((end - memory.buffer.byteLength) / 65536);
+      // A 64-bit memory takes its page count as a BigInt in engines that
+      // follow the final interface, as a number in earlier ones.
+      try { memory.grow(pages); } catch (failure) { if (!wide || !(failure instanceof TypeError)) throw failure; memory.grow(BigInt(pages)); }
+    }
     memoryView(cursor, data.length).set(data);
-    const after = memoryView(header, 24);
-    new DataView(after.buffer, after.byteOffset, 24).setUint32(4, length + data.length, true);
-    const moved = memoryView(slot, 4);
-    new DataView(moved.buffer, moved.byteOffset, 4).setUint32(0, end, true);
+    write(header + bytes, length + data.length);
+    write(slot, end);
   };
   const tried = (action) => { try { return action() ? 1 : 0; } catch { return 0; } };
   const byteSet = (pointer) => memoryView(pointer, 256);
@@ -244,39 +280,39 @@ export async function runModule(bytes, input = "", programArguments = ["program"
       // The stdlib's `os` externs, for a program that reads and writes files
       // (the compiler itself among them). Text goes out through the same
       // buffers as print.
-      gs_os_read_file: (path, control) => tried(() => { appendBytes(control, readFileSync(sliceText(path))); return true; }),
-      gs_os_write_file: (path, data) => tried(() => { writeFileSync(sliceText(path), sliceBytes(data)); return true; }),
-      gs_os_append_file: (path, data) => tried(() => { appendFileSync(sliceText(path), sliceBytes(data)); return true; }),
-      gs_os_file_exists: (path) => tried(() => statSync(sliceText(path)).isFile()),
-      gs_os_is_dir: (path) => tried(() => statSync(sliceText(path)).isDirectory()),
-      gs_os_write_stdout: (text) => { chunks.push(sliceBytes(text)); },
-      gs_os_write_stderr: (text) => { errors.push(sliceBytes(text)); },
+      gs_os_read_file: sliced("sr", (path, control) => tried(() => { appendBytes(control, readFileSync(path.toString("utf8"))); return true; })),
+      gs_os_write_file: sliced("ss", (path, data) => tried(() => { writeFileSync(path.toString("utf8"), data); return true; })),
+      gs_os_append_file: sliced("ss", (path, data) => tried(() => { appendFileSync(path.toString("utf8"), data); return true; })),
+      gs_os_file_exists: sliced("s", (path) => tried(() => statSync(path.toString("utf8")).isFile())),
+      gs_os_is_dir: sliced("s", (path) => tried(() => statSync(path.toString("utf8")).isDirectory())),
+      gs_os_write_stdout: sliced("s", (text) => { chunks.push(text); }),
+      gs_os_write_stderr: sliced("s", (text) => { errors.push(text); }),
       gs_os_flush_stdout: () => {},
       gs_os_arg_count: () => BigInt(programArguments.length),
       gs_os_arg: (index, control) => {
         const at = Number(BigInt.asIntN(64, index));
         if (at >= 0 && at < programArguments.length) appendBytes(control, Buffer.from(programArguments[at]));
       },
-      gs_os_getenv: (name, control) => {
-        const value = process.env[sliceText(name)];
+      gs_os_getenv: sliced("sr", (name, control) => {
+        const value = process.env[name.toString("utf8")];
         if (value === undefined) return 0;
         appendBytes(control, Buffer.from(value));
         return 1;
-      },
+      }),
       gs_os_resource_dir: () => 0,
       gs_os_clock_ns: () => process.hrtime.bigint(),
       gs_os_time_ns: () => BigInt(Date.now()) * 1000000n,
       // std's byte-set searches: a set's members are its first 256 bytes.
-      gs_find_any: (text, set) => {
-        const data = sliceBytes(text), members = byteSet(set);
+      gs_find_any: sliced("sr", (data, set) => {
+        const members = byteSet(set);
         for (let i = 0; i < data.length; i++) if (members[data[i]]) return BigInt(i);
         return -1n;
-      },
-      gs_find_pair: (text, first, distance, second) => {
-        const data = sliceBytes(text), a = byteSet(first), b = byteSet(second), d = Number(distance);
+      }),
+      gs_find_pair: sliced("srrr", (data, first, distance, second) => {
+        const a = byteSet(first), b = byteSet(second), d = Number(distance);
         for (let i = 0; i + d < data.length; i++) if (a[data[i]] && b[data[i + d]]) return BigInt(i);
         return -1n;
-      },
+      }),
       // No process can be started from here: libc's system fails.
       system: () => -1,
     },

@@ -14,7 +14,7 @@ extern "libc.so.6" {
 struct DriverOptions {
     source_arg: i64 = -1, output_arg: i64 = -1, stdlib_arg: i64 = -1,
     stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1,
-    target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256,
+    target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
     dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
     help: bool = false, version: bool = false, bad: bool = false,
@@ -140,6 +140,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "--run") { o.run = true; }
         else if same_bytes(a, "--debug") { o.debug = true; }
         else if same_bytes(a, "--library") { o.library = true; }
+        else if same_bytes(a, "--wasm-memory64") { o.memory64 = true; }
         else if same_bytes(a, "--reachable-program") { o.reachable_program = true; }
         else if same_bytes(a, "--standalone") { /* C output is standalone. */ }
         else if same_bytes(a, "-O0") { o.optimization = 0; }
@@ -178,7 +179,10 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if o.source_arg < 0 { o.source_arg = at - 1; }
         else { driver_error("only one root source is accepted"); o.bad = true; }
     }
-    if o.initial_pages < 1 || o.maximum_pages < o.initial_pages || o.maximum_pages > 65536 {
+    // A 64-bit memory may declare up to 2^32 pages (2^48 bytes); an engine
+    // has its own cap, V8's being 262,144 pages.
+    var page_limit = 65536; if o.memory64 && o.target == 0 { page_limit = 4294967296; }
+    if o.initial_pages < 1 || o.maximum_pages < o.initial_pages || o.maximum_pages > page_limit {
         driver_error("invalid memory page limits"); o.bad = true;
     }
 }
@@ -266,7 +270,7 @@ fn driver_stats(p: Program&, path: const u8[:], bytes: i64, parsing: i64, checki
         if (symbol.flags & S_FUNCTION) != 0 && symbol.node >= 0 && (p.nodes[symbol.node].flags & F_REACHABLE) != 0 { functions++; }
     }
     out.append("{\"implementation\":\"goose\",\"backend\":");
-    if p.pointer_bytes == 8 { driver_json(out, "native"); } else { driver_json(out, "direct"); }
+    if p.pointer_bytes == 8 && !p.wide { driver_json(out, "native"); } else { driver_json(out, "direct"); }
     out.append(",\"functions\":"); driver_integer(out, functions);
     out.append(",\"module_bytes\":"); driver_integer(out, bytes);
     out.append(",\"source_files\":"); driver_integer(out, p.sources.len);
@@ -385,6 +389,7 @@ fn driver_main() -> i64 {
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;
     if o.target == 1 { p.pointer_bytes = 8; }
+    else if o.memory64 { p.pointer_bytes = 8; p.wide = true; p.control_bytes = 48; p.control_align = 8; }
     initialize_types(p);
     let started = clock_ns(); load_sources(p, paths[source_start..source_end], paths[stdlib_start..stdlib_end], o.tokens); let parsed = clock_ns();
     if p.diagnostics.len > 0 { driver_diagnostics(p); return 1; }
