@@ -91,6 +91,8 @@ def main():
     parser.add_argument('--levels', type=int, nargs='+', choices=(0, 2), default=[0, 2])
     parser.add_argument('--engine', choices=('wasmtime', 'v8'), default='wasmtime')
     parser.add_argument('--host', type=Path)
+    parser.add_argument('--wasm-memory64', action='store_true',
+                        help='build every wasm-direct row with --wasm-memory64: the same contracts on 64-bit memory')
     parser.add_argument('--cc', default='gcc')
     parser.add_argument('--timeout', type=float, default=15)
     parser.add_argument('--frontend-only', action='store_true', help='check positive programs without lowering or execution')
@@ -175,7 +177,7 @@ def main():
                   'filter': args.filter, 'engine': args.engine, 'host': str(host), 'frontend_only': args.frontend_only,
                   'upstream_extracted': needs_upstream, 'upstream_sources': str(shared), 'jobs': args.jobs,
                   'timeout': args.timeout, 'cc_timeout': args.cc_timeout, 'native_units': args.native_units,
-                  'targets': args.targets},
+                  'targets': args.targets, 'wasm_memory64': args.wasm_memory64},
               'method': 'Only the compiler under test runs. Sources, stdin, expected stdout, exit status and '
                         'failure phases are frozen data. No expected-output update mode, reference fallback, '
                         'expected failures or silent skips. Compilations with identical inputs share an artifact '
@@ -359,6 +361,8 @@ def main():
             command.append('--debug')
         if case.get('maximum_pages') is not None:
             command += ['--wasm-initial-pages', '1', '--wasm-max-pages', str(case['maximum_pages'])]
+        if args.wasm_memory64 and case['target'] == 'wasm-direct':
+            command.append('--wasm-memory64')
         # Compiler options a contract states, such as the reference checker's
         # build settings.
         command += case.get('options', [])

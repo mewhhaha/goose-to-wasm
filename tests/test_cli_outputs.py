@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """The compiler refuses outputs that would replace a source or another output, reads its size options, and runs as a Wasm module."""
+import importlib.util
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -156,6 +158,76 @@ class WasmHostedCompiler(unittest.TestCase):
     def test_version_and_arguments(self):
         first, second = self.hosted("--version"), self.native("--version")
         self.assertEqual((first.returncode, first.stdout), (0, second.stdout))
+
+
+@unittest.skipUnless(COMPILER.is_file() and __import__('shutil').which('node') and importlib.util.find_spec("wasmtime"),
+                     "bootstrap the compiler first; needs node and the wasmtime package")
+class WasmMemory64(unittest.TestCase):
+    """--wasm-memory64: programs print what their 32-bit modules print, and the compiler as a 64-bit module compiles itself."""
+
+    # 256 GiB of address space: every data region of the compiler holds its largest table.
+    PAGES = "4194304"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.directory = tempfile.TemporaryDirectory()
+        cls.work = Path(cls.directory.name)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.directory.cleanup()
+
+    def emit(self, source, output, *options):
+        command = [COMPILER, source, "--stdlib", SOURCE_STDLIB, "--target", "wasm-direct", "-O2", *options, "-o", output]
+        result = subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def run_module(self, engine, module, *arguments):
+        command = ["node", ROOT / "scripts/run_wasm.mjs", module] if engine == "v8" else [sys.executable, ROOT / "scripts/run_wasmtime.py", module]
+        return subprocess.run(list(map(str, [*command, *arguments])), cwd=ROOT, capture_output=True, stdin=subprocess.DEVNULL)
+
+    def test_examples_print_the_same(self):
+        for example in ("squares", "sorting", "tour"):
+            narrow, wide = self.work / f"{example}.32.wasm", self.work / f"{example}.64.wasm"
+            self.emit(f"examples/{example}.goose", narrow)
+            self.emit(f"examples/{example}.goose", wide, "--wasm-memory64")
+            expected = self.run_module("v8", narrow)
+            self.assertEqual(expected.returncode, 0, expected.stderr)
+            for engine in ("v8", "wasmtime"):
+                with self.subTest(example=example, engine=engine):
+                    observed = self.run_module(engine, wide)
+                    self.assertEqual((observed.returncode, observed.stdout), (0, expected.stdout), observed.stderr)
+
+    def test_page_limits(self):
+        # 65,536 pages is all a 32-bit memory can declare; a 64-bit one takes more.
+        refused = subprocess.run(list(map(str, [COMPILER, "examples/squares.goose", "--stdlib", SOURCE_STDLIB, "--target", "wasm-direct",
+                                                "--wasm-max-pages", "262144", "-o", self.work / "refused.wasm"])), cwd=ROOT, capture_output=True, text=True)
+        self.assertNotEqual(refused.returncode, 0)
+        self.emit("examples/squares.goose", self.work / "large.wasm", "--wasm-memory64", "--wasm-max-pages", "262144")
+        observed = self.run_module("v8", self.work / "large.wasm")
+        self.assertEqual((observed.returncode, observed.stdout), (0, b"sum=140\n"), observed.stderr)
+
+    def test_compiler_compiles_itself(self):
+        module, cache = self.work / "goose64.wasm", self.work / "goose64.cwasm"
+        options = ["--debug", "--wasm-memory64", "--wasm-max-pages", self.PAGES]
+        self.emit("selfhost/main.goose", module, *options)
+
+        def hosted(*arguments):
+            return self.run_module("wasmtime", module, "--cache", cache, "--", *arguments)
+
+        # A small program for both targets, then itself: the module it was built as.
+        for target, suffix in (("wasm-direct", "wasm"), ("native", "c")):
+            with self.subTest(target=target):
+                a, b = self.work / f"hosted.{suffix}", self.work / f"native.{suffix}"
+                arguments = ["examples/squares.goose", "--stdlib", SOURCE_STDLIB, "--target", target, "-O2", "-o"]
+                first = hosted(*arguments, a)
+                second = subprocess.run(list(map(str, [COMPILER, *arguments, b])), cwd=ROOT, capture_output=True)
+                self.assertEqual((first.returncode, first.stdout, first.stderr), (0, second.stdout, second.stderr))
+                self.assertEqual(a.read_bytes(), b.read_bytes())
+        again = self.work / "again.wasm"
+        result = hosted("selfhost/main.goose", "--stdlib", SOURCE_STDLIB, "--target", "wasm-direct", "-O2", *options, "-o", again)
+        self.assertEqual((result.returncode, result.stderr), (0, b""))
+        self.assertEqual(again.read_bytes(), module.read_bytes())
 
 
 if __name__ == "__main__":

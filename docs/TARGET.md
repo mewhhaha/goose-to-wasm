@@ -16,7 +16,8 @@ construct has a corresponding lowering in this backend.
 The direct emitter currently uses numeric wasm32, sign extension, multi-value,
 bulk-memory operations, and guarded standard SIMD128 integer lowerings. SIMD is
 internal; the public Goose ABI remains numeric and boolean, with no user-facing
-vector API implied. The C oracle's standalone profile uses memory64.
+vector API implied. The C oracle's standalone profile uses memory64, and so does
+the direct emitter under `--wasm-memory64` ([64-bit memory](#64-bit-memory)).
 The compiler has no need to preserve compatibility with older browser engines.
 
 ## Representations and host ABI
@@ -41,7 +42,7 @@ linear memory. Each recursive call receives its own frame. Temporary storage
 and frames grow memory when necessary, within the module's declared maximum,
 and are restored when their scope/function exits. Initial memory defaults to
 16 pages (1 MiB), maximum memory to 256 pages (16 MiB). Driver options
-`--initial-pages` and `--maximum-pages` configure them; one page is 64 KiB. These
+`--wasm-initial-pages` and `--wasm-max-pages` configure them; one page is 64 KiB. These
 limits are independent of the C oracle's 16 MiB per data stack profile.
 
 The backend keeps physical locations distinct from converted expression values.
@@ -214,17 +215,15 @@ For maximum bytes `M`, aligned static end `S` and region count `R > 0`, each dat
 region receives `B = align_down((M-S)/(R+1), 8)` bytes. Activation frames and
 scratch occupy `[S, M-R*B)`, followed by the `R` stable regions. This is a
 documented per-owner resource limit, independent of language array capacity.
-Increasing `--maximum-pages` increases these budgets. Fixed-only modules retain
+Increasing `--wasm-max-pages` increases these budgets. Fixed-only modules retain
 the previous unpartitioned activation budget.
 
 Acquisition, growth, frames and scratch check their limits before writes;
 successful `memory.grow` does not permit crossing a partition boundary. Released
-regions are reused, while linear-memory pages remain allocated. The
-`goose.regions` custom section publishes region/global counts, region bytes and
-activation addresses. Modules with owned return cursors use schema 2 and add
-`cursor_base` and `cursor_stride: 4` for the physical cursor table; other modules
-retain schema 1. Compiler statistics publish `region_count`, `region_bytes`
-and `activation_bytes`.
+regions are reused, while linear-memory pages remain allocated. The C++
+compiler published the partition in a `goose.regions` custom section; this
+compiler emits none. A host that needs the cursor table finds it through the
+three exported region words described under the host interface below.
 
 The module defines fresh, zero-initialized memory. Static allocations retain
 their full logical size, but data segments contain only initialized nonzero
@@ -287,6 +286,61 @@ checks the bytes fit below `limit` and grows memory to hold them. This is the
 internal control layout, exported as it is; it changes with it.
 
 `hardware_threads()` is 1: the direct host ABI runs one thread of Goose code.
+
+## 64-bit memory
+
+`--wasm-memory64` builds the module for one 64-bit linear memory. The default
+is still wasm32, and the option's existence changes none of its bytes. With
+the option:
+
+| | wasm32 | `--wasm-memory64` |
+| --- | --- | --- |
+| an address on the Wasm stack | i32 | i64 |
+| a reference in memory | 4 bytes | 8 bytes |
+| a slice on the stack | one i64: pointer in the low 32 bits, count in the high 32 | one v128: pointer in lane 0, count in lane 1, both i64 |
+| a slice in memory | 8 bytes | 16 bytes: pointer at +0, count at +8 |
+| a growable array's control | six u32 words, 24 bytes | the same six words as u64, 48 bytes |
+| a runtime-limited array's image prefix | u32 capacity, u32 length | u64 capacity, u64 length |
+| the region cursor table | one u32 a region | one u64 a region |
+| a function value | i64: function number low, environment address high | the same |
+| `--wasm-max-pages` at most | 65,535 | 4,294,967,296 (2^48 bytes) |
+
+Byte-length prefixes of 1, 2, 4 and 8 bytes, ULEB prefixes, enum tags and all
+integer, float and bool layouts are the same in both. A function value keeps
+its environment's address in 32 bits: environments live in activation frames,
+and the stack is at the bottom of memory.
+
+The host interface follows the address type. `goose.write` and `goose.abort`
+take the pointer as an i64 and the length (and line) as i32;
+`goose.format_f32`/`format_f64` take the buffer as an i64. An import takes a
+reference as an i64. A v128 cannot cross to a host, so an import takes a
+slice as two i64 parameters, pointer then count. The exported region words
+are i64 globals, and the cursor of a control whose limit is `limit` is at
+`region_cursors + 8 * ((limit - region_base) / region_bytes - 1)`. The
+`goose.direct` section says `memory=wasm64`.
+
+Engines: V8 needs `--experimental-wasm-memory64` before 13.3
+(`scripts/run_wasm.mjs` sets it) and refuses a declared maximum above 262,144
+pages, 16 GiB. Wasmtime has no such cap; `scripts/run_wasmtime.py` reserves
+1 TiB of address space for a program given arguments, so that growing never
+moves the memory. Data regions are still equal shares of the declared
+maximum, which is the reason to declare a large one: only touched pages cost
+memory.
+
+What 64-bit memory does not lift yet: one growable array's element count is
+still checked against 2^32 - 1 in `push`, `append`, `resize`, `reserve` and in
+literals with a repetition count, and its buffer against 4 GiB.
+
+Both supplied hosts take either kind of module. They provide the stdlib's
+`os` imports, and pass the words after `--` to the program as its arguments:
+
+```sh
+goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 4194304 -o goose64.wasm
+python scripts/run_wasmtime.py goose64.wasm --cache goose64.cwasm -- program.goose --stdlib stdlib -o program.wasm
+```
+
+`--cache` keeps Wasmtime's compiled module beside the SHA-256 of the module
+it came from and reuses it for the same bytes.
 
 Hosts must provide matching signatures and semantics for remaining imports. The supplied hosts
 include input, timing, and barrier functions used by the tests and benchmarks.

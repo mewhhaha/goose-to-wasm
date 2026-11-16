@@ -538,6 +538,26 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         exit_code = 1
         error = str(failure)
     ended = time.perf_counter_ns()
+    # GOOSE_REGION_STATS=1: how far each data region's cursor got, largest
+    # first, for a module that exports its region words.
+    if os.environ.get("GOOSE_REGION_STATS") and store is not None and linker is not None:
+        try:
+            exports = instance.exports(store)
+            wide = exports["goose.region_base"].type(store).content == wasmtime.ValType.i64()
+            size, layout = (8, "<Q") if wide else (4, "<I")
+            mask = (1 << (8 * size)) - 1
+            base, each, table = (exports[name].value(store) & mask for name in ("goose.region_base", "goose.region_bytes", "goose.region_cursors"))
+            memory, used = exports["memory"], []
+            # Regions that start inside the memory as far as it has grown.
+            for region in range(max(0, min((base - table) // size, -(-(memory.data_len(store) - base) // each)))):
+                cursor = struct.unpack(layout, bytes(memory.read(store, table + region * size, table + (region + 1) * size)))[0]
+                if cursor:
+                    used.append((cursor - (base + region * each), region))
+            used.sort(reverse=True)
+            errors.append(f"regions: {each} bytes each, memory {memory.data_len(store)}; used ".encode()
+                          + " ".join(f"#{region}:{count}" for count, region in used[:12]).encode() + b"\n")
+        except (KeyError, NameError):
+            pass
     if prepared is not None:
         if linker is not None:
             linker.close()
