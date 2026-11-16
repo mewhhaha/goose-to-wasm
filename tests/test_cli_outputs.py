@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""The compiler refuses outputs that would replace a source or another output."""
+"""The compiler refuses outputs that would replace a source or another output, and reads its size options."""
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import unittest
@@ -53,6 +54,59 @@ class OutputCollisions(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         for name in ("m.wasm", "s.json", "d.json"):
             self.assertTrue((self.work / name).stat().st_size > 0)
+
+
+@unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
+class StackReserve(unittest.TestCase):
+    """--stack-reserve writes GS_STACK_RESERVE into the generated C, as upstream's does."""
+    REFUSAL = "--stack-reserve takes a size from 64 KB to 256 TB"
+
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.work = Path(directory.name)
+        (self.work / "main.goose").write_text("fn main() { print(1); }\n")
+
+    def emit(self, *arguments):
+        command = [COMPILER, "main.goose", "--target", "native", "--stdlib", STDLIB, "-o", "out.c", *arguments]
+        return subprocess.run(list(map(str, command)), cwd=self.work, capture_output=True, text=True)
+
+    # The option's own line: the runtime's default, under #ifndef, is spelled (2048ull << 20).
+    OPTION = re.compile(r"#define GS_STACK_RESERVE \d+ull")
+
+    def defines(self):
+        return [line for line in (self.work / "out.c").read_text().splitlines() if self.OPTION.fullmatch(line)]
+
+    def test_default_writes_no_define(self):
+        self.assertEqual(self.emit().returncode, 0)
+        self.assertEqual(self.defines(), [])
+
+    def test_sizes_and_suffixes(self):
+        plain = None
+        for size, value in (("64K", 65536), ("65536", 65536), ("16g", 16 << 30), ("2GB", 2 << 30),
+                            ("3m", 3 << 20), ("256T", 1 << 48)):
+            with self.subTest(size=size):
+                result = self.emit("--stack-reserve", size)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(self.defines(), [f"#define GS_STACK_RESERVE {value}ull"])
+                rest = [line for line in (self.work / "out.c").read_text().splitlines()
+                        if not self.OPTION.fullmatch(line)]
+                if plain is None:
+                    self.assertEqual(self.emit().returncode, 0)
+                    plain = (self.work / "out.c").read_text().splitlines()
+                self.assertEqual(rest, plain)
+
+    def test_refused_sizes(self):
+        for size in ("1K", "65535", "257T", "300T", "12x", "G", "", "-1", "9999999999999999999", "1.5G"):
+            with self.subTest(size=size):
+                result = self.emit("--stack-reserve", size)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(self.REFUSAL, result.stderr)
+
+    def test_missing_value(self):
+        result = self.emit("--stack-reserve")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("missing option value", result.stderr)
 
 
 if __name__ == "__main__":

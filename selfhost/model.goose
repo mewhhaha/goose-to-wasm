@@ -363,6 +363,9 @@ struct Program {
     // The program's total const for expansion size (upstream ExpansionClone,
     // whose reference build raises it to 1000000).
     expansion_limit: i64 = 100000,
+    // --stack-reserve: the address space per data stack the generated C asks
+    // for (GS_STACK_RESERVE), or 0 for the runtime's 2 GiB.
+    stack_reserve: i64 = 0,
     // Code generation: a `defer` body may run while a nonlocal return passes
     // through its function (mark_unwinding_functions).
     unwinding: bool = false,

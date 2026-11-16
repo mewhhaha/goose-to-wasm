@@ -92,6 +92,7 @@ Status key: **yes** = matches upstream on the tests named. **partial** = some fo
 | Native packages `gfx`, `audio`, `physics`, `ui` | pin | no | "blessed packages are not yet supported"; also `embed_shader` |
 | Package C sources (`.build` sidecars) | pin | partial | `pkg_own_c` passes when its C is linked by hand; no CLI flag |
 | `--shared`, `--header`, `goose_init` | `09198beb` | no | "unknown compiler option" |
+| `--stack-reserve size` | pin | yes | 64K to 256T with a K, M, G or T suffix, written into the generated C as `GS_STACK_RESERVE`, as upstream writes it; `tests/test_cli_outputs.py`. Native only: the direct Wasm backend sizes its memory with `--wasm-max-pages` |
 | `format`, `lsp`, `fetch`, `completion`, `--jit`, `--include` | various | no | Not part of this compiler's driver |
 
 ## Differences found by the upstream differential run

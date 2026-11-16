@@ -3795,7 +3795,11 @@ fn generate_c(p: Program&, out: u8[>..]&) {
     var global_count = 0;
     for symbol, s in p.symbols { if (symbol.flags & S_GLOBAL) != 0 && symbol.component_owner < 0 { global_count += cc_region_width(p, symbol.type_id); if cc_pool_mode(p, s) > 0 { global_count++; } } }
     let threads = cc_threads_used(p); let images = cc_images_used(p); let begin = out.len;
-    cc_text(out, "#define _GNU_SOURCE 1\n"); cc_text(out, cc_runtime_units);
+    cc_text(out, "#define _GNU_SOURCE 1\n");
+    // --stack-reserve is written into the C itself, as upstream writes a -D:
+    // a run and a build see the same source.
+    if p.stack_reserve > 0 { cc_text(out, "#define GS_STACK_RESERVE "); cc_number(out, p.stack_reserve); cc_text(out, "ull\n"); }
+    cc_text(out, cc_runtime_units);
     if threads { cc_text(out, "#define GS_NEED_THREADS 1\n"); } cc_text(out, cc_runtime_header);
     cc_text(out, "#if !defined(GS_SEPARATE_RUNTIME) || defined(G_RUNTIME_UNIT)\n"); cc_text(out, cc_runtime_impl); cc_text(out, cc_runtime_threads);
     cc_text(out, "#endif\n#ifdef G_RUNTIME_UNIT\n"); cc_text(out, cc_runtime_unit); cc_text(out, "#else /* program units */\n");

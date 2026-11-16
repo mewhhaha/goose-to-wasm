@@ -16,7 +16,7 @@ struct DriverOptions {
     stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1,
     target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256,
     check: bool = false, parse: bool = false, tokens: bool = false,
-    dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000,
+    dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
     help: bool = false, version: bool = false, bad: bool = false,
 }
 fn driver_integer(out: u8[>..]&, value: i64) {
@@ -84,6 +84,21 @@ fn driver_number(text: const u8[:]) -> i64, bool {
     }
     return n, true;
 }
+// A size with an optional K, M, G or T suffix and an optional B after it, as
+// upstream's --stack-reserve reads one.
+fn driver_size(text: const u8[:]) -> i64, bool {
+    var end = text.len;
+    if end > 0 && (text[end - 1] == 'B' || text[end - 1] == 'b') { end -= 1; }
+    if end == 0 { return 0, false; }
+    var shift: i64 = 0; let suffix = text[end - 1];
+    if suffix == 'K' || suffix == 'k' { shift = 10; } else if suffix == 'M' || suffix == 'm' { shift = 20; }
+    else if suffix == 'G' || suffix == 'g' { shift = 30; } else if suffix == 'T' || suffix == 't' { shift = 40; }
+    if shift != 0 { end -= 1; }
+    if end == 0 || end > 18 { return 0, false; }
+    let n, ok = driver_number(text[..end]);
+    if !ok || n > (9223372036854775807 >> shift) { return 0, false; }
+    return n << shift, true;
+}
 fn driver_error(message: const u8[:]) { write_stderr("goose: "); write_stderr(message); write_stderr("\n"); }
 // Paths compare in the normalized form sources are recorded in; an absolute
 // spelling of a relative path is not recognized without a filesystem query.
@@ -132,7 +147,8 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "-O2") { o.optimization = 2; }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
                 same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") ||
-                same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") {
+                same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") ||
+                same_bytes(a, "--stack-reserve") {
             if at >= arguments.len { driver_error("missing option value"); o.bad = true; break; }
             let v = arguments[at]; at++;
             if same_bytes(a, "-o") { o.output_arg = at - 1; }
@@ -144,6 +160,13 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
                 if same_bytes(v, "wasm-direct") { o.target = 0; }
                 else if same_bytes(v, "native") || same_bytes(v, "c") { o.target = 1; }
                 else { driver_error("target must be wasm-direct, native or c"); o.bad = true; }
+            } else if same_bytes(a, "--stack-reserve") {
+                // A whole page at least, 64 KB being the largest a platform
+                // uses, and at most the 2^48 bytes of goose_spec.md 10.4.
+                let size, ok = driver_size(v);
+                if !ok || size < 65536 || size > 281474976710656 {
+                    driver_error("--stack-reserve takes a size from 64 KB to 256 TB (2^48, goose_spec.md 10.4), with an optional K, M, G or T suffix"); o.bad = true;
+                } else { o.stack_reserve = size; }
             } else {
                 let number, ok = driver_number(v);
                 if !ok { driver_error("invalid page count"); o.bad = true; }
@@ -316,7 +339,7 @@ fn driver_exec(command: u8[>..]&) -> i64 {
     return (code >> 8) & 255;
 }
 fn driver_help() {
-    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
+    write_stdout("Goose-written compiler (unverified rewrite)\nUsage: goose-selfhost source.goose --target wasm-direct|native -o output [-O0|-O1|-O2]\n  --check --parse --tokens --dump --debug --stdlib DIR --wasm-stats FILE --wasm-deps FILE\n  --reachable-program  Check only functions a root reaches, and the signatures of the rest.\n  --expansion-node-limit N  Total const for expansion size (default 100000).\n  --stack-reserve SIZE  Address space reserved per data stack in a native program, from 64K to 256T\n                        with a K, M, G or T suffix (default 2G).\n  --run  Build native C with --cc and execute, or execute Wasm with GOOSE_WASM_HOST.\n");
 }
 fn driver_main() -> i64 {
     // Every path lives in one byte table: each array holds its own storage region.
@@ -359,7 +382,7 @@ fn driver_main() -> i64 {
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
                       inline_sites: inline_sites };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
-    p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit;
+    p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;
     p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;
     if o.target == 1 { p.pointer_bytes = 8; }
     initialize_types(p);
