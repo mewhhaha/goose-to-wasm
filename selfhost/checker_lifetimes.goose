@@ -2227,20 +2227,25 @@ fn life_globals_contain(p: Program&, l: Lifetimes&, pointee: i64) -> bool {
     return l.global_types[life_canon(l, pointee)] != 0;
 }
 // Whether storage of type `holder` holds, inline, a reference or slice that
-// may point at a `pointee` or into one: one whose own pointee type holds a
-// `pointee` or lies in one. A relative reference points into its owner or
-// pool, and is not judged here.
-fn life_refers(p: Program&, l: Lifetimes&, holder: i64, pointee: i64) -> bool {
+// may point at a `pointee` or into one: one whose own pointee type lies in a
+// `pointee` (a `Module&` slot holds no reference to an i64, though a Module
+// holds an i64). within: `pointee` is only the type of something the stored
+// reference points into (an argument class's parameters' type, which may be
+// part of a larger value), so a slot whose pointee type holds one will do
+// too. A relative reference points into its owner or pool, and is not
+// judged here.
+fn life_refers(p: Program&, l: Lifetimes&, holder: i64, pointee: i64, within: bool = false) -> bool {
     if holder < 0 || pointee < 0 { return true; }
     if l.refers.len == 0 { l.refers.resize(16384, LifeRefers {}); }
-    var h: u64 = (holder as! u64) * 11400714819323198485 ^ (pointee as! u64) * 14029467366897019727; h ^= h >> 29;
+    var key = 2 * pointee; if within { key += 1; }
+    var h: u64 = (holder as! u64) * 11400714819323198485 ^ (key as! u64) * 14029467366897019727; h ^= h >> 29;
     let memo = (h & ((l.refers.len - 1) as! u64)) as i64;
-    if l.refers[memo].holder == holder && l.refers[memo].pointee == pointee { return l.refers[memo].answer; }
+    if l.refers[memo].holder == holder && l.refers[memo].pointee == key { return l.refers[memo].answer; }
     var work: i64[>..] = [holder]; var at = 0; var answer = false;
     while at < work.len && !answer {
         let t: const Type& = p.types[work[at]]; at += 1;
         if t.kind == TY_SLICE || t.kind == TY_REF {
-            if t.kind == TY_REF && t.length_storage >= 0 || t.element < 0 || life_contains(p, l, t.element, pointee) || life_contains(p, l, pointee, t.element) { answer = true; }
+            if t.kind == TY_REF && t.length_storage >= 0 || t.element < 0 || life_contains(p, l, pointee, t.element) || within && life_contains(p, l, t.element, pointee) { answer = true; }
         } else if t.kind == TY_ARRAY && t.element >= 0 {
             var seen = false; for old in work { if old == t.element { seen = true; } }
             if !seen { work.push(t.element); }
@@ -2254,15 +2259,17 @@ fn life_refers(p: Program&, l: Lifetimes&, holder: i64, pointee: i64) -> bool {
             }
         }
     }
-    l.refers[memo] = LifeRefers { holder: holder, pointee: pointee, answer: answer };
+    l.refers[memo] = LifeRefers { holder: holder, pointee: key, answer: answer };
     return answer;
 }
 // The type of the storage a store's place is, where one type says what it
 // can hold: what the place was reached as, or a storage class's pointee, an
 // argument class's parameters', a root's own. -1 else.
 fn life_place_holds(p: Program&, l: Lifetimes&, x: LifeAlt) -> i64 {
-    if !x.exact || x.byteview || x.root == 0 { return -1; }
+    if x.byteview || x.root == 0 { return -1; }
+    // (What a place was reached as holds of it whichever root it lies in.)
     if x.target_type >= 0 { return x.target_type as i64; }
+    if !x.exact { return -1; }
     let owner = l.roots[x.root].class_frame;
     if owner < 0 { if life_is_ref(p, l.roots[x.root].type_id) { return -1; } return l.roots[x.root].type_id; }
     if l.roots[x.root].class_parent >= 0 { return l.roots[x.root].class_type; }
@@ -2286,14 +2293,14 @@ fn life_referable(p: Program&, l: Lifetimes&, set: i64, holder: i64) -> i64 {
     while at >= 0 {
         var x = l.alts[at]; at = x.next; x.next = -1;
         if x.exact && !x.byteview && x.root != 0 {
-            var points = x.target_type as i64;
+            var points = x.target_type as i64; var within = false;
             if points < 0 {
                 let owner = l.roots[x.root].class_frame;
                 if owner < 0 { if !life_is_ref(p, l.roots[x.root].type_id) { points = l.roots[x.root].type_id; } }
                 else if l.roots[x.root].class_parent >= 0 { points = l.roots[x.root].class_type; }
-                else if l.roots[x.root].class_index < l.frames[owner].class_base { points = l.roots[x.root].class_pointee; }
+                else if l.roots[x.root].class_index < l.frames[owner].class_base { points = l.roots[x.root].class_pointee; within = true; }
             }
-            if points >= 0 && !life_refers(p, l, holder, points) { dropped = true; continue; }
+            if points >= 0 && !life_refers(p, l, holder, points, within) { dropped = true; continue; }
         }
         life_build_add_alt(l, out, x);
     }
@@ -2309,7 +2316,7 @@ fn life_reached_places(l: Lifetimes&, places: i64, reached: i64) -> i64 {
     var out = LifeBuild {}; var at = l.sets[places].first;
     while at >= 0 {
         var x = l.alts[at]; at = x.next; x.next = -1;
-        if x.exact && !x.byteview && x.target_type < 0 { x.target_type = reached as i32; }
+        if !x.byteview && x.target_type < 0 { x.target_type = reached as i32; }
         life_build_add_alt(l, out, x);
     }
     return life_build_end(l, out);
@@ -3435,7 +3442,7 @@ fn life_store(p: Program&, l: Lifetimes&, node: i64, given: i64, value: LifeValu
                 }
             }
         }
-        var reached: i64 = -1; if d.exact && !d.byteview { reached = d.target_type as i64; if reached < 0 { reached = path; } }
+        var reached: i64 = -1; if !d.byteview { reached = d.target_type as i64; if reached < 0 { reached = path; } }
         life_add_contents(l, d.root, life_stored_roots(p, l, value), d.exact, reached);
         destination = d.next;
     }
@@ -5234,7 +5241,7 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
                 }
                 // A refused store is reported here, once: it does not land,
                 // and so is not judged again at every call above this one.
-                var reached: i64 = -1; if alt.exact && !alt.byteview { reached = alt.target_type as i64; }
+                var reached: i64 = -1; if !alt.byteview { reached = alt.target_type as i64; }
                 if !refused { life_add_contents(l, alt.root, landing, false, reached); }
                 ai = alt.next;
             }
