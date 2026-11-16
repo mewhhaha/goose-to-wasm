@@ -1,0 +1,73 @@
+{
+ "wasmtime": "50.0.1",
+ "rows": [
+  {
+   "memory": "32-bit",
+   "spectre_hardened_bounds": true,
+   "kernel_ns": [
+    108609664,
+    99521265,
+    99078622,
+    98814675,
+    97544727
+   ],
+   "median_ms": 99.1,
+   "recursive_function": {
+    "instructions": 130,
+    "cmp": 7,
+    "cmov": 0
+   }
+  },
+  {
+   "memory": "32-bit",
+   "spectre_hardened_bounds": false,
+   "kernel_ns": [
+    99018727,
+    99360619,
+    101251156,
+    100014268,
+    108919896
+   ],
+   "median_ms": 100.0,
+   "recursive_function": {
+    "instructions": 130,
+    "cmp": 7,
+    "cmov": 0
+   }
+  },
+  {
+   "memory": "64-bit",
+   "spectre_hardened_bounds": true,
+   "kernel_ns": [
+    123527995,
+    114646534,
+    122798335,
+    137844792,
+    113355508
+   ],
+   "median_ms": 122.8,
+   "recursive_function": {
+    "instructions": 154,
+    "cmp": 10,
+    "cmov": 3
+   }
+  },
+  {
+   "memory": "64-bit",
+   "spectre_hardened_bounds": false,
+   "kernel_ns": [
+    104979606,
+    107002264,
+    106731549,
+    105871331,
+    105407365
+   ],
+   "median_ms": 105.9,
+   "recursive_function": {
+    "instructions": 149,
+    "cmp": 10,
+    "cmov": 0
+   }
+  }
+ ]
+}
