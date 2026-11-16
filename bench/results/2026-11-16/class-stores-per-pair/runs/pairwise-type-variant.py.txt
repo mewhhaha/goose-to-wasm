@@ -1,0 +1,138 @@
+w = '/home/user/goose-to-wasm/build/work/checker_lifetimes.goose'
+t = open(w).read()
+def rep(old, new, count=1):
+    global t
+    assert t.count(old) == count, (old[:80], t.count(old))
+    t = t.replace(old, new)
+
+# --- memo tables
+rep("""    // Per type, the first type life_same takes it for (life_canon_types).
+    type_canon: i64[>..]&,
+}""", """    // Per type, the first type life_same takes it for (life_canon_types).
+    type_canon: i64[>..]&,
+    // Whether a value of one type holds a reference to a value of another
+    // (life_refers), by the pair; and the sets life_referable has made, by
+    // set and holding type.
+    refers: LifeRefers[>..]&, referable: LifeLoaded[>..]&,
+}""")
+rep("struct LifeMapped {", """struct LifeRefers { holder: i64 = -1, pointee: i64 = -1, answer: bool = false }
+struct LifeMapped {""")
+rep("var typed_slots: i64[>..] = [];", "var typed_slots: i64[>..] = []; var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = [];")
+rep("typed_slots: typed_slots, type_canon: type_canon };", "typed_slots: typed_slots, type_canon: type_canon, refers: refers, referable: referable };")
+
+# --- helpers before life_can_take's comment
+rep("""// The places of a set that can take a store of references: a root whose""", """// Whether a value of type `holder` holds, inline, a reference or slice that
+// may point at a `pointee`: one whose own pointee type holds a `pointee`.
+// (Bytes may be a view of anything, and a relative reference points into
+// its owner or pool: both may.)
+fn life_refers(p: Program&, l: Lifetimes&, holder: i64, pointee: i64) -> bool {
+    if holder < 0 || pointee < 0 { return true; }
+    if l.refers.len == 0 { l.refers.resize(16384, LifeRefers {}); }
+    var h: u64 = (holder as! u64) * 11400714819323198485 ^ (pointee as! u64) * 14029467366897019727; h ^= h >> 29;
+    let memo = (h & ((l.refers.len - 1) as! u64)) as i64;
+    if l.refers[memo].holder == holder && l.refers[memo].pointee == pointee { return l.refers[memo].answer; }
+    var work: i64[>..] = [holder]; var at = 0; var answer = false;
+    while at < work.len && !answer {
+        let t: const Type& = p.types[work[at]]; at += 1;
+        if t.kind == TY_SLICE || t.kind == TY_REF {
+            if t.kind == TY_REF && t.length_storage >= 0 || t.element < 0 || t.element == TYPE_U8 || life_contains(p, l, t.element, pointee) || life_contains(p, l, pointee, t.element) { answer = true; }
+        } else if t.kind == TY_ARRAY && t.element >= 0 {
+            var seen = false; for old in work { if old == t.element { seen = true; } }
+            if !seen { work.push(t.element); }
+        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var field = t.first;
+            while field >= 0 {
+                let ft = p.nodes[field].type_id; var seen = ft < 0;
+                for old in work { if old == ft { seen = true; } }
+                if !seen { work.push(ft); }
+                field = p.nodes[field].next;
+            }
+        }
+    }
+    l.refers[memo] = LifeRefers { holder: holder, pointee: pointee, answer: answer };
+    return answer;
+}
+// The type of the storage a root is, where one type says what it can hold:
+// a root's own, or what an argument class's parameters point at. -1 else.
+inline fn life_root_holds(l: Lifetimes&, x: LifeAlt) -> i64 {
+    if !x.exact || x.byteview || x.root == 0 { return -1; }
+    let owner = l.roots[x.root].class_frame;
+    if owner < 0 { return l.roots[x.root].type_id; }
+    if l.roots[x.root].class_parent < 0 && l.roots[x.root].class_index < l.frames[owner].class_base { return l.roots[x.root].class_pointee; }
+    return -1;
+}
+// What of a stored set storage of type `holder` can take: a stored reference
+// to a pointee lands only in storage that holds a reference to such a
+// pointee (upstream lands a callee's store, at the call, in the caller's
+// storage that can hold what was stored). A reference whose pointee is not
+// known may land anywhere.
+fn life_referable(p: Program&, l: Lifetimes&, set: i64, holder: i64) -> i64 {
+    if set == 0 || holder < 0 { return set; }
+    if l.referable.len == 0 { l.referable.resize(16384, LifeLoaded {}); }
+    var h: u64 = (set as! u64) * 11400714819323198485 ^ (holder as! u64) * 14029467366897019727; h ^= h >> 29;
+    let memo = (h & ((l.referable.len - 1) as! u64)) as i64;
+    if l.referable[memo].contents == set && l.referable[memo].places == holder { return l.referable[memo].set; }
+    var out = LifeBuild {}; var at = l.sets[set].first; var dropped = false;
+    while at >= 0 {
+        var x = l.alts[at]; at = x.next; x.next = -1;
+        if x.target_type >= 0 && !x.byteview && !life_refers(p, l, holder, x.target_type as i64) { dropped = true; continue; }
+        life_build_add_alt(l, out, x);
+    }
+    var result = life_build_end(l, out);
+    if !dropped { result = set; }
+    l.referable[memo] = LifeLoaded { contents: set, places: holder, set: result };
+    return result;
+}
+// The places of a store that can take any of what is stored: a root whose
+// type holds no reference to what any stored reference points at is none.
+fn life_refer_places(p: Program&, l: Lifetimes&, places: i64, value: i64) -> i64 {
+    if places == 0 || value == 0 { return places; }
+    var at = l.sets[value].first;
+    while at >= 0 { let v = l.alts[at]; at = v.next; if v.target_type < 0 || v.byteview { return places; } }
+    var out = LifeBuild {}; var dropped = false; at = l.sets[places].first;
+    while at >= 0 {
+        var x = l.alts[at]; at = x.next; x.next = -1; let holder = life_root_holds(l, x);
+        if holder >= 0 && life_referable(p, l, value, holder) == 0 { dropped = true; continue; }
+        life_build_add_alt(l, out, x);
+    }
+    let kept = life_build_end(l, out);
+    if !dropped { return places; }
+    return kept;
+}
+// A store's places are folded (life_fold) only past LIFE_PLACE_GLOBALS global
+// roots: "something in global storage" has no type to check a store against.
+let LIFE_PLACE_GLOBALS: i64 = 16;
+fn life_fold_places(l: Lifetimes&, set: i64) -> i64 {
+    if l.sets[set].count <= LIFE_PLACE_GLOBALS { return set; }
+    var globals = 0; var at = l.sets[set].first;
+    while at >= 0 { let root = l.roots[l.alts[at].root]; if l.alts[at].root == l.globals_root || root.symbol >= 0 && root.frame == 0 && root.depth == 0 { globals += 1; } at = l.alts[at].next; }
+    if globals <= LIFE_PLACE_GLOBALS { return set; }
+    return life_fold(l, set);
+}
+// The places of a set that can take a store of references: a root whose""")
+
+# --- map_set: places of a store are not folded here
+rep("""    if stored != 0 { result = life_can_take(p, l, result); }
+    result = life_fold(l, result);""", """    if stored != 0 { result = life_can_take(p, l, result); }
+    else { result = life_fold(l, result); }""")
+
+# --- replay
+rep("""            mapped = places != effect.places || value.place != effect.value.place || value.refs != effect.value.refs || value.contents != effect.value.contents ||""", """            if stored != 0 { places = life_fold_places(l, life_refer_places(p, l, places, value.contents)); }
+            mapped = places != effect.places || value.place != effect.value.place || value.refs != effect.value.refs || value.contents != effect.value.contents ||""")
+rep("""            let places = life_map_set(p, l, effect.places, m, stored); let value = life_map_value(p, l, effect.value, m);""", """            var places = life_map_set(p, l, effect.places, m, stored); let value = life_map_value(p, l, effect.value, m);""")
+rep("""                var refused = false;
+                if mapped {
+                    // The body's check stood for the classes' ranks; where the
+                    // store lands in this call, each stored root must outlive it.
+                    var si = l.sets[effect.value.contents].first;""", """                var refused = false; var landing = effect.value.contents;
+                if mapped {
+                    // Of what is stored, this root takes what its type can
+                    // hold a reference to.
+                    landing = life_referable(p, l, landing, life_root_holds(l, alt));
+                    if landing == 0 { ai = alt.next; continue; }
+                    // The body's check stood for the classes' ranks; where the
+                    // store lands in this call, each stored root must outlive it.
+                    var si = l.sets[landing].first;""")
+rep("""                if !refused { life_add_contents(l, alt.root, effect.value.contents); }""", """                if !refused { life_add_contents(l, alt.root, landing); }""")
+open(w, 'w').write(t)
+print('ok')

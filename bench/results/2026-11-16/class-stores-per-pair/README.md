@@ -204,13 +204,89 @@ The 460 refused stores of an instrumented run on `952c916` ([by kind](runs/store
 
 None is kept: none moves the count beyond what it wanders by, and none was run on the corpus. The last is the one upstream has and the trace above asks for; it wants a small case of its own before it goes in.
 
+## Two stores found by where they first go wrong (`df28ece`)
+
+"Fix the errors" was the request, with blot2 at 425. Committed as `df28ece`, [qualified](runs/qualification-df28ece.json).
+
+| | `952c916` | `df28ece` |
+| --- | --- | --- |
+| corpus, default build | | 0 of 4,355 sources differ in output, diagnostics or 11,589 state fingerprints ([report](runs/corpus-default-fingerprints-df28ece.json)) |
+| corpus, every call class-keyed | 14 accepted sources rejected, 33 rejected sources accepted, 21 other messages | the same 14, 33 and 21 sources ([list](runs/corpus-every-call-class-keyed-categories-df28ece.json)). 815 sources with the same messages and 1,502 accepted ones differ in state fingerprints only (72 before): the store records are other records now |
+| self-check, every call class-keyed | no error | no error |
+| blot2, errors of the first pass | 425 | 73 ([list](runs/blot2-diagnostics-df28ece.txt)) |
+| blot2, frames / alternatives | 53,794 / 56.6 M | 52,972 / 45.7 M ([progress](runs/blot2-progress-df28ece.txt)) |
+| blot2, bootstrapped compiler | 256 s, 6.9 GiB | 284 s wall, 272 s CPU, 6.8 GiB ([run](runs/blot2-run-df28ece.json)): 11% slower for the one pass |
+
+Same machine and sources as above (4 cores, 16 GiB; blot2 `compiler-goose` at `6ad5fbb`, checked with `--reachable-program --expansion-node-limit 1000000 --check`; upstream at `d92c4315` read, and its tests run, not measured).
+
+### How they were found
+
+The count still says little (it went 425, 404, 114, 90, 123, 46, 25, 121, 134, 130, 73 through the day), so the work went by three other things:
+
+- **Upstream's source, read again for one question: when does a call judge a store at all?** (`ApplyCalleeStores`, `FitsAt`, `ShrinkTargets`, `RootCandidates`, `RecordStore`.) Only where the container is one of the callee's classes and the store went through storage the class only leads to, or the argument is not one exact root, or the call is into a cycle. A store into a global is judged in the body and nowhere else. The targets are named by type: the argument's root, and every variable in scope or global whose own storage can hold what the destination was reached as. A value read out of a container and stored back into that container is no store; it only fills the container again where something emptied it. A class of a global argument has depth 0 in the key.
+- **A trace of where a pair first appears** ([tools/dbgdefer.py](tools/dbgdefer.py)): a store of something rooted at a class into storage shallower than that class is put off to the callers here, and upstream accepts no program with one in a body. In blot2, 9 statements store such a pair in a body, and 18 store between two class storages at all; 4,237 calls first made one by mapping a callee's store. So the mapping made them, not the program.
+- **The eleven upstream tests the last variants broke**, run on every build, with the self-check ([tools/cycle.sh](tools/cycle.sh)).
+
+### A storage's own, put back
+
+`support/pooled_buffer.goose` ends `ensure` with `buffer.storage = replacement; buffer.items = replacement[..length];` and has `buffer.items = buffer.storage[..length]` in `resize` and `clear`. The second kind stores into `buffer` what was read out of `buffer`. It was on record as a store of the argument's storage class into the argument class, and each call above mapped it as any store, pair by pair: where `buffer` was `self_.scopes.buffer`, a reference read out of the caller's own parameter, every storage `self_` refers to took what every other held, global pools among them. Upstream records nothing for it (`RecordStore`: `from == container`, not `bound`).
+
+Dropping it was not enough, and keeping it was too much:
+
+| variant | blot2 | upstream tests |
+| --- | --- | --- |
+| before | 90 errors, 76.2 M alternatives | |
+| such a store dropped ([patch scripts](runs/own-reads-dropped-variant.py.txt)) | 46, 38.8 M | `emptied_callee_call_between`, `emptied_callee_derived_store` and `emptied_callee_shrink_first` accepted: the store also said the container was filled again |
+| dropped, with a record that the container is filled again | 25, 37.5 M | the same three: `s.refs.push(s.pool[0])` puts back a reference into the elements of what `s` held a reference to, another kind of reference, and the shrink rule needs it |
+| kept as a store, landed in each root as what that root holds ([patch scripts](runs/own-stores-kept-variant.py.txt)) | region full at 46,000 frames, 78.7 M | all report |
+| the same, dropped where the root's contents cover it | region full at 38,000 frames | two accepted: covered by the class's own general alternative in the callee is not "nothing new" for a caller whose storage holds something more particular |
+| **on record without a set** | 121, 43.9 M | all report |
+
+The last is what is committed. The store is a record of what kind of reference went back in (as the storage held it, one into what such a reference points at, a byte view, or both) and to what type, in `LifeEffect.field` and `value.type_id` (`life_own_reads`, `life_own_effects`). A call applies that to what each storage the class is there holds itself (`life_own_store`), and passes the record on. Half of the pass's sets were these stores mapped.
+
+### The type a store reaches
+
+With that, the trace named 11 calls in the whole program, nearly all in `check/capability_lifetimes.goose`:
+
+```
+fn pushExit(out:Exit[>..<]&,module:const Module&,target:CoreId,value:Id) {out.push(Exit{module:module,target:target,value:value});}
+...
+pushExit(self_.exits,module,n.b,result.value);
+```
+
+A reference to `module` goes into the array `self_.exits` points at, a local of the function that made the `Scan`. Upstream accepts it by type: no global can hold an `Exit[>..<]`, and `module` outlives `self_`. Here the store landed in the caller's storage class "whatever `self_`'s storage refers to" as a store into that root, and the calls above put it in everything `self_` refers to. Three things were each needed, and the count shows it only with the last:
+
+| step | blot2 errors |
+| --- | --- |
+| a store into a storage class keeps the type its destination was reached as (`LifeEffect.value.type_id`; `life_reached` reads it off the destination's path, upstream's `Dest::reached`), and a call lands it only in what such a destination can lie in | 134 |
+| "something in global storage" (the alternative more than four globals fold into) stands for a reference to a type only where some global's own storage holds one (`life_globals_contain`), on a read-back and where a call maps | 130 |
+| the pointee type of a call's one reference to a root is kept beside the root (`map_types`): `self_.exits` had become one exact alternative with the step before, and the path for those took the type from the callee's side, which has none | 73 |
+
+### Before those: what was only reached from an argument's storage
+
+Two changes from the start of the day are part of the commit. Something only known to be reached from a storage class is mapped from what that class's roots hold, a level at a time (`life_class_deep`); mapped from the argument's roots it took in the class's own roots, and a store of it into that class made each hold itself (425 to 114 with the next). And a store into a class root of what was only reached from the same argument's storage is no store a call can place (`life_unpermuted`).
+
+### Tried and not kept
+
+| variant | result |
+| --- | --- |
+| a store into a class root drops every storage class of the same argument from what is stored, exact ones too | 3 errors, 30.7 M alternatives, 222 s. But seven upstream error tests pass: `store_class_view_reached`, `class_store_view_outlived`, `store_reached_alias`, `store_class_view_reached_call`, `cycle_read_through_two_pools`, `emptied_callee_call_between`, `emptied_callee_derived_store`. A store between two things one argument refers to is judged at the call |
+| where a call lands a store, each root takes only what its type holds a reference to, the globals unfolded up to 16 ([patch script](runs/pairwise-type-variant.py.txt)) | 123 errors (from 90), 77.5 M alternatives |
+| what the globals hold and hold references to, by type, asked wherever the folded alternative is a place or a pointee ([patch script](runs/global-types-variant.py.txt)), before the own-store change | 90 errors, no change: blot2's globals are pools of nearly every type it stores. The part that asks what a global holds inline is in the commit, where the type of the destination now reaches it |
+
+### What is left
+
+73 calls, not traced yet with these changes in. The method stands: the trace of first appearances, one call at a time, upstream's rule for it read, the eleven tests and the corpus on what results.
+
 ## Not right yet
 
-- **blot2's 425 errors** (`952c916`). The next step is the next small case: see "The first small case" and what follows it.
+- **blot2's 73 errors** (`df28ece`). The next step is the next call the trace names: see "Two stores found by where they first go wrong".
 - **The 33 corpus sources where the class path misses an error**, unchanged.
-- **Memory.** 56.6 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
-- **Peak RSS is 6.9 GiB** for the one pass.
+- **Memory.** 45.7 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
+- **Peak RSS is 6.8 GiB** for the one pass, which takes 284 s.
 
 ## Tools
+
+`cycle.sh NAME` builds a work copy with every call class-keyed and with the progress counters, runs the eleven upstream tests and the self-check, then blot2. `dbgdefer.py` (after `dbgstore2.py`) prints where a store of something class-rooted into shallower storage first appears: in a body, at a call whose callee had none, between two class storages in a body, of one argument into another.
 
 In [tools/](tools/), beside those of the earlier page: `corpus0.sh` builds a source directory with the state fingerprints at the default limit and at 0 and compares both with a baseline over the corpus; `catsum.py` counts the differing diagnostics; `variant.sh` builds the every-call-class-keyed compiler with one edit applied, for bisecting; `gdbhook.py`, `gdbcmds.txt` and `gdbstacks.py` sample the call stack of one in 2,503 new sets under gdb and aggregate them; `dbgstore2.py` describes refused stores and `dbgpool.py` what first stores a reference into one named global; `setsites.py` and `bigsets.py` are updated for the current source; `dbgorigin.py` tags each store with the statement that first made it and `origins.py` counts refused stores by it; `dbgvia.py` and `viacats.py` say which of the callee's alternatives became the refused source and the destination; `storecats.py` counts refused stores by kind; `smallest.py` ranks the refused calls by the size of caller and callee, to pick the next small case; `dbgsite.py` tags store effects with the code path that made them.

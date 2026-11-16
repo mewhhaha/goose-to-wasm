@@ -1,0 +1,155 @@
+import sys
+w = sys.argv[1] if len(sys.argv) > 1 else '/home/user/goose-to-wasm/build/work/checker_lifetimes.goose'
+t = open(w).read()
+def rep(old, new, count=1):
+    global t
+    assert t.count(old) == count, (old[:80], t.count(old))
+    t = t.replace(old, new)
+
+rep("""fn life_add_contents(l: Lifetimes&, root: i64, storing: i64) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    let sources = storing;""", """// Whether class root `inner` is storage that class root `outer` holds or
+// leads to: a storage class of the same argument further in, or a storage
+// class of one pointee made under it.
+fn life_class_within(l: Lifetimes&, inner: i64, outer: i64) -> bool {
+    let owner = l.roots[outer].class_frame;
+    if owner < 0 || l.roots[inner].class_frame != owner || inner == outer { return false; }
+    var up = inner;
+    while l.roots[up].class_parent >= 0 { up = l.roots[up].class_parent; if up == outer { return true; } }
+    if l.roots[outer].class_parent >= 0 { return false; }
+    let base = l.frames[owner].class_base; let a = l.roots[up].class_index; let b = l.roots[outer].class_index;
+    return a % base == b % base && a / base > b / base;
+}
+// What of a stored set was read straight out of the storage of the one
+// argument class root it is stored into (own), or the rest of it:
+// `b.items = b.storage[..n]` puts back into b's storage what that storage
+// held. Upstream records no store of a value read out of its own container
+// (RecordStore). Here it stays a store, since what is put back may be a
+// reference of another kind (one into the elements of an array the storage
+// held a reference to), but one of its own kind (LifeEffect.field -2): a
+// call lands it in each storage the argument may be as what that storage
+// itself holds (life_replay). Mapped pair by pair as any other store, every
+// storage the argument might be took what every other held.
+fn life_own_reads(l: Lifetimes&, root: i64, set: i64, own: bool) -> i64 {
+    let owner = l.roots[root].class_frame;
+    if owner < 0 || set == 0 || l.roots[root].class_parent >= 0 || l.roots[root].class_index >= l.frames[owner].class_base { if own { return 0; } return set; }
+    let first = l.frames[owner].classes + l.frames[owner].class_base + l.roots[root].class_index;
+    var out = LifeBuild {}; var at = l.sets[set].first; var any = false;
+    while at >= 0 {
+        var x = l.alts[at]; at = x.next; x.next = -1;
+        let read = x.root as i64 == first || l.roots[x.root].class_frame == owner && l.roots[x.root].class_parent == root || x.root as i64 == root && !x.exact && x.from as i64 == root;
+        if read { any = true; }
+        if read == own { life_build_add_alt(l, out, x); }
+    }
+    let part = life_build_end(l, out);
+    if !any { if own { return 0; } return set; }
+    return part;
+}
+// What of a set lies in what `held` names: the alternatives at a root of
+// `held`, or at a class root within `place`.
+fn life_held_part(l: Lifetimes&, set: i64, held: i64, place: i64) -> i64 {
+    if set == 0 { return 0; }
+    var out = LifeBuild {}; var at = l.sets[set].first; var dropped = false;
+    while at >= 0 {
+        var x = l.alts[at]; at = x.next; x.next = -1;
+        if life_find(l, held, x.root as i64) < 0 && !life_class_within(l, x.root as i64, place) { dropped = true; continue; }
+        life_build_add_alt(l, out, x);
+    }
+    let part = life_build_end(l, out);
+    if !dropped { return set; }
+    return part;
+}
+// exact: the store names the root's own storage (not storage only known to
+// outlive it). own: all of it is the root's own storage's (a replayed store
+// of that kind).
+fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false, own: bool = false) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    var sources = storing; var owned = 0;
+    if own { owned = storing; sources = 0; }
+    else if exact && l.class_frames > 0 { owned = life_own_reads(l, root, storing, true); if owned != 0 { sources = life_own_reads(l, root, storing, false); } }""")
+rep("""    var kept = sources;
+    if l.class_frames > 0 && sources != 0 && l.roots[root].frame <= 0 && l.roots[root].class_frame < 0 && l.roots[root].depth == 0 {""",
+    """    var kept = storing;
+    if l.class_frames > 0 && storing != 0 && l.roots[root].frame <= 0 && l.roots[root].class_frame < 0 && l.roots[root].depth == 0 {""")
+rep("""    if sources != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: sources }, places: life_root_set(l, root) }); }
+    if !l.discovery {
+        l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
+        if sources != 0 { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
+    }""", """    if sources != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: sources }, places: life_root_set(l, root) }); }
+    if owned != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: owned }, places: life_root_set(l, root), field: -2 }); }
+    if !l.discovery {
+        l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
+        if storing != 0 { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
+    }""")
+rep("""        life_add_contents(l, d.root, life_stored_roots(p, l, value));""", """        life_add_contents(l, d.root, life_stored_roots(p, l, value), d.exact);""")
+# replay
+rep("""        if m.count > 0 && effect.kind == 4 {
+            // A store into a class root of what came out of the same""", """        if m.count > 0 && effect.kind == 4 && effect.field != -2 {
+            // A store into a class root of what came out of the same""")
+rep("""                var refused = false;
+                if mapped {
+                    // The body's check stood for the classes' ranks; where the
+                    // store lands in this call, each stored root must outlive it.
+                    var si = l.sets[effect.value.contents].first;""", """                var refused = false; var landing = effect.value.contents;
+                // What a storage's own stored back into it (life_own_reads):
+                // each storage the class is here takes what it holds itself.
+                // Storage only known to outlive a root takes it as any store.
+                let own = effect.field == -2 && alt.exact;
+                if own && mapped {
+                    landing = life_held_part(l, landing, life_held(l, life_root_set(l, alt.root)), alt.root as i64);
+                    if landing == 0 { ai = alt.next; continue; }
+                }
+                if mapped && !own {
+                    // The body's check stood for the classes' ranks; where the
+                    // store lands in this call, each stored root must outlive it.
+                    var si = l.sets[landing].first;""")
+rep("""                if !refused { life_add_contents(l, alt.root, effect.value.contents); }""", """                if !refused { life_add_contents(l, alt.root, landing, false, own); }""")
+open(w, 'w').write(t)
+print('ok')
+import sys
+w = sys.argv[1] if len(sys.argv) > 1 else '/home/user/goose-to-wasm/build/work/checker_lifetimes.goose'
+t = open(w).read()
+def rep(old, new, count=1):
+    global t
+    assert t.count(old) == count, (old[:80], t.count(old))
+    t = t.replace(old, new)
+rep("""// exact: the store names the root's own storage (not storage only known to
+// outlive it). own: all of it is the root's own storage's (a replayed store
+// of that kind).
+fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false, own: bool = false) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    var sources = storing; var owned = 0;
+    if own { owned = storing; sources = 0; }
+    else if exact && l.class_frames > 0 { owned = life_own_reads(l, root, storing, true); if owned != 0 { sources = life_own_reads(l, root, storing, false); } }""",
+"""// Where the root already holds all of that, as most such stores find it,
+// nothing is stored, here or in any caller; but the container is filled
+// again where something emptied it (upstream DropKills), which stays on
+// record as a store of nothing, marked by `refs` (a refill).
+// exact: the store names the root's own storage (not storage only known to
+// outlive it). own: all of it is the root's own storage's (a replayed store
+// of that kind). refill: a refill replayed.
+fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false, own: bool = false, refill: bool = false) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    var sources = storing; var owned = 0; var refilled = refill;
+    if own { owned = storing; sources = 0; }
+    else if exact && l.class_frames > 0 { owned = life_own_reads(l, root, storing, true); if owned != 0 { sources = life_own_reads(l, root, storing, false); } }
+    if owned != 0 {
+        var has = l.roots[root].contents; if !l.discovery { has = l.roots[root].live_contents; }
+        if life_equal(l, life_join(l, has, owned), has) { owned = 0; refilled = true; }
+    }""")
+rep("""    if owned != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: owned }, places: life_root_set(l, root), field: -2 }); }
+    if !l.discovery {
+        l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
+        if storing != 0 { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
+    }""", """    if owned != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: owned }, places: life_root_set(l, root), field: -2 }); }
+    else if refilled && sources == 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { refs: life_root_set(l, root) }, places: life_root_set(l, root), field: -2 }); }
+    if !l.discovery {
+        l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
+        if storing != 0 || refilled { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
+    }""")
+rep("""                let own = effect.field == -2 && alt.exact;
+                if own && mapped {""", """                let own = effect.field == -2 && alt.exact;
+                if effect.field == -2 && landing == 0 { if alt.exact { life_add_contents(l, alt.root, 0, false, true, true); } ai = alt.next; continue; }
+                if own && mapped {""")
+open(w, 'w').write(t)
+print('ok')

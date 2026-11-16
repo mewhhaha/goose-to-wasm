@@ -1,0 +1,79 @@
+import sys
+w = sys.argv[1] if len(sys.argv) > 1 else '/home/user/goose-to-wasm/build/work/checker_lifetimes.goose'
+t = open(w).read()
+def rep(old, new, count=1):
+    global t
+    assert t.count(old) == count, (old[:80], t.count(old))
+    t = t.replace(old, new)
+rep("""fn life_add_contents(l: Lifetimes&, root: i64, storing: i64) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    let sources = storing;""", """// A stored set without what was read straight out of the storage of the one
+// argument class root it is stored into: `b.items = b.storage[..n]` puts
+// back into b's storage what that storage held, which adds nothing to it
+// (upstream RecordStore records no store of a value read out of its own
+// container). Kept as a store, each call mapped it pair by pair: every
+// storage the argument might be took what every other held.
+fn life_own_reads_dropped(l: Lifetimes&, root: i64, set: i64) -> i64 {
+    let owner = l.roots[root].class_frame;
+    if owner < 0 || set == 0 || l.roots[root].class_parent >= 0 || l.roots[root].class_index >= l.frames[owner].class_base { return set; }
+    let first = l.frames[owner].classes + l.frames[owner].class_base + l.roots[root].class_index;
+    var out = LifeBuild {}; var at = l.sets[set].first; var dropped = false;
+    while at >= 0 {
+        var x = l.alts[at]; at = x.next; x.next = -1;
+        if x.root as i64 == first || l.roots[x.root].class_frame == owner && l.roots[x.root].class_parent == root || x.root as i64 == root && !x.exact && x.from as i64 == root { dropped = true; continue; }
+        life_build_add_alt(l, out, x);
+    }
+    let kept = life_build_end(l, out);
+    if !dropped { return set; }
+    return kept;
+}
+// exact: the store names the root's own storage (not storage only known to
+// outlive it).
+fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    var sources = storing;
+    if exact && l.class_frames > 0 { sources = life_own_reads_dropped(l, root, sources); }""")
+rep("""        if sources != 0 { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }""",
+    """        if storing != 0 { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }""")
+rep("""        life_add_contents(l, d.root, life_stored_roots(p, l, value));""", """        life_add_contents(l, d.root, life_stored_roots(p, l, value), d.exact);""")
+open(w, 'w').write(t)
+print('ok')
+import sys
+w = sys.argv[1] if len(sys.argv) > 1 else '/home/user/goose-to-wasm/build/work/checker_lifetimes.goose'
+t = open(w).read()
+def rep(old, new, count=1):
+    global t
+    assert t.count(old) == count, (old[:80], t.count(old))
+    t = t.replace(old, new)
+rep("""// exact: the store names the root's own storage (not storage only known to
+// outlive it).
+fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    var sources = storing;
+    if exact && l.class_frames > 0 { sources = life_own_reads_dropped(l, root, sources); }""", """// Such a store still fills the container again where something emptied it
+// (upstream DropKills): it stays on record as a store of nothing, marked by
+// `refs` (a refill), which each call passes on the same way.
+// exact: the store names the root's own storage (not storage only known to
+// outlive it). refill: a refill replayed.
+fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, exact: bool = false, refill: bool = false) {
+    // (The static root, of frame -1, takes what is stored through static data.)
+    var sources = storing; var own = refill;
+    if exact && l.class_frames > 0 { sources = life_own_reads_dropped(l, root, sources); if sources == 0 && storing != 0 { own = true; } }""")
+rep("""    if sources != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: sources }, places: life_root_set(l, root) }); }
+    if !l.discovery {
+        l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
+        if storing != 0 { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
+    }""", """    if sources != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: sources }, places: life_root_set(l, root) }); }
+    else if own { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { refs: life_root_set(l, root) }, places: life_root_set(l, root) }); }
+    if !l.discovery {
+        l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
+        if sources != 0 || own { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
+    }""")
+rep("""            effect.value.contents = life_unpermuted(l, effect.places, effect.value.contents);
+            if effect.value.contents == 0 { at = next; continue; }""", """            if effect.value.contents != 0 {
+                effect.value.contents = life_unpermuted(l, effect.places, effect.value.contents);
+                if effect.value.contents == 0 { effect.value.refs = effect.places; }
+            }""")
+rep("""                if !refused { life_add_contents(l, alt.root, effect.value.contents); }""", """                if !refused { life_add_contents(l, alt.root, effect.value.contents, false, effect.value.contents == 0 && effect.value.refs != 0); }""")
+open(w, 'w').write(t)
+print('ok')

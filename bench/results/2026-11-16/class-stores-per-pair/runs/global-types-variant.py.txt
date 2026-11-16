@@ -1,0 +1,172 @@
+import sys
+w = sys.argv[1] if len(sys.argv) > 1 else '/home/user/goose-to-wasm/build/work/checker_lifetimes.goose'
+t = open(w).read()
+def rep(old, new, count=1):
+    global t
+    assert t.count(old) == count, (old[:80], t.count(old))
+    t = t.replace(old, new)
+
+rep("""    // Per type, the first type life_same takes it for (life_canon_types).
+    type_canon: i64[>..]&,
+}""", """    // Per type, the first type life_same takes it for (life_canon_types).
+    type_canon: i64[>..]&,
+    // Per such type, what the globals' own storage says of it (life_global_types):
+    // 1 some global holds one inline, 2 some global holds inline a reference or
+    // slice of it, 4 it lies inline in what such a reference points at. And
+    // the sets life_globals_take has made, by set.
+    global_types: i8[>..]&, globals_taken: LifeLoaded[>..]&,
+}""")
+rep("var typed_slots: i64[>..] = [];", "var typed_slots: i64[>..] = []; var global_types: i8[>..] = []; var globals_taken: LifeLoaded[>..] = [];")
+rep("typed_slots: typed_slots, type_canon: type_canon };", "typed_slots: typed_slots, type_canon: type_canon, global_types: global_types, globals_taken: globals_taken };")
+
+rep("""// What a class of a frame stands for at a call, for a question of roots: an""", """// What the globals can hold, by their types alone (upstream's candidates
+// among the globals, RootCandidates): the folded alternative "something in
+// global storage" (life_fold) has no type of its own, and stood for a
+// reference of any type and took a store of any.
+fn life_global_types(p: Program&, l: Lifetimes&) {
+    if l.type_canon.len < p.types.len { life_canon_types(p, l); }
+    l.global_types.clear(); l.global_types.resize(l.type_canon.len, 0 as i8);
+    var work: i64[>..] = []; var pointees: i64[>..] = [];
+    for symbol in p.symbols {
+        if (symbol.flags & S_GLOBAL) == 0 || symbol.type_id < 0 { continue; }
+        let ty = life_canon(l, symbol.type_id);
+        if (l.global_types[ty] & 1) == 0 { l.global_types[ty] |= 1; work.push(ty); }
+    }
+    // Inline: through arrays and fields, a reference or slice ending the walk.
+    var at = 0;
+    while at < work.len {
+        let t: const Type& = p.types[work[at]]; at += 1;
+        if t.kind == TY_SLICE || t.kind == TY_REF {
+            if t.element >= 0 && !(t.kind == TY_REF && t.length_storage >= 0) {
+                let e = life_canon(l, t.element);
+                if (l.global_types[e] & 2) == 0 { l.global_types[e] |= 2; pointees.push(e); }
+            }
+        } else if t.kind == TY_ARRAY && t.element >= 0 {
+            let e = life_canon(l, t.element);
+            if (l.global_types[e] & 1) == 0 { l.global_types[e] |= 1; work.push(e); }
+        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var field = t.first;
+            while field >= 0 {
+                if p.nodes[field].type_id >= 0 {
+                    let e = life_canon(l, p.nodes[field].type_id);
+                    if (l.global_types[e] & 1) == 0 { l.global_types[e] |= 1; work.push(e); }
+                }
+                field = p.nodes[field].next;
+            }
+        }
+    }
+    // What lies inline in a pointee of such a reference.
+    for e in pointees { l.global_types[e] |= 4; }
+    at = 0;
+    while at < pointees.len {
+        let t: const Type& = p.types[pointees[at]]; at += 1;
+        if t.kind == TY_ARRAY && t.element >= 0 {
+            let e = life_canon(l, t.element);
+            if (l.global_types[e] & 4) == 0 { l.global_types[e] |= 4; pointees.push(e); }
+        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var field = t.first;
+            while field >= 0 {
+                if p.nodes[field].type_id >= 0 {
+                    let e = life_canon(l, p.nodes[field].type_id);
+                    if (l.global_types[e] & 4) == 0 { l.global_types[e] |= 4; pointees.push(e); }
+                }
+                field = p.nodes[field].next;
+            }
+        }
+    }
+}
+// Whether some global's own storage holds a `pointee` inline: what a
+// reference to one that points into global storage points into. Bytes may
+// be a view of anything.
+fn life_globals_contain(p: Program&, l: Lifetimes&, pointee: i64) -> bool {
+    if pointee < 0 || pointee == TYPE_U8 { return true; }
+    if l.global_types.len < p.types.len { life_global_types(p, l); }
+    return (l.global_types[life_canon(l, pointee)] & 1) != 0;
+}
+// Whether some global's own storage holds a reference or slice that may
+// point at a `pointee`, or into one, or at what one lies in.
+fn life_globals_refer(p: Program&, l: Lifetimes&, pointee: i64) -> bool {
+    if pointee < 0 { return true; }
+    if l.global_types.len < p.types.len { life_global_types(p, l); }
+    if (l.global_types[life_canon(l, pointee)] & 6) != 0 { return true; }
+    var work: i64[>..] = [life_canon(l, pointee)]; var at = 0;
+    while at < work.len {
+        let t: const Type& = p.types[work[at]]; at += 1; var e: i64 = -1;
+        if t.kind == TY_ARRAY && t.element >= 0 {
+            e = life_canon(l, t.element);
+            if (l.global_types[e] & 2) != 0 { return true; }
+            var seen = false; for old in work { if old == e { seen = true; } }
+            if !seen { work.push(e); }
+        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var field = t.first;
+            while field >= 0 {
+                if p.nodes[field].type_id >= 0 {
+                    e = life_canon(l, p.nodes[field].type_id);
+                    if (l.global_types[e] & 2) != 0 { return true; }
+                    var seen = false; for old in work { if old == e { seen = true; } }
+                    if !seen { work.push(e); }
+                }
+                field = p.nodes[field].next;
+            }
+        }
+    }
+    return false;
+}
+// What of a stored set "something in global storage" can take: a reference
+// whose pointee is known lands in a global only where some global holds a
+// reference to such a pointee. What a reference points at is its target
+// type, or else its exactly named root's own type (a storage class's
+// pointee, an argument class's parameters').
+fn life_globals_take(p: Program&, l: Lifetimes&, set: i64) -> i64 {
+    if set == 0 { return set; }
+    if l.globals_taken.len == 0 { l.globals_taken.resize(16384, LifeLoaded {}); }
+    var h: u64 = (set as! u64) * 11400714819323198485; h ^= h >> 29;
+    let memo = (h & ((l.globals_taken.len - 1) as! u64)) as i64;
+    if l.globals_taken[memo].contents == set { return l.globals_taken[memo].set; }
+    var out = LifeBuild {}; var at = l.sets[set].first; var dropped = false;
+    while at >= 0 {
+        var x = l.alts[at]; at = x.next; x.next = -1;
+        if x.exact && !x.byteview && x.root != 0 {
+            var within = x.target_type as i64;
+            if within < 0 {
+                let owner = l.roots[x.root].class_frame;
+                if owner < 0 { within = l.roots[x.root].type_id; }
+                else if l.roots[x.root].class_parent >= 0 { within = l.roots[x.root].class_type; }
+                else if l.roots[x.root].class_index < l.frames[owner].class_base { within = l.roots[x.root].class_pointee; }
+            }
+            if within >= 0 && !life_globals_refer(p, l, within) { dropped = true; continue; }
+        }
+        life_build_add_alt(l, out, x);
+    }
+    var result = life_build_end(l, out);
+    if !dropped { result = set; }
+    l.globals_taken[memo] = LifeLoaded { contents: set, places: 0, set: result };
+    return result;
+}
+// What a class of a frame stands for at a call, for a question of roots: an""")
+
+# (1) typed held: the folded globals stand for a reference to `pointee` only where a global holds one
+rep("""        if (r.target_type < 0 || life_same(p, r.target_type as i64, pointee)) && (r.root == 0 || r.byteview || !r.exact || life_class_holds(p, l, r.root as i64, pointee) || life_contains_memo(p, l, l.roots[r.root].type_id, pointee)) {""",
+    """        if (r.target_type < 0 || life_same(p, r.target_type as i64, pointee)) && (r.root == 0 || r.byteview || !r.exact || life_class_holds(p, l, r.root as i64, pointee) || life_contains_memo(p, l, l.roots[r.root].type_id, pointee)) &&
+           (r.root as i64 != l.globals_root || r.byteview || life_globals_contain(p, l, pointee)) {""")
+# (3) map onto with a wanted pointee
+rep("""            if within >= 0 && !life_contains_memo(p, l, within, want) { continue; }
+        }""", """            if within >= 0 && !life_contains_memo(p, l, within, want) { continue; }
+        }
+        if want >= 0 && a.root as i64 == l.globals_root && !a.byteview && !life_globals_contain(p, l, want) { continue; }""")
+# (4) a mapped store that lands in the folded globals
+rep("""                var refused = false;
+                if mapped {
+                    // The body's check stood for the classes' ranks; where the
+                    // store lands in this call, each stored root must outlive it.
+                    var si = l.sets[effect.value.contents].first;""", """                var refused = false; var landing = effect.value.contents;
+                if mapped {
+                    // Of what is stored, global storage takes what some
+                    // global holds a reference to.
+                    if alt.root as i64 == l.globals_root { landing = life_globals_take(p, l, landing); if landing == 0 { ai = alt.next; continue; } }
+                    // The body's check stood for the classes' ranks; where the
+                    // store lands in this call, each stored root must outlive it.
+                    var si = l.sets[landing].first;""")
+rep("""                if !refused { life_add_contents(l, alt.root, effect.value.contents); }""", """                if !refused { life_add_contents(l, alt.root, landing); }""")
+open(w, 'w').write(t)
+print('ok')
