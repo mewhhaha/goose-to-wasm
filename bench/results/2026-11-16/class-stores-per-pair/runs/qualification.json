@@ -1,0 +1,127 @@
+{
+ "schema": "goose-qualification-v1",
+ "started": "2026-11-16T00:58:42+0000",
+ "head": "f4d1d0255acacff60a4bb4e50218b4ef4415028e",
+ "dirty": false,
+ "since": "origin/main",
+ "units_pass": false,
+ "stages": [
+  {
+   "stage": "bootstrap",
+   "command": [
+    "/usr/local/bin/python3",
+    "scripts/bootstrap.py",
+    "--verify",
+    "--build-dir",
+    "/home/user/goose-to-wasm/build/q-class2/bootstrap",
+    "--cache-dir",
+    "/home/user/goose-to-wasm/build/qualify-cache/bootstrap"
+   ],
+   "exit": 0,
+   "seconds": 211.6,
+   "log": "/home/user/goose-to-wasm/build/q-class2/bootstrap.log"
+  },
+  {
+   "stage": "conformance",
+   "command": [
+    "/home/user/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/user/goose-to-wasm/build/q-class2/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/user/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/user/goose-to-wasm/build/q-class2/conformance",
+    "--jobs",
+    "2"
+   ],
+   "exit": 0,
+   "seconds": 244.8,
+   "log": "/home/user/goose-to-wasm/build/q-class2/conformance.log",
+   "summary": "{'selected': 10793, 'passed': 10689, 'failed': 104}",
+   "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 3216, 'cache_hits': 3152}"
+  },
+  {
+   "stage": "native-checks",
+   "command": [
+    "/usr/local/bin/python3",
+    "native/tests/check.py",
+    "--output",
+    "/home/user/goose-to-wasm/build/q-class2/native"
+   ],
+   "exit": 0,
+   "seconds": 16.6,
+   "log": "/home/user/goose-to-wasm/build/q-class2/native-checks.log",
+   "summary": "54 steps ok"
+  },
+  {
+   "stage": "equivalence",
+   "command": [
+    "/home/user/goose-to-wasm/.venv/bin/python",
+    "tests/output_equivalence.py",
+    "--baseline",
+    "/home/user/goose-to-wasm/build/q-final/bootstrap/bin/goose",
+    "--candidate",
+    "/home/user/goose-to-wasm/build/q-class2/bootstrap/bin/goose",
+    "--output-dir",
+    "/home/user/goose-to-wasm/build/q-class2/equivalence",
+    "--selfhost",
+    "/home/user/goose-to-wasm/build/q-class2/frozen/selfhost",
+    "--jobs",
+    "1"
+   ],
+   "exit": 0,
+   "seconds": 124.1,
+   "log": "/home/user/goose-to-wasm/build/q-class2/equivalence.log",
+   "summary": "{\"compared\": 10049, \"differing\": 0, \"seconds\": {\"baseline\": 60.612, \"candidate\": 60.377}}",
+   "differing": []
+  },
+  {
+   "stage": "unit-tests",
+   "command": [
+    "/home/user/goose-to-wasm/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_conformance_runner",
+    "tests.test_bootstrap_optimization",
+    "tests.test_native_units",
+    "tests.test_driver_outputs",
+    "tests.test_cli_outputs",
+    "tests.test_root_struct_backends",
+    "tests.test_slice_pool_backends",
+    "tests.test_loop_ordinals",
+    "tests.test_dynamic_remainder",
+    "tests.test_descending_while",
+    "tests.test_zero_stores",
+    "tests.test_aggregate_print",
+    "tests.test_while_unroll"
+   ],
+   "exit": 0,
+   "seconds": 47.2,
+   "log": "/home/user/goose-to-wasm/build/q-class2/unit-tests.log"
+  }
+ ],
+ "bootstrap": {
+  "fixed_point": true,
+  "generated_c_sha256": "e28eaa69baa6a1d0f0963069b0b188ed7f6e0a2bbb855b755f380f2a389700b0",
+  "next_generation_c_sha256": "e28eaa69baa6a1d0f0963069b0b188ed7f6e0a2bbb855b755f380f2a389700b0",
+  "third_generation_c_sha256": null,
+  "executable_sha256": "1ba787be098769e238b93711fbb23b5dfc03aee4190dcfd2136a8d8251964164",
+  "profile_used": false,
+  "cached": {
+   "build-seed": true,
+   "build-goose": false
+  }
+ },
+ "seconds": 456.9,
+ "status": "passed",
+ "failed": []
+}

@@ -1,0 +1,31 @@
+One in eight of the store errors first reported at a call (1,702 of 1,708), from the run with
+the per-type store filter and at most 8 typed classes a frame (8 GiB regions): what is stored, and where.
+
+ count  stored (as the call sees it)                         destination
+   114  argument class, depth rank 1                         folded globals (reached from)
+    59  argument class, depth rank 1                         folded globals
+    12  argument class, depth rank 1                         argument class, depth rank 0
+     3  argument class, depth rank 2                         folded globals
+     3  argument class, depth rank 1                         storage class of one pointee (reached from), depth rank 0
+     2  argument class, depth rank 2                         folded globals (reached from)
+     2  argument class, depth rank 2                         storage class of one pointee (reached from), depth rank 1
+     2  argument class, depth rank 1                         storage class, depth rank 0
+     1  argument class, depth rank 2                         storage class of one pointee, depth rank 1
+     1  named root, depth 10                                 storage class of one pointee, depth rank 1
+     1  named root (reached from), depth 10                  storage class of one pointee, depth rank 1
+     1  named root, depth 12                                 argument class, depth rank 1
+     1  named root, depth 12                                 folded globals
+     1  named root, depth 14                                 storage class of one pointee, depth rank 1
+     1  argument class, depth rank 2                         argument class, depth rank 1
+     1  named root, depth 12                                 argument class, depth rank 2
+     1  named root, depth 10                                 folded globals (reached from)
+     1  named root (reached from), depth 12                  folded globals
+     1  argument class, depth rank 3                         storage class of one pointee, depth rank 2
+     1  storage class (reached from), depth rank 2           storage class of one pointee (reached from), depth rank 1
+     1  argument class, depth rank 2                         named root, depth 0
+     1  argument class, depth rank 3                         folded globals
+     1  argument class, depth rank 3                         storage class, depth rank 2
+     1  argument class, depth rank 1                         named root, depth 0
+     1  named root, depth 6                                  folded globals
+
+214 sampled

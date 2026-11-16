@@ -14,10 +14,10 @@ Where the work stands on 2026-11-15 and how to pick it up. The standing rules ar
 
 ## Where it stands
 
-- **Seed.** The bootstrap seed is snapshot 63: seed C `28f1af08…`, profiled executable `10ade9d5…` ([snapshot 63](selfhost/results/2026-11-14/snapshot-63/README.md)). Main has the export-root commit, the nine lifetime commits of 2026-11-14, the eight of 2026-11-15 and the three class-keyed-frame commits (`bc00c87`, `0f9ec7f`, `e13cd80`) on top of it, none of which is frozen into a snapshot yet.
+- **Seed.** The bootstrap seed is snapshot 63: seed C `28f1af08…`, profiled executable `10ade9d5…` ([snapshot 63](selfhost/results/2026-11-14/snapshot-63/README.md)). Main has the export-root commit, the nine lifetime commits of 2026-11-14, the eight of 2026-11-15 and the four class-keyed-frame commits (`bc00c87`, `0f9ec7f`, `e13cd80`, `f4d1d02`) on top of it, none of which is frozen into a snapshot yet.
 - **Conformance.** 10,689 of 10,793 rows pass. The 104 failures are the recorded gaps in [known-gaps.json](tests/conformance/known-gaps.json), each with its cause.
 - **Upstream features.** Features added upstream since the contracts were pinned are tracked in [docs/FEATURES.md](docs/FEATURES.md).
-- **The compiler checking itself.** 7.0 s, down from 24.7 s before the 2026-11-15 commits, with the same analysis state ([evidence](bench/results/2026-11-15/lifetime-walks-and-memos/README.md)). The lifetime pass is still 6.7 s of it. With every eligible call keyed by classes it takes 1.5 s, and reports 58 shrink errors that are not there: the class path is not exact enough yet to be used below its 4,096-frame limit.
+- **The compiler checking itself.** 7.0 s, down from 24.7 s before the 2026-11-15 commits, with the same analysis state ([evidence](bench/results/2026-11-15/lifetime-walks-and-memos/README.md)). The lifetime pass is still 6.7 s of it. With every eligible call keyed by classes it takes a third of the time and, since `f4d1d02`, reports no false error (58 before). The class path still misses 33 errors in the corpus, so it is not used below its 4,096-frame limit.
 - **Small programs.**
   - Snapshot 63 compiles the eleven benchmark programs in 1.04–1.06× snapshot 61's time ([campaign](bench/results/2026-11-14/compiler-throughput-63/README.md)).
   - The lifetime commits since then are within noise both times: 1.009 and 1.014 on 2026-11-14 against a null run's 1.010 (one binary timed against its own copy), and 0.990 and 0.987 on 2026-11-15 against a null run's 0.973, with the same page faults.
@@ -26,7 +26,7 @@ Where the work stands on 2026-11-15 and how to pick it up. The standing rules ar
 
 The owner's order is to get to where this compiler compiles ../blot2's `compiler-goose` (450 modules, 120,000 lines), and to make that fast afterwards. Four things stood in the way:
 1. Exported functions as lifetime roots. **Done** in `9806f0e`.
-2. The lifetime pass finishing on that program. **Its first discovery pass now ends** (2026-11-15, `e13cd80`); the check as a whole does not yet. This is the work in hand.
+2. The lifetime pass finishing on that program. **Its first discovery pass ends** (since 2026-11-15, `e13cd80`); the check as a whole does not yet. This is the work in hand.
 3. A root to emit from, and 4. the C-host interface: see "After the pass finishes".
 
 **Command.** From a copy of `compiler-goose/src`, run:
@@ -37,20 +37,24 @@ goose main.goose --stdlib <this repo>/stdlib --reachable-program --expansion-nod
 
 Parsing and type checking take about 12 s. The lifetime pass runs after that.
 
-**What changed.** Past 4,096 frames, a call of a top-level function is checked by the *classes* of its arguments, as upstream's specializations are: one frame per key, evaluated on its own (an "island"), its effects and result mapped onto each call's roots. The [evidence page](bench/results/2026-11-15/class-keyed-frames/README.md) has the design in a dozen lines, the numbers, and everything that was tried and dropped. The code is `selfhost/checker_lifetimes.goose` from "Class-keyed frames" on, with a comment at each piece.
+**What changed.** Past 4,096 frames, a call of a top-level function is checked by the *classes* of its arguments, as upstream's specializations are: one frame per key, evaluated on its own (an "island"), its effects and result mapped onto each call's roots. Two evidence pages hold the design, the numbers and everything tried and dropped: [the path itself](bench/results/2026-11-15/class-keyed-frames/README.md) (2026-11-15) and [stores per pair of classes](bench/results/2026-11-16/class-stores-per-pair/README.md) (2026-11-16). The code is `selfhost/checker_lifetimes.goose` from "Class-keyed frames" on, with a comment at each piece.
 
-**Where it stands on blot2** (`6ad5fbb`, a progress build, on a 4-core 16 GiB container):
-- Pass 1 ends after 50,725 frames, 45,280 of them class-keyed, in 247 s, with 57.8 M alternatives of the 79.5 M that fit. Before, it stopped at 93,000 frames with a tenth of the functions entered.
-- It ends with 2,348 errors, so no second pass and no validation has run yet. 2,345 are "stored reference does not outlive the storage that receives it" at a call. blot2's patched upstream build accepted this program, so treat them as this analysis's imprecision until shown otherwise.
+**Where it stands on blot2** (`6ad5fbb`, the bootstrapped compiler of `f4d1d02`, on a 4-core 16 GiB container):
+- Pass 1 ends after 51,757 frames in 278 s, with 66.4 M alternatives of the 79.5 M that fit and a peak RSS of 7.2 GiB.
+- It ends with 2,181 errors, so no second pass and no validation has run yet. 2,179 are "stored reference does not outlive the storage that receives it" at a call. blot2's patched upstream build accepted this program, so treat them as this analysis's imprecision until shown otherwise.
 - Plain upstream `d92c4315` on the same copy: stopped at 1,500 s, nothing printed.
+
+**Do not steer by blot2's error count.** A stored value that is a storage class, or only "reached from" a class, is not judged at the call that replays the store but further up. Finer classes turn more of those into exact argument classes, which are judged at once, so a more exact variant reported 3,069 errors and a coarser one 1,890. Steer by the builds with every call class-keyed: the self-check (no error now) and the corpus (14 accepted sources rejected, 33 rejected sources accepted, `tools/corpus0.sh` in the 2026-11-16 evidence directory).
 
 **Small programs are untouched, and that is checked.** The corpus's largest program makes 720 frames and the self-check 2,436. Every commit so far keeps the state fingerprints of all 4,355 conformance sources and of the self-check (`fpcompare.py`, see Commands). Keep it so: anything new goes behind `l.class_frames > 0` or an island test.
 
 **Next, in order.**
-1. **The store errors.** Start from one: `tools/dbgstore.py` in the evidence directory prints, for a refused store, the callee's alternatives and what the call made of them (its patterns need refreshing against the current source). The largest known cause is `LifeFrame.class_stored`: everything a body stores through any class root is read back through every class root of the frame. Make it per pair instead: keep what was stored through each class root with that root, and at a read add only the stores of classes the call says may be the same storage (query 4 answered from the call's sets for storage classes too, which is now always "may alias"). The same answer will remove most of the 58 shrink errors the self-check gets with every call class-keyed.
-2. **Then the passes after the first.** Their cost on blot2 is unmeasured. The validation effect lists are not merged by kind as the discovery summaries now are, and will be large.
-3. **Then the 33 corpus sources where the class path misses an error** (build with the limit at 0: `tools/mkcls.sh`), before the limit is lowered for any program that matters.
-4. **Memory.** Sets are never freed; 57.8 M alternatives after one pass leaves little room. Mapped sets are most of them.
+1. **What a store's place stands for.** Four fifths of the sampled errors store one of the calling function's own argument classes into "something in global storage". The traced case: a function passes down a local view struct of references into its parameter; a callee stores what the view's storage holds into storage the view also holds; at the call the first stands for the parameter as well as for the pool slices really copied, and the second for every global pool the view has a slice of. In `bench/results/2026-11-16/class-stores-per-pair/tools/`, `dbgstore2.py` prints each refused store with the callee's sets and `dbgpool.py` finds what first puts a reference into one named global. Two ways in, both described on the 2026-11-16 page:
+   - carry the stored type with the effect and land a mapped store only where that type can be. It worked (1,664 errors) and cost twice the alternatives because summaries were kept per type; keep one summary per place with a small set of stored types instead;
+   - keep a view struct's fields apart, as upstream's view classes do for a reference to a holder (`build/upstream-notes.md` §2.4 and §3.1, untracked; the source is `aardappel/goose` `calls.cpp` 1555–1586 and 3178–3231).
+2. **The 33 corpus sources where the class path misses an error** (`corpus0.sh NAME` in the same directory builds `build/work` both ways and compares). These are the reason the limit cannot be lowered, and the shrink check is where most are: it does not see that the class of everything a storage holds covers the class of one pointee type in it, which is also what made the fold of the 2026-11-16 page lose an error.
+3. **Then the passes after the first.** Their cost on blot2 is unmeasured. The validation effect lists are not merged by kind as the discovery summaries are, and will be large.
+4. **Memory.** Sets are never freed; 66.4 M alternatives after one pass leaves little room. The 2 GiB is `GS_STACK_RESERVE`, the address space per region: `-DGS_STACK_RESERVE=8589934592ull` on the C compiler's command line gives 8 GiB regions (the experiments that needed it ran so). Upstream's `--stack-reserve` is not in this driver yet; adding it is a small parity item and the honest way to give a large program room. `LifeAlt` is 28 bytes of which `bound` is unused with class-keyed frames in use.
 
 **Known gaps of the class path**, all listed with their cause on the evidence page: stores through storage only known to outlive a class root; a callee's shrink against values the callee cannot tell apart; `index_of` and slice-pool checks through class roots.
 

@@ -1,0 +1,10 @@
+set pagination off
+set confirm off
+break g_fn<id of dbg_newset>
+commands
+silent
+bt 16
+continue
+end
+run main.goose --stdlib <this repo>/stdlib --reachable-program --expansion-node-limit 1000000 --check
+quit
