@@ -174,13 +174,43 @@ It was built the same night, on `d26f33c`, and is not kept ([the patch](runs/rea
 
 **The count cannot tell why, and that is the lesson of the day.** A refused store does not land, so one refusal hides whatever else was merged into its summary entry; split the entries and the rest travels further up and is refused at other calls. The count of distinct calls with a refusal measures how the summaries are cut as much as what the analysis knows. What is needed is not another variant run on the whole program but small programs: a few dozen lines each, cut from a function blot2 is refused at, that plain upstream accepts and this compiler, built with every call class-keyed, refuses. On those a change is right or wrong, at once. `runs/blot2-diagnostics-d26f33c.txt` has the calls, `tools/dbgstore2.py` prints for each the callee, its place and its value, and `tools/mkcls.sh` builds the compiler that shows the error without the other 120,000 lines.
 
+## The first small case: an argument that holds no reference (`952c916`)
+
+Taking the smallest call blot2 was refused at, as the section above says to, paid at once ([qualification](runs/qualification-952c916.json)).
+
+| | `d26f33c` | `952c916` |
+| --- | --- | --- |
+| corpus, default build | | 0 of 4,355 sources differ |
+| corpus and self-check, every call class-keyed | 14 / 33 / 21 / 72, no error | the same |
+| blot2, errors of the first pass | 1,681 | 425 ([list](runs/blot2-diagnostics-952c916.txt)) |
+| blot2, frames / alternatives | 54,054 / 65.4 M | 53,794 / 56.6 M |
+| blot2, bootstrapped compiler | 269 s, 7.3 GiB | 256 s, 6.9 GiB ([run](runs/blot2-run-952c916.json)) |
+
+The call is `validate(proof, quantifier.a, payload)` in `check/package_contracts.goose:415`. `proof` is a local view struct that holds a reference to the function's own `Context` parameter and its `witnesses: const Id[:]` parameter. The refused store was of the `Context`, exactly, into "what the storage of `witnesses` holds". An array of `u32` holds no reference, so there is no such storage: every argument class had been given the classes of what its storage holds whatever its parameters point at. An argument class whose parameters point at one type that holds no reference now holds nothing (bytes aside, which may be a view of anything).
+
+### What is left, and three things that did not move it
+
+The 460 refused stores of an instrumented run on `952c916` ([by kind](runs/store-kinds-952c916.txt), [by first statement](runs/store-origins-952c916.txt)) are still mostly an argument class of the calling function, exactly, into global storage (187 into "something in global storage", 57 into an argument class that holds only globals).
+
+- **Only two source lines in all of blot2 store, in a function body, something read out of a shorter-lived argument's storage into longer-lived storage** ([list](runs/deferred-stores-952c916.txt)): `eval/core_eval.goose:941`, `self_.constant_recorder .= outer`, the restore of a saved `Recorder?`; and `check/check.goose:1457`, the push of a `ProofContract` built from another parameter's header. Such a store is left to the calls to judge.
+- **The first, in full** ([dump](runs/deferred-store-core_eval-941.txt)): `matchType(self_: Session&, ..., mappings: PooledMappings&, rows: PooledRows&)`. The `Session` argument is at depth 0. `outer`, read out of `self_.constant_recorder`, is found to be, among other things, "something reached from what `mappings`' storage holds" and "from what `rows`' storage holds". Those are slices of global pools. But a storage class has the depth of its argument class, and `mappings` is a local struct of some caller, so the restore looks like a shorter-lived value going into the session.
+
+| variant, on `952c916` | errors | |
+| --- | --- | --- |
+| 16 typed classes a frame under pressure instead of 8 | 449 | 67.1 M alternatives |
+| a struct copied out of storage, all of whose references point at one type, holds only what such a reference can be ([patch](runs/struct-copy-variant.patch)) | 426 | |
+| a storage class is read back only as a pointee its own type can hold: a typed one by its pointee, an untyped one by what its argument's type holds a reference to ([patch](runs/storage-class-type-variant.patch)) | 424 | |
+| a storage class is at depth 0 where the frame's first call shows that everything the argument's storage holds is, assumed of every call and taken back by one of which it is not true ([patch](runs/storage-depth-variant.patch)); upstream gives a view its own depth in the key | 447 | the body-level stores at `core_eval.goose:941` fall from 51 to 24 |
+
+None is kept: none moves the count beyond what it wanders by, and none was run on the corpus. The last is the one upstream has and the trace above asks for; it wants a small case of its own before it goes in.
+
 ## Not right yet
 
-- **blot2's 1,681 errors** (`d26f33c`), as described above. The next step is not another variant on the whole program: see "That design, built".
+- **blot2's 425 errors** (`952c916`). The next step is the next small case: see "The first small case" and what follows it.
 - **The 33 corpus sources where the class path misses an error**, unchanged.
-- **Memory.** 65.4 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
-- **Peak RSS is 7.3 GiB** for the one pass.
+- **Memory.** 56.6 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
+- **Peak RSS is 6.9 GiB** for the one pass.
 
 ## Tools
 
-In [tools/](tools/), beside those of the earlier page: `corpus0.sh` builds a source directory with the state fingerprints at the default limit and at 0 and compares both with a baseline over the corpus; `catsum.py` counts the differing diagnostics; `variant.sh` builds the every-call-class-keyed compiler with one edit applied, for bisecting; `gdbhook.py`, `gdbcmds.txt` and `gdbstacks.py` sample the call stack of one in 2,503 new sets under gdb and aggregate them; `dbgstore2.py` describes refused stores and `dbgpool.py` what first stores a reference into one named global; `setsites.py` and `bigsets.py` are updated for the current source; `dbgorigin.py` tags each store with the statement that first made it and `origins.py` counts refused stores by it; `dbgvia.py` and `viacats.py` say which of the callee's alternatives became the refused source and the destination; `storecats.py` counts refused stores by kind.
+In [tools/](tools/), beside those of the earlier page: `corpus0.sh` builds a source directory with the state fingerprints at the default limit and at 0 and compares both with a baseline over the corpus; `catsum.py` counts the differing diagnostics; `variant.sh` builds the every-call-class-keyed compiler with one edit applied, for bisecting; `gdbhook.py`, `gdbcmds.txt` and `gdbstacks.py` sample the call stack of one in 2,503 new sets under gdb and aggregate them; `dbgstore2.py` describes refused stores and `dbgpool.py` what first stores a reference into one named global; `setsites.py` and `bigsets.py` are updated for the current source; `dbgorigin.py` tags each store with the statement that first made it and `origins.py` counts refused stores by it; `dbgvia.py` and `viacats.py` say which of the callee's alternatives became the refused source and the destination; `storecats.py` counts refused stores by kind; `smallest.py` ranks the refused calls by the size of caller and callee, to pick the next small case; `dbgsite.py` tags store effects with the code path that made them.

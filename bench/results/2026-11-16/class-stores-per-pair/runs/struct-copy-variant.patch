@@ -1,0 +1,111 @@
+diff --git a/selfhost/checker_lifetimes.goose b/build/work/checker_lifetimes.goose
+index 1b14cc7..cb9f2b4 100644
+--- a/selfhost/checker_lifetimes.goose
++++ b/build/work/checker_lifetimes.goose
+@@ -306,6 +306,10 @@ struct Lifetimes {
+     typed_slots: i64[>..]&, typed_count: i64 = 0,
+     // Per type, the first type life_same takes it for (life_canon_types).
+     type_canon: i64[>..]&,
++    // Per type, the one type the references a value of it holds point at
++    // (life_single_pointee): -2 not asked yet, -1 none or several. And the
++    // sets life_holder_narrow has made, by set and that type.
++    single_pointee: i64[>..]&, narrowed: LifeLoaded[>..]&,
+ }
+ 
+ // An order-independent hash of a set, equal for sets life_equal accepts. A
+@@ -2922,7 +2926,77 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
+     }
+     return set;
+ }
++// The one type that every reference or slice a value of type `ty` holds
++// inline points at, or -1 where it holds none or they point at several.
++// What the storage those point at holds in turn is not the value's.
++fn life_single_pointee(p: Program&, l: Lifetimes&, ty: i64) -> i64 {
++    if ty < 0 { return -1; }
++    while l.single_pointee.len < p.types.len { l.single_pointee.push(-2); }
++    if l.single_pointee[ty] != -2 { return l.single_pointee[ty]; }
++    var work: i64[>..] = [ty]; var at = 0; var only = -1; var several = false;
++    while at < work.len && !several {
++        let t: const Type& = p.types[work[at]]; at += 1;
++        if t.kind == TY_SLICE || t.kind == TY_REF {
++            if t.kind == TY_REF && t.length_storage >= 0 { several = true; }
++            else if only < 0 { only = t.element; }
++            else if t.element < 0 || !life_same(p, only, t.element) { several = true; }
++        } else if t.kind == TY_ARRAY && t.element >= 0 {
++            var seen = false; for old in work { if old == t.element { seen = true; } }
++            if !seen { work.push(t.element); }
++        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
++            var field = t.first;
++            while field >= 0 {
++                let ft = p.nodes[field].type_id; var seen = ft < 0;
++                for old in work { if old == ft { seen = true; } }
++                if !seen { work.push(ft); }
++                field = p.nodes[field].next;
++            }
++        }
++    }
++    if several || only < 0 { only = -1; }
++    l.single_pointee[ty] = only;
++    return only;
++}
++// What a value whose references all point at `only` can hold of a set: a
++// struct copied out of storage carries everything its root holds, of which
++// a table of slices of one element type holds only what such a slice can be.
++// What a class's storage holds, with no type yet, becomes a reference to
++// that type (a call then maps it by it, life_map_onto); a root, an argument
++// class or a reference of another type that cannot hold one is dropped.
++fn life_holder_narrow(p: Program&, l: Lifetimes&, set: i64, only: i64) -> i64 {
++    if set == 0 { return set; }
++    if l.narrowed.len == 0 { l.narrowed.resize(4096, LifeLoaded {}); }
++    var h: u64 = (set as! u64) * 11400714819323198485 ^ (only as! u64) * 14029467366897019727; h ^= h >> 29;
++    let memo = (h & ((l.narrowed.len - 1) as! u64)) as i64;
++    if l.narrowed[memo].contents == set && l.narrowed[memo].places == only { return l.narrowed[memo].set; }
++    var out = LifeBuild {}; var at = l.sets[set].first; var changed = false;
++    while at >= 0 {
++        var x = l.alts[at]; at = x.next; x.next = -1;
++        if x.exact && !x.byteview && x.root != 0 {
++            let owner = l.roots[x.root].class_frame; var within = x.target_type as i64;
++            if owner >= 0 && l.roots[x.root].class_parent >= 0 { within = l.roots[x.root].class_type; }
++            else if owner >= 0 && l.roots[x.root].class_index >= l.frames[owner].class_base {
++                if within < 0 { x.target_type = only as i32; changed = true; life_build_add_alt(l, out, x); continue; }
++            } else if within < 0 && owner >= 0 { within = l.roots[x.root].class_pointee; }
++            else if within < 0 { within = l.roots[x.root].type_id; }
++            if within >= 0 && !life_contains(p, l, within, only) { changed = true; continue; }
++        }
++        life_build_add_alt(l, out, x);
++    }
++    var result = life_build_end(l, out);
++    if !changed { result = set; }
++    l.narrowed[memo] = LifeLoaded { contents: set, places: only, set: result };
++    return result;
++}
+ fn life_load(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool = false) -> LifeValue {
++    var out = life_load_all(p, l, type_id, places, slot);
++    if l.island > 0 && out.contents != 0 && type_id >= 0 && !life_is_ref(p, type_id) {
++        let only = life_single_pointee(p, l, type_id);
++        if only >= 0 { out.contents = life_holder_narrow(p, l, out.contents, only); }
++    }
++    return out;
++}
++fn life_load_all(p: Program&, l: Lifetimes&, type_id: i64, places: i64, slot: bool = false) -> LifeValue {
+     var out = LifeValue { type_id: type_id, place: places };
+     // Only a type that holds references keeps the contents, and validation
+     // reads the live ones.
+@@ -5195,7 +5269,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
+     var readbacks: LifeReadBack[>..] = [];
+     var class_list: i64[>..] = []; var class_heads: i64[>..] = []; var class_keys: i64[>..] = [];
+     var map_sets: i64[>..] = []; var map_roots: i64[>..] = []; var map_depths: i64[>..] = []; var key_scratch: i64[>..] = []; var class_scratch: i64[>..] = []; var bound_scratch: i64[>..] = [];
+-    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var type_canon: i64[>..] = [];
++    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var single_pointee: i64[>..] = []; var narrowed: LifeLoaded[>..] = []; var type_canon: i64[>..] = [];
+     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
+         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
+@@ -5208,7 +5282,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
+         loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
+         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts,
+         class_list: class_list, class_heads: class_heads, class_keys: class_keys,
+-        map_sets: map_sets, map_roots: map_roots, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, contained: contained, typed_slots: typed_slots, type_canon: type_canon };
++        map_sets: map_sets, map_roots: map_roots, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, contained: contained, typed_slots: typed_slots, type_canon: type_canon, single_pointee: single_pointee, narrowed: narrowed };
+     life_validate_pools(p, l, pool_references);
+     if p.diagnostics.len > 0 { return; }
+     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;

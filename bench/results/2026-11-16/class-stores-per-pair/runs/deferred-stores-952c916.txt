@@ -1,0 +1,23 @@
+Stores in a function body, over the whole first pass of blot2 at 952c916, of something read out of a shorter-lived
+argument class's storage into longer-lived storage (left to the calls to judge): count, place, what kind of store.
+(an experiment build printing where life_store takes the class_read exemption)
+
+    7  eval/core_eval.goose:941:509  kind=36 valuetype=14770 dst=class src=reach typed
+    7  eval/core_eval.goose:941:1400  kind=36 valuetype=14770 dst=class src=reach typed
+    7  eval/core_eval.goose:941:1190  kind=36 valuetype=14770 dst=class src=reach typed
+    6  check/check.goose:1457:507  kind=17 valuetype=309 dst=class src=reach any
+    6  check/check.goose:1457:507  kind=17 valuetype=309 dst=class src=exact any
+    6  check/check.goose:1457:480  kind=20 valuetype=2584 dst=class src=reach any
+    6  check/check.goose:1457:480  kind=20 valuetype=2584 dst=class src=exact any
+    5  eval/core_eval.goose:941:509  kind=36 valuetype=14770 dst=class src=reach any
+    5  eval/core_eval.goose:941:509  kind=36 valuetype=14770 dst=class src=exact any
+    5  eval/core_eval.goose:941:1400  kind=36 valuetype=14770 dst=class src=reach any
+    5  eval/core_eval.goose:941:1400  kind=36 valuetype=14770 dst=class src=exact any
+    5  eval/core_eval.goose:941:1190  kind=36 valuetype=14770 dst=class src=reach any
+    5  eval/core_eval.goose:941:1190  kind=36 valuetype=14770 dst=class src=exact any
+    4  check/check.goose:1457:507  kind=17 valuetype=309 dst=other src=reach any
+    4  check/check.goose:1457:507  kind=17 valuetype=309 dst=other src=exact any
+    4  check/check.goose:1457:480  kind=20 valuetype=2584 dst=other src=reach any
+    4  check/check.goose:1457:480  kind=20 valuetype=2584 dst=other src=exact any
+    2  check/check.goose:1457:507  kind=17 valuetype=309 dst=other src=reach typed
+    2  check/check.goose:1457:480  kind=20 valuetype=2584 dst=other src=reach typed

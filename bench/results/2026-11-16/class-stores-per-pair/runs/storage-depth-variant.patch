@@ -1,0 +1,87 @@
+diff --git a/selfhost/checker_lifetimes.goose b/build/work/checker_lifetimes.goose
+index 1b14cc7..68da86b 100644
+--- a/selfhost/checker_lifetimes.goose
++++ b/build/work/checker_lifetimes.goose
+@@ -1978,7 +1978,9 @@ fn life_class_typed(l: Lifetimes&, parent: i64, pointee: i64) -> i64 {
+     var limit = LIFE_TYPED_CLASSES; if l.alts.len > LIFE_TYPED_PRESSURE { limit = LIFE_TYPED_FEW; }
+     if l.frames[frame].typed_count >= limit { return -1; }
+     l.frames[frame].typed_count += 1;
+-    l.roots.push(LifeRoot { frame: 0, depth: l.roots[parent].depth, class_frame: frame, class_index: root - l.frames[frame].classes, class_parent: parent, class_type: pointee, class_next: l.frames[frame].typed_first, class_level: l.roots[parent].class_level + 1 });
++    var depth = l.roots[parent].depth;
++    if l.roots[parent].class_parent < 0 && l.roots[parent].class_index < l.frames[frame].class_base { depth = l.roots[parent + l.frames[frame].class_base].depth; }
++    l.roots.push(LifeRoot { frame: 0, depth: depth, class_frame: frame, class_index: root - l.frames[frame].classes, class_parent: parent, class_type: pointee, class_next: l.frames[frame].typed_first, class_level: l.roots[parent].class_level + 1 });
+     l.frames[frame].typed_first = root; l.typed_slots[slot] = root; l.typed_count += 1;
+     let own = life_single(l, root, false, root); life_set_contents(l, root, own); l.roots[root].live_contents = own;
+     return root;
+@@ -2185,6 +2187,13 @@ recursive fn life_class_any_make(l: Lifetimes&, frame: i64, sets: i64, index: i6
+ recursive fn life_class_answer_roots(l: Lifetimes&, frame: i64, sets: i64, query: i64, index: i64, subject: i64, flag: bool) -> bool {
+     let base = l.frames[frame].class_base;
+     if index >= base && query == 6 { return false; }
++    // 7: whether everything the storage of argument class `index` holds, as
++    // this call begins, is at depth 0 (what that holds in turn outlives it).
++    if query == 7 {
++        let held = life_held_own(l, l.map_sets[sets + index]); var hi = l.sets[held].first;
++        while hi >= 0 { let a = l.alts[hi]; hi = a.next; if a.root != 0 && l.roots[a.root].depth > 0 { return false; } }
++        return true;
++    }
+     let set = life_class_any_set(l, frame, sets, index);
+     if query == 4 {
+         let other = life_class_any_set(l, frame, sets, subject); var ai = l.sets[set].first;
+@@ -3647,7 +3656,7 @@ fn life_classify(p: Program&, l: Lifetimes&, function_node: i64, arguments: i64,
+ let LIFE_ASSUME_LIMIT: i64 = 512;
+ // The cautious answer to a question: the classes may alias, the class may
+ // point into grow-shrink elements, it is not known to be one array or root.
+-inline fn life_cautious(query: i64) -> bool { return query != 2 && query != 6; }
++inline fn life_cautious(query: i64) -> bool { return query != 2 && query != 6 && query != 7; }
+ // A frame serves every call with its key. Where a call (its sets at `sets`)
+ // answers a question the body asked otherwise than the body was checked
+ // with, the cautious answer takes its place for good and the body is checked
+@@ -3659,12 +3668,39 @@ fn life_class_check(p: Program&, l: Lifetimes&, frame: i64, sets: i64) {
+         let a = l.assumes[at]; let cautious = life_cautious(a.query);
+         if a.open == 0 && a.answer != cautious && life_class_answer(p, l, frame, sets, a.query, a.index, a.subject, a.flag) != a.answer {
+             l.assumes[at].answer = cautious; l.revision += 1; l.frames[frame].stored_version += 1;
++            if a.query == 7 { life_class_local(l, frame, a.index); }
+             if !l.frames[frame].active { l.frames[frame].validated = false; l.frames[frame].checked_revision = -1; }
+         }
+         at = a.next;
+     }
+     l.any_serial = serial;
+ }
++// What an argument's storage holds outlives the argument's own root, and
++// may outlive it by far: a local struct of pooled tables holds slices of
++// global pools. A storage class has its argument class's depth unless the
++// frame's first call shows that everything the argument's storage holds is
++// at depth 0; then it is at depth 0 (upstream gives a view its own depth in
++// the key), which is assumed of every call (question 7). A call of which it
++// is not true takes it back for good, and the body is checked again.
++fn life_class_global(l: Lifetimes&, frame: i64, sets: i64) {
++    let n = l.frames[frame].class_base; let classes = l.frames[frame].classes;
++    for k in 0..n {
++        if l.roots[classes + k].depth == 0 || l.roots[classes + k].contents == 0 { continue; }
++        if !life_class_answer_roots(l, frame, sets, 7, k, 0, false) { continue; }
++        let at = life_assume_open(l, frame, 7, k, 0, false); life_assume_close(l, at, true);
++        l.roots[classes + n + k].depth = 0; l.roots[classes + 2 * n + k].depth = 0;
++    }
++}
++fn life_class_local(l: Lifetimes&, frame: i64, k: i64) {
++    let n = l.frames[frame].class_base; let classes = l.frames[frame].classes; let depth = l.roots[classes + k].depth;
++    l.roots[classes + n + k].depth = depth; l.roots[classes + 2 * n + k].depth = depth;
++    var typed = l.frames[frame].typed_first;
++    while typed >= 0 {
++        var top = typed; while l.roots[top].class_parent >= 0 { top = l.roots[top].class_parent; }
++        if (top - classes) % n == k { l.roots[typed].depth = depth; }
++        typed = l.roots[typed].class_next;
++    }
++}
+ // The frame with the key in key_scratch, or -1.
+ fn life_class_frame(l: Lifetimes&, c: const LifeClasses&) -> i64 {
+     if l.class_heads.len == 0 { return -1; }
+@@ -4001,7 +4037,7 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
+             life_class_remap(p, l, target, arguments, destination, receiver_sensitive);
+         }
+     }
+-    if target < 0 { target = life_class_new(p, l, function_node, call, selected_result, receiver_sensitive, c); }
++    if target < 0 { target = life_class_new(p, l, function_node, call, selected_result, receiver_sensitive, c); life_class_global(l, target, c.sets); }
+     else { life_class_check(p, l, target, c.sets); }
+     let m = LifeMap { classes: l.frames[target].classes, count: l.frames[target].class_count, base: l.frames[target].class_base, sets: c.sets, depths: c.depths, depth_count: depth_count, serial: c.serial, frame: target };
+     life_cycle_call(p, l, target, call, destination);

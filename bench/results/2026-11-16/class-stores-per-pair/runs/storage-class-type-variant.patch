@@ -1,0 +1,112 @@
+diff --git a/selfhost/checker_lifetimes.goose b/build/work/checker_lifetimes.goose
+index 1b14cc7..91bdb80 100644
+--- a/selfhost/checker_lifetimes.goose
++++ b/build/work/checker_lifetimes.goose
+@@ -110,6 +110,7 @@ struct LifeClasses { sets: i64 = 0, count: i64 = 0, depths: i64 = 0, depth_count
+ // map_depths[depths + r]. serial: of the call, for map_memo.
+ struct LifeMap { classes: i64 = 0, count: i64 = 0, base: i64 = 1, sets: i64 = 0, depths: i64 = 0, depth_count: i64 = 0, serial: i64 = 0, frame: i64 = -1 }
+ // What life_map_set made of a set for the call of this serial.
++struct LifeRefers { holder: i64 = -1, pointee: i64 = -1, answer: bool = false }
+ struct LifeMapped { serial: i64 = -1, set: i64 = -1, result: i64 = 0, stored: i64 = 0 }
+ struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
+ struct LifeExit { node: i64, frame: i64, value: LifeValue, destination: i64 = 0, selected_result: i64 = -1 }
+@@ -306,6 +307,9 @@ struct Lifetimes {
+     typed_slots: i64[>..]&, typed_count: i64 = 0,
+     // Per type, the first type life_same takes it for (life_canon_types).
+     type_canon: i64[>..]&,
++    // Whether a value of one type holds a reference to a value of another
++    // (life_refers), remembered by the pair.
++    refers: LifeRefers[>..]&,
+ }
+ 
+ // An order-independent hash of a set, equal for sets life_equal accepts. A
+@@ -1983,13 +1987,51 @@ fn life_class_typed(l: Lifetimes&, parent: i64, pointee: i64) -> i64 {
+     let own = life_single(l, root, false, root); life_set_contents(l, root, own); l.roots[root].live_contents = own;
+     return root;
+ }
+-// Whether an exact reference to a class root may be one to `pointee`: any
+-// may but one to an argument class whose parameters' type holds no such
+-// value (upstream's CanContain of a binding root's pointee).
+-inline fn life_class_holds(p: Program&, l: Lifetimes&, root: i64, pointee: i64) -> bool {
+-    if l.roots[root].class_frame < 0 { return false; }
+-    let own = l.roots[root].class_pointee;
+-    return own < 0 || pointee < 0 || life_contains_memo(p, l, own, pointee);
++// Whether a value of type `holder` holds, inline, a reference or slice that
++// may point at a `pointee`: one whose own pointee type holds a `pointee`.
++// What the storage such a reference points at holds in turn is not asked.
++fn life_refers(p: Program&, l: Lifetimes&, holder: i64, pointee: i64) -> bool {
++    if holder < 0 || pointee < 0 { return true; }
++    if l.refers.len == 0 { l.refers.resize(8192, LifeRefers {}); }
++    var h: u64 = (holder as! u64) * 11400714819323198485 ^ (pointee as! u64) * 14029467366897019727; h ^= h >> 29;
++    let memo = (h & ((l.refers.len - 1) as! u64)) as i64;
++    if l.refers[memo].holder == holder && l.refers[memo].pointee == pointee { return l.refers[memo].answer; }
++    var work: i64[>..] = [holder]; var at = 0; var answer = false;
++    while at < work.len && !answer {
++        let t: const Type& = p.types[work[at]]; at += 1;
++        if t.kind == TY_SLICE || t.kind == TY_REF {
++            // (A relative reference points into its owner or pool: not judged here.)
++            if t.kind == TY_REF && t.length_storage >= 0 || t.element < 0 || t.element == TYPE_U8 || life_contains(p, l, t.element, pointee) { answer = true; }
++        } else if t.kind == TY_ARRAY && t.element >= 0 {
++            var seen = false; for old in work { if old == t.element { seen = true; } }
++            if !seen { work.push(t.element); }
++        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
++            var field = t.first;
++            while field >= 0 {
++                let ft = p.nodes[field].type_id; var seen = ft < 0;
++                for old in work { if old == ft { seen = true; } }
++                if !seen { work.push(ft); }
++                field = p.nodes[field].next;
++            }
++        }
++    }
++    l.refers[memo] = LifeRefers { holder: holder, pointee: pointee, answer: answer };
++    return answer;
++}
++// Whether an exact reference to a class root may be one to `pointee`: not
++// one to an argument class whose parameters' type holds no such value
++// (upstream's CanContain of a binding root's pointee), nor one to a storage
++// class of another pointee type, nor one to what the storage of an argument
++// holds where that argument's type holds no reference to such a value.
++fn life_class_holds(p: Program&, l: Lifetimes&, root: i64, pointee: i64) -> bool {
++    let owner = l.roots[root].class_frame;
++    if owner < 0 { return false; }
++    if pointee < 0 { return true; }
++    if l.roots[root].class_parent >= 0 { return life_contains_memo(p, l, l.roots[root].class_type, pointee); }
++    let index = l.roots[root].class_index; let n = l.frames[owner].class_base;
++    if index < n { let own = l.roots[root].class_pointee; return own < 0 || life_contains_memo(p, l, own, pointee); }
++    if index < 2 * n { let argument = l.roots[l.frames[owner].classes + index - n].class_pointee; return argument < 0 || life_refers(p, l, argument, pointee); }
++    return true;
+ }
+ // An alternative found in a class root's storage, as a read of `pointee`
+ // takes it: the class of everything that storage holds becomes its storage
+@@ -3790,7 +3832,11 @@ fn life_map_onto(p: Program&, l: Lifetimes&, out: LifeBuild&, source: i64, x: Li
+         let a = l.alts[ai]; ai = a.next;
+         if want >= 0 && a.exact && !a.byteview && a.root != 0 {
+             var within = a.target_type as i64;
+-            if within < 0 { if l.roots[a.root].class_frame >= 0 { within = l.roots[a.root].class_pointee; } else { within = l.roots[a.root].type_id; } }
++            if within < 0 {
++                if l.roots[a.root].class_frame < 0 { within = l.roots[a.root].type_id; }
++                else if l.roots[a.root].class_parent >= 0 { within = l.roots[a.root].class_type; }
++                else if l.roots[a.root].class_index < l.frames[l.roots[a.root].class_frame].class_base { within = l.roots[a.root].class_pointee; }
++            }
+             if within >= 0 && !life_contains_memo(p, l, within, want) { continue; }
+         }
+         var slotread = x.slotread; if x.exact { slotread = a.slotread && x.slotread; }
+@@ -5195,7 +5241,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
+     var readbacks: LifeReadBack[>..] = [];
+     var class_list: i64[>..] = []; var class_heads: i64[>..] = []; var class_keys: i64[>..] = [];
+     var map_sets: i64[>..] = []; var map_roots: i64[>..] = []; var map_depths: i64[>..] = []; var key_scratch: i64[>..] = []; var class_scratch: i64[>..] = []; var bound_scratch: i64[>..] = [];
+-    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var type_canon: i64[>..] = [];
++    var assumes: LifeAssume[>..] = []; var assume_slots: i64[>..] = []; var map_memo: LifeMapped[>..] = []; var body_owners: i64[>..] = []; var contained: i64[>..] = []; var typed_slots: i64[>..] = []; var refers: LifeRefers[>..] = []; var type_canon: i64[>..] = [];
+     var class_slots: i64[>..] = []; var joins: LifeJoin[>..] = []; var global_cells: i64[>..] = []; var global_candidates: LifeGlobalCandidates[>..] = []; var candidate_alts: LifeAlt[>..] = [];
+     var l = Lifetimes { parents: scope_parent, depths: scope_depth, functions: scope_functions,
+         roots: roots, sets: sets, alts: alts, cells: cells, frames: frames, items: items, pairs: pairs, pair_heads: pair_heads, exits: exits,
+@@ -5208,7 +5254,7 @@ fn check_lifetimes(p: Program&, scope_parent: const i64[:], scope_depth: const i
+         loaded: loaded, gs_asked: gs_asked, gs_answer: gs_answer, relative_storage: relative_storage, readbacks: readbacks,
+         live_bits: live_bits, live_words: live_words, class_slots: class_slots, joins: joins, global_cells: global_cells, global_candidates: global_candidates, candidate_alts: candidate_alts,
+         class_list: class_list, class_heads: class_heads, class_keys: class_keys,
+-        map_sets: map_sets, map_roots: map_roots, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, contained: contained, typed_slots: typed_slots, type_canon: type_canon };
++        map_sets: map_sets, map_roots: map_roots, map_depths: map_depths, key_scratch: key_scratch, class_scratch: class_scratch, bound_scratch: bound_scratch, assumes: assumes, assume_slots: assume_slots, map_memo: map_memo, body_owners: body_owners, contained: contained, typed_slots: typed_slots, type_canon: type_canon, refers: refers };
+     life_validate_pools(p, l, pool_references);
+     if p.diagnostics.len > 0 { return; }
+     var standalone: LifeStandalone[>..] = []; let node_count = p.nodes.len;
