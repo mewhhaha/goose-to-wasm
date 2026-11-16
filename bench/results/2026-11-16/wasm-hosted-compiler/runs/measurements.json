@@ -1,0 +1,54 @@
+{
+ "emit compiler as wasm (s)": [
+  11.93,
+  10.69,
+  10.23
+ ],
+ "module bytes": 30763563,
+ "squares -> wasm-direct: hosted (s)": [
+  5.64,
+  5.07,
+  5.17
+ ],
+ "squares -> wasm-direct: native (s)": [
+  0.0,
+  0.0,
+  0.0
+ ],
+ "squares -> native: hosted (s)": [
+  12.09,
+  8.72,
+  8.84
+ ],
+ "squares -> native: native (s)": [
+  0.0,
+  0.01,
+  0.0
+ ],
+ "tour -> wasm-direct: hosted (s)": [
+  9.17,
+  9.39,
+  9.47
+ ],
+ "tour -> wasm-direct: native (s)": [
+  0.01,
+  0.01,
+  0.01
+ ],
+ "tour -> native: hosted (s)": [
+  12.2,
+  11.68,
+  14.13
+ ],
+ "tour -> native: native (s)": [
+  0.01,
+  0.01,
+  0.03
+ ],
+ "self-check hosted": {
+  "seconds": 1.02,
+  "exit": 1,
+  "stderr": "goose runtime error: data region exhausted (line 564)\n"
+ },
+ "node": "v22.23.4 V8 12.4.254.21-node.57"
+}

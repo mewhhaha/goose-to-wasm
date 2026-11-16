@@ -1,0 +1,193 @@
+{
+ "schema": "goose-qualification-v1",
+ "started": "2026-11-16T19:31:27+0000",
+ "head": "b3ec33f285a8a362a023e93681c803718642b2cc",
+ "dirty": true,
+ "since": "origin/main",
+ "units_pass": false,
+ "stages": [
+  {
+   "stage": "bootstrap",
+   "command": [
+    "/usr/local/bin/python3",
+    "scripts/bootstrap.py",
+    "--verify",
+    "--build-dir",
+    "/home/user/goose-to-wasm/build/q-wasm1/bootstrap",
+    "--cache-dir",
+    "/home/user/goose-to-wasm/build/qualify-cache/bootstrap"
+   ],
+   "exit": 0,
+   "seconds": 244.3,
+   "log": "/home/user/goose-to-wasm/build/q-wasm1/bootstrap.log"
+  },
+  {
+   "stage": "conformance",
+   "command": [
+    "/home/user/goose-to-wasm/.venv/bin/python",
+    "tests/conformance.py",
+    "--compiler",
+    "/home/user/goose-to-wasm/build/q-wasm1/bootstrap/bin/goose",
+    "--levels",
+    "0",
+    "2",
+    "--cc",
+    "gcc",
+    "--known-gaps",
+    "tests/conformance/known-gaps.json",
+    "--native-cache",
+    "/home/user/goose-to-wasm/build/qualify-cache/native",
+    "--output-dir",
+    "/home/user/goose-to-wasm/build/q-wasm1/conformance",
+    "--jobs",
+    "2"
+   ],
+   "exit": 0,
+   "seconds": 268.6,
+   "log": "/home/user/goose-to-wasm/build/q-wasm1/conformance.log",
+   "summary": "{'selected': 10793, 'passed': 10689, 'failed': 104}",
+   "gaps": "{'open_gaps': 104, 'unexpected_failures': 0, 'fixed_gaps': 0}",
+   "native_cache": "{'native_builds': 3216, 'cache_hits': 3152}"
+  },
+  {
+   "stage": "native-checks",
+   "command": [
+    "/usr/local/bin/python3",
+    "native/tests/check.py",
+    "--output",
+    "/home/user/goose-to-wasm/build/q-wasm1/native"
+   ],
+   "exit": 0,
+   "seconds": 18.6,
+   "log": "/home/user/goose-to-wasm/build/q-wasm1/native-checks.log",
+   "summary": "54 steps ok"
+  },
+  {
+   "stage": "equivalence",
+   "command": [
+    "/home/user/goose-to-wasm/.venv/bin/python",
+    "tests/output_equivalence.py",
+    "--baseline",
+    "/home/user/goose-to-wasm/build/q-class8/bootstrap/bin/goose",
+    "--candidate",
+    "/home/user/goose-to-wasm/build/q-wasm1/bootstrap/bin/goose",
+    "--output-dir",
+    "/home/user/goose-to-wasm/build/q-wasm1/equivalence",
+    "--selfhost",
+    "/home/user/goose-to-wasm/build/q-wasm1/frozen/selfhost",
+    "--jobs",
+    "1"
+   ],
+   "exit": 1,
+   "seconds": 139.9,
+   "log": "/home/user/goose-to-wasm/build/q-wasm1/equivalence.log",
+   "summary": "{\"compared\": 10049, \"differing\": 3, \"seconds\": {\"baseline\": 69.34, \"candidate\": 66.819}}",
+   "differing": [
+    {
+     "source": "tests/fixtures/unsupported_pointer_extern.goose",
+     "mode": "wasm2",
+     "same": false,
+     "baseline": {
+      "exit": 1,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "f9f00c46eb914733e0d4d3c0268eb482db16801c1437b60aa0f30e034f003205",
+      "stderr_head": "/home/user/goose-to-wasm/tests/fixtures/unsupported_pointer_extern.goose:1:11: error: wasm: public exports accept numeric and bool values only\n",
+      "output": null,
+      "seconds": 0.002
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "95d9c8748399b748f84631cc7556e83439bae76a614308c4fc9c65c2f72fecbc",
+      "seconds": 0.002
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/runtime-externs/native.goose",
+     "mode": "wasm2",
+     "same": false,
+     "baseline": {
+      "exit": 1,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "52d7843a3eede37445d549a7c298e426bb0683d963e3b09eb5b52f55767ecd8c",
+      "stderr_head": "/home/user/goose-to-wasm/tests/fixtures/contracts/runtime-externs/native.goose:15:11: error: wasm: public exports accept numeric and bool values only\n/home/user/goose-to-wasm/tests/fixtures/contracts/runtime-externs/native.goose:16:11: error: wasm: public exports accept numeric and bool values only\n",
+      "output": null,
+      "seconds": 0.003
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "3c304fe133bfbc590bf036524469cfd5e0956661f2f1f80f19c3f671f0c6d44c",
+      "seconds": 0.004
+     }
+    },
+    {
+     "source": "tests/fixtures/contracts/slice-pool/extern_array_reference.goose",
+     "mode": "wasm2",
+     "same": false,
+     "baseline": {
+      "exit": 1,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e086323bb5d1686c4cc67e188c39b77fff522f8d8bc5c7e192caa5e42edb7683",
+      "stderr_head": "/home/user/goose-to-wasm/tests/fixtures/contracts/slice-pool/extern_array_reference.goose:6:11: error: wasm: public exports accept numeric and bool values only\n/home/user/goose-to-wasm/tests/fixtures/contracts/slice-pool/extern_array_reference.goose:7:11: error: wasm: public exports accept numeric and bool values only\n",
+      "output": null,
+      "seconds": 0.003
+     },
+     "candidate": {
+      "exit": 0,
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_head": "",
+      "output": "c054c8f6f15fcfb7689c9fd87276ae0d032ab6922c192e6232ff5e3d83270082",
+      "seconds": 0.003
+     }
+    }
+   ]
+  },
+  {
+   "stage": "unit-tests",
+   "command": [
+    "/home/user/goose-to-wasm/.venv/bin/python",
+    "-m",
+    "unittest",
+    "tests.test_conformance_runner",
+    "tests.test_bootstrap_optimization",
+    "tests.test_native_units",
+    "tests.test_driver_outputs",
+    "tests.test_cli_outputs",
+    "tests.test_root_struct_backends",
+    "tests.test_slice_pool_backends",
+    "tests.test_loop_ordinals",
+    "tests.test_dynamic_remainder",
+    "tests.test_descending_while",
+    "tests.test_zero_stores",
+    "tests.test_aggregate_print",
+    "tests.test_while_unroll"
+   ],
+   "exit": 1,
+   "seconds": 53.4,
+   "log": "/home/user/goose-to-wasm/build/q-wasm1/unit-tests.log"
+  }
+ ],
+ "bootstrap": {
+  "fixed_point": true,
+  "generated_c_sha256": "c69f9b8943a113fbb88c4dabc9ee23814ff544079c7b41fca1d6c9184521a3da",
+  "next_generation_c_sha256": "c69f9b8943a113fbb88c4dabc9ee23814ff544079c7b41fca1d6c9184521a3da",
+  "third_generation_c_sha256": null,
+  "executable_sha256": "8d7b6ba5685114a80d5edcc0cbe2319633bfa722c66012a08213d83319443689",
+  "profile_used": false,
+  "cached": {
+   "build-seed": true,
+   "build-goose": false
+  }
+ },
+ "seconds": 513.0,
+ "status": "failed",
+ "failed": [
+  "unit-tests"
+ ]
+}

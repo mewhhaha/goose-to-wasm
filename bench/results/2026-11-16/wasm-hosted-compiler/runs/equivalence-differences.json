@@ -1,0 +1,23 @@
+[
+ {
+  "source": "tests/fixtures/unsupported_pointer_extern.goose",
+  "mode": "wasm2",
+  "baseline_exit": 1,
+  "baseline_stderr_head": "/home/user/goose-to-wasm/tests/fixtures/unsupported_pointer_extern.goose:1:11: error: wasm: public exports accept numeric and bool values only\n",
+  "candidate_exit": 0
+ },
+ {
+  "source": "tests/fixtures/contracts/runtime-externs/native.goose",
+  "mode": "wasm2",
+  "baseline_exit": 1,
+  "baseline_stderr_head": "/home/user/goose-to-wasm/tests/fixtures/contracts/runtime-externs/native.goose:15:11: error: wasm: public exports accept numeric and bool values only\n/home/user/goose-to-wasm/tests/fixtures/contracts/runtime-externs/native.goose:16:11: error: wasm: public exports accept numeric and bool values only\n",
+  "candidate_exit": 0
+ },
+ {
+  "source": "tests/fixtures/contracts/slice-pool/extern_array_reference.goose",
+  "mode": "wasm2",
+  "baseline_exit": 1,
+  "baseline_stderr_head": "/home/user/goose-to-wasm/tests/fixtures/contracts/slice-pool/extern_array_reference.goose:6:11: error: wasm: public exports accept numeric and bool values only\n/home/user/goose-to-wasm/tests/fixtures/contracts/slice-pool/extern_array_reference.goose:7:11: error: wasm: public exports accept numeric a",
+  "candidate_exit": 0
+ }
+]

@@ -87,6 +87,22 @@ Parsing and type checking take about 12 s. The lifetime pass runs after that.
 
   Externs resolve through `dlsym`, so the host must export them, for example with `-rdynamic`. docs/FEATURES.md lists `--shared`, `--header` and `goose_init` as missing.
 
+## Second frontier: the compiler as a Wasm module
+
+The owner's test since 2026-11-16, beside blot2: compile this compiler to direct Wasm and run it. The owner's direction for it: the targets are Wasm 3.0 on V8 and Wasmtime, so 64-bit memory may be used, and a host for either engine may ship with the compiler.
+
+**Where it stands** (`6b8bd39`, evidence in `bench/results/2026-11-16/wasm-hosted-compiler/`):
+- `goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-max-pages 65535 -o goose.wasm` emits a 30.8 MB module in 10 s.
+- `node scripts/run_wasm.mjs goose.wasm -- <compiler arguments>` runs it. On the ten examples its Wasm and C outputs are the native compiler's, byte for byte. `tests/test_cli_outputs.py` (`WasmHostedCompiler`) keeps that.
+- It stops on its own source: `data region exhausted`. 116 equal regions of 35 MiB in wasm32; the node table needs 109 MB.
+- It is about a thousand times slower than the native compiler on small inputs, which is V8 compiling huge functions with thousands of locals on first call.
+
+**Next, in order.**
+1. **64-bit memory in the direct backend**, until the module checks and then compiles `selfhost/main.goose` and its outputs match the native compiler's (the bootstrap fixed point, through Wasm). A reference is an i32, a slice one i64 of 32-bit pointer and 32-bit count, a control six u32 words, and the 293 load and store sites compute addresses in i32: all three representations change. V8 caps a 64-bit memory at 16 GiB (137 MiB a region over 117, just enough for the self-compile); Wasmtime does not. Node 22 needs `--experimental-wasm-memory64`; the pinned Node 24 does not. Decide the slice representation first (two i64 values, or one i64 with a wider pointer and a narrower count), and whether regions stay equal.
+2. **A Wasmtime host for the `os` imports** (`scripts/run_wasmtime.py`, `host/wasmtime.cpp`), which also pays the module's compilation once (`.cwasm`).
+3. **The module's speed**: locals are never reused by the backend (`cg_save` makes one a temporary).
+4. `docs/TARGET.md` describes a `goose.regions` custom section this compiler does not emit; the host finds region cursors through three exported globals instead. Settle one of them when the control layout changes for 64-bit memory.
+
 ## Other open work
 
 - **Small-program costs**, each 0.1–0.5 ms ([Still open](bench/results/2026-11-14/compiler-throughput-63/README.md#still-open)):
