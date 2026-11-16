@@ -3742,6 +3742,14 @@ fn life_class_new(p: Program&, l: Lifetimes&, function_node: i64, call: i64, sel
         }
         inputs = life_append(l, inputs, value); formal = p.nodes[formal].next;
     }
+    // An argument class whose parameters point at a type that holds no
+    // reference has storage that holds none: it has no storage class to be
+    // stored into or read out of. (Bytes are left alone: they may be a view
+    // of anything.)
+    for k in 0..n {
+        let pointee = l.roots[classes + k].class_pointee;
+        if pointee >= 0 && !life_holds(p, pointee) && pointee != TYPE_U8 && p.types[pointee].element != TYPE_U8 { life_set_contents(l, classes + k, 0); l.roots[classes + k].live_contents = 0; }
+    }
     var place = life_root_set(l, classes + n - 1); var result_class = n - 1;
     if receiver_sensitive {
         let kind = l.class_keys[cursor]; cursor += 1; place = 0; result_class = -1;
