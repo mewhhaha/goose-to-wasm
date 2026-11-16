@@ -5,6 +5,7 @@ Bootstraps the compiler with --verify, then runs these at once:
 - the conformance suite, with each emitted C file as one translation unit;
 - when native code generation changed, the native rows again as three
   program units beside a shared runtime unit;
+- the direct Wasm rows again, built with --wasm-memory64;
 - the native runtime checks;
 - output equivalence against a baseline compiler, when one is given;
 - the runner, bootstrap and backend unit tests.
@@ -125,6 +126,9 @@ def main():
         jobs.append(('conformance-native-units-3', [*conformance, '--output-dir', out / 'conformance-units',
                                                     '--jobs', max(1, share // 4), '--native-units', '3',
                                                     '--targets', 'native']))
+    # The direct Wasm rows again, built for a 64-bit memory.
+    jobs.append(('conformance-memory64', [*conformance, '--output-dir', out / 'conformance-memory64',
+                                          '--jobs', max(1, share // 4), '--targets', 'wasm-direct', '--wasm-memory64']))
     if args.baseline:
         frozen = out / 'frozen'
         shutil.copytree(ROOT / 'selfhost', frozen / 'selfhost', ignore=shutil.ignore_patterns('results'))

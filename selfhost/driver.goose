@@ -13,7 +13,7 @@ extern "libc.so.6" {
 
 struct DriverOptions {
     source_arg: i64 = -1, output_arg: i64 = -1, stdlib_arg: i64 = -1,
-    stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1,
+    stats_arg: i64 = -1, dependencies_arg: i64 = -1, cc_arg: i64 = -1, profile_arg: i64 = -1, region_stats: bool = false,
     target: i64 = 0, optimization: i64 = 0, initial_pages: i64 = 16, maximum_pages: i64 = 256, memory64: bool = false,
     check: bool = false, parse: bool = false, tokens: bool = false,
     dump: bool = false, dump_ir: bool = false, run: bool = false, debug: bool = false, library: bool = false, reachable_program: bool = false, expansion_limit: i64 = 100000, stack_reserve: i64 = 0,
@@ -141,13 +141,14 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
         else if same_bytes(a, "--debug") { o.debug = true; }
         else if same_bytes(a, "--library") { o.library = true; }
         else if same_bytes(a, "--wasm-memory64") { o.memory64 = true; }
+        else if same_bytes(a, "--wasm-region-stats") { o.region_stats = true; }
         else if same_bytes(a, "--reachable-program") { o.reachable_program = true; }
         else if same_bytes(a, "--standalone") { /* C output is standalone. */ }
         else if same_bytes(a, "-O0") { o.optimization = 0; }
         else if same_bytes(a, "-O1") { o.optimization = 1; }
         else if same_bytes(a, "-O2") { o.optimization = 2; }
         else if same_bytes(a, "-o") || same_bytes(a, "--stdlib") || same_bytes(a, "--wasm-stats") ||
-                same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") ||
+                same_bytes(a, "--wasm-deps") || same_bytes(a, "--cc") || same_bytes(a, "--target") || same_bytes(a, "--wasm-region-profile") ||
                 same_bytes(a, "--wasm-initial-pages") || same_bytes(a, "--wasm-max-pages") || same_bytes(a, "--expansion-node-limit") ||
                 same_bytes(a, "--stack-reserve") {
             if at >= arguments.len { driver_error("missing option value"); o.bad = true; break; }
@@ -155,6 +156,7 @@ fn driver_options(o: DriverOptions&, arguments: u8[:][:]) {
             if same_bytes(a, "-o") { o.output_arg = at - 1; }
             else if same_bytes(a, "--stdlib") { o.stdlib_arg = at - 1; }
             else if same_bytes(a, "--wasm-stats") { o.stats_arg = at - 1; }
+            else if same_bytes(a, "--wasm-region-profile") { o.profile_arg = at - 1; }
             else if same_bytes(a, "--wasm-deps") { o.dependencies_arg = at - 1; }
             else if same_bytes(a, "--cc") { o.cc_arg = at - 1; }
             else if same_bytes(a, "--target") {
@@ -379,15 +381,33 @@ fn driver_main() -> i64 {
     var symbols: Symbol[>..] = []; var diagnostics: Diagnostic[>..] = [];
     var type_properties: i64[>..] = []; var builtin_symbols: i64[>..] = [];
     var type_buckets: TypeBucket[>..] = []; var type_links: TypeLink[>..] = []; var type_scan_marks: i64[>..] = []; var type_holds: i64[>..] = [];
-    var inline_sites: InlineSite[>..] = [];
+    var inline_sites: InlineSite[>..] = []; var region_profile: i64[>..] = [];
+    // A region profile is lines of "index bytes", as a host writes them
+    // (GOOSE_REGION_PROFILE): what each data region was seen to need.
+    if o.profile_arg >= 0 {
+        var profile_text: u8[>..] = [];
+        if !read_file(arguments[o.profile_arg], profile_text) { driver_error("cannot read the region profile"); return 1; }
+        var at = 0; var index: i64 = -1;
+        while at < profile_text.len {
+            while at < profile_text.len && (profile_text[at] < '0' || profile_text[at] > '9') { at++; }
+            let start = at; while at < profile_text.len && profile_text[at] >= '0' && profile_text[at] <= '9' { at++; }
+            if at == start { break; }
+            let number, ok = driver_number(profile_text[start..at]);
+            if !ok || number > 281474976710656 { driver_error("the region profile holds a number out of range"); return 1; }
+            if index < 0 { index = number; continue; }
+            if index > 1048576 { driver_error("the region profile holds a region index out of range"); return 1; }
+            while region_profile.len <= index { region_profile.push(0); }
+            region_profile[index] = number; index = -1;
+        }
+    }
     var p = Program { text: text, messages: messages, sources: sources, tokens: tokens,
                       nodes: nodes, types: types, symbols: symbols, diagnostics: diagnostics,
                       type_properties: type_properties, builtin_symbols: builtin_symbols,
                       type_buckets: type_buckets, type_links: type_links, type_scan_marks: type_scan_marks, type_holds: type_holds,
-                      inline_sites: inline_sites };
+                      inline_sites: inline_sites, region_profile: region_profile };
     p.optimization = o.optimization; p.debug = o.debug; p.library = o.library;
     p.check_only = o.check || o.parse; p.reachable_program = o.reachable_program; p.expansion_limit = o.expansion_limit; p.stack_reserve = o.stack_reserve;
-    p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages;
+    p.initial_pages = o.initial_pages; p.maximum_pages = o.maximum_pages; p.region_stats = o.region_stats;
     if o.target == 1 { p.pointer_bytes = 8; }
     else if o.memory64 { p.pointer_bytes = 8; p.wide = true; p.control_bytes = 48; p.control_align = 8; }
     initialize_types(p);

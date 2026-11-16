@@ -378,6 +378,10 @@ struct Program {
     leaving_marked: bool = false,
     // Library code inlined into the program's code, in ascending first.
     inline_sites: InlineSite[>..]&,
+    // Direct Wasm data regions: region_profile[i] is the bytes region i was
+    // seen to need (--wasm-region-profile), the weight of its share of memory;
+    // region_stats makes the module keep each region's high-water mark.
+    region_profile: i64[>..]&, region_stats: bool = false,
 }
 inline fn same_bytes(a: u8[:], b: u8[:]) -> bool {
     if a.len != b.len { return false; }

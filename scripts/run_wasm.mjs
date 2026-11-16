@@ -196,46 +196,15 @@ export async function runModule(bytes, input = "", programArguments = ["program"
     }
     return action(...converted);
   };
-  // Appends to the growable byte array whose control is at `control` (words
-  // base, length, limit, ...; u32 in a 32-bit module, u64 in a 64-bit one):
-  // the bytes go at its region's cursor, which is kept in the module's cursor
-  // table and moves with them. The module exports the words that find it
-  // (docs/TARGET.md), as i64 globals when its memory is 64-bit.
+  // Appends to the growable byte array whose control is at `control`: the
+  // module's exported goose.reserve makes the room, as a push in the program
+  // would, and says where the bytes go (docs/TARGET.md).
   const appendBytes = (control, data) => {
-    const exported = (name) => {
-      const global = instance.exports[name];
-      if (!(global instanceof WebAssembly.Global)) throw new Error("module does not export " + name);
-      return global.value;
-    };
-    const wide = typeof exported("goose.region_base") === "bigint";
-    const bytes = wide ? 8 : 4;
-    const word = (name) => wide ? address(exported(name)) : exported(name) >>> 0;
-    const read = (at) => {
-      const view = memoryView(at, bytes);
-      const data = new DataView(view.buffer, view.byteOffset, bytes);
-      return wide ? address(data.getBigUint64(0, true)) : data.getUint32(0, true);
-    };
-    const write = (at, value) => {
-      const view = memoryView(at, bytes);
-      const data = new DataView(view.buffer, view.byteOffset, bytes);
-      if (wide) data.setBigUint64(0, BigInt(value), true); else data.setUint32(0, value, true);
-    };
-    const header = address(control);
-    const length = read(header + bytes), limit = read(header + 2 * bytes);
-    const slot = word("goose.region_cursors") + bytes * (Math.floor((limit - word("goose.region_base")) / word("goose.region_bytes")) - 1);
-    const cursor = read(slot);
-    if (data.length > limit - cursor) throw new Error("goose runtime error: data region exhausted");
-    const end = cursor + data.length;
-    const memory = instance.exports.memory;
-    if (end > memory.buffer.byteLength) {
-      const pages = Math.ceil((end - memory.buffer.byteLength) / 65536);
-      // A 64-bit memory takes its page count as a BigInt in engines that
-      // follow the final interface, as a number in earlier ones.
-      try { memory.grow(pages); } catch (failure) { if (!wide || !(failure instanceof TypeError)) throw failure; memory.grow(BigInt(pages)); }
-    }
-    memoryView(cursor, data.length).set(data);
-    write(header + bytes, length + data.length);
-    write(slot, end);
+    const reserve = instance.exports["goose.reserve"];
+    if (typeof reserve !== "function") throw new Error("module does not export goose.reserve");
+    const wide = typeof control === "bigint";
+    const destination = reserve(control, wide ? BigInt(data.length) : data.length);
+    memoryView(destination, data.length).set(data);
   };
   const tried = (action) => { try { return action() ? 1 : 0; } catch { return 0; } };
   const byteSet = (pointer) => memoryView(pointer, 256);
@@ -390,25 +359,25 @@ export async function runModule(bytes, input = "", programArguments = ["program"
     }
   }
   const ended = process.hrtime.bigint();
-  // GOOSE_REGION_STATS=1: how far each data region's cursor got, largest
-  // first, for a module that exports its region words. A region that is full
-  // is what "data region exhausted" reports.
-  if (process.env.GOOSE_REGION_STATS && instance && instance.exports["goose.region_base"] instanceof WebAssembly.Global) {
-    const value = (name) => Number(BigInt.asUintN(64, BigInt(instance.exports[name].value)));
-    const wide = typeof instance.exports["goose.region_base"].value === "bigint";
-    const base = wide ? value("goose.region_base") : value("goose.region_base") >>> 0;
-    const size = wide ? value("goose.region_bytes") : value("goose.region_bytes") >>> 0;
-    const table = wide ? value("goose.region_cursors") : value("goose.region_cursors") >>> 0;
+  // A module built with --wasm-region-stats exports its region table and
+  // keeps each region's high-water mark. GOOSE_REGION_STATS=1 prints the
+  // largest; GOOSE_REGION_PROFILE=path writes them all as "index bytes"
+  // lines, what --wasm-region-profile reads.
+  if ((process.env.GOOSE_REGION_STATS || process.env.GOOSE_REGION_PROFILE) && instance && instance.exports["goose.region_table"] instanceof WebAssembly.Global) {
+    const table = instance.exports["goose.region_table"].value, wide = typeof table === "bigint", word = wide ? 8 : 4;
     const view = new DataView(instance.exports.memory.buffer);
+    const read = (at) => at + word > view.byteLength ? 0 : wide ? Number(view.getBigUint64(at, true)) : view.getUint32(at, true);
+    const start = address(table), count = instance.exports["goose.region_count"].value;
     const used = [];
-    for (let region = 0; base + (region + 1) * size <= view.byteLength + size && table + (region + 1) * (wide ? 8 : 4) <= base; region++) {
-      const at = table + region * (wide ? 8 : 4);
-      const cursor = wide ? Number(view.getBigUint64(at, true)) : view.getUint32(at, true);
-      if (cursor) used.push([cursor - (base + region * size), region]);
+    for (let region = 0; region < count; region++) {
+      // A region ends in its cursor, its start and its high-water mark.
+      const end = read(start + (region + 1) * word), base = read(end - 2 * word), peak = read(end - word);
+      if (peak > base) used.push([peak - base, region, end - read(start + region * word)]);
     }
+    if (process.env.GOOSE_REGION_PROFILE) writeFileSync(process.env.GOOSE_REGION_PROFILE, used.map(([bytes, region]) => `${region} ${bytes}\n`).join(""));
     used.sort((a, b) => b[0] - a[0]);
-    errors.push(Buffer.from(`regions: ${size} bytes each, memory ${view.byteLength}; used ` +
-      used.slice(0, 12).map(([bytes, region]) => `#${region}:${bytes}`).join(" ") + "\n"));
+    if (process.env.GOOSE_REGION_STATS) errors.push(Buffer.from(`regions: ${count}, memory ${view.byteLength}; most used ` +
+      used.slice(0, 12).map(([bytes, region, size]) => `#${region}:${bytes}/${size}`).join(" ") + "\n"));
   }
   return {
     stdout: Buffer.concat(chunks), stderr: Buffer.concat(errors).toString("utf8") + error, exitCode,

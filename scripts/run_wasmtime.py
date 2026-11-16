@@ -275,35 +275,15 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
             return action(caller, *converted)
         return call
 
-    # Appends to the growable byte array whose control is at `control` (words
-    # base, length, limit, ...; u32 in a 32-bit module, u64 in a 64-bit one):
-    # the bytes go at its region's cursor, kept in the module's cursor table.
-    # The module exports the words that find it (docs/TARGET.md).
+    # Appends to the growable byte array whose control is at `control`: the
+    # module's exported goose.reserve makes the room, as a push in the program
+    # would, and says where the bytes go (docs/TARGET.md).
     def append_bytes(caller, control, data):
-        def exported(name):
-            item = caller.get(name)
-            if not isinstance(item, wasmtime.Global):
-                raise RuntimeError("module does not export " + name)
-            return item
-        base_global = exported("goose.region_base")
-        wide = base_global.type(caller).content == wasmtime.ValType.i64()
-        size, mask = (8, (1 << 64) - 1) if wide else (4, 0xffffffff)
-        layout = "<Q" if wide else "<I"
-        word = lambda name: exported(name).value(caller) & mask
-        read = lambda at: struct.unpack(layout, memory_bytes(caller, at, size))[0]
-        header = control & mask
-        length, limit = read(header + size), read(header + 2 * size)
-        slot = word("goose.region_cursors") + size * ((limit - word("goose.region_base")) // word("goose.region_bytes") - 1)
-        cursor = read(slot)
-        if len(data) > limit - cursor:
-            raise RuntimeError("goose runtime error: data region exhausted")
-        end = cursor + len(data)
-        memory = caller.get("memory")
-        if end > memory.data_len(caller):
-            memory.grow(caller, (end - memory.data_len(caller) + 65535) // 65536)
-        write_bytes(caller, cursor, bytes(data))
-        write_bytes(caller, header + size, struct.pack(layout, length + len(data)))
-        write_bytes(caller, slot, struct.pack(layout, end))
+        reserve = caller.get("goose.reserve")
+        if not isinstance(reserve, wasmtime.Func):
+            raise RuntimeError("module does not export goose.reserve")
+        destination = reserve(caller, control, len(data))
+        write_bytes(caller, destination if destination >= 0 else destination & 0xffffffff, bytes(data))
 
     def tried(action):
         try:
@@ -538,24 +518,32 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         exit_code = 1
         error = str(failure)
     ended = time.perf_counter_ns()
-    # GOOSE_REGION_STATS=1: how far each data region's cursor got, largest
-    # first, for a module that exports its region words.
-    if os.environ.get("GOOSE_REGION_STATS") and store is not None and linker is not None:
+    # A module built with --wasm-region-stats exports its region table and
+    # keeps each region's high-water mark. GOOSE_REGION_STATS=1 prints the
+    # largest; GOOSE_REGION_PROFILE=path writes them all as "index bytes"
+    # lines, what --wasm-region-profile reads.
+    if (os.environ.get("GOOSE_REGION_STATS") or os.environ.get("GOOSE_REGION_PROFILE")) and store is not None and linker is not None:
         try:
             exports = instance.exports(store)
-            wide = exports["goose.region_base"].type(store).content == wasmtime.ValType.i64()
+            wide = exports["goose.region_table"].type(store).content == wasmtime.ValType.i64()
             size, layout = (8, "<Q") if wide else (4, "<I")
             mask = (1 << (8 * size)) - 1
-            base, each, table = (exports[name].value(store) & mask for name in ("goose.region_base", "goose.region_bytes", "goose.region_cursors"))
+            table, count = exports["goose.region_table"].value(store) & mask, exports["goose.region_count"].value(store)
             memory, used = exports["memory"], []
-            # Regions that start inside the memory as far as it has grown.
-            for region in range(max(0, min((base - table) // size, -(-(memory.data_len(store) - base) // each)))):
-                cursor = struct.unpack(layout, bytes(memory.read(store, table + region * size, table + (region + 1) * size)))[0]
-                if cursor:
-                    used.append((cursor - (base + region * each), region))
+            length = memory.data_len(store)
+            read = lambda at: 0 if at + size > length else struct.unpack(layout, bytes(memory.read(store, at, at + size)))[0]
+            for region in range(count):
+                # A region ends in its cursor, its start and its high-water mark.
+                end = read(table + (region + 1) * size)
+                base, peak = read(end - 2 * size), read(end - size)
+                if peak > base:
+                    used.append((peak - base, region, end - read(table + region * size)))
+            if os.environ.get("GOOSE_REGION_PROFILE"):
+                Path(os.environ["GOOSE_REGION_PROFILE"]).write_text("".join(f"{region} {count}\n" for count, region, _ in sorted(used, key=lambda item: item[1])))
             used.sort(reverse=True)
-            errors.append(f"regions: {each} bytes each, memory {memory.data_len(store)}; used ".encode()
-                          + " ".join(f"#{region}:{count}" for count, region in used[:12]).encode() + b"\n")
+            if os.environ.get("GOOSE_REGION_STATS"):
+                errors.append(f"regions: {count}, memory {length}; most used ".encode()
+                              + " ".join(f"#{region}:{held}/{room}" for held, region, room in used[:12]).encode() + b"\n")
         except (KeyError, NameError):
             pass
     if prepared is not None:
