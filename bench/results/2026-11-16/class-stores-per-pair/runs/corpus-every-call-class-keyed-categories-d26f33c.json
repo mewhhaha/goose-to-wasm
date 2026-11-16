@@ -1,0 +1,1307 @@
+{
+ "compared": 4355,
+ "identical_diagnostics_among_state_differing": 2245,
+ "counts": {
+  "accept->reject": 14,
+  "same messages, other places": 72,
+  "other messages": 21,
+  "reject->accept": 33
+ },
+ "differing": {
+  "accept->reject": [
+   {
+    "source": "native/tests/results.goose",
+    "default": [],
+    "class_keyed": [
+     "native/tests/results.goose:16:67: error: relative reference must point into the exact root that owns its destination"
+    ]
+   },
+   {
+    "source": "tests/fixtures/contracts/root-struct/component-index-check.goose",
+    "default": [],
+    "class_keyed": [
+     "tests/fixtures/contracts/root-struct/component-index-check.goose:9:28: error: cannot shrink or replace this array: an index or bound type names it"
+    ]
+   },
+   {
+    "source": "upstream:test/codegen/render_walks_around_overloads.goose",
+    "default": [],
+    "class_keyed": [
+     "test/codegen/render_walks_around_overloads.goose:28:11: error: whole assignment replaces a variable-size value while its parts are being rendered"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/class_copy_carried.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/class_copy_carried.goose:130:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/class_copy_views.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/class_copy_views.goose:144:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/dispatch_holder_kills.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/dispatch_holder_kills.goose:8:55: error: array shrink invalidates a reference or holder that is used afterward",
+     "test/lifetimes/dispatch_holder_kills.goose:9:55: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/emptied_holder_across_call.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/emptied_holder_across_call.goose:11:12: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/emptied_holder_shrink.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/emptied_holder_shrink.goose:13:12: error: array shrink invalidates a reference or holder that is used afterward",
+     "test/lifetimes/emptied_holder_shrink.goose:20:16: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/format_storage_keeps.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/format_storage_keeps.goose:15:10: error: stored reference does not outlive the storage that receives it",
+     "test/lifetimes/format_storage_keeps.goose:14:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/growshrink_unrelated_refs.goose",
+    "default": [],
+    "class_keyed": [
+     "stdlib/dictionary.goose:84:13: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/holder_arg_callee_view.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/holder_arg_callee_view.goose:7:12: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/relative_readback_param.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/relative_readback_param.goose:7:18: error: relative reference must point into the exact root that owns its destination"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/tree_copied_from_struct.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/tree_copied_from_struct.goose:105:13: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/tree_in_struct_rerun.goose",
+    "default": [],
+    "class_keyed": [
+     "test/lifetimes/tree_in_struct_rerun.goose:106:13: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   }
+  ],
+  "same messages, other places": [
+   {
+    "source": "upstream:test/errors_tc/branch_slice_reference_store.goose",
+    "default": [
+     "test/errors_tc/branch_slice_reference_store.goose:4:35: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/branch_slice_reference_store.goose:4:35: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/branch_slice_reference_store.goose:14:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/byteview_cycle_holder.goose",
+    "default": [
+     "test/errors_tc/byteview_cycle_holder.goose:8:23: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/byteview_cycle_holder.goose:12:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/callee_held_views_chain.goose",
+    "default": [
+     "test/errors_tc/callee_held_views_chain.goose:6:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/callee_held_views_chain.goose:26:13: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/callee_held_views_deeper.goose",
+    "default": [
+     "stdlib/std.goose:499:31: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/callee_held_views_deeper.goose:18:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/callee_held_views_later_store.goose",
+    "default": [
+     "test/errors_tc/callee_held_views_later_store.goose:8:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/callee_held_views_later_store.goose:26:13: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/callee_local_cached_escape.goose",
+    "default": [
+     "test/errors_tc/callee_local_cached_escape.goose:8:12: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/callee_local_cached_escape.goose:8:12: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/callee_local_cached_escape.goose:10:23: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/class_store_view_outlived.goose",
+    "default": [
+     "test/errors_tc/class_store_view_outlived.goose:13:27: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/class_store_view_outlived.goose:18:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/construct_grow_assign.goose",
+    "default": [
+     "test/errors_tc/construct_grow_assign.goose:12:23: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_grow_assign.goose:5:5: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_grow_assign.goose:5:7: error: array growth overlaps a value still under construction in its storage",
+     "test/errors_tc/construct_grow_assign.goose:7:14: error: whole assignment reads storage while its replacement is being constructed"
+    ],
+    "class_keyed": [
+     "test/errors_tc/construct_grow_assign.goose:12:23: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_grow_assign.goose:5:5: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_grow_assign.goose:5:7: error: array growth overlaps a value still under construction in its storage"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/construct_grow_to_bytes_ufcs.goose",
+    "default": [
+     "test/errors_tc/construct_grow_to_bytes_ufcs.goose:8:8: error: array growth overlaps a value still under construction in its storage",
+     "test/errors_tc/construct_grow_to_bytes_ufcs.goose:17:7: error: array growth overlaps a value still under construction in its storage"
+    ],
+    "class_keyed": [
+     "test/errors_tc/construct_grow_to_bytes_ufcs.goose:8:8: error: array growth overlaps a value still under construction in its storage"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/construct_use_element_builder.goose",
+    "default": [
+     "test/errors_tc/construct_use_element_builder.goose:7:14: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_element_builder.goose:7:23: error: whole assignment reads storage while its replacement is being constructed"
+    ],
+    "class_keyed": [
+     "test/errors_tc/construct_use_element_builder.goose:7:14: error: whole assignment reads storage while its replacement is being constructed"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/construct_use_pointee.goose",
+    "default": [
+     "test/errors_tc/construct_use_pointee.goose:10:38: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_pointee.goose:6:14: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_pointee.goose:7:14: error: whole assignment reads storage while its replacement is being constructed"
+    ],
+    "class_keyed": [
+     "test/errors_tc/construct_use_pointee.goose:10:38: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_pointee.goose:6:14: error: whole assignment reads storage while its replacement is being constructed"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/construct_use_ref_argument.goose",
+    "default": [
+     "test/errors_tc/construct_use_ref_argument.goose:12:13: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_ref_argument.goose:5:14: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_ref_argument.goose:6:14: error: whole assignment reads storage while its replacement is being constructed"
+    ],
+    "class_keyed": [
+     "test/errors_tc/construct_use_ref_argument.goose:12:13: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_ref_argument.goose:5:14: error: whole assignment reads storage while its replacement is being constructed"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/construct_use_reference_var.goose",
+    "default": [
+     "test/errors_tc/construct_use_reference_var.goose:11:15: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_reference_var.goose:4:14: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_reference_var.goose:5:14: error: whole assignment reads storage while its replacement is being constructed"
+    ],
+    "class_keyed": [
+     "test/errors_tc/construct_use_reference_var.goose:11:15: error: whole assignment reads storage while its replacement is being constructed",
+     "test/errors_tc/construct_use_reference_var.goose:4:14: error: whole assignment reads storage while its replacement is being constructed"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_holder_backedge_outlives.goose",
+    "default": [
+     "test/errors_tc/cycle_holder_backedge_outlives.goose:12:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_holder_backedge_outlives.goose:12:10: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_holder_backedge_outlives.goose:18:11: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_local_store.goose",
+    "default": [
+     "test/errors_tc/cycle_local_store.goose:11:34: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_local_store.goose:11:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_local_store.goose:12:16: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_merged_store_call.goose",
+    "default": [
+     "test/errors_tc/cycle_merged_store_call.goose:12:34: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_merged_store_call.goose:12:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_merged_store_call.goose:13:16: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_read_through_global.goose",
+    "default": [
+     "test/errors_tc/cycle_read_through_global.goose:15:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_read_through_global.goose:15:10: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_read_through_global.goose:25:25: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_read_through_local.goose",
+    "default": [
+     "test/errors_tc/cycle_read_through_local.goose:16:55: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_read_through_local.goose:16:31: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_read_through_local.goose:16:55: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_read_through_local.goose:16:31: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_read_through_local.goose:13:12: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_read_through_two_pools.goose",
+    "default": [
+     "test/errors_tc/cycle_read_through_two_pools.goose:20:47: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_read_through_two_pools.goose:20:24: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_read_through_two_pools.goose:29:29: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_return_hides_parameter.goose",
+    "default": [
+     "test/errors_tc/cycle_return_hides_parameter.goose:15:14: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_return_hides_parameter.goose:15:14: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_return_hides_parameter.goose:26:15: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_store_before_join.goose",
+    "default": [
+     "test/errors_tc/cycle_store_before_join.goose:17:12: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_store_before_join.goose:25:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_store_before_join.goose:18:16: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_store_before_join_funval.goose",
+    "default": [
+     "test/errors_tc/cycle_store_before_join_funval.goose:15:16: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_store_before_join_funval.goose:24:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_store_before_join_funval.goose:16:20: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_store_before_join_merged.goose",
+    "default": [
+     "test/errors_tc/cycle_store_before_join_merged.goose:18:34: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_store_before_join_merged.goose:18:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_store_before_join_merged.goose:19:16: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_store_before_member_call.goose",
+    "default": [
+     "test/errors_tc/cycle_store_before_member_call.goose:20:12: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_store_before_member_call.goose:28:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_store_before_member_call.goose:16:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_broken_arg.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_broken_arg.goose:10:13: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_threaded_broken_arg.goose:26:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_broken_arg.goose:17:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_call_first.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_call_first.goose:12:13: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_call_first.goose:11:16: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_chain.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_chain.goose:18:13: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_threaded_chain.goose:25:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_chain.goose:13:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_chain_late.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_chain_late.goose:18:13: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_threaded_chain_late.goose:25:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_chain_late.goose:12:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_destination.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_destination.goose:15:12: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_destination.goose:23:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_joined.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_joined.goose:11:13: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_threaded_joined.goose:24:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_joined.goose:14:13: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_mutual.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_mutual.goose:10:13: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_threaded_mutual.goose:23:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_mutual.goose:16:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_slice.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_slice.goose:10:29: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_threaded_slice.goose:10:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_slice.goose:13:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_store_first.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_store_first.goose:12:13: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_threaded_store_first.goose:23:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_threaded_store_first.goose:15:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_unknown_root_store.goose",
+    "default": [
+     "test/errors_tc/cycle_unknown_root_store.goose:17:21: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_unknown_root_store.goose:17:21: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_unknown_root_store.goose:23:20: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/empty_array_param_store.goose",
+    "default": [
+     "test/errors_tc/empty_array_param_store.goose:6:35: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/empty_array_param_store.goose:6:35: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/empty_array_param_store.goose:8:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_cast_keep.goose",
+    "default": [
+     "test/errors_tc/format_cast_keep.goose:7:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_cast_keep.goose:7:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_cast_keep.goose:7:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_enum_const_keep.goose",
+    "default": [
+     "test/errors_tc/format_enum_const_keep.goose:7:50: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_enum_const_keep.goose:7:50: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_enum_const_keep.goose:7:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_fixed_payload_store.goose",
+    "default": [
+     "test/errors_tc/format_fixed_payload_store.goose:13:46: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_fixed_payload_store.goose:13:46: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_fixed_payload_store.goose:13:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_float_keep.goose",
+    "default": [
+     "test/errors_tc/format_float_keep.goose:7:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_float_keep.goose:7:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_float_keep.goose:7:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_len_keep.goose",
+    "default": [
+     "test/errors_tc/format_len_keep.goose:7:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_len_keep.goose:7:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_len_keep.goose:7:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_literal_keep.goose",
+    "default": [
+     "test/errors_tc/format_literal_keep.goose:6:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_literal_keep.goose:6:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_literal_keep.goose:6:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_literal_param_keep.goose",
+    "default": [
+     "test/errors_tc/format_literal_param_keep.goose:7:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_literal_param_keep.goose:7:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_literal_param_keep.goose:7:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_ref_store_builder.goose",
+    "default": [
+     "test/errors_tc/format_ref_store_builder.goose:8:56: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_ref_store_builder.goose:8:56: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_ref_store_builder.goose:8:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_rvalue_keep.goose",
+    "default": [
+     "test/errors_tc/format_rvalue_keep.goose:7:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_rvalue_keep.goose:7:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_rvalue_keep.goose:7:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_temp_default.goose",
+    "default": [
+     "test/errors_tc/format_temp_default.goose:6:42: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_temp_default.goose:6:42: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_temp_default.goose:6:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_temp_variant_part.goose",
+    "default": [
+     "test/errors_tc/format_temp_variant_part.goose:10:40: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_temp_variant_part.goose:10:40: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_temp_variant_part.goose:10:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_varint_field_keep.goose",
+    "default": [
+     "test/errors_tc/format_varint_field_keep.goose:8:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_varint_field_keep.goose:8:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_varint_field_keep.goose:8:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_varint_result_keep.goose",
+    "default": [
+     "test/errors_tc/format_varint_result_keep.goose:9:48: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_varint_result_keep.goose:9:48: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/format_varint_result_keep.goose:9:4: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/grow_pending_funval_capture.goose",
+    "default": [
+     "test/errors_tc/grow_pending_funval_capture.goose:10:26: error: array growth overlaps a value still under construction in its storage",
+     "test/errors_tc/grow_pending_funval_capture.goose:11:15: error: array growth overlaps a value still under construction in its storage"
+    ],
+    "class_keyed": [
+     "test/errors_tc/grow_pending_funval_capture.goose:10:26: error: array growth overlaps a value still under construction in its storage"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/growshrink_slot_param_bound.goose",
+    "default": [
+     "test/errors_tc/growshrink_slot_param_bound.goose:13:11: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/growshrink_slot_param_bound.goose:18:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/holder_param_readback_store.goose",
+    "default": [
+     "test/errors_tc/holder_param_readback_store.goose:7:44: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/holder_param_readback_store.goose:7:30: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/holder_param_readback_store.goose:7:44: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/holder_param_readback_store.goose:7:30: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/holder_param_readback_store.goose:12:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/holder_variant_argument_scope.goose",
+    "default": [
+     "test/errors_tc/holder_variant_argument_scope.goose:7:26: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/holder_variant_argument_scope.goose:7:26: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/holder_variant_argument_scope.goose:11:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/return_merge_global_store.goose",
+    "default": [
+     "test/errors_tc/return_merge_global_store.goose:9:47: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/return_merge_global_store.goose:9:32: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/return_merge_global_store.goose:9:47: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/return_merge_global_store.goose:9:32: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/return_merge_global_store.goose:18:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_view_key_depth.goose",
+    "default": [
+     "test/errors_tc/slice_view_key_depth.goose:7:28: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/slice_view_key_depth.goose:16:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/spec_depth_global.goose",
+    "default": [
+     "test/errors_tc/spec_depth_global.goose:7:42: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_global.goose:7:30: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/spec_depth_global.goose:7:42: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_global.goose:7:30: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_global.goose:11:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/spec_depth_init_block.goose",
+    "default": [
+     "test/errors_tc/spec_depth_init_block.goose:16:40: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_block.goose:16:27: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/spec_depth_init_block.goose:16:40: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_block.goose:16:27: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_block.goose:6:26: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/spec_depth_init_named_value.goose",
+    "default": [
+     "test/errors_tc/spec_depth_init_named_value.goose:16:45: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_named_value.goose:16:32: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/spec_depth_init_named_value.goose:16:45: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_named_value.goose:16:32: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_named_value.goose:6:26: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/spec_depth_init_nested_fn.goose",
+    "default": [
+     "test/errors_tc/spec_depth_init_nested_fn.goose:12:45: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_nested_fn.goose:12:32: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/spec_depth_init_nested_fn.goose:12:45: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_nested_fn.goose:12:32: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_init_nested_fn.goose:16:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/spec_depth_rebind.goose",
+    "default": [
+     "test/errors_tc/spec_depth_rebind.goose:9:7: error: reference or slice binding changes its committed root lifetime depth",
+     "test/errors_tc/spec_depth_rebind.goose:10:19: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_rebind.goose:10:7: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/spec_depth_rebind.goose:9:7: error: reference or slice binding changes its committed root lifetime depth",
+     "test/errors_tc/spec_depth_rebind.goose:10:19: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_rebind.goose:10:7: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_rebind.goose:14:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/spec_depth_tie.goose",
+    "default": [
+     "test/errors_tc/spec_depth_tie.goose:6:52: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_tie.goose:6:40: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/spec_depth_tie.goose:6:52: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_tie.goose:6:40: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/spec_depth_tie.goose:10:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_bound_holder_param.goose",
+    "default": [
+     "test/errors_tc/store_bound_holder_param.goose:9:42: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_bound_holder_param.goose:17:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_bound_nested_call.goose",
+    "default": [
+     "test/errors_tc/store_bound_nested_call.goose:8:38: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_bound_nested_call.goose:16:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_class_view_reached.goose",
+    "default": [
+     "test/errors_tc/store_class_view_reached.goose:13:14: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_class_view_reached.goose:20:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_class_view_reached_call.goose",
+    "default": [
+     "test/errors_tc/store_class_view_reached_call.goose:9:62: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_class_view_reached_call.goose:16:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_inexact_argument.goose",
+    "default": [
+     "test/errors_tc/store_inexact_argument.goose:6:31: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_inexact_argument.goose:15:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_inexact_callee_merged.goose",
+    "default": [
+     "test/errors_tc/store_inexact_callee_merged.goose:8:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_inexact_callee_merged.goose:8:9: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/store_inexact_callee_merged.goose:16:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_reached_alias.goose",
+    "default": [
+     "test/errors_tc/store_reached_alias.goose:16:14: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_reached_alias.goose:24:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/store_reached_table.goose",
+    "default": [
+     "test/errors_tc/store_reached_table.goose:15:14: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/store_reached_table.goose:22:5: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/temporary_binding_holder.goose",
+    "default": [
+     "test/errors_tc/temporary_binding_holder.goose:6:40: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/temporary_binding_holder.goose:8:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/temporary_binding_holder.goose:8:13: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/temporary_binding_holder.goose:8:9: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/temporary_callee_store.goose",
+    "default": [
+     "test/errors_tc/temporary_callee_store.goose:8:52: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/temporary_callee_store.goose:8:40: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/temporary_callee_store.goose:8:52: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/temporary_callee_store.goose:8:40: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/temporary_callee_store.goose:17:21: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/class_read_views.goose",
+    "default": [
+     "test/lifetimes/class_read_views.goose:128:12: error: array shrink invalidates a reference or holder that is used afterward",
+     "test/lifetimes/class_read_views.goose:17:9: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": [
+     "test/lifetimes/class_read_views.goose:17:9: error: array shrink invalidates a reference or holder that is used afterward",
+     "test/lifetimes/class_read_views.goose:128:12: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/held_refs_tail_shrinks.goose",
+    "default": [
+     "test/lifetimes/held_refs_tail_shrinks.goose:105:11: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": [
+     "test/lifetimes/held_refs_tail_shrinks.goose:74:12: error: array shrink invalidates a reference or holder that is used afterward",
+     "test/lifetimes/held_refs_tail_shrinks.goose:105:11: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   }
+  ],
+  "other messages": [
+   {
+    "source": "tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose",
+    "default": [
+     "tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose:7:12: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": [
+     "tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose:7:12: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_backedge_argument_roots.goose",
+    "default": [
+     "test/errors_tc/cycle_backedge_argument_roots.goose:14:22: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_backedge_argument_roots.goose:14:10: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_backedge_argument_roots.goose:15:12: error: returned reference points into this invocation's local or temporary storage",
+     "test/errors_tc/cycle_backedge_argument_roots.goose:13:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_backedge_argument_roots.goose:14:22: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_backedge_argument_roots.goose:14:10: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_binding_shrink_held.goose",
+    "default": [
+     "test/errors_tc/cycle_binding_shrink_held.goose:9:27: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_binding_shrink_held.goose:9:27: error: array shrink invalidates a value still needed by the enclosing expression"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_holder_static_param.goose",
+    "default": [
+     "test/errors_tc/cycle_holder_static_param.goose:12:12: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_holder_static_param.goose:11:40: error: reference stored by a recursive cycle must be rooted outside every recursive activation"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_return_merged_unstorable.goose",
+    "default": [
+     "test/errors_tc/cycle_return_merged_unstorable.goose:14:12: error: returned reference points into this invocation's local or temporary storage",
+     "test/errors_tc/cycle_return_merged_unstorable.goose:12:9: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_return_merged_unstorable.goose:13:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_return_merged_unstorable.goose:13:10: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/cycle_return_ungiven_parameter.goose",
+    "default": [
+     "test/errors_tc/cycle_return_ungiven_parameter.goose:19:12: error: returned reference points into this invocation's local or temporary storage",
+     "test/errors_tc/cycle_return_ungiven_parameter.goose:17:9: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_return_ungiven_parameter.goose:18:10: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/cycle_return_ungiven_parameter.goose:25:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/cycle_return_ungiven_parameter.goose:18:10: error: stored reference does not outlive the storage that receives it"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_shrinks_rendered_element.goose",
+    "default": [
+     "test/errors_tc/format_shrinks_rendered_element.goose:8:7: error: array shrink invalidates a value still needed by the enclosing expression"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_shrinks_rendered_element.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_shrinks_rendered_field.goose",
+    "default": [
+     "test/errors_tc/format_shrinks_rendered_field.goose:8:7: error: array shrink invalidates a value still needed by the enclosing expression"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_shrinks_rendered_field.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_shrinks_rendered_growonly.goose",
+    "default": [
+     "test/errors_tc/format_shrinks_rendered_growonly.goose:8:7: error: array shrink invalidates a value still needed by the enclosing expression"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_shrinks_rendered_growonly.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_shrinks_rendered_passed.goose",
+    "default": [
+     "test/errors_tc/format_shrinks_rendered_passed.goose:9:7: error: array shrink invalidates a value still needed by the enclosing expression"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_shrinks_rendered_passed.goose:9:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_shrinks_rendered_prefix_array.goose",
+    "default": [
+     "test/errors_tc/format_shrinks_rendered_prefix_array.goose:10:7: error: whole assignment replaces a variable-size value while its parts are being rendered"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_shrinks_rendered_prefix_array.goose:10:7: error: array shrink invalidates a value still needed by the enclosing expression"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/format_shrinks_rendered_ref.goose",
+    "default": [
+     "test/errors_tc/format_shrinks_rendered_ref.goose:7:7: error: array shrink invalidates a value still needed by the enclosing expression"
+    ],
+    "class_keyed": [
+     "test/errors_tc/format_shrinks_rendered_ref.goose:7:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/from_holder_escape.goose",
+    "default": [
+     "test/errors_tc/from_holder_escape.goose:8:19: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": [
+     "test/errors_tc/from_holder_escape.goose:8:33: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/from_holder_escape.goose:8:19: error: returned reference points into this invocation's local or temporary storage"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/funval_value_slice_return.goose",
+    "default": [
+     "test/errors_tc/funval_value_slice_return.goose:5:35: error: returned reference points into this invocation's local or temporary storage",
+     "test/errors_tc/funval_value_slice_return.goose:7:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/funval_value_slice_return.goose:5:35: error: returned reference points into this invocation's local or temporary storage"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/growshrink_slot_holder_rec_merge.goose",
+    "default": [
+     "test/errors_tc/growshrink_slot_holder_rec_merge.goose:14:12: error: returned reference points into this invocation's local or temporary storage",
+     "test/errors_tc/growshrink_slot_holder_rec_merge.goose:10:9: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/growshrink_slot_holder_rec_merge.goose:11:9: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/growshrink_slot_holder_rec_merge.goose:13:10: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": [
+     "test/errors_tc/growshrink_slot_holder_rec_merge.goose:10:40: error: reference stored by a recursive cycle must be rooted outside every recursive activation"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/growshrink_viewslot_merged_store.goose",
+    "default": [
+     "test/errors_tc/growshrink_viewslot_merged_store.goose:9:60: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+     "test/errors_tc/growshrink_viewslot_merged_store.goose:9:48: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+     "test/errors_tc/growshrink_viewslot_merged_store.goose:16:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": [
+     "test/errors_tc/growshrink_viewslot_merged_store.goose:16:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/growshrink_viewslot_store.goose",
+    "default": [
+     "test/errors_tc/growshrink_viewslot_store.goose:8:54: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+     "test/errors_tc/growshrink_viewslot_store.goose:8:42: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+     "test/errors_tc/growshrink_viewslot_store.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": [
+     "test/errors_tc/growshrink_viewslot_store.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/holder_fill_array_escapes.goose",
+    "default": [
+     "test/errors_tc/holder_fill_array_escapes.goose:6:12: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": [
+     "test/errors_tc/holder_fill_array_escapes.goose:6:29: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/holder_fill_array_escapes.goose:6:20: error: stored reference does not outlive the storage that receives it",
+     "test/errors_tc/holder_fill_array_escapes.goose:6:12: error: returned reference points into this invocation's local or temporary storage"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/relative_result_local.goose",
+    "default": [
+     "test/errors_tc/relative_result_local.goose:6:25: error: relative reference must point into the exact root that owns its destination",
+     "test/errors_tc/relative_result_local.goose:8:21: error: pool-relative self must be constructed directly inside its named pool",
+     "test/errors_tc/relative_result_local.goose:8:17: error: pool-relative self must be constructed directly inside its named pool"
+    ],
+    "class_keyed": [
+     "test/errors_tc/relative_result_local.goose:6:25: error: relative reference must point into the exact root that owns its destination"
+    ]
+   },
+   {
+    "source": "upstream:test/errors_tc/relative_result_nonlocal_local.goose",
+    "default": [
+     "test/errors_tc/relative_result_nonlocal_local.goose:7:43: error: relative reference must point into the exact root that owns its destination",
+     "test/errors_tc/relative_result_nonlocal_local.goose:10:21: error: pool-relative self must be constructed directly inside its named pool",
+     "test/errors_tc/relative_result_nonlocal_local.goose:10:17: error: pool-relative self must be constructed directly inside its named pool"
+    ],
+    "class_keyed": [
+     "test/errors_tc/relative_result_nonlocal_local.goose:7:43: error: relative reference must point into the exact root that owns its destination"
+    ]
+   },
+   {
+    "source": "upstream:test/lifetimes/literal_provenance.goose",
+    "default": [
+     "test/lifetimes/literal_provenance.goose:18:5: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": [
+     "test/lifetimes/literal_provenance.goose:18:22: error: stored reference does not outlive the storage that receives it",
+     "test/lifetimes/literal_provenance.goose:18:13: error: stored reference does not outlive the storage that receives it",
+     "test/lifetimes/literal_provenance.goose:18:5: error: returned reference points into this invocation's local or temporary storage"
+    ]
+   }
+  ],
+  "reject->accept": [
+   {
+    "source": "upstream:test/errors_tc/cycle_threaded_outside.goose",
+    "default": [
+     "test/errors_tc/cycle_threaded_outside.goose:10:12: error: reference stored by a recursive cycle must be rooted outside every recursive activation"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/exception_borrow_escape.goose",
+    "default": [
+     "stdlib/exception.goose:33:26: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/format_slice_ref_call_store.goose",
+    "default": [
+     "test/errors_tc/format_slice_ref_call_store.goose:7:58: error: reference or slice binding changes its committed root lifetime depth"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/format_slice_ref_ref_store.goose",
+    "default": [
+     "test/errors_tc/format_slice_ref_ref_store.goose:6:58: error: reference or slice binding changes its committed root lifetime depth"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/format_slice_ref_var_store.goose",
+    "default": [
+     "test/errors_tc/format_slice_ref_var_store.goose:6:58: error: reference or slice binding changes its committed root lifetime depth"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/funval_return_callee_param.goose",
+    "default": [
+     "test/errors_tc/funval_return_callee_param.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/funval_return_loop_pass.goose",
+    "default": [
+     "test/errors_tc/funval_return_loop_pass.goose:19:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/funval_return_target_local.goose",
+    "default": [
+     "test/errors_tc/funval_return_target_local.goose:8:40: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/holder_param_recursive_shrink.goose",
+    "default": [
+     "test/errors_tc/holder_param_recursive_shrink.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/index_of_back_edge_regrouped.goose",
+    "default": [
+     "test/errors_tc/index_of_back_edge_regrouped.goose:10:14: error: index_of requires an exact element root containing one array of this element type"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/rebind_callee_read_depth.goose",
+    "default": [
+     "test/errors_tc/rebind_callee_read_depth.goose:19:47: error: reference or slice binding changes its committed root lifetime depth"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_class_copy_byteview.goose",
+    "default": [
+     "test/errors_tc/shrink_class_copy_byteview.goose:6:9: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_class_pair_back_edge.goose",
+    "default": [
+     "test/errors_tc/shrink_class_pair_back_edge.goose:5:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_class_pair_global.goose",
+    "default": [
+     "test/errors_tc/shrink_class_pair_global.goose:5:37: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_class_read_byteview.goose",
+    "default": [
+     "test/errors_tc/shrink_class_read_byteview.goose:5:9: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_global_let_slot.goose",
+    "default": [
+     "test/errors_tc/shrink_global_let_slot.goose:9:18: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_global_let_stale_slot.goose",
+    "default": [
+     "test/errors_tc/shrink_global_let_stale_slot.goose:16:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_passed_recursive.goose",
+    "default": [
+     "test/errors_tc/shrink_passed_recursive.goose:10:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_slice_ref_byteview_param.goose",
+    "default": [
+     "test/errors_tc/shrink_slice_ref_byteview_param.goose:6:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_slice_ref_explicit_callee.goose",
+    "default": [
+     "test/errors_tc/shrink_slice_ref_explicit_callee.goose:8:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_slice_ref_loaded.goose",
+    "default": [
+     "test/errors_tc/shrink_slice_ref_loaded.goose:7:8: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/shrink_static_result_backedge.goose",
+    "default": [
+     "test/errors_tc/shrink_static_result_backedge.goose:9:11: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_callee.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_callee.goose:6:23: error: reference or slice binding changes its committed root lifetime depth"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_callee_merged.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_callee_merged.goose:15:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_callee_read_back.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_callee_read_back.goose:17:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_chain.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_chain.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_cycle.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_cycle.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_elem_view.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_elem_view.goose:16:10: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_holder_param.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_holder_param.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_order.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_order.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_ref_store_parent_param.goose",
+    "default": [
+     "test/errors_tc/slice_ref_store_parent_param.goose:15:7: error: array shrink invalidates a reference or holder that is used afterward"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/errors_tc/slice_view_recursive.goose",
+    "default": [
+     "test/errors_tc/slice_view_recursive.goose:6:25: error: returned reference points into this invocation's local or temporary storage",
+     "test/errors_tc/slice_view_recursive.goose:9:12: error: returned reference points into this invocation's local or temporary storage"
+    ],
+    "class_keyed": []
+   },
+   {
+    "source": "upstream:test/stdlib/stdlib_regex.goose",
+    "default": [
+     "stdlib/std.goose:111:9: error: stored reference does not outlive the storage that receives it",
+     "stdlib/std.goose:116:9: error: stored reference does not outlive the storage that receives it"
+    ],
+    "class_keyed": []
+   }
+  ]
+ }
+}

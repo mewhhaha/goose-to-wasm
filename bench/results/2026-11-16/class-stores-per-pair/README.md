@@ -111,18 +111,40 @@ Here a read-out reference's value carries the candidates themselves, as exact re
 
 Each store effect was tagged with the statement whose evaluation first made it, through every replay ([tools/dbgorigin.py](tools/dbgorigin.py)):
 
-- **The 2,036 refused stores of that run go back to 43 statements, and five of them to 90%** ([table](runs/store-origins.txt)): the two assignments of `support/pooled_buffer.goose` that keep a buffer's slices (`buffer.storage = replacement`, `buffer.items = buffer.storage[..length]`), `self_.items = default<Entry[:]>()` in `reuse/epoch_resolution_cache.goose`, and the results of `none<T>()` and `someValue<T>()` in `support/option.goose`. A summary entry keeps the first statement that stored into its place, so these are the first stores into the places concerned, not necessarily the ones that carry the refused value.
-- **By kind** ([table](runs/store-kinds.txt)): 1,436 store an argument class of the calling function, exactly, into "something in global storage"; 207 into another argument class that holds only globals.
+- **The 2,036 refused stores of that run go back to 43 statements, and five of them to 90%** ([table](runs/store-origins-3ddf811.txt)): the two assignments of `support/pooled_buffer.goose` that keep a buffer's slices (`buffer.storage = replacement`, `buffer.items = buffer.storage[..length]`), `self_.items = default<Entry[:]>()` in `reuse/epoch_resolution_cache.goose`, and the results of `none<T>()` and `someValue<T>()` in `support/option.goose`. A summary entry keeps the first statement that stored into its place, so these are the first stores into the places concerned, not necessarily the ones that carry the refused value.
+- **By kind** ([table](runs/store-kinds-3ddf811.txt)): 1,436 store an argument class of the calling function, exactly, into "something in global storage"; 207 into another argument class that holds only globals.
 - **Seen from the callee** (a run with [tools/dbgvia.py](tools/dbgvia.py), which maps each of the callee's alternatives alone; it disturbs the analysis, 1,911 refusals instead of 1,613 on the variant it was run on): the place is a storage class in 1,701 of 1,911 (untyped in 1,103), and the alternative that becomes the refused source is the callee's own argument class in 591, which is a reference the caller passed that carried a candidate with it.
 
 So the pattern is: a function reads a reference out of its parameter and passes it on; the argument is the storage class *and* an exact candidate; a class of two alternatives is one class in the callee; everything the callee stores of that parameter maps back to both, and the candidate is the caller's own parameter, exactly. The pooled-buffer stores are simply the most common stores there are.
 
+## That evening: candidates asked for, not carried (`d26f33c`)
+
+The pattern above, fixed the way upstream has it ([qualification](runs/qualification-d26f33c.json)).
+
+| | `3ddf811` | `d26f33c` |
+| --- | --- | --- |
+| corpus, default build | | 0 of 4,355 sources differ ([report](runs/corpus-default-fingerprints-d26f33c.json)) |
+| corpus, every call class-keyed | 14 / 33 / 21 / 71 | 14 / 33 / 21 / 72 ([all 140](runs/corpus-every-call-class-keyed-categories-d26f33c.json)): one more source reports its same message at another place |
+| self-check, every call class-keyed | no error | no error |
+| blot2, errors of the first pass | 1,992 | 1,681 ([list](runs/blot2-diagnostics-d26f33c.txt)) |
+| blot2, frames / alternatives | 54,307 / 68.3 M | 54,054 / 65.4 M |
+| blot2, bootstrapped compiler | 283 s, 7.4 GiB | 269 s, 7.3 GiB ([run](runs/blot2-run-d26f33c.json)) |
+
+- **Out of a class root, a read's candidates are noted on the storage class the value is** (`LifeRoot.class_mask`, a bit per argument class of the frame) and are no part of the value.
+- **The alias rules answer from the mask** (`life_class_alias`): a reference read out as that storage class may be to those argument classes.
+- **A store or a shrink through the reference adds them to where it may land** (`life_place_candidates`), so the body's checks and the effects it records for its callers see the destinations they saw.
+- **A call the reference is passed to, a store of it and a result see only what the storage holds**, which each call maps to what its argument's storage really holds.
+
+Upstream's three tests that pin the rule, `test/errors_tc/store_reached_table.goose`, `construct_use_bound_holder_ref.goose` and `shrink_class_copy_kept_own.goose`, report their errors as before.
+
+What remains ([by first statement](runs/store-origins-d26f33c.txt), [by kind](runs/store-kinds-d26f33c.txt)): 1,351 of 1,725 refused stores still store an argument class of the calling function, exactly, into "something in global storage". These are no longer candidates. They are the case traced at the top of this page: a view struct that really holds a reference to the caller's parameter, and a callee's store of "what the view's storage holds" into "what the view's storage holds", which a call maps to every pair of the two. The reached-type filter on the place (in "Tried and not kept", too costly as built) is what tells those pairs apart.
+
 ## Not right yet
 
-- **blot2's 1,992 errors** (`3ddf811`), as described above. The next step is to stop a read-out reference's value carrying its candidates: let the alias, shrink and destination rules name them from the types when they ask (as upstream's `RootCandidates` does), so that an argument that was read out of a parameter is one alternative and its class a plain renaming.
+- **blot2's 1,681 errors** (`d26f33c`), as described above. The next step is the type a store reaches: a mapped store through "what this argument's storage holds" should land only where the reached type can be, with one summary per place and a small set of reached types on it rather than a summary per type.
 - **The 33 corpus sources where the class path misses an error**, unchanged.
-- **Memory.** 68.3 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
-- **Peak RSS is 7.4 GiB** for the one pass.
+- **Memory.** 65.4 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
+- **Peak RSS is 7.3 GiB** for the one pass.
 
 ## Tools
 

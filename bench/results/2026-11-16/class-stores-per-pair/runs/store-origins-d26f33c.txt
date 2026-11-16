@@ -1,0 +1,53 @@
+Refused stores of blot2's first pass at d26f33c, by the statement whose evaluation first made the store
+(tools/dbgstore2.py 1 + tools/dbgorigin.py; a summary entry keeps the first statement that stored into its place,
+so later stores merged into the same entry are counted under it)
+
+1725 refused stores, 39 distinct origins
+  656  38.0%  support/option.goose:12:48
+  591  72.3%  support/pooled_buffer.goose:12:70
+  279  88.5%  reuse/epoch_resolution_cache.goose:12:102
+   38  90.7%  check/solver_worklist.goose:54:33
+   37  92.8%  check/types.goose:2300:37
+   31  94.6%  support/pooled_buffer.goose:16:123
+   11  95.2%  check/check.goose:3012:1014
+    9  95.8%  support/option.goose:11:60
+    6  96.1%  check/package_core.goose:236:34
+    6  96.5%  support/pooled_buffer.goose:18:125
+    6  96.8%  check/check.goose:2392:21
+    5  97.1%  eval/type_evidence.goose:743:44
+    5  97.4%  (none)
+    4  97.6%  check/capability_contracts.goose:358:36
+    4  97.9%  /home/user/goose-to-wasm/stdlib/dictionary.goose:176:12
+    3  98.0%  check/effects.goose:472:58
+    3  98.2%  reuse/specialization_receipt.goose:242:93
+    3  98.4%  check/check.goose:2480:44
+    3  98.6%  check/scheme_dependencies.goose:14:27
+    2  98.7%  support/pooled_map.goose:20:94
+    2  98.8%  eval/implementation_evidence.goose:46:41
+    2  98.9%  check/check.goose:2389:106
+    2  99.0%  check/check.goose:1340:512
+    2  99.1%  check/effects.goose:463:35
+    1  99.2%  check/scheme_equations.goose:163:111
+    1  99.2%  eval/implementation_evidence.goose:151:36
+    1  99.3%  check/capability_lifetimes.goose:115:239
+    1  99.4%  eval/completed_specialization_query.goose:39:89
+    1  99.4%  reuse/constant_receipt.goose:602:763
+    1  99.5%  check/types.goose:2041:59
+    1  99.5%  eval/purity_type_key.goose:14:35
+    1  99.6%  check/check_scheme_import.goose:214:37
+    1  99.7%  check/check.goose:2495:441
+    1  99.7%  check/capability_contracts.goose:372:109
+    1  99.8%  /home/user/goose-to-wasm/stdlib/dictionary.goose:84:77
+    1  99.8%  support/pooled_buffer.goose:17:59
+    1  99.9%  check/core.goose:357:41
+    1  99.9%  backend/substitution_buffers.goose:13:80
+    1 100.0%  reuse/specialization_receipt.goose:200:95
+by file:
+  665  support/option.goose
+  629  support/pooled_buffer.goose
+  279  reuse/epoch_resolution_cache.goose
+   38  check/types.goose
+   38  check/solver_worklist.goose
+   25  check/check.goose
+    6  check/package_core.goose
+    5  check/effects.goose
