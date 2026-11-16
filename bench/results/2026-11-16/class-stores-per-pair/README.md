@@ -82,6 +82,8 @@ Each was built and run on blot2; "ends" means the first discovery pass ended.
 
 | *(after `d26f33c`)* each store effect carries the type stored and a summary keeps the set of them for its place, 8 at most | 1,680 errors (1,681), 65.3 M alternatives: no change. The source of this variant is not kept in the repository; it is described under "After `d26f33c`" |
 
+| the design of "After `d26f33c`": reached type per store, summaries per place and type, the place filtered by it from what the argument's roots hold | 1,863 errors in 8 GiB regions, 155 M alternatives, 690 s. Its steps are in the table under "That design, built" |
+
 The last row against the committed one is the trade made: 291 fewer blot2 errors for 58 false errors on a program the class path can otherwise check exactly. Given point 1 above, exactness on programs where the answer is known won.
 
 ## Later the same day: filtering by type where a call maps (`3ddf811`)
@@ -154,9 +156,27 @@ Here a storage class as a place maps to every root the argument's storage holds 
 1. A store effect into a class root carries the reached type, read off the destination expression (the element type of the innermost reference or slice the lvalue goes through; none where it goes through none). Summaries are kept per place and reached type, which is few types per place: every store into any field of a `Store` reached through a reference has reached type `Store`.
 2. Where a call maps a storage class that is a store's place, the store lands in the argument's roots (as a place that only bounds, so reads through the argument see it) and in the roots the argument's storage holds *that can hold the reached type inline*, instead of in all of them. A pool of numbers or of other structs cannot hold a `Store`.
 
+### That design, built: it does not remove the errors
+
+It was built the same night, on `d26f33c`, and is not kept ([the patch](runs/reached-type-variant.patch), [run](runs/blot2-reached-type-variant-run.json), [progress](runs/blot2-reached-type-variant-progress.txt)). In the order it was put together, each step run on blot2:
+
+| step | errors | alternatives |
+| --- | --- | --- |
+| `d26f33c` | 1,681 | 65.4 M |
+| the reached type on each store into a class root, summaries per place and type, the mapped place filtered by it | 2,064 | 78.3 M |
+| the place read from what the argument's roots hold with each global named, so that the filter has types to go by (a set of more than four globals is otherwise one alternative of no type) | 1,613 | 78.5 M |
+| the same reach for a struct literal or a call's result built in an assignment's destination | region full at 49,000 frames; 1,985 in 8 GiB regions | 82.8 M |
+| the reached type read correctly | 1,863 in 8 GiB regions, 690 s, 10.9 GiB resident | 155.1 M |
+
+- **Until the last step the reached type was unknown for nearly every store that mattered.** The checker writes a use of a reference variable as a dereference of it, so the base of `self_.items` is a dereference node of struct type, not a name of reference type, and the first version of `life_reached` found no reference on the path. 1,920 of 2,031 refused stores had no reached type; a tag on each effect of the code path and statement that first made it ([tools/dbgsite.py](tools/dbgsite.py)) showed them to be plain assignments, `self_.items = default<Entry[:]>()` and `buffer.storage = replacement` again.
+- **With it read correctly the filter is in effect, and the cost is its own**: a summary per place and reached type is 6.4 M effects instead of 5.2 M, 8.8 M sets, 155 M alternatives. It does not fit the 2 GiB region, takes two and a half times as long, and the pass still ends with 1,863 errors.
+- **So the destination's type is not what decides these errors either.** Three explanations have now each been built and measured (classes that alias, candidates carried in values, destinations of every type); each removed some hundreds and the rest reappeared, 1,600 to 2,000 every time.
+
+**The count cannot tell why, and that is the lesson of the day.** A refused store does not land, so one refusal hides whatever else was merged into its summary entry; split the entries and the rest travels further up and is refused at other calls. The count of distinct calls with a refusal measures how the summaries are cut as much as what the analysis knows. What is needed is not another variant run on the whole program but small programs: a few dozen lines each, cut from a function blot2 is refused at, that plain upstream accepts and this compiler, built with every call class-keyed, refuses. On those a change is right or wrong, at once. `runs/blot2-diagnostics-d26f33c.txt` has the calls, `tools/dbgstore2.py` prints for each the callee, its place and its value, and `tools/mkcls.sh` builds the compiler that shows the error without the other 120,000 lines.
+
 ## Not right yet
 
-- **blot2's 1,681 errors** (`d26f33c`), as described above. The next step is under "After `d26f33c`: what a store's destination should be".
+- **blot2's 1,681 errors** (`d26f33c`), as described above. The next step is not another variant on the whole program: see "That design, built".
 - **The 33 corpus sources where the class path misses an error**, unchanged.
 - **Memory.** 65.4 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
 - **Peak RSS is 7.3 GiB** for the one pass.

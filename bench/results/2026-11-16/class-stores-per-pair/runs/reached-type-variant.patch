@@ -1,0 +1,356 @@
+diff --git a/selfhost/checker_lifetimes.goose b/build/work/checker_lifetimes.goose
+index d28ff64..de351dd 100644
+--- a/selfhost/checker_lifetimes.goose
++++ b/build/work/checker_lifetimes.goose
+@@ -108,7 +108,7 @@ struct LifeClasses { sets: i64 = 0, count: i64 = 0, depths: i64 = 0, depth_count
+ // map_roots[sets + k] where that is not negative; the others are what the
+ // storage of those holds (life_class_set); a bound 2 * (r + 1) is the depth
+ // map_depths[depths + r]. serial: of the call, for map_memo.
+-struct LifeMap { classes: i64 = 0, count: i64 = 0, base: i64 = 1, sets: i64 = 0, depths: i64 = 0, depth_count: i64 = 0, serial: i64 = 0, frame: i64 = -1 }
++struct LifeMap { classes: i64 = 0, count: i64 = 0, base: i64 = 1, sets: i64 = 0, depths: i64 = 0, depth_count: i64 = 0, serial: i64 = 0, frame: i64 = -1, reached: i64 = -1 }
+ // What life_map_set made of a set for the call of this serial.
+ struct LifeMapped { serial: i64 = -1, set: i64 = -1, result: i64 = 0, stored: i64 = 0 }
+ struct LifePair { owner: i64, pointee: i64, answer: bool, next: i64 = -1 }
+@@ -304,6 +304,10 @@ struct Lifetimes {
+     // The storage classes of one pointee type, by parent and pointee (open
+     // addressing over root indexes), and how many there are.
+     typed_slots: i64[>..]&, typed_count: i64 = 0,
++    // The destination an assignment's value is being built in, and the type
++    // a store into it reaches (life_reached): a struct literal or a call's
++    // result built there is a store of that reach (life_dest_reached).
++    dest_place: i64 = -1, dest_reached: i64 = -1,
+     // Per type, the first type life_same takes it for (life_canon_types).
+     type_canon: i64[>..]&,
+ }
+@@ -3005,7 +3009,11 @@ fn life_lasting(l: Lifetimes&, set: i64) -> i64 {
+     l.sets[set].lasting = result;
+     return result;
+ }
+-fn life_add_contents(l: Lifetimes&, root: i64, storing: i64) {
++// reached: the type the store reaches (life_reached), or -1. With class-keyed
++// frames in use the effect of a store into a class root carries it, so that
++// summaries are kept per place and reached type and a call that maps the
++// place lands the store only where that type can be (life_can_take).
++fn life_add_contents(l: Lifetimes&, root: i64, storing: i64, reached: i64 = -1) {
+     // (The static root, of frame -1, takes what is stored through static data.)
+     let sources = storing;
+     var kept = sources;
+@@ -3015,7 +3023,10 @@ fn life_add_contents(l: Lifetimes&, root: i64, storing: i64) {
+     }
+     let next = life_join(l, l.roots[root].contents, kept);
+     if !life_equal(l, next, l.roots[root].contents) { life_set_contents(l, root, next); l.revision += 1; }
+-    if sources != 0 { life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { contents: sources }, places: life_root_set(l, root) }); }
++    if sources != 0 {
++        var type_id = -1; if l.class_frames > 0 && l.roots[root].class_frame >= 0 { type_id = reached; }
++        life_effect(l, LifeEffect { kind: 4, node: -1, value: LifeValue { type_id: type_id, contents: sources }, places: life_root_set(l, root) });
++    }
+     if !l.discovery {
+         l.roots[root].live_contents = life_join(l, l.roots[root].live_contents, kept);
+         if sources != 0 { for kill, index in l.kills { if kill.root == root { l.kills[index].active = false; } } }
+@@ -3075,7 +3086,31 @@ fn life_relative_store(p: Program&, l: Lifetimes&, node: i64, places: i64, value
+     }
+ }
+ 
+-fn life_store(p: Program&, l: Lifetimes&, node: i64, given: i64, value: LifeValue, binding: bool = false, through: bool = false) {
++// The type a store into a destination expression reaches: the type of the
++// storage its slot lies in as the expression got there, which is what the
++// innermost reference or slice it goes through points at (upstream's
++// Prov::reached). -1 where it goes through none, or is not such a path.
++// (The checker writes the use of a reference as a dereference of it, so the
++// storage reached is what the innermost dereference on the path gives.)
++fn life_reached(p: Program&, destination: i64) -> i64 {
++    var at = destination;
++    while at >= 0 {
++        let n: const Node& = p.nodes[at];
++        if n.kind == N_UNARY && n.integer == T_MUL { return n.type_id; }
++        if n.type_id >= 0 && p.types[n.type_id].kind == TY_REF && at == destination { return p.types[n.type_id].element; }
++        if n.kind != N_MEMBER && n.kind != N_INDEX || n.left < 0 { return -1; }
++        let base = p.nodes[n.left].type_id;
++        if base >= 0 && (p.types[base].kind == TY_REF || p.types[base].kind == TY_SLICE) { return p.types[base].element; }
++        at = n.left;
++    }
++    return -1;
++}
++inline fn life_dest_reached(l: Lifetimes&, place: i64) -> i64 {
++    if place != 0 && place == l.dest_place { return l.dest_reached; }
++    return -1;
++}
++// reached: life_reached of the destination, where the caller has one.
++fn life_store(p: Program&, l: Lifetimes&, node: i64, given: i64, value: LifeValue, binding: bool = false, through: bool = false, reached: i64 = -1) {
+     let places = life_place_candidates(l, given);
+     life_self_destination(p, l, node, places, value.self_pools);
+     life_self_destination(p, l, node, places, value.relative_roots);
+@@ -3157,7 +3192,7 @@ fn life_store(p: Program&, l: Lifetimes&, node: i64, given: i64, value: LifeValu
+                 }
+             }
+         }
+-        life_add_contents(l, d.root, life_stored_roots(p, l, value));
++        life_add_contents(l, d.root, life_stored_roots(p, l, value), reached);
+         destination = d.next;
+     }
+ }
+@@ -3224,7 +3259,7 @@ fn life_construct_value(p: Program&, l: Lifetimes&, node: i64, value: LifeValue,
+     if kind != TY_ARRAY && kind != TY_STRUCT && kind != TY_ENUM { return out; }
+     out.place = destination; if out.place == 0 { out.place = life_temporary(p, l, node); }
+     var at = l.sets[out.place].first;
+-    while at >= 0 { let alt = l.alts[at]; life_add_contents(l, alt.root, out.contents); at = alt.next; }
++    while at >= 0 { let alt = l.alts[at]; life_add_contents(l, alt.root, out.contents, life_dest_reached(l, destination)); at = alt.next; }
+     return out;
+ }
+ fn life_arguments_equal(p: Program&, l: Lifetimes&, a: i64, b: i64) -> bool {
+@@ -3802,23 +3837,72 @@ fn life_map_onto(p: Program&, l: Lifetimes&, out: LifeBuild&, source: i64, x: Li
+ // storage holds" lands (a pool of plain numbers the argument has a slice of,
+ // say). What is only known to be reached from a root, a class of the island,
+ // a byte view and the folded globals stay.
+-fn life_can_take(p: Program&, l: Lifetimes&, set: i64) -> i64 {
++// Where a store that reaches type `reached` lands when its place is what an
++// argument's storage holds (level 1) or what the storage of that holds
++// (level 2): of the roots held there, those that can hold the reached type
++// inline. A struct of pooled tables has a slice of every pool; a store into
++// a table reached through it lands in the struct the table is in, not in
++// the pools. The roots are read where they are kept, each global by name:
++// a set of more than LIFE_GLOBAL_ALTS of them is one alternative of no type
++// (life_fold), which a filter by type cannot pick from, and making the
++// named sets first filled the alternatives. Where no root can hold the type
++// it was no guide, and the store lands as a store of unknown type does.
++fn life_place_step(p: Program&, l: Lifetimes&, a: LifeAlt, last: bool, reached: i64, out: LifeBuild&, next: LifeAlt[>..]&) -> bool {
++    if a.root == 0 { return false; }
++    if !a.exact {
++        let bound = LifeAlt { root: a.root, exact: false, byteview: a.byteview };
++        if last { life_build_add_alt(l, out, bound); } else { next.push(bound); }
++        return true;
++    }
++    var seen = false; let place = life_single(l, a.root);
++    var held = l.roots[a.root].contents; if !l.discovery { held = l.roots[a.root].live_contents; }
++    let beyond = life_overlay(l, place, 0);
++    for set in [held, beyond] {
++        var at = l.sets[set].first;
++        while at >= 0 {
++            var x = l.alts[at]; at = x.next; x.next = -1; seen = true;
++            if !last { next.push(x); } else if life_takes(p, l, x, reached) { life_build_add_alt(l, out, x); }
++        }
++    }
++    return seen;
++}
++fn life_place_set(p: Program&, l: Lifetimes&, arguments: i64, level: i64, reached: i64) -> i64 {
++    var out = LifeBuild {}; var seen = false; var second: LifeAlt[>..] = []; var unused: LifeAlt[>..] = [];
++    var at = l.sets[arguments].first;
++    while at >= 0 { let a = l.alts[at]; at = a.next; if life_place_step(p, l, a, level == 1, reached, out, second) { seen = true; } }
++    if level > 1 {
++        seen = false;
++        for index in 0..second.len { let a = second[index]; if life_place_step(p, l, a, true, reached, out, unused) { seen = true; } }
++    }
++    let narrowed = life_build_end(l, out);
++    if narrowed == 0 && seen {
++        var all = life_held(l, arguments); if level > 1 { all = life_held(l, all); }
++        return all;
++    }
++    return life_fold(l, narrowed);
++}
++inline fn life_takes(p: Program&, l: Lifetimes&, x: LifeAlt, reached: i64) -> bool {
++    if !x.exact || x.byteview || x.root == 0 { return true; }
++    let owner = l.roots[x.root].class_frame;
++    var within = l.roots[x.root].type_id; if owner >= 0 { within = l.roots[x.root].class_pointee; }
++    if within < 0 { return true; }
++    if owner < 0 && !life_holds(p, within) { return false; }
++    return reached < 0 || life_contains_memo(p, l, within, reached);
++}
++// reached: the type the store reaches, or -1: a root of known type, or an
++// argument class whose parameters point at one type, takes the store only
++// if that type holds a value of the reached type inline.
++fn life_can_take(p: Program&, l: Lifetimes&, set: i64, reached: i64) -> i64 {
+     if set == 0 { return set; }
+     var at = l.sets[set].first; var dropped = false;
+-    while at >= 0 {
+-        let x = l.alts[at]; at = x.next; let root = l.roots[x.root];
+-        if x.exact && !x.byteview && x.root != 0 && root.class_frame < 0 && root.type_id >= 0 && !life_holds(p, root.type_id) { dropped = true; break; }
+-    }
++    while at >= 0 { let x = l.alts[at]; at = x.next; if !life_takes(p, l, x, reached) { dropped = true; break; } }
+     if !dropped { return set; }
+     var out = LifeBuild {}; at = l.sets[set].first;
+-    while at >= 0 {
+-        var x = l.alts[at]; at = x.next; let root = l.roots[x.root];
+-        if x.exact && !x.byteview && x.root != 0 && root.class_frame < 0 && root.type_id >= 0 && !life_holds(p, root.type_id) { continue; }
+-        x.next = -1; life_build_add_alt(l, out, x);
+-    }
++    while at >= 0 { var x = l.alts[at]; at = x.next; if life_takes(p, l, x, reached) { x.next = -1; life_build_add_alt(l, out, x); } }
+     return life_build_end(l, out);
+ }
+-// stored: 1 for the places of a store of references (life_can_take), else 0.
++// stored: for the places of a store of references, 2 + the type the store
++// reaches (so 1 where that is not known; life_can_take); else 0.
+ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored: i64 = 0) -> i64 {
+     if set == 0 || m.count == 0 { return set; }
+     var at = l.sets[set].first; var found = false; let end = m.classes + m.count;
+@@ -3842,7 +3926,10 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored:
+             // parent class holds of that pointee at this call; read out of
+             // in turn, what that holds; any deeper, what it leads to.
+             if l.roots[x.root].class_frame == m.frame && l.roots[x.root].class_parent >= 0 {
+-                var held = life_typed_set(p, l, m.classes, m.base, m.sets, m.serial, x.root); fresh = false;
++                var held = 0; fresh = false; let parent = l.roots[x.root].class_parent - m.classes;
++                if stored >= 2 && x.exact && parent >= 0 && parent < 2 * m.base && l.roots[l.roots[x.root].class_parent].class_parent < 0 {
++                    held = life_place_set(p, l, l.map_sets[m.sets + parent % m.base], 1 + parent / m.base, stored - 2);
++                } else { held = life_typed_set(p, l, m.classes, m.base, m.sets, m.serial, x.root); }
+                 if !x.exact && x.from == x.root { held = life_held(l, held); }
+                 else if !x.exact { held = life_deep(l, held); }
+                 var want: i64 = -1; if x.exact { want = x.target_type as i64; }
+@@ -3859,6 +3946,7 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored:
+         var read = !x.exact && x.from == x.root;
+         var root: i64 = -1; var source = 0;
+         if k < m.base { root = l.map_roots[m.sets + k]; source = l.map_sets[m.sets + k]; }
++        else if stored >= 2 && x.exact && k < 3 * m.base { source = life_place_set(p, l, l.map_sets[m.sets + k % m.base], k / m.base, stored - 2); fresh = false; }
+         else { source = life_class_set(l, m.base, m.sets, k); }
+         if read { source = life_held(l, source); fresh = false; root = -1; }
+         // Any other inexact alternative at a storage class was read deeper
+@@ -3876,7 +3964,12 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored:
+     }
+     var result = life_build_end(l, out);
+     for large in whole { result = life_join(l, large, result); }
+-    if stored != 0 { result = life_can_take(p, l, result); }
++    if stored != 0 {
++        // (Where nothing the argument's storage holds can take the reached
++        // type, the type was no guide: the store lands as before.)
++        let narrowed = life_can_take(p, l, result, stored - 2);
++        if narrowed != 0 || result == 0 { result = narrowed; } else { result = life_can_take(p, l, result, -1); }
++    }
+     result = life_fold(l, result);
+     if fresh { l.map_memo[memo] = LifeMapped { serial: m.serial, set: set, result: result, stored: stored }; }
+     return result;
+@@ -3995,7 +4088,7 @@ recursive fn life_class_call(p: Program&, l: Lifetimes&, function_node: i64, cal
+     }
+     if target < 0 { target = life_class_new(p, l, function_node, call, selected_result, receiver_sensitive, c); }
+     else { life_class_check(p, l, target, c.sets); }
+-    let m = LifeMap { classes: l.frames[target].classes, count: l.frames[target].class_count, base: l.frames[target].class_base, sets: c.sets, depths: c.depths, depth_count: depth_count, serial: c.serial, frame: target };
++    let m = LifeMap { classes: l.frames[target].classes, count: l.frames[target].class_count, base: l.frames[target].class_base, sets: c.sets, depths: c.depths, depth_count: depth_count, serial: c.serial, frame: target, reached: life_dest_reached(l, destination) };
+     life_cycle_call(p, l, target, call, destination);
+     let back_edge = l.frames[target].active; var evaluate = !back_edge;
+     if evaluate && l.discovery && l.frames[target].checked_revision == l.pass { evaluate = false; }
+@@ -4236,7 +4329,10 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64,
+             if receiver.type_id >= 0 && life_is_ref(p, p.types[receiver.type_id].element) { target = 0; }
+         }
+         let futures = l.future_count; life_push_future(l, p.nodes[argument].next);
++        let outer_place = l.dest_place; let outer_reached = l.dest_reached;
++        if target != 0 { l.dest_place = target; l.dest_reached = life_reached(p, n.first); }
+         var value = life_eval(p, l, argument, target); l.future_count = futures;
++        l.dest_place = outer_place; l.dest_reached = outer_reached;
+         if parameter >= 0 {
+             var expected = p.nodes[parameter].type_id;
+             if (n.flags & F_DISPATCH) != 0 && index == n.aux {
+@@ -4308,7 +4404,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64,
+         var contents = out.contents;
+         if n.type_id >= 0 && p.types[n.type_id].kind == TY_SLICE { out.place = place; contents = out.refs; }
+         var at = l.sets[place].first;
+-        while at >= 0 { let alt = l.alts[at]; life_add_contents(l, alt.root, contents); at = alt.next; }
++        while at >= 0 { let alt = l.alts[at]; life_add_contents(l, alt.root, contents, life_dest_reached(l, place)); at = alt.next; }
+         l.hold_count = holds; return out;
+     }
+     if (builtin == 16 || builtin == 9) && n.first >= 0 && p.nodes[n.first].next >= 0 {
+@@ -4339,7 +4435,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64,
+     if (builtin == 33 || builtin == 34) && n.aux >= 0 && receiver.type_id >= 0 {
+         let held = l.hold_count; life_hold(l, receiver, node, 1);
+         let value = life_coerce(p, l, life_eval(p, l, n.aux, receiver.place), p.types[receiver.type_id].element);
+-        life_store(p, l, n.aux, receiver.place, value); l.hold_count = held;
++        life_store(p, l, n.aux, receiver.place, value, false, false, life_reached(p, n.first)); l.hold_count = held;
+     }
+     if builtin == 23 && receiver.type_id >= 0 {
+         let argument = life_item(l, arguments, 1); var same = l.sets[receiver.place].count == 1 && l.sets[argument.refs].count == 1;
+@@ -4367,7 +4463,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64,
+         var element = -1; if receiver.type_id >= 0 { element = p.types[receiver.type_id].element; }
+         let value = life_coerce(p, l, life_item(l, arguments, 1), element);
+         if n.first >= 0 { life_copy(p, l, p.nodes[n.first].next, element); }
+-        life_store(p, l, node, receiver.place, value);
++        life_store(p, l, node, receiver.place, value, false, false, life_reached(p, n.first));
+         if life_is_ref(p, element) { out.refs = value.refs; }
+         else { out.refs = receiver.place; }
+         out.contents = value.contents;
+@@ -4387,7 +4483,7 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64,
+             if l.class_frames > 0 && !life_holds(p, p.types[value.type_id].element) { value.contents = 0; }
+             value.refs = 0; value.type_id = -1;
+         }
+-        life_store(p, l, node, receiver.place, value);
++        life_store(p, l, node, receiver.place, value, false, false, life_reached(p, n.first));
+     } else if builtin == 40 {
+         // move_from stores the source's elements into the storage its
+         // destination slice views.
+@@ -4401,11 +4497,13 @@ recursive fn life_call(p: Program&, l: Lifetimes&, node: i64, destination: i64,
+             if l.class_frames > 0 && !life_holds(p, p.types[value.type_id].element) { value.contents = 0; }
+             value.refs = 0; value.type_id = -1;
+         }
+-        life_store(p, l, node, receiver.refs, value);
++        var reached = life_reached(p, n.first);
++        if n.first >= 0 && p.nodes[n.first].type_id >= 0 && p.types[p.nodes[n.first].type_id].kind == TY_SLICE { reached = p.types[p.nodes[n.first].type_id].element; }
++        life_store(p, l, node, receiver.refs, value, false, false, reached);
+     } else if builtin == 28 {
+         var element = -1; if receiver.type_id >= 0 { element = p.types[receiver.type_id].element; }
+         let fill = life_coerce(p, l, life_item(l, arguments, 2), element);
+-        life_store(p, l, node, receiver.place, fill);
++        life_store(p, l, node, receiver.place, fill, false, false, life_reached(p, n.first));
+     } else if builtin == 26 {
+         var storage = n.type_id; if receiver.type_id >= 0 { storage = p.types[receiver.type_id].element; }
+         out = life_load(p, l, storage, receiver.place, true); out.type_id = n.type_id;
+@@ -4533,7 +4631,7 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
+             let value = life_coerce(p, l, life_eval(p, l, value_node, target), expected); l.future_count = future;
+             life_hold(l, value, value_node);
+             life_copy(p, l, value_node, expected);
+-            life_store(p, l, value_node, place, value);
++            life_store(p, l, value_node, place, value, false, false, life_dest_reached(l, place));
+             out.contents = life_join(l, out.contents, life_stored_roots(p, l, value));
+             // A root owner's field was stored in its own component, where its
+             // pool-relative and self-relative values were placed.
+@@ -4544,7 +4642,7 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
+             child = p.nodes[child].next;
+         }
+         if n.kind == N_FILL && n.first < 0 {
+-            let value = life_eval(p, l, n.left, out.place); life_store(p, l, node, out.place, value);
++            let value = life_eval(p, l, n.left, out.place); life_store(p, l, node, out.place, value, false, false, life_dest_reached(l, out.place));
+             out.contents = life_stored_roots(p, l, value); out.self_pools = value.self_pools; out.relative_roots = value.relative_roots; life_eval(p, l, n.right);
+         }
+         if life_is_ref(p, n.type_id) { out.refs = out.place; }
+@@ -4601,7 +4699,11 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
+         }
+         life_hold(l, receiver, n.left, kind);
+         var destination = places; if life_is_ref(p, ty) { destination = 0; }
++        var reached = life_reached(p, n.left); if through { reached = ty; }
++        let outer_place = l.dest_place; let outer_reached = l.dest_reached;
++        if destination != 0 { l.dest_place = destination; l.dest_reached = reached; }
+         let natural = life_eval(p, l, n.right, destination); life_receive(p, l, n.right, natural, ty);
++        l.dest_place = outer_place; l.dest_reached = outer_reached;
+         let value = life_coerce(p, l, natural, ty); l.hold_count = held; l.future_count = future;
+         life_copy(p, l, n.right, ty);
+         if !l.discovery && l.conditional == 0 && !binding && life_value_roots(p, value) == 0 {
+@@ -4626,7 +4728,7 @@ recursive fn life_eval_body(p: Program&, l: Lifetimes&, node: i64, n: const Node
+                 life_relative_store(p, l, node, places, value);
+                 life_effect(l, LifeEffect { kind: 9, node: node, value: value, places: places });
+             }
+-            life_store(p, l, node, places, value, binding, through);
++            life_store(p, l, node, places, value, binding, through, reached);
+         }
+         return out;
+     }
+@@ -4841,7 +4943,16 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
+     while at >= 0 {
+         var effect = l.effects[at]; let next = effect.next; var mapped = false;
+         if m.count > 0 {
+-            var stored = 0; if effect.kind == 4 { stored = 1; }
++            var stored = 0;
++            if effect.kind == 4 {
++                if effect.value.type_id < 0 {
++                    let result = l.frames[frame].result_class;
++                    if result >= 0 && l.sets[effect.places].count == 1 && (l.alts[l.sets[effect.places].first].root as i64) == l.frames[frame].classes + result {
++                        effect.value.type_id = m.reached;
++                    }
++                }
++                stored = 2 + effect.value.type_id;
++            }
+             let places = life_map_set(p, l, effect.places, m, stored); let value = life_map_value(p, l, effect.value, m);
+             mapped = places != effect.places || value.place != effect.value.place || value.refs != effect.value.refs || value.contents != effect.value.contents ||
+                 value.self_pools != effect.value.self_pools || value.relative_roots != effect.value.relative_roots || value.tuple != effect.value.tuple;
+@@ -4879,7 +4990,7 @@ fn life_replay(p: Program&, l: Lifetimes&, frame: i64, summary: bool = false, m:
+                 }
+                 // A refused store is reported here, once: it does not land,
+                 // and so is not judged again at every call above this one.
+-                if !refused { life_add_contents(l, alt.root, effect.value.contents); }
++                if !refused { life_add_contents(l, alt.root, effect.value.contents, effect.value.type_id); }
+                 ai = alt.next;
+             }
+         } else if (effect.kind == 6 || effect.kind == 7) && mapped && (l.conditional != 0 || l.sets[effect.places].count != 1 || !l.alts[l.sets[effect.places].first].exact) {
