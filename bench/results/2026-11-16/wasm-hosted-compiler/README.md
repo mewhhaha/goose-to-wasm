@@ -1,6 +1,6 @@
 # The compiler as a Wasm module, 2026-11-16
 
-The question was whether the compiler can compile itself to direct Wasm, as a test of the backend on its largest program at hand (30,181 lines in `selfhost/`). It can since `6b8bd39`, and the module runs. It cannot yet check or compile itself: that needs more than wasm32's address space gives each growable array.
+The question was whether the compiler can compile itself to direct Wasm, as a test of the backend on its largest program at hand (30,181 lines in `selfhost/`). It can since `6b8bd39`, and the module runs. It cannot yet check or compile itself: that needs more than wasm32's address space gives each growable array. [64-bit memory](../wasm-memory64/README.md), the same day, is where it does.
 
 ## What was measured
 

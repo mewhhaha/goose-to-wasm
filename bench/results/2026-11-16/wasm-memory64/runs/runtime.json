@@ -1,0 +1,235 @@
+{
+ "inputs": {
+  "array_updates": 8000000,
+  "integer_mod": 10000000,
+  "float_recurrence": 8000000,
+  "recursive_fibonacci": 35
+ },
+ "warmups": 2,
+ "rows": [
+  {
+   "fixture": "array_updates",
+   "memory": "32-bit",
+   "engine": "wasmtime",
+   "module_bytes": 3412,
+   "checksum": "309459781",
+   "kernel_ns": [
+    27587904,
+    29445652,
+    27075074,
+    27578751,
+    27625721
+   ]
+  },
+  {
+   "fixture": "array_updates",
+   "memory": "32-bit",
+   "engine": "v8",
+   "module_bytes": 3412,
+   "checksum": "309459781",
+   "kernel_ns": [
+    82603006,
+    113097003,
+    80401989,
+    80062424,
+    108326354
+   ]
+  },
+  {
+   "fixture": "array_updates",
+   "memory": "64-bit",
+   "engine": "wasmtime",
+   "module_bytes": 3318,
+   "checksum": "309459781",
+   "kernel_ns": [
+    28988364,
+    27149077,
+    27762775,
+    27016389,
+    38311128
+   ]
+  },
+  {
+   "fixture": "array_updates",
+   "memory": "64-bit",
+   "engine": "v8",
+   "module_bytes": 3318,
+   "checksum": "309459781",
+   "kernel_ns": [
+    99455718,
+    99416715,
+    102466674,
+    99299994,
+    99017032
+   ]
+  },
+  {
+   "fixture": "integer_mod",
+   "memory": "32-bit",
+   "engine": "wasmtime",
+   "module_bytes": 2177,
+   "checksum": "405595776",
+   "kernel_ns": [
+    39913939,
+    39977900,
+    40504251,
+    39857580,
+    39736618
+   ]
+  },
+  {
+   "fixture": "integer_mod",
+   "memory": "32-bit",
+   "engine": "v8",
+   "module_bytes": 2177,
+   "checksum": "405595776",
+   "kernel_ns": [
+    63803705,
+    65298151,
+    65440320,
+    65366064,
+    65204074
+   ]
+  },
+  {
+   "fixture": "integer_mod",
+   "memory": "64-bit",
+   "engine": "wasmtime",
+   "module_bytes": 2120,
+   "checksum": "405595776",
+   "kernel_ns": [
+    39949057,
+    38969230,
+    39421907,
+    40354077,
+    39923529
+   ]
+  },
+  {
+   "fixture": "integer_mod",
+   "memory": "64-bit",
+   "engine": "v8",
+   "module_bytes": 2120,
+   "checksum": "405595776",
+   "kernel_ns": [
+    65581401,
+    62932149,
+    63629621,
+    65458336,
+    67530602
+   ]
+  },
+  {
+   "fixture": "float_recurrence",
+   "memory": "32-bit",
+   "engine": "wasmtime",
+   "module_bytes": 1868,
+   "checksum": "5731374",
+   "kernel_ns": [
+    44084602,
+    43499180,
+    40698015,
+    39770677,
+    40839943
+   ]
+  },
+  {
+   "fixture": "float_recurrence",
+   "memory": "32-bit",
+   "engine": "v8",
+   "module_bytes": 1868,
+   "checksum": "5731374",
+   "kernel_ns": [
+    52467394,
+    51964266,
+    144466669,
+    52444793,
+    53684761
+   ]
+  },
+  {
+   "fixture": "float_recurrence",
+   "memory": "64-bit",
+   "engine": "wasmtime",
+   "module_bytes": 1825,
+   "checksum": "5731374",
+   "kernel_ns": [
+    41940226,
+    41872549,
+    49152324,
+    43458579,
+    42434569
+   ]
+  },
+  {
+   "fixture": "float_recurrence",
+   "memory": "64-bit",
+   "engine": "v8",
+   "module_bytes": 1825,
+   "checksum": "5731374",
+   "kernel_ns": [
+    52290845,
+    52400305,
+    52322097,
+    51467271,
+    52281780
+   ]
+  },
+  {
+   "fixture": "recursive_fibonacci",
+   "memory": "32-bit",
+   "engine": "wasmtime",
+   "module_bytes": 1435,
+   "checksum": "9227465",
+   "kernel_ns": [
+    98892649,
+    98657104,
+    103264275,
+    99025078,
+    147381943
+   ]
+  },
+  {
+   "fixture": "recursive_fibonacci",
+   "memory": "32-bit",
+   "engine": "v8",
+   "module_bytes": 1435,
+   "checksum": "9227465",
+   "kernel_ns": [
+    113745197,
+    112871230,
+    112603064,
+    112664625,
+    112541458
+   ]
+  },
+  {
+   "fixture": "recursive_fibonacci",
+   "memory": "64-bit",
+   "engine": "wasmtime",
+   "module_bytes": 1430,
+   "checksum": "9227465",
+   "kernel_ns": [
+    114615166,
+    115669293,
+    118464814,
+    114259038,
+    114289390
+   ]
+  },
+  {
+   "fixture": "recursive_fibonacci",
+   "memory": "64-bit",
+   "engine": "v8",
+   "module_bytes": 1430,
+   "checksum": "9227465",
+   "kernel_ns": [
+    116275270,
+    112072004,
+    113297155,
+    113012586,
+    110022290
+   ]
+  }
+ ]
+}

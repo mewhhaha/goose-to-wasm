@@ -1,0 +1,66 @@
+{
+ "configuration": {
+  "compiler": "/home/user/goose-to-wasm/build/exp/gw.exe",
+  "manifest": "/home/user/goose-to-wasm/tests/conformance/cases.json",
+  "levels": [
+   0,
+   2
+  ],
+  "filter": "",
+  "engine": "wasmtime",
+  "host": "None",
+  "frontend_only": false,
+  "upstream_extracted": true,
+  "upstream_sources": "/home/user/goose-to-wasm/build/conformance-upstream/344f973e3dbc0b71",
+  "jobs": 4,
+  "timeout": 15,
+  "cc_timeout": 120,
+  "native_units": 0,
+  "targets": [
+   "wasm-direct"
+  ],
+  "wasm_memory64": true
+ },
+ "summary": {
+  "selected": 4773,
+  "passed": 4767,
+  "failed": 6
+ },
+ "known_gaps": {
+  "open_gaps": 8,
+  "unexpected_failures": 0,
+  "fixed_gaps": 2
+ },
+ "failed_rows": [
+  {
+   "case": "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+   "level": 0,
+   "status": "fail"
+  },
+  {
+   "case": "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+   "level": 2,
+   "status": "fail"
+  },
+  {
+   "case": "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+   "level": 0,
+   "status": "fail"
+  },
+  {
+   "case": "corpus/contracts/upstream-differential/harvest/regions/d8577df2d9/wasm-direct",
+   "level": 2,
+   "status": "fail"
+  },
+  {
+   "case": "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+   "level": 0,
+   "status": "fail"
+  },
+  {
+   "case": "corpus/contracts/upstream-differential/harvest/uleb_length_boundaries/5347625ed2/wasm-direct",
+   "level": 2,
+   "status": "fail"
+  }
+ ]
+}

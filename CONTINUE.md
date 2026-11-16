@@ -91,17 +91,24 @@ Parsing and type checking take about 12 s. The lifetime pass runs after that.
 
 The owner's test since 2026-11-16, beside blot2: compile this compiler to direct Wasm and run it. The owner's direction for it: the targets are Wasm 3.0 on V8 and Wasmtime, so 64-bit memory may be used, and a host for either engine may ship with the compiler.
 
-**Where it stands** (`6b8bd39`, evidence in `bench/results/2026-11-16/wasm-hosted-compiler/`):
-- `goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-max-pages 65535 -o goose.wasm` emits a 30.8 MB module in 10 s.
-- `node scripts/run_wasm.mjs goose.wasm -- <compiler arguments>` runs it. On the ten examples its Wasm and C outputs are the native compiler's, byte for byte. `tests/test_cli_outputs.py` (`WasmHostedCompiler`) keeps that.
-- It stops on its own source: `data region exhausted`. 116 equal regions of 35 MiB in wasm32; the node table needs 109 MB.
-- It is about a thousand times slower than the native compiler on small inputs, which is V8 compiling huge functions with thousands of locals on first call.
+**Where it stands** (`3fef0c5`, evidence in `bench/results/2026-11-16/wasm-memory64/`, the 32-bit state before it in `wasm-hosted-compiler/`):
+- `--wasm-memory64` builds for a 64-bit memory: address i64, slice one v128 (pointer, count), control six u64 words. 32-bit is the default and its output is unchanged. `docs/TARGET.md` has the representations and the host interface.
+- Under Wasmtime the compiler as a 64-bit module checks and compiles itself; all outputs are the native compiler's and the module reproduces itself. `tests/test_cli_outputs.py` (`WasmMemory64`) keeps that.
+
+  ```sh
+  goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-max-pages 4194304 -o goose64.wasm
+  .venv/bin/python scripts/run_wasmtime.py goose64.wasm --cache goose64.cwasm -- selfhost/main.goose --stdlib stdlib --check
+  ```
+- `tests/conformance.py --wasm-memory64 --targets wasm-direct` runs the Wasm rows with 64-bit memory: 4,767 of 4,773, the six being recorded gaps. It is not a qualification stage yet.
+- Under V8 the self-check stops with `data region exhausted`: 16 GiB cap, 117 equal regions of 146.8 MB, and the lifetime pass's effect list needs 175.7 MB. `GOOSE_REGION_STATS=1` makes either host print region use.
+- All backend address arithmetic goes through the helpers at the top of `selfhost/codegen.goose` (`wa_*` address, `wc_*` control word, `ws_*` slice, `ww(k)` k words). New backend code must use them: a raw `wb_i32`, `0x6a` or `wb_mem(…, 0x28, …)` on an address breaks 64-bit output. Check with `bench/results/2026-11-16/wasm-memory64/tools/` (`narrowcheck.sh`, `widecheck.sh`, `wasmcheck.py`; copies with local paths are in `build/tools/`).
 
 **Next, in order.**
-1. **64-bit memory in the direct backend**, until the module checks and then compiles `selfhost/main.goose` and its outputs match the native compiler's (the bootstrap fixed point, through Wasm). A reference is an i32, a slice one i64 of 32-bit pointer and 32-bit count, a control six u32 words, and the 293 load and store sites compute addresses in i32: all three representations change. V8 caps a 64-bit memory at 16 GiB (137 MiB a region over 117, just enough for the self-compile); Wasmtime does not. Node 22 needs `--experimental-wasm-memory64`; the pinned Node 24 does not. Decide the slice representation first (two i64 values, or one i64 with a wider pointer and a narrower count), and whether regions stay equal.
-2. **A Wasmtime host for the `os` imports** (`scripts/run_wasmtime.py`, `host/wasmtime.cpp`), which also pays the module's compilation once (`.cwasm`).
-3. **The module's speed**: locals are never reused by the backend (`cg_save` makes one a temporary).
-4. `docs/TARGET.md` describes a `goose.regions` custom section this compiler does not emit; the host finds region cursors through three exported globals instead. Settle one of them when the control layout changes for 64-bit memory.
+1. **The self-check under V8.** Regions of unequal size (the split is `cg_layout_regions`; a region's size is read from global 7 in `cg_region_cursor_slot`, `cg_region_acquire` and both hosts), or a smaller `LifeEffect`. Also try the pinned Node 24.
+2. **Make `--wasm-memory64` conformance a qualification stage**, so the 64-bit path cannot rot.
+3. **Element counts above 2^32 - 1**: the `4294967295` checks left in `cg_array_reserve`, the region array builtins and repetition literals, with overflow-safe products.
+4. **The module's speed**: under V8, locals are never reused by the backend (`cg_save` makes one a temporary). Under Wasmtime, measure the Python host's share of the factor of three; `host/wasmtime.cpp` has neither the `os` imports nor a large-memory configuration.
+5. 64-bit memory costs 16 to 20% on two of four kernels (calls under Wasmtime, array indexing under V8): not looked into.
 
 ## Other open work
 
