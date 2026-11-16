@@ -758,6 +758,8 @@ fn cg_intrinsic(p: Program&, function: i64) -> i64 {
         return 0;
     }
     if same_bytes(name, "gs_clz") && id == TYPE_U64 { return 0x79; }
+    if same_bytes(name, "gs_ctz") && id == TYPE_U64 { return 0x7a; }
+    if same_bytes(name, "gs_popcount") && id == TYPE_U64 { return 0x7b; }
     // binary's float bits: the reinterpretations.
     if w == 0x7f && same_bytes(name, "gs_f32_from_bits") { return 0xbe; }
     if w == 0x7e && same_bytes(name, "gs_f64_from_bits") { return 0xbf; }
@@ -2736,6 +2738,8 @@ recursive fn cg_builtin(p: Program&, m: CgModule&, f: CgBody&, node: i64, builti
         cg_line(p, f, node); wb_op(f.code, 0x10, CG_ABORT); wb_byte(f.code, 0); return;
     }
     if builtin == 5 { cg_to(p, m, f, arg, TYPE_I32); wb_op(f.code, 0x10, CG_EXIT); wb_byte(f.code, 0); return; }
+    // hardware_threads: the direct host ABI runs one thread of Goose code.
+    if builtin == 6 { wb_i64(f.code, 1); cg_convert(p, m, f, TYPE_I64, n.type_id, node); return; }
     if builtin == 14 {
         if cg_aggregate(p, n.type_id) {
             let destination = cg_temporary(p, f, n.type_id);
@@ -3681,9 +3685,8 @@ fn cg_collect(p: Program&, m: CgModule&) {
            (n.flags & (F_CHECKED | F_REACHABLE)) != (F_CHECKED | F_REACHABLE) { continue; }
         if (n.flags & F_THREAD) != 0 { cg_fail(p, node, "wasm: threads are unsupported by the direct host ABI"); }
         if (n.flags & F_EXTERN) != 0 {
-            if n.aux >= 0 { cg_fail(p, node, "wasm: dynamic-library externs are unsupported"); }
             if location_extern(p, node) { cg_fail(p, node, "wasm: the slice pool span tree externs are not supported by the direct Wasm backend; use --target native"); continue; }
-            cg_exportable(p, node);
+            cg_importable(p, node);
             if cg_intrinsic(p, node) == 0 { m.imports.push(CgImport { symbol: n.symbol, signature: cg_make_signature(p, m, node, false) }); }
         } else { m.functions.push(CgFunction { node: node, symbol: n.symbol }); }
     }
@@ -3767,6 +3770,34 @@ fn cg_layout_regions(p: Program&, m: CgModule&) {
     if m.region_count > 0 && m.region_bytes == 0 { cg_fail(p, -1, "data regions have no available storage"); return; }
     m.stack_limit = bytes - m.region_count * m.region_bytes;
 }
+// A host import takes numbers and booleans, and what the module holds a
+// slice or a reference as: an i64 of pointer and count, an i32 address (of a
+// growable array, its control, which a host appends through with the
+// exported region words; docs/TARGET.md). It returns numbers and booleans.
+// An extern of a named dynamic library is an import like any other: the
+// host stands for the library.
+fn cg_importable(p: Program&, function: i64) -> bool {
+    var param = p.nodes[function].first;
+    while param >= 0 {
+        let id = p.nodes[param].type_id; let kind = cg_type_kind(p, id);
+        let passed = kind == TY_INT || kind == TY_FLOAT || kind == TY_BOOL || kind == TY_SLICE || kind == TY_REF && p.types[id].length_storage < 0;
+        if !passed { cg_fail(p, function, "wasm: host imports accept numeric, bool, slice and reference parameters only"); return false; }
+        param = p.nodes[param].next;
+    }
+    var results: i64[>..] = []; cg_function_results(p, function, results);
+    for id in results { let kind = cg_type_kind(p, id); if kind != TY_INT && kind != TY_FLOAT && kind != TY_BOOL { cg_fail(p, function, "wasm: host imports return numeric and bool values only"); return false; } }
+    return true;
+}
+// Whether some host import takes a reference: the address of a growable
+// array's control among them.
+fn cg_builder_imports(p: Program&, m: CgModule&) -> bool {
+    for item in m.imports {
+        if item.symbol < 0 { continue; }
+        var param = p.nodes[p.symbols[item.symbol].node].first;
+        while param >= 0 { if cg_type_kind(p, p.nodes[param].type_id) == TY_REF { return true; } param = p.nodes[param].next; }
+    }
+    return false;
+}
 fn cg_exportable(p: Program&, function: i64) -> bool {
     var param = p.nodes[function].first;
     while param >= 0 {
@@ -3833,7 +3864,12 @@ fn generate_wasm(p: Program&, out: u8[>..]&) {
     wb_u(section, 1); wb_byte(section, 1); wb_u(section, initial_pages); wb_u(section, p.maximum_pages); wb_section(module, 5, section); section.clear();
     cg_module_globals(p, m, section); wb_section(module, 6, section); section.clear();
     var export_count = 2; for item in m.functions { if (p.nodes[item.node].flags & F_EXPORT) != 0 { export_count++; } }
+    // The region words a host appends to a growable array with: the first
+    // region's address, a region's size, and the table of region cursors.
+    let region_words = m.regions_enabled && !m.scalar && cg_builder_imports(p, m);
+    if region_words { export_count += 3; }
     wb_u(section, export_count); wb_export(section, "memory", 2, 0); wb_export(section, "_start", 0, m.start);
+    if region_words { wb_export(section, "goose.region_base", 3, 6); wb_export(section, "goose.region_bytes", 3, 7); wb_export(section, "goose.region_cursors", 3, 9); }
     for item in m.functions {
         if (p.nodes[item.node].flags & F_EXPORT) != 0 {
             if item.capture_count > 0 { cg_fail(p, item.node, "wasm: public entrypoints cannot capture local storage"); }

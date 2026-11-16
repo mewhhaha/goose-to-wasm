@@ -256,10 +256,10 @@ exported memory. The host writes the same text as `print_f32` or `print_f64`,
 without a terminator, and returns its byte length. Hosts check the full buffer
 range before writing. Other modules retain their existing imports.
 
-Scalar `extern fn` declarations ordinarily become imports under `env`, with their
+`extern fn` declarations ordinarily become imports under `env`, with their
 C symbol names. Exact standard numeric signatures for `sqrt`/`gs_sqrt`, `floor`,
-`ceil`, `trunc`, `fabs` (and their f32 forms), and `gs_clz(u64) -> i64` lower to
-Wasm instructions instead. These operations do not call the host from numerical
+`ceil`, `trunc`, `fabs` (and their f32 forms), and `gs_clz`, `gs_ctz` and
+`gs_popcount` `(u64) -> i64` lower to Wasm instructions instead. These operations do not call the host from numerical
 loops. Ordinary Goose function bodies are not recognized by name; for example,
 Goose's `abs` retains its existing negative-zero semantics.
 
@@ -267,8 +267,36 @@ Raw-only array-image specialization excludes modules with explicit public
 exports or nonintrinsic user imports, preserving host edits to image headers.
 Pure math intrinsics do not prevent it.
 
+An import takes numbers and booleans, and what the module holds a slice or a
+reference as: a slice is the i64 of pointer and count, a reference an i32
+address. It returns numbers and booleans. Other parameter and result types are
+refused. An `extern "library" { ... }` declaration is an import like any other:
+no library is loaded into a Wasm module, and the host stands for it.
+
+A reference to a growable array is the address of its 24-byte control. A host
+appends to a growable byte array through it (the stdlib's `os.read_file`, `arg`
+and `env` hand one over as their output): the bytes go at the cursor of the
+array's region, and the control's length (its second u32) and the cursor both
+move by their count. A module with an import that takes a reference exports
+three i32 globals for this: `goose.region_base`, the address of the first
+region; `goose.region_bytes`, the size of each; and `goose.region_cursors`, the
+address of the cursor table, one u32 a region. The region of a control whose
+limit (its third u32) is `limit` has its cursor at
+`region_cursors + 4 * ((limit - region_base) / region_bytes - 1)`. The host
+checks the bytes fit below `limit` and grows memory to hold them. This is the
+internal control layout, exported as it is; it changes with it.
+
+`hardware_threads()` is 1: the direct host ABI runs one thread of Goose code.
+
 Hosts must provide matching signatures and semantics for remaining imports. The supplied hosts
 include input, timing, and barrier functions used by the tests and benchmarks.
+`scripts/run_wasm.mjs` also supplies the stdlib's `os` files, streams, arguments,
+environment and clock, std's byte-set searches, and a libc `system` that fails:
+enough to run the compiler itself as a module,
+`node scripts/run_wasm.mjs goose.wasm -- source.goose --target wasm-direct -o out.wasm`.
+A module given program arguments after `--` runs on a worker with a 256 MiB
+stack, since the compiler recurses over its syntax trees further than V8's
+main-thread stack allows. The Wasmtime hosts do not supply these imports yet.
 Arbitrary external native libraries are not loaded into a Wasm module.
 
 Internal functions can return fixed arrays, structs, enums and variant payloads, including recursion and

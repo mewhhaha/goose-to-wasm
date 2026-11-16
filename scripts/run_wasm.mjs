@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 // Minimal Node/V8 host for the direct compiler's documented scalar ABI.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, statSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import { Worker, isMainThread, parentPort, workerData } from "node:worker_threads";
+
+// A program that recurses deeply (the compiler compiled to Wasm does, over
+// its syntax trees) needs more stack than V8 gives the main thread: a module
+// given program arguments runs on a worker with this much.
+const STACK_MB = 256;
 
 // The shortest scientific text of a positive finite f32, chosen as native
 // gs_fmt_f32 chooses it: the fewest significant digits that read back as the
@@ -103,7 +109,8 @@ class ProgramExit extends Error {
 // `input` is stdin: bytes as given, or a string as its UTF-8 bytes. fd_read
 // sees exactly those bytes. Scalar imports read tokens from a byte-for-byte
 // latin1 view, split on ASCII whitespace as the C++ host splits them.
-export async function runModule(bytes, input = "") {
+// `programArguments` are what the program's os.arg sees, the program first.
+export async function runModule(bytes, input = "", programArguments = ["program"]) {
   const stdin = Buffer.from(input);
   const tokens = stdin.toString("latin1").split(/[ \t\n\r\f\v]+/).filter(Boolean);
   let cursor = 0;
@@ -161,6 +168,41 @@ export async function runModule(bytes, input = "") {
     for (let i = 0; i < length; i++) result.push([read64(base + i * 16), read64(base + i * 16 + 8)]);
     return result;
   };
+  // A slice argument: an i64 of pointer (low 32 bits) and element count.
+  const sliceBytes = (value) => {
+    const packed = BigInt.asUintN(64, value);
+    return memoryBytes(Number(packed & 0xffffffffn), Number(packed >> 32n));
+  };
+  const sliceText = (value) => sliceBytes(value).toString("utf8");
+  // Appends to the growable byte array whose control is at `control` (u32
+  // base, length, limit, ...): the bytes go at its region's cursor, which is
+  // kept in the module's cursor table and moves with them. The module exports
+  // the words that find it (docs/TARGET.md).
+  const appendBytes = (control, data) => {
+    const word = (name) => {
+      const global = instance.exports[name];
+      if (!(global instanceof WebAssembly.Global)) throw new Error("module does not export " + name);
+      return global.value >>> 0;
+    };
+    const header = address(control);
+    const before = memoryView(header, 24);
+    const words = new DataView(before.buffer, before.byteOffset, 24);
+    const length = words.getUint32(4, true), limit = words.getUint32(8, true);
+    const slot = word("goose.region_cursors") + 4 * (Math.floor((limit - word("goose.region_base")) / word("goose.region_bytes")) - 1);
+    const cursorBytes = memoryView(slot, 4);
+    const cursor = new DataView(cursorBytes.buffer, cursorBytes.byteOffset, 4).getUint32(0, true);
+    if (data.length > limit - cursor) throw new Error("goose runtime error: data region exhausted");
+    const end = cursor + data.length;
+    const memory = instance.exports.memory;
+    if (end > memory.buffer.byteLength) memory.grow(Math.ceil((end - memory.buffer.byteLength) / 65536));
+    memoryView(cursor, data.length).set(data);
+    const after = memoryView(header, 24);
+    new DataView(after.buffer, after.byteOffset, 24).setUint32(4, length + data.length, true);
+    const moved = memoryView(slot, 4);
+    new DataView(moved.buffer, moved.byteOffset, 4).setUint32(0, end, true);
+  };
+  const tried = (action) => { try { return action() ? 1 : 0; } catch { return 0; } };
+  const byteSet = (pointer) => memoryView(pointer, 256);
   const imports = {
     goose: {
       write: (pointer, length) => chunks.push(memoryBytes(pointer, length)),
@@ -199,6 +241,44 @@ export async function runModule(bytes, input = "") {
       bench_barrier: (value) => { sink = value; return sink; },
       bench_sink: (value) => { sink = value; },
       emscripten_notify_memory_growth: () => {},
+      // The stdlib's `os` externs, for a program that reads and writes files
+      // (the compiler itself among them). Text goes out through the same
+      // buffers as print.
+      gs_os_read_file: (path, control) => tried(() => { appendBytes(control, readFileSync(sliceText(path))); return true; }),
+      gs_os_write_file: (path, data) => tried(() => { writeFileSync(sliceText(path), sliceBytes(data)); return true; }),
+      gs_os_append_file: (path, data) => tried(() => { appendFileSync(sliceText(path), sliceBytes(data)); return true; }),
+      gs_os_file_exists: (path) => tried(() => statSync(sliceText(path)).isFile()),
+      gs_os_is_dir: (path) => tried(() => statSync(sliceText(path)).isDirectory()),
+      gs_os_write_stdout: (text) => { chunks.push(sliceBytes(text)); },
+      gs_os_write_stderr: (text) => { errors.push(sliceBytes(text)); },
+      gs_os_flush_stdout: () => {},
+      gs_os_arg_count: () => BigInt(programArguments.length),
+      gs_os_arg: (index, control) => {
+        const at = Number(BigInt.asIntN(64, index));
+        if (at >= 0 && at < programArguments.length) appendBytes(control, Buffer.from(programArguments[at]));
+      },
+      gs_os_getenv: (name, control) => {
+        const value = process.env[sliceText(name)];
+        if (value === undefined) return 0;
+        appendBytes(control, Buffer.from(value));
+        return 1;
+      },
+      gs_os_resource_dir: () => 0,
+      gs_os_clock_ns: () => process.hrtime.bigint(),
+      gs_os_time_ns: () => BigInt(Date.now()) * 1000000n,
+      // std's byte-set searches: a set's members are its first 256 bytes.
+      gs_find_any: (text, set) => {
+        const data = sliceBytes(text), members = byteSet(set);
+        for (let i = 0; i < data.length; i++) if (members[data[i]]) return BigInt(i);
+        return -1n;
+      },
+      gs_find_pair: (text, first, distance, second) => {
+        const data = sliceBytes(text), a = byteSet(first), b = byteSet(second), d = Number(distance);
+        for (let i = 0; i + d < data.length; i++) if (a[data[i]] && b[data[i + d]]) return BigInt(i);
+        return -1n;
+      },
+      // No process can be started from here: libc's system fails.
+      system: () => -1,
     },
     // Emscripten's standalone LP64 C profile has WASI64 pointers and size_t,
     // including 16-byte iovecs. This is deliberately not Node's WASI32 ABI.
@@ -288,22 +368,37 @@ export async function runModule(bytes, input = "") {
 async function main() {
   const args = process.argv.slice(2);
   if (!args.length || args[0] === "--help") {
-    process.stdout.write("usage: node scripts/run_wasm.mjs module.wasm [--timing-json path]\nInput scalars are read from stdin.\n");
+    process.stdout.write("usage: node scripts/run_wasm.mjs module.wasm [--timing-json path] [-- program arguments]\nInput scalars are read from stdin.\n");
     return;
   }
   const module = args.shift();
   let timingPath;
+  let programArguments = [module];
+  const separator = args.indexOf("--");
+  const hosted = separator >= 0;
+  if (hosted) programArguments = [module, ...args.splice(separator).slice(1)];
   if (args.length) {
     if (args.length !== 2 || args[0] !== "--timing-json") throw new Error("unknown runner arguments");
     timingPath = args[1];
   }
-  const result = await runModule(readFileSync(module), readFileSync(0));
+  const result = !hosted ? await runModule(readFileSync(module), readFileSync(0)) : await new Promise((resolve, reject) => {
+    const worker = new Worker(new URL(import.meta.url), {
+      workerData: { module, input: readFileSync(0), programArguments },
+      resourceLimits: { stackSizeMb: STACK_MB },
+    });
+    worker.once("message", resolve);
+    worker.once("error", reject);
+  });
+  result.stdout = Buffer.from(result.stdout);
   process.stdout.write(result.stdout);
-  if (result.stderr) process.stderr.write(result.stderr + "\n");
+  if (result.stderr) process.stderr.write(result.stderr.endsWith("\n") ? result.stderr : result.stderr + "\n");
   if (timingPath) writeFileSync(timingPath, JSON.stringify(result.timing, null, 2) + "\n");
   process.exitCode = result.exitCode;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (!isMainThread && workerData && workerData.module) {
+  runModule(readFileSync(workerData.module), Buffer.from(workerData.input), workerData.programArguments)
+    .then((result) => parentPort.postMessage(result));
+} else if (isMainThread && process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => { process.stderr.write(`direct Wasm host: ${error.message}\n`); process.exitCode = 1; });
 }

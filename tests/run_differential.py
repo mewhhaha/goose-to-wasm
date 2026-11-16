@@ -1106,7 +1106,9 @@ def run_cases(args, output, selected, rows, logs):
                         print(row["error"], flush=True)
     # The direct fragment must explicitly refuse these valid Goose programs.
     if "direct" in args.backends and not args.filter and not args.skip_refusals:
-        for fixture in ("unsupported_varint_array", "unsupported_pointer_extern", "invalid_source"):
+        # (An extern that takes a slice is an import since the host interface of
+        # docs/TARGET.md; tests/fixtures/unsupported_pointer_extern.goose compiles.)
+        for fixture in ("unsupported_varint_array", "invalid_source"):
             directory = output / "refusals" / fixture
             directory.mkdir(parents=True, exist_ok=True)
             artifact = directory / "program.wasm"
