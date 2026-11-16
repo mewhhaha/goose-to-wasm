@@ -121,7 +121,7 @@ So the pattern is: a function reads a reference out of its parameter and passes 
 
 - **blot2's 1,992 errors** (`3ddf811`), as described above. The next step is to stop a read-out reference's value carrying its candidates: let the alias, shrink and destination rules name them from the types when they ask (as upstream's `RootCandidates` does), so that an argument that was read out of a parameter is one alternative and its class a plain renaming.
 - **The 33 corpus sources where the class path misses an error**, unchanged.
-- **Memory.** 68.3 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this; this compiler's driver does not have the option yet.
+- **Memory.** 68.3 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
 - **Peak RSS is 7.4 GiB** for the one pass.
 
 ## Tools
