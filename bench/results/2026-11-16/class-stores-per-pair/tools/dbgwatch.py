@@ -32,8 +32,8 @@ fn dbg_watched(l: Lifetimes&, root: i64, set: i64) -> bool {
 }
 fn dbg_watch_once(key: i64) -> bool { for o in dbg_watch_seen { if o == key { return false; } } dbg_watch_seen.push(key); return true; }''', 1)
 # body
-rep("""        var reached: i64 = -1; if d.exact && !d.byteview { reached = d.target_type as i64; if reached < 0 { reached = path; } }""",
-"""        var reached: i64 = -1; if d.exact && !d.byteview { reached = d.target_type as i64; if reached < 0 { reached = path; } }
+rep("""        var reached: i64 = -1; if !d.byteview { reached = d.target_type as i64; if reached < 0 { reached = path; } }""",
+"""        var reached: i64 = -1; if !d.byteview { reached = d.target_type as i64; if reached < 0 { reached = path; } }
         if l.discovery && dbg_watched(l, d.root as i64, life_stored_roots(p, l, value)) && dbg_watch_once(node * 2) {
             var o: u8[>..] = []; o.append("DBGWATCH body at="); dbg_at(p, o, node); o.append(" frame="); dbg_d(o, l.frame); o.append(" fn="); if l.frame > 0 { dbg_at(p, o, l.frames[l.frame].function_node); }
             o.append(" island="); dbg_d(o, l.island); o.append(" reached="); dbg_d(o, reached); o.append(" place="); dbg_root(p, l, o, d); dbg_alts(p, l, o, "stored", life_stored_roots(p, l, value)); o.push(10 as u8); write_stderr(o);

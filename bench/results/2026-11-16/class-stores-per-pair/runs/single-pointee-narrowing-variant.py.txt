@@ -1,0 +1,64 @@
+import sys
+w = sys.argv[1] if len(sys.argv) > 1 else '/home/user/goose-to-wasm/build/work/checker_lifetimes.goose'
+t = open(w).read()
+def rep(old, new, count=1):
+    global t
+    assert t.count(old) == count, (old[:80], t.count(old))
+    t = t.replace(old, new)
+rep("""    refers: LifeRefers[>..]&, referable: LifeLoaded[>..]&,
+}""", """    refers: LifeRefers[>..]&, referable: LifeLoaded[>..]&,
+    // Per type, the one type that every reference or slice a value of it
+    // holds inline points at (life_single_pointee): -2 not asked yet, -1
+    // none or several.
+    single_pointee: i64[>..]&,
+}""")
+rep("var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = [];", "var refers: LifeRefers[>..] = []; var referable: LifeLoaded[>..] = []; var single_pointee: i64[>..] = [];")
+rep("global_types: global_types, refers: refers, referable: referable };", "global_types: global_types, refers: refers, referable: referable, single_pointee: single_pointee };")
+rep("""// The type of the storage a store's place is, where one type says what it""", """// The one type that every reference or slice a value of type `ty` holds
+// inline points at, or -1 where it holds none or they point at several.
+fn life_single_pointee(p: Program&, l: Lifetimes&, ty: i64) -> i64 {
+    if ty < 0 { return -1; }
+    while l.single_pointee.len < p.types.len { l.single_pointee.push(-2); }
+    if l.single_pointee[ty] != -2 { return l.single_pointee[ty]; }
+    var work: i64[>..] = [ty]; var at = 0; var only: i64 = -1; var several = false;
+    while at < work.len && !several {
+        let t: const Type& = p.types[work[at]]; at += 1;
+        if t.kind == TY_SLICE || t.kind == TY_REF {
+            if t.kind == TY_REF && t.length_storage >= 0 || t.element < 0 { several = true; }
+            else if only < 0 { only = t.element; }
+            else if !life_same(p, only, t.element) { several = true; }
+        } else if t.kind == TY_ARRAY && t.element >= 0 {
+            var seen = false; for old in work { if old == t.element { seen = true; } }
+            if !seen { work.push(t.element); }
+        } else if t.kind == TY_STRUCT || t.kind == TY_ENUM || t.kind == TY_TUPLE {
+            var field = t.first;
+            while field >= 0 {
+                let ft = p.nodes[field].type_id; var seen = ft < 0;
+                for old in work { if old == ft { seen = true; } }
+                if !seen { work.push(ft); }
+                field = p.nodes[field].next;
+            }
+        }
+    }
+    if several { only = -1; }
+    l.single_pointee[ty] = only;
+    return only;
+}
+// The type of the storage a store's place is, where one type says what it""")
+rep("""// whose pointee is not known, or a byte view, may land anywhere.
+fn life_referable(p: Program&, l: Lifetimes&, set: i64, holder: i64) -> i64 {""", """// whose pointee is not known, or a byte view, may land anywhere; but what an
+// untyped storage class holds, landing in storage all of whose references
+// point at one type, is a reference to that type there (a struct copied out
+// of a parameter's storage carries everything that storage holds).
+fn life_referable(p: Program&, l: Lifetimes&, set: i64, holder: i64) -> i64 {""")
+rep("""            if points >= 0 && !life_refers(p, l, holder, points, within) { dropped = true; continue; }
+        }
+        life_build_add_alt(l, out, x);""", """            if points >= 0 && !life_refers(p, l, holder, points, within) { dropped = true; continue; }
+            if points < 0 && l.roots[x.root].class_frame >= 0 && l.roots[x.root].class_parent < 0 && l.roots[x.root].class_index >= l.frames[l.roots[x.root].class_frame].class_base {
+                let only = life_single_pointee(p, l, holder);
+                if only >= 0 { x.target_type = only as i32; dropped = true; }
+            }
+        }
+        life_build_add_alt(l, out, x);""")
+open(w, 'w').write(t)
+print('ok')

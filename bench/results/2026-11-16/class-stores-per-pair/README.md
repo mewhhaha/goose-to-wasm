@@ -330,12 +330,39 @@ Untyped stores into a class root recorded at a call went from 9,466 calls to 4,7
 - **13 of the 64** are calls of `node` in `check/staging_core.goose` whose value is "something reached from `Module`, `ModuleRef` or `i64` storage of `self_`": the last now leads nowhere, the other two reach everything through the untyped class.
 - **Large view types.** `Module` and the type tables hold references to nearly every type, so "what this type can refer to" removes little there.
 
+## The same test, tightened (`c72e198`)
+
+Committed as `c72e198`, [qualified](runs/qualification-c72e198.json).
+
+| | `e7cb7c9` | `c72e198` |
+| --- | --- | --- |
+| corpus, default build | | 0 of 4,355 sources differ ([report](runs/corpus-default-fingerprints-c72e198.json)) |
+| corpus, every call class-keyed | 14 / 33 / 21 | the same 14, 33 and 21 sources ([list](runs/corpus-every-call-class-keyed-categories-c72e198.json)) |
+| self-check and the eleven upstream tests, every call class-keyed | no error; all eleven report | the same |
+| blot2: calls where a class-rooted value first meets shallower storage | 509 | 237 |
+| blot2, errors of the first pass | 64 | 38 ([list](runs/blot2-diagnostics-c72e198.txt)) |
+| blot2, frames / alternatives | 52,940 / 48.5 M | 52,877 / 49.3 M ([progress](runs/blot2-progress-c72e198.txt)) |
+| blot2, bootstrapped compiler | 257 s wall, 7.0 GiB | 256 s wall, 246 s CPU, 7.1 GiB ([run](runs/blot2-run-c72e198.json)) |
+
+In the order tried, each on `e7cb7c9`'s state plus the kept steps before it:
+
+| step | errors | first appearances | alternatives | |
+| --- | --- | --- | --- | --- |
+| 16 storage classes by pointee a frame under pressure, not 8 | 57 | 573 | 58.8 M | not kept: more classes by order of first use do not separate what matters, and cost 10 M alternatives |
+| a place only known to outlive a root keeps the type it was reached as, for the stores above it and for the type test (`life_place_holds`, `life_reached_places`) | 64 | 510 | 50.3 M | kept: the watch showed a store into "something `ModuleRef` storage leads to, reached as a `ModuleRef`" passing the test untested |
+| **the test itself**: a slot's pointee type must be the stored reference's pointee type or a part of it (`life_refers`) | 38 | 237 | 49.3 M | kept |
+| what an untyped storage class holds, landing in storage all of whose references point at one type, becomes a reference to that type ([patch script](runs/single-pointee-narrowing-variant.py.txt)) | 38 | | 49.1 M | not kept: no change |
+
+**What the test had wrong.** `life_refers(holder, pointee)` asked, of each reference a `holder` holds inline, whether its pointee type holds the stored `pointee` or lies in it. Both directions were meant for a stored reference known only by the type of the root it points into. With the stored reference's own pointee type in hand (`i64`), "the slot's pointee type (`Module`) holds one" let a reference to a counter into every `const Module&`. The second direction is now taken only for an argument class, whose parameters' type may be a part of a larger value.
+
+**Left: 237 calls, 38 errors.** 167 of the 237 are a store into a storage class of one pointee type of a value that is an untyped storage class, exactly: a struct copied out of a parameter's storage, which carries "everything that storage holds". Neither side of the test knows a type there. What the copy can hold is known where it is made (the struct's type), and is lost when its contents are read as roots.
+
 ## Not right yet
 
-- **blot2's 64 errors** (`e7cb7c9`), from 509 calls that first make a wrong pair. See "Types where a call lands a store", what is left.
+- **blot2's 38 errors** (`c72e198`), from 237 calls that first make a wrong pair. See "The same test, tightened", what is left.
 - **The 33 corpus sources where the class path misses an error**, unchanged.
-- **Memory.** 48.5 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
-- **Peak RSS is 7.0 GiB** for the one pass, which takes 257 s.
+- **Memory.** 49.3 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
+- **Peak RSS is 7.1 GiB** for the one pass, which takes 256 s.
 
 ## Tools
 

@@ -1,0 +1,565 @@
+{
+ "counts": {
+  "both accept, other output": 1502,
+  "accept->reject": 14,
+  "same messages, other places": 815,
+  "other messages": 21,
+  "reject->accept": 33
+ },
+ "accept->reject": [
+  [
+   "native/tests/results.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/native/tests/results.goose:16:67: error: relative reference must point into the exact root that owns its destination"
+   ]
+  ],
+  [
+   "tests/fixtures/contracts/root-struct/component-index-check.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/tests/fixtures/contracts/root-struct/component-index-check.goose:9:28: error: cannot shrink or replace this array: an index or bound type names it"
+   ]
+  ],
+  [
+   "upstream:test/codegen/render_walks_around_overloads.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/codegen/render_walks_around_overloads.goose:28:11: error: whole assignment replaces a variable-size value while its parts are being rendered"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/class_copy_carried.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/class_copy_carried.goose:130:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/class_copy_views.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/class_copy_views.goose:144:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/dispatch_holder_kills.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/dispatch_holder_kills.goose:8:55: error: array shrink invalidates a reference or holder that is used afterward",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/dispatch_holder_kills.goose:9:55: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/emptied_holder_across_call.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/emptied_holder_across_call.goose:11:12: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/emptied_holder_shrink.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/emptied_holder_shrink.goose:13:12: error: array shrink invalidates a reference or holder that is used afterward",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/emptied_holder_shrink.goose:20:16: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/format_storage_keeps.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/format_storage_keeps.goose:15:10: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/format_storage_keeps.goose:14:4: error: stored reference does not outlive the storage that receives it"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/growshrink_unrelated_refs.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/stdlib/dictionary.goose:84:13: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/holder_arg_callee_view.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/holder_arg_callee_view.goose:7:12: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/relative_readback_param.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/relative_readback_param.goose:7:18: error: relative reference must point into the exact root that owns its destination"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/tree_copied_from_struct.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/tree_copied_from_struct.goose:105:13: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/tree_in_struct_rerun.goose",
+   [],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/tree_in_struct_rerun.goose:106:13: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ]
+ ],
+ "reject->accept": [
+  [
+   "upstream:test/errors_tc/cycle_threaded_outside.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_threaded_outside.goose:10:12: error: reference stored by a recursive cycle must be rooted outside every recursive activation"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/exception_borrow_escape.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/stdlib/exception.goose:33:26: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/format_slice_ref_call_store.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_slice_ref_call_store.goose:7:58: error: reference or slice binding changes its committed root lifetime depth"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/format_slice_ref_ref_store.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_slice_ref_ref_store.goose:6:58: error: reference or slice binding changes its committed root lifetime depth"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/format_slice_ref_var_store.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_slice_ref_var_store.goose:6:58: error: reference or slice binding changes its committed root lifetime depth"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/funval_return_callee_param.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/funval_return_callee_param.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/funval_return_loop_pass.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/funval_return_loop_pass.goose:19:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/funval_return_target_local.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/funval_return_target_local.goose:8:40: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/holder_param_recursive_shrink.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/holder_param_recursive_shrink.goose:9:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/index_of_back_edge_regrouped.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/index_of_back_edge_regrouped.goose:10:14: error: index_of requires an exact element root containing one array of this element type"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/rebind_callee_read_depth.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/rebind_callee_read_depth.goose:19:47: error: reference or slice binding changes its committed root lifetime depth"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_class_copy_byteview.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_class_copy_byteview.goose:6:9: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_class_pair_back_edge.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_class_pair_back_edge.goose:5:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_class_pair_global.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_class_pair_global.goose:5:37: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_class_read_byteview.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_class_read_byteview.goose:5:9: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_global_let_slot.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_global_let_slot.goose:9:18: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_global_let_stale_slot.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_global_let_stale_slot.goose:16:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_passed_recursive.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_passed_recursive.goose:10:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_slice_ref_byteview_param.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_slice_ref_byteview_param.goose:6:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_slice_ref_explicit_callee.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_slice_ref_explicit_callee.goose:8:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_slice_ref_loaded.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_slice_ref_loaded.goose:7:8: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/shrink_static_result_backedge.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/shrink_static_result_backedge.goose:9:11: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_callee.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_callee.goose:6:23: error: reference or slice binding changes its committed root lifetime depth"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_callee_merged.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_callee_merged.goose:15:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_callee_read_back.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_callee_read_back.goose:17:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_chain.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_chain.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_cycle.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_cycle.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_elem_view.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_elem_view.goose:16:10: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_holder_param.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_holder_param.goose:13:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_order.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_order.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_ref_store_parent_param.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_ref_store_parent_param.goose:15:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   []
+  ],
+  [
+   "upstream:test/errors_tc/slice_view_recursive.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_view_recursive.goose:6:25: error: returned reference points into this invocation's local or temporary storage",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/slice_view_recursive.goose:9:12: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   []
+  ],
+  [
+   "upstream:test/stdlib/stdlib_regex.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/stdlib/std.goose:111:9: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/stdlib/std.goose:116:9: error: stored reference does not outlive the storage that receives it"
+   ],
+   []
+  ]
+ ],
+ "other messages": [
+  [
+   "tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose",
+   [
+    "/home/user/goose-to-wasm/tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose:7:12: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   [
+    "/home/user/goose-to-wasm/tests/fixtures/contracts/upstream-differential/lifetimes/returned-holder-view-of-local.goose:7:12: error: stored reference does not outlive the storage that receives it"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/cycle_backedge_argument_roots.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_backedge_argument_roots.goose:14:22: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_backedge_argument_roots.goose:14:10: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_backedge_argument_roots.goose:15:12: error: returned reference points into this invocation's local or temporary storage",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_backedge_argument_roots.goose:13:9: error: stored reference does not outlive the storage that receives it"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_backedge_argument_roots.goose:14:22: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_backedge_argument_roots.goose:14:10: error: stored reference does not outlive the storage that receives it"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/cycle_binding_shrink_held.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_binding_shrink_held.goose:9:27: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_binding_shrink_held.goose:9:27: error: array shrink invalidates a value still needed by the enclosing expression"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/cycle_holder_static_param.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_holder_static_param.goose:12:12: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_holder_static_param.goose:11:40: error: reference stored by a recursive cycle must be rooted outside every recursive activation"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/cycle_return_merged_unstorable.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_merged_unstorable.goose:14:12: error: returned reference points into this invocation's local or temporary storage",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_merged_unstorable.goose:12:9: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_merged_unstorable.goose:13:10: error: stored reference does not outlive the storage that receives it"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_merged_unstorable.goose:13:10: error: stored reference does not outlive the storage that receives it"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/cycle_return_ungiven_parameter.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_ungiven_parameter.goose:19:12: error: returned reference points into this invocation's local or temporary storage",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_ungiven_parameter.goose:17:9: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_ungiven_parameter.goose:18:10: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_ungiven_parameter.goose:25:9: error: stored reference does not outlive the storage that receives it"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/cycle_return_ungiven_parameter.goose:18:10: error: stored reference does not outlive the storage that receives it"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/format_shrinks_rendered_element.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_element.goose:8:7: error: array shrink invalidates a value still needed by the enclosing expression"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_element.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/format_shrinks_rendered_field.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_field.goose:8:7: error: array shrink invalidates a value still needed by the enclosing expression"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_field.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/format_shrinks_rendered_growonly.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_growonly.goose:8:7: error: array shrink invalidates a value still needed by the enclosing expression"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_growonly.goose:8:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/format_shrinks_rendered_passed.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_passed.goose:9:7: error: array shrink invalidates a value still needed by the enclosing expression"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_passed.goose:9:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/format_shrinks_rendered_prefix_array.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_prefix_array.goose:10:7: error: whole assignment replaces a variable-size value while its parts are being rendered"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_prefix_array.goose:10:7: error: array shrink invalidates a value still needed by the enclosing expression"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/format_shrinks_rendered_ref.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_ref.goose:7:7: error: array shrink invalidates a value still needed by the enclosing expression"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/format_shrinks_rendered_ref.goose:7:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/from_holder_escape.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/from_holder_escape.goose:8:19: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/from_holder_escape.goose:8:33: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/from_holder_escape.goose:8:19: error: returned reference points into this invocation's local or temporary storage"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/funval_value_slice_return.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/funval_value_slice_return.goose:5:35: error: returned reference points into this invocation's local or temporary storage",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/funval_value_slice_return.goose:7:9: error: stored reference does not outlive the storage that receives it"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/funval_value_slice_return.goose:5:35: error: returned reference points into this invocation's local or temporary storage"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/growshrink_slot_holder_rec_merge.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_slot_holder_rec_merge.goose:14:12: error: returned reference points into this invocation's local or temporary storage",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_slot_holder_rec_merge.goose:10:9: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_slot_holder_rec_merge.goose:11:9: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_slot_holder_rec_merge.goose:13:10: error: stored reference does not outlive the storage that receives it"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_slot_holder_rec_merge.goose:10:40: error: reference stored by a recursive cycle must be rooted outside every recursive activation"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/growshrink_viewslot_merged_store.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_merged_store.goose:9:60: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_merged_store.goose:9:48: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_merged_store.goose:16:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_merged_store.goose:16:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/growshrink_viewslot_store.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_store.goose:8:54: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_store.goose:8:42: error: reference into grow-shrink elements cannot be stored in a field, element, or global",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_store.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/growshrink_viewslot_store.goose:14:7: error: array shrink invalidates a reference or holder that is used afterward"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/holder_fill_array_escapes.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/holder_fill_array_escapes.goose:6:12: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/holder_fill_array_escapes.goose:6:29: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/holder_fill_array_escapes.goose:6:20: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/holder_fill_array_escapes.goose:6:12: error: returned reference points into this invocation's local or temporary storage"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/relative_result_local.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_local.goose:6:25: error: relative reference must point into the exact root that owns its destination",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_local.goose:8:21: error: pool-relative self must be constructed directly inside its named pool",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_local.goose:8:17: error: pool-relative self must be constructed directly inside its named pool"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_local.goose:6:25: error: relative reference must point into the exact root that owns its destination"
+   ]
+  ],
+  [
+   "upstream:test/errors_tc/relative_result_nonlocal_local.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_nonlocal_local.goose:7:43: error: relative reference must point into the exact root that owns its destination",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_nonlocal_local.goose:10:21: error: pool-relative self must be constructed directly inside its named pool",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_nonlocal_local.goose:10:17: error: pool-relative self must be constructed directly inside its named pool"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/errors_tc/relative_result_nonlocal_local.goose:7:43: error: relative reference must point into the exact root that owns its destination"
+   ]
+  ],
+  [
+   "upstream:test/lifetimes/literal_provenance.goose",
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/literal_provenance.goose:18:5: error: returned reference points into this invocation's local or temporary storage"
+   ],
+   [
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/literal_provenance.goose:18:22: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/literal_provenance.goose:18:13: error: stored reference does not outlive the storage that receives it",
+    "/home/user/goose-to-wasm/build/runs/k3-corpus0/upstream/test/lifetimes/literal_provenance.goose:18:5: error: returned reference points into this invocation's local or temporary storage"
+   ]
+  ]
+ ],
+ "note": "The sources of \"same messages, other places\" and \"both accept, other output\" differ from the baseline build only in state fingerprints; their names are left out here."
+}
