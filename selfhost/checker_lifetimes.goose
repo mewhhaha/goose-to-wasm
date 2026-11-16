@@ -35,13 +35,16 @@ struct LifeBody { start: i64, captures: bool = false, globals: i64 = 0, global_c
 // map_class: the classification that last gave this root a class, and the class.
 // class_parent, class_type: for a storage class of one pointee type
 // (life_class_typed), the class root whose storage it is of and the pointee;
+// class_pointee: for an argument class, the type its parameters point at
+// (the outermost, where one holds the others), or -2 where that is not one
+// type: an exact reference to the class points into a value of that type.
 // class_next: the next such root of its frame; class_level: how many such
 // classes deep it is. stored: for any class root, what its frame's body has
 // stored through it; stored_next: the next class root of the frame that has
 // been stored through, -1 at the last, -2 while this one has not. stores:
 // what life_class_stores last found for it, as of the frame's stored_version.
 // any_set: what life_class_any_set made of it for the call any_serial.
-struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1, class_parent: i64 = -1, class_type: i64 = -1, class_next: i64 = -1, class_level: i64 = 0, stored: i64 = 0, stored_next: i64 = -2, stores: i64 = 0, stores_version: i64 = -1, any_set: i64 = 0, any_serial: i64 = 0 }
+struct LifeRoot { symbol: i64 = -1, frame: i64 = -1, node: i64 = -1, type_id: i64 = -1, depth: i64 = 0, temporary: bool = false, contents: i64 = 0, live_contents: i64 = 0, atoms: i64 = -1, next_node: i64 = -1, class_frame: i64 = -1, class_index: i64 = -1, class_one: bool = false, map_serial: i64 = 0, map_class: i64 = -1, class_parent: i64 = -1, class_type: i64 = -1, class_next: i64 = -1, class_level: i64 = 0, stored: i64 = 0, stored_next: i64 = -2, stores: i64 = 0, stores_version: i64 = -1, any_set: i64 = 0, any_serial: i64 = 0, class_pointee: i64 = -1 }
 // Element owner: -1 none, -2 inside elements with unknown owner, otherwise type ID.
 struct LifeValue { type_id: i64 = -1, place: i64 = 0, refs: i64 = 0, contents: i64 = 0, self_pools: i64 = 0, relative_roots: i64 = 0, tuple: i64 = -1, element_array: i64 = -1 }
 struct LifeItem { value: LifeValue, next: i64 = -1 }
@@ -1977,6 +1980,14 @@ fn life_class_typed(l: Lifetimes&, parent: i64, pointee: i64) -> i64 {
     let own = life_single(l, root, false, root); life_set_contents(l, root, own); l.roots[root].live_contents = own;
     return root;
 }
+// Whether an exact reference to a class root may be one to `pointee`: any
+// may but one to an argument class whose parameters' type holds no such
+// value (upstream's CanContain of a binding root's pointee).
+inline fn life_class_holds(p: Program&, l: Lifetimes&, root: i64, pointee: i64) -> bool {
+    if l.roots[root].class_frame < 0 { return false; }
+    let own = l.roots[root].class_pointee;
+    return own < 0 || pointee < 0 || life_contains_memo(p, l, own, pointee);
+}
 // An alternative found in a class root's storage, as a read of `pointee`
 // takes it: the class of everything that storage holds becomes its storage
 // class of that pointee, and "something read out of this" at the storage
@@ -2000,7 +2011,7 @@ fn life_typed_held(p: Program&, l: Lifetimes&, set: i64, pointee: i64) -> i64 {
     let held = life_held(l, set); var out = LifeBuild {}; var at = l.sets[held].first; var dropped = false;
     while at >= 0 {
         let r = l.alts[at]; at = r.next;
-        if (r.target_type < 0 || life_same(p, r.target_type as i64, pointee)) && (r.root == 0 || r.byteview || !r.exact || l.roots[r.root].class_frame >= 0 || life_contains_memo(p, l, l.roots[r.root].type_id, pointee)) {
+        if (r.target_type < 0 || life_same(p, r.target_type as i64, pointee)) && (r.root == 0 || r.byteview || !r.exact || life_class_holds(p, l, r.root as i64, pointee) || life_contains_memo(p, l, l.roots[r.root].type_id, pointee)) {
             var kept = r; kept.next = -1;
             // Where the storage is a class root's own (the call is made in an
             // island and passes its parameter on), what it holds of this
@@ -2828,14 +2839,20 @@ fn life_readback(p: Program&, l: Lifetimes&, type_id: i64, places: i64) -> i64 {
         let end = l.scratch.len;
         for item in start..end {
             let r = l.scratch[item];
-            if (r.target_type < 0 || life_same(p, r.target_type, t.element)) && (r.root == 0 || r.byteview || !r.exact || l.roots[r.root].class_frame >= 0 || life_contains_memo(p, l, l.roots[r.root].type_id, t.element)) {
+            if (r.target_type < 0 || life_same(p, r.target_type, t.element)) && (r.root == 0 || r.byteview || !r.exact || life_class_holds(p, l, r.root as i64, t.element) || life_contains_memo(p, l, l.roots[r.root].type_id, t.element)) {
                 var slotread = true;
                 if root.type_id >= 0 && life_is_ref(p, root.type_id) { slotread = r.slotread; }
                 var bound = r.bound;
                 // Caller storage bounds a read-back's lifetime, while the
                 // actual referent remains available for alias/shrink checks.
                 if alt.bound > bound { bound = alt.bound; }
-                life_build_add_alt(l, result, LifeAlt { root: r.root, exact: r.exact, from: alt.root, slotread: slotread, byteview: r.byteview, target_type: r.target_type, bound: bound, component: r.component });
+                // What a class's storage holds, read as one pointee, is a
+                // reference to that pointee: a call maps it only to what the
+                // argument's storage holds that such a value can lie in
+                // (life_map_onto).
+                var target = r.target_type;
+                if target < 0 && r.exact && t.element >= 0 && l.roots[r.root].class_frame >= 0 && (l.roots[r.root].class_parent >= 0 || l.roots[r.root].class_index >= l.frames[l.roots[r.root].class_frame].class_base) { target = t.element as i32; }
+                life_build_add_alt(l, result, LifeAlt { root: r.root, exact: r.exact, from: alt.root, slotread: slotread, byteview: r.byteview, target_type: target, bound: bound, component: r.component });
             }
         }
         l.scratch.resize(start);
@@ -3621,6 +3638,20 @@ fn life_key_set(l: Lifetimes&, at: i64, classes: i64) -> LifeKeySet {
     }
     return LifeKeySet { set: life_build_end(l, out), next: cursor };
 }
+// Notes on each argument class of a parameter's set what the parameter
+// points at (LifeRoot.class_pointee); pointee < 0 for a holder's contents or
+// a destination, whose roots may be of any type.
+fn life_class_points(p: Program&, l: Lifetimes&, set: i64, classes: i64, n: i64, pointee: i64) {
+    var at = l.sets[set].first;
+    while at >= 0 {
+        let root = l.alts[at].root as i64; at = l.alts[at].next;
+        if root < classes || root >= classes + n { continue; }
+        let old = l.roots[root].class_pointee;
+        if pointee < 0 || old == -2 { l.roots[root].class_pointee = -2; }
+        else if old == -1 || life_contains(p, l, pointee, old) { l.roots[root].class_pointee = pointee; }
+        else if !life_contains(p, l, old, pointee) { l.roots[root].class_pointee = -2; }
+    }
+}
 // A new frame for the key in key_scratch: its class roots, the arguments
 // its parameters are bound to, and the place its body builds a result in.
 // After the classes of the arguments come, class for class, what their
@@ -3649,13 +3680,16 @@ fn life_class_new(p: Program&, l: Lifetimes&, function_node: i64, call: i64, sel
         if kind != 0 {
             let record = life_key_set(l, cursor, classes); cursor = record.next;
             if kind == 1 { value.refs = record.set; } else { value.contents = record.set; }
+            var pointee = -1; let ft = p.nodes[formal].type_id;
+            if kind == 1 && ft >= 0 && life_is_ref(p, ft) { pointee = p.types[ft].element; }
+            life_class_points(p, l, record.set, classes, n, pointee);
         }
         inputs = life_append(l, inputs, value); formal = p.nodes[formal].next;
     }
     var place = life_root_set(l, classes + n - 1); var result_class = n - 1;
     if receiver_sensitive {
         let kind = l.class_keys[cursor]; cursor += 1; place = 0; result_class = -1;
-        if kind != 0 { let record = life_key_set(l, cursor, classes); cursor = record.next; place = record.set; }
+        if kind != 0 { let record = life_key_set(l, cursor, classes); cursor = record.next; place = record.set; life_class_points(p, l, place, classes, n, -1); }
     }
     l.frames.push(LifeFrame { function_node: function_node, parent: l.frame, lexical: 0, call: call, inputs: inputs, base: base, selected_result: selected_result, next_function: newest, home: l.frame,
         island: target, classes: classes, class_count: 3 * n, class_base: n, key: key, key_len: c.key_len, key_hash: c.hash, class_destination: place, result_class: result_class });
@@ -3681,12 +3715,22 @@ inline fn life_elsewhere(l: Lifetimes&, root: i64) -> bool {
 // Adds to a build what alternative x of a class root becomes over the
 // alternatives the class stands for (`source`). read: x was read out of the
 // class's storage, and the alternatives are what that storage holds.
-fn life_map_onto(l: Lifetimes&, out: LifeBuild&, source: i64, x: LifeAlt, bound: i64, read: bool) {
+// want: where x is an exact reference to a `want` that a storage class
+// holds, only what such a value can lie in is taken: what the argument's
+// storage holds a reference to (or the root, or an argument class's
+// parameters' type, where the reference's own type is not known) must hold
+// one inline. -1: everything.
+fn life_map_onto(p: Program&, l: Lifetimes&, out: LifeBuild&, source: i64, x: LifeAlt, bound: i64, read: bool, want: i64 = -1) {
     let exact = x.exact || read; var ai = l.sets[source].first;
     while ai >= 0 {
         let a = l.alts[ai]; ai = a.next;
+        if want >= 0 && a.exact && !a.byteview && a.root != 0 {
+            var within = a.target_type as i64;
+            if within < 0 { if l.roots[a.root].class_frame >= 0 { within = l.roots[a.root].class_pointee; } else { within = l.roots[a.root].type_id; } }
+            if within >= 0 && !life_contains_memo(p, l, within, want) { continue; }
+        }
         var slotread = x.slotread; if x.exact { slotread = a.slotread && x.slotread; }
-        var target = x.target_type; if target < 0 { target = a.target_type; } else if a.target_type >= 0 && a.target_type != target { target = -1; }
+        var target = x.target_type; if target < 0 { target = a.target_type; } else if want < 0 && a.target_type >= 0 && a.target_type != target { target = -1; }
         var component: i32 = -1; if exact { component = a.component; if component < 0 && x.exact { component = x.component; } }
         var from: i32 = -1; if read && a.from == a.root && l.roots[a.root].class_frame >= 0 { from = a.from; }
         life_build_add_alt(l, out, LifeAlt { root: a.root, exact: a.exact && exact, from: from, slotread: slotread, byteview: a.byteview || x.byteview, target_type: target, bound: bound as i32, component: component });
@@ -3745,7 +3789,8 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored:
                 var held = life_typed_set(p, l, m.classes, m.base, m.sets, m.serial, x.root); fresh = false;
                 if !x.exact && x.from == x.root { held = life_held(l, held); }
                 else if !x.exact { held = life_deep(l, held); }
-                life_map_onto(l, out, held, x, 0, !x.exact);
+                var want: i64 = -1; if x.exact { want = x.target_type as i64; }
+                life_map_onto(p, l, out, held, x, 0, !x.exact, want);
                 continue;
             }
             // A root of the callee's own island (a temporary a result was
@@ -3770,7 +3815,8 @@ fn life_map_set(p: Program&, l: Lifetimes&, set: i64, m: const LifeMap&, stored:
         }
         // A plain reference to a large set is that set: joined whole below.
         if x.exact && x.slotread && !x.byteview && x.target_type < 0 && x.component < 0 && bound == 0 && l.sets[source].count >= LIFE_BIG { whole.push(source); continue; }
-        life_map_onto(l, out, source, x, bound, read);
+        var want: i64 = -1; if k >= m.base && x.exact && !read { want = x.target_type as i64; }
+        life_map_onto(p, l, out, source, x, bound, read, want);
     }
     var result = life_build_end(l, out);
     for large in whole { result = life_join(l, large, result); }
