@@ -110,11 +110,11 @@ fn layout(negative: bool, digits: &str, exponent: i32) -> String {
         text.push_str(&format!("{:02}", exponent.unsigned_abs()));
     } else if exponent < 0 {
         text.push_str("0.");
-        text.extend(std::iter::repeat('0').take((-exponent - 1) as usize));
+        text.extend(std::iter::repeat_n('0', (-exponent - 1) as usize));
         text.push_str(digits);
     } else if count <= exponent + 1 {
         text.push_str(digits);
-        text.extend(std::iter::repeat('0').take((exponent + 1 - count) as usize));
+        text.extend(std::iter::repeat_n('0', (exponent + 1 - count) as usize));
         text.push_str(".0");
     } else {
         let whole = (exponent + 1) as usize;

@@ -47,6 +47,8 @@ COMPILER = Path(__import__('os').environ.get('GOOSE_COMPILER', ROOT / 'build/bin
 STDLIB = ROOT / "build/bin/stdlib"
 # The stdlib in the tree: what the compiler's own sources and the examples import.
 SOURCE_STDLIB = ROOT / "stdlib"
+# The Rust Wasmtime host, once built (cargo build --release in host/rust).
+RUST_HOST = ROOT / "host/rust/target/release/goose-wasmtime"
 
 
 @unittest.skipUnless(COMPILER.is_file(), "bootstrap the compiler first")
@@ -224,20 +226,34 @@ class WasmMemory64(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def run_module(self, engine, module, *arguments):
-        command = ["node", ROOT / "scripts/run_wasm.mjs", module] if engine == "v8" else [sys.executable, ROOT / "scripts/run_wasmtime.py", module]
-        return subprocess.run(list(map(str, [*command, *arguments])), cwd=ROOT, capture_output=True, stdin=subprocess.DEVNULL)
+        command = {"v8": ["node", ROOT / "scripts/run_wasm.mjs"], "wasmtime": [sys.executable, ROOT / "scripts/run_wasmtime.py"], "rust": [RUST_HOST]}[engine]
+        return subprocess.run(list(map(str, [*command, module, *arguments])), cwd=ROOT, capture_output=True, stdin=subprocess.DEVNULL)
 
     def test_examples_print_the_same(self):
+        engines = ["v8", "wasmtime"] + (["rust"] if RUST_HOST.is_file() else [])
         for example in ("squares", "sorting", "tour"):
             narrow, wide = self.work / f"{example}.32.wasm", self.work / f"{example}.64.wasm"
             self.emit(f"examples/{example}.goose", narrow)
             self.emit(f"examples/{example}.goose", wide, "--wasm-memory64")
             expected = self.run_module("v8", narrow)
             self.assertEqual(expected.returncode, 0, expected.stderr)
-            for engine in ("v8", "wasmtime"):
-                with self.subTest(example=example, engine=engine):
-                    observed = self.run_module(engine, wide)
-                    self.assertEqual((observed.returncode, observed.stdout), (0, expected.stdout), observed.stderr)
+            for engine in engines:
+                for module in (narrow, wide) if engine == "rust" else (wide,):
+                    with self.subTest(example=example, engine=engine, module=module.name):
+                        observed = self.run_module(engine, module)
+                        self.assertEqual((observed.returncode, observed.stdout), (0, expected.stdout), observed.stderr)
+
+    @unittest.skipUnless(RUST_HOST.is_file(), "build the Rust host first: cargo build --release in host/rust")
+    def test_rust_host_reports_errors_as_the_python_runner(self):
+        source = self.work / "fails.goose"
+        source.write_text("fn main() { var a: i64[>..] = []; a.push(1); print(a[0]); print(a[3]); }\n")
+        for memory in ([], ["--wasm-memory64"]):
+            with self.subTest(memory=memory):
+                module = self.work / "fails.wasm"
+                self.emit(source, module, *memory)
+                first, second = self.run_module("rust", module), self.run_module("wasmtime", module)
+                self.assertEqual((first.returncode, first.stdout, first.stderr), (second.returncode, second.stdout, second.stderr))
+                self.assertEqual(first.returncode, 1)
 
     def test_page_limits(self):
         # 65,536 pages is all a 32-bit memory can declare; a 64-bit one takes more.
@@ -316,8 +332,11 @@ class WasmMemory64(unittest.TestCase):
         self.emit("selfhost/main.goose", module, *options)
         profile = self.work / "goose64.profile"
 
+        # Under Wasmtime: through the Rust host when it is built, else the Python runner.
+        wasmtime_host = [RUST_HOST] if RUST_HOST.is_file() else [sys.executable, ROOT / "scripts/run_wasmtime.py"]
+
         def hosted(*arguments, **environment):
-            command = [sys.executable, ROOT / "scripts/run_wasmtime.py", module, "--cache", cache, "--", *arguments]
+            command = [*wasmtime_host, module, "--cache", cache, "--", *arguments]
             return subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True, stdin=subprocess.DEVNULL,
                                   env=dict(__import__("os").environ, **environment))
 

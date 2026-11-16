@@ -580,7 +580,10 @@ fn monotonic_ns() -> i64 {
     let mut time = libc::timespec { tv_sec: 0, tv_nsec: 0 };
     // SAFETY: clock_gettime fills the timespec it is given.
     unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut time) };
-    time.tv_sec as i64 * 1_000_000_000 + time.tv_nsec as i64
+    // The fields are narrower than 64 bits on some targets.
+    #[allow(clippy::unnecessary_cast)]
+    let (seconds, nanoseconds) = (time.tv_sec as i64, time.tv_nsec as i64);
+    seconds * 1_000_000_000 + nanoseconds
 }
 
 fn wall_ns() -> i64 {

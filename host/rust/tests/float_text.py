@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.dont_write_bytecode = True  # nothing of this test's is left in scripts/
 sys.path.insert(0, str(HERE.parents[2] / "scripts"))
 from run_wasmtime import goose_float  # noqa: E402
 

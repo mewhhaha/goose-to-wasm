@@ -345,83 +345,34 @@ literals with a repetition count check it against 2^62 - 1 instead of
 2^32 - 1, and its product with the element size before it is formed. What an
 array may hold is then its region's size.
 
-Both supplied hosts take either kind of module. They provide the stdlib's
-`os` imports, and pass the words after `--` to the program as its arguments:
+Three hosts are supplied, and each takes either kind of module:
+`scripts/run_wasm.mjs` (V8, through Node), `host/rust` (Wasmtime, a Rust
+program; `cargo build --release` there gives
+`host/rust/target/release/goose-wasmtime`) and `scripts/run_wasmtime.py`
+(Wasmtime, through its Python package, which the test and benchmark harnesses
+use). They provide the stdlib's `os` imports and pass the words after `--` to
+the program as its arguments. The two Wasmtime hosts print the same bytes,
+errors included; the Rust one starts in 0.04 s where Python takes 0.2 s.
 
 ```sh
 goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 4194304 -o goose64.wasm
-python scripts/run_wasmtime.py goose64.wasm --cache goose64.cwasm -- program.goose --stdlib stdlib -o program.wasm
+host/rust/target/release/goose-wasmtime goose64.wasm --cache goose64.cwasm -- program.goose --stdlib stdlib -o program.wasm
 ```
 
 `--cache` keeps Wasmtime's compiled module beside the SHA-256 of the module
-it came from and reuses it for the same bytes.
+it came from and reuses it for the same bytes. The Rust host and the Python
+runner each need a cache file of their own.
 
-Hosts must provide matching signatures and semantics for remaining imports. The supplied hosts
-include input, timing, and barrier functions used by the tests and benchmarks.
-`scripts/run_wasm.mjs` also supplies the stdlib's `os` files, streams, arguments,
-environment and clock, std's byte-set searches, and a libc `system` that fails:
-enough to run the compiler itself as a module,
-`node scripts/run_wasm.mjs goose.wasm -- source.goose --target wasm-direct -o out.wasm`.
-A module given program arguments after `--` runs on a worker with a 256 MiB
-stack, since the compiler recurses over its syntax trees further than V8's
-main-thread stack allows. The Wasmtime hosts do not supply these imports yet.
-Arbitrary external native libraries are not loaded into a Wasm module.
+For V8, whose 64-bit memory ends at 16 GiB, the compiler needs its regions
+sized by a profile (see the regions above); the same profile lets the 32-bit
+module compile the compiler:
 
-Internal functions can return fixed arrays, structs, enums and variant payloads, including recursion and
-mixed scalar/aggregate multiple results. The caller reserves each owned result's
-storage and passes a hidden i32 destination parameter. The callee captures result
-expressions in order and copies owned results before releasing its frame. The
-ordinary i32 result is the caller-owned address. Aggregate extern/public exports
-remain refused until an explicit host ABI is provided.
-
-Static-capacity limited arrays `T[..k]` are packed fixed owned values with the
-smallest unsigned live-length field followed by inline capacity slots. Their
-alignment is one, without inter-field or trailing padding.
-Capacity is part of the type. Their views contain the element address and live
-length; copying/assignment/parameters/results retain the existing fixed-value
-ownership rules. Mutations evaluate the receiver once before their arguments,
-then read its current length. Capacity/count/fill checks precede writes, and
-`append` supports overlapping views. `push` returns a stable element reference.
-Positive-capacity limited arrays can nest in supported fixed values. Standalone
-capacity-zero values allocate one unused C element slot; zero-capacity fields and
-elements remain frontend-invalid. Allocation storage is distinct from their
-encoded image extent. See [compact static arrays](STATIC_LIMITED_IMAGES.md).
-
-Sequence loops retain their location recipe: index expressions and calls on
-the path run once, while reference/slice links and live lengths are reread as
-iteration proceeds. Replacing a limited-array or slice slot can shorten the
-remaining iteration. Bounds expressions on an index/slice capture their view
-before side effects, following the pinned emitter's ordering. Indexing an outer
-slice pins its element base as the native emitter does; the indexed row's live
-length still changes when that slot is replaced.
-
-Enum tags use one byte for up to 256 variants and two bytes above that.
-Fixed-mode enums concatenate that tag with the largest packed payload, without
-trailing padding. Empty alternatives take no payload bytes behind the tag;
-standalone empty variants retain a one-byte value placeholder. Variant-to-enum
-conversion initializes fresh tagged storage and copies only encoded payload
-bytes. Field representations such as wasm32 references and static-limited
-headers still retain their own target-specific layouts.
-
-Fixed enums and variants have the same owned parameter/result and snapshot
-rules as other aggregates. Matches evaluate the scrutinee once and copy a
-selected payload into its by-value binding before executing the arm. References
-to fixed enums may be matched, but references into replaceable fixed-enum
-payloads are prohibited by the frontend. A fixed standalone variant can be used
-even when another variant of its enum requires unsupported dynamic storage.
-
-Nonresizable variable-mode enums with supported fixed or single-tail payloads own
-one stable region containing the compact tag and active payload only. Separately
-aligned owner controls hold the common 24-byte header and a persistent control
-slot for each nonfixed variant. No inactive payload data is reserved. Copies move
-active image bytes; fixed receiving values use fixed snapshots. Borrowed payload
-views retain their own typed offsets through named replacement. Normal/tuple
-result staging, final-annotation-aware variant adapters and compact cleanup
-guards follow the [enum image contract](VARIABLE_ENUMS.md). Resource bounds cover
-active extents and the separate control envelope. Only proved integer payload
-images admit nonempty replacement observations through saved old typed views;
-other representation-sensitive shapes retain their gate.
-See [the enum contract](VARIABLE_ENUMS.md).
+```sh
+goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-region-stats --wasm-max-pages 4194304 -o stats.wasm
+GOOSE_REGION_PROFILE=goose.profile host/rust/target/release/goose-wasmtime stats.wasm -- selfhost/main.goose --stdlib stdlib --check
+goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 262144 --wasm-region-profile goose.profile -o goose-v8.wasm
+node scripts/run_wasm.mjs goose-v8.wasm -- program.goose --stdlib stdlib -o program.wasm
+```
 
 ## Initial supported fragment
 
