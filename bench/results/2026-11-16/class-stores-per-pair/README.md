@@ -80,6 +80,8 @@ Each was built and run on blot2; "ends" means the first discovery pass ended.
 | candidates kept in the body and stripped from what a store stores, directly and where a call maps an argument | no change on blot2 (107 sets in 38,000 class frames had a recognizable candidate: a projection clears the mark), and `test/errors_tc/shrink_class_copy_kept_own.goose` is accepted, because the body's own shrink check needs the reference |
 | no smaller limit on typed classes under pressure, 8 GiB regions | stopped at 12.8 GiB resident, 19,000 frames in: 234 M alternatives, 48 to a set. A root per pointee type cannot be how this program gets its types |
 
+| *(after `d26f33c`)* each store effect carries the type stored and a summary keeps the set of them for its place, 8 at most | 1,680 errors (1,681), 65.3 M alternatives: no change. The source of this variant is not kept in the repository; it is described under "After `d26f33c`" |
+
 The last row against the committed one is the trade made: 291 fewer blot2 errors for 58 false errors on a program the class path can otherwise check exactly. Given point 1 above, exactness on programs where the answer is known won.
 
 ## Later the same day: filtering by type where a call maps (`3ddf811`)
@@ -139,9 +141,22 @@ Upstream's three tests that pin the rule, `test/errors_tc/store_reached_table.go
 
 What remains ([by first statement](runs/store-origins-d26f33c.txt), [by kind](runs/store-kinds-d26f33c.txt)): 1,351 of 1,725 refused stores still store an argument class of the calling function, exactly, into "something in global storage". These are no longer candidates. They are the case traced at the top of this page: a view struct that really holds a reference to the caller's parameter, and a callee's store of "what the view's storage holds" into "what the view's storage holds", which a call maps to every pair of the two. The reached-type filter on the place (in "Tried and not kept", too costly as built) is what tells those pairs apart.
 
+### After `d26f33c`: what a store's destination should be
+
+Two more runs on `d26f33c`, and one more reading of upstream, say where the remaining errors are decided.
+
+- **Seen from the callee** ([table](runs/store-via-d26f33c.txt), [tools/dbgvia.py](tools/dbgvia.py); the instrument does not disturb this version, 1,720 refusals with and without it): the destination is a storage class in 1,509 of 1,720 refused stores, the untyped one in 1,059. The alternative that becomes the refused source is a storage class whose **target type is not known** in nearly every case: a struct copied out of a parameter's storage carries everything that storage holds, untyped, so the filter by target type has nothing to go by.
+- **One set of reached types per place changes nothing**: 1,680 errors instead of 1,681, with the same alternatives. Each store effect carried the type stored, a summary kept the union for its place (8 types at most, else "any"), and a mapped place took the store only in roots that can hold one of them. The untyped storage class is the place of stores of every type, so its set is "any" at once. What helped in the per-type variant of "Tried and not kept" was that each type kept its own stored values, not the filter alone.
+- **Upstream does not land a store in everything the argument's storage holds.** `ApplyCalleeStores` (`typecheck_builtins.h`, from 1788) takes, for a store through a reference read out of a parameter, `ShrinkTargets` of the argument's roots: **the argument's own root, as a bound**, and the candidates for the *reached* type, which is the type of the storage the slot lies in as the destination reached it (the pointee of the last reference crossed). And it checks depths at the call only for such a widened destination; for an exact one the body's check stands, because the key holds the classes' order by depth.
+
+Here a storage class as a place maps to every root the argument's storage holds a reference to: for a struct of pooled tables, every global pool it has a slice of. A value that is not global is then refused against each of them. The design that follows from upstream:
+
+1. A store effect into a class root carries the reached type, read off the destination expression (the element type of the innermost reference or slice the lvalue goes through; none where it goes through none). Summaries are kept per place and reached type, which is few types per place: every store into any field of a `Store` reached through a reference has reached type `Store`.
+2. Where a call maps a storage class that is a store's place, the store lands in the argument's roots (as a place that only bounds, so reads through the argument see it) and in the roots the argument's storage holds *that can hold the reached type inline*, instead of in all of them. A pool of numbers or of other structs cannot hold a `Store`.
+
 ## Not right yet
 
-- **blot2's 1,681 errors** (`d26f33c`), as described above. The next step is the type a store reaches: a mapped store through "what this argument's storage holds" should land only where the reached type can be, with one summary per place and a small set of reached types on it rather than a summary per type.
+- **blot2's 1,681 errors** (`d26f33c`), as described above. The next step is under "After `d26f33c`: what a store's destination should be".
 - **The 33 corpus sources where the class path misses an error**, unchanged.
 - **Memory.** 65.4 M alternatives of 79.5 M after one pass; later passes and validation have not run. The 2 GiB is `GS_STACK_RESERVE`, the address space the runtime reserves per region, and a C compiler flag raises it (the 8 GiB runs above). Upstream's compiler has `--stack-reserve` for this, and since `707c546` so has this one ([qualification](runs/qualification-707c546.json): the generated C is unchanged without the option; a program that resizes one array to 300 M `i64` overflows as built before and runs with `--stack-reserve 8G`). The compiler's own bootstrap still uses the default.
 - **Peak RSS is 7.3 GiB** for the one pass.

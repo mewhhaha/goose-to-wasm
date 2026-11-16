@@ -1,0 +1,47 @@
+Refused stores of blot2's first pass at d26f33c, from the callee's side (tools/dbgstore2.py 1 + tools/dbgvia.py, tools/viacats.py):
+which of the callee's own alternatives map, at the refusing call, to the refused source and to the destination.
+A store can have several such alternatives; '~' is 'reached from'.
+
+1720 refused stores
+callee source alternatives by whether their target type is known:
+ 1212  typed storage class~, target type unknown
+ 1212  storage class 2~, target type unknown
+ 1174  storage class 1, target type unknown
+  543  argument class, target type unknown
+  288  typed storage class~ (read out of itself), target type unknown
+  136  storage class 2~, target type known
+  113  storage class 1, target type known
+   68  typed storage class~, target type known
+   62  typed storage class, target type known
+   41  typed storage class~ (read out of itself), target type known
+   39  argument class, target type known
+    8  argument class~, target type unknown
+callee alternative that maps to the refused source:
+  632  storage class 1 + storage class 2~
+  226  argument class
+  192  storage class 1 + storage class 2~ + typed storage class~
+  126  argument class + storage class 1 + storage class 2~
+  102  argument class + storage class 1 + storage class 2~ + typed storage class~
+   91  argument class + typed storage class~
+   70  storage class 1 + storage class 2~ + typed storage class~ (read out of itself)
+   54  typed storage class
+   52  typed storage class~
+   36  storage class 1 + storage class 2~ + typed storage class~ + typed storage class~ (read out of itself)
+callee alternative that maps to the destination:
+  767  storage class 1
+  450  typed storage class
+  292  storage class 2
+  116  argument class
+   70  static or folded globals
+   25  named root depth 0
+pairs:
+  424  storage class 1 + storage class 2~  ->  storage class 1
+  158  argument class  ->  storage class 1
+  108  storage class 1 + storage class 2~ + typed storage class~  ->  storage class 2
+   98  argument class + storage class 1 + storage class 2~  ->  storage class 1
+   76  storage class 1 + storage class 2~  ->  typed storage class
+   66  storage class 1 + storage class 2~  ->  storage class 2
+   66  argument class + storage class 1 + storage class 2~ + typed storage class~  ->  typed storage class
+   51  argument class + typed storage class~  ->  typed storage class
+   45  storage class 1 + storage class 2~ + typed storage class~  ->  typed storage class
+   43  argument class  ->  typed storage class
