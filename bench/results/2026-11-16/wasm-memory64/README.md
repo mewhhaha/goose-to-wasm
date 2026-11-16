@@ -79,7 +79,7 @@ Decisions, with what was not kept:
 - **A switch, not a replacement.** V8 checks 64-bit bounds explicitly, and the 10,049 unchanged outputs were the safety net for the rewrite.
 - **Not kept: the runtime-limited array's prefix as two u32.** One converted stretch kept the 8-byte prefix and trapped on counts above 2^32; the readers in two other stretches had made it two address-sized words. The words won, to keep one rule for every structure the backend lays out.
 - **Not kept: refusing more than 262,144 pages in the compiler.** That is V8's cap. The driver takes up to 2^32 pages and the engine says what it holds.
-- **Kept for now: 32-bit element counts.** `push`, `append`, `resize`, `reserve` and repetition literals still check a count against 2^32 - 1 and one array's buffer against 4 GiB, because the products they guard were written for 32-bit counts. A slice's count is 64 bits.
+- **Kept for now: 32-bit element counts.** `push`, `append`, `resize` and repetition literals still check a count against 2^32 - 1 and one array's buffer against 4 GiB, because the products they guard were written for 32-bit counts. A slice's count is 64 bits.
 - **A function value is still one i64** with its environment's address in 32 bits. Environments are in activation frames, at the bottom of memory.
 
 ## How the rewrite was done

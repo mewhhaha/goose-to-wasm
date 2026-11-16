@@ -1,0 +1,28 @@
+[package]
+name = "goose-wasmtime"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.97.0"
+description = "Runs direct Goose WebAssembly modules with Wasmtime"
+license = "Apache-2.0"
+publish = false
+
+[[bin]]
+name = "goose-wasmtime"
+path = "src/main.rs"
+
+[lib]
+name = "goose_wasmtime"
+path = "src/lib.rs"
+
+[dependencies]
+libc = "0.2"
+sha2 = "0.10"
+
+# The same Wasmtime as requirements.txt pins for scripts/run_wasmtime.py.
+# `gc` and `gc-drc` are what Config::wasm_exceptions needs; `demangle` keeps a
+# trap's backtrace spelled as the C API (and so the Python runner) spells it.
+[dependencies.wasmtime]
+version = "=50.0.1"
+default-features = false
+features = ["cranelift", "runtime", "parallel-compilation", "gc", "gc-drc", "demangle"]
