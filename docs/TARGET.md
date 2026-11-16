@@ -211,19 +211,37 @@ that stay on the heap backend, for example because a component's elements own
 storage, keep each component as its own heap image.
 
 Regions partition the memory budget remaining after final static allocation.
-For maximum bytes `M`, aligned static end `S` and region count `R > 0`, each data
-region receives `B = align_down((M-S)/(R+1), 8)` bytes. Activation frames and
-scratch occupy `[S, M-R*B)`, followed by the `R` stable regions. This is a
-documented per-owner resource limit, independent of language array capacity.
-Increasing `--wasm-max-pages` increases these budgets. Fixed-only modules retain
-the previous unpartitioned activation budget.
+For maximum bytes `M`, aligned static end `S` and region count `R > 0`, let
+`B = align_down((M-S)/(R+1), 8)`. Activation frames and scratch occupy
+`[S, M-R*B)`. The `R` stable regions divide the `R*B` bytes after it by weight.
+Without a profile every weight is the same and each region is `B` bytes. With
+`--wasm-region-profile FILE`, lines of `index bytes` that say what a region was
+seen to need, region `i`'s weight is its bytes plus the mean of all of them, so
+that a region the profile does not name still gets an average share. A
+region's size is a documented per-owner resource limit, independent of
+language array capacity. Increasing `--wasm-max-pages` increases these budgets.
+Fixed-only modules retain the previous unpartitioned activation budget.
+
+The region table is static data: `R+1` address-sized words, where each region
+starts and, last, where memory ends. Global 9 holds its address. A region
+closes with three address-sized words: its cursor, its start, and its
+high-water mark. A control's limit, its third word, is the address of those
+words, so the cursor of an array's region is one load away whatever the
+region's size.
+
+`--wasm-region-stats` makes the module keep the high-water marks and export
+`goose.region_table` (the table's address) and `goose.region_count`. Both hosts
+then print the largest with `GOOSE_REGION_STATS=1` and write all of them as a
+profile with `GOOSE_REGION_PROFILE=path`. A profile says what one run needed:
+take it from a run where memory is plentiful (Wasmtime, a large
+`--wasm-max-pages`) and use it where it is not (V8's 16 GiB, or 32-bit).
 
 Acquisition, growth, frames and scratch check their limits before writes;
 successful `memory.grow` does not permit crossing a partition boundary. Released
-regions are reused, while linear-memory pages remain allocated. The C++
+regions are reused, while linear-memory pages remain allocated. Acquiring a
+region grows memory to the region's end, where its three words are. The C++
 compiler published the partition in a `goose.regions` custom section; this
-compiler emits none. A host that needs the cursor table finds it through the
-three exported region words described under the host interface below.
+compiler emits none.
 
 The module defines fresh, zero-initialized memory. Static allocations retain
 their full logical size, but data segments contain only initialized nonzero
@@ -272,18 +290,15 @@ address. It returns numbers and booleans. Other parameter and result types are
 refused. An `extern "library" { ... }` declaration is an import like any other:
 no library is loaded into a Wasm module, and the host stands for it.
 
-A reference to a growable array is the address of its 24-byte control. A host
-appends to a growable byte array through it (the stdlib's `os.read_file`, `arg`
-and `env` hand one over as their output): the bytes go at the cursor of the
-array's region, and the control's length (its second u32) and the cursor both
-move by their count. A module with an import that takes a reference exports
-three i32 globals for this: `goose.region_base`, the address of the first
-region; `goose.region_bytes`, the size of each; and `goose.region_cursors`, the
-address of the cursor table, one u32 a region. The region of a control whose
-limit (its third u32) is `limit` has its cursor at
-`region_cursors + 4 * ((limit - region_base) / region_bytes - 1)`. The host
-checks the bytes fit below `limit` and grows memory to hold them. This is the
-internal control layout, exported as it is; it changes with it.
+A reference to a growable array is the address of its control. A host appends
+to a growable byte array through it (the stdlib's `os.read_file`, `arg` and
+`env` hand one over as their output) with the function a module that has such
+an import exports: `goose.reserve(control, count) -> address`. It makes room
+for `count` more bytes at the end of the array, as a `push` in the program
+would (length, region cursor, memory, the same checks and the same runtime
+errors), and returns where they go; the host copies them there. Control and
+count are addresses: i32, or i64 with 64-bit memory. A host needs to know
+nothing of controls or regions.
 
 `hardware_threads()` is 1: the direct host ABI runs one thread of Goose code.
 
@@ -301,7 +316,7 @@ the option:
 | a slice in memory | 8 bytes | 16 bytes: pointer at +0, count at +8 |
 | a growable array's control | six u32 words, 24 bytes | the same six words as u64, 48 bytes |
 | a runtime-limited array's image prefix | u32 capacity, u32 length | u64 capacity, u64 length |
-| the region cursor table | one u32 a region | one u64 a region |
+| the region table and a region's three closing words | u32 | u64 |
 | a function value | i64: function number low, environment address high | the same |
 | `--wasm-max-pages` at most | 65,535 | 4,294,967,296 (2^48 bytes) |
 
@@ -314,22 +329,21 @@ The host interface follows the address type. `goose.write` and `goose.abort`
 take the pointer as an i64 and the length (and line) as i32;
 `goose.format_f32`/`format_f64` take the buffer as an i64. An import takes a
 reference as an i64. A v128 cannot cross to a host, so an import takes a
-slice as two i64 parameters, pointer then count. The exported region words
-are i64 globals, and the cursor of a control whose limit is `limit` is at
-`region_cursors + 8 * ((limit - region_base) / region_bytes - 1)`. The
-`goose.direct` section says `memory=wasm64`.
+slice as two i64 parameters, pointer then count. `goose.reserve` takes and
+returns i64. The `goose.direct` section says `memory=wasm64`.
 
 Engines: V8 needs `--experimental-wasm-memory64` before 13.3
 (`scripts/run_wasm.mjs` sets it) and refuses a declared maximum above 262,144
 pages, 16 GiB. Wasmtime has no such cap; `scripts/run_wasmtime.py` reserves
 1 TiB of address space for a program given arguments, so that growing never
-moves the memory. Data regions are still equal shares of the declared
-maximum, which is the reason to declare a large one: only touched pages cost
-memory.
+moves the memory. Data regions are shares of the declared maximum, which is
+the reason to declare a large one where the engine allows it: only touched
+pages cost memory. Where it does not, a region profile sizes the shares.
 
-What 64-bit memory does not lift yet: one growable array's element count is
-still checked against 2^32 - 1 in `push`, `append`, `resize`, `reserve` and in
-literals with a repetition count, and its buffer against 4 GiB.
+An array's element count is 64 bits too: `push`, `append`, `resize` and
+literals with a repetition count check it against 2^62 - 1 instead of
+2^32 - 1, and its product with the element size before it is formed. What an
+array may hold is then its region's size.
 
 Both supplied hosts take either kind of module. They provide the stdlib's
 `os` imports, and pass the words after `--` to the program as its arguments:

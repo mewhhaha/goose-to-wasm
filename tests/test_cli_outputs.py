@@ -9,6 +9,40 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def declared_locals(module):
+    """The number of locals each function body of a Wasm module declares."""
+    data = Path(module).read_bytes()
+
+    def unsigned(at):
+        value = shift = 0
+        while True:
+            byte = data[at]
+            at += 1
+            value |= (byte & 0x7F) << shift
+            shift += 7
+            if byte < 0x80:
+                return value, at
+
+    at, counts = 8, []
+    while at < len(data):
+        section = data[at]
+        size, at = unsigned(at + 1)
+        if section == 10:
+            bodies, cursor = unsigned(at)
+            for _ in range(bodies):
+                length, cursor = unsigned(cursor)
+                groups, inner = unsigned(cursor)
+                total = 0
+                for _ in range(groups):
+                    count, inner = unsigned(inner)
+                    inner += 1
+                    total += count
+                counts.append(total)
+                cursor += length
+        at += size
+    return counts
 COMPILER = Path(__import__('os').environ.get('GOOSE_COMPILER', ROOT / 'build/bin/goose'))
 STDLIB = ROOT / "build/bin/stdlib"
 # The stdlib in the tree: what the compiler's own sources and the examples import.
@@ -159,6 +193,13 @@ class WasmHostedCompiler(unittest.TestCase):
         first, second = self.hosted("--version"), self.native("--version")
         self.assertEqual((first.returncode, first.stdout), (0, second.stdout))
 
+    def test_locals_are_reused(self):
+        # A local for every temporary gave the largest function 23,905 of them
+        # and the module 1.37 million; sharing indexes leaves about 1,200 and 96,000.
+        counts = declared_locals(self.module)
+        self.assertLess(max(counts), 4000)
+        self.assertLess(sum(counts), 300000)
+
 
 @unittest.skipUnless(COMPILER.is_file() and __import__('shutil').which('node') and importlib.util.find_spec("wasmtime"),
                      "bootstrap the compiler first; needs node and the wasmtime package")
@@ -207,13 +248,78 @@ class WasmMemory64(unittest.TestCase):
         observed = self.run_module("v8", self.work / "large.wasm")
         self.assertEqual((observed.returncode, observed.stdout), (0, b"sum=140\n"), observed.stderr)
 
+    def test_more_than_32_bits_of_elements(self):
+        try:
+            available = int(re.search(r"MemAvailable:\s+(\d+)", Path("/proc/meminfo").read_text()).group(1))
+        except (OSError, AttributeError):
+            available = 0
+        if available < 8 * 1024 * 1024:
+            self.skipTest("needs 8 GiB of free memory")
+        source = self.work / "large.goose"
+        source.write_text("""fn main() {
+    var a: u8[>..] = [];
+    a.resize(4294967296 + 16, 7);
+    print(len(a)); print(a[4294967300] as i64);
+    a.push(9); a.append("xyz");
+    print(len(a)); print(a[4294967313] as i64);
+    let tail = a[4294967296..];
+    print(len(tail));
+}
+""")
+        # 32 bits of memory cannot hold it and say so; 64 bits do.
+        self.emit(source, self.work / "large32.wasm", "--wasm-max-pages", "65535")
+        refused = self.run_module("wasmtime", self.work / "large32.wasm")
+        self.assertEqual(refused.returncode, 1)
+        self.assertIn(b"array length overflow", refused.stderr)
+        self.emit(source, self.work / "large64.wasm", "--wasm-memory64", "--wasm-max-pages", "262144")
+        observed = self.run_module("wasmtime", self.work / "large64.wasm", "--")
+        self.assertEqual((observed.returncode, observed.stdout), (0, b"4294967312\n7\n4294967316\n120\n20\n"), observed.stderr)
+
+    def test_region_profile(self):
+        # Eight arrays live at once in 96 pages: an equal share is 699 KB, and
+        # one array needs 2 MB. A profile of what each region held, taken where
+        # there is room, gives that one the share it needs.
+        source = self.work / "uneven.goose"
+        source.write_text("""fn main() {
+    var a: i64[>..] = []; var b: i64[>..] = []; var c: i64[>..] = []; var d: i64[>..] = [];
+    var e: i64[>..] = []; var g: i64[>..] = []; var h: i64[>..] = []; var big: i64[>..] = [];
+    for i in 250000 { big.push(i); }
+    a.push(1); b.push(2); c.push(3); d.push(4); e.push(5); g.push(6); h.push(7);
+    print(len(big) + a[0] + b[0] + c[0] + d[0] + e[0] + g[0] + h[0]);
+}
+""")
+        profile = self.work / "uneven.profile"
+        for memory in ([], ["--wasm-memory64"]):
+            with self.subTest(memory=memory):
+                small = ["--wasm-initial-pages", "1", "--wasm-max-pages", "96", *memory]
+                self.emit(source, self.work / "equal.wasm", *small)
+                refused = self.run_module("v8", self.work / "equal.wasm")
+                self.assertEqual(refused.returncode, 1)
+                self.assertIn("data region exhausted", refused.stderr.decode())
+                self.emit(source, self.work / "roomy.wasm", "--wasm-max-pages", "1024", "--wasm-region-stats", *memory)
+                for engine in ("v8", "wasmtime"):
+                    profile.unlink(missing_ok=True)
+                    command = ["node", ROOT / "scripts/run_wasm.mjs"] if engine == "v8" else [sys.executable, ROOT / "scripts/run_wasmtime.py"]
+                    measured = subprocess.run(list(map(str, [*command, self.work / "roomy.wasm"])), cwd=ROOT, capture_output=True, stdin=subprocess.DEVNULL,
+                                              env=dict(__import__("os").environ, GOOSE_REGION_PROFILE=str(profile)))
+                    self.assertEqual((measured.returncode, measured.stdout), (0, b"250028\n"), measured.stderr)
+                    rows = [tuple(map(int, line.split())) for line in profile.read_text().splitlines()]
+                    self.assertEqual(len(rows), 8)
+                    self.assertEqual(max(held for _, held in rows), 2000000)
+                self.emit(source, self.work / "profiled.wasm", "--wasm-region-profile", profile, *small)
+                observed = self.run_module("v8", self.work / "profiled.wasm")
+                self.assertEqual((observed.returncode, observed.stdout), (0, b"250028\n"), observed.stderr)
+
     def test_compiler_compiles_itself(self):
         module, cache = self.work / "goose64.wasm", self.work / "goose64.cwasm"
-        options = ["--debug", "--wasm-memory64", "--wasm-max-pages", self.PAGES]
+        options = ["--debug", "--wasm-memory64", "--wasm-region-stats", "--wasm-max-pages", self.PAGES]
         self.emit("selfhost/main.goose", module, *options)
+        profile = self.work / "goose64.profile"
 
-        def hosted(*arguments):
-            return self.run_module("wasmtime", module, "--cache", cache, "--", *arguments)
+        def hosted(*arguments, **environment):
+            command = [sys.executable, ROOT / "scripts/run_wasmtime.py", module, "--cache", cache, "--", *arguments]
+            return subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True, stdin=subprocess.DEVNULL,
+                                  env=dict(__import__("os").environ, **environment))
 
         # A small program for both targets, then itself: the module it was built as.
         for target, suffix in (("wasm-direct", "wasm"), ("native", "c")):
@@ -225,9 +331,18 @@ class WasmMemory64(unittest.TestCase):
                 self.assertEqual((first.returncode, first.stdout, first.stderr), (0, second.stdout, second.stderr))
                 self.assertEqual(a.read_bytes(), b.read_bytes())
         again = self.work / "again.wasm"
-        result = hosted("selfhost/main.goose", "--stdlib", SOURCE_STDLIB, "--target", "wasm-direct", "-O2", *options, "-o", again)
+        result = hosted("selfhost/main.goose", "--stdlib", SOURCE_STDLIB, "--target", "wasm-direct", "-O2", *options, "-o", again,
+                        GOOSE_REGION_PROFILE=str(profile))
         self.assertEqual((result.returncode, result.stderr), (0, b""))
         self.assertEqual(again.read_bytes(), module.read_bytes())
+        # V8 holds 16 GiB of 64-bit memory: an equal share for each of the
+        # compiler's regions is too small for its largest table, the shares of
+        # the profile just taken are not. The 32-bit module fits the same way.
+        for name, memory in (("v8-64.wasm", ["--wasm-memory64", "--wasm-max-pages", "262144"]), ("v8-32.wasm", ["--wasm-max-pages", "65535"])):
+            with self.subTest(module=name):
+                self.emit("selfhost/main.goose", self.work / name, *memory, "--wasm-region-profile", profile)
+                checked = self.run_module("v8", self.work / name, "--", "selfhost/main.goose", "--stdlib", SOURCE_STDLIB, "--check")
+                self.assertEqual((checked.returncode, checked.stdout, checked.stderr), (0, b"", b""))
 
 
 if __name__ == "__main__":

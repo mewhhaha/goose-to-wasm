@@ -1,0 +1,733 @@
+{
+ "inputs": {
+  "array_updates": 8000000,
+  "integer_mod": 10000000,
+  "float_recurrence": 8000000,
+  "recursive_fibonacci": 35,
+  "array_push": 4000000,
+  "array_locals": 4000000
+ },
+ "warmups": 2,
+ "rows": [
+  {
+   "program": "array_updates",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 3416,
+   "checksum": "309459781",
+   "kernel_ns": [
+    27857297,
+    26966898,
+    28241014,
+    27895307,
+    28659352
+   ]
+  },
+  {
+   "program": "array_updates",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 3416,
+   "checksum": "309459781",
+   "kernel_ns": [
+    81332480,
+    117635640,
+    79540651,
+    82990568,
+    81816199
+   ]
+  },
+  {
+   "program": "array_updates",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 3260,
+   "checksum": "309459781",
+   "kernel_ns": [
+    29431289,
+    27662750,
+    27593014,
+    27428554,
+    28529848
+   ]
+  },
+  {
+   "program": "array_updates",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 3260,
+   "checksum": "309459781",
+   "kernel_ns": [
+    82537834,
+    90013924,
+    82352623,
+    89108462,
+    83534705
+   ]
+  },
+  {
+   "program": "array_updates",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 3322,
+   "checksum": "309459781",
+   "kernel_ns": [
+    27934211,
+    29010753,
+    28166056,
+    26456653,
+    27747403
+   ]
+  },
+  {
+   "program": "array_updates",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 3322,
+   "checksum": "309459781",
+   "kernel_ns": [
+    99637456,
+    97108022,
+    99615630,
+    98550653,
+    100356977
+   ]
+  },
+  {
+   "program": "array_updates",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 3314,
+   "checksum": "309459781",
+   "kernel_ns": [
+    28614427,
+    27085006,
+    27880721,
+    32479445,
+    26880669
+   ]
+  },
+  {
+   "program": "array_updates",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 3314,
+   "checksum": "309459781",
+   "kernel_ns": [
+    97193110,
+    95378373,
+    93108702,
+    94225565,
+    114337171
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 2181,
+   "checksum": "405595776",
+   "kernel_ns": [
+    39645337,
+    38289589,
+    37967284,
+    39287866,
+    39400850
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 2181,
+   "checksum": "405595776",
+   "kernel_ns": [
+    77280373,
+    66452078,
+    67096024,
+    65364213,
+    64804898
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 2113,
+   "checksum": "405595776",
+   "kernel_ns": [
+    39922406,
+    39978552,
+    39971396,
+    39415984,
+    40514537
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 2113,
+   "checksum": "405595776",
+   "kernel_ns": [
+    70196872,
+    67730878,
+    66040473,
+    79853691,
+    66807354
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 2124,
+   "checksum": "405595776",
+   "kernel_ns": [
+    40424113,
+    40327577,
+    43664866,
+    39616187,
+    44176242
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 2124,
+   "checksum": "405595776",
+   "kernel_ns": [
+    66750597,
+    84321869,
+    83277381,
+    66108927,
+    66438878
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 2124,
+   "checksum": "405595776",
+   "kernel_ns": [
+    40617468,
+    41531591,
+    41156586,
+    41152745,
+    41097092
+   ]
+  },
+  {
+   "program": "integer_mod",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 2124,
+   "checksum": "405595776",
+   "kernel_ns": [
+    72320831,
+    66282180,
+    66042638,
+    81342976,
+    62964178
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 1872,
+   "checksum": "5731374",
+   "kernel_ns": [
+    43712423,
+    41766003,
+    41792319,
+    44869989,
+    41942236
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 1872,
+   "checksum": "5731374",
+   "kernel_ns": [
+    52585702,
+    52223907,
+    52265536,
+    54531409,
+    54408287
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 1798,
+   "checksum": "5731374",
+   "kernel_ns": [
+    41977541,
+    41832646,
+    41827849,
+    45289184,
+    41887934
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 1798,
+   "checksum": "5731374",
+   "kernel_ns": [
+    52464811,
+    52542349,
+    52145492,
+    52094736,
+    52377976
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 1829,
+   "checksum": "5731374",
+   "kernel_ns": [
+    42085512,
+    41846532,
+    41783322,
+    41821247,
+    42826062
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 1829,
+   "checksum": "5731374",
+   "kernel_ns": [
+    51209879,
+    51076703,
+    52550734,
+    52302035,
+    52342455
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 1809,
+   "checksum": "5731374",
+   "kernel_ns": [
+    46128678,
+    41890831,
+    41930718,
+    41787741,
+    41938959
+   ]
+  },
+  {
+   "program": "float_recurrence",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 1809,
+   "checksum": "5731374",
+   "kernel_ns": [
+    52298887,
+    54806034,
+    52375172,
+    52603144,
+    52248612
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 1439,
+   "checksum": "9227465",
+   "kernel_ns": [
+    98227628,
+    98443302,
+    105055293,
+    103581386,
+    93581417
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 1439,
+   "checksum": "9227465",
+   "kernel_ns": [
+    108443734,
+    111786831,
+    112395550,
+    112503858,
+    116814403
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 1415,
+   "checksum": "9227465",
+   "kernel_ns": [
+    98308244,
+    98244858,
+    99960043,
+    98230249,
+    98430526
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 1415,
+   "checksum": "9227465",
+   "kernel_ns": [
+    110014794,
+    112501517,
+    114912163,
+    115132305,
+    112645537
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 1434,
+   "checksum": "9227465",
+   "kernel_ns": [
+    114008489,
+    110675298,
+    112111978,
+    113184554,
+    112445480
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 1434,
+   "checksum": "9227465",
+   "kernel_ns": [
+    108864680,
+    110217559,
+    111251863,
+    111346584,
+    111224215
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 1434,
+   "checksum": "9227465",
+   "kernel_ns": [
+    124394426,
+    160874770,
+    111197898,
+    108421825,
+    107290946
+   ]
+  },
+  {
+   "program": "recursive_fibonacci",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 1434,
+   "checksum": "9227465",
+   "kernel_ns": [
+    122463490,
+    161058993,
+    132596038,
+    107931778,
+    107710431
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 12911,
+   "checksum": "993832007",
+   "kernel_ns": [
+    54942212,
+    53912436,
+    60921717,
+    53925835,
+    56099643
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 12911,
+   "checksum": "993832007",
+   "kernel_ns": [
+    88815422,
+    86215518,
+    84797652,
+    86635439,
+    96543833
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 11349,
+   "checksum": "993832007",
+   "kernel_ns": [
+    48214067,
+    47804777,
+    46315553,
+    48692173,
+    46756288
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 11349,
+   "checksum": "993832007",
+   "kernel_ns": [
+    64542251,
+    64788658,
+    65912332,
+    65142403,
+    65660490
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 12279,
+   "checksum": "993832007",
+   "kernel_ns": [
+    56136002,
+    54637039,
+    56249768,
+    55357136,
+    55460741
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 12279,
+   "checksum": "993832007",
+   "kernel_ns": [
+    125864669,
+    138168173,
+    165170664,
+    136931280,
+    179997397
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 10855,
+   "checksum": "993832007",
+   "kernel_ns": [
+    48427228,
+    48021889,
+    46381049,
+    52149551,
+    57262592
+   ]
+  },
+  {
+   "program": "array_push",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 10855,
+   "checksum": "993832007",
+   "kernel_ns": [
+    112606056,
+    96832289,
+    97042014,
+    94784161,
+    96305271
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 21813,
+   "checksum": "999888007",
+   "kernel_ns": [
+    118101287,
+    120082008,
+    118867676,
+    121061878,
+    118111108
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "32-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 21813,
+   "checksum": "999888007",
+   "kernel_ns": [
+    192493227,
+    234342299,
+    189288707,
+    193043151,
+    194652058
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 18741,
+   "checksum": "999888007",
+   "kernel_ns": [
+    92487139,
+    97467717,
+    93034311,
+    93600856,
+    93785264
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "32-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 18741,
+   "checksum": "999888007",
+   "kernel_ns": [
+    143527472,
+    132581685,
+    132274734,
+    133175081,
+    132290189
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "wasmtime",
+   "module_bytes": 20680,
+   "checksum": "999888007",
+   "kernel_ns": [
+    119964359,
+    122382734,
+    125944505,
+    127433272,
+    124718176
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "64-bit",
+   "compiler": "before",
+   "engine": "v8",
+   "module_bytes": 20680,
+   "checksum": "999888007",
+   "kernel_ns": [
+    360171789,
+    315479635,
+    322155789,
+    391457440,
+    324731966
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "wasmtime",
+   "module_bytes": 17846,
+   "checksum": "999888007",
+   "kernel_ns": [
+    154374697,
+    106156824,
+    205114663,
+    106383265,
+    128082964
+   ]
+  },
+  {
+   "program": "array_locals",
+   "memory": "64-bit",
+   "compiler": "after",
+   "engine": "v8",
+   "module_bytes": 17846,
+   "checksum": "999888007",
+   "kernel_ns": [
+    232827349,
+    240714153,
+    222931467,
+    221937891,
+    233423318
+   ]
+  }
+ ]
+}

@@ -127,7 +127,8 @@ def main():
                                                     '--jobs', max(1, share // 4), '--native-units', '3',
                                                     '--targets', 'native']))
     # The direct Wasm rows again, built for a 64-bit memory.
-    jobs.append(('conformance-memory64', [*conformance, '--output-dir', out / 'conformance-memory64',
+    wide = [argument if argument != 'tests/conformance/known-gaps.json' else 'tests/conformance/known-gaps-memory64.json' for argument in conformance]
+    jobs.append(('conformance-memory64', [*wide, '--output-dir', out / 'conformance-memory64',
                                           '--jobs', max(1, share // 4), '--targets', 'wasm-direct', '--wasm-memory64']))
     if args.baseline:
         frozen = out / 'frozen'

@@ -1,0 +1,44 @@
+{
+ "schema": "goose-conformance-known-gaps-v1",
+ "note": "Rows of the direct Wasm target that fail when built with --wasm-memory64 (tests/conformance.py --wasm-memory64 --targets wasm-direct): one gap shared with 32-bit memory and three contracts written for 32-bit counts. Three gaps of known-gaps.json pass with 64-bit memory and are not here: packed_layout_boundaries, regions/d8577df2d9 and uleb_length_boundaries.",
+ "causes": {
+  "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct": "Open in docs/FEATURES.md (Differences found by the upstream differential run, the limited-capacity row): an overflowing runtime-capacity push reports \"array capacity exceeded\" on direct Wasm, where upstream and native C say \"limited array capacity exceeded\".",
+  "corpus/owned-struct/capacity-error/4294967296": "With 64-bit memory a capacity of 2^32 is a count the backend holds, so the program is not stopped with \"array capacity out of range\" as the 32-bit contract expects (stderr_contains \"capacity\"); it stops where the capacity is reserved, with \"data region exhausted\". Same exit status and standard output.",
+  "corpus/variable-enum-tail/capacity-error/4294967296": "With 64-bit memory a capacity of 2^32 is a count the backend holds, so the program is not stopped with \"array capacity out of range\" as the 32-bit contract expects (stderr_contains \"capacity\"); it stops where the capacity is reserved, with \"data region exhausted\". Same exit status and standard output.",
+  "corpus/runtime-limited/errors/1": "With 64-bit memory the runtime capacity read from input is a count the backend holds; the program stops where it is reserved, with \"data region exhausted\", not with a message that names the capacity. Same exit status and standard output."
+ },
+ "gaps": [
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+   0
+  ],
+  [
+   "corpus/contracts/upstream-differential/harvest/regions/b37ae9dfb7/wasm-direct",
+   2
+  ],
+  [
+   "corpus/owned-struct/capacity-error/4294967296",
+   0
+  ],
+  [
+   "corpus/owned-struct/capacity-error/4294967296",
+   2
+  ],
+  [
+   "corpus/variable-enum-tail/capacity-error/4294967296",
+   0
+  ],
+  [
+   "corpus/variable-enum-tail/capacity-error/4294967296",
+   2
+  ],
+  [
+   "corpus/runtime-limited/errors/1",
+   0
+  ],
+  [
+   "corpus/runtime-limited/errors/1",
+   2
+  ]
+ ]
+}

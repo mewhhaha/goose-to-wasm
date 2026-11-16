@@ -3942,11 +3942,20 @@ fn cg_layout_regions(p: Program&, m: CgModule&) {
     var profiled: i64 = 0; var known = p.region_profile.len; if known > m.region_count { known = m.region_count; }
     for index in 0..known { profiled += p.region_profile[index]; }
     var floor: i64 = 1; if m.region_count > 0 && profiled / m.region_count > 0 { floor = profiled / m.region_count; }
-    let weights = profiled + floor * m.region_count; var unit: i64 = 0; if weights > 0 { unit = (m.region_count * share) / weights; }
+    // Weights are scaled down to sum to 65,536 or less, so that the bytes
+    // that go with one unit of weight are a whole number that loses little.
+    var scale = 0; while ((profiled + floor * m.region_count) >> scale) > 65536 { scale++; }
+    var weights: i64 = 0;
+    for index in 0..m.region_count {
+        var weight = floor; if index < known { weight += p.region_profile[index]; }
+        weight >>= scale; if weight < 1 { weight = 1; } weights += weight;
+    }
+    var unit: i64 = 0; if weights > 0 { unit = (m.region_count * share) / weights; }
     var encoded: u8[>..] = []; var base = m.stack_limit;
     for index in 0..m.region_count {
         for part in 0..wa_bytes() { wb_byte(encoded, base >> (part * 8)); }
         var weight = floor; if index < known { weight += p.region_profile[index]; }
+        weight >>= scale; if weight < 1 { weight = 1; }
         let size = (unit * weight) & -8;
         if size < ww(3) + 8 { cg_fail(p, -1, "data regions have no available storage"); return; }
         base += size;
