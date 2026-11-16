@@ -11,10 +11,19 @@ import argparse
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import struct
 import sys
+import threading
 import time
+
+# A program given arguments (the compiler compiled to Wasm among them) may
+# recurse deeply and may hold a 64-bit memory far larger than what it touches:
+# it gets this much stack, and this much address space reserved up front so
+# that growing the memory never moves it.
+HOSTED_STACK_BYTES = 512 << 20
+HOSTED_RESERVATION_BYTES = 1 << 40
 
 
 def f32(value: float) -> float:
@@ -137,6 +146,18 @@ def create_config():
     return config
 
 
+def create_hosted_config():
+    from wasmtime import _ffi
+
+    config = create_config()
+    # Wasmtime refuses a Wasm stack larger than its fiber stack size, which
+    # the Python binding has no property for: set through the C interface.
+    _ffi.wasmtime_config_async_stack_size_set(config.ptr(), HOSTED_STACK_BYTES + (1 << 20))
+    config.max_wasm_stack = HOSTED_STACK_BYTES
+    config.memory_reservation = HOSTED_RESERVATION_BYTES
+    return config
+
+
 def create_engine(config=None):
     import wasmtime
 
@@ -185,13 +206,19 @@ def prepare_module(data: bytes, artifact: Path) -> PreparedModule:
 
 
 def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
-               prepared: PreparedModule | None = None) -> dict:
+               prepared: PreparedModule | None = None, arguments: list[str] | None = None,
+               config=None, cache: Path | None = None) -> dict:
     """Run a module; `stdin` is bytes as given, or a string as its UTF-8 bytes.
 
     fd_read sees exactly those bytes. Scalar imports read tokens from a
     byte-for-byte latin-1 view, split on ASCII whitespace as the C++ host splits them.
+    `arguments` are what the program's os.arg sees, the program first. `cache`
+    is a file this host keeps the compiled module in, beside the SHA-256 of the
+    module it was compiled from; it is reused only for those same bytes.
     """
     import wasmtime
+
+    program_arguments = list(arguments) if arguments else ["program"]
 
     if prepared is not None and hashlib.sha256(data).hexdigest() != prepared.source_sha256:
         raise ValueError("prepared module does not match source bytes")
@@ -225,6 +252,106 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
 
     def write64(caller, pointer, value):
         write_bytes(caller, pointer, struct.pack("<Q", value))
+
+    # A slice argument. A 32-bit module passes one i64 of pointer (low 32 bits)
+    # and element count; a 64-bit one passes the pointer and the count as two
+    # i64. `sliced` gives an import the same arguments either way: `kinds` has
+    # an "s" for each slice parameter, which arrives as its bytes.
+    def sliced(kinds, action):
+        def call(caller, *values):
+            wide = len(values) > len(kinds)
+            converted, at = [], 0
+            for kind in kinds:
+                if kind != "s":
+                    converted.append(values[at])
+                    at += 1
+                elif wide:
+                    converted.append(memory_bytes(caller, values[at], values[at + 1]))
+                    at += 2
+                else:
+                    packed = values[at] & ((1 << 64) - 1)
+                    converted.append(memory_bytes(caller, packed & 0xffffffff, packed >> 32))
+                    at += 1
+            return action(caller, *converted)
+        return call
+
+    # Appends to the growable byte array whose control is at `control` (words
+    # base, length, limit, ...; u32 in a 32-bit module, u64 in a 64-bit one):
+    # the bytes go at its region's cursor, kept in the module's cursor table.
+    # The module exports the words that find it (docs/TARGET.md).
+    def append_bytes(caller, control, data):
+        def exported(name):
+            item = caller.get(name)
+            if not isinstance(item, wasmtime.Global):
+                raise RuntimeError("module does not export " + name)
+            return item
+        base_global = exported("goose.region_base")
+        wide = base_global.type(caller).content == wasmtime.ValType.i64()
+        size, mask = (8, (1 << 64) - 1) if wide else (4, 0xffffffff)
+        layout = "<Q" if wide else "<I"
+        word = lambda name: exported(name).value(caller) & mask
+        read = lambda at: struct.unpack(layout, memory_bytes(caller, at, size))[0]
+        header = control & mask
+        length, limit = read(header + size), read(header + 2 * size)
+        slot = word("goose.region_cursors") + size * ((limit - word("goose.region_base")) // word("goose.region_bytes") - 1)
+        cursor = read(slot)
+        if len(data) > limit - cursor:
+            raise RuntimeError("goose runtime error: data region exhausted")
+        end = cursor + len(data)
+        memory = caller.get("memory")
+        if end > memory.data_len(caller):
+            memory.grow(caller, (end - memory.data_len(caller) + 65535) // 65536)
+        write_bytes(caller, cursor, bytes(data))
+        write_bytes(caller, header + size, struct.pack(layout, length + len(data)))
+        write_bytes(caller, slot, struct.pack(layout, end))
+
+    def tried(action):
+        try:
+            return 1 if action() else 0
+        except OSError:
+            return 0
+
+    def read_file(caller, path, control):
+        def action():
+            append_bytes(caller, control, Path(os.fsdecode(path)).read_bytes())
+            return True
+        return tried(action)
+
+    def write_file(mode):
+        def call(_caller, path, data):
+            def action():
+                with open(os.fsdecode(path), mode) as stream:
+                    stream.write(data)
+                return True
+            return tried(action)
+        return call
+
+    def program_argument(caller, index, control):
+        if 0 <= index < len(program_arguments):
+            append_bytes(caller, control, os.fsencode(program_arguments[index]))
+
+    def environment_variable(caller, name, control):
+        value = os.environb.get(name)
+        if value is None:
+            return 0
+        append_bytes(caller, control, value)
+        return 1
+
+    # std's byte-set searches: a set's members are its first 256 bytes.
+    def find_any(caller, data, members):
+        table = memory_bytes(caller, members & ((1 << 64) - 1) if members >= 0 else members & 0xffffffff, 256)
+        for index, byte in enumerate(data):
+            if table[byte]:
+                return index
+        return -1
+
+    def find_pair(caller, data, first, distance, second):
+        address = lambda value: value if value >= 0 else value & 0xffffffff
+        a, b = memory_bytes(caller, address(first), 256), memory_bytes(caller, address(second), 256)
+        for index in range(len(data) - distance):
+            if a[data[index]] and b[data[index + distance]]:
+                return index
+        return -1
 
     def format_float(caller, pointer, value, bits):
         text = goose_float(value, bits).encode()
@@ -327,6 +454,26 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("env", "bench_barrier"): (barrier, False),
         ("env", "bench_sink"): (consume, False),
         ("env", "emscripten_notify_memory_growth"): (lambda _index: None, False),
+        # The stdlib's `os` externs, for a program that reads and writes files
+        # (the compiler itself among them), as scripts/run_wasm.mjs has them.
+        ("env", "gs_os_read_file"): (sliced("sr", read_file), True),
+        ("env", "gs_os_write_file"): (sliced("ss", write_file("wb")), True),
+        ("env", "gs_os_append_file"): (sliced("ss", write_file("ab")), True),
+        ("env", "gs_os_file_exists"): (sliced("s", lambda _c, path: tried(lambda: os.path.isfile(path))), True),
+        ("env", "gs_os_is_dir"): (sliced("s", lambda _c, path: tried(lambda: os.path.isdir(path))), True),
+        ("env", "gs_os_write_stdout"): (sliced("s", lambda _c, text: chunks.append(text)), True),
+        ("env", "gs_os_write_stderr"): (sliced("s", lambda _c, text: errors.append(text)), True),
+        ("env", "gs_os_flush_stdout"): (lambda: None, False),
+        ("env", "gs_os_arg_count"): (lambda: len(program_arguments), False),
+        ("env", "gs_os_arg"): (program_argument, True),
+        ("env", "gs_os_getenv"): (sliced("sr", environment_variable), True),
+        ("env", "gs_os_resource_dir"): (lambda _control: 0, False),
+        ("env", "gs_os_clock_ns"): (time.perf_counter_ns, False),
+        ("env", "gs_os_time_ns"): (time.time_ns, False),
+        ("env", "gs_find_any"): (sliced("sr", find_any), True),
+        ("env", "gs_find_pair"): (sliced("srrr", find_pair), True),
+        # No process can be started from here: libc's system fails.
+        ("env", "system"): (lambda _command: -1, False),
         ("wasi_snapshot_preview1", "args_sizes_get"): (args_sizes, True),
         ("wasi_snapshot_preview1", "args_get"): (args_get, True),
         ("wasi_snapshot_preview1", "environ_sizes_get"): (environment_sizes, True),
@@ -338,8 +485,7 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         ("wasi_snapshot_preview1", "fd_close"): (lambda fd: 0 if fd in (0, 1, 2) else 8, False),
         ("wasi_snapshot_preview1", "fd_seek"): (lambda fd, _offset, _whence, _out: 70 if fd in (0, 1, 2) else 8, False),
     }
-    config = None
-    if prepared is None:
+    if prepared is None and config is None:
         config = create_config()
     started = time.perf_counter_ns()
     instantiated = started
@@ -353,10 +499,19 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
         else:
             engine = prepared.engine
         store = wasmtime.Store(engine)
-        if prepared is None:
+        if prepared is not None:
+            module = prepared.module
+        elif cache is None:
             module = wasmtime.Module(engine, data)
         else:
-            module = prepared.module
+            digest = hashlib.sha256(data).hexdigest()
+            stamp = cache.with_name(cache.name + ".sha256")
+            if cache.is_file() and stamp.is_file() and stamp.read_text().strip() == digest:
+                module = wasmtime.Module.deserialize(engine, cache.read_bytes())
+            else:
+                module = wasmtime.Module(engine, data)
+                cache.write_bytes(bytes(module.serialize()))
+                stamp.write_text(digest + "\n")
         linker = wasmtime.Linker(engine)
         defined = set()
         for imported in module.imports:
@@ -403,12 +558,38 @@ def run_module(data: bytes, stdin: bytes | str, *, timing: bool = True,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, usage="%(prog)s module.wasm [--timing-json path] [--cache path] [-- program arguments]")
     parser.add_argument("module", type=Path)
     parser.add_argument("--timing-json", type=Path)
-    args = parser.parse_args()
+    parser.add_argument("--cache", type=Path, help="keep the compiled module in this file and reuse it for the same module bytes")
+    own = sys.argv[1:]
+    program_arguments = None
+    if "--" in own:
+        at = own.index("--")
+        own, program_arguments = own[:at], own[at + 1:]
+    args = parser.parse_args(own)
     try:
-        result = run_module(args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None)
+        if program_arguments is None:
+            result = run_module(args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None, cache=args.cache)
+        else:
+            # On a thread whose stack holds the Wasm stack the config allows.
+            outcome: dict = {}
+
+            def hosted():
+                try:
+                    outcome["result"] = run_module(
+                        args.module.read_bytes(), sys.stdin.buffer.read(), timing=args.timing_json is not None,
+                        arguments=[str(args.module)] + program_arguments, config=create_hosted_config(), cache=args.cache)
+                except BaseException as failure:
+                    outcome["failure"] = failure
+
+            threading.stack_size(HOSTED_STACK_BYTES + (64 << 20))
+            thread = threading.Thread(target=hosted)
+            thread.start()
+            thread.join()
+            if "failure" in outcome:
+                raise outcome["failure"]
+            result = outcome["result"]
         sys.stdout.buffer.write(result["stdout"])
         if result["stderr"]:
             print(result["stderr"], file=sys.stderr)

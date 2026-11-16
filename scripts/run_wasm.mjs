@@ -390,6 +390,26 @@ export async function runModule(bytes, input = "", programArguments = ["program"
     }
   }
   const ended = process.hrtime.bigint();
+  // GOOSE_REGION_STATS=1: how far each data region's cursor got, largest
+  // first, for a module that exports its region words. A region that is full
+  // is what "data region exhausted" reports.
+  if (process.env.GOOSE_REGION_STATS && instance && instance.exports["goose.region_base"] instanceof WebAssembly.Global) {
+    const value = (name) => Number(BigInt.asUintN(64, BigInt(instance.exports[name].value)));
+    const wide = typeof instance.exports["goose.region_base"].value === "bigint";
+    const base = wide ? value("goose.region_base") : value("goose.region_base") >>> 0;
+    const size = wide ? value("goose.region_bytes") : value("goose.region_bytes") >>> 0;
+    const table = wide ? value("goose.region_cursors") : value("goose.region_cursors") >>> 0;
+    const view = new DataView(instance.exports.memory.buffer);
+    const used = [];
+    for (let region = 0; base + (region + 1) * size <= view.byteLength + size && table + (region + 1) * (wide ? 8 : 4) <= base; region++) {
+      const at = table + region * (wide ? 8 : 4);
+      const cursor = wide ? Number(view.getBigUint64(at, true)) : view.getUint32(at, true);
+      if (cursor) used.push([cursor - (base + region * size), region]);
+    }
+    used.sort((a, b) => b[0] - a[0]);
+    errors.push(Buffer.from(`regions: ${size} bytes each, memory ${view.byteLength}; used ` +
+      used.slice(0, 12).map(([bytes, region]) => `#${region}:${bytes}`).join(" ") + "\n"));
+  }
   return {
     stdout: Buffer.concat(chunks), stderr: Buffer.concat(errors).toString("utf8") + error, exitCode,
     timing: {
