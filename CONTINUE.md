@@ -91,24 +91,29 @@ Parsing and type checking take about 12 s. The lifetime pass runs after that.
 
 The owner's test since 2026-11-16, beside blot2: compile this compiler to direct Wasm and run it. The owner's direction for it: the targets are Wasm 3.0 on V8 and Wasmtime, so 64-bit memory may be used, and a host for either engine may ship with the compiler.
 
-**Where it stands** (`3fef0c5`, evidence in `bench/results/2026-11-16/wasm-memory64/`, the 32-bit state before it in `wasm-hosted-compiler/`):
-- `--wasm-memory64` builds for a 64-bit memory: address i64, slice one v128 (pointer, count), control six u64 words. 32-bit is the default and its output is unchanged. `docs/TARGET.md` has the representations and the host interface.
-- Under Wasmtime the compiler as a 64-bit module checks and compiles itself; all outputs are the native compiler's and the module reproduces itself. `tests/test_cli_outputs.py` (`WasmMemory64`) keeps that.
+**Where it stands** (evidence in `bench/results/2026-11-16/wasm-regions-locals/`; before it `wasm-memory64/` and `wasm-hosted-compiler/`):
+- The compiler as a Wasm module compiles itself under all three hosts, with the native compiler's outputs: Wasmtime through the Rust host (`host/rust`) or the Python runner, and V8 through Node. `tests/test_cli_outputs.py` (`WasmMemory64`, `WasmHostedCompiler`) keeps that.
+- `--wasm-memory64` builds for a 64-bit memory: address i64, slice one v128 (pointer, count), control six u64 words, element counts 64-bit. 32-bit is the default. `docs/TARGET.md` has the representations, the regions and the host interface.
+- Data regions are sized from a table. Equal by default; `--wasm-region-profile FILE` weights them by what a run needed. V8 caps 64-bit memory at 16 GiB, and there, as in 32-bit, the compiler needs a profile:
 
   ```sh
-  goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --debug --wasm-memory64 --wasm-max-pages 4194304 -o goose64.wasm
-  .venv/bin/python scripts/run_wasmtime.py goose64.wasm --cache goose64.cwasm -- selfhost/main.goose --stdlib stdlib --check
+  goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-region-stats --wasm-max-pages 4194304 -o stats.wasm
+  GOOSE_REGION_PROFILE=goose.profile host/rust/target/release/goose-wasmtime stats.wasm --cache stats.cwasm -- selfhost/main.goose --stdlib stdlib --check
+  goose selfhost/main.goose --stdlib stdlib --target wasm-direct -O2 --wasm-memory64 --wasm-max-pages 262144 --wasm-region-profile goose.profile -o goose-v8.wasm
+  node scripts/run_wasm.mjs goose-v8.wasm -- selfhost/main.goose --stdlib stdlib --check
   ```
-- `tests/conformance.py --wasm-memory64 --targets wasm-direct` runs the Wasm rows with 64-bit memory: 4,767 of 4,773, the six being recorded gaps. It is not a qualification stage yet.
-- Under V8 the self-check stops with `data region exhausted`: 16 GiB cap, 117 equal regions of 146.8 MB, and the lifetime pass's effect list needs 175.7 MB. `GOOSE_REGION_STATS=1` makes either host print region use.
-- All backend address arithmetic goes through the helpers at the top of `selfhost/codegen.goose` (`wa_*` address, `wc_*` control word, `ws_*` slice, `ww(k)` k words). New backend code must use them: a raw `wb_i32`, `0x6a` or `wb_mem(…, 0x28, …)` on an address breaks 64-bit output. Check with `bench/results/2026-11-16/wasm-memory64/tools/` (`narrowcheck.sh`, `widecheck.sh`, `wasmcheck.py`; copies with local paths are in `build/tools/`).
+- A host appends to a byte array through the exported `goose.reserve`; it knows nothing of regions.
+- `wb_reuse_locals` (`selfhost/wasm.goose`) gives temporaries with disjoint spans one local index. It runs on every function body.
+- Qualification has a `conformance-memory64` stage with its own gap record, `tests/conformance/known-gaps-memory64.json`.
+- All backend address arithmetic goes through the helpers at the top of `selfhost/codegen.goose` (`wa_*` address, `wc_*` control word, `ws_*` slice, `ww(k)` k words, `wn_limit()` count limit). New backend code must use them: a raw `wb_i32`, `0x6a` or `wb_mem(…, 0x28, …)` on an address breaks 64-bit output. Check with `bench/results/2026-11-16/wasm-memory64/tools/` (`widecheck.sh`, `wasmcheck.py`; copies with local paths are in `build/tools/`, with `abcheck.sh`, which compares two compilers' modules by what they print).
+- The Rust host is built by hand (`cargo build --release` in `host/rust`); the tests use it when the binary is there and the Python runner otherwise. The conformance runner and the benchmarks still use the Python runner.
 
 **Next, in order.**
-1. **The self-check under V8.** Regions of unequal size (the split is `cg_layout_regions`; a region's size is read from global 7 in `cg_region_cursor_slot`, `cg_region_acquire` and both hosts), or a smaller `LifeEffect`. Also try the pinned Node 24.
-2. **Make `--wasm-memory64` conformance a qualification stage**, so the 64-bit path cannot rot.
-3. **Element counts above 2^32 - 1**: the `4294967295` checks left in `cg_array_reserve`, the region array builtins and repetition literals, with overflow-safe products.
-4. **The module's speed**: under V8, locals are never reused by the backend (`cg_save` makes one a temporary). Under Wasmtime, measure the Python host's share of the factor of three; `host/wasmtime.cpp` has neither the `os` imports nor a large-memory configuration.
-5. 64-bit memory costs 16 to 20% on two of four kernels (calls under Wasmtime, array indexing under V8): not looked into.
+1. **A region profile is one run's need.** It is taken by hand and a larger input can outgrow it. Ideas not tried: shipping a profile of the compiler with the compiler, a host that keeps one beside the module and retries, weights from static information. No scheme that places regions without measurements can beat the equal split in the worst case, because arrays cannot move.
+2. **Speed of the module.** Under Wasmtime it is three times the native compiler; the host is not the reason (Rust and Python hosts take the same time). Under V8 the self-check takes 28 s. Not looked into: frames in linear memory, effect records, bounds checks.
+3. **The Rust host in the harnesses**: conformance (`--host` expects the C++ host's command line), benchmarks, `scripts/qualify.py` building it. `host/wasmtime.cpp` still lacks the `os` imports.
+4. **64-bit memory costs** an explicit bounds check on every access (Wasmtime: 99 ms to 123 ms on `recursive_fibonacci`, 106 ms with Spectre hardening off). Fewer accesses is the backend's side of it.
+5. The pinned Node 24 was never installed here; everything V8 was measured on Node 22.
 
 ## Other open work
 
@@ -131,6 +136,7 @@ The owner's test since 2026-11-16, beside blot2: compile this compiler to direct
   It runs these stages:
   - bootstrap `--verify`;
   - conformance;
+  - the direct Wasm rows again with `--wasm-memory64` (`tests/conformance/known-gaps-memory64.json`);
   - the native rows as three units, only when native code generation changed;
   - native checks;
   - output equivalence against the baseline;

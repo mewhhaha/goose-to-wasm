@@ -1,0 +1,20 @@
+{
+ "summary": {
+  "compared": 10049,
+  "differing": 1387,
+  "seconds": {
+   "baseline": 158.772,
+   "candidate": 171.454
+  }
+ },
+ "differing_by_mode": {
+  "wasm2": 1387
+ },
+ "compared_by_mode": {
+  "check": 4356,
+  "native0": 1898,
+  "native2": 1898,
+  "wasm2": 1897
+ },
+ "differing_in_exit_stdout_or_stderr": []
+}

@@ -1,6 +1,6 @@
 # 64-bit memory in the direct Wasm backend, 2026-11-16
 
-Since `3fef0c5` the direct backend builds modules for a 64-bit memory with `--wasm-memory64`. Compiled that way, the compiler runs under Wasmtime, checks its own source and compiles itself, and every output is byte for byte the native compiler's. Under V8 it still stops on its own source: V8 caps a 64-bit memory at 16 GiB, and the largest table needs a bigger share of it than an even split gives.
+Since `3fef0c5` the direct backend builds modules for a 64-bit memory with `--wasm-memory64`. Compiled that way, the compiler runs under Wasmtime, checks its own source and compiles itself, and every output is byte for byte the native compiler's. Under V8 it still stops on its own source: V8 caps a 64-bit memory at 16 GiB, and the largest table needs a bigger share of it than an even split gives. [The next page](../wasm-regions-locals/README.md), the same day, is where V8 compiles it too.
 
 The 32-bit output did not change: 10,049 of 10,049 outputs are those of the previous compiler.
 
